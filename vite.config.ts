@@ -1,9 +1,16 @@
 import { defineConfig } from 'vite';
 import path from 'path';
 
-export default defineConfig({
+// `base` is the deploy sub-path. GitHub Pages serves project repos at
+// `https://<user>.github.io/<repo>/`, so the production bundle plus every
+// URL produced by `import.meta.env.BASE_URL` (see `src/assets/manifest.ts`)
+// must include that prefix. In dev (`npm run dev`) we keep `base = '/'`
+// so the local server stays at `http://localhost:5173/`.
+const PROD_BASE = '/platform-fighter/';
+
+export default defineConfig(({ command }) => ({
   root: '.',
-  base: './',
+  base: command === 'build' ? PROD_BASE : '/',
   publicDir: 'assets',
   server: {
     host: '0.0.0.0',
@@ -48,4 +55,4 @@ export default defineConfig({
   optimizeDeps: {
     include: ['phaser'],
   },
-});
+}));

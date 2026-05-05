@@ -235,11 +235,18 @@ export type AssetKey = (typeof ASSET_KEYS)[keyof typeof ASSET_KEYS];
 // CI / asset-licence tooling) coupled to the manifest in one place —
 // move a folder, change one constant.
 
-const CHAR_ROOT = '/characters';
-const STAGE_ROOT = '/stages';
-const SFX_ROOT = '/audio/sfx';
-const MUSIC_ROOT = '/audio/music';
-const ITEM_SPRITES_ROOT = '/sprites/items';
+// Vite's `BASE_URL` is `/` in dev and the configured `base` in
+// production (e.g. `/platform-fighter/` on GitHub Pages, or `./` for
+// path-agnostic builds). Prefixing every public-asset URL with it lets
+// the same loader code work in dev, in a project-page deploy, and in
+// any sub-path hosting without touching call sites. `BASE_URL` always
+// ends with `/`, so each root strips its own leading slash.
+const BASE = import.meta.env.BASE_URL;
+const CHAR_ROOT = `${BASE}characters`;
+const STAGE_ROOT = `${BASE}stages`;
+const SFX_ROOT = `${BASE}audio/sfx`;
+const MUSIC_ROOT = `${BASE}audio/music`;
+const ITEM_SPRITES_ROOT = `${BASE}sprites/items`;
 
 /**
  * Output root for the palette-swap script's per-character variant PNGs.
@@ -247,9 +254,9 @@ const ITEM_SPRITES_ROOT = '/sprites/items';
  * `scripts/palette-swap/index.ts` — both must change together if the
  * pipeline ever moves the output folder. The Vite `publicDir` mount is
  * `assets/`, so the on-disk path `assets/generated/sprites/<id>/…`
- * resolves to the URL prefix `/generated/sprites/<id>/…` here.
+ * resolves to the URL prefix `${BASE}generated/sprites/<id>/…` here.
  */
-const GENERATED_SPRITES_ROOT = '/generated/sprites';
+const GENERATED_SPRITES_ROOT = `${BASE}generated/sprites`;
 
 // ---------------------------------------------------------------------
 // Character spritesheet entries
