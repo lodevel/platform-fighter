@@ -29,3 +29,11 @@ coverage/
 
 # Build artefacts
 *.tsbuildinfo
+
+# Ouroboros workflow throwaways (backups, repro seeds, audit snapshots)
+*.before-*.yaml
+*.backup.*.yaml
+cancel-repro-seed.yaml
+test-resumability-seed.yaml
+completed.yaml
+hello.txt
