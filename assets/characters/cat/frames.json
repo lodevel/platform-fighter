@@ -1,0 +1,161 @@
+{
+  "meta": {
+    "source": "cat_source_sheet.png",
+    "cellWidth": 50,
+    "cellHeight": 50,
+    "sheetCols": 10,
+    "sheetRows": 10,
+    "license": "CC-BY 3.0",
+    "attribution": "Cat Fighter Sprite Sheet \u2014 dogchicken, https://opengameart.org/content/cat-fighter-sprite-sheet"
+  },
+  "animations": {
+    "idle": {
+      "strip": "animations/idle.png",
+      "frameCount": 4,
+      "frameWidth": 50,
+      "frameHeight": 50,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ]
+      ]
+    },
+    "run": {
+      "strip": "animations/run.png",
+      "frameCount": 10,
+      "frameWidth": 50,
+      "frameHeight": 50,
+      "sourceCells": [
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          4,
+          2
+        ],
+        [
+          5,
+          2
+        ],
+        [
+          6,
+          2
+        ],
+        [
+          7,
+          2
+        ],
+        [
+          8,
+          2
+        ],
+        [
+          9,
+          2
+        ]
+      ]
+    },
+    "jump": {
+      "strip": "animations/jump.png",
+      "frameCount": 5,
+      "frameWidth": 50,
+      "frameHeight": 50,
+      "sourceCells": [
+        [
+          5,
+          3
+        ],
+        [
+          6,
+          3
+        ],
+        [
+          7,
+          3
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          9,
+          3
+        ]
+      ]
+    },
+    "attack": {
+      "strip": "animations/attack.png",
+      "frameCount": 10,
+      "frameWidth": 50,
+      "frameHeight": 50,
+      "sourceCells": [
+        [
+          0,
+          4
+        ],
+        [
+          1,
+          4
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          5,
+          4
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          7,
+          4
+        ],
+        [
+          8,
+          4
+        ],
+        [
+          9,
+          4
+        ]
+      ]
+    }
+  }
+}

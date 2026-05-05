@@ -1,0 +1,21 @@
+{
+  "$schema": "../../src/characters/characterSerializer.schema.json",
+  "id": "cat",
+  "displayName": "Cat",
+  "role": "ninja",
+  "body": {
+    "width": 36,
+    "height": 56,
+    "chamfer": 6
+  },
+  "movement": {
+    "maxRunSpeed": 10.0,
+    "groundAccel": 0.85,
+    "airAccel": 0.45,
+    "groundDamping": 0.82,
+    "airDamping": 0.97,
+    "jumpImpulse": 13.5,
+    "maxJumps": 2,
+    "mass": 8
+  }
+}

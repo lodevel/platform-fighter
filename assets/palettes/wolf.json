@@ -1,0 +1,85 @@
+{
+  "$schema": "./palette.schema.json",
+  "characterId": "wolf",
+  "displayName": "Wolf",
+  "source": {
+    "body": "#c24a4a",
+    "accent": "#ffe0a0",
+    "highlight": "#ffe0a0"
+  },
+  "variants": [
+    {
+      "index": 0,
+      "name": "Crimson",
+      "isCanonical": true,
+      "mappings": {
+        "body":      { "from": "#c24a4a", "to": "#c24a4a" },
+        "accent":    { "from": "#ffe0a0", "to": "#ffe0a0" },
+        "highlight": { "from": "#ffe0a0", "to": "#ffe0a0" }
+      }
+    },
+    {
+      "index": 1,
+      "name": "Cobalt",
+      "mappings": {
+        "body":      { "from": "#c24a4a", "to": "#4a6ec2" },
+        "accent":    { "from": "#ffe0a0", "to": "#a0c8ff" },
+        "highlight": { "from": "#ffe0a0", "to": "#a0c8ff" }
+      }
+    },
+    {
+      "index": 2,
+      "name": "Sunburst",
+      "mappings": {
+        "body":      { "from": "#c24a4a", "to": "#c2a44a" },
+        "accent":    { "from": "#ffe0a0", "to": "#fff5a0" },
+        "highlight": { "from": "#ffe0a0", "to": "#fff5a0" }
+      }
+    },
+    {
+      "index": 3,
+      "name": "Forest",
+      "mappings": {
+        "body":      { "from": "#c24a4a", "to": "#4ac26a" },
+        "accent":    { "from": "#ffe0a0", "to": "#b0ffb8" },
+        "highlight": { "from": "#ffe0a0", "to": "#b0ffb8" }
+      }
+    },
+    {
+      "index": 4,
+      "name": "Royal",
+      "mappings": {
+        "body":      { "from": "#c24a4a", "to": "#8b4ac2" },
+        "accent":    { "from": "#ffe0a0", "to": "#d0a0ff" },
+        "highlight": { "from": "#ffe0a0", "to": "#d0a0ff" }
+      }
+    },
+    {
+      "index": 5,
+      "name": "Ember",
+      "mappings": {
+        "body":      { "from": "#c24a4a", "to": "#c2784a" },
+        "accent":    { "from": "#ffe0a0", "to": "#ffd6a0" },
+        "highlight": { "from": "#ffe0a0", "to": "#ffd6a0" }
+      }
+    },
+    {
+      "index": 6,
+      "name": "Lagoon",
+      "mappings": {
+        "body":      { "from": "#c24a4a", "to": "#4ac2b8" },
+        "accent":    { "from": "#ffe0a0", "to": "#a0fff0" },
+        "highlight": { "from": "#ffe0a0", "to": "#a0fff0" }
+      }
+    },
+    {
+      "index": 7,
+      "name": "Rose",
+      "mappings": {
+        "body":      { "from": "#c24a4a", "to": "#c24a8a" },
+        "accent":    { "from": "#ffe0a0", "to": "#ffa0d0" },
+        "highlight": { "from": "#ffe0a0", "to": "#ffa0d0" }
+      }
+    }
+  ]
+}

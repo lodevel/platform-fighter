@@ -1,0 +1,277 @@
+goal: 'Three-track phased enhancement (T2→T1→T3) to an existing Phaser/Matter platform
+  fighter: (1) architectural refactor extracting attack implementations and movement
+  profiles from shared Character base into per-fighter classes with a uniform 10-slot
+  contract, (2) fix special-attack input wiring bug and ship one shared default neutralSpecial
+  with sprite animation for all 4 fighters, (3) build a Smash-style items/weapons
+  framework with spawn manager, pickup/drop/throw mechanics, replay-RNG seeding, 3
+  reference items (bat, ray gun, bomb), and item-aware AI bots'
+task_type: code
+brownfield_context:
+  project_type: brownfield
+  context_references:
+  # First-primary entry MUST be an absolute directory path. The CLI's
+  # `_resolve_cli_project_dir` calls `project_path_candidates_from_seed`
+  # which picks the first `role: primary` entry as the project root,
+  # then the orchestrator adapter chdirs there. A file path here will
+  # crash every spawned agent with "Working directory does not exist".
+  # See ouroboros/core/project_paths.py:project_path_candidates_from_seed.
+  - path: /mnt/c/Workspace/test_claude
+    role: primary
+    summary: Project root — Phaser/Matter platform fighter monorepo
+  - path: src/characters/Character.ts
+    role: primary
+    summary: Shared Character base class owning physics body, sprite/render pipeline,
+      input dispatch, damage/knockback state machine, respawn logic, percentage tracking
+      — attack code to be extracted
+  - path: Wolf.ts
+    role: primary
+    summary: Wolf fighter file already has 4 directional specials defined — must retain
+      them and gain full 10-slot ownership after refactor
+  - path: Cat.ts
+    role: primary
+    summary: Cat fighter file — currently inherits from Character base, must own full
+      moveset and movement profile after refactor, gains dash/teleport subsystem hook
+  - path: Owl.ts
+    role: primary
+    summary: Owl fighter file — currently inherits from Character base, must own full
+      moveset and movement profile after refactor, gains projectile pool subsystem
+      hook
+  - path: Bear.ts
+    role: primary
+    summary: Bear fighter file — currently inherits from Character base, must own
+      full moveset and movement profile after refactor, gains grab state subsystem
+      hook
+  - path: InputResolver
+    role: primary
+    summary: Input resolution module where the G-binding bug exists — input not reaching
+      per-character findMoveByType dispatch
+  existing_patterns:
+  - Deterministic fixed-step simulation loop
+  - Replay log capture and playback system
+  - Per-character special attack schemas (Wolf has all 4 defined)
+  - InputResolver → per-character dispatch pipeline
+  - Sprite atlas rendering with palette-swap support
+  - Input rebinding store for configurable key mappings
+  - AI bot decision framework (simpleBot)
+  - 4-player FFA match orchestration
+  - Matter.js physics body setup in Character base
+  - Damage/knockback state machine in Character base
+  existing_dependencies:
+  - Phaser (game framework)
+  - Matter.js (physics engine)
+  - Existing sprite atlases for all 4 fighters
+  - Current rebinding store for input configuration
+  - Replay buffer/log system
+  - AI bot (simpleBot) pathfinding and decision system
+constraints:
+- Deterministic fixed-step simulation must be preserved
+- Replay log capture must remain functional and deterministic
+- Existing moveset slots must not be broken
+- 4-player FFA mode must remain operational
+- AI bots must continue functioning and gain item awareness
+- Sprite atlases and palette-swap system must be preserved
+- Current input rebinding store must be preserved
+- DO NOT author new per-character specials for Cat/Owl/Bear — keep current movesets
+- Refactor track is architectural only — no new content, preserve all existing behavior
+- 'Phased ordering: T2 (refactor) → T1 (wiring + default special) → T3 (items)'
+- Single item held at a time (single-slot inventory)
+- Adding a hypothetical 4th item must require only a new item subclass file with zero
+  edits to spawn manager, pickup, item-base, or inventory framework
+acceptance_criteria:
+- Per-fighter refactor complete — zero attack-implementation code remains in shared
+  Character base (grep registerAttack or equivalent in Character.ts returns 0)
+- 'Each fighter file (Wolf.ts, Cat.ts, Owl.ts, Bear.ts) defines the full 10-slot interface:
+  jab, tilt, smash, fair, shield, dodge, neutralSpecial, sideSpecial, upSpecial, downSpecial'
+- Movement profile (jump height, mid-air jump count) declared per-fighter, not as
+  base default
+- Uniform slot contract exposed by each fighter — slot identifiers accept temporary
+  override functions for item system hookup
+- G-binding bug fixed — input reaches per-character special dispatch from InputResolver
+  through to findMoveByType
+- Pressing G as P1 with Wolf triggers all 4 directional specials (neutral via direction-neutral,
+  side via stick-side, up via stick-up, down via stick-down)
+- Default shared neutralSpecial fires on Cat, Owl, and Bear when pressing G with no
+  directional input
+- Sprite animation ships for the default neutralSpecial
+- Wolf retains all 4 existing directional specials unchanged
+- Item spawn manager operational — timed random interval (min/max window), fixed stage-declared
+  spawn anchors, max-items-on-field cap, frequency knob in match settings (off/low/med/high),
+  items drop from above
+- Pickup works — pressing jab while in proximity to an item with no item held picks
+  it up; while holding, jab routes to item's declared slot override
+- Throw works — Smash-style direction-aware (forward/up/down/back), reads current
+  movement input, dedicated throw key in rebinding store; drop-in-place when throw
+  with no direction held
+- Bat reference item functional — overrides jab/tilt/smash slots, breaks after 5 melee
+  hits, drops inert then despawns
+- Ray gun reference item functional — overrides neutralSpecial slot, breaks after
+  6 shots, drops inert then despawns
+- Bomb reference item functional — single-use throwable, explodes on impact
+- Broken items drop inert with broken visual, then despawn after short timer; unpicked
+  items despawn after TTL
+- Each item spawn writes an explicit event to the replay log (type, position, tick)
+  for deterministic replay playback
+- Item-aware AI bot pathfinds toward items, picks them up, decides between attack-with-item
+  vs throw-at-target, prioritizes ranged when held
+- '4-player match integration scenario passes: items spawn on timer at anchors, P1
+  picks up bat via jab-near and swings it 5 times until break, P2 picks up ray gun
+  and fires 6 shots until break, P3 picks up bomb and smash-throws with explosion
+  on impact, bot P4 picks up item and uses/throws it, G triggers default special on
+  all fighters and Wolf''s 4 directional specials, refactor invariants pass'
+- Framework extensibility invariant — adding a 4th item type requires only a new item
+  subclass file with zero edits to spawn manager, pickup, item-base, or inventory
+  code
+ontology_schema:
+  name: PlatformFighterCombatSystem
+  description: Domain model for a Smash-style platform fighter covering per-character
+    combat architecture, special attack wiring, and item/weapon pickup system with
+    deterministic replay support
+  fields:
+  - name: fighter
+    type: object
+    description: Per-character fighter class (Wolf, Cat, Owl, Bear) owning moveset
+      implementation and movement profile
+    required: true
+  - name: movesetSlot
+    type: string
+    description: One of 10 named combat slots — jab, tilt, smash, fair, shield, dodge,
+      neutralSpecial, sideSpecial, upSpecial, downSpecial
+    required: true
+  - name: movementProfile
+    type: object
+    description: Per-fighter declaration of jump height and mid-air jump count
+    required: true
+  - name: slotOverride
+    type: object
+    description: Temporary function override injected by an item into a fighter's
+      moveset slot while held
+    required: true
+  - name: inputBinding
+    type: object
+    description: Mapping from physical key (e.g. G for special) through InputResolver
+      to per-character dispatch
+    required: true
+  - name: itemEntity
+    type: object
+    description: Base entity for spawnable items with category, durability, TTL, declared
+      slot overrides, and throw behavior
+    required: true
+  - name: itemCategory
+    type: string
+    description: One of 4 taxonomy categories — melee-weapon, ranged-weapon, throwable,
+      effect-consumable
+    required: true
+  - name: spawnManager
+    type: object
+    description: Controller for timed random-interval item spawns at stage-declared
+      anchors with max-on-field cap and frequency knob
+    required: true
+  - name: inventorySlot
+    type: object
+    description: Single-slot per-fighter container for the currently held item
+    required: true
+  - name: durability
+    type: number
+    description: Remaining uses before an item breaks (hits for bat, shots for ray
+      gun, 1 for bomb)
+    required: true
+  - name: ttl
+    type: number
+    description: Time-to-live in ticks before an unpicked or broken item despawns
+    required: true
+  - name: replaySpawnEvent
+    type: object
+    description: Explicit log entry per item spawn recording type, position, and tick
+      for deterministic replay
+    required: true
+  - name: throwAction
+    type: object
+    description: Direction-aware throw action reading current movement input (forward,
+      up, down, back, or drop-in-place)
+    required: true
+  - name: spawnAnchor
+    type: object
+    description: Fixed stage-declared position where items may appear
+    required: true
+  - name: matchSettings
+    type: object
+    description: Per-match configuration including item frequency knob (off, low,
+      med, high)
+    required: true
+  - name: aiItemBehavior
+    type: object
+    description: Bot decision model for pathfinding to items, pickup priority, attack-vs-throw
+      decision, and ranged preference
+    required: true
+evaluation_principles:
+- name: determinism_preservation
+  description: All changes must preserve deterministic fixed-step simulation and replay
+    log correctness — replay playback must produce identical results
+  weight: 1.0
+- name: architectural_separation
+  description: Zero attack-implementation code in shared Character base; each fighter
+    fully owns its moveset and movement profile top-to-bottom
+  weight: 0.9
+- name: framework_extensibility
+  description: Item system follows open-closed principle — new items require only
+    a subclass file with zero edits to framework code
+  weight: 0.9
+- name: behavioral_preservation
+  description: Existing movesets, AI behavior, sprite rendering, palette-swap, and
+    rebinding store must remain fully functional after refactor
+  weight: 0.95
+- name: slot_contract_uniformity
+  description: All fighters expose the same 10-slot interface; all item types follow
+    the same declare-which-slots-I-replace contract with no per-category special cases
+  weight: 0.85
+- name: input_wiring_correctness
+  description: Input from rebinding store reaches per-character dispatch for all special
+    directions on all fighters
+  weight: 0.9
+- name: integration_completeness
+  description: All 3 reference items functional end-to-end in a 4-player match with
+    AI bot participation
+  weight: 0.85
+- name: phased_ordering
+  description: Implementation follows T2→T1→T3 ordering so each phase builds on the
+    prior without rework
+  weight: 0.7
+exit_conditions:
+- name: refactor_invariants_pass
+  description: Per-fighter architectural refactor is structurally verified
+  criteria: grep for attack-implementation code in Character.ts returns 0 hits AND
+    each of Wolf.ts, Cat.ts, Owl.ts, Bear.ts defines all 10 moveset slots AND movement
+    profile is per-fighter
+- name: special_wiring_verified
+  description: Special attack input dispatch is fully operational
+  criteria: G triggers Wolf's 4 directional specials correctly AND default neutralSpecial
+    fires on Cat, Owl, Bear AND sprite animation plays
+- name: item_system_functional
+  description: Item framework and 3 reference items work in live match
+  criteria: bat spawns, pickup via jab-near, swings 5 times then breaks; ray gun fires
+    6 shots then breaks; bomb single-use throw explodes on impact; all items despawn
+    on TTL; replay log records spawn events
+- name: ai_item_awareness
+  description: Bot interacts with items meaningfully
+  criteria: P4 bot pathfinds to item, picks up, uses or throws contextually
+- name: extensibility_invariant
+  description: Framework is closed for modification open for extension
+  criteria: adding a hypothetical 4th item requires only a new subclass file with
+    zero edits to spawn manager, pickup, item-base, inventory, or any framework module
+- name: determinism_intact
+  description: Deterministic simulation and replay remain correct
+  criteria: replay of a match containing item spawns, pickups, uses, throws, and specials
+    reproduces identical game state tick-for-tick
+metadata:
+  seed_id: seed_49a36f694cc7
+  version: 1.0.0
+  created_at: '2026-05-04T00:36:54.271878Z'
+  ambiguity_score: 0.1085
+  interview_id: interview_20260504_000646
+  parent_seed_id: null
+  # Pin the project root so the orchestrator's CLI path doesn't fall
+  # back to interpreting context_references[].path as a working dir.
+  # See ouroboros/core/project_paths.py:project_path_candidates_from_seed —
+  # metadata.project_dir is the highest-priority candidate.
+  project_dir: /mnt/c/Workspace/test_claude
+  working_directory: /mnt/c/Workspace/test_claude

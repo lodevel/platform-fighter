@@ -1,0 +1,44 @@
+completed_acs:
+  - 1   # M1 — core fighter (2 chars, 1 stage, 3-stock match, victory screen, deterministic engine)
+  # AC 2 = M1.5 content pipeline — INTENTIONALLY NOT skipped (work to be done)
+  - 4   # M3 — stage builder (11-piece catalog, drag/drop, localStorage save/load, customStageMatchLauncher)
+  - 5   # M4 — replay save/load with VCR controls
+  - 7   # Damage system %-based knockback + blast zone KOs
+  - 8   # Each char ~10 distinct moves (jab/tilt/smash + 3 aerials nair/fair/bair + 3 specials side/up/down + shield/dodge/edge-grab via framework)
+  - 9   # Hitstun
+  - 10  # Dynamic lava hazard
+  - 11  # Crumbling/disappearing platforms
+  - 12  # Stock + Time modes selectable pre-match
+  - 13  # Time-mode tie → sudden death
+  - 14  # Same-character palette swaps
+  - 15  # Controller disconnect handling
+  - 16  # Edge-grab conflict (ledgeConflictResolver.ts — FCFS + push-off rules)
+  - 17  # Post-match stats screen (resultsStats.ts — KOs/damage/survival per player)
+  - 18  # Rematch + return-to-lobby buttons on results screen (resultsButtons.ts — REMATCH→MatchScene [ENTER], BACK TO LOBBY→CharacterSelectScene [L], plus ESC→MainMenu escape hatch)
+
+# Sub-ACs (decomposition outputs) — NOT valid for --skip-completed which only accepts top-level ACs.
+# Kept here as a record of completed sub-work. Top-level prefix updated +1 to reflect M1.5 insertion.
+#  - 70402  # Sub-AC 2 of AC 7.04.02 — dodge / roll mechanic (spot / forward+back roll / air dodge, i-frames, recovery end-lag, cooldown) — 75 tests
+#  - 30203  # Sub-AC 3 of AC 3.02.03 — Phaser-free customStageMatchLauncher wired into CharacterSelectScene — 21 + 49 tests
+#  - 10303  # Sub-AC 3 of AC 1.03.03 — Character select portraits grid + palette swatches + per-slot chip rows — 12 + 2 tests
+
+# Index map (after M1.5 insertion):
+#   1 → M1 core fighter
+#   2 → M1.5 content pipeline (TO DO)
+#   3 → M2 full roster + stages + AI (TO DO)
+#   4 → M3 stage builder
+#   5 → M4 replay
+#   6 → M5 rebinding (TO DO)
+#   7 → damage system
+#   8 → ~10 moves per character
+#   9 → hitstun
+#  10 → dynamic lava hazard
+#  11 → crumbling platforms
+#  12 → stock + time modes
+#  13 → sudden death
+#  14 → palette swaps
+#  15 → controller disconnect
+#  16 → edge-grab conflict
+#  17 → post-match stats
+#  18 → rematch + return-to-lobby (DONE — verified, comments renumbered)
+#  19 → AI Hard tier (verify before marking)

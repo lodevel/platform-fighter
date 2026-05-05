@@ -1,0 +1,21 @@
+{
+  "$schema": "../../src/characters/characterSerializer.schema.json",
+  "id": "owl",
+  "displayName": "Owl",
+  "role": "mage",
+  "body": {
+    "width": 40,
+    "height": 60,
+    "chamfer": 8
+  },
+  "movement": {
+    "maxRunSpeed": 6.5,
+    "groundAccel": 0.55,
+    "airAccel": 0.55,
+    "groundDamping": 0.8,
+    "airDamping": 0.97,
+    "jumpImpulse": 13.0,
+    "maxJumps": 2,
+    "mass": 10
+  }
+}

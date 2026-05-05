@@ -1,0 +1,85 @@
+{
+  "$schema": "./palette.schema.json",
+  "characterId": "owl",
+  "displayName": "Owl",
+  "source": {
+    "body": "#6a5acd",
+    "accent": "#d4d0ff",
+    "highlight": "#d4d0ff"
+  },
+  "variants": [
+    {
+      "index": 0,
+      "name": "Indigo",
+      "isCanonical": true,
+      "mappings": {
+        "body":      { "from": "#6a5acd", "to": "#6a5acd" },
+        "accent":    { "from": "#d4d0ff", "to": "#d4d0ff" },
+        "highlight": { "from": "#d4d0ff", "to": "#d4d0ff" }
+      }
+    },
+    {
+      "index": 1,
+      "name": "Snow",
+      "mappings": {
+        "body":      { "from": "#6a5acd", "to": "#eaeaf0" },
+        "accent":    { "from": "#d4d0ff", "to": "#ffffff" },
+        "highlight": { "from": "#d4d0ff", "to": "#ffffff" }
+      }
+    },
+    {
+      "index": 2,
+      "name": "Emerald",
+      "mappings": {
+        "body":      { "from": "#6a5acd", "to": "#2e8a5a" },
+        "accent":    { "from": "#d4d0ff", "to": "#a8e8c0" },
+        "highlight": { "from": "#d4d0ff", "to": "#a8e8c0" }
+      }
+    },
+    {
+      "index": 3,
+      "name": "Gilded",
+      "mappings": {
+        "body":      { "from": "#6a5acd", "to": "#cd9a3a" },
+        "accent":    { "from": "#d4d0ff", "to": "#ffeab0" },
+        "highlight": { "from": "#d4d0ff", "to": "#ffeab0" }
+      }
+    },
+    {
+      "index": 4,
+      "name": "Crimson",
+      "mappings": {
+        "body":      { "from": "#6a5acd", "to": "#b04a4a" },
+        "accent":    { "from": "#d4d0ff", "to": "#ffd0d0" },
+        "highlight": { "from": "#d4d0ff", "to": "#ffd0d0" }
+      }
+    },
+    {
+      "index": 5,
+      "name": "Aqua",
+      "mappings": {
+        "body":      { "from": "#6a5acd", "to": "#3aa0cd" },
+        "accent":    { "from": "#d4d0ff", "to": "#b0e8ff" },
+        "highlight": { "from": "#d4d0ff", "to": "#b0e8ff" }
+      }
+    },
+    {
+      "index": 6,
+      "name": "Plum",
+      "mappings": {
+        "body":      { "from": "#6a5acd", "to": "#8a3a8a" },
+        "accent":    { "from": "#d4d0ff", "to": "#e8b0e8" },
+        "highlight": { "from": "#d4d0ff", "to": "#e8b0e8" }
+      }
+    },
+    {
+      "index": 7,
+      "name": "Charcoal",
+      "mappings": {
+        "body":      { "from": "#6a5acd", "to": "#404048" },
+        "accent":    { "from": "#d4d0ff", "to": "#b0b0b8" },
+        "highlight": { "from": "#d4d0ff", "to": "#b0b0b8" }
+      }
+    }
+  ]
+}

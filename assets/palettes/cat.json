@@ -1,0 +1,85 @@
+{
+  "$schema": "./palette.schema.json",
+  "characterId": "cat",
+  "displayName": "Cat",
+  "source": {
+    "body": "#4a8ec2",
+    "accent": "#a0d8ff",
+    "highlight": "#a0d8ff"
+  },
+  "variants": [
+    {
+      "index": 0,
+      "name": "Sky",
+      "isCanonical": true,
+      "mappings": {
+        "body":      { "from": "#4a8ec2", "to": "#4a8ec2" },
+        "accent":    { "from": "#a0d8ff", "to": "#a0d8ff" },
+        "highlight": { "from": "#a0d8ff", "to": "#a0d8ff" }
+      }
+    },
+    {
+      "index": 1,
+      "name": "Fuchsia",
+      "mappings": {
+        "body":      { "from": "#4a8ec2", "to": "#c24a8e" },
+        "accent":    { "from": "#a0d8ff", "to": "#ffa0d8" },
+        "highlight": { "from": "#a0d8ff", "to": "#ffa0d8" }
+      }
+    },
+    {
+      "index": 2,
+      "name": "Mint",
+      "mappings": {
+        "body":      { "from": "#4a8ec2", "to": "#4ac28e" },
+        "accent":    { "from": "#a0d8ff", "to": "#a0ffd8" },
+        "highlight": { "from": "#a0d8ff", "to": "#a0ffd8" }
+      }
+    },
+    {
+      "index": 3,
+      "name": "Lavender",
+      "mappings": {
+        "body":      { "from": "#4a8ec2", "to": "#8e4ac2" },
+        "accent":    { "from": "#a0d8ff", "to": "#d8a0ff" },
+        "highlight": { "from": "#a0d8ff", "to": "#d8a0ff" }
+      }
+    },
+    {
+      "index": 4,
+      "name": "Coral",
+      "mappings": {
+        "body":      { "from": "#4a8ec2", "to": "#c28e4a" },
+        "accent":    { "from": "#a0d8ff", "to": "#ffd8a0" },
+        "highlight": { "from": "#a0d8ff", "to": "#ffd8a0" }
+      }
+    },
+    {
+      "index": 5,
+      "name": "Lime",
+      "mappings": {
+        "body":      { "from": "#4a8ec2", "to": "#8ec24a" },
+        "accent":    { "from": "#a0d8ff", "to": "#d8ffa0" },
+        "highlight": { "from": "#a0d8ff", "to": "#d8ffa0" }
+      }
+    },
+    {
+      "index": 6,
+      "name": "Teal",
+      "mappings": {
+        "body":      { "from": "#4a8ec2", "to": "#4ac2c2" },
+        "accent":    { "from": "#a0d8ff", "to": "#a0ffff" },
+        "highlight": { "from": "#a0d8ff", "to": "#a0ffff" }
+      }
+    },
+    {
+      "index": 7,
+      "name": "Shadow",
+      "mappings": {
+        "body":      { "from": "#4a8ec2", "to": "#303040" },
+        "accent":    { "from": "#a0d8ff", "to": "#a0a0b0" },
+        "highlight": { "from": "#a0d8ff", "to": "#a0a0b0" }
+      }
+    }
+  ]
+}

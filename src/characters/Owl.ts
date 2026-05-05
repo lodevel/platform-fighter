@@ -1,0 +1,1126 @@
+/**
+ * Owl — third concrete fighter subclass (AC 60004 Sub-AC 4 — full
+ * grounded triplet jab / tilt / smash with animation states, mirroring
+ * the AC 60002 Sub-AC 2 work for Wolf and the AC 60003 Sub-AC 3 work
+ * for Cat).
+ *
+ * Role: mage. Tall, fragile-but-floaty silhouette built around long-
+ * range pokes and zoning rather than the body-on-body brawling Wolf
+ * brings or the in-and-out footsies Cat lives on. Where Wolf trades
+ * speed for raw mass and Cat trades mass for footspeed, Owl trades
+ * *aerial commitment* for an unmatched grounded reach: the longest
+ * forward-poke offsets in the M2 cut, paid for in committal recovery
+ * windows and a thin hurtbox that punishes greedy approaches by air.
+ *
+ * Stats (vs `DEFAULT_CHARACTER_TUNING`):
+ *
+ *   maxRunSpeed   6.5   (▼)   slowest in the M2 cut — Owl walks
+ *                              his pokes into range, doesn't dash in
+ *   groundAccel   0.55  (▼)   slow to get going from neutral
+ *   airAccel      0.55  (▲)   strongest air-control of the cast — the
+ *                              "floaty mage" archetype: hard to pin
+ *                              once airborne, easy to drift back to
+ *                              centre stage after a knockback
+ *   groundDamping 0.80         slightly stickier than baseline
+ *   airDamping    0.97         floaty horizontal drift in the air
+ *   jumpImpulse   13.0         baseline single-jump
+ *   maxJumps      2            standard double-jump (Owl's "wing-up"
+ *                              recovery hop is the second jump)
+ *   width         84           taller-and-thinner silhouette: same
+ *   height        144            ground footprint as a thin tower —
+ *                              hurtbox is *narrower* than Wolf's but
+ *                              *taller* than either Wolf or Cat
+ *   chamfer       12           default
+ *   mass          10   (▼)    lighter than baseline — KOd at lower
+ *                              percent than Wolf, heavier than Cat
+ *
+ * Why "tall and fragile" instead of just copy-pasting Cat's footprint:
+ *
+ *   • The Seed's roster contract calls for distinct archetypes per
+ *     character — duplicating a body shape would defeat the purpose of
+ *     a third slot. Owl's tower-shaped hurtbox creates new gameplay
+ *     situations (he gets caught by rising hitboxes Cat would clear,
+ *     and by overhead aerials Wolf's wider body would soak), giving
+ *     him an identity at the silhouette level before the moveset even
+ *     enters the picture.
+ *
+ *   • The "tall mage" body lines up with the long-reach forward pokes
+ *     this AC ships — Owl's jab/tilt/smash all reach further than
+ *     Wolf's, so the body has to telegraph "this character is built
+ *     around outranging you" at a glance. Tall + thin reads as
+ *     "staff/wand at arm's length".
+ *
+ * Moveset (this AC: full grounded triplet — aerials/specials land in
+ * later sub-ACs of AC 60004 alongside the other roster slots):
+ *
+ *   Jab   (`owl.jab`,   light)  damage 5,  long-reach poke (6 art frames)
+ *   Tilt  (`owl.tilt`,  light)  damage 7,  the spacing tool (7 art frames)
+ *   Smash (`owl.smash`, heavy)  damage 12, KO finisher (8 art frames)
+ *
+ * Why Owl's grounded numbers sit between Wolf's and Cat's:
+ *
+ *                 Cat    Owl    Wolf
+ *     Jab dmg     3      5      6
+ *     Tilt dmg    5      7      8
+ *     Smash dmg   9      12     14
+ *     Jab startup 2      3      4   (Owl: middle of the cast)
+ *     Smash KB    2.8    3.5    4.0
+ *
+ *   This is a deliberate "third pole" placement — Owl is the median
+ *   character on the speed-vs-power axis, which means a Wolf vs Owl
+ *   matchup reads "bruiser vs slightly-faster-but-weaker bruiser" while
+ *   a Cat vs Owl matchup reads "ninja vs slightly-slower-but-stronger
+ *   ninja". His distinguishing axis is *reach*, not raw stats:
+ *
+ *     • Jab     hitbox.offsetX 60 (vs Wolf 50, Cat 36) → 20 % further
+ *               than Wolf, ~67 % further than Cat. Same damage as a
+ *               slow-jab from Wolf, faster startup, but the hurtbox
+ *               extension on the swing is correspondingly bigger so a
+ *               whiffed jab is more punishable.
+ *
+ *     • Tilt    hitbox.offsetX 78, width 96 — both larger than
+ *               Wolf's 60/80 and Cat's 44/60. The longest tilt-class
+ *               poke in the M2 cut.
+ *
+ *     • Smash   hitbox.offsetX 90, width 108 — again the longest in
+ *               the cast. Wolf's smash hits *harder* (KB 4.0 vs 3.5)
+ *               but Owl's reaches further. The trade puts Owl in the
+ *               "spacing finisher" niche: he KOs Cat at higher percent
+ *               than Wolf would, but he can land the smash in
+ *               situations Wolf can't.
+ *
+ * Why a tilt distinct from jab and smash (mirrors the Wolf/Cat
+ * contract — locked down by the roster tests):
+ *   • Jab is the safe poke — fastest startup, low damage, low knockback.
+ *   • Tilt is the *spacing* tool — longer reach than jab, harder hit,
+ *     more committal recovery. The "third grounded option" in the
+ *     canonical Smash toolkit. For Owl, it's the move that controls
+ *     centre-stage neutral when the opponent respects jab range.
+ *   • Smash is the KO finisher — biggest reach, hardest knockback
+ *     scaling, longest startup so it punishes whiff-prone opponents.
+ *
+ * Animation frames (AC 60004 Sub-AC 4): each grounded move declares a
+ * per-phase art-frame count (`MoveAnimation`) inside the Seed-mandated
+ * 6-8 range. The gameplay state machine drives the renderer through
+ * `selectAnimationFrame(framesElapsed, move)` so the displayed art
+ * frame and the live hitbox phase are always in lockstep — no
+ * possibility of an animation-vs-hitbox phase drift.
+ *
+ *   Jab    : 2 startup + 1 active + 3 recovery = 6 art frames
+ *   Tilt   : 2 startup + 2 active + 3 recovery = 7 art frames
+ *   Smash  : 3 startup + 1 active + 4 recovery = 8 art frames
+ *
+ * The (later AC) sprite atlas pipeline will register textures keyed
+ * `owl.jab.startup.0`, `owl.jab.active.0`, etc.; until then the
+ * renderer paints flat-colour rectangles and the animation indices
+ * exist purely as state-machine drivers ready for the asset drop.
+ *
+ * Why these numbers are encoded as exported `const`s (mirrors Wolf/Cat):
+ *   • Tests can assert exactly what stats Owl ships with.
+ *   • The (later AC) move-editor and balance-pass tooling can mutate
+ *     these tables without recompiling the class.
+ *   • Composing fighters from data tables is the M2 roster pattern —
+ *     Bear follows the same shape so a roster-comparison tool can
+ *     render every character side-by-side.
+ *
+ * Determinism: every value here is a frozen literal — no `Math.random`,
+ * no wall-clock. Importing this module produces the same bytes on every
+ * boot, which is what the replay system requires.
+ */
+
+import type Phaser from 'phaser';
+import { Character, type CharacterTuning } from './Character';
+import { registerFighterAttack } from './attackRegistration';
+import type { AttackMoveWithAnimation } from './moveSchema';
+import type { AerialMove } from './aerialSchema';
+import type { ProjectileSpecialMove } from './specialSchema';
+import type { ReflectorSideSpecialMove } from './sideSpecialSchema';
+import type { DirectionalJumpUpSpecialMove } from './upSpecialSchema';
+import type { StallAndFallDownSpecialMove } from './downSpecialSchema';
+import { SHIELD_DEFAULTS } from './shieldState';
+import { DODGE_DEFAULTS } from './dodgeState';
+import type {
+  FighterContract,
+  FighterMoveset,
+  FighterMovementProfile,
+} from './movesetContract';
+import { OWL_MOVEMENT_PROFILE } from './fighterMovementProfiles';
+
+// Re-export so consumers that historically imported `OWL_MOVEMENT_PROFILE`
+// from this file (the per-fighter API surface) keep working byte-for-byte.
+// Sub-AC 2.2 of the T2 refactor moved the literal data into the
+// `fighterMovementProfiles` leaf module so the shared `Character` base
+// can resolve per-fighter movement values at construction time without
+// pulling in a per-fighter class (which would trigger the
+// `class Owl extends Character` cyclic-init TDZ). The per-fighter file
+// remains the natural import location for "Owl's stats" while the
+// architectural source of truth lives in one indexable place.
+export { OWL_MOVEMENT_PROFILE };
+
+/**
+ * Tuning overrides applied on top of `DEFAULT_CHARACTER_TUNING`.
+ *
+ * The `shield` slot is intentionally omitted (covered by AC 60301
+ * Sub-AC 1's canonical `SHIELD_DEFAULTS`); a per-character shield
+ * balance pass would land here later.
+ */
+export const OWL_TUNING: Required<Omit<CharacterTuning, 'shield' | 'dodge' | 'ledge' | 'ledgeDetection'>> = {
+  // Sub-AC 2.2 of the T2 refactor — movement-relevant fields composed
+  // from `OWL_MOVEMENT_PROFILE` (the per-fighter movement profile —
+  // single source of truth in `fighterMovementProfiles.ts`). Body
+  // geometry (`width` / `height` / `chamfer`) remains inline below
+  // because it's hurtbox / collision data, not movement parameters
+  // per the {@link FighterMovementProfile} JSDoc.
+  ...OWL_MOVEMENT_PROFILE,
+  // Bodies were re-derived from the visible sprite silhouette (see
+  // Wolf.ts / Cat.ts comments). Owl is procedural-fallback for now,
+  // so we just preserve the silhouette ordering: narrower than Wolf
+  // (45), wider than Cat (40); tallest in the cast.
+  width: 42,
+  height: 80,
+  chamfer: 12,
+  // `mass` is sourced from the spread of `OWL_MOVEMENT_PROFILE` above
+  // (Sub-AC 2.2 of the T2 refactor — the per-fighter movement profile
+  // is the single source of truth for knockback-resistance mass).
+};
+
+/**
+ * Owl's basic neutral attack — long-reach grounded poke. Faster than
+ * Wolf's (3-frame startup vs 4) but slower than Cat's (2 frames). The
+ * defining feature is *reach*: 60 px hitbox offset puts the leading
+ * edge ~20 % further out than Wolf's at the same body silhouette,
+ * which in practice means Owl can jab on a frame Wolf would whiff.
+ *
+ *   • Damage    : 5  — between Cat's 3 and Wolf's 6.
+ *   • Knockback : x 1.0 / y -0.3, scaling 0.05. Slightly weaker than
+ *                 Wolf's jab (1.4 / -0.4 / 0.06) — Owl pokes more
+ *                 often but doesn't open KO percent as fast.
+ *   • Frames    : 3 startup / 2 active / 5 recovery + 9 cooldown.
+ *                 Lockout = 19 frames (~317 ms) — between Cat (15) and
+ *                 Wolf (30).
+ *
+ * Animation states (AC 60004 Sub-AC 4): 6 art frames total — 2 startup,
+ * 1 active, 3 recovery. Stretch over the gameplay window via
+ * `selectAnimationFrame()`:
+ *   startup [0..2]  → art 0 (frames 0-1) → art 1 (frame 2)
+ *   active  [3..4]  → art 0 throughout (single-frame hit pose)
+ *   recovery[5..9]  → art 0 (5-6) → art 1 (7) → art 2 (8-9)
+ */
+export const OWL_JAB: AttackMoveWithAnimation = {
+  id: 'owl.jab',
+  type: 'jab',
+  damage: 5,
+  knockback: { x: 1.0, y: -0.3, scaling: 0.05 },
+  hitbox: {
+    // Authored facing-right; `Character` mirrors by facing on spawn.
+    // Owl is 84 px wide — placing the hitbox 60 px out of his centre
+    // puts the leading edge well past his torso, the visual cue of
+    // a staff/wand jab.
+    offsetX: 30,
+    offsetY: -5,
+    width: 35,
+    height: 24,
+  },
+  startupFrames: 3,
+  activeFrames: 2,
+  recoveryFrames: 5,
+  cooldownFrames: 9,
+  animation: {
+    startupFrames: 2,
+    activeFrames: 1,
+    recoveryFrames: 3,
+  },
+};
+
+/**
+ * Owl's forward tilt — the third grounded option after jab and smash
+ * (AC 60004 Sub-AC 4). Mid-strength committal poke that fills the
+ * spacing role between jab and smash, mirroring the Wolf/Cat tilt
+ * contracts:
+ *
+ *   • Reach     : 78 px offset, 96×52 hitbox — longer than jab (60, 70)
+ *                 but shorter than smash (90, 108). Trades hurtbox
+ *                 extension for coverage; Owl is committed for ~6
+ *                 startup frames before the hitbox spawns, and the
+ *                 windup hurtbox sticks out a bit on the swing.
+ *
+ *                 Owl's tilt out-ranges *both* Wolf's tilt (60 offset)
+ *                 and Cat's tilt (44 offset) — this is the move that
+ *                 defines his "longest grounded reach in the cast"
+ *                 identity.
+ *
+ *   • Damage    : 7 — between jab (5) and smash (12). At ~80 % the
+ *                 knockback puts Cat into a tumble but doesn't KO her
+ *                 from centre-stage; smash is still the finisher.
+ *
+ *   • Knockback : x 1.7 / y -0.55, scaling 0.13. Stronger than jab's
+ *                 0.05 scaling so the move opens KO percent later;
+ *                 weaker than smash's 0.36 so it can't accidentally
+ *                 end stocks during neutral exchanges.
+ *
+ *   • Frames    : 6 startup / 4 active / 11 recovery + 13 cooldown.
+ *                 Lockout = 34 frames (~567 ms). Slower than jab
+ *                 (19 frames) but faster than smash (50 frames). The
+ *                 long active window (4 frames) + long reach combine
+ *                 to make this Owl's defining "wall-of-poke" tool —
+ *                 hard to weave through cleanly without a fast aerial.
+ *
+ * Animation states: 7 art frames total — 2 startup, 2 active, 3
+ * recovery. The two active art frames let the swing show through the
+ * hit window so it doesn't look like a single-frame freeze frame
+ * (mirrors Wolf/Cat tilt animation budget):
+ *   startup [0..5]   → art 0 (frames 0-2) → art 1 (frames 3-5)
+ *   active  [6..9]   → art 0 (6-7) → art 1 (8-9)
+ *   recovery[10..20] → art 0 (10-13) → art 1 (14-17) → art 2 (18-20)
+ */
+export const OWL_TILT: AttackMoveWithAnimation = {
+  id: 'owl.tilt',
+  type: 'tilt',
+  damage: 7,
+  knockback: { x: 1.7, y: -0.55, scaling: 0.13 },
+  hitbox: {
+    offsetX: 39,
+    offsetY: -6,
+    width: 48,
+    height: 26,
+  },
+  startupFrames: 6,
+  activeFrames: 4,
+  recoveryFrames: 11,
+  cooldownFrames: 13,
+  animation: {
+    startupFrames: 2,
+    activeFrames: 2,
+    recoveryFrames: 3,
+  },
+};
+
+/**
+ * Owl's heavy attack — forward smash, the KO finisher. Reaches further
+ * than every other smash in the M2 cut at the cost of slightly less
+ * raw knockback than Wolf's:
+ *
+ *   • Damage    : 12 — between Cat (9) and Wolf (14).
+ *   • Knockback : x 3.5 / y -1.4, scaling 0.36. Lower scaling than
+ *                 Wolf's smash (0.40) so it KOs at slightly higher
+ *                 percent, but the longest reach makes it land in
+ *                 spots Wolf's smash can't.
+ *   • Frames    : 10 startup / 4 active / 16 recovery + 20 cooldown.
+ *                 Lockout = 50 frames (~833 ms). Faster startup than
+ *                 Wolf's 12-frame smash, slower than Cat's 8-frame.
+ *                 Still a heavily committal swing — punish-the-whiff
+ *                 hard if you read it wrong.
+ *
+ * Animation states (AC 60004 Sub-AC 4): 8 art frames total — 3 startup,
+ * 1 active, 4 recovery. The wind-up gets the most art frames so the
+ * "anticipation" reads clearly to the opponent (a fair smash in the
+ * canonical Smash idiom telegraphs its commitment). Recovery also gets
+ * generous art frame budget so the "punished swing" pose holds long
+ * enough to register visually:
+ *   startup [0..9]   → art 0 (0-3) → art 1 (4-6) → art 2 (7-9)
+ *   active  [10..13] → art 0 throughout (the impact frame)
+ *   recovery[14..29] → art 0 (14-17) → art 1 (18-21) → art 2 (22-25) → art 3 (26-29)
+ */
+export const OWL_SMASH: AttackMoveWithAnimation = {
+  id: 'owl.smash',
+  type: 'smash',
+  damage: 12,
+  knockback: { x: 3.5, y: -1.4, scaling: 0.36 },
+  hitbox: {
+    offsetX: 45,
+    offsetY: -6,
+    width: 54,
+    height: 28,
+  },
+  startupFrames: 10,
+  activeFrames: 4,
+  recoveryFrames: 16,
+  cooldownFrames: 20,
+  animation: {
+    startupFrames: 3,
+    activeFrames: 1,
+    recoveryFrames: 4,
+  },
+};
+
+/**
+ * Owl's neutral aerial — wing-spread orbit (AC 60101 Sub-AC 1).
+ *
+ * Unlike Wolf's "spinning ball" nair, Owl's nair is a wide-but-thin
+ * sweep: he spreads his wings into a horizontal disc that catches
+ * approaches from either side. The mage archetype's aerial identity
+ * is *floaty coverage* — Owl glides through the air with a hitbox
+ * around him longer than any other nair while his strongest air-
+ * control in the cast lets him drift to safety after the swing.
+ *
+ *   • Damage    : 7 — between Cat's nair (5) and Wolf's nair (8). The
+ *                 mage's nair hits a notch lighter than the bruiser's.
+ *   • Knockback : x 1.4 / y -1.0, scaling 0.10.
+ *                 Launch angle = atan2(1.0, 1.4) ≈ 36° up-and-forward
+ *                 — slightly more vertical than Wolf's nair (32°),
+ *                 setting up the mage's "drift in for a follow-up"
+ *                 game.
+ *   • Frames    : 4 startup / 8 active / 10 recovery + 8 cooldown.
+ *                 Lockout = 30 frames (~500 ms). The 8-frame active
+ *                 window is the longest nair active in the cast —
+ *                 Owl's nair is the easiest to hit-confirm with.
+ *   • Hitbox    : 0 px offset (body-centred), 130×100 sensor — the
+ *                 widest aerial hitbox in the M2 cut (Wolf 110, Cat 80,
+ *                 Bear 120). Owl's silhouette is narrow but his nair's
+ *                 hurtbox-to-hitbox extension is the cast's largest.
+ *
+ * Animation states: 7 art frames — 1 startup, 4 active, 2 recovery.
+ * Active phase gets the most art frames so the wing-spread reads as
+ * a continuous orbit rather than a single freeze pose.
+ *
+ *   • landingLagFrames: 10 — middle-of-the-cast. Owl's nair isn't a
+ *     fast pressure tool like Cat's, but it's not a smash-tier
+ *     commitment like Wolf's bair either.
+ *   • autoCancelWindows:
+ *       - `[0, 4)` — pre-hitbox early-out (the entire startup).
+ *       - `[20, 22)` — late window in the back of recovery.
+ */
+export const OWL_NAIR: AerialMove = {
+  id: 'owl.nair',
+  type: 'aerial',
+  aerialDirection: 'neutral',
+  damage: 7,
+  knockback: { x: 1.4, y: -1.0, scaling: 0.10 },
+  hitbox: {
+    offsetX: 0,
+    offsetY: -3,
+    width: 65,
+    height: 50,
+  },
+  startupFrames: 4,
+  activeFrames: 8,
+  recoveryFrames: 10,
+  cooldownFrames: 8,
+  animation: {
+    startupFrames: 1,
+    activeFrames: 4,
+    recoveryFrames: 2,
+  },
+  landingLagFrames: 10,
+  autoCancelWindows: [
+    { startFrame: 0, endFrame: 4 },
+    { startFrame: 20, endFrame: 22 },
+  ],
+};
+
+/**
+ * Owl's forward aerial — staff-thrust forward poke. The longest-
+ * reaching aerial in the M2 cut, mirroring his grounded reach
+ * identity. Where Cat's fair pokes ~44 px out and Wolf's reaches 60,
+ * Owl extends a full 80 px ahead of his body — the staff/wand thrust
+ * that defines his fighter silhouette in the air.
+ *
+ *   • Damage    : 8 — between Cat's fair (6) and Wolf's fair (11).
+ *   • Knockback : x 1.9 / y -0.5, scaling 0.13.
+ *                 Launch angle = atan2(0.5, 1.9) ≈ 15° up-and-forward
+ *                 — flatter than the rest of the fairs, sending the
+ *                 target on a long horizontal trajectory toward the
+ *                 side blast zone. KO trajectory at high percent.
+ *   • Frames    : 6 startup / 4 active / 12 recovery + 9 cooldown.
+ *                 Lockout = 31 frames (~517 ms). Slower startup than
+ *                 Cat's fair (4) but faster than Wolf's (8). The 4-
+ *                 frame active window keeps a hitbox out longer than
+ *                 Cat's fair (3 active).
+ *   • Hitbox    : 80 px offset, 92×46 sensor — longest fair reach in
+ *                 the cast.
+ *
+ * Animation states: 7 art frames — 2 startup, 2 active, 3 recovery.
+ * The thrust gets two active frames so the staff arc shows through.
+ *
+ *   • landingLagFrames: 9 — moderate. Owl's fair is a poke, not a
+ *     finisher, so the lag is similar to his nair's.
+ *   • autoCancelWindows:
+ *       - `[0, 3)` — pre-hitbox early-out (covers the first half of
+ *         startup).
+ *       - `[20, 22)` — late window near the end of recovery.
+ */
+export const OWL_FAIR: AerialMove = {
+  id: 'owl.fair',
+  type: 'aerial',
+  aerialDirection: 'forward',
+  damage: 8,
+  knockback: { x: 1.9, y: -0.5, scaling: 0.13 },
+  hitbox: {
+    offsetX: 40,
+    offsetY: -5,
+    width: 46,
+    height: 23,
+  },
+  startupFrames: 6,
+  activeFrames: 4,
+  recoveryFrames: 12,
+  cooldownFrames: 9,
+  animation: {
+    startupFrames: 2,
+    activeFrames: 2,
+    recoveryFrames: 3,
+  },
+  landingLagFrames: 9,
+  autoCancelWindows: [
+    { startFrame: 0, endFrame: 3 },
+    { startFrame: 20, endFrame: 22 },
+  ],
+};
+
+/**
+ * Owl's back aerial — tail-feather whip. Slower than Cat's bair but
+ * with longer reach and meaningful KO power; the mage's aerial KO
+ * tool. Functionally analogous to Wolf's bair (long, heavy, kills
+ * at the ledge) but trades raw damage / knockback magnitude for
+ * Owl's signature reach.
+ *
+ *   • Damage    : 10 — between Cat's bair (8) and Wolf's bair (13).
+ *   • Knockback : x 2.6 / y -1.1, scaling 0.26.
+ *                 Launch angle = atan2(1.1, 2.6) ≈ 23° up-and-back —
+ *                 same general trajectory as Wolf's bair (22°) at a
+ *                 lower magnitude. KOs Cat at centre stage at ~125 %.
+ *   • Frames    : 8 startup / 4 active / 14 recovery + 10 cooldown.
+ *                 Lockout = 36 frames (~600 ms). Between Cat's (27)
+ *                 and Wolf's (42).
+ *   • Hitbox    : 70 px offset, 84×56 sensor authored facing-right;
+ *                 the runtime mirrors it on spawn so when Owl is
+ *                 facing right and the player throws bair the
+ *                 hitbox spawns to his LEFT.
+ *
+ * Animation states: 8 art frames — 3 startup, 1 active, 4 recovery.
+ * Mirrors the smash-style anticipation curve so the heavy back-hit
+ * telegraphs its commitment.
+ *
+ *   • landingLagFrames: 14 — heavier than Cat's bair (8) but lighter
+ *     than Wolf's (22). Mage commits to the swing more than the
+ *     ninja but less than the bruiser.
+ *   • autoCancelWindows:
+ *       - `[0, 4)` — pre-hitbox early-out (half the startup).
+ *       - No late window before busy ends — Owl's bair is committal.
+ */
+export const OWL_BAIR: AerialMove = {
+  id: 'owl.bair',
+  type: 'aerial',
+  aerialDirection: 'back',
+  damage: 10,
+  knockback: { x: 2.6, y: -1.1, scaling: 0.26 },
+  hitbox: {
+    offsetX: 35,
+    offsetY: -4,
+    width: 42,
+    height: 28,
+  },
+  startupFrames: 8,
+  activeFrames: 4,
+  recoveryFrames: 14,
+  cooldownFrames: 10,
+  animation: {
+    startupFrames: 3,
+    activeFrames: 1,
+    recoveryFrames: 4,
+  },
+  landingLagFrames: 14,
+  autoCancelWindows: [{ startFrame: 0, endFrame: 4 }],
+};
+
+/**
+ * Owl's neutral special — **charge attack** (AC 60201 Sub-AC 1).
+ *
+ * The mage's special is a held arcane charge: an extended startup
+ * window during which the player can hold the special button to scale
+ * up the realised damage / knockback before release. Mirrors the
+ * canonical Smash charge-projectile / charge-smash idiom (Samus's
+ * Charge Shot, Donkey Kong's Giant Punch) and slots Owl's mage
+ * archetype into the "wait for the right moment, unload" niche.
+ *
+ * Mechanic:
+ *   • Charge starts on the press frame. Holding the button accumulates
+ *     held-frames; the realised damage / knockback linearly interpolate
+ *     between the min-charge variant (released at `minChargeFrames`)
+ *     and the max-charge variant (held through `maxChargeFrames`).
+ *   • Releasing before `minChargeFrames` cancels the charge entirely
+ *     (no swing fires) — protects against accidental tap-presses.
+ *   • Holding past `maxChargeFrames` caps the realised values at the
+ *     max — additional held frames don't add power, but they do delay
+ *     the release. (The runtime can optionally "auto-release" at full
+ *     charge; that's a runtime decision, not a schema decision.)
+ *
+ *   • Damage    : 6 (min) → 18 (max). Min is between Owl's jab (5) and
+ *                 tilt (7); max exceeds his smash (12) — a fully-
+ *                 charged release is a real KO threat.
+ *   • Knockback : (1.5, -0.6, 0.10) min → (3.8, -1.5, 0.40) max.
+ *                 Max-charge knockback exceeds Owl's smash KB (3.5,
+ *                 -1.4, 0.36) by a hair, paid for by the long charge
+ *                 commitment.
+ *   • Frames    : 4 startup / 12 active / 18 recovery + 16 cooldown.
+ *                 Active phase is the "charge release" window — the
+ *                 player can release any time during it. Lockout =
+ *                 50 frames (~833 ms) on top of however long the
+ *                 charge was held.
+ *
+ * Animation states (8 art frames): 1 startup, 4 active, 3 recovery.
+ * Active phase gets the most art frames so the charge "build-up glow"
+ * pose can sweep through several stages before release.
+ *
+ * Charge spec:
+ *   • minChargeFrames: 0 — a tap-press fires the min-power swing. (The
+ *                        runtime contract is "release inside the active
+ *                        window"; the schema's `minChargeFrames=0`
+ *                        means there's no lock-out for early release.)
+ *   • maxChargeFrames: 60 — a full second of charge for max power.
+ *   • Hitbox        : reuses the move's `hitbox` field (90×56 sensor
+ *                     90 px in front), the same reach as Owl's smash.
+ */
+/**
+ * Owl's neutral special — **feather-bolt projectile**.
+ *
+ * Pivoted from a charge-swing to a true ranged projectile so Owl
+ * actually fits the "mage / zoner" archetype the seed described
+ * (Owl projectiles, Cat dash, Bear grabs, Wolf melee). Mirrors Cat's
+ * ProjectileSpecialMove pattern: spawned-projectile carries its own
+ * damage / knockback into a hit and lives for `lifetimeFrames`.
+ *
+ * Travel range = `speed * lifetimeFrames` design pixels = 16 * 75 =
+ * 1200 px — comfortably crosses the typical FFA stage so Owl can
+ * meaningfully pressure from a distance.
+ */
+export const OWL_NEUTRAL_SPECIAL: ProjectileSpecialMove = {
+  id: 'owl.neutral_special',
+  type: 'special',
+  specialKind: 'projectile',
+  // Damage / knockback the spawned projectile carries on contact.
+  // Above Owl's smash (12) so the special clearly outclasses the
+  // basic-attack tier.
+  damage: 14,
+  knockback: { x: 2.4, y: -0.9, scaling: 0.18 },
+  // The MOVE's own hitbox is unused (the projectile is a separate
+  // body) — author a degenerate sensor so the schema is satisfied.
+  hitbox: { offsetX: 0, offsetY: 0, width: 1, height: 1 },
+  startupFrames: 6,
+  activeFrames: 4,
+  recoveryFrames: 14,
+  cooldownFrames: 18,
+  animation: {
+    startupFrames: 2,
+    activeFrames: 1,
+    recoveryFrames: 3,
+  },
+  projectile: {
+    speed: 16,            // ≈ 960 px/s forward of facing
+    lifetimeFrames: 75,   // ~1.25 s (1200 design-pixel range)
+    width: 36,
+    height: 18,
+    spawnOffsetX: 56,
+    spawnOffsetY: -8,
+  },
+};
+
+/**
+ * Owl's side special — **reflector** (AC 60302 Sub-AC 2).
+ *
+ * The mage's side-special is the canonical "Fox/Falco Reflector"
+ * archetype — Owl conjures an arcane reflector field in front of him for
+ * a brief active window. Slots Owl into the "anti-projectile" niche on
+ * the side+special press: he negates ranged neutral and turns the
+ * opponent's projectiles into damage-doubled returns.
+ *
+ * Mechanic:
+ *   • On press, the move enters startup. At the start of the active
+ *     window the runtime spawns a sensor body in front of Owl (the
+ *     `reflectorBody` field) that persists for the active phase.
+ *   • Projectiles colliding with the sensor have their velocity inverted
+ *     (and scaled by `velocityScale = 1.5`) and their damage multiplied
+ *     by `reflectMultiplier = 1.5`. The reflected hit is owned by Owl,
+ *     so a successful reflect is functionally a "free hit at 1.5x value".
+ *   • If a fighter walks into the reflector field (rare — usually the
+ *     sensor catches projectiles), they take `contactDamage = 3` and
+ *     get pushed away with a small `contactKnockback` to disengage.
+ *   • The move is committal: long active window so it covers projectile
+ *     chains, but heavy recovery so a whiffed reflect (no projectile in
+ *     the area) is punishable on a misread.
+ *
+ *   • Damage    : 0 base — the move's own `damage` is zero. The reflect
+ *                 damage comes from the projectile's own value scaled by
+ *                 `reflectMultiplier`; the contact damage is in the
+ *                 `reflector.contactDamage` field.
+ *   • Knockback : 0 base — same reason.
+ *   • Frames    : 4 startup / 14 active / 18 recovery + 24 cooldown.
+ *                 Lockout = 60 frames (1 s). Long enough that Owl
+ *                 commits hard — the mage archetype's "if you read the
+ *                 projectile, you win neutral; if you misread, you eat
+ *                 a punish" tradeoff.
+ *
+ * Animation states (7 art frames): 1 startup, 3 active, 3 recovery —
+ * the active "field-up" phase gets the most art frames so the reflective
+ * shimmer reads through the entire 14-frame window.
+ *
+ * Reflector spec:
+ *   • reflectMultiplier : 1.5 — canonical Smash multiplier. A reflected
+ *                          5% shuriken comes back at 7.5%; a reflected
+ *                          20% charged blast at 30%.
+ *   • velocityScale     : 1.5 — reflected projectiles travel ½ faster
+ *                          than the original. Makes them harder to dodge
+ *                          a second time.
+ *   • contactDamage     : 3 — small. Reflector is a tool, not a swing.
+ *   • contactKnockback  : (1.4, -0.4, scaling 0.05) — light "shove away"
+ *                          to disengage; not a KO move.
+ *   • reflectorBody     : 70×100 sensor 60 px in front of Owl. Tall so
+ *                          it catches projectiles from short-hops as
+ *                          well as ground-level. The runtime mirrors
+ *                          `offsetX` by facing on spawn.
+ */
+export const OWL_SIDE_SPECIAL: ReflectorSideSpecialMove = {
+  id: 'owl.side_special',
+  type: 'sideSpecial',
+  sideSpecialKind: 'reflector',
+  // No on-press damage / knockback. The reflector itself routes damage
+  // through `reflector.contactDamage` / `contactKnockback` for the rare
+  // "fighter touches the field" case, and through `reflectMultiplier`
+  // for the canonical "projectile bounces back" case.
+  damage: 0,
+  knockback: { x: 0, y: 0, scaling: 0 },
+  // Degenerate sensor on the move record — non-zero so the schema
+  // accepts it; the runtime branches on `sideSpecialKind` and spawns
+  // its own field body using the `reflectorBody` field directly.
+  hitbox: { offsetX: 0, offsetY: 0, width: 1, height: 1 },
+  startupFrames: 4,
+  activeFrames: 14,
+  recoveryFrames: 18,
+  cooldownFrames: 24,
+  animation: {
+    startupFrames: 1,
+    activeFrames: 3,
+    recoveryFrames: 3,
+  },
+  reflector: {
+    reflectMultiplier: 1.5,
+    velocityScale: 1.5,
+    contactDamage: 3,
+    contactKnockback: { x: 1.4, y: -0.4, scaling: 0.05 },
+    reflectorBody: {
+      offsetX: 60,
+      offsetY: -10,
+      width: 70,
+      height: 100,
+    },
+  },
+};
+
+/**
+ * Owl's up special — **directional jump** (AC 60202 Sub-AC 2).
+ *
+ * The mage's recovery is a fixed-distance angled burst — Owl picks an
+ * angle from the stick at press time (snapped to 8 directions) and
+ * bursts along that vector at high speed for a fixed window. A body-
+ * centred hitbox sticks to him during the burst, dealing one solid
+ * hit on contact. Mirrors the Smash canonical "directional recovery
+ * with attack hitbox" archetype (Pikachu's Quick Attack [single-burst
+ * variant], Fox's Fire Fox, Falco's Fire Bird).
+ *
+ * Recovery characteristics:
+ *   • burstSpeed = 22 px/step (≈ 1320 px/s) — fast enough that a single
+ *     burst covers ~660 px of straight-line distance over the burst
+ *     window. The longest single-direction recovery in the cast.
+ *   • burstFrames = 12 — half-second burst at 60 Hz, ≈ 660 px linear
+ *     reach in any of the 8 directions.
+ *   • snapToOctant = true — 8-direction recovery (canonical Smash
+ *     idiom). A neutral stick defaults to "straight up".
+ *   • helplessAfterBurst = true — Owl is helpless until he touches
+ *     ground after the burst. Canonical fixed-distance-recovery
+ *     restriction so the move can't be repeated mid-air.
+ *
+ * Combat characteristics:
+ *   • Damage = 7 — modest. The move's value is the long reach + attack
+ *     option in one, not the raw damage. Comparable to Owl's tilt.
+ *   • Knockback = (2.0, -1.4, scaling 0.18) — angled away from contact
+ *     point. Designed to push the target into Owl's flight trajectory
+ *     (often off-stage, where the move's reach gets him there too).
+ *
+ *   • Frames    : 5 startup / 12 active / 24 recovery + 18 cooldown.
+ *                 Lockout = 59 frames (~983 ms). The active = burst
+ *                 window; recovery = the post-burst helpless free-fall
+ *                 begins on recovery start.
+ *
+ * Animation states (8 art frames): 1 startup, 4 active, 3 recovery —
+ * the burst gets the most art frames so the streak / motion-blur pose
+ * holds through the high-speed flight.
+ *
+ * Hitbox geometry: a body-centred sensor (96×96) that travels with
+ * Owl during the burst. The runtime tracks the body each active frame
+ * via `updateHitboxPosition`.
+ */
+export const OWL_UP_SPECIAL: DirectionalJumpUpSpecialMove = {
+  id: 'owl.up_special',
+  type: 'upSpecial',
+  upSpecialKind: 'directionalJump',
+  // Bumped from 7 → 12 — was below Owl's smash (12); the recovery
+  // burst now hits at smash-tier when it lands.
+  damage: 12,
+  knockback: { x: 2.4, y: -1.6, scaling: 0.22 },
+  // Body-centred sensor that follows Owl during the burst.
+  // Widened from 48×48 → 64×64 so the burst's reach matches the
+  // recovery's travel speed and feels like a usable kill option.
+  hitbox: {
+    offsetX: 0,
+    offsetY: -4,
+    width: 64,
+    height: 64,
+  },
+  startupFrames: 5,
+  activeFrames: 12,
+  recoveryFrames: 24,
+  cooldownFrames: 18,
+  animation: {
+    startupFrames: 1,
+    activeFrames: 4,
+    recoveryFrames: 3,
+  },
+  directionalJump: {
+    burstSpeed: 22, // ≈ 1320 px/s along chosen direction
+    burstFrames: 12, // = activeFrames; the entire active phase is the burst
+    snapToOctant: true,
+    helplessAfterBurst: true,
+  },
+};
+
+/**
+ * Owl's down special — **stall and fall** (AC 60304 Sub-AC 4).
+ *
+ * The mage's down-special is the canonical "Yoshi-bomb" archetype —
+ * Owl pauses briefly in the air (slight upward stall) then plunges
+ * straight down with a body-attached meteor hitbox. On ground contact
+ * a shockwave fires outward at his feet. Slots Owl into the
+ * "timing-test plummet" niche on the down+special press: a sharply
+ * different gameplay texture from his charge attack (neutral),
+ * reflector (side), and directional-jump (up).
+ *
+ * Mechanic:
+ *   • Stall phase (frames 0-5 of active): vertical velocity is set to
+ *     -2 (slight upward hover). Gravity is suppressed during this
+ *     window so Owl reads as "hanging in the air for a beat" before
+ *     the plunge — the visual wind-up that gives an alert opponent
+ *     time to dodge.
+ *   • Fall phase (frames 6-15 of active): vertical velocity snaps to
+ *     +28 (downward, faster than gravity-fall). The body acts as a
+ *     meteor hitbox during the descent — opponents touched mid-fall
+ *     are launched downward.
+ *   • Landing: on ground contact a 160×24 shockwave hitbox spawns at
+ *     Owl's feet dealing 6% damage and applying outward knockback.
+ *   • `helplessAfterFall = false` — Owl is NOT stuck helpless after
+ *     the fall. The move is a neutral-game tool, not a recovery; he
+ *     can act after the recovery phase ends.
+ *
+ *   • Damage    : 10 — the meteor (descent) damage. Same idiom as
+ *                 Wolf's groundPound: the move's own `damage` carries
+ *                 the meteor read.
+ *   • Knockback : x 0.5 / y 3.6, scaling 0.26. Downward meteor —
+ *                 off-stage Owl plunging onto someone is a stock
+ *                 finisher.
+ *   • Frames    : 4 startup / 16 active / 18 recovery + 18 cooldown.
+ *                 Lockout = 56 frames (~933 ms). Hefty commitment;
+ *                 the trade for the off-stage one-shot threat.
+ *
+ * Animation states (8 art frames): 1 startup, 4 active, 3 recovery —
+ * the active phase gets the most art frames so the stall+plummet
+ * sequence reads visually as "Owl pauses, then drops".
+ *
+ * StallAndFall spec:
+ *   • stallFrames = 6 — short hover wind-up (= 3/8 of the 16-frame
+ *     active window).
+ *   • stallVelocity = -2 — slight upward hover. Reads as "Owl
+ *     suspended" without launching him further into the air.
+ *   • fallVelocity = 28 — fast plunge. Steeper than Wolf's slamVelocity
+ *     (30) by a hair — Owl is the "lighter / faster" plunge, Wolf the
+ *     "heavier / sticker" one.
+ *   • shockwaveDamage = 6 — modest. Smaller than Wolf's (8) since the
+ *     move's payoff is the off-stage spike; the landing bonus is
+ *     secondary.
+ *   • shockwaveKnockback = (1.6, -1.0, scaling 0.14) — outward + slightly
+ *     up.
+ *   • shockwaveHitbox: 160×24 sensor centred 50 px below Owl's body
+ *     centre.
+ *   • helplessAfterFall = false — neutral-game tool, not a recovery.
+ */
+export const OWL_DOWN_SPECIAL: StallAndFallDownSpecialMove = {
+  id: 'owl.down_special',
+  type: 'downSpecial',
+  downSpecialKind: 'stallAndFall',
+  // Move's own `damage` / `knockback` are the METEOR (descent) values.
+  damage: 10,
+  knockback: { x: 0.5, y: 3.6, scaling: 0.26 },
+  // Body-attached descent hitbox covering Owl's body during the fall.
+  hitbox: {
+    offsetX: 0,
+    offsetY: 0,
+    width: 42,
+    height: 72,
+  },
+  startupFrames: 4,
+  activeFrames: 16,
+  recoveryFrames: 18,
+  cooldownFrames: 18,
+  animation: {
+    startupFrames: 1,
+    activeFrames: 4,
+    recoveryFrames: 3,
+  },
+  stallAndFall: {
+    stallFrames: 6, // first 6 of 16 active frames are the stall
+    stallVelocity: -2, // slight upward hover during stall
+    fallVelocity: 28, // fast plunge downward
+    shockwaveDamage: 6,
+    shockwaveKnockback: { x: 1.6, y: -1.0, scaling: 0.14 },
+    shockwaveHitbox: {
+      offsetX: 0,
+      offsetY: 50,
+      width: 160,
+      height: 24,
+    },
+    helplessAfterFall: false,
+  },
+};
+
+// ---------------------------------------------------------------------------
+// AC 2 Sub-AC 2 — per-fighter scaffolding for the T2 refactor.
+//
+// The Owl class below now declares the canonical 10-slot contract surface
+// (`moveset` + `movementProfile` + `contract`) plus a stub method per slot.
+// The exports here are the data those properties point at. Both the
+// per-move attack records (already shipped) and the stubs (intentionally
+// no-op) are PURE additions: the existing `registerAttack` calls in the
+// constructor remain so the runtime keeps dispatching exactly as before.
+// Subsequent sub-ACs of the T2 refactor track migrate the per-slot
+// attack-execution code out of `Character` and into the stub methods on
+// each fighter, then plumb `Character` to read the moveset off
+// `this.moveset` instead of the legacy `attacks` map.
+// ---------------------------------------------------------------------------
+
+// Sub-AC 2.2 of the T2 refactor — `OWL_MOVEMENT_PROFILE` is now
+// imported from (and re-exported at the top of) this file; the literal
+// data lives in `fighterMovementProfiles.ts` so the shared `Character`
+// base can resolve per-fighter movement values without a circular
+// import on the per-fighter class. `OWL_TUNING` above composes its
+// movement-relevant fields by spreading `OWL_MOVEMENT_PROFILE`, so
+// the per-fighter file remains the canonical view onto Owl's stats —
+// no behavioural change vs. the previous in-file declaration.
+
+/**
+ * Owl's full 10-slot uniform moveset (Sub-AC 2 of T2 refactor).
+ *
+ * Composes the existing per-move exports — already authored above for
+ * the AC 60004 Sub-AC 4 / AC 60201 Sub-AC 1 / AC 60302 Sub-AC 2 /
+ * AC 60202 Sub-AC 2 / AC 60304 Sub-AC 4 work — into the canonical
+ * {@link FighterMoveset} shape declared by {@link movesetContract}.
+ *
+ * Defensive slots use the shared {@link SHIELD_DEFAULTS} /
+ * {@link DODGE_DEFAULTS} until a per-character defensive balance pass
+ * lands. The follow-up sub-AC migrates `Character`'s runtime to
+ * consume this record directly; until then the constructor still
+ * calls `registerAttack(...)` so existing dispatch keeps working.
+ */
+export const OWL_MOVESET: FighterMoveset = Object.freeze({
+  jab: OWL_JAB,
+  tilt: OWL_TILT,
+  smash: OWL_SMASH,
+  fair: OWL_FAIR,
+  neutralSpecial: OWL_NEUTRAL_SPECIAL,
+  sideSpecial: OWL_SIDE_SPECIAL,
+  upSpecial: OWL_UP_SPECIAL,
+  downSpecial: OWL_DOWN_SPECIAL,
+  shield: SHIELD_DEFAULTS,
+  dodge: DODGE_DEFAULTS,
+});
+
+/**
+ * Owl's full {@link FighterContract} declaration (Sub-AC 2 of T2 refactor).
+ * Identity + 10-slot moveset + movement profile in one record so a
+ * consumer (test harness, AI predictor, balance tooling) can grab the
+ * complete per-fighter declaration off a single import.
+ */
+export const OWL_FIGHTER_CONTRACT: FighterContract = Object.freeze({
+  id: 'owl',
+  moveset: OWL_MOVESET,
+  movementProfile: OWL_MOVEMENT_PROFILE,
+});
+
+/** Owl-specific construction options — mirrors `CharacterOptions` minus `id`. */
+export interface OwlOptions extends CharacterTuning {
+  readonly spawnX: number;
+  readonly spawnY: number;
+}
+
+/**
+ * Owl fighter. Inherits all base movement / jump physics from
+ * `Character`; ships with mage-tuned stats and the AC 60004 Sub-AC 4
+ * grounded triplet (jab / tilt / smash). Subsequent sub-ACs of
+ * AC 60004 add Owl's neutral aerial, directional aerials, and his
+ * specials.
+ *
+ * Sub-AC 2 of the T2 refactor: this class now exposes the canonical
+ * {@link FighterContract} surface ({@link moveset}, {@link movementProfile},
+ * {@link contract}) and per-slot stub methods (`executeJab` …
+ * `executeDodge`). The stubs are intentionally no-op for now;
+ * subsequent sub-ACs of the T2 refactor migrate the per-slot
+ * attack-execution code out of {@link Character} and into these stubs.
+ * Because the constructor still calls `registerAttack(...)` for every
+ * move, the runtime continues dispatching through the legacy slot
+ * table exactly as before — no behavioural change.
+ */
+export class Owl extends Character {
+  /**
+   * Owl's 10-slot uniform moveset surface (Sub-AC 2 of T2 refactor).
+   * Points at the frozen {@link OWL_MOVESET} table — every consumer that
+   * wants to inspect the full per-fighter kit (AI predictor, replay HUD,
+   * balance tooling) can do so via this property without re-deriving
+   * the per-move map from `registerAttack` results.
+   */
+  readonly moveset: FighterMoveset = OWL_MOVESET;
+
+  /**
+   * Owl's per-fighter movement parameters (Sub-AC 2 of T2 refactor).
+   * Mirrors {@link OWL_MOVEMENT_PROFILE}. The follow-up sub-AC plumbs
+   * `Character`'s movement loop to read off this property.
+   */
+  readonly movementProfile: FighterMovementProfile = OWL_MOVEMENT_PROFILE;
+
+  /**
+   * Full per-fighter declaration (Sub-AC 2 of T2 refactor) — identity +
+   * moveset + movement profile, exposed as a single read-only record
+   * for consumers that want one handle to the whole contract.
+   */
+  readonly contract: FighterContract = OWL_FIGHTER_CONTRACT;
+
+  constructor(scene: Phaser.Scene, options: OwlOptions) {
+    super(scene, {
+      id: 'owl',
+      // Apply Owl's tuning as the floor; caller-supplied options
+      // (e.g. test-only mass overrides) win over the defaults via the
+      // base class's spread merge.
+      ...OWL_TUNING,
+      ...options,
+    });
+    // Registration order: jab first so it auto-fills both the light
+    // dispatch slot AND the legacy `defaultAttackId` fallback. Tilt
+    // registers second — the base class's "first 'jab'/'tilt' wins
+    // the light slot" rule keeps jab as the press-attack default; the
+    // tilt is reachable via `attemptAttack('owl.tilt')` (input layer
+    // lights it up on a stick-direction + attack press in a future
+    // sub-AC). Smash populates the heavy dispatch slot.
+    registerFighterAttack(this, OWL_JAB);
+    registerFighterAttack(this, OWL_TILT);
+    registerFighterAttack(this, OWL_SMASH);
+    // Aerial cut — neutral / forward / back. AC 60004 Sub-AC 4 closes
+    // out Owl's complete move table: the `OWL_NAIR` keeps the legacy
+    // single-aerial slot wired (so existing aerial-press paths keep
+    // dispatching) while `OWL_FAIR` / `OWL_BAIR` populate the forward /
+    // back directional slots via `aerialDirection`-aware registration in
+    // `registerAttack`. The full triplet matches the Seed's "3 aerials
+    // per character" requirement for Character 3 (mage), mirroring the
+    // AC 60002 Sub-AC 2 expansion that completed Wolf's table and the
+    // AC 60003 Sub-AC 3 expansion that completed Cat's.
+    registerFighterAttack(this, OWL_NAIR);
+    registerFighterAttack(this, OWL_FAIR);
+    registerFighterAttack(this, OWL_BAIR);
+    // Neutral special — charge attack (AC 60201 Sub-AC 1). Auto-fills
+    // the `neutralSpecialId` dispatch slot via `registerAttack`'s
+    // type-based slot wiring.
+    registerFighterAttack(this, OWL_NEUTRAL_SPECIAL);
+    // Side special — reflector (AC 60302 Sub-AC 2). Registered as a
+    // `'sideSpecial'`-typed move so `findMoveByType(spec, 'sideSpecial')`
+    // resolves it cleanly. Owl's side-special: a brief defensive field
+    // that bounces projectiles back at 1.5x damage and velocity, the
+    // canonical mage anti-projectile tool.
+    registerFighterAttack(this, OWL_SIDE_SPECIAL);
+    // Up special — directional jump (AC 60202 Sub-AC 2). Auto-fills the
+    // `upSpecialId` dispatch slot via `registerAttack`'s type-based
+    // slot wiring. Owl's recovery option: pick an 8-direction angle,
+    // burst that way at high speed with a body-centred hitbox.
+    registerFighterAttack(this, OWL_UP_SPECIAL);
+    // Down special — stall and fall (AC 60304 Sub-AC 4). Auto-fills the
+    // `downSpecialId` dispatch slot via `registerAttack`'s type-based
+    // slot wiring. Owl's vertical-commitment tool: brief upward stall
+    // followed by a fast meteor plunge with a landing shockwave.
+    registerFighterAttack(this, OWL_DOWN_SPECIAL);
+  }
+
+  // -------------------------------------------------------------------
+  // Sub-AC 2.1 of T2 refactor — per-slot execution methods.
+  //
+  // Each executeXxx method below owns the "fire WHICH move" decision
+  // for the named slot in the canonical 10-slot {@link FighterMoveset}
+  // contract. The base {@link Character} class no longer holds any
+  // "Owl-specific" knowledge — Owl alone decides that `executeJab`
+  // fires `OWL_JAB`, that `executeNeutralSpecial` fires Owl's charge
+  // attack, and so on.
+  //
+  // See {@link Wolf} for the full design notes; this class follows the
+  // same pattern.
+  // -------------------------------------------------------------------
+
+  /** Owl's jab — fires {@link OWL_JAB}. */
+  executeJab(): boolean {
+    if (this.runSlotOverride('jab')) return true;
+    return this.attemptAttack(OWL_JAB.id);
+  }
+
+  /** Owl's tilt — fires {@link OWL_TILT}. */
+  executeTilt(): boolean {
+    if (this.runSlotOverride('tilt')) return true;
+    return this.attemptAttack(OWL_TILT.id);
+  }
+
+  /** Owl's smash — fires {@link OWL_SMASH}. */
+  executeSmash(): boolean {
+    if (this.runSlotOverride('smash')) return true;
+    return this.attemptAttack(OWL_SMASH.id);
+  }
+
+  /** Owl's forward aerial — fires {@link OWL_FAIR}. */
+  executeFair(): boolean {
+    if (this.runSlotOverride('fair')) return true;
+    return this.attemptAttack(OWL_FAIR.id);
+  }
+
+  /** Owl's neutral special (charge) — fires {@link OWL_NEUTRAL_SPECIAL}. */
+  executeNeutralSpecial(): boolean {
+    if (this.runSlotOverride('neutralSpecial')) return true;
+    return this.attemptAttack(OWL_NEUTRAL_SPECIAL.id);
+  }
+
+  /** Owl's side special (reflector) — fires {@link OWL_SIDE_SPECIAL}. */
+  executeSideSpecial(): boolean {
+    if (this.runSlotOverride('sideSpecial')) return true;
+    return this.attemptAttack(OWL_SIDE_SPECIAL.id);
+  }
+
+  /**
+   * Owl's up special (directional jump) — fires {@link OWL_UP_SPECIAL}
+   * via {@link Character.attemptUpSpecial}, which integrates the
+   * recovery / vertical-physics on the press frame. The optional
+   * stick-direction arguments default to "straight up".
+   */
+  executeUpSpecial(stickX: number = 0, stickY: number = -1): boolean {
+    if (this.runSlotOverride('upSpecial')) return true;
+    return this.attemptUpSpecial(stickX, stickY);
+  }
+
+  /** Owl's down special (stall and fall) — fires {@link OWL_DOWN_SPECIAL}. */
+  executeDownSpecial(): boolean {
+    if (this.runSlotOverride('downSpecial')) return true;
+    return this.attemptAttack(OWL_DOWN_SPECIAL.id);
+  }
+
+  /**
+   * Owl's shield. Out of scope for Sub-AC 2.1 of the T2 refactor —
+   * the shield-state-machine entry continues to fire from
+   * {@link Character.applyInput}'s `tickShield` composition.
+   */
+  executeShield(): void {
+    /* TODO(T2 refactor): migrate shield state-machine entry out of Character. */
+  }
+
+  /** Owl's dodge. Out of scope for Sub-AC 2.1 — see {@link executeShield}. */
+  executeDodge(): void {
+    /* TODO(T2 refactor): migrate dodge state-machine entry out of Character. */
+  }
+}

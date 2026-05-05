@@ -1,0 +1,85 @@
+{
+  "$schema": "./palette.schema.json",
+  "characterId": "bear",
+  "displayName": "Bear",
+  "source": {
+    "body": "#8b5a2b",
+    "accent": "#f3d6a8",
+    "highlight": "#f3d6a8"
+  },
+  "variants": [
+    {
+      "index": 0,
+      "name": "Umber",
+      "isCanonical": true,
+      "mappings": {
+        "body":      { "from": "#8b5a2b", "to": "#8b5a2b" },
+        "accent":    { "from": "#f3d6a8", "to": "#f3d6a8" },
+        "highlight": { "from": "#f3d6a8", "to": "#f3d6a8" }
+      }
+    },
+    {
+      "index": 1,
+      "name": "Polar",
+      "mappings": {
+        "body":      { "from": "#8b5a2b", "to": "#eaeaea" },
+        "accent":    { "from": "#f3d6a8", "to": "#fff0d0" },
+        "highlight": { "from": "#f3d6a8", "to": "#fff0d0" }
+      }
+    },
+    {
+      "index": 2,
+      "name": "Onyx",
+      "mappings": {
+        "body":      { "from": "#8b5a2b", "to": "#2a2a2a" },
+        "accent":    { "from": "#f3d6a8", "to": "#b0b0b0" },
+        "highlight": { "from": "#f3d6a8", "to": "#b0b0b0" }
+      }
+    },
+    {
+      "index": 3,
+      "name": "Panda",
+      "mappings": {
+        "body":      { "from": "#8b5a2b", "to": "#404048" },
+        "accent":    { "from": "#f3d6a8", "to": "#f0f0f0" },
+        "highlight": { "from": "#f3d6a8", "to": "#f0f0f0" }
+      }
+    },
+    {
+      "index": 4,
+      "name": "Honey",
+      "mappings": {
+        "body":      { "from": "#8b5a2b", "to": "#d9a04a" },
+        "accent":    { "from": "#f3d6a8", "to": "#fff0a0" },
+        "highlight": { "from": "#f3d6a8", "to": "#fff0a0" }
+      }
+    },
+    {
+      "index": 5,
+      "name": "Russet",
+      "mappings": {
+        "body":      { "from": "#8b5a2b", "to": "#a0552a" },
+        "accent":    { "from": "#f3d6a8", "to": "#ffc0a0" },
+        "highlight": { "from": "#f3d6a8", "to": "#ffc0a0" }
+      }
+    },
+    {
+      "index": 6,
+      "name": "Slate",
+      "mappings": {
+        "body":      { "from": "#8b5a2b", "to": "#556a85" },
+        "accent":    { "from": "#f3d6a8", "to": "#b0c8e0" },
+        "highlight": { "from": "#f3d6a8", "to": "#b0c8e0" }
+      }
+    },
+    {
+      "index": 7,
+      "name": "Bloodied",
+      "mappings": {
+        "body":      { "from": "#8b5a2b", "to": "#a03030" },
+        "accent":    { "from": "#f3d6a8", "to": "#ffb0a0" },
+        "highlight": { "from": "#f3d6a8", "to": "#ffb0a0" }
+      }
+    }
+  ]
+}

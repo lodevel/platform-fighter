@@ -1,0 +1,25 @@
+# Marker file consumed by `ouroboros run --skip-completed`.
+# Lists the 1-based top-level AC numbers from
+# `.ouroboros/seed_49a36f694cc7.yaml` that are already satisfied by the
+# working tree, so the orchestrator skips re-executing them.
+#
+# Status as of 2026-05-04 (after the manual fix-up of the AC 17 fallout):
+#   AC 1, 2, 3, 10 — completed by job_fb71133bec1b (orchestrator-marked done)
+#   AC 4, 5, 9     — code criteria are met (verified by code-state audit on
+#                    movesetContract.ts, InputResolver.ts, Wolf.ts);
+#                    they were marked failed in job_fb71133bec1b only because
+#                    the project-wide tsc gate hit unrelated AC-17 fallout
+#                    (now fixed in src/replay/{replayTypes.test.ts,
+#                    ReplayFile.test.ts, RecordingController.ts}).
+#   AC 17          — NOT included; only the schema half is done. Controller
+#                    wiring of ItemSpawnEvent into RecordingController is
+#                    still pending and the orchestrator should finish it.
+
+completed_acs:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 9
+  - 10

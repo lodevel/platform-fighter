@@ -1,0 +1,7 @@
+version: "1.0"
+seed_id: cancel_repro
+goal: "Cancellation reproduction: write 'hello' to repro.txt"
+acceptance_criteria:
+  - "Create repro.txt containing the text hello"
+constraints: []
+context: "Minimal seed used to reproduce Ctrl-C cancellation behavior. Do not actually optimize this; just touch the file."

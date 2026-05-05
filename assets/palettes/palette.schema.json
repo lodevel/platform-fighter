@@ -1,0 +1,112 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://platform-fighter.local/palettes/palette.schema.json",
+  "title": "Character Palette Definition",
+  "description": "Per-character palette swap definition. Declares the canonical (source) atlas colour slots a character's sprite sheet is authored with, and the 8 named target variants the hue-shift batch script (M1.5) and the runtime palette-swap shader use to recolour that sheet.\n\nThe Seed contract requires '8 manual palette swaps per character via hue-shift batch script' — one of these files lives per character and is the single source of truth that pipeline reads. Slot names ('body', 'accent', 'highlight') match the PaletteSlot union in src/characters/paletteSwapShader.ts; canonical (variant index 0) target colours match the corresponding entry in src/characters/palettes.ts so the runtime TS table and the JSON pipeline data never drift.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "characterId",
+    "displayName",
+    "source",
+    "variants"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Optional JSON Schema reference. Editors use this for IntelliSense; the runtime ignores it."
+    },
+    "characterId": {
+      "type": "string",
+      "enum": ["wolf", "cat", "owl", "bear"],
+      "description": "Character id this palette file applies to. Mirrors CharacterId in src/types — a new character means a new enum entry here AND a new <char>.json file."
+    },
+    "displayName": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Human-readable character name used by tooling output ('Generated 8 variants for Wolf')."
+    },
+    "source": {
+      "type": "object",
+      "description": "Canonical source-palette slot colours present in the character's authored sprite sheet (palette index 0). The hue-shift batch script scans the input PNG for these exact RGB values and substitutes them per variant.",
+      "additionalProperties": false,
+      "required": ["body", "accent", "highlight"],
+      "properties": {
+        "body": {
+          "$ref": "#/definitions/rgbHex",
+          "description": "Dominant fur / skin colour."
+        },
+        "accent": {
+          "$ref": "#/definitions/rgbHex",
+          "description": "Outline / detail-stroke colour."
+        },
+        "highlight": {
+          "$ref": "#/definitions/rgbHex",
+          "description": "Optional bright highlight pixels (eyes, fur sheen). May equal accent when no separate highlight slot exists in the source art."
+        }
+      }
+    },
+    "variants": {
+      "type": "array",
+      "description": "Exactly 8 named target variants, indexed 0..7. Index 0 is canonical (its target colours equal source colours). Index 0..7 must appear in ascending order with no gaps.",
+      "minItems": 8,
+      "maxItems": 8,
+      "items": { "$ref": "#/definitions/variant" }
+    }
+  },
+  "definitions": {
+    "rgbHex": {
+      "type": "string",
+      "pattern": "^#[0-9a-fA-F]{6}$",
+      "description": "RGB colour in #RRGGBB hex notation. Lowercase preferred for diff stability. Alpha is implicit (always 0xFF) — palette swaps preserve the source pixel's alpha."
+    },
+    "variant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["index", "name", "mappings"],
+      "properties": {
+        "index": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 7,
+          "description": "Variant index 0..7. Mirrors PlayerSlot.paletteIndex and the character-select cycler. Must equal the array position of this entry."
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Short human-readable swatch label ('Crimson', 'Sky', 'Mint'). Surfaced in the character-select tooltip and the accessibility readout."
+        },
+        "isCanonical": {
+          "type": "boolean",
+          "description": "Marks the canonical variant whose target colours equal the source colours. Exactly one variant per file should be canonical, and it must be index 0. Optional — defaults to false."
+        },
+        "mappings": {
+          "type": "object",
+          "description": "Per-slot source→target colour pair. The hue-shift script walks every pixel of the canonical atlas; pixels matching mappings[slot].from are rewritten to mappings[slot].to to produce this variant's PNG. Pixels matching no slot pass through unchanged so transparent edges and shared neutrals stay intact.",
+          "additionalProperties": false,
+          "required": ["body", "accent", "highlight"],
+          "properties": {
+            "body":      { "$ref": "#/definitions/mapping" },
+            "accent":    { "$ref": "#/definitions/mapping" },
+            "highlight": { "$ref": "#/definitions/mapping" }
+          }
+        }
+      }
+    },
+    "mapping": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from", "to"],
+      "properties": {
+        "from": {
+          "$ref": "#/definitions/rgbHex",
+          "description": "Source pixel colour to match. Must equal the corresponding source.<slot> colour at the file root for the canonical variant; for non-canonical variants must still equal the file-root source.<slot> (the hue-shift script always reads pixels from the canonical atlas, never from a previously-generated variant)."
+        },
+        "to": {
+          "$ref": "#/definitions/rgbHex",
+          "description": "Target pixel colour to write. Free to differ across variants — this is what produces the visible palette swap."
+        }
+      }
+    }
+  }
+}

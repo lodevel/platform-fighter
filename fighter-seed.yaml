@@ -1,0 +1,239 @@
+goal: Build a full-featured 2D platform fighter (Super Smash Bros-inspired) for web
+  using Phaser 3 + Matter.js, featuring 4 characters with ~10 moves each, 4 hazard
+  stages, local multiplayer for up to 4 players (human/AI mix), a drag-and-drop stage
+  builder, a hybrid input-replay system with VCR controls, and full per-player input
+  rebinding — delivered across 5 sequential milestones (M1 core fighter, M2 full roster/stages/AI,
+  M3 stage builder, M4 replay, M5 accessibility)
+task_type: code
+brownfield_context:
+  project_type: greenfield
+  context_references: []
+  existing_patterns: []
+  existing_dependencies: []
+constraints:
+- Web platform using Phaser 3 + Matter.js only
+- Deterministic fixed-timestep physics engine — no Math.random() in gameplay, fixed-step
+  Matter.js integration, deterministic AI seeding
+- Chrome desktop target on recent laptop (last 5 years, integrated GPU)
+- 60 FPS minimum at all times
+- Responsive fullscreen resolution scaling
+- Bundle size < 100 MB
+- Max 2 keyboard players (P1=WASD+nearby, P2=Arrows+nearby), gamepads unlimited via
+  Gamepad API
+- 'Hybrid replay architecture: input-replay + state snapshots every 300 frames with
+  drift-resync'
+- 'Stage builder hard limit: 30 pieces per custom stage, max dimensions 2× screen
+  size, enforced at save time'
+- 'Art assets — strict priority order per asset category: (1) PRIMARY — free CC0/CC-BY
+  asset packs from itch.io, Kenney.nl, or OpenGameArt.org (CC-BY entries MUST be
+  credited in ATTRIBUTION.md at repo root; CC-BY-SA / CC-BY-NC / unclear licenses
+  are rejected); (2) FALLBACK — procedural pixel-art / shapes generated in TS code
+  via Phaser Graphics or canvas (palette-swap-friendly, source files marked with
+  "// procedural fallback"). Use the fallback only when no suitable pack exists,
+  bundle budget is tight, or an asset is needed before art is sourced. SFX from
+  freesound.org under the same priority rules. Placeholder rectangles are NOT
+  acceptable for v1 ship.'
+- 6-8 animation frames per move (~1120 base sprite frames across 4 characters)
+- 8 manual palette swaps per character via hue-shift batch script
+- 'Deployment: local dev server only (npm run dev) for v1, GitHub Pages post-v1'
+- 'NOT in v1: online multiplayer, unlockables/progression systems, mobile/touch input'
+- 'NOT in v1 accessibility: colorblind filters, reduced-motion sliders, SFX visual
+  cues'
+acceptance_criteria:
+- M1 — 2 characters playable on 1 flat stage, 3-stock local match, 60 FPS, victory
+  screen displayed, deterministic fixed-timestep engine verified running
+- 'M1.5 — Content pipeline established and 2 M1 characters wear real sprites: itch.io/Kenney/OpenGameArt
+  packs sourced for the 2 M1 characters and the M1 stage (CC0 or CC-BY only, attribution
+  written to ATTRIBUTION.md), Phaser asset loaders wired (this.load.spritesheet/atlas/audio
+  in a preload scene), the palette-swap build script implemented and producing 8
+  variants per character, SFX for jab/tilt/smash/aerial/shield/dodge/KO loaded and
+  playing, 1 stage music track loaded and looping, and the 2 M1 characters render
+  with real sprite frames (placeholder.spriteKey no longer null) — procedural pixel-art
+  fallback acceptable per asset only when no suitable pack exists or bundle budget
+  forbids, and any fallback must be marked with "// procedural fallback" in source.
+  Hitboxes re-tuned if sprite dimensions differ from placeholder rectangles.'
+- M2 — All 4 characters with full movesets selectable, all 4 hazard stages playable,
+  AI opponents functional at Easy/Medium/Hard, 32 palette swaps visible in character
+  select, full lobby with Press Start to join and character select
+- M3 — Player opens stage builder, drags pieces from 8-piece catalog, places at least
+  1 hazard, saves to localStorage, loads saved stage and plays a match on it
+- M4 — After any match player saves replay to persistent storage, loads it later,
+  uses pause/rewind/slow-mo/frame-advance controls, replay does not desync from recorded
+  match
+- M5 — Each of 4 players independently rebinds all actions (move/jump/attack/special/shield/grab/dodge)
+  for their input device (keyboard or gamepad), bindings persist across browser sessions
+- Damage system uses %-based knockback scaling with blast zone KOs on all 4 sides
+- Each character has jab + 1 tilt + 1 smash + 2 specials + 3 aerials + shield + dodge/roll
+  with i-frames + edge-grab (~10 distinct moves)
+- Hitstun locks hit player in hurt state briefly
+- Dynamic lava hazard rises/falls periodically with instant KO on contact
+- Platforms that drop/crumble/disappear on timer
+- Both Stock and Time modes selectable pre-match
+- Time-mode tie triggers sudden death
+- Same-character selection allowed with palette swap differentiation
+- Controller disconnect triggers pause with reconnect prompt
+- Edge-grab conflict resolved by first-come-first-served or push-off rule
+- Post-match stats screen shows KOs per player, damage dealt, and survival time
+- Rematch button and return-to-lobby button on results screen
+- AI Hard tier plays like competent human with ~15-20 frame reaction window, uses
+  basic combos and reliable recovery via behavior tree architecture
+- 'Polish pass — replace easy-to-source procedural fallbacks with real CC0/CC-BY
+  pack assets where the swap is cheap. Specifically: (1) Source Kenney CC0 sprite
+  atlases for Owl and Bear (e.g. Toon Characters / Pirate Pack / similar), wire
+  Phaser loaders, regenerate 8 palette variants each via the existing palette-swap
+  build script, set spriteKey to the new atlas key (no longer null), retune
+  hitboxes if dimensions differ from the procedural rectangles. (2) Source
+  Kenney CC0 platformer/tileset packs for stages 2, 3, and 4 backgrounds — three
+  visually-distinct packs (e.g. Sci-Fi Platformer, Industrial, Cave/Dungeon), wire
+  Phaser image loaders, populate assets/stages/{m2,m3,m4}/. (3) Update
+  ATTRIBUTION.md with author / source URL / license URL / used-in paths for every
+  newly-added pack. Procedural fallback retained for any asset where no suitable
+  CC0/CC-BY pack exists within ~20 minutes of search effort, bundle budget would
+  be exceeded, or hazard renderers (lava/wind/crumbling) where dynamic procedural
+  rendering is conventional. Acceptance: roster.ts no longer has spriteKey: null
+  for Owl or Bear (or has a one-line comment explaining why fallback was kept);
+  assets/stages/m2/, m3/, m4/ each contain at least one real background image;
+  ATTRIBUTION.md documents every new pack. Bundle size MUST stay under 100MB
+  (verify via npm run build). No regressions: npm test and npx tsc --noEmit must
+  still pass.'
+ontology_schema:
+  name: PlatformFighterGame
+  description: Domain model for a 2D platform fighter encompassing characters, movesets,
+    stages, hazards, match configuration, player slots, input systems, replay data,
+    and the stage builder
+  fields:
+  - name: character
+    type: object
+    description: A playable fighter with name, sprite sheet, 8 palette variants, and
+      a moveset of ~10 moves
+    required: true
+  - name: moveset
+    type: object
+    description: Collection of moves for a character including jab, tilt, smash, 2
+      specials, 3 aerials, shield, dodge, and edge-grab
+    required: true
+  - name: move
+    type: object
+    description: A single combat action with type (normal/special/aerial/defensive),
+      animation frames (6-8), hitbox data, damage percentage, knockback vector, and
+      startup/active/recovery frame counts
+    required: true
+  - name: stage
+    type: object
+    description: A playable arena with platform layout, blast zone boundaries on 4
+      sides, hazard placements, spawn points, background art, and music track
+    required: true
+  - name: hazard
+    type: object
+    description: A stage element that affects gameplay — lava (rising/falling, instant
+      KO), moving platform (path-based), crumbling platform (timer-based disappear),
+      or wind zone (force vector)
+    required: true
+  - name: playerSlot
+    type: object
+    description: One of 4 match slots configured as human or AI with chosen character,
+      palette index, input device assignment, and AI difficulty level if bot
+    required: true
+  - name: inputBinding
+    type: object
+    description: Per-player mapping of actions (move/jump/attack/special/shield/grab/dodge)
+      to keyboard keys or gamepad buttons, persistable to localStorage
+    required: true
+  - name: matchConfig
+    type: object
+    description: Pre-match settings including mode (stock or time), stock count, time
+      limit, stage selection, and player slot assignments
+    required: true
+  - name: matchState
+    type: object
+    description: Runtime state including each player's damage percentage, remaining
+      stocks, position, velocity, current animation state, and active hitboxes/hurtboxes
+    required: true
+  - name: replayData
+    type: object
+    description: Hybrid recording containing per-frame input streams for all players
+      plus state snapshots every 300 frames for drift-resync and VCR scrubbing
+    required: true
+  - name: customStage
+    type: object
+    description: User-created stage from builder with array of placed pieces (max
+      30), dimensions (max 2× screen), hazard placements, spawn points, serialized
+      to localStorage
+    required: true
+  - name: builderPiece
+    type: object
+    description: One of 8 catalog piece types (flat platform, slope/ramp, wall, drop-through
+      platform, lava zone, wind zone, moving platform, spawn point) with position,
+      rotation, and type-specific properties
+    required: true
+  - name: aiController
+    type: object
+    description: Bot behavior system with difficulty tier (easy/medium/hard), reaction
+      delay in frames, behavior tree definition, deterministic RNG seed, and decision
+      weights
+    required: true
+  - name: damageModel
+    type: object
+    description: Percentage-based system tracking current damage % per player, knockback
+      scaling formula (base knockback × damage multiplier), and blast zone distance
+      thresholds for KO
+    required: true
+  - name: gameSession
+    type: object
+    description: Top-level container for lobby state, match config, active match state,
+      post-match stats (KOs/damage/survival time per player), and replay save reference
+    required: true
+evaluation_principles:
+- name: gameplay_feel
+  description: Combat feels responsive and physics-driven — hits have impact, knockback
+    scales correctly with damage %, movement is tight and predictable at 60 FPS
+  weight: 0.25
+- name: determinism
+  description: Fixed-timestep engine produces identical simulation results given identical
+    inputs — verified by replay playback matching original match with no desync
+  weight: 0.2
+- name: feature_completeness
+  description: All 5 milestone acceptance criteria are fully met — 4 characters with
+    full movesets, 4 stages, stage builder, replay with VCR, and input rebinding all
+    functional
+  weight: 0.2
+- name: performance
+  description: Maintains 60 FPS with 4 active players, stage hazards, particle effects,
+    and AI processing on a 5-year-old laptop with integrated GPU in Chrome
+  weight: 0.15
+- name: ai_quality
+  description: AI opponents at Hard difficulty play like competent humans — use combos,
+    recover reliably, react within 15-20 frames — and Easy/Medium are noticeably weaker
+    in believable ways
+  weight: 0.1
+- name: code_architecture
+  description: Codebase is modular with clean separation between physics engine, rendering,
+    input, AI, replay, and builder systems — each milestone builds on prior without
+    requiring rewrites
+  weight: 0.1
+exit_conditions:
+- name: all_milestones_complete
+  description: All 5 milestones pass their acceptance tests
+  criteria: M1 through M5 acceptance criteria verified — full match playable with
+    4 characters on 4 stages, builder saves/loads custom stages, replay plays back
+    with VCR controls without desync, all players can rebind inputs persistently
+- name: performance_verified
+  description: Game runs at target framerate on target hardware
+  criteria: 4-player match with hazards active sustains 60 FPS in Chrome on a recent
+    integrated-GPU laptop with bundle under 100 MB
+- name: determinism_verified
+  description: Replay system proves engine determinism
+  criteria: A recorded match replays identically with hybrid snapshot resync keeping
+    state aligned through full VCR scrub operations
+- name: content_complete
+  description: All game assets are generated and integrated
+  criteria: 4 characters × ~1120 sprite frames × 8 palettes processed, 4 stage tilesets
+    with backgrounds, SFX for all combat actions, and 1 music track per stage all
+    loaded and playing
+metadata:
+  seed_id: seed_22e6521b8e2d
+  version: 1.1.0
+  created_at: '2026-04-30T21:05:55.015070Z'
+  ambiguity_score: 0.195
+  interview_id: interview_20260430_111418
+  parent_seed_id: null

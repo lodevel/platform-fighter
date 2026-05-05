@@ -1,0 +1,43 @@
+goal: Create a single file named hello.txt at the project root containing the text "hello world"
+task_type: code
+brownfield_context:
+  project_type: greenfield
+  context_references: []
+  existing_patterns: []
+  existing_dependencies: []
+constraints:
+- No external dependencies
+- Plain text file only
+- Project root only — no subdirectories
+acceptance_criteria:
+- A file named hello.txt exists at the project root
+- The file hello.txt contains exactly the text "hello world" with no trailing newline
+ontology_schema:
+  name: HelloFile
+  description: A trivial file artifact for testing seed execution lifecycle
+  fields:
+  - name: filename
+    type: string
+    description: The output file name
+    required: true
+  - name: contents
+    type: string
+    description: The exact text content
+    required: true
+evaluation_principles:
+- name: file_exists
+  description: hello.txt is present at the project root
+  weight: 0.5
+- name: contents_correct
+  description: hello.txt contains exactly "hello world"
+  weight: 0.5
+exit_conditions:
+- name: ac_satisfied
+  description: Both acceptance criteria are met
+  criteria: hello.txt exists with the exact required contents
+metadata:
+  seed_id: seed_test_resumability_kill
+  version: 1.0.0
+  ambiguity_score: 0.1
+  interview_id: null
+  parent_seed_id: null

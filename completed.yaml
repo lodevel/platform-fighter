@@ -1,0 +1,35 @@
+completed_acs:
+  - 1   # M1 — core fighter (2 chars, 1 stage, 3-stock match, victory screen, deterministic engine)
+  - 2   # M1.5 — content pipeline DONE: ATTRIBUTION.md (Cat=dogchicken CC-BY 3.0, Wolf+M1 stage=Kenney CC0); 208 PNGs at assets/stages/m1/; 8 audio files; palette-swap script ships 8 variants/char
+  - 3   # M2 — full roster + stages + AI: code complete (Wolf/Cat/Owl/Bear movesets, Stage1-4, Easy/Med/Hard AI, 32 palettes, lobby Press-Start). PROCEDURAL FALLBACK ACCEPTED for: Owl & Bear sprite atlases (spriteKey: null at roster.ts:452,475 — flat-color rect render), stages 2/3/4 backgrounds (no assets/stages/m2,m3,m4/ — StageRenderer.ts procedural). Polish AC #20 will upgrade these where cheap.
+  - 4   # M3 — stage builder (8-piece catalog, drag/drop, localStorage save/load, customStageMatchLauncher)
+  - 5   # M4 — replay save/load with VCR controls
+  - 6   # M5 — input rebinding (per-player keyboard + gamepad rebind UI, BindingsStorage/Persistence, cross-session integration test)
+  - 7   # Damage system %-based knockback + blast zone KOs
+  - 8   # Each char ~10 distinct moves (jab/tilt/smash + 3 aerials nair/fair/bair + 3 specials side/up/down + shield/dodge/edge-grab)
+  - 9   # Hitstun
+  - 10  # Dynamic lava hazard
+  - 11  # Crumbling/disappearing platforms
+  - 12  # Stock + Time modes selectable pre-match
+  - 13  # Time-mode tie → sudden death
+  - 14  # Same-character palette swaps
+  - 15  # Controller disconnect handling
+  - 16  # Edge-grab conflict (ledgeConflictResolver.ts — FCFS + push-off rules)
+  - 17  # Post-match stats screen (resultsStats.ts — KOs/damage/survival per player)
+  - 18  # Rematch + return-to-lobby buttons (resultsButtons.ts — REMATCH→MatchScene, BACK TO LOBBY→CharacterSelectScene)
+  - 19  # AI Hard tier (BehaviorTree + Blackboard, hardTierReaction.ts band 15-20 frames, hardCombos.ts, HardRecoveryTree.ts — all with .test.ts)
+
+# AC #20 (polish pass) is INTENTIONALLY NOT in this list — that's what the next run will work on.
+#
+# Verification done 2026-05-03:
+#   - Code audit: all 19 ACs have files + tests on disk
+#   - `npx tsc --noEmit` → 0 errors
+#   - `npm test -- --run src/ai src/characters src/stages src/ui/RebindingScreen src/input` → 143 files, 4822 tests pass
+#   - Asset audit: real sprites for Wolf+Cat, real Kenney M1 stage art, 8 audio files, ATTRIBUTION.md complete
+#   - Procedural fallbacks accepted by user for: Owl/Bear sprite atlases, stages 2-4 backgrounds, hazard renderers
+#
+# Seed exit conditions still requiring manual verification (out of any agent's reach):
+#   - performance_verified: 60 FPS on real laptop hardware
+#   - determinism_verified: in-browser replay round-trip with no desync
+#   - content_complete: bundle <100MB (run `npm run build` and inspect dist/)
+#   - all_milestones_complete: full match playthrough with all 4 chars on all 4 stages

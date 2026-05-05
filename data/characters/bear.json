@@ -1,0 +1,21 @@
+{
+  "$schema": "../../src/characters/characterSerializer.schema.json",
+  "id": "bear",
+  "displayName": "Bear",
+  "role": "grappler",
+  "body": {
+    "width": 55,
+    "height": 76,
+    "chamfer": 16
+  },
+  "movement": {
+    "maxRunSpeed": 6.0,
+    "groundAccel": 0.5,
+    "airAccel": 0.25,
+    "groundDamping": 0.74,
+    "airDamping": 0.93,
+    "jumpImpulse": 11.5,
+    "maxJumps": 2,
+    "mass": 20
+  }
+}

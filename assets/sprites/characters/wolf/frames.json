@@ -1,0 +1,273 @@
+{
+  "meta": {
+    "source": "../../../characters/wolf/wolf_source_sheet.png",
+    "cellWidth": 64,
+    "cellHeight": 64,
+    "sheetCols": 16,
+    "sheetRows": 16,
+    "license": "CC-BY 3.0",
+    "attribution": "Dog Fighter (Cat Fighter remix base + add on one) \u2014 IsometricRobot, https://opengameart.org/content/dog-fighter-cat-fighter-remix-base-add-on-one"
+  },
+  "animations": {
+    "idle": {
+      "strip": "animations/idle.png",
+      "frameCount": 4,
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ]
+      ]
+    },
+    "walk": {
+      "strip": "animations/walk.png",
+      "frameCount": 8,
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "sourceCells": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          5,
+          1
+        ],
+        [
+          6,
+          1
+        ],
+        [
+          7,
+          1
+        ]
+      ]
+    },
+    "jump": {
+      "strip": "animations/jump.png",
+      "frameCount": 5,
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "sourceCells": [
+        [
+          3,
+          3
+        ],
+        [
+          4,
+          3
+        ],
+        [
+          5,
+          3
+        ],
+        [
+          6,
+          3
+        ],
+        [
+          7,
+          3
+        ]
+      ]
+    },
+    "jab": {
+      "strip": "animations/jab.png",
+      "frameCount": 4,
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "sourceCells": [
+        [
+          3,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          5,
+          4
+        ],
+        [
+          6,
+          4
+        ]
+      ]
+    },
+    "tilt": {
+      "strip": "animations/tilt.png",
+      "frameCount": 4,
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "sourceCells": [
+        [
+          0,
+          5
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          3,
+          5
+        ]
+      ]
+    },
+    "smash": {
+      "strip": "animations/smash.png",
+      "frameCount": 8,
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "sourceCells": [
+        [
+          0,
+          14
+        ],
+        [
+          1,
+          14
+        ],
+        [
+          2,
+          14
+        ],
+        [
+          3,
+          14
+        ],
+        [
+          4,
+          14
+        ],
+        [
+          5,
+          14
+        ],
+        [
+          6,
+          14
+        ],
+        [
+          7,
+          14
+        ]
+      ]
+    },
+    "aerial": {
+      "strip": "animations/aerial.png",
+      "frameCount": 6,
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "sourceCells": [
+        [
+          4,
+          10
+        ],
+        [
+          5,
+          10
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          7,
+          10
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          9,
+          10
+        ]
+      ]
+    },
+    "shield": {
+      "strip": "animations/shield.png",
+      "frameCount": 4,
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "sourceCells": [
+        [
+          0,
+          6
+        ],
+        [
+          1,
+          6
+        ],
+        [
+          2,
+          6
+        ],
+        [
+          3,
+          6
+        ]
+      ]
+    },
+    "dodge": {
+      "strip": "animations/dodge.png",
+      "frameCount": 4,
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "sourceCells": [
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          3,
+          2
+        ]
+      ]
+    }
+  }
+}
