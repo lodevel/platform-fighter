@@ -31,9 +31,11 @@ jobs:
       - run: npm ci
       - run: npm run build
 
+      # Pages must be enabled manually once (Settings → Pages → Source:
+      # GitHub Actions). The `enablement: true` shortcut needs admin
+      # token permissions the default GITHUB_TOKEN lacks, so we don't
+      # use it.
       - uses: actions/configure-pages@v5
-        with:
-          enablement: true
 
       - uses: actions/upload-pages-artifact@v3
         with:
