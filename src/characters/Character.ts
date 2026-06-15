@@ -3058,6 +3058,13 @@ export class Character {
     for (const v of this.recentMoveY) {
       if (Math.abs(v) > Math.abs(bufferedMoveY)) bufferedMoveY = v;
     }
+    // Down-special fires on a held DOWN-stick, not only the drop-through
+    // gesture. Without the stick read, holding down + special fell through to
+    // the NEUTRAL special — so e.g. Nova's bomb (down-B) was unreachable and a
+    // down+special gave the CANNON CHARGE (neutral-B) instead. (+moveY = down
+    // in screen-space; same 0.3 threshold the down-tilt/down-smash use.)
+    const downSpecialHeld =
+      input.dropThrough === true || bufferedMoveY >= DEFAULT_NEUTRAL_THRESHOLD;
     this.tickAttack(
       attackHeldEffective,
       heavyHeldEffective,
@@ -3066,7 +3073,7 @@ export class Character {
       prevFacing,
       justLanded,
       specialHeldEffective,
-      input.dropThrough === true,
+      downSpecialHeld,
       input.jump === true,
       shieldHeld,
       bufferedMoveY,

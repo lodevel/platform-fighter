@@ -6233,6 +6233,77 @@ describe('Character — timed bomb down-special (fuse + bomb-jump)', () => {
   });
 });
 
+// ---------------------------------------------------------------------------
+// Special-direction dispatch — a HELD down-stick + special must fire the
+// DOWN-special, not fall through to the neutral special. REGRESSION: `down`
+// only read `dropThrough`, so holding down + special gave the NEUTRAL special
+// (e.g. Nova's bomb was unreachable — you got the cannon charge instead).
+// ---------------------------------------------------------------------------
+
+describe('Character — special direction: held down-stick fires the down-special', () => {
+  const NEUTRAL_SP = {
+    id: 'test.neutral_sp',
+    type: 'special' as const,
+    damage: 5,
+    knockback: { x: 2, y: -1, scaling: 0.1 },
+    hitbox: { offsetX: 24, offsetY: -4, width: 30, height: 30 },
+    startupFrames: 2,
+    activeFrames: 2,
+    recoveryFrames: 2,
+    cooldownFrames: 2,
+  };
+  const DOWN_SP = {
+    id: 'test.down_sp',
+    type: 'downSpecial' as const,
+    downSpecialKind: 'trap' as const,
+    damage: 0,
+    knockback: { x: 0, y: 0, scaling: 0 },
+    hitbox: { offsetX: 0, offsetY: 0, width: 1, height: 1 },
+    startupFrames: 2,
+    activeFrames: 2,
+    recoveryFrames: 2,
+    cooldownFrames: 2,
+    trap: {
+      trapWidth: 40,
+      trapHeight: 20,
+      spawnOffsetX: 0,
+      spawnOffsetY: 36,
+      armDelayFrames: 3,
+      trapLifetimeFrames: 40,
+      trapDamage: 8,
+      trapKnockback: { x: 2, y: -1.5, scaling: 0.15 },
+      maxActiveTraps: 1,
+    },
+  };
+
+  function twoSpecialChar(): Character {
+    const m = createMockScene();
+    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    ch.registerAttack(NEUTRAL_SP);
+    ch.setNeutralSpecial('test.neutral_sp');
+    ch.registerAttack(DOWN_SP);
+    ch.setDownSpecial('test.down_sp');
+    ground(ch, m);
+    return ch;
+  }
+
+  it('holding DOWN (stick, no drop-through) + special → DOWN-special, not neutral', () => {
+    const ch = twoSpecialChar();
+    ch.applyInput({ moveX: 0, jump: false, special: true, moveY: 1 }); // down held
+    const active = ch.getActiveAttack();
+    expect(active).not.toBeNull();
+    expect(active!.move.id).toBe('test.down_sp');
+  });
+
+  it('special with NO direction still fires the neutral special', () => {
+    const ch = twoSpecialChar();
+    ch.applyInput({ moveX: 0, jump: false, special: true }); // neutral
+    const active = ch.getActiveAttack();
+    expect(active).not.toBeNull();
+    expect(active!.move.id).toBe('test.neutral_sp');
+  });
+});
+
 describe('Character — command grab (unblockable throw on connect)', () => {
   const COMMAND_GRAB = {
     id: 'test.cgrab',
