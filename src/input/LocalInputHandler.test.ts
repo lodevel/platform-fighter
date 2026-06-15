@@ -283,7 +283,7 @@ describe('LocalInputHandler.sample() — player isolation', () => {
     const p1 = handler.sample(1);
     const p2 = handler.sample(2);
     expect(p1).toEqual({
-      moveX: -1,
+      moveX: -1, moveY: 0,
       jump: false,
       attack: true,
       shield: false,
@@ -293,7 +293,7 @@ describe('LocalInputHandler.sample() — player isolation', () => {
       dropThrough: false,
     });
     expect(p2).toEqual({
-      moveX: 1,
+      moveX: 1, moveY: -1, // ArrowUp doubles as the 'up' action while jumping
       jump: true,
       attack: false,
       shield: false,

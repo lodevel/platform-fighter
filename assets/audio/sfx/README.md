@@ -7,18 +7,37 @@ Upstream license files are preserved verbatim alongside the assets.
 
 ## Inventory
 
-| File          | Action          | Source pack          | Source filename                       |
-|---------------|-----------------|----------------------|---------------------------------------|
-| `jab.ogg`     | Light jab hit   | Kenney Impact Sounds | `Audio/impactPunch_medium_000.ogg`    |
-| `tilt.ogg`    | Tilt attack hit | Kenney Impact Sounds | `Audio/impactWood_medium_000.ogg`     |
-| `smash.ogg`   | Heavy smash hit | Kenney Impact Sounds | `Audio/impactPunch_heavy_000.ogg`     |
-| `aerial.ogg`  | Aerial hit      | Kenney Impact Sounds | `Audio/impactPlate_light_000.ogg`     |
-| `ko.ogg`      | KO / blast-zone | Kenney Impact Sounds | `Audio/impactBell_heavy_000.ogg`      |
-| `shield.ogg`  | Shield raise    | Kenney UI Audio      | `Audio/switch3.ogg`                   |
-| `dodge.ogg`   | Spot/air dodge  | Kenney UI Audio      | `Audio/switch16.ogg`                  |
+| File                | Action               | Source pack              | Source filename                    |
+|---------------------|----------------------|--------------------------|------------------------------------|
+| `jab.ogg`           | Light jab swing      | Kenney Impact Sounds     | `Audio/impactPunch_medium_000.ogg` |
+| `tilt.ogg`          | Tilt attack swing    | Kenney Impact Sounds     | `Audio/impactWood_medium_000.ogg`  |
+| `smash.ogg`         | Heavy smash swing    | Kenney Impact Sounds     | `Audio/impactPunch_heavy_000.ogg`  |
+| `aerial.ogg`        | Aerial swing         | Kenney Impact Sounds     | `Audio/impactPlate_light_000.ogg`  |
+| `ko.ogg`            | KO / blast-zone      | Kenney Impact Sounds     | `Audio/impactBell_heavy_000.ogg`   |
+| `shield.ogg`        | Shield raise         | Kenney UI Audio          | `Audio/switch3.ogg`                |
+| `dodge.ogg`         | Spot/air dodge       | Kenney UI Audio          | `Audio/switch16.ogg`               |
+| `jump.wav`          | Ground jump          | Kenney Interface Sounds  | `maximize_003.wav`                 |
+| `jump_air.wav`      | Air / multi-jump     | Kenney Interface Sounds  | `maximize_007.wav`                 |
+| `land.wav`          | Landing thud         | Kenney Interface Sounds  | `minimize_003.wav`                 |
+| `hit_light.wav`     | Light hit connect    | Kenney Interface Sounds  | `drop_001.wav`                     |
+| `hit_heavy.wav`     | Heavy hit connect    | Kenney Interface Sounds  | `drop_003.wav`                     |
+| `clang.wav`         | Held-weapon clang    | Kenney Interface Sounds  | `glass_001.wav`                    |
+| `shield_break.wav`  | Shield shatter       | Kenney Interface Sounds  | `glass_004.wav`                    |
+| `charge.wav`        | Charge wind-up loop  | Kenney Interface Sounds  | `bong_001.wav`                     |
 
-All files are 44.1 kHz Vorbis (`.ogg`) — playable directly via Phaser's
-WebAudio backend (no transcode step needed).
+The original seven cuts are 44.1 kHz Vorbis (`.ogg`); the AC 10304
+action-audio expansion adds eight 44.1 kHz `.wav` cuts (the Kenney
+Interface Sounds CC0 mirror distributes WAV). Both formats are playable
+directly via Phaser's WebAudio backend — no transcode step needed.
+
+## Swing vs connect
+
+`jab` / `tilt` / `smash` / `aerial` voice the **swing** (the swoosh as
+the hitbox spawns, whether or not it touches anyone). `hit_light` /
+`hit_heavy` / `clang` voice the **connect** — the crunch the frame a hit
+actually lands on a defender, chosen by damage (light below 9%, heavy at
+or above) with the metallic clang overriding for held-weapon hits. Smash
+plays both layers.
 
 ## Source packs
 
@@ -28,6 +47,11 @@ WebAudio backend (no transcode step needed).
 - **Kenney — UI Audio (1.0)** · CC0 1.0 ·
   https://kenney.nl/assets/ui-audio
   License preserved at `LICENSE-kenney-ui-audio.txt`.
+- **Kenney — Interface Sounds (1.0)** · CC0 1.0 ·
+  https://kenney.nl/assets/interface-sounds
+  (downloaded from the CC0 Godot mirror
+  https://github.com/Calinou/kenney-interface-sounds)
+  License preserved at `LICENSE-kenney-interface-sounds.txt`.
 
 ## How they were chosen
 

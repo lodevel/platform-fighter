@@ -146,6 +146,7 @@
  */
 
 import type Phaser from 'phaser';
+import { ContractFighter } from './contractFighter';
 import { Character, type CharacterTuning } from './Character';
 import { registerFighterAttack } from './attackRegistration';
 import type { AttackMoveWithAnimation } from './moveSchema';
@@ -154,6 +155,7 @@ import type { CommandGrabSpecialMove } from './specialSchema';
 import type { CommandDashSideSpecialMove } from './sideSpecialSchema';
 import type { TetherUpSpecialMove } from './upSpecialSchema';
 import type { CounterDownSpecialMove } from './downSpecialSchema';
+import type { GrabSpec } from './grabSchema';
 import { SHIELD_DEFAULTS } from './shieldState';
 import { DODGE_DEFAULTS } from './dodgeState';
 import type {
@@ -162,6 +164,13 @@ import type {
   FighterMovementProfile,
 } from './movesetContract';
 import { BEAR_MOVEMENT_PROFILE } from './fighterMovementProfiles';
+// Extended-slot directional moves authored in `extendedMoves.ts`:
+// BEAR_UAIR (up-air launcher), BEAR_DAIR (down-air spike), and
+// BEAR_UP_LIGHT (re-used here as the up-tilt). The up-smash
+// (`BEAR_USMASH`) is authored inline below alongside Bear's other
+// grounded moves because the extended-moves file does not carry an
+// up-smash slot for the grappler kit.
+import { BEAR_UAIR, BEAR_DAIR, BEAR_UP_LIGHT, BEAR_DOWN_LIGHT } from './extendedMoves';
 
 // Re-export so consumers that historically imported `BEAR_MOVEMENT_PROFILE`
 // from this file (the per-fighter API surface) keep working byte-for-byte.
@@ -181,7 +190,7 @@ export { BEAR_MOVEMENT_PROFILE };
  * Sub-AC 1's canonical `SHIELD_DEFAULTS`); a per-character shield
  * balance pass would land here later.
  */
-export const BEAR_TUNING: Required<Omit<CharacterTuning, 'shield' | 'dodge' | 'ledge' | 'ledgeDetection'>> = {
+export const BEAR_TUNING: Required<Omit<CharacterTuning, 'shield' | 'dodge' | 'ledge' | 'ledgeDetection' | 'locomotion'>> = {
   // Sub-AC 2.2 of the T2 refactor — movement-relevant fields composed
   // from `BEAR_MOVEMENT_PROFILE` (the per-fighter movement profile —
   // single source of truth in `fighterMovementProfiles.ts`). Body
@@ -247,6 +256,53 @@ export const BEAR_JAB: AttackMoveWithAnimation = {
     activeFrames: 1,
     recoveryFrames: 3,
   },
+  // Jab-combo opener: a re-press once jab1's hitbox is out advances to
+  // jab2 → jab3 (the finisher). Tier 4. Mirrors the Wolf jab string.
+  jabChain: { nextId: 'bear.jab2' },
+};
+
+/**
+ * Bear's jab string — stage 2. A quick follow-up poke that chains from
+ * {@link BEAR_JAB} on a re-press and itself links to the
+ * {@link BEAR_JAB3} finisher. Registered as a `'jab'` move but never the
+ * light slot (first-registered jab1 keeps it) — reachable ONLY via the
+ * chain link. Damage ≈ jab1 × 0.7 (round(7 × 0.7) = 5), slightly softer
+ * knockback than jab1, and a touch more forward reach (offsetX nudged
+ * out) so the second poke pushes a hair further than the opener.
+ */
+export const BEAR_JAB2: AttackMoveWithAnimation = {
+  id: 'bear.jab2',
+  type: 'jab',
+  damage: 5,
+  knockback: { x: 1.5, y: -0.4, scaling: 0.06 },
+  hitbox: { offsetX: 30, offsetY: -4, width: 35, height: 30 },
+  startupFrames: 4,
+  activeFrames: 2,
+  recoveryFrames: 8,
+  cooldownFrames: 15,
+  animation: { startupFrames: 2, activeFrames: 1, recoveryFrames: 3 },
+  jabChain: { nextId: 'bear.jab3' },
+};
+
+/**
+ * Bear's jab string — finisher (stage 3). The launcher that ends the
+ * string: more knockback + a base-magnitude floor so it pops the
+ * opponent away even at low percent. Damage ≈ jab1 × 1.15
+ * (round(7 × 1.15) = 8), a slightly wider hitbox, and slower committal
+ * frames. No `jabChain` — the chain terminates here, and its
+ * `cooldownFrames` is the post-string lockout.
+ */
+export const BEAR_JAB3: AttackMoveWithAnimation = {
+  id: 'bear.jab3',
+  type: 'jab',
+  damage: 8,
+  knockback: { x: 3.4, y: -1.7, scaling: 0.15, baseMagnitude: 1.0 },
+  hitbox: { offsetX: 32, offsetY: -4, width: 40, height: 33 },
+  startupFrames: 6,
+  activeFrames: 3,
+  recoveryFrames: 15,
+  cooldownFrames: 23,
+  animation: { startupFrames: 2, activeFrames: 1, recoveryFrames: 4 },
 };
 
 /**
@@ -345,7 +401,15 @@ export const BEAR_SMASH: AttackMoveWithAnimation = {
   id: 'bear.smash',
   type: 'smash',
   damage: 16,
-  knockback: { x: 4.5, y: -1.6, scaling: 0.42 },
+  knockback: { x: 4.5, y: -1.6, scaling: 0.42, baseMagnitude: 1.4, damageGrowth: 0.5 },
+  charge: {
+    minChargeFrames: 0,
+    maxChargeFrames: 60,
+    minDamage: 16,
+    maxDamage: 22.4,
+    minKnockback: { x: 4.5, y: -1.6, scaling: 0.42, baseMagnitude: 1.4, damageGrowth: 0.5 },
+    maxKnockback: { x: 6.3, y: -2.24, scaling: 0.525, baseMagnitude: 1.4, damageGrowth: 0.5 },
+  },
   hitbox: {
     offsetX: 38,
     offsetY: -5,
@@ -543,6 +607,162 @@ export const BEAR_BAIR: AerialMove = {
   },
   landingLagFrames: 26,
   autoCancelWindows: [{ startFrame: 0, endFrame: 7 }],
+};
+
+/**
+ * Bear's up-smash — a rising two-paw uppercut (up-stick + heavy). The
+ * grounded vertical KO finisher: Bear rears back and slams both paws
+ * upward, launching a juggled opponent straight off the top blast zone.
+ * Mirrors Wolf's up-smash role (`wolf.usmash`) but cranked to Bear's
+ * grappler apex — hardest hit, slowest wind-up.
+ *
+ * Where it sits vs the rest of Bear's kit and Wolf's up-smash:
+ *
+ *   • Damage    : 18 — the single hardest swing in Bear's entire kit,
+ *                 above his forward smash (16) and Wolf's up-smash (16).
+ *                 A charged Bear up-smash under a juggled opponent is
+ *                 the surest KO in the M2 cut.
+ *   • Knockback : x 0.3 / y -3.8, scaling 0.44 with baseMagnitude 1.4 /
+ *                 damageGrowth 0.5. Mirrors the KB *shape* of Bear's
+ *                 forward smash (baseMagnitude 1.4, damageGrowth 0.5)
+ *                 so the up-smash reads as "the smash button, pointed
+ *                 up" — but with a near-pure-vertical launch (y -3.8)
+ *                 and higher scaling (0.44 vs the forward smash's 0.42)
+ *                 because a vertical KO needs more raw magnitude to
+ *                 clear the (taller) top blast zone. Hardest vertical
+ *                 launch in the cast.
+ *   • Frames    : 15 startup / 4 active / 22 recovery + 24 cooldown.
+ *                 Lockout = 65 frames (~1083 ms). Slower than his
+ *                 forward smash (14 startup) and Wolf's up-smash (12) —
+ *                 the grappler "slowest, hardest" lever on the vertical
+ *                 KO move. Punish-the-whiff hard if you read it wrong.
+ *   • Hitbox    : 0 px offset (body-centred column), 46×48 sensor pushed
+ *                 up (offsetY -38) so the hit window sits above Bear's
+ *                 head — catches a juggled opponent directly overhead.
+ *                 Widest up-smash sensor in the cast (Wolf 40×44),
+ *                 matching Bear's "big body, big swing" identity.
+ *
+ * Animation states: 8 art frames — 3 startup, 1 active, 4 recovery.
+ * Mirrors Bear's forward-smash anticipation curve (long telegraphed
+ * wind-up, generous punishable recovery) so the heavy vertical swing
+ * reads with the same readability.
+ */
+export const BEAR_USMASH: AttackMoveWithAnimation = {
+  id: 'bear.usmash',
+  type: 'smash',
+  damage: 18,
+  knockback: { x: 0.3, y: -3.8, scaling: 0.44, baseMagnitude: 1.4, damageGrowth: 0.5 },
+  charge: {
+    minChargeFrames: 0,
+    maxChargeFrames: 60,
+    minDamage: 18,
+    maxDamage: 25.2,
+    minKnockback: { x: 0.3, y: -3.8, scaling: 0.44, baseMagnitude: 1.4, damageGrowth: 0.5 },
+    maxKnockback: { x: 0.42, y: -5.32, scaling: 0.55, baseMagnitude: 1.4, damageGrowth: 0.5 },
+  },
+  hitbox: { offsetX: 12, offsetY: -29, width: 75, height: 68 },
+  startupFrames: 15,
+  activeFrames: 4,
+  recoveryFrames: 22,
+  cooldownFrames: 24,
+  animation: { startupFrames: 3, activeFrames: 1, recoveryFrames: 4 },
+};
+
+/**
+ * Bear's down-smash — a sweeping two-paw ground slam (down-stick + heavy).
+ * The grappler's grounded HORIZONTAL KO finisher: Bear slams both paws
+ * outward along the floor, covering a wide swath at his feet and sending
+ * a grounded opponent low and outward toward the side blast zone.
+ *
+ * Mirrors the KB SHAPE of Bear's forward smash (`BEAR_SMASH`:
+ * baseMagnitude 1.4, damageGrowth 0.5, scaling 0.42) so the down-smash
+ * reads as "the smash button, pointed at the floor" — but with a flatter,
+ * lower launch (y -1.0 vs the forward smash's -1.6) because the grounded
+ * sweep sends outward-and-low, not up-and-out. Tuned to Bear's apex-power
+ * heavyweight identity: hardest grounded horizontal KO in the cast, paid
+ * for in the slowest grounded startup short of his up-smash.
+ *
+ *   • Reach     : offsetX 36, offsetY +10 (at the feet), 56×18 sensor —
+ *                 the WIDEST grounded hit window in Bear's kit (his
+ *                 forward smash is 48 wide), the canonical "sweep both
+ *                 sides at the feet" down-smash footprint.
+ *   • Damage    : 15 — just under his forward smash (16); the down-smash
+ *                 is the slightly-cheaper-per-hit grounded KO that covers
+ *                 a wider area.
+ *   • Knockback : x 4.4 / y -1.0, scaling 0.42 with baseMagnitude 1.4 /
+ *                 damageGrowth 0.5 (the forward smash's KB shape). KOs
+ *                 Cat from centre stage at ~85 %.
+ *   • Frames    : 13 startup / 4 active / 19 recovery + 24 cooldown.
+ *                 Lockout = 60 frames (~1000 ms). Slow — between his
+ *                 forward smash (14 startup) and tilt (8); punish-the-
+ *                 whiff hard if you read it wrong.
+ *
+ * Animation states (8 art frames): 3 startup, 1 active, 4 recovery —
+ * mirrors Bear's forward-smash anticipation curve so the heavy sweep
+ * telegraphs commitment with the same readability.
+ */
+export const BEAR_DSMASH: AttackMoveWithAnimation = {
+  id: 'bear.dsmash',
+  type: 'smash',
+  damage: 15,
+  knockback: { x: 4.4, y: -1.0, scaling: 0.42, baseMagnitude: 1.4, damageGrowth: 0.5 },
+  charge: {
+    minChargeFrames: 0,
+    maxChargeFrames: 60,
+    minDamage: 15,
+    maxDamage: 21,
+    minKnockback: { x: 4.4, y: -1.0, scaling: 0.42, baseMagnitude: 1.4, damageGrowth: 0.5 },
+    maxKnockback: { x: 6.16, y: -1.4, scaling: 0.525, baseMagnitude: 1.4, damageGrowth: 0.5 },
+  },
+  hitbox: { offsetX: 36, offsetY: 10, width: 56, height: 18 },
+  startupFrames: 13,
+  activeFrames: 4,
+  recoveryFrames: 19,
+  cooldownFrames: 24,
+  animation: { startupFrames: 3, activeFrames: 1, recoveryFrames: 4 },
+};
+
+/**
+ * Bear's dash-attack — a forward lunging shoulder check (run + attack).
+ * The grappler's running BURST approach / combo-starter: Bear throws his
+ * mass forward at the end of a run, closing the gap his slow walk can't
+ * and popping a grounded opponent up-and-forward into a juggle.
+ *
+ * `type: 'tilt'` (its forward slot is taken by `BEAR_TILT`, so it is
+ * wired explicitly via `setDashAttack`). Weaker than a smash — a burst
+ * approach tool, not a finisher — but harder than his jab, scaled to the
+ * heavyweight's "every swing hits hard" identity.
+ *
+ *   • Reach     : offsetX 40 (forward — the lunge reaches past his
+ *                 body), offsetY -3, 50×34 sensor. The most forward-
+ *                 extended grounded hit window in Bear's kit, matching
+ *                 the "travel into the hit" dash-attack feel.
+ *   • Damage    : 11 — above his tilt (10), below his forward smash (16).
+ *                 The hardest dash-attack feel scaled to the grappler.
+ *   • Knockback : x 2.4 / y -1.4, scaling 0.18. Forward-AND-up launch
+ *                 (atan2(1.4, 2.4) ≈ 30°) — pops the target into a juggle
+ *                 above-and-ahead of Bear rather than launching them away,
+ *                 the combo-starter trajectory.
+ *   • Frames    : 8 startup / 4 active / 16 recovery + 14 cooldown.
+ *                 Lockout = 42 frames (~700 ms). Medium startup —
+ *                 slower than his jab (5) so the running commitment is
+ *                 readable, faster than his smashes.
+ *
+ * Animation states (8 art frames): 2 startup, 2 active, 4 recovery —
+ * the two active art frames let the lunge travel visibly through the hit
+ * window; generous recovery so a whiffed dash-in is punishable.
+ */
+export const BEAR_DASHATTACK: AttackMoveWithAnimation = {
+  id: 'bear.dashAttack',
+  type: 'tilt',
+  damage: 11,
+  knockback: { x: 2.4, y: -1.4, scaling: 0.18 },
+  hitbox: { offsetX: 40, offsetY: -3, width: 50, height: 34 },
+  startupFrames: 8,
+  activeFrames: 4,
+  recoveryFrames: 16,
+  cooldownFrames: 14,
+  animation: { startupFrames: 2, activeFrames: 2, recoveryFrames: 4 },
 };
 
 /**
@@ -964,6 +1184,29 @@ export const BEAR_DOWN_SPECIAL: CounterDownSpecialMove = {
  * consume this record directly; until then the constructor still
  * calls `registerAttack(...)` so existing dispatch keeps working.
  */
+/**
+ * Bear's grab — the GRAPPLER's signature standing grab: long reach, the
+ * hardest throws in the cast, and a heavy pummel. Fits his whole identity
+ * (his neutral + side specials are command grabs too).
+ */
+export const BEAR_GRAB: GrabSpec = {
+  id: 'bear.grab',
+  hitbox: { offsetX: 30, offsetY: -2, width: 30, height: 34 },
+  startupFrames: 8,
+  activeFrames: 2,
+  whiffRecoveryFrames: 34,
+  holdFramesMax: 96,
+  throwRecoveryFrames: 25,
+  pummel: { damage: 2.2, cooldownFrames: 14 },
+  dashGrab: { rangeBonusX: 12, momentumRetain: 0.5 },
+  throws: {
+    forward: { damage: 11, knockback: { x: 3.0, y: -1.1, scaling: 0.13 }, animationFrames: 23 },
+    back: { damage: 13, knockback: { x: 3.4, y: -1.3, scaling: 0.15 }, animationFrames: 27 },
+    up: { damage: 10, knockback: { x: 0.5, y: -3.4, scaling: 0.13 }, animationFrames: 17 },
+    down: { damage: 8, knockback: { x: 1.0, y: 1.3, scaling: 0.1 }, animationFrames: 18 },
+  },
+};
+
 export const BEAR_MOVESET: FighterMoveset = Object.freeze({
   jab: BEAR_JAB,
   tilt: BEAR_TILT,
@@ -1012,7 +1255,7 @@ export interface BearOptions extends CharacterTuning {
  * move, the runtime continues dispatching through the legacy slot
  * table exactly as before — no behavioural change.
  */
-export class Bear extends Character {
+export class Bear extends ContractFighter {
   /**
    * Bear's 10-slot uniform moveset surface (Sub-AC 2 of T2 refactor).
    * Points at the frozen {@link BEAR_MOVESET} table — every consumer
@@ -1055,6 +1298,11 @@ export class Bear extends Character {
     // specials land in later sub-ACs alongside the rest of the M2
     // roster expansion.
     registerFighterAttack(this, BEAR_JAB);
+    // Jab-string stages 2/3 — registered as 'jab' moves but jab1 keeps
+    // the light slot via first-registered-wins. Reachable only via the
+    // jabChain link off BEAR_JAB. Mirrors the Wolf jab string.
+    registerFighterAttack(this, BEAR_JAB2);
+    registerFighterAttack(this, BEAR_JAB3);
     registerFighterAttack(this, BEAR_TILT);
     registerFighterAttack(this, BEAR_SMASH);
     // Aerials — registered in the canonical nair → fair → bair order
@@ -1066,6 +1314,35 @@ export class Bear extends Character {
     registerFighterAttack(this, BEAR_NAIR);
     registerFighterAttack(this, BEAR_FAIR);
     registerFighterAttack(this, BEAR_BAIR);
+    // Directional attacks (up-stick). Up-air / down-air auto-wire their
+    // aerial up/down slots via `aerialDirection`; up-tilt / up-smash are
+    // type 'tilt'/'smash' (their forward slots are taken by BEAR_TILT /
+    // BEAR_SMASH), so wire the dedicated up slots explicitly via
+    // setUpTilt / setUpSmash. The up-air / down-air / up-tilt records
+    // are re-used from `extendedMoves.ts` (BEAR_UAIR / BEAR_DAIR /
+    // BEAR_UP_LIGHT); only the up-smash (BEAR_USMASH) is authored inline.
+    registerFighterAttack(this, BEAR_UAIR);
+    registerFighterAttack(this, BEAR_DAIR);
+    registerFighterAttack(this, BEAR_UP_LIGHT);
+    registerFighterAttack(this, BEAR_USMASH);
+    this.setUpTilt(BEAR_UP_LIGHT.id);
+    this.setUpSmash(BEAR_USMASH.id);
+    // Down + dash grounded normals. All three are type 'tilt'/'smash'
+    // whose forward slots are already taken by BEAR_TILT / BEAR_SMASH,
+    // so they must be wired into their dedicated slots explicitly via
+    // setDownTilt / setDownSmash / setDashAttack (mirroring the up-tilt /
+    // up-smash wiring above). The down-tilt re-uses BEAR_DOWN_LIGHT from
+    // `extendedMoves.ts` (the low feet-poke combo-starter); the down-
+    // smash (BEAR_DSMASH, the wide grounded horizontal KO sweep) and the
+    // dash-attack (BEAR_DASHATTACK, the running shoulder-check approach
+    // burst) are authored inline above.
+    registerFighterAttack(this, BEAR_DOWN_LIGHT);
+    registerFighterAttack(this, BEAR_DSMASH);
+    registerFighterAttack(this, BEAR_DASHATTACK);
+    this.setDownTilt(BEAR_DOWN_LIGHT.id);
+    this.setDownSmash(BEAR_DSMASH.id);
+    this.setDashAttack(BEAR_DASHATTACK.id);
+    this.setGrabSpec(BEAR_GRAB);
     // Neutral special — command grab (AC 60201 Sub-AC 1). Auto-fills
     // the `neutralSpecialId` dispatch slot via `registerAttack`'s
     // type-based slot wiring.
@@ -1090,84 +1367,9 @@ export class Bear extends Character {
     registerFighterAttack(this, BEAR_DOWN_SPECIAL);
   }
 
-  // -------------------------------------------------------------------
-  // Sub-AC 2.1 of T2 refactor — per-slot execution methods.
-  //
-  // Each executeXxx method below owns the "fire WHICH move" decision
-  // for the named slot in the canonical 10-slot {@link FighterMoveset}
-  // contract. The base {@link Character} class no longer holds any
-  // "Bear-specific" knowledge — Bear alone decides that `executeJab`
-  // fires `BEAR_JAB`, that `executeNeutralSpecial` fires Bear's
-  // command-grab, and so on.
-  //
-  // See {@link Wolf} for the full design notes; this class follows the
-  // same pattern.
-  // -------------------------------------------------------------------
 
-  /** Bear's jab — fires {@link BEAR_JAB}. */
-  executeJab(): boolean {
-    if (this.runSlotOverride('jab')) return true;
-    return this.attemptAttack(BEAR_JAB.id);
-  }
-
-  /** Bear's tilt — fires {@link BEAR_TILT}. */
-  executeTilt(): boolean {
-    if (this.runSlotOverride('tilt')) return true;
-    return this.attemptAttack(BEAR_TILT.id);
-  }
-
-  /** Bear's smash — fires {@link BEAR_SMASH}. */
-  executeSmash(): boolean {
-    if (this.runSlotOverride('smash')) return true;
-    return this.attemptAttack(BEAR_SMASH.id);
-  }
-
-  /** Bear's forward aerial — fires {@link BEAR_FAIR}. */
-  executeFair(): boolean {
-    if (this.runSlotOverride('fair')) return true;
-    return this.attemptAttack(BEAR_FAIR.id);
-  }
-
-  /** Bear's neutral special (command grab) — fires {@link BEAR_NEUTRAL_SPECIAL}. */
-  executeNeutralSpecial(): boolean {
-    if (this.runSlotOverride('neutralSpecial')) return true;
-    return this.attemptAttack(BEAR_NEUTRAL_SPECIAL.id);
-  }
-
-  /** Bear's side special (command dash) — fires {@link BEAR_SIDE_SPECIAL}. */
-  executeSideSpecial(): boolean {
-    if (this.runSlotOverride('sideSpecial')) return true;
-    return this.attemptAttack(BEAR_SIDE_SPECIAL.id);
-  }
-
-  /**
-   * Bear's up special (tether) — fires {@link BEAR_UP_SPECIAL} via
-   * {@link Character.attemptUpSpecial}, which integrates the recovery /
-   * vertical-physics on the press frame. The optional stick-direction
-   * arguments default to "straight up".
-   */
-  executeUpSpecial(stickX: number = 0, stickY: number = -1): boolean {
-    if (this.runSlotOverride('upSpecial')) return true;
-    return this.attemptUpSpecial(stickX, stickY);
-  }
-
-  /** Bear's down special (counter) — fires {@link BEAR_DOWN_SPECIAL}. */
-  executeDownSpecial(): boolean {
-    if (this.runSlotOverride('downSpecial')) return true;
-    return this.attemptAttack(BEAR_DOWN_SPECIAL.id);
-  }
-
-  /**
-   * Bear's shield. Out of scope for Sub-AC 2.1 of the T2 refactor —
-   * the shield-state-machine entry continues to fire from
-   * {@link Character.applyInput}'s `tickShield` composition.
-   */
-  executeShield(): void {
-    /* TODO(T2 refactor): migrate shield state-machine entry out of Character. */
-  }
-
-  /** Bear's dodge. Out of scope for Sub-AC 2.1 — see {@link executeShield}. */
-  executeDodge(): void {
-    /* TODO(T2 refactor): migrate dodge state-machine entry out of Character. */
-  }
+  // Per-slot execute hooks (executeJab … executeDodge) are inherited
+  // from ContractFighter, which fires each slot via the frozen
+  // `moveset` declaration above — the slot ↔ move mapping lives in
+  // the data table, not in per-fighter method boilerplate.
 }

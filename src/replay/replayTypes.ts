@@ -114,7 +114,7 @@ export const REPLAY_FORMAT_MAGIC = 'platform-fighter-replay' as const;
  *     which backfills an empty `itemSpawnEvents` array (v1 replays
  *     predate the items framework so the empty default is correct).
  */
-export const REPLAY_FORMAT_VERSION = 2 as const;
+export const REPLAY_FORMAT_VERSION = 3 as const;
 
 /**
  * Recommended file extension for saved replays. The serialiser does not

@@ -152,9 +152,16 @@ export function registerFighterAttack(
       if (character.getAerialBackId() === null) {
         character.setAerialBack(move.id);
       }
+    } else if (direction === 'up') {
+      if (character.getAerialUpId() === null) {
+        character.setAerialUp(move.id);
+      }
+    } else if (direction === 'down') {
+      if (character.getAerialDownId() === null) {
+        character.setAerialDown(move.id);
+      }
     } else {
-      // 'neutral' (and any future `'up' | 'down'` defaulted-out at
-      // the schema level) — fill the neutral slot.
+      // 'neutral' — fill the neutral slot.
       if (character.getAerialNeutralId() === null) {
         character.setAerialNeutral(move.id);
       }

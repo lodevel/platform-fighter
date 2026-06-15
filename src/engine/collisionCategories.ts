@@ -35,6 +35,20 @@
 export const COLLISION_CATEGORIES = {
   PLATFORM_SOLID: 0x0001,
   PLATFORM_PASS_THROUGH: 0x0002,
+  /**
+   * Keepalive sentinel for the scene-level pass-through-platform mask
+   * driver. NO body ever carries this category, so OR-ing it into a
+   * platform's mask creates no collisions — its only job is to keep a
+   * driver-written mask from ever being the literal `0` that the
+   * crumbling-platform adapter uses as its "disabled, do not
+   * resurrect" sentinel. Without it, the moment EVERY fighter was
+   * simultaneously phased for a platform (e.g. both players brawling
+   * on the ground beneath a float), the driver wrote `mask = 0`, then
+   * read its own write back as "crumbled" on the next step and skipped
+   * the platform for the rest of the match — the "walk under a
+   * platform and it becomes permanently unstandable" bug.
+   */
+  PASS_THROUGH_DRIVER_KEEPALIVE: 0x20000000,
   CHARACTER: 0x0004,
   HITBOX: 0x0008,
   PROJECTILE: 0x0010,

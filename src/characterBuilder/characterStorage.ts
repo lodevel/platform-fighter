@@ -43,8 +43,34 @@ import {
 export const STORAGE_APP_NAMESPACE = 'platformfighter';
 /** Per-domain segment for character builder records. */
 export const STORAGE_CHARACTERS_DOMAIN = 'characters';
-/** Schema version segment — bump on a breaking shape change. */
+/**
+ * Key-namespace segment — bump only on a change so breaking that old
+ * records must be orphaned wholesale (records under the old prefix
+ * become unreachable). Per-record compatibility is gated by the
+ * envelope's `schemaVersion` field instead, which lets v1 and v2
+ * records coexist under the same keys.
+ */
 export const STORAGE_CHARACTERS_VERSION_SEGMENT = 'v1';
+
+/**
+ * Record schema version written by THIS build. v2 marks the addition
+ * of the optional knockback components (`baseMagnitude` /
+ * `damageGrowth`) and the fall-shaping movement fields (`fallAccel` /
+ * `maxFallSpeed` / `fastFallSpeed` / `jumpCutFactor`). Bumping the
+ * version means an OLD build (which only accepts v1) refuses a v2
+ * record cleanly — `loadCharacter` returns `null` — instead of
+ * loading it through its older parser and silently stripping the new
+ * optional fields on re-save.
+ */
+export const CHARACTER_RECORD_SCHEMA_VERSION = 2;
+
+/**
+ * Versions this build can load. v1 records (saved before the v2
+ * fields existed) still parse — `parseCharacterDataFile` defaults the
+ * missing fall-shaping fields from the registered movement profile —
+ * so loading accepts both; saving always writes the current version.
+ */
+const ACCEPTED_RECORD_SCHEMA_VERSIONS: ReadonlySet<number> = new Set([1, 2]);
 
 const PREFIX = `${STORAGE_APP_NAMESPACE}:${STORAGE_CHARACTERS_DOMAIN}:${STORAGE_CHARACTERS_VERSION_SEGMENT}`;
 
@@ -64,7 +90,13 @@ export function indexStorageKey(): string {
  * polluting the spec itself.
  */
 export interface CharacterRecord {
-  readonly schemaVersion: 1;
+  /**
+   * Version of the envelope + spec shape this record was saved with.
+   * Saves always stamp {@link CHARACTER_RECORD_SCHEMA_VERSION};
+   * loads preserve the on-disk value so callers can tell a legacy v1
+   * record from a current one.
+   */
+  readonly schemaVersion: 1 | 2;
   readonly slotId: string;
   readonly savedAtMs: number;
   readonly spec: CharacterDataSpec;
@@ -120,7 +152,7 @@ export function saveCharacter(
     throw new Error('saveCharacter: slotId must be a non-empty string');
   }
   const record: CharacterRecord = {
-    schemaVersion: 1,
+    schemaVersion: CHARACTER_RECORD_SCHEMA_VERSION,
     slotId,
     savedAtMs: nowMs,
     spec,
@@ -161,7 +193,17 @@ export function loadCharacter(
   }
   if (parsed === null || typeof parsed !== 'object') return null;
   const r = parsed as Record<string, unknown>;
-  if (r.schemaVersion !== 1) return null;
+  // Accept v1 AND v2 — v1 predates the optional knockback components
+  // and the fall-shaping movement fields, and the parser defaults the
+  // missing pieces, so legacy records keep loading. Anything else
+  // (including a future v3) is refused cleanly: an old build that
+  // can't represent a newer record must return null here rather than
+  // round-trip it through its older serializer and silently strip
+  // fields it doesn't know about.
+  const version = r.schemaVersion;
+  if (typeof version !== 'number' || !ACCEPTED_RECORD_SCHEMA_VERSIONS.has(version)) {
+    return null;
+  }
   if (typeof r.slotId !== 'string') return null;
   if (typeof r.savedAtMs !== 'number') return null;
   let spec: CharacterDataSpec;
@@ -171,7 +213,7 @@ export function loadCharacter(
     return null;
   }
   return {
-    schemaVersion: 1,
+    schemaVersion: version as 1 | 2,
     slotId,
     savedAtMs: r.savedAtMs,
     spec,

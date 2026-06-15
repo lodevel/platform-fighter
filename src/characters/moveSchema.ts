@@ -95,6 +95,7 @@
  */
 
 import type { AttackMove, HitboxPlugin } from './attacks';
+import type { ChargeSpec } from './chargeSchema';
 import type { HitInfo, KnockbackResult } from './combat';
 
 // ---------------------------------------------------------------------------
@@ -304,6 +305,21 @@ export interface KnockbackAngleMagnitude {
   readonly magnitude: number;
   /** Per-percent growth multiplier — same as `KnockbackSpec.scaling`. */
   readonly scaling: number;
+  /**
+   * Optional percent-independent launch floor — same semantics as
+   * `KnockbackSpec.baseMagnitude`. Direction-independent scalar: the
+   * polar transform only re-expresses the `(x, y)` base vector, so
+   * this field rides through both converters untouched. Absent on
+   * legacy 3-field specs and stays absent through a round-trip.
+   */
+  readonly baseMagnitude?: number;
+  /**
+   * Optional damage-fed growth multiplier — same semantics as
+   * `KnockbackSpec.damageGrowth`. Like `baseMagnitude`, a
+   * direction-independent scalar unaffected by the polar transform;
+   * presence/absence is preserved exactly by both converters.
+   */
+  readonly damageGrowth?: number;
 }
 
 /**
@@ -318,6 +334,12 @@ export interface KnockbackAngleMagnitude {
  * `angleDegrees: 45` (up-and-forward in fighting-game convention),
  * not `-45`.
  *
+ * The optional Smash-style components (`baseMagnitude`,
+ * `damageGrowth`) are direction-independent scalars — the polar
+ * transform doesn't touch them. They are copied through verbatim,
+ * preserving presence/absence exactly, so legacy 3-field specs
+ * round-trip byte-identically (no keys gained).
+ *
  * Determinism: `Math.atan2` and `Math.hypot` are IEEE-754 deterministic
  * on every platform Phaser runs on; identical inputs always produce
  * identical outputs.
@@ -330,6 +352,15 @@ export function knockbackToAngleMagnitude(
     angleDegrees: (angleRadians * 180) / Math.PI,
     magnitude: Math.hypot(spec.x, spec.y),
     scaling: spec.scaling,
+    // Direction-independent scalars ride through the polar transform
+    // untouched. Conditional spreads preserve presence/absence so a
+    // legacy 3-field spec converts without gaining keys.
+    ...(spec.baseMagnitude !== undefined
+      ? { baseMagnitude: spec.baseMagnitude }
+      : {}),
+    ...(spec.damageGrowth !== undefined
+      ? { damageGrowth: spec.damageGrowth }
+      : {}),
   };
 }
 
@@ -348,6 +379,11 @@ export function knockbackToAngleMagnitude(
  * form — e.g., `WOLF_SMASH.knockback = angleMagnitudeToKnockback({
  * angleDegrees: 45, magnitude: 4.5, scaling: 0.45 })`.
  *
+ * The optional Smash-style components (`baseMagnitude`,
+ * `damageGrowth`) are direction-independent scalars copied through
+ * verbatim — presence/absence is preserved exactly, mirroring
+ * {@link knockbackToAngleMagnitude}.
+ *
  * Determinism: pure trig — `Math.sin` / `Math.cos` are IEEE-754
  * deterministic on every Phaser platform.
  */
@@ -359,6 +395,14 @@ export function angleMagnitudeToKnockback(
     x: Math.cos(angleRadians) * polar.magnitude,
     y: -Math.sin(angleRadians) * polar.magnitude,
     scaling: polar.scaling,
+    // Mirror of knockbackToAngleMagnitude — direction-independent
+    // scalars copy through with presence/absence intact.
+    ...(polar.baseMagnitude !== undefined
+      ? { baseMagnitude: polar.baseMagnitude }
+      : {}),
+    ...(polar.damageGrowth !== undefined
+      ? { damageGrowth: polar.damageGrowth }
+      : {}),
   };
 }
 
@@ -529,6 +573,35 @@ export interface AttackMoveWithAnimation extends AttackMove {
    * stable contract from day one.
    */
   readonly hurtboxModifiers?: ReadonlyArray<MoveHurtboxModifier>;
+  /**
+   * Optional JAB-COMBO link. Present on the non-final stages of a jab
+   * string (jab1 → jab2 → … → finisher): pressing attack again once the
+   * current stage's hitbox has come out advances to `nextId` instead of
+   * restarting jab1. The final stage (rapid / finisher) omits this, so
+   * the chain terminates. Absent on every non-jab move and on single-jab
+   * rosters — so the chain runtime is a no-op unless a fighter authors it.
+   */
+  readonly jabChain?: {
+    /** Move id of the next stage in the string (must be a registered move). */
+    readonly nextId: string;
+    /**
+     * Earliest `framesElapsed` at which a re-press may advance the chain.
+     * Defaults to this stage's `startupFrames` (advance once the hitbox is
+     * out) — pressing during pure startup is ignored so a single mash
+     * can't skip the active window.
+     */
+    readonly advanceWindowStart?: number;
+  };
+  /**
+   * Optional CHARGE ramp. On a SMASH move it makes the smash hold-to-charge:
+   * pressing the smash input enters a charge stance (rooted), and releasing
+   * (or hitting `maxChargeFrames`) fires the smash with damage + knockback
+   * lerped between the spec's `min*`/`max*` endpoints by the held-frame
+   * count. Absent → the smash fires instantly at its authored values
+   * (backward-compatible). Reuses the same {@link ChargeSpec} ramp + spawn
+   * lerp as the Samus-style neutral-special cannon.
+   */
+  readonly charge?: ChargeSpec;
 }
 
 /**

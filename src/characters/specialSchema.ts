@@ -201,6 +201,36 @@ export interface NeutralSpecialProjectileSpec {
 }
 
 /**
+ * Optional "charge beam" overlay for a projectile special — the Samus
+ * Charge Shot mechanic. When a {@link ProjectileSpecialMove} carries this
+ * block, the neutral-special press HOLDS to charge instead of firing
+ * instantly: the released shot's damage, knockback, travel speed, and
+ * sprite size all scale from the un-charged baseline (the parent move's
+ * `damage`/`knockback` and the parent `projectile.speed`/`width`/`height`,
+ * i.e. the `t = 0` endpoint) up to the full-charge endpoint here at
+ * `t = 1`. The charge can be banked ("charge-cancel") and kept across
+ * actions until fired — see `Character.storedSpecialCharge`.
+ *
+ * Determinism: every realised value is a pure lerp of the integer
+ * held-frame count via the {@link ChargeSpec} helpers — no randomness,
+ * no wall-clock. Identical hold durations always fire identical shots.
+ */
+export interface ProjectileChargeSpec {
+  /**
+   * Damage / knockback ramp. The `min*` endpoint MUST match the parent
+   * move's authored `damage` / `knockback` (the un-charged bare-press
+   * shot); the `max*` endpoint is the full-charge KO shot.
+   */
+  readonly charge: ChargeSpec;
+  /** Full-charge travel speed (px-per-fixed-step). Parent `projectile.speed` is the un-charged speed. */
+  readonly maxSpeed: number;
+  /** Full-charge sprite/sensor width. Parent `projectile.width` is the un-charged width. */
+  readonly maxWidth: number;
+  /** Full-charge sprite/sensor height. Parent `projectile.height` is the un-charged height. */
+  readonly maxHeight: number;
+}
+
+/**
  * Back-compat alias for the generalized {@link ChargeSpec}. The
  * charge spec was generalized out of this module after M2 so it could
  * be reused by chargeable lights and smashes (not just neutral
@@ -379,6 +409,14 @@ interface NeutralSpecialMoveBase extends AttackMoveWithAnimation {
 export interface ProjectileSpecialMove extends NeutralSpecialMoveBase {
   readonly specialKind: 'projectile';
   readonly projectile: NeutralSpecialProjectileSpec;
+  /**
+   * Optional Samus-style charge overlay. When present the move is a
+   * hold-to-charge beam: the press starts charging, the release fires a
+   * charge-scaled travelling projectile, and the charge can be banked
+   * with shield and kept across actions. Absent on a plain fire-on-press
+   * projectile (Owl / Bruno / Volt) — they are unaffected.
+   */
+  readonly chargedProjectile?: ProjectileChargeSpec;
 }
 
 /** Charge-kind neutral special. */
@@ -606,6 +644,28 @@ export function validateNeutralSpecialMove(
         throw new Error(
           `NeutralSpecialMove '${move.id}': projectile dimensions must be positive (got ${p.width}x${p.height})`,
         );
+      }
+      // Optional Samus-style charge overlay — the un-charged endpoints are
+      // the parent move/projectile values, so the full-charge endpoints
+      // here must be >= them and the ramp itself must be a valid ChargeSpec.
+      const cp = move.chargedProjectile;
+      if (cp) {
+        validateChargeSpec(cp.charge, `NeutralSpecialMove '${move.id}'`);
+        if (!Number.isFinite(cp.maxSpeed) || cp.maxSpeed === 0) {
+          throw new Error(
+            `NeutralSpecialMove '${move.id}': chargedProjectile.maxSpeed must be non-zero, got ${cp.maxSpeed}`,
+          );
+        }
+        if (cp.maxWidth <= 0 || cp.maxHeight <= 0) {
+          throw new Error(
+            `NeutralSpecialMove '${move.id}': chargedProjectile full-charge dimensions must be positive (got ${cp.maxWidth}x${cp.maxHeight})`,
+          );
+        }
+        if (cp.charge.minDamage !== move.damage) {
+          throw new Error(
+            `NeutralSpecialMove '${move.id}': chargedProjectile.charge.minDamage (${cp.charge.minDamage}) must equal the move's un-charged damage (${move.damage})`,
+          );
+        }
       }
       break;
     }

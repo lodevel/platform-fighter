@@ -51,6 +51,9 @@ import { Wolf, WOLF_FIGHTER_CONTRACT } from './Wolf';
 import { Cat, CAT_FIGHTER_CONTRACT } from './Cat';
 import { Owl, OWL_FIGHTER_CONTRACT } from './Owl';
 import { Bear, BEAR_FIGHTER_CONTRACT } from './Bear';
+import { Blaze, BLAZE_FIGHTER_CONTRACT } from './Blaze';
+import { Puff, PUFF_FIGHTER_CONTRACT } from './Puff';
+import { Aegis, AEGIS_FIGHTER_CONTRACT } from './Aegis';
 import {
   ATTACK_MOVESET_SLOT_NAMES,
   MOVESET_SLOT_NAMES,
@@ -193,6 +196,14 @@ const FIGHTERS: ReadonlyArray<FighterUnderTest> = [
   { id: 'cat', displayName: 'Cat', Ctor: Cat, contract: CAT_FIGHTER_CONTRACT },
   { id: 'owl', displayName: 'Owl', Ctor: Owl, contract: OWL_FIGHTER_CONTRACT },
   { id: 'bear', displayName: 'Bear', Ctor: Bear, contract: BEAR_FIGHTER_CONTRACT },
+  // Post-M5 roster expansion — the three Smash-inspired fighters run
+  // the identical smoke gauntlet so the cast stays uniform: every
+  // fighter constructs against the shared base, exposes the 10-slot
+  // contract surface, fires every slot's authored move, and honours
+  // its movement profile.
+  { id: 'blaze', displayName: 'Blaze (Captain Falcon)', Ctor: Blaze, contract: BLAZE_FIGHTER_CONTRACT },
+  { id: 'puff', displayName: 'Puff (Jigglypuff)', Ctor: Puff, contract: PUFF_FIGHTER_CONTRACT },
+  { id: 'aegis', displayName: 'Aegis (Marth)', Ctor: Aegis, contract: AEGIS_FIGHTER_CONTRACT },
 ];
 
 // ---------------------------------------------------------------------------

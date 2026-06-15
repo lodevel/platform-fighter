@@ -35,6 +35,7 @@
 
 import type { CharacterId } from '../types';
 import type { FighterMovementProfile } from './movesetContract';
+import { getFighterMovementProfile } from './fighterMovementProfiles';
 import type { AttackMoveWithAnimation, KnockbackSpec, MoveAnimation } from './moveSchema';
 import type { AerialMove } from './aerialSchema';
 import type { GrabSpec } from './grabSchema';
@@ -93,7 +94,25 @@ export interface CharacterDataFile {
     readonly height: number;
     readonly chamfer: number;
   };
-  readonly movement: FighterMovementProfile;
+  /**
+   * Movement block. The fall-shaping fields added by the Smash-feel
+   * pack (`fallAccel` / `maxFallSpeed` / `fastFallSpeed` /
+   * `jumpCutFactor`) are OPTIONAL in the on-disk format — files
+   * authored before the pack landed keep parsing, with missing values
+   * defaulted from the fighter's registered movement profile by
+   * {@link parseCharacterDataFile}. The validated
+   * {@link CharacterDataSpec} always carries the full profile.
+   */
+  readonly movement: Omit<
+    FighterMovementProfile,
+    'fallAccel' | 'maxFallSpeed' | 'fastFallSpeed' | 'jumpCutFactor'
+  > &
+    Partial<
+      Pick<
+        FighterMovementProfile,
+        'fallAccel' | 'maxFallSpeed' | 'fastFallSpeed' | 'jumpCutFactor'
+      >
+    >;
   /**
    * Optional move-set authoring block. When present, carries the
    * core 4 grounded normals (jab + tilt + smash + fair) plus the
@@ -179,6 +198,12 @@ const VALID_CHARACTER_IDS: ReadonlySet<CharacterId> = new Set<CharacterId>([
   'cat',
   'owl',
   'bear',
+  'blaze',
+  'puff',
+  'aegis',
+  'volt',
+  'nova',
+  'bruno',
 ]);
 
 function ensureFiniteNumber(
@@ -203,6 +228,28 @@ function ensurePositiveNumber(
   if (n <= 0) {
     throw new Error(
       `${contextLabel}: '${field}' must be > 0, got ${n}`,
+    );
+  }
+  return n;
+}
+
+/**
+ * Finite AND `>= 0`. Zero IS valid — for the optional knockback
+ * components it's the legacy identity (`baseMagnitude: 0` adds no
+ * launch floor; `damageGrowth: 0` leaves percent-scaling untouched).
+ * Negative values are rejected: a negative `damageGrowth` would flip
+ * the growth term past a percent threshold and reverse the launch
+ * direction at high percent — never an authored intent.
+ */
+function ensureNonNegativeNumber(
+  value: unknown,
+  field: string,
+  contextLabel: string,
+): number {
+  const n = ensureFiniteNumber(value, field, contextLabel);
+  if (n < 0) {
+    throw new Error(
+      `${contextLabel}: '${field}' must be >= 0, got ${n}`,
     );
   }
   return n;
@@ -241,7 +288,7 @@ function ensureCharacterId(
 ): CharacterId {
   if (typeof value !== 'string' || !VALID_CHARACTER_IDS.has(value as CharacterId)) {
     throw new Error(
-      `${contextLabel}: 'id' must be one of [wolf, cat, owl, bear], got ${String(value)}`,
+      `${contextLabel}: 'id' must be one of [wolf, cat, owl, bear, blaze, puff, aegis, volt, nova, bruno], got ${String(value)}`,
     );
   }
   return value as CharacterId;
@@ -264,6 +311,30 @@ function parseKnockback(
     x: ensureFiniteNumber(r.x, `${fieldPath}.x`, ctx),
     y: ensureFiniteNumber(r.y, `${fieldPath}.y`, ctx),
     scaling: ensureFiniteNumber(r.scaling, `${fieldPath}.scaling`, ctx),
+    // Optional Smash-style components round-trip when authored;
+    // omitted fields stay omitted so legacy files re-serialise
+    // byte-identically. Both must be >= 0 — zero is the legacy
+    // identity, but negatives would invert the knockback math
+    // (negative damageGrowth reverses launch direction at high
+    // percent).
+    ...(r.baseMagnitude !== undefined
+      ? {
+          baseMagnitude: ensureNonNegativeNumber(
+            r.baseMagnitude,
+            `${fieldPath}.baseMagnitude`,
+            ctx,
+          ),
+        }
+      : {}),
+    ...(r.damageGrowth !== undefined
+      ? {
+          damageGrowth: ensureNonNegativeNumber(
+            r.damageGrowth,
+            `${fieldPath}.damageGrowth`,
+            ctx,
+          ),
+        }
+      : {}),
   };
 }
 
@@ -356,6 +427,54 @@ function parseGroundedAttack(
       ctx,
     ),
     animation: parseAnimationBlock(r.animation, `${fieldPath}.animation`, ctx),
+    // Optional Tier-4 enrichments — carried through verbatim so a smash's
+    // hold-to-charge ramp and a jab's combo link round-trip from the data
+    // file. Omitted-stays-omitted keeps every legacy move byte-identical.
+    ...(r.charge !== undefined
+      ? {
+          charge: parseChargeSpecRecord(
+            asObject(r.charge, `${fieldPath}.charge`, ctx),
+            `${fieldPath}.charge`,
+            ctx,
+          ),
+        }
+      : {}),
+    ...(r.jabChain !== undefined
+      ? { jabChain: parseJabChainRecord(r.jabChain, `${fieldPath}.jabChain`, ctx) }
+      : {}),
+  };
+}
+
+/** Narrow an unknown to a record, throwing a contextual error otherwise. */
+function asObject(
+  raw: unknown,
+  fieldPath: string,
+  ctx: string,
+): Record<string, unknown> {
+  if (raw === null || typeof raw !== 'object') {
+    throw new Error(`${ctx}: ${fieldPath} must be an object`);
+  }
+  return raw as Record<string, unknown>;
+}
+
+/** Parse a jab-combo link `{ nextId, advanceWindowStart? }`. */
+function parseJabChainRecord(
+  raw: unknown,
+  fieldPath: string,
+  ctx: string,
+): { nextId: string; advanceWindowStart?: number } {
+  const r = asObject(raw, fieldPath, ctx);
+  return {
+    nextId: ensureString(r.nextId, `${fieldPath}.nextId`, ctx),
+    ...(r.advanceWindowStart !== undefined
+      ? {
+          advanceWindowStart: ensureNonNegativeInteger(
+            r.advanceWindowStart,
+            `${fieldPath}.advanceWindowStart`,
+            ctx,
+          ),
+        }
+      : {}),
   };
 }
 
@@ -1595,6 +1714,11 @@ export function parseCharacterDataFile(
     throw new Error(`${ctx}: 'movement' must be an object`);
   }
   const m = r.movement as Record<string, unknown>;
+  // Fall-shaping fields (Smash-feel pack) are OPTIONAL in the JSON so
+  // character files saved before the pack landed keep parsing; missing
+  // values default to the fighter's registered movement profile, which
+  // is the same source the runtime resolves at construction time.
+  const profileDefaults = getFighterMovementProfile(id);
   const movement: FighterMovementProfile = {
     maxRunSpeed: ensurePositiveNumber(m.maxRunSpeed, 'movement.maxRunSpeed', ctx),
     groundAccel: ensurePositiveNumber(m.groundAccel, 'movement.groundAccel', ctx),
@@ -1604,6 +1728,22 @@ export function parseCharacterDataFile(
     jumpImpulse: ensurePositiveNumber(m.jumpImpulse, 'movement.jumpImpulse', ctx),
     maxJumps: ensureNonNegativeInteger(m.maxJumps, 'movement.maxJumps', ctx),
     mass: ensurePositiveNumber(m.mass, 'movement.mass', ctx),
+    fallAccel:
+      m.fallAccel === undefined
+        ? profileDefaults.fallAccel
+        : ensureFiniteNumber(m.fallAccel, 'movement.fallAccel', ctx),
+    maxFallSpeed:
+      m.maxFallSpeed === undefined
+        ? profileDefaults.maxFallSpeed
+        : ensurePositiveNumber(m.maxFallSpeed, 'movement.maxFallSpeed', ctx),
+    fastFallSpeed:
+      m.fastFallSpeed === undefined
+        ? profileDefaults.fastFallSpeed
+        : ensurePositiveNumber(m.fastFallSpeed, 'movement.fastFallSpeed', ctx),
+    jumpCutFactor:
+      m.jumpCutFactor === undefined
+        ? profileDefaults.jumpCutFactor
+        : ensureFiniteNumber(m.jumpCutFactor, 'movement.jumpCutFactor', ctx),
   };
 
   const moves = parseMovesBlock(r.moves, ctx);
@@ -1623,7 +1763,16 @@ export function parseCharacterDataFile(
  * {@link CharacterDataFile}-shaped plain object suitable for
  * `JSON.stringify`. Round-trips losslessly with
  * {@link parseCharacterDataFile} (modulo the optional `$schema`
- * field, which the parser ignores).
+ * field, which the parser ignores) — with one deliberate asymmetry:
+ * fall-shaping fields (`fallAccel` / `maxFallSpeed` / `fastFallSpeed`
+ * / `jumpCutFactor`) that the parser defaulted from the registered
+ * movement profile ARE materialized on re-serialization. The
+ * validated spec always carries the full movement profile, so a
+ * legacy file (authored before the Smash-feel pack, no fall-shaping
+ * fields) saved through this function gains the four fields at their
+ * canonical profile values. Spec → file → spec is still the identity;
+ * file → spec → file intentionally upgrades legacy files in place
+ * rather than re-deriving which fields the author originally omitted.
  */
 export function serializeCharacterDataSpec(
   spec: CharacterDataSpec,

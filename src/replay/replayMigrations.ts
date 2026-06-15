@@ -374,9 +374,63 @@ const migrateV1ToV2: ReplayMigration = Object.freeze({
  * pair fails fast with a clear stack trace rather than silently
  * mis-loading replay files.
  */
+/**
+ * v2 → v3 migration. Version 3 adds the vertical stick channel
+ * (`moveY`) to every recorded input — the Smash-feel pack's fast-fall
+ * (and the up/down item-throw direction) read it, so the capture
+ * pipeline must carry it for live-vs-replay parity. v2 replays were
+ * recorded before any consumer of the channel existed, so backfilling
+ * `moveY: 0` is byte-correct: playback reproduces exactly the
+ * no-vertical-input behaviour those matches actually had.
+ */
+const migrateV2ToV3: ReplayMigration = Object.freeze({
+  from: 2,
+  to: 3,
+  description: 'v2 → v3: backfill inputTimeline moveY (0 for pre-fast-fall matches)',
+  migrate(payload: Record<string, unknown>): Record<string, unknown> {
+    if (payload['version'] !== 2) {
+      throw new ReplayMigrationError(
+        2,
+        3,
+        `migrateV2ToV3: expected version 2, got ${JSON.stringify(payload['version'])}`,
+      );
+    }
+    const next: Record<string, unknown> = { ...payload };
+    next['version'] = 3;
+    const timeline = payload['inputTimeline'];
+    if (timeline !== null && typeof timeline === 'object') {
+      const t = timeline as Record<string, unknown>;
+      const entries = t['entries'];
+      if (Array.isArray(entries)) {
+        next['inputTimeline'] = {
+          ...t,
+          entries: entries.map((entry) => {
+            if (entry === null || typeof entry !== 'object') return entry;
+            const e = entry as Record<string, unknown>;
+            const inputs = e['inputs'];
+            if (!Array.isArray(inputs)) return entry;
+            return {
+              ...e,
+              inputs: inputs.map((input) => {
+                if (input === null || typeof input !== 'object') return input;
+                const i = input as Record<string, unknown>;
+                // Preserve a forward-compat moveY a hand-authored
+                // fixture may already carry; default 0 otherwise.
+                return { moveY: 0, ...i };
+              }),
+            };
+          }),
+        };
+      }
+    }
+    return next;
+  },
+});
+
 export const REPLAY_MIGRATIONS: ReadonlyArray<ReplayMigration> = Object.freeze([
   migrateV0ToV1,
   migrateV1ToV2,
+  migrateV2ToV3,
 ]);
 
 // Self-check at module load. The chain is small enough today that this

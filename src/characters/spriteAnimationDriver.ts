@@ -204,6 +204,78 @@ export function getCharacterSpritesheetKey(
           return ASSET_KEYS.charBearAttack;
       }
       break;
+    case 'blaze':
+      switch (sheet) {
+        case 'idle':
+          return ASSET_KEYS.charBlazeIdle;
+        case 'run':
+          return ASSET_KEYS.charBlazeRun;
+        case 'jump':
+          return ASSET_KEYS.charBlazeJump;
+        case 'attack':
+          return ASSET_KEYS.charBlazeAttack;
+      }
+      break;
+    case 'puff':
+      switch (sheet) {
+        case 'idle':
+          return ASSET_KEYS.charPuffIdle;
+        case 'run':
+          return ASSET_KEYS.charPuffRun;
+        case 'jump':
+          return ASSET_KEYS.charPuffJump;
+        case 'attack':
+          return ASSET_KEYS.charPuffAttack;
+      }
+      break;
+    case 'aegis':
+      switch (sheet) {
+        case 'idle':
+          return ASSET_KEYS.charAegisIdle;
+        case 'run':
+          return ASSET_KEYS.charAegisRun;
+        case 'jump':
+          return ASSET_KEYS.charAegisJump;
+        case 'attack':
+          return ASSET_KEYS.charAegisAttack;
+      }
+      break;
+    case 'volt':
+      switch (sheet) {
+        case 'idle':
+          return ASSET_KEYS.charVoltIdle;
+        case 'run':
+          return ASSET_KEYS.charVoltRun;
+        case 'jump':
+          return ASSET_KEYS.charVoltJump;
+        case 'attack':
+          return ASSET_KEYS.charVoltAttack;
+      }
+      break;
+    case 'nova':
+      switch (sheet) {
+        case 'idle':
+          return ASSET_KEYS.charNovaIdle;
+        case 'run':
+          return ASSET_KEYS.charNovaRun;
+        case 'jump':
+          return ASSET_KEYS.charNovaJump;
+        case 'attack':
+          return ASSET_KEYS.charNovaAttack;
+      }
+      break;
+    case 'bruno':
+      switch (sheet) {
+        case 'idle':
+          return ASSET_KEYS.charBrunoIdle;
+        case 'run':
+          return ASSET_KEYS.charBrunoRun;
+        case 'jump':
+          return ASSET_KEYS.charBrunoJump;
+        case 'attack':
+          return ASSET_KEYS.charBrunoAttack;
+      }
+      break;
   }
   return null;
 }
@@ -432,13 +504,24 @@ export function registerCharacterSpriteAnimations(
 
 /**
  * Register sprite animations for every character that ships with a
- * loaded source sheet. Walks the M1 roster (`cat`, `wolf`) plus any
- * future-loaded characters — Owl / Bear are no-ops until their assets
- * land. Returns the union of all registered animation keys.
+ * loaded source sheet. Walks the full roster — characters whose
+ * sheets are not loaded (partial asset drops) are no-ops. Returns the
+ * union of all registered animation keys.
  */
 export function registerAllCharacterSpriteAnimations(
   scene: SceneAnimSurface,
-  characters: ReadonlyArray<CharacterId> = ['cat', 'wolf', 'owl', 'bear'],
+  characters: ReadonlyArray<CharacterId> = [
+    'cat',
+    'wolf',
+    'owl',
+    'bear',
+    'blaze',
+    'puff',
+    'aegis',
+    'volt',
+    'nova',
+    'bruno',
+  ],
 ): ReadonlyArray<string> {
   const all: string[] = [];
   for (const id of characters) {

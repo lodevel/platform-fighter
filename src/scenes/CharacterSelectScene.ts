@@ -6,7 +6,6 @@ import {
   applyLobbyHandoffToCharacterSelect,
   autoAssignDistinctPalettes,
   buildCharacterPortraitGrid,
-  buildPlayerSlotsFromState,
   buildSlotPaletteSwatches,
   buildSlotPreview,
   canConfirmMatch,
@@ -18,12 +17,16 @@ import {
 import {
   DEFAULT_HAND_CURSOR_STATE,
   HOVERED_TARGET_NONE,
+  autoPickDefaultIfNeeded,
   buildPlayerSlotsFromHandCursor,
-  cycleSlotMode,
+  cycleSlotAiDifficulty,
+  joinNextEmptySlot,
   moveHand,
+  participatingSlotCount,
   selectAtCursor,
   setHandPosition,
   setHoveredTarget,
+  setSlotInputType,
   setSlotMode,
   setSlotPalette,
   toCharacterSelectState,
@@ -36,92 +39,86 @@ import { BOOT_REGISTRY_KEYS } from './bootKeys';
 import { GAME_CONFIG } from '../engine/constants';
 import { FLAT_STAGE } from '../stages';
 import type { CustomStageData } from '../builder';
-import type { MatchConfig, PlayerSlot } from '../types';
+import type { InputType, MatchConfig, PlayerSlot } from '../types';
 import type { LobbyHandoffPayload } from './lobby';
 // AC 10303 Sub-AC 3 — canonical palette-swap painter. The lobby preview
 // runs through the **same** helper the match scene uses so what the
-// player sees on the character-select tile (body fill, body stroke,
+// player sees on the character-select card (body fill, body stroke,
 // facing-arrow accent) is byte-for-byte the same colour pipeline the
 // in-match fighter renders with.
 import {
   applyPaletteSwap,
   paletteSwapForCharacter,
 } from '../characters/PaletteSwapRenderer';
-// AC 10303 Sub-AC 3 — shader-pipeline remap descriptor type. The
-// runtime palette renderer returns one of these on every paint, and a
-// future sprite-atlas drop-in (`applyPaletteSwapPipeline(sprite, remap)`)
-// consumes the same descriptor — keeping the type referenced here means
-// a maintainer who refactors away the rectangle-painter doesn't have to
-// re-derive the colour-pair shape in two places.
+// AC 10303 Sub-AC 3 — shader-pipeline remap descriptor type (see the
+// remap capture in `refreshPlayerCard`).
 import type { PaletteSwapRemap } from '../characters/paletteSwapShader';
 // AC 20302 Sub-AC 2 — Runtime palette renderer for the preview path.
-// One renderer per scene caches per-slot swaps so the per-frame
-// `paintTilePreview` call short-circuits when nothing has changed
-// since the last frame.
 import { RuntimePaletteRenderer } from '../characters/runtimePaletteRenderer';
 import { getCharacterSpec } from '../characters/roster';
 import { applySpriteDisplayHeight } from '../characters/visualScale';
-// AC 20203 Sub-AC 3 — canonical "saved stage id → live match" launcher.
-// The confirm path delegates the deserializer load + scene-start payload
-// build to this helper so a single source of truth handles every entry
-// point.
 import {
-  launchCustomStageMatchInScene,
-  type CustomStageMatchLaunchResult,
-} from './customStageMatchLauncher';
+  MENU_COLORS,
+  MENU_COLORS_CSS,
+  MENU_FONT,
+  PLAYER_COLORS,
+  addPulse,
+  paintFooterHints,
+  paintMenuBackground,
+  paintMenuTitle,
+  playerColorCss,
+} from '../ui/menuTheme';
 
 /**
- * CharacterSelectScene — Smash-Bros-style hand-cursor character select.
+ * CharacterSelectScene — Smash-style character select with in-scene join.
  *
- * Replaces the prior keyboard-driven per-slot navigation with a free-
- * roaming "hand" cursor model. Each slot owns a coloured hand sprite
- * (P1 red, P2 blue, P3 green, P4 yellow) that the player drives with
- * their gamepad d-pad / left stick. The OS mouse pointer is the
- * convenience fallback for keyboard slots — no keyboard arrow nav.
+ * One screen handles the whole pre-match player setup, exactly like the
+ * Smash Bros character select:
  *
- * Mechanics
- * ---------
- *   • Move hand over a roster portrait → press LIGHT ATTACK (gamepad
- *     A / mouse left-click) → that slot locks the character.
- *   • Move hand over a slot tile's MODE button → press LIGHT ATTACK
- *     → cycles `Empty → Human → Bot → Empty`. Mouse click works too.
- *   • Move hand over a slot tile's PALETTE strip → press LIGHT ATTACK
- *     → cycles palette by +1. Mouse click on a specific swatch sets
- *     the palette index directly.
- *   • Press SPECIAL ATTACK (gamepad B / mouse right-click) → un-locks
- *     the slot's pick (the slot stays human/bot, just no fighter).
- *   • Same character allowed — palettes auto-shift to stay distinct
- *     (the {@link selectAtCursor} reducer routes through
- *     {@link nextFreePaletteIndex} on collision; AC 13 Sub-AC 4).
+ *   • JOIN = PICKED. Joining a slot (gamepad button press, clicking an
+ *     empty card, or "+ CPU") immediately commits the slot-keyed default
+ *     fighter, so every joined player always has a valid pick. There is
+ *     NO separate ready/lock-in step — clicking a portrait just CHANGES
+ *     the pick. (The old two-step join → confirm flow showed a fighter
+ *     in the card while the match gate still said "not ready", which
+ *     read as a bug; this model removes the gap entirely.)
  *
- * Contract surface preserved from the legacy keyboard scene
- * --------------------------------------------------------
- *   • `init(data?: CharacterSelectSceneData)` — same `pendingMatchConfig`
- *     / `customStage` / `lobby` payload shape.
- *   • `scene.start('MatchScene', { matchConfig })` on confirm — same
- *     `MatchConfig` shape; lineup synthesised via
- *     {@link buildPlayerSlotsFromHandCursor} (which reuses
- *     {@link buildPlayerSlotsFromState} under the hood, so the
- *     downstream `PlayerSlot[]` is byte-identical).
- *   • `scene.start('StageSelectScene', { pendingMatchConfig, lobby })`
- *     on cancel — back-nav threads the same payload (AC 20304 Sub-AC 4).
- *   • `launchCustomStageMatchInScene` for custom-stage launches.
- *   • Lobby-handoff hydration via
- *     {@link applyLobbyHandoffToCharacterSelect} so a player who
- *     pressed Start in the lobby walks in pre-joined.
+ *   • Gamepads join themselves: pressing A / START on a pad that isn't
+ *     driving a slot claims the first empty slot and binds that pad to
+ *     it. The pad's stick / d-pad then drives the slot's hand cursor;
+ *     A picks the hovered portrait, B leaves the lobby, START confirms.
  *
- * Determinism
- * -----------
- * The hand-cursor state machine is a pure reducer (see
+ *   • Mouse / keyboard: clicking a portrait picks for the focused slot
+ *     (joining it if empty); clicking an empty card joins it on the
+ *     first free keyboard half; [1-4] re-aim the mouse, [C] adds a CPU,
+ *     [BACKSPACE] removes the focused slot, [ENTER] starts.
+ *
+ *   • CPU slots are host-configured (Smash-style): "+ CPU" on an empty
+ *     card adds a bot with an auto-picked fighter; the LV button cycles
+ *     easy → medium → hard; ✕ removes it.
+ *
+ *   • A "READY TO FIGHT" banner lights up as soon as ≥ 2 slots are
+ *     filled — because join = picked, there is no "someone is still
+ *     picking" dead state.
+ *
+ * Flow position: ModeSelect → **CharacterSelect** → StageSelect → Match
+ * (fighters first, arena last — the Smash ordering). Confirm forwards
+ * the lineup to `StageSelectScene`; cancel returns to `ModeSelectScene`.
+ *
+ * Determinism: the hand-cursor state machine is a pure reducer (see
  * `handCursorState.ts`). Two scenes that received the same gamepad /
  * mouse input frames in the same order produce byte-identical
- * `PlayerSlot[]` arrays, so the replay header / smoke-test harness
- * keeps working unchanged.
+ * `PlayerSlot[]` arrays, so the replay header keeps working unchanged.
  */
 export interface CharacterSelectSceneData {
   readonly pendingMatchConfig?: Omit<MatchConfig, 'players'> & {
     readonly players?: ReadonlyArray<PlayerSlot>;
   };
+  /**
+   * Legacy field — custom stages are picked AFTER the lineup now (the
+   * stage select runs last), so this scene only tolerates the payload
+   * for compatibility with older return paths; it is not consumed.
+   */
   readonly customStage?: CustomStageData;
   readonly lobby?: LobbyHandoffPayload;
 }
@@ -131,66 +128,34 @@ export interface CharacterSelectSceneData {
 // ---------------------------------------------------------------------------
 
 /**
- * Per-slot hand cursor body colour. Mirrors the legacy scene's slot
- * accent palette (P1 red / P2 blue / P3 green / P4 yellow) so the
- * tile colours and the hand colours stay in lockstep.
+ * Per-slot hand cursor / card accent colours (P1 red, P2 blue, P3
+ * green, P4 yellow). Sourced from the shared menu theme so HUD / hands
+ * / cards stay in lockstep. Re-exported under the legacy name for
+ * existing import sites.
  */
-const SLOT_HAND_COLOURS: Readonly<Record<1 | 2 | 3 | 4, number>> = Object.freeze({
-  1: 0xff5a5a,
-  2: 0x5a8cff,
-  3: 0x6cf0a8,
-  4: 0xffd166,
-});
+const SLOT_HAND_COLOURS: Readonly<Record<1 | 2 | 3 | 4, number>> = PLAYER_COLORS;
 
 /** Hand cursor outline colour — high-contrast white so the hand reads on dark backgrounds. */
 const HAND_OUTLINE_COLOUR = 0xffffff;
 
 /** Cursor speed for gamepad-driven hands, in scene px per frame at unit stick deflection. */
-const HAND_GAMEPAD_SPEED_PX_PER_FRAME = 9;
+const HAND_GAMEPAD_SPEED_PX_PER_FRAME = 11;
 
 /** Dead-zone for analog stick / d-pad input. Below this, no movement. */
 const HAND_GAMEPAD_DEADZONE = 0.15;
+
+/** Standard-mapping START button index (pause / "ready to fight"). */
+const PAD_START_BUTTON_INDEX = 9;
 
 // ---------------------------------------------------------------------------
 // Local game-object cache types — mutated in place by refresh helpers
 // ---------------------------------------------------------------------------
 
-interface SlotTileGameObjects {
-  readonly container: Phaser.GameObjects.Container;
-  readonly bg: Phaser.GameObjects.Rectangle;
-  readonly nameLabel: Phaser.GameObjects.Text;
-  readonly roleLabel: Phaser.GameObjects.Text;
-  readonly bodyRect: Phaser.GameObjects.Rectangle;
-  readonly facingMark: Phaser.GameObjects.Triangle;
-  readonly paletteLabel: Phaser.GameObjects.Text;
-  readonly swatches: Phaser.GameObjects.Rectangle[];
-  readonly modeButton: Phaser.GameObjects.Rectangle;
-  readonly modeButtonLabel: Phaser.GameObjects.Text;
-  readonly inputTypeLabel: Phaser.GameObjects.Text;
-  /** World-space rect for hit-testing the mode button. */
-  readonly modeButtonBounds: Phaser.Geom.Rectangle;
-  /** World-space rects for hit-testing palette swatches (parallel to `swatches`). */
-  readonly swatchBounds: Phaser.Geom.Rectangle[];
-  /** "MOUSE" badge — visible when this slot is the focused mouse target. */
-  readonly mouseFocusBadge: Phaser.GameObjects.Text;
-  /**
-   * Real-sprite preview for the slot's picked character. Mirrors the
-   * portrait grid — when the character has a loaded atlas, we paint
-   * its idle frame here on top of the rect; otherwise the rect IS
-   * the preview (procedural-fallback path).
-   */
-  readonly bodySprite: Phaser.GameObjects.Sprite;
-  /** Target display height for `bodySprite` — preserved across texture swaps. */
-  readonly bodySpriteDisplayHeight: number;
-}
-
 interface PortraitTileGameObjects {
   readonly container: Phaser.GameObjects.Container;
   readonly bg: Phaser.GameObjects.Rectangle;
   readonly bodyRect: Phaser.GameObjects.Rectangle;
-  /** Real-sprite portrait for characters with a loaded atlas. */
   readonly bodySprite: Phaser.GameObjects.Sprite;
-  /** Target display height for `bodySprite`. */
   readonly bodySpriteDisplayHeight: number;
   readonly nameLabel: Phaser.GameObjects.Text;
   readonly hoverFrame: Phaser.GameObjects.Rectangle;
@@ -198,6 +163,38 @@ interface PortraitTileGameObjects {
   readonly slotChips: Phaser.GameObjects.Rectangle[];
   /** World-space rect for hit-testing the portrait. */
   readonly bounds: Phaser.Geom.Rectangle;
+}
+
+interface PlayerCardGameObjects {
+  readonly slotIndex: 1 | 2 | 3 | 4;
+  readonly panel: Phaser.GameObjects.Graphics;
+  readonly badge: Phaser.GameObjects.Text;
+  readonly joinHint: Phaser.GameObjects.Text;
+  readonly joinSubHint: Phaser.GameObjects.Text;
+  readonly cpuButton: Phaser.GameObjects.Text;
+  readonly bodyRect: Phaser.GameObjects.Rectangle;
+  readonly bodySprite: Phaser.GameObjects.Sprite;
+  readonly bodySpriteDisplayHeight: number;
+  readonly facingMark: Phaser.GameObjects.Triangle;
+  readonly nameLabel: Phaser.GameObjects.Text;
+  readonly roleLabel: Phaser.GameObjects.Text;
+  readonly inputLabel: Phaser.GameObjects.Text;
+  readonly cpuChip: Phaser.GameObjects.Text;
+  readonly diffButton: Phaser.GameObjects.Text;
+  readonly leaveButton: Phaser.GameObjects.Text;
+  readonly mouseFocusBadge: Phaser.GameObjects.Text;
+  readonly swatches: Phaser.GameObjects.Rectangle[];
+  /** Card geometry (centre + size) for panel redraws. */
+  readonly x: number;
+  readonly y: number;
+  readonly width: number;
+  readonly height: number;
+  /** World-space hit rects. */
+  readonly cardBounds: Phaser.Geom.Rectangle;
+  readonly cpuButtonBounds: Phaser.Geom.Rectangle;
+  readonly diffButtonBounds: Phaser.Geom.Rectangle;
+  readonly leaveButtonBounds: Phaser.Geom.Rectangle;
+  readonly swatchBounds: Phaser.Geom.Rectangle[];
 }
 
 interface HandCursorGameObjects {
@@ -216,18 +213,24 @@ export class CharacterSelectScene extends Phaser.Scene {
   private state: HandCursorState = DEFAULT_HAND_CURSOR_STATE;
 
   private pendingMatchConfig: CharacterSelectSceneData['pendingMatchConfig'] = undefined;
-  private pendingCustomStage: CustomStageData | undefined = undefined;
   private pendingLobby: LobbyHandoffPayload | undefined = undefined;
 
-  private tiles: SlotTileGameObjects[] = [];
   private portraitTiles: PortraitTileGameObjects[] = [];
+  private cards: PlayerCardGameObjects[] = [];
   private hands: HandCursorGameObjects[] = [];
 
-  private lobbyStatusLabel: Phaser.GameObjects.Text | undefined = undefined;
+  private bannerBand: Phaser.GameObjects.Rectangle | undefined = undefined;
+  private bannerLabel: Phaser.GameObjects.Text | undefined = undefined;
+  private bannerTween: Phaser.Tweens.Tween | undefined = undefined;
 
   private paletteRenderer: RuntimePaletteRenderer = new RuntimePaletteRenderer();
 
-  /** Cached scene viewport for cursor clamp bounds. Re-derived on resize. */
+  /**
+   * Cursor clamp bounds — derived once in create() from the logical
+   * game size. Constant for the scene's lifetime: under the FIT scale
+   * mode a window resize rescales the canvas without changing logical
+   * coordinates, so no re-derivation happens (or is needed).
+   */
   private cursorBounds: HandCursorBounds = {
     minX: 0,
     maxX: 0,
@@ -236,28 +239,50 @@ export class CharacterSelectScene extends Phaser.Scene {
   };
 
   /**
-   * Per-slot gamepad button-press latches — gamepad polling is level-
-   * triggered (`buttons[i].pressed` stays `true` while held), so we
-   * track the previous frame's pressed state to derive an edge-trigger
-   * for "press" events (vs "held").
+   * Physical pad → claimed slot. Built up as pads press A/START to
+   * join; cleared per pad on B (leave). Multiple pads can play — each
+   * claims its own slot, so the `'gamepad'` InputType can drive up to
+   * four slots simultaneously.
    */
-  private gamepadButtonLatches: Map<number, { light: boolean; special: boolean }> =
-    new Map();
+  private padAssignments: Map<number, 1 | 2 | 3 | 4> = new Map();
+
+  /**
+   * Per-pad button-press latches — gamepad polling is level-triggered
+   * (`buttons[i].pressed` stays `true` while held), so we track the
+   * previous frame's pressed state to derive edge-triggers.
+   */
+  private gamepadButtonLatches: Map<
+    number,
+    { light: boolean; special: boolean; start: boolean }
+  > = new Map();
 
   /**
    * Slot the mouse pointer is currently acting on. Defaults to slot 1
-   * so the very first mouse click already does something. Re-aimed
-   * whenever the user clicks a slot tile's body area (the "I'm
-   * controlling slot N now" gesture). Right-click and portrait clicks
-   * route through this slot.
+   * so the very first mouse click already does something. Re-aimed by
+   * clicking a card body or pressing [1-4].
    */
   private focusedMouseSlotIndex: 1 | 2 | 3 | 4 = 1;
 
   /**
-   * World-space rect for the "REBIND INPUTS" button. Hit-tested by the
-   * DOM-level mousedown router so the user can navigate to the
-   * `RebindingScene` from the char-select page.
+   * Last pointer position sampled by update(), in canvas coords. NaN
+   * until the first frame samples the pointer. The mouse only drives
+   * its hand on frames where the pointer actually MOVED — an idle
+   * mouse must not pin a hand (least of all a pad-bound one) to the
+   * stale pointer position every frame.
    */
+  private lastPointerX = Number.NaN;
+  private lastPointerY = Number.NaN;
+
+  /**
+   * Set when pad bindings / mouse focus change WITHOUT a state
+   * transition — the joinPad orphan-adoption path re-binds a pad and
+   * may re-aim the mouse focus while returning the state unchanged.
+   * update() repaints on it so the orphaned-gamepad input label and
+   * the MOUSE focus badge never go stale.
+   */
+  private padBindingsDirty = false;
+
+  /** World-space rect for the "REBIND INPUTS" button. */
   private rebindButtonBounds: Phaser.Geom.Rectangle = new Phaser.Geom.Rectangle(0, 0, 0, 0);
 
   constructor() {
@@ -266,27 +291,39 @@ export class CharacterSelectScene extends Phaser.Scene {
 
   init(data?: CharacterSelectSceneData): void {
     this.pendingMatchConfig = data?.pendingMatchConfig;
-    this.pendingCustomStage = data?.customStage;
     this.pendingLobby = data?.lobby;
+    this.padAssignments = new Map();
+    // Stale mouse focus / pointer deltas must not survive scene
+    // re-entry — the card the mouse drove last visit may now belong
+    // to a restored gamepad slot.
+    this.focusedMouseSlotIndex = 1;
+    this.lastPointerX = Number.NaN;
+    this.lastPointerY = Number.NaN;
     // Restore the last-saved selection state if one exists in the
     // registry — a player coming back from a match (or the rebinding
-    // menu) should walk back into the lobby with their picks intact.
-    // Falls back to the default when this is the first entry.
+    // menu) walks back in with their picks intact.
     const restored = this.registry.get(BOOT_REGISTRY_KEYS.lastCharacterSelectState) as
       | HandCursorState
       | undefined;
     this.state = restored ?? DEFAULT_HAND_CURSOR_STATE;
     // AC 2 Sub-AC 5 — hydrate joined / inputType from the lobby
     // hand-off payload when present so the player isn't asked to
-    // Press Start a second time. The lobby handoff only touches
-    // join / inputType / aiDifficulty fields, so a restored state's
-    // characters and palettes survive the re-application.
-    if (data?.lobby) {
+    // Press Start a second time. Only when nothing was restored: the
+    // registry state is NEWER than the lobby payload, and re-applying
+    // the payload on a Stage→Character back-nav or a Rebinding round
+    // trip would wipe slots added in this scene.
+    if (data?.lobby && restored === undefined) {
       const seeded = applyLobbyHandoffToCharacterSelect(
         toCharacterSelectState(this.state),
         data.lobby,
       );
       this.state = adoptCharacterSelectState(this.state, seeded);
+    }
+    // Join = picked: any slot that arrives joined-but-unpicked (legacy
+    // lobby payloads, old persisted states) is auto-picked so the
+    // Smash-style invariant holds from the first paint.
+    for (const i of [1, 2, 3, 4] as const) {
+      this.state = autoPickDefaultIfNeeded(this.state, i);
     }
   }
 
@@ -294,51 +331,18 @@ export class CharacterSelectScene extends Phaser.Scene {
     const { width, height } = this.scale.gameSize;
     this.cursorBounds = { minX: 0, maxX: width, minY: 0, maxY: height };
 
-    // ---- Title -------------------------------------------------------------
-    this.add
-      .text(width / 2, height * 0.04, 'CHARACTER SELECT', {
-        fontFamily: 'monospace',
-        fontSize: '36px',
-        color: '#e8e8f0',
-      })
-      .setOrigin(0.5);
-
-    this.add
-      .text(
-        width / 2,
-        height * 0.085,
-        'Move your hand with the gamepad — press LIGHT ATTACK to pick',
-        {
-          fontFamily: 'monospace',
-          fontSize: '20px',
-          color: '#888899',
-        },
-      )
-      .setOrigin(0.5);
-
-    // AC 10304 Sub-AC 4 — lobby-status header ("X joined, Y ready").
-    this.lobbyStatusLabel = this.add
-      .text(width / 2, height * 0.115, '', {
-        fontFamily: 'monospace',
-        fontSize: '21px',
-        color: '#888899',
-        fontStyle: 'bold',
-      })
-      .setOrigin(0.5);
+    // ---- Background + title -------------------------------------------------
+    paintMenuBackground(this);
+    paintMenuTitle(this, width / 2, height * 0.055, 'Choose Your Fighter', {
+      fontSize: 40,
+      subtitle:
+        'Press Ⓐ on a gamepad or click a fighter to join — every player joins ready',
+    });
 
     // ---- Character portraits grid ------------------------------------------
-    this.add
-      .text(width / 2, height * 0.145, '— AVAILABLE CHARACTERS —', {
-        fontFamily: 'monospace',
-        fontSize: '20px',
-        color: '#6cf0c2',
-        fontStyle: 'bold',
-      })
-      .setOrigin(0.5);
-
     const portraitCount = SELECTABLE_CHARACTER_SPECS.length;
-    const tileSize = 96;
-    const tileSpacing = 8;
+    const tileSize = Math.min(120, height * 0.17);
+    const tileSpacing = 14;
     const cellsPerRow = Math.max(
       1,
       Math.min(portraitCount, Math.floor((width - 80) / (tileSize + tileSpacing))),
@@ -346,7 +350,7 @@ export class CharacterSelectScene extends Phaser.Scene {
     const rowsNeeded = Math.ceil(portraitCount / cellsPerRow);
     const gridWidth = cellsPerRow * tileSize + (cellsPerRow - 1) * tileSpacing;
     const gridLeft = (width - gridWidth) / 2;
-    const gridTop = height * 0.18;
+    const gridTop = height * 0.16;
 
     this.portraitTiles = [];
     for (let i = 0; i < portraitCount; i += 1) {
@@ -357,36 +361,45 @@ export class CharacterSelectScene extends Phaser.Scene {
       this.portraitTiles.push(this.buildPortraitTile(px, py, tileSize, i));
     }
 
-    // ---- Slot tiles --------------------------------------------------------
-    const tileWidth = Math.min(280, (width - 80) / MAX_PLAYER_SLOTS);
-    const tileHeight = Math.min(380, height * 0.45);
-    const tileGap = (width - tileWidth * MAX_PLAYER_SLOTS) / (MAX_PLAYER_SLOTS + 1);
-    const tileTop = gridTop + rowsNeeded * (tileSize + tileSpacing) + 50;
-
-    this.add
-      .text(width / 2, tileTop - height * 0.025, '— YOUR PICK —', {
-        fontFamily: 'monospace',
-        fontSize: '20px',
-        color: '#ffd166',
+    // ---- READY TO FIGHT banner ----------------------------------------------
+    const bannerY = gridTop + rowsNeeded * (tileSize + tileSpacing) + 34;
+    this.bannerBand = this.add
+      .rectangle(width / 2, bannerY, width * 0.56, 42, MENU_COLORS.accent)
+      .setOrigin(0.5)
+      .setVisible(false);
+    this.bannerLabel = this.add
+      .text(width / 2, bannerY, '', {
+        fontFamily: MENU_FONT,
+        fontSize: '21px',
         fontStyle: 'bold',
+        color: MENU_COLORS_CSS.textSecondary,
       })
       .setOrigin(0.5);
+    this.bannerTween = addPulse(this, this.bannerBand, { minAlpha: 0.65, duration: 600 });
+    this.bannerTween.pause();
 
-    this.tiles = [];
+    // ---- Player cards (Smash-style bottom strip) ----------------------------
+    const cardHeight = Math.min(height * 0.34, 270);
+    const cardGapY = height * 0.035;
+    const cardY = height - cardHeight / 2 - cardGapY;
+    const cardWidth = Math.min(300, (width - 120) / MAX_PLAYER_SLOTS);
+    const cardGap = (width - cardWidth * MAX_PLAYER_SLOTS) / (MAX_PLAYER_SLOTS + 1);
+
+    this.cards = [];
     for (let i = 0; i < MAX_PLAYER_SLOTS; i += 1) {
-      const tileX = tileGap + i * (tileWidth + tileGap) + tileWidth / 2;
-      const tileY = tileTop + tileHeight / 2;
-      this.tiles.push(this.buildSlotTile(tileX, tileY, tileWidth, tileHeight, i));
+      const cx = cardGap + i * (cardWidth + cardGap) + cardWidth / 2;
+      this.cards.push(
+        this.buildPlayerCard((i + 1) as 1 | 2 | 3 | 4, cx, cardY, cardWidth, cardHeight),
+      );
     }
 
     // ---- Hand cursors (drawn last so they sit on top) ----------------------
     this.hands = [];
-    // Park each hand in a quadrant so they don't all stack on (0, 0).
     const quadCentres: ReadonlyArray<{ x: number; y: number }> = [
-      { x: width * 0.25, y: height * 0.4 },
-      { x: width * 0.75, y: height * 0.4 },
-      { x: width * 0.25, y: height * 0.7 },
-      { x: width * 0.75, y: height * 0.7 },
+      { x: width * 0.3, y: height * 0.35 },
+      { x: width * 0.7, y: height * 0.35 },
+      { x: width * 0.4, y: height * 0.45 },
+      { x: width * 0.6, y: height * 0.45 },
     ];
     for (let i = 0; i < MAX_PLAYER_SLOTS; i += 1) {
       const slotIndex = (i + 1) as 1 | 2 | 3 | 4;
@@ -397,15 +410,15 @@ export class CharacterSelectScene extends Phaser.Scene {
 
     // ---- Rebind-inputs button (clickable via DOM router below) -------------
     const rebindLabel = this.add
-      .text(width / 2, height * 0.88, '[ REBIND INPUTS ]', {
-        fontFamily: 'monospace',
-        fontSize: '16px',
-        color: '#0a0a14',
+      .text(width - 16, height * 0.02, '[ REBIND INPUTS ]', {
+        fontFamily: MENU_FONT,
+        fontSize: '14px',
+        color: MENU_COLORS_CSS.panelDark,
         fontStyle: 'bold',
-        backgroundColor: '#6cf0c2',
+        backgroundColor: MENU_COLORS_CSS.accent,
         padding: { left: 10, right: 10, top: 4, bottom: 4 },
       })
-      .setOrigin(0.5);
+      .setOrigin(1, 0);
     const rebindBounds = rebindLabel.getBounds();
     this.rebindButtonBounds = new Phaser.Geom.Rectangle(
       rebindBounds.x,
@@ -415,48 +428,27 @@ export class CharacterSelectScene extends Phaser.Scene {
     );
 
     // ---- Footer hint -------------------------------------------------------
-    this.add
-      .text(
-        width / 2,
-        height * 0.93,
-        'LIGHT ATTACK = add / pick    SPECIAL ATTACK = remove    [ENTER] start    [ESC] back',
-        {
-          fontFamily: 'monospace',
-          fontSize: '18px',
-          color: '#888899',
-        },
-      )
-      .setOrigin(0.5);
-    // In-match controls reminder. Dodge has its own dedicated button
-    // separate from shield (a question players hit when shield + dodge
-    // were the same gesture). Read from the live bindings store so
-    // remapping is reflected — fall back to a generic message when
-    // no store has been hydrated (smoke-test / direct-launch path).
-    this.add
-      .text(width / 2, height * 0.965, this.buildInMatchControlsHint(), {
-        fontFamily: 'monospace',
-        fontSize: '14px',
-        color: '#666677',
-      })
-      .setOrigin(0.5);
+    paintFooterHints(this, height - 14, [
+      'Ⓐ join / pick',
+      'Ⓑ leave',
+      '[C] add CPU',
+      '[1-4] aim mouse',
+      '[BACKSPACE] remove',
+      '[ENTER]/START fight',
+      '[ESC] back',
+    ]);
 
     // ---- Input wiring ------------------------------------------------------
     // Apply the same fix RebindingScene uses for the Phaser-input-after-
     // scene-start bug: explicitly re-enable the input plugin, force
     // canvas focus so DOM keydown / mousedown listeners aren't dormant,
     // and route clicks through a DOM-level mousedown handler instead of
-    // Phaser's per-scene InputPlugin (which silently fails to dispatch
-    // pointerdown after a `scene.start` from another scene with input
-    // enabled — observed and worked around in `RebindingScene.ts`).
+    // Phaser's per-scene InputPlugin.
     if (this.input) {
       this.input.enabled = true;
       this.input.setTopOnly(false);
     }
     this.input.setDefaultCursor('default');
-    // Deliberately NOT calling `disableContextMenu()` — right-click is
-    // reserved for the browser's native menu (paste, inspect, etc.).
-    // Cancel-pick goes through the per-slot CLEAR button and the
-    // BACKSPACE keyboard shortcut instead.
     const canvas = this.game.canvas;
     if (canvas) {
       if (canvas.tabIndex < 0) canvas.tabIndex = 0;
@@ -464,14 +456,8 @@ export class CharacterSelectScene extends Phaser.Scene {
       canvas.focus();
     }
 
-    // DOM-level click router — see RebindingScene's `domHandler` for
-    // the original of this pattern. Converts client coords to canvas
-    // coords (accounting for CSS scaling), routes left / right click
-    // to the appropriate handler.
     const domHandler = (e: MouseEvent) => {
       if (!canvas) return;
-      // Ignore non-left clicks so right-click stays available for the
-      // browser's native context menu.
       if (e.button !== 0) return;
       const rect = canvas.getBoundingClientRect();
       const scaleX = canvas.width / rect.width;
@@ -481,30 +467,35 @@ export class CharacterSelectScene extends Phaser.Scene {
       this.handleMouseDownAt(cx, cy);
     };
     canvas.addEventListener('mousedown', domHandler);
-    // Also keep Phaser's pointerdown as a belt-and-braces fallback —
-    // it'll fire when the InputPlugin IS dispatching, and our handler
-    // is idempotent enough that a double-fire on the same pixel just
-    // re-runs `cycleSlotMode` once (no, twice — guard against that).
-    // We skip Phaser's pointerdown when the DOM handler already fired
-    // by gating on a per-frame flag.
 
     // ---- Keyboard bindings -------------------------------------------------
-    // Match RebindingScene's "single keydown handler" pattern instead of
-    // per-key `keydown-ENTER` listeners. Per-key listeners suffer from
-    // the same scene-transition input dormancy as pointer events; the
-    // generic keydown handler stays alive across scene starts because
-    // Phaser routes raw KeyboardEvent before per-key dispatch.
     this.input.keyboard?.on('keydown', (event: KeyboardEvent) => {
       if (event.key === 'Enter') this.handleConfirm();
       else if (event.key === 'Escape') this.handleCancel();
       else if (event.key === 'Backspace' || event.key === 'Delete') {
-        // Cancel the focused slot's pick — replaces the right-click
-        // gesture so the browser's native context menu stays available.
-        this.state = unselectSlot(this.state, this.focusedMouseSlotIndex);
-        this.refreshAllTiles();
+        this.removeSlot(this.focusedMouseSlotIndex);
         event.preventDefault();
+      } else if (event.key === 'c' || event.key === 'C') {
+        this.addCpu();
+      } else if (event.key >= '1' && event.key <= '4') {
+        this.focusedMouseSlotIndex = Number(event.key) as 1 | 2 | 3 | 4;
+        this.refreshAllTiles();
       }
     });
+
+    // ---- Mid-scene gamepad connects ----------------------------------------
+    // A pad that connects MID-SCENE gets its latch pre-primed all-false
+    // so its very first press counts as an edge (joins instantly). The
+    // current-state priming in update() only covers pads already present
+    // at the first poll — buttons held across a scene transition.
+    const padConnectedHandler = (pad: Phaser.Input.Gamepad.Gamepad) => {
+      this.gamepadButtonLatches.set(pad.index, {
+        light: false,
+        special: false,
+        start: false,
+      });
+    };
+    this.input.gamepad?.on(Phaser.Input.Gamepad.Events.CONNECTED, padConnectedHandler);
 
     // First paint after the tile objects exist.
     this.refreshAllTiles();
@@ -513,6 +504,7 @@ export class CharacterSelectScene extends Phaser.Scene {
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.paletteRenderer.resetCache();
       this.gamepadButtonLatches.clear();
+      this.input.gamepad?.off(Phaser.Input.Gamepad.Events.CONNECTED, padConnectedHandler);
       if (canvas) canvas.removeEventListener('mousedown', domHandler);
     });
   }
@@ -524,71 +516,117 @@ export class CharacterSelectScene extends Phaser.Scene {
   update(): void {
     let nextState = this.state;
 
-    // Pump per-slot gamepad input.
-    for (const slot of nextState.slots) {
-      const padIndex = slot.index - 1;
-      const pad = this.input.gamepad?.getPad(padIndex);
+    // Drop pad assignments whose slot was emptied through the mouse UI.
+    for (const [padIndex, slotIndex] of this.padAssignments) {
+      const slot = nextState.slots[slotIndex - 1];
+      if (!slot || slot.mode === 'empty') this.padAssignments.delete(padIndex);
+    }
+
+    // Pump every CONNECTED pad — not "the pad at the slot's index".
+    // Unassigned pads can JOIN (A / START claims the first empty slot
+    // and binds the pad); assigned pads drive their slot's hand.
+    const pads = this.input.gamepad?.gamepads ?? [];
+    for (const pad of pads) {
       if (!pad) continue;
-      // Stick or d-pad.
-      const dx = applyDeadzone(pad.axes[0]?.getValue() ?? 0, HAND_GAMEPAD_DEADZONE) +
-        (pad.left ? -1 : 0) + (pad.right ? 1 : 0);
-      const dy = applyDeadzone(pad.axes[1]?.getValue() ?? 0, HAND_GAMEPAD_DEADZONE) +
-        (pad.up ? -1 : 0) + (pad.down ? 1 : 0);
+      // First sighting of a pad: prime the latch from the CURRENT
+      // button state without firing edges. A button still held from
+      // the previous scene (attack mashed at match end, START pressed
+      // on the results screen) must not auto-join on the first frame.
+      // (Pads that connect MID-SCENE skip this branch — the CONNECTED
+      // handler in create() pre-primed them all-false so their first
+      // press counts.)
+      if (!this.gamepadButtonLatches.has(pad.index)) {
+        this.gamepadButtonLatches.set(pad.index, {
+          light: !!pad.A,
+          special: !!pad.B,
+          start: !!pad.buttons[PAD_START_BUTTON_INDEX]?.pressed,
+        });
+        continue;
+      }
+      const latch = this.gamepadButtonLatches.get(pad.index)!;
+      const lightPressed = !!pad.A;
+      const specialPressed = !!pad.B;
+      const startPressed = !!pad.buttons[PAD_START_BUTTON_INDEX]?.pressed;
+      const lightEdge = lightPressed && !latch.light;
+      const specialEdge = specialPressed && !latch.special;
+      const startEdge = startPressed && !latch.start;
+      this.gamepadButtonLatches.set(pad.index, {
+        light: lightPressed,
+        special: specialPressed,
+        start: startPressed,
+      });
+
+      const assigned = this.padAssignments.get(pad.index);
+      if (assigned === undefined) {
+        // Press-button-to-join — Smash-style.
+        if (lightEdge || startEdge) {
+          nextState = this.joinPad(nextState, pad.index);
+        }
+        continue;
+      }
+
+      // Stick or d-pad moves the slot's hand.
+      const dx =
+        applyDeadzone(pad.axes[0]?.getValue() ?? 0, HAND_GAMEPAD_DEADZONE) +
+        (pad.left ? -1 : 0) +
+        (pad.right ? 1 : 0);
+      const dy =
+        applyDeadzone(pad.axes[1]?.getValue() ?? 0, HAND_GAMEPAD_DEADZONE) +
+        (pad.up ? -1 : 0) +
+        (pad.down ? 1 : 0);
       if (dx !== 0 || dy !== 0) {
         nextState = moveHand(
           nextState,
-          slot.index,
+          assigned,
           dx * HAND_GAMEPAD_SPEED_PX_PER_FRAME,
           dy * HAND_GAMEPAD_SPEED_PX_PER_FRAME,
           this.cursorBounds,
         );
       }
-      // Edge-trigger A (light) / B (special).
-      const lightPressed = !!pad.A;
-      const specialPressed = !!pad.B;
-      const latch = this.gamepadButtonLatches.get(padIndex) ?? {
-        light: false,
-        special: false,
-      };
-      if (lightPressed && !latch.light) {
-        nextState = selectAtCursor(nextState, slot.index);
+      if (lightEdge) {
+        nextState = selectAtCursor(nextState, assigned);
       }
-      if (specialPressed && !latch.special) {
-        nextState = unselectSlot(nextState, slot.index);
+      if (specialEdge) {
+        nextState = unselectSlot(nextState, assigned);
+        this.padAssignments.delete(pad.index);
       }
-      this.gamepadButtonLatches.set(padIndex, {
-        light: lightPressed,
-        special: specialPressed,
-      });
+      if (startEdge) {
+        this.state = nextState;
+        this.handleConfirm();
+        nextState = this.state;
+      }
     }
 
-    // Mouse drives the focused mouse slot's hand. The focused slot
-    // can be re-aimed by clicking any slot tile's body area, so the
-    // mouse user can drive every slot — not just one. Slot 1 is the
-    // default focus so the very first click on the screen already
-    // does something sensible.
+    // Mouse drives the focused mouse slot's hand — but only on frames
+    // where the pointer actually MOVED, and never when a pad is bound
+    // to the focused slot (the pad owns that hand; an idle mouse must
+    // not snap it back to the pointer position every frame).
+    const padSlots = new Set(this.padAssignments.values());
     const pointer = this.input.activePointer;
     if (pointer) {
-      nextState = setHandPosition(
-        nextState,
-        this.focusedMouseSlotIndex,
-        { x: pointer.x, y: pointer.y },
-        this.cursorBounds,
-      );
+      const pointerMoved =
+        !Number.isNaN(this.lastPointerX) &&
+        (pointer.x !== this.lastPointerX || pointer.y !== this.lastPointerY);
+      this.lastPointerX = pointer.x;
+      this.lastPointerY = pointer.y;
+      if (pointerMoved && !padSlots.has(this.focusedMouseSlotIndex)) {
+        nextState = setHandPosition(
+          nextState,
+          this.focusedMouseSlotIndex,
+          { x: pointer.x, y: pointer.y },
+          this.cursorBounds,
+        );
+      }
     }
 
-    // Run the hit-test only for ACTIVE hands — the focused mouse slot
-    // and any slot with a connected gamepad. Inactive hands (empty
-    // slots without a pad, bots that already auto-picked, idle slots)
-    // get HOVERED_TARGET_NONE so their stale cursor positions don't
-    // light up phantom "P3 is hovering this character" badges on
-    // portrait cells the user never aimed at.
+    // Hit-test only ACTIVE hands — the focused mouse slot and slots
+    // with a bound pad — so idle hands don't light phantom hover badges.
     for (const slot of nextState.slots) {
-      const isFocusedMouse = slot.index === this.focusedMouseSlotIndex;
-      const padIndex = slot.index - 1;
-      const hasGamepad = !!this.input.gamepad?.getPad(padIndex);
-      const isActive = isFocusedMouse || (hasGamepad && slot.mode === 'human');
-      const target = isActive ? this.hitTest(slot.cursor.x, slot.cursor.y) : HOVERED_TARGET_NONE;
+      const isActive =
+        slot.index === this.focusedMouseSlotIndex || padSlots.has(slot.index);
+      const target = isActive
+        ? this.hitTest(slot.cursor.x, slot.cursor.y)
+        : HOVERED_TARGET_NONE;
       nextState = setHoveredTarget(nextState, slot.index, target);
     }
 
@@ -599,18 +637,69 @@ export class CharacterSelectScene extends Phaser.Scene {
     if (nextState !== this.state) {
       const projected = toCharacterSelectState(nextState);
       const distinct = autoAssignDistinctPalettes(projected);
-      // Adopt back if the auto-pass actually changed palettes.
       if (distinct !== projected) {
         nextState = adoptCharacterSelectState(nextState, distinct);
       }
       this.state = nextState;
       this.refreshAllTiles();
+    } else if (this.padBindingsDirty) {
+      // A pad adopted an orphaned slot / the mouse focus re-aimed
+      // without a state transition — repaint so the input labels and
+      // the MOUSE badge track the new bindings.
+      this.refreshAllTiles();
     }
+    this.padBindingsDirty = false;
 
-    // Hands always repaint position so the cursor follows even when no
-    // other state changed (gamepad held in one direction frame after
-    // frame, mouse drag).
     this.refreshHandCursors();
+  }
+
+  /**
+   * Bind a physical pad to a slot. Prefers adopting an existing
+   * orphaned human-gamepad slot (a restored lobby whose pad bindings
+   * didn't survive the scene restart) before claiming a new one, so a
+   * rejoining pad doesn't duplicate its old slot.
+   */
+  private joinPad(state: HandCursorState, padIndex: number): HandCursorState {
+    const bound = new Set(this.padAssignments.values());
+    for (const slot of state.slots) {
+      if (slot.mode === 'human' && slot.inputType === 'gamepad' && !bound.has(slot.index)) {
+        this.padAssignments.set(padIndex, slot.index);
+        this.retargetMouseFocusOffPadSlots();
+        this.padBindingsDirty = true;
+        return state;
+      }
+    }
+    const { state: joined, slotIndex } = joinNextEmptySlot(state, 'gamepad');
+    if (slotIndex === null) return state;
+    this.padAssignments.set(padIndex, slotIndex);
+    this.retargetMouseFocusOffPadSlots();
+    this.padBindingsDirty = true;
+    // Park the new hand mid-grid so the player sees it appear.
+    const { width, height } = this.scale.gameSize;
+    return setHandPosition(
+      joined,
+      slotIndex,
+      { x: width / 2, y: height * 0.3 },
+      this.cursorBounds,
+    );
+  }
+
+  /**
+   * Re-aim the mouse focus at the first slot no pad is driving. Runs
+   * after a pad claims a slot so the mouse cursor surrogate never sits
+   * on (and fights over) a pad-bound hand. When every slot is
+   * pad-bound the focus stays put — the pointer-moved + pad-bound
+   * guards in update() keep the mouse from driving it anyway.
+   */
+  private retargetMouseFocusOffPadSlots(): void {
+    const padSlots = new Set(this.padAssignments.values());
+    if (!padSlots.has(this.focusedMouseSlotIndex)) return;
+    for (const i of [1, 2, 3, 4] as const) {
+      if (!padSlots.has(i)) {
+        this.focusedMouseSlotIndex = i;
+        return;
+      }
+    }
   }
 
   // -------------------------------------------------------------------------
@@ -624,10 +713,6 @@ export class CharacterSelectScene extends Phaser.Scene {
    * around in `RebindingScene`).
    */
   private handleMouseDownAt(cx: number, cy: number): void {
-    // Update the focused slot's hand to the click position so the
-    // hit-test sees the exact pixel the user clicked (the per-frame
-    // `update()` hand-tracks-mouse pump may not have run between the
-    // last frame and this click).
     this.state = setHandPosition(
       this.state,
       this.focusedMouseSlotIndex,
@@ -635,115 +720,113 @@ export class CharacterSelectScene extends Phaser.Scene {
       this.cursorBounds,
     );
 
-    // Rebind-inputs button — navigate to the bindings menu and
-    // tell it to come back here on cancel (instead of dumping the
-    // player at the main menu and losing their pending lobby /
-    // match-config state).
     if (this.rebindButtonBounds.contains(cx, cy)) {
       this.scene.start('RebindingScene', {
         returnTo: 'CharacterSelectScene',
         returnData: {
           pendingMatchConfig: this.pendingMatchConfig,
-          customStage: this.pendingCustomStage,
           lobby: this.pendingLobby,
         },
       });
       return;
     }
 
-    // Did the click land on a slot tile's mode button, CLEAR button,
-    // or palette swatch? Route directly so a mouse user can interact
-    // with any slot's UI without first focusing onto it.
-    const slotTileTarget = this.hitTestSlotTileForClick(cx, cy);
-    if (slotTileTarget) {
-      switch (slotTileTarget.kind) {
-        case 'mode':
-          this.state = cycleSlotMode(this.state, slotTileTarget.slotIndex);
-          this.refreshAllTiles();
-          return;
-        case 'palette':
-          this.state = setSlotPalette(
+    // Card controls — leave ✕ / + CPU / LV cycle / palette swatches /
+    // focus-or-join on the card body.
+    for (const card of this.cards) {
+      const slot = this.state.slots[card.slotIndex - 1];
+      if (!slot) continue;
+      if (slot.mode !== 'empty' && card.leaveButtonBounds.contains(cx, cy)) {
+        this.removeSlot(card.slotIndex);
+        return;
+      }
+      if (slot.mode === 'empty' && card.cpuButtonBounds.contains(cx, cy)) {
+        this.state = setSlotMode(this.state, card.slotIndex, 'bot');
+        this.refreshAllTiles();
+        return;
+      }
+      if (slot.mode === 'bot' && card.diffButtonBounds.contains(cx, cy)) {
+        this.state = cycleSlotAiDifficulty(this.state, card.slotIndex);
+        this.refreshAllTiles();
+        return;
+      }
+      if (slot.mode !== 'empty') {
+        for (let p = 0; p < card.swatchBounds.length; p += 1) {
+          const sb = card.swatchBounds[p];
+          if (sb && sb.contains(cx, cy)) {
+            this.state = setSlotPalette(this.state, card.slotIndex, p);
+            this.refreshAllTiles();
+            return;
+          }
+        }
+      }
+      if (card.cardBounds.contains(cx, cy)) {
+        if (slot.mode === 'empty') {
+          // Clicking an empty card joins it as a human on the first
+          // free keyboard half — join = picked, instantly valid.
+          this.state = setSlotInputType(
             this.state,
-            slotTileTarget.slotIndex,
-            slotTileTarget.paletteIndex,
+            card.slotIndex,
+            this.firstFreeKeyboardInputType(),
           );
-          this.refreshAllTiles();
-          return;
+          this.state = setSlotMode(this.state, card.slotIndex, 'human');
+        }
+        this.focusedMouseSlotIndex = card.slotIndex;
+        this.refreshAllTiles();
+        return;
       }
     }
 
-    // Did the click land in a slot tile's body area (anywhere on the
-    // tile that isn't the mode/palette buttons)? If so, focus the
-    // mouse on that slot so subsequent portrait clicks pick for it.
-    const focusTarget = this.hitTestSlotTileBody(cx, cy);
-    if (focusTarget !== null) {
-      this.focusedMouseSlotIndex = focusTarget;
-      this.refreshAllTiles();
-      return;
-    }
-
-    // Otherwise route through the focused slot's selectAtCursor —
-    // its hand is already at the click position via the setHandPosition
-    // call above, so re-running the per-slot hit-test produces the
-    // right `hovered` target for the dispatch.
+    // Otherwise route through the focused slot's selectAtCursor — a
+    // portrait click picks (and joins an empty focused slot).
     const target = this.hitTest(cx, cy);
+    // A portrait click on an EMPTY focused slot is a join-by-pick —
+    // give the slot a real device first. selectAtCursor promotes
+    // empty → human keeping the slot's CURRENT inputType, and the
+    // slot default ('gamepad') would mint a human slot no physical
+    // pad drives.
+    const focusedSlot = this.state.slots[this.focusedMouseSlotIndex - 1];
+    if (target.kind === 'portrait' && focusedSlot?.mode === 'empty') {
+      this.state = setSlotInputType(
+        this.state,
+        this.focusedMouseSlotIndex,
+        this.firstFreeKeyboardInputType(),
+      );
+    }
     this.state = setHoveredTarget(this.state, this.focusedMouseSlotIndex, target);
     this.state = selectAtCursor(this.state, this.focusedMouseSlotIndex);
     this.refreshAllTiles();
   }
 
-  /**
-   * Slot-tile click hit-test that also returns *which* palette swatch
-   * was hit (for direct-set behaviour). Keeps the routing in
-   * {@link handleMouseDownAt} pixel-precise.
-   */
-  private hitTestSlotTileForClick(
-    x: number,
-    y: number,
-  ):
-    | { kind: 'mode'; slotIndex: 1 | 2 | 3 | 4 }
-    | { kind: 'palette'; slotIndex: 1 | 2 | 3 | 4; paletteIndex: number }
-    | null {
-    for (let i = 0; i < this.tiles.length; i += 1) {
-      const tile = this.tiles[i];
-      if (!tile) continue;
-      const slotIndex = (i + 1) as 1 | 2 | 3 | 4;
-      if (tile.modeButtonBounds.contains(x, y)) {
-        return { kind: 'mode', slotIndex };
-      }
-      for (let p = 0; p < tile.swatchBounds.length; p += 1) {
-        const sb = tile.swatchBounds[p];
-        if (sb && sb.contains(x, y)) {
-          return { kind: 'palette', slotIndex, paletteIndex: p };
-        }
-      }
+  /** First keyboard half not already driving a participating slot. */
+  private firstFreeKeyboardInputType(): InputType {
+    const used = new Set<InputType>();
+    for (const slot of this.state.slots) {
+      if (slot.mode === 'human') used.add(slot.inputType);
     }
-    return null;
+    if (!used.has('keyboard_p1')) return 'keyboard_p1';
+    if (!used.has('keyboard_p2')) return 'keyboard_p2';
+    return 'gamepad';
   }
 
-  /**
-   * Hit-test for a click landing in a slot tile's "body area" — the
-   * region that isn't a mode button or a palette swatch. Used to
-   * re-aim the focused mouse slot. Returns the slot index, or null
-   * if the click missed every tile.
-   */
-  private hitTestSlotTileBody(x: number, y: number): 1 | 2 | 3 | 4 | null {
-    for (let i = 0; i < this.tiles.length; i += 1) {
-      const tile = this.tiles[i];
-      if (!tile) continue;
-      const slotIndex = (i + 1) as 1 | 2 | 3 | 4;
-      // Tile's overall bounding rect, derived from the bg rectangle.
-      const tileBounds = tile.bg.getBounds();
-      if (!tileBounds.contains(x, y)) continue;
-      // Don't catch clicks on the mode button / swatches — those have
-      // their own setInteractive handlers and are filtered earlier.
-      if (tile.modeButtonBounds.contains(x, y)) return null;
-      for (const sb of tile.swatchBounds) {
-        if (sb.contains(x, y)) return null;
-      }
-      return slotIndex;
+  /** Remove a slot from the lobby (mouse ✕ / BACKSPACE / pad B). */
+  private removeSlot(slotIndex: 1 | 2 | 3 | 4): void {
+    this.state = unselectSlot(this.state, slotIndex);
+    for (const [padIndex, assigned] of this.padAssignments) {
+      if (assigned === slotIndex) this.padAssignments.delete(padIndex);
     }
-    return null;
+    this.refreshAllTiles();
+  }
+
+  /** Add a CPU to the first empty slot ([C] key). */
+  private addCpu(): void {
+    for (const slot of this.state.slots) {
+      if (slot.mode === 'empty') {
+        this.state = setSlotMode(this.state, slot.index, 'bot');
+        this.refreshAllTiles();
+        return;
+      }
+    }
   }
 
   // -------------------------------------------------------------------------
@@ -758,26 +841,17 @@ export class CharacterSelectScene extends Phaser.Scene {
         return { kind: 'portrait', portraitIndex: i };
       }
     }
-    const slotTile = this.hitTestSlotTile(x, y);
-    if (slotTile) return slotTile;
-    return HOVERED_TARGET_NONE;
-  }
-
-  private hitTestSlotTile(x: number, y: number): HoveredTarget | null {
-    for (let i = 0; i < this.tiles.length; i += 1) {
-      const tile = this.tiles[i];
-      if (!tile) continue;
-      const slotIndex = (i + 1) as 1 | 2 | 3 | 4;
-      if (tile.modeButtonBounds.contains(x, y)) {
-        return { kind: 'slot-tile-mode', slotIndex };
-      }
-      for (const swatchBounds of tile.swatchBounds) {
-        if (swatchBounds.contains(x, y)) {
-          return { kind: 'slot-tile-palette', slotIndex };
+    // Hand cursors can also cycle their card's palette strip (gamepad
+    // users have no mouse to click an exact swatch — A on the strip
+    // steps +1 via the reducer's slot-tile-palette dispatch).
+    for (const card of this.cards) {
+      for (const sb of card.swatchBounds) {
+        if (sb.contains(x, y)) {
+          return { kind: 'slot-tile-palette', slotIndex: card.slotIndex };
         }
       }
     }
-    return null;
+    return HOVERED_TARGET_NONE;
   }
 
   // -------------------------------------------------------------------------
@@ -792,16 +866,13 @@ export class CharacterSelectScene extends Phaser.Scene {
   ): PortraitTileGameObjects {
     const container = this.add.container(px, py);
     const bg = this.add
-      .rectangle(0, 0, size, size, 0x14141c)
-      .setStrokeStyle(2, 0x44445a)
+      .rectangle(0, 0, size, size, MENU_COLORS.panel)
+      .setStrokeStyle(2, MENU_COLORS.panelBorder)
       .setOrigin(0.5);
     const bodyRect = this.add
       .rectangle(0, -8, size * 0.55, size * 0.55, 0x666666)
       .setOrigin(0.5);
     const spec = SELECTABLE_CHARACTER_SPECS[portraitIndex];
-    // Real-sprite portrait if the character has a loaded atlas. Sized
-    // to roughly the rectangle's height; if the texture isn't loaded
-    // the sprite stays on `__DEFAULT` and is hidden.
     const bodySpriteDisplayHeight = size * 0.7;
     const bodySprite = this.add.sprite(0, -8, '__DEFAULT').setOrigin(0.5);
     if (spec?.placeholder.spriteKey && this.textures.exists(spec.placeholder.spriteKey)) {
@@ -812,21 +883,22 @@ export class CharacterSelectScene extends Phaser.Scene {
     }
     const nameLabel = this.add
       .text(0, size * 0.36, (spec?.displayName ?? '?').toUpperCase(), {
-        fontFamily: 'monospace',
-        fontSize: '12px',
-        color: '#cfcfd8',
+        fontFamily: MENU_FONT,
+        fontSize: '13px',
+        fontStyle: 'bold',
+        color: MENU_COLORS_CSS.textSecondary,
       })
       .setOrigin(0.5);
     const hoverFrame = this.add
       .rectangle(0, 0, size + 6, size + 6)
-      .setStrokeStyle(3, 0xffd166)
+      .setStrokeStyle(3, MENU_COLORS.gold)
       .setOrigin(0.5)
       .setVisible(false);
     const hoverBadge = this.add
       .text(0, -size * 0.42, '', {
-        fontFamily: 'monospace',
+        fontFamily: MENU_FONT,
         fontSize: '11px',
-        color: '#ffd166',
+        color: MENU_COLORS_CSS.gold,
         fontStyle: 'bold',
       })
       .setOrigin(0.5)
@@ -860,155 +932,208 @@ export class CharacterSelectScene extends Phaser.Scene {
     };
   }
 
-  private buildSlotTile(
-    tx: number,
-    ty: number,
+  private buildPlayerCard(
+    slotIndex: 1 | 2 | 3 | 4,
+    cx: number,
+    cy: number,
     width: number,
     height: number,
-    slotIdx: number,
-  ): SlotTileGameObjects {
-    const slotIndex = (slotIdx + 1) as 1 | 2 | 3 | 4;
-    const container = this.add.container(tx, ty);
-    const bg = this.add
-      .rectangle(0, 0, width, height, 0x1c1c28)
-      .setStrokeStyle(3, SLOT_HAND_COLOURS[slotIndex])
-      .setOrigin(0.5);
-    const nameLabel = this.add
-      .text(0, -height * 0.4, `P${slotIndex}`, {
-        fontFamily: 'monospace',
-        fontSize: '22px',
-        color: '#e8e8f0',
+  ): PlayerCardGameObjects {
+    const colour = SLOT_HAND_COLOURS[slotIndex];
+    const panel = this.add.graphics();
+
+    // P# badge — always visible, top-left, in the player colour.
+    const badge = this.add
+      .text(cx - width / 2 + 10, cy - height / 2 + 8, `P${slotIndex}`, {
+        fontFamily: MENU_FONT,
+        fontSize: '15px',
         fontStyle: 'bold',
+        color: MENU_COLORS_CSS.panelDark,
+        backgroundColor: `#${colour.toString(16).padStart(6, '0')}`,
+        padding: { left: 7, right: 7, top: 2, bottom: 2 },
       })
-      .setOrigin(0.5);
-    const roleLabel = this.add
-      .text(0, -height * 0.34, '', {
-        fontFamily: 'monospace',
-        fontSize: '14px',
-        color: '#a0a0b8',
-      })
-      .setOrigin(0.5);
-    const inputTypeLabel = this.add
-      .text(0, -height * 0.28, '', {
-        fontFamily: 'monospace',
-        fontSize: '12px',
-        color: '#888899',
-      })
-      .setOrigin(0.5);
-    // Mode toggle button (clickable by mouse OR hand light-attack).
-    const modeButtonW = width * 0.7;
-    const modeButtonH = 30;
-    const modeButtonY = -height * 0.18;
-    // Mode button — clickable via the DOM-level mousedown router
-    // (see `create()`). Phaser's per-object `setInteractive()` is
-    // unreliable after a `scene.start` from another scene, so we
-    // hit-test against `modeButtonBounds` in the router instead.
-    const modeButton = this.add
-      .rectangle(0, modeButtonY, modeButtonW, modeButtonH, 0x2a2a3c)
-      .setStrokeStyle(2, 0x6cf0c2)
-      .setOrigin(0.5);
-    const modeButtonLabel = this.add
-      .text(0, modeButtonY, 'EMPTY', {
-        fontFamily: 'monospace',
-        fontSize: '14px',
-        color: '#6cf0c2',
+      .setOrigin(0, 0);
+
+    // Empty-state affordances.
+    const joinHint = this.add
+      .text(cx, cy - height * 0.1, 'PRESS Ⓐ\nTO JOIN', {
+        fontFamily: MENU_FONT,
+        fontSize: '20px',
         fontStyle: 'bold',
+        color: MENU_COLORS_CSS.textSecondary,
+        align: 'center',
       })
       .setOrigin(0.5);
-    // Body preview rectangle + facing arrow.
+    addPulse(this, joinHint, { minAlpha: 0.35, duration: 900 });
+    const joinSubHint = this.add
+      .text(cx, cy + height * 0.1, 'or click here', {
+        fontFamily: MENU_FONT,
+        fontSize: '13px',
+        color: MENU_COLORS_CSS.textDim,
+      })
+      .setOrigin(0.5);
+    const cpuButton = this.add
+      .text(cx, cy + height * 0.3, '+ ADD CPU', {
+        fontFamily: MENU_FONT,
+        fontSize: '14px',
+        fontStyle: 'bold',
+        color: MENU_COLORS_CSS.textPrimary,
+        backgroundColor: '#2a2a3e',
+        padding: { left: 12, right: 12, top: 5, bottom: 5 },
+      })
+      .setOrigin(0.5);
+
+    // Joined-state objects.
+    const bodySpriteDisplayHeight = height * 0.42;
     const bodyRect = this.add
-      .rectangle(0, height * 0.02, width * 0.4, height * 0.32, 0x666666)
-      .setOrigin(0.5);
-    // Real-sprite preview of the picked character — texture swapped
-    // per pick in `refreshSlotTile`. Initially `__DEFAULT` and hidden
-    // so an Empty slot doesn't paint a stray Wolf placeholder.
-    const bodySpriteDisplayHeight = height * 0.32;
+      .rectangle(cx, cy - height * 0.1, width * 0.34, height * 0.4, 0x666666)
+      .setOrigin(0.5)
+      .setVisible(false);
     const bodySprite = this.add
-      .sprite(0, height * 0.02, '__DEFAULT')
+      .sprite(cx, cy - height * 0.1, '__DEFAULT')
       .setOrigin(0.5)
       .setVisible(false);
     const facingMark = this.add
-      .triangle(width * 0.25, height * 0.02, 0, -8, 0, 8, 14, 0, 0xcccccc)
-      .setOrigin(0.5);
-    // Palette label + swatch row.
-    const paletteLabel = this.add
-      .text(0, height * 0.27, '', {
-        fontFamily: 'monospace',
+      .triangle(cx + width * 0.22, cy - height * 0.1, 0, -8, 0, 8, 14, 0, 0xcccccc)
+      .setOrigin(0.5)
+      .setVisible(false);
+    const nameLabel = this.add
+      .text(cx, cy + height * 0.18, '', {
+        fontFamily: MENU_FONT,
+        fontSize: '24px',
+        fontStyle: 'bold',
+        color: MENU_COLORS_CSS.textPrimary,
+      })
+      .setOrigin(0.5)
+      .setShadow(0, 2, '#000000', 4, true, true);
+    const roleLabel = this.add
+      .text(cx, cy + height * 0.29, '', {
+        fontFamily: MENU_FONT,
         fontSize: '12px',
-        color: '#a0a0b8',
+        color: MENU_COLORS_CSS.textSecondary,
       })
       .setOrigin(0.5);
-    const swatchSize = (width * 0.85) / PALETTE_COUNT - 2;
-    const swatchY = height * 0.36;
+    const inputLabel = this.add
+      .text(cx, cy + height * 0.5 - 14, '', {
+        fontFamily: MENU_FONT,
+        fontSize: '11px',
+        color: MENU_COLORS_CSS.textDim,
+      })
+      .setOrigin(0.5);
+    const cpuChip = this.add
+      .text(cx - width / 2 + 10, cy - height / 2 + 36, 'CPU', {
+        fontFamily: MENU_FONT,
+        fontSize: '11px',
+        fontStyle: 'bold',
+        color: MENU_COLORS_CSS.panelDark,
+        backgroundColor: MENU_COLORS_CSS.gold,
+        padding: { left: 5, right: 5, top: 1, bottom: 1 },
+      })
+      .setOrigin(0, 0)
+      .setVisible(false);
+    const diffButton = this.add
+      .text(cx + width / 2 - 10, cy - height / 2 + 36, 'LV · MEDIUM', {
+        fontFamily: MENU_FONT,
+        fontSize: '11px',
+        fontStyle: 'bold',
+        color: MENU_COLORS_CSS.textPrimary,
+        backgroundColor: '#2a2a3e',
+        padding: { left: 6, right: 6, top: 2, bottom: 2 },
+      })
+      .setOrigin(1, 0)
+      .setVisible(false);
+    const leaveButton = this.add
+      .text(cx + width / 2 - 8, cy - height / 2 + 6, '✕', {
+        fontFamily: MENU_FONT,
+        fontSize: '16px',
+        fontStyle: 'bold',
+        color: MENU_COLORS_CSS.danger,
+        backgroundColor: '#1c1c2a',
+        padding: { left: 7, right: 7, top: 3, bottom: 3 },
+      })
+      .setOrigin(1, 0)
+      .setVisible(false);
+    const mouseFocusBadge = this.add
+      .text(cx, cy - height / 2 - 12, 'MOUSE', {
+        fontFamily: MENU_FONT,
+        fontSize: '11px',
+        fontStyle: 'bold',
+        color: MENU_COLORS_CSS.panelDark,
+        backgroundColor: MENU_COLORS_CSS.gold,
+        padding: { left: 5, right: 5, top: 1, bottom: 1 },
+      })
+      .setOrigin(0.5)
+      .setVisible(false);
+
+    // Palette swatch strip.
+    const swatchSize = (width * 0.8) / PALETTE_COUNT - 3;
+    const swatchY = cy + height * 0.395;
     const swatches: Phaser.GameObjects.Rectangle[] = [];
     const swatchBounds: Phaser.Geom.Rectangle[] = [];
     for (let p = 0; p < PALETTE_COUNT; p += 1) {
-      const sx = -((PALETTE_COUNT - 1) * (swatchSize + 2)) / 2 + p * (swatchSize + 2);
-      // Palette swatches — clickable via the DOM-level mousedown
-      // router (see `create()`). Hit-tested against `swatchBounds[p]`.
+      const sx =
+        cx - ((PALETTE_COUNT - 1) * (swatchSize + 3)) / 2 + p * (swatchSize + 3);
       const swatch = this.add
         .rectangle(sx, swatchY, swatchSize, swatchSize, 0x444455)
         .setOrigin(0.5)
-        .setStrokeStyle(1, 0x666677);
+        .setStrokeStyle(1, 0x666677)
+        .setVisible(false);
       swatches.push(swatch);
       swatchBounds.push(
         new Phaser.Geom.Rectangle(
-          tx + sx - swatchSize / 2,
-          ty + swatchY - swatchSize / 2,
+          sx - swatchSize / 2,
+          swatchY - swatchSize / 2,
           swatchSize,
           swatchSize,
         ),
       );
     }
-    // Mouse-focus badge — visible when this slot is the focused
-    // mouse target. Tells the player "left-clicking a portrait will
-    // pick for THIS slot." Painted top-right of the tile so it
-    // doesn't overlap the slot name.
-    const mouseFocusBadge = this.add
-      .text(width * 0.4, -height * 0.4, 'MOUSE', {
-        fontFamily: 'monospace',
-        fontSize: '11px',
-        color: '#0a0a14',
-        fontStyle: 'bold',
-        backgroundColor: '#ffd166',
-        padding: { left: 4, right: 4, top: 2, bottom: 2 },
-      })
-      .setOrigin(0.5)
-      .setVisible(false);
-    container.add([
-      bg,
-      nameLabel,
-      roleLabel,
-      inputTypeLabel,
-      modeButton,
-      modeButtonLabel,
-      bodyRect,
-      bodySprite,
-      facingMark,
-      paletteLabel,
-      ...swatches,
-      mouseFocusBadge,
-    ]);
+
+    const leaveBoundsRect = leaveButton.getBounds();
+    const cpuBoundsRect = cpuButton.getBounds();
+    const diffBoundsRect = diffButton.getBounds();
+
     return {
-      container,
-      bg,
-      nameLabel,
-      roleLabel,
+      slotIndex,
+      panel,
+      badge,
+      joinHint,
+      joinSubHint,
+      cpuButton,
       bodyRect,
       bodySprite,
       bodySpriteDisplayHeight,
       facingMark,
-      paletteLabel,
-      swatches,
-      modeButton,
-      modeButtonLabel,
-      inputTypeLabel,
+      nameLabel,
+      roleLabel,
+      inputLabel,
+      cpuChip,
+      diffButton,
+      leaveButton,
       mouseFocusBadge,
-      modeButtonBounds: new Phaser.Geom.Rectangle(
-        tx - modeButtonW / 2,
-        ty + modeButtonY - modeButtonH / 2,
-        modeButtonW,
-        modeButtonH,
+      swatches,
+      x: cx,
+      y: cy,
+      width,
+      height,
+      cardBounds: new Phaser.Geom.Rectangle(cx - width / 2, cy - height / 2, width, height),
+      cpuButtonBounds: new Phaser.Geom.Rectangle(
+        cpuBoundsRect.x,
+        cpuBoundsRect.y,
+        cpuBoundsRect.width,
+        cpuBoundsRect.height,
+      ),
+      diffButtonBounds: new Phaser.Geom.Rectangle(
+        diffBoundsRect.x,
+        diffBoundsRect.y,
+        diffBoundsRect.width,
+        diffBoundsRect.height,
+      ),
+      leaveButtonBounds: new Phaser.Geom.Rectangle(
+        leaveBoundsRect.x,
+        leaveBoundsRect.y,
+        leaveBoundsRect.width,
+        leaveBoundsRect.height,
       ),
       swatchBounds,
     };
@@ -1017,7 +1142,6 @@ export class CharacterSelectScene extends Phaser.Scene {
   private buildHandCursor(slotIndex: 1 | 2 | 3 | 4): HandCursorGameObjects {
     const colour = SLOT_HAND_COLOURS[slotIndex];
     const container = this.add.container(0, 0).setDepth(1000);
-    // Triangle pointer — outline white, fill in slot colour.
     const outline = this.add
       .triangle(0, 0, 0, 0, 0, 24, 18, 14, HAND_OUTLINE_COLOUR)
       .setOrigin(0, 0);
@@ -1026,8 +1150,9 @@ export class CharacterSelectScene extends Phaser.Scene {
       .setOrigin(0, 0);
     const label = this.add
       .text(20, 8, `P${slotIndex}`, {
-        fontFamily: 'monospace',
+        fontFamily: MENU_FONT,
         fontSize: '11px',
+        fontStyle: 'bold',
         color: '#ffffff',
         backgroundColor: `#${colour.toString(16).padStart(6, '0')}`,
         padding: { left: 3, right: 3, top: 1, bottom: 1 },
@@ -1050,17 +1175,16 @@ export class CharacterSelectScene extends Phaser.Scene {
       if (!cell || !tile) continue;
       this.refreshPortraitTile(tile, cell);
     }
-    for (let i = 0; i < this.tiles.length; i += 1) {
-      const tile = this.tiles[i];
+    for (let i = 0; i < this.cards.length; i += 1) {
+      const card = this.cards[i];
       const slotState = projected.slots[i];
-      if (!tile || !slotState) continue;
+      const handSlot = this.state.slots[i];
+      if (!card || !slotState || !handSlot) continue;
       const preview = buildSlotPreview(slotState);
       const swatches = buildSlotPaletteSwatches(slotState);
-      const handSlot = this.state.slots[i];
-      if (!handSlot) continue;
-      this.refreshSlotTile(tile, preview, swatches, handSlot.mode);
+      this.refreshPlayerCard(card, preview, swatches, handSlot.mode);
     }
-    this.refreshLobbyStatusHeader(projected);
+    this.refreshBanner(projected);
     // Persist every visible state change so a return-to-lobby (from
     // results, the rebinding menu, anywhere) restores the player's
     // last picks. Cheap — registry.set is just a Map write.
@@ -1082,12 +1206,15 @@ export class CharacterSelectScene extends Phaser.Scene {
     );
     tile.bg.setStrokeStyle(
       cell.selectedBySlots.length > 0 ? 3 : 2,
-      cell.selectedBySlots.length > 0 ? 0xffd166 : 0x44445a,
+      cell.selectedBySlots.length > 0 ? MENU_COLORS.gold : MENU_COLORS.panelBorder,
     );
+    const firstHover = cell.hoveredBySlots[0];
     tile.hoverFrame.setVisible(cell.hoveredBySlots.length > 0);
-    if (cell.hoveredBySlots.length > 0) {
+    if (firstHover !== undefined) {
+      tile.hoverFrame.setStrokeStyle(3, SLOT_HAND_COLOURS[firstHover]);
       tile.hoverBadge.setVisible(true);
       tile.hoverBadge.setText(cell.hoveredBySlots.map((s) => `P${s}`).join(' '));
+      tile.hoverBadge.setColor(playerColorCss(firstHover));
     } else {
       tile.hoverBadge.setVisible(false);
     }
@@ -1098,204 +1225,226 @@ export class CharacterSelectScene extends Phaser.Scene {
     }
   }
 
-  private refreshSlotTile(
-    tile: SlotTileGameObjects,
+  private refreshPlayerCard(
+    card: PlayerCardGameObjects,
     preview: CharacterSelectSlotPreview,
     swatches: ReadonlyArray<CharacterSelectPaletteSwatch>,
     mode: 'empty' | 'human' | 'bot',
   ): void {
+    const colour = SLOT_HAND_COLOURS[card.slotIndex];
+    const joined = mode !== 'empty';
+
+    // Panel redraw — player-coloured border + tinted fill when joined,
+    // dim neutral when empty.
+    card.panel.clear();
+    card.panel.fillStyle(MENU_COLORS.panel, joined ? 0.96 : 0.55);
+    card.panel.fillRoundedRect(
+      card.x - card.width / 2,
+      card.y - card.height / 2,
+      card.width,
+      card.height,
+      12,
+    );
+    if (joined) {
+      card.panel.fillStyle(colour, 0.08);
+      card.panel.fillRoundedRect(
+        card.x - card.width / 2,
+        card.y - card.height / 2,
+        card.width,
+        card.height,
+        12,
+      );
+    }
+    card.panel.lineStyle(joined ? 3 : 2, joined ? colour : MENU_COLORS.panelBorder, 1);
+    card.panel.strokeRoundedRect(
+      card.x - card.width / 2,
+      card.y - card.height / 2,
+      card.width,
+      card.height,
+      12,
+    );
+
+    // Empty-state affordances.
+    card.joinHint.setVisible(!joined);
+    card.joinSubHint.setVisible(!joined);
+    card.cpuButton.setVisible(!joined);
+
+    // Joined-state objects.
+    card.bodyRect.setVisible(joined);
+    card.facingMark.setVisible(joined);
+    card.nameLabel.setVisible(joined);
+    card.roleLabel.setVisible(joined);
+    card.inputLabel.setVisible(joined);
+    card.leaveButton.setVisible(joined);
+    card.cpuChip.setVisible(mode === 'bot');
+    card.diffButton.setVisible(mode === 'bot');
+    for (const swatch of card.swatches) swatch.setVisible(joined);
+
+    if (!joined) {
+      card.bodySprite.setVisible(false);
+      card.mouseFocusBadge.setVisible(this.focusedMouseSlotIndex === card.slotIndex);
+      return;
+    }
+
+    // AC 10303 Sub-AC 3 — the live card preview runs through the SAME
+    // palette pipeline the match render uses.
     const swap = paletteSwapForCharacter(
       preview.slotIndex,
       preview.characterId,
       preview.paletteIndex,
     );
-    // AC 10303 Sub-AC 3 — un-joined slots dim through the helper's
-    // alpha options (NOT a manual `setFillStyle` on the body), so the
-    // colour math stays centralised in `applyPaletteSwap`.
-    const fillAlpha = mode === 'empty' ? 0.3 : 1;
     const renderResult = this.paletteRenderer.paint(
       `slot-${preview.slotIndex}`,
-      { body: tile.bodyRect, facingMark: tile.facingMark },
+      { body: card.bodyRect, facingMark: card.facingMark },
       {
         index: preview.slotIndex,
         characterId: preview.characterId,
         paletteIndex: preview.paletteIndex,
       },
-      { bodyFillAlpha: fillAlpha, bodyStrokeAlpha: fillAlpha },
+      { bodyFillAlpha: 1, bodyStrokeAlpha: 1 },
     );
     // Capture the shader remap descriptor so a future sprite drop-in
     // can consume it without re-deriving the colour pairs.
     const remap: PaletteSwapRemap = renderResult.remap;
     void remap;
     applyPaletteSwap(
-      { body: tile.bodyRect, facingMark: tile.facingMark },
+      { body: card.bodyRect, facingMark: card.facingMark },
       swap,
-      { bodyFillAlpha: fillAlpha, bodyStrokeAlpha: fillAlpha },
+      { bodyFillAlpha: 1, bodyStrokeAlpha: 1 },
     );
-    tile.roleLabel.setText(mode === 'empty' ? '— OPEN SLOT —' : preview.roleLabel.toUpperCase());
-    tile.inputTypeLabel.setText(formatInputTypeLabel(mode, preview));
-    tile.modeButtonLabel.setText(mode.toUpperCase());
-    tile.paletteLabel.setText(
-      mode === 'empty' ? '' : `palette ${preview.paletteIndex + 1} / ${PALETTE_COUNT}`,
+
+    card.nameLabel.setText(preview.displayName.toUpperCase());
+    card.roleLabel.setText(preview.roleLabel.toUpperCase());
+    // A restored gamepad slot whose physical pad didn't survive the
+    // scene restart is input-dead until a pad presses Ⓐ and re-adopts
+    // it (the joinPad orphan-adoption path, Smash-style). Surface that
+    // on the card in a warning tint instead of silently claiming a
+    // live GAMEPAD binding — match start is deliberately NOT gated.
+    const orphanedGamepad =
+      mode === 'human' &&
+      preview.inputType === 'gamepad' &&
+      !new Set(this.padAssignments.values()).has(card.slotIndex);
+    card.inputLabel.setText(formatInputTypeLabel(mode, preview, orphanedGamepad));
+    card.inputLabel.setColor(
+      orphanedGamepad ? MENU_COLORS_CSS.gold : MENU_COLORS_CSS.textDim,
     );
-    for (let p = 0; p < tile.swatches.length; p += 1) {
-      const swatch = tile.swatches[p];
+    if (mode === 'bot') {
+      card.diffButton.setText(`LV · ${(preview.aiDifficulty ?? 'medium').toUpperCase()}`);
+    }
+    for (let p = 0; p < card.swatches.length; p += 1) {
+      const swatch = card.swatches[p];
       const data = swatches[p];
       if (!swatch || !data) continue;
       swatch.fillColor = data.primaryColor;
-      swatch.setStrokeStyle(data.active ? 3 : 1, data.active ? 0xffd166 : 0x666677);
+      swatch.setStrokeStyle(data.active ? 3 : 1, data.active ? MENU_COLORS.gold : 0x666677);
     }
-    tile.mouseFocusBadge.setVisible(this.focusedMouseSlotIndex === preview.slotIndex);
+    card.mouseFocusBadge.setVisible(this.focusedMouseSlotIndex === card.slotIndex);
+
     // Swap the body sprite to the picked character's idle frame.
-    // Empty slots paint nothing here; the rect underneath stays as
-    // the dim "no fighter yet" placeholder.
     const spec = getCharacterSpec(preview.characterId);
     const spriteKey = spec.placeholder.spriteKey;
-    if (mode !== 'empty' && spriteKey && this.textures.exists(spriteKey)) {
-      tile.bodySprite.setTexture(spriteKey);
-      applySpriteDisplayHeight(tile.bodySprite, tile.bodySpriteDisplayHeight);
-      tile.bodySprite.setVisible(true);
+    if (spriteKey && this.textures.exists(spriteKey)) {
+      card.bodySprite.setTexture(spriteKey);
+      applySpriteDisplayHeight(card.bodySprite, card.bodySpriteDisplayHeight);
+      card.bodySprite.setVisible(true);
       // The sprite is the visible character; dim the underlying
       // colour rect so it reads as a debug hurtbox rather than a
-      // duplicate body. Mirrors the MatchScene "rectAlphaWithSprite"
-      // pattern.
-      tile.bodyRect.setAlpha(0.15);
+      // duplicate body.
+      card.bodyRect.setAlpha(0.15);
     } else {
-      tile.bodySprite.setVisible(false);
-      tile.bodyRect.setAlpha(fillAlpha);
+      card.bodySprite.setVisible(false);
+      card.bodyRect.setAlpha(1);
     }
   }
 
-  private refreshLobbyStatusHeader(projected: CharacterSelectState): void {
-    if (!this.lobbyStatusLabel) return;
-    const joined = projected.slots.filter((s) => s.joined).length;
-    const ready = projected.slots.filter((s) => s.ready).length;
-    // ENTER gate: at least 2 ready slots (MatchScene requires it),
-    // every joined slot is ready, no palette collisions.
-    const canStart = canConfirmMatch(projected) && ready >= 2;
-    let suffix = '';
-    if (canStart) suffix = '— ENTER ready';
-    else if (ready < 2) suffix = `— need ${2 - ready} more ready`;
-    else if (joined !== ready) suffix = '— some slot still picking';
-    this.lobbyStatusLabel.setText(
-      `${joined} joined  /  ${ready} ready  ${suffix}`,
+  /**
+   * READY TO FIGHT banner — the single match-start status surface.
+   * Because join = picked, the only gate is "are there ≥ 2 fighters?"
+   * (plus the defensive palette-collision check in canConfirmMatch).
+   */
+  private refreshBanner(projected: CharacterSelectState): void {
+    if (!this.bannerBand || !this.bannerLabel) return;
+    const joined = participatingSlotCount(this.state);
+    const canStart = joined >= 2 && canConfirmMatch(projected);
+    if (canStart) {
+      this.bannerBand.setVisible(true);
+      this.bannerTween?.resume();
+      this.bannerLabel.setText('READY TO FIGHT  —  PRESS ENTER OR START');
+      this.bannerLabel.setColor(MENU_COLORS_CSS.panelDark);
+      this.bannerLabel.setFontStyle('bold');
+      return;
+    }
+    this.bannerBand.setVisible(false);
+    this.bannerTween?.pause();
+    this.bannerBand.setAlpha(1);
+    this.bannerLabel.setColor(MENU_COLORS_CSS.textSecondary);
+    this.bannerLabel.setText(
+      joined === 0
+        ? 'Press Ⓐ on a gamepad — or click a fighter — to join'
+        : 'Add a second player or a CPU to start',
     );
-    this.lobbyStatusLabel.setColor(canStart ? '#6cf0a8' : '#888899');
   }
 
   private refreshHandCursors(): void {
+    const padSlots = new Set(this.padAssignments.values());
     for (let i = 0; i < this.hands.length; i += 1) {
       const hand = this.hands[i];
       const slot = this.state.slots[i];
       if (!hand || !slot) continue;
       hand.container.setPosition(slot.cursor.x, slot.cursor.y);
       // The focused mouse slot's hand is ALWAYS visible — it IS the
-      // mouse cursor surrogate, so hiding it would leave the user
-      // with no on-screen indicator of where their click will land.
-      // Other slots' hands hide while empty (no player driving them).
+      // mouse cursor surrogate. Pad-bound hands show too; idle slots
+      // (bots, unbound) hide theirs.
       const isFocusedMouse = slot.index === this.focusedMouseSlotIndex;
-      hand.container.setVisible(isFocusedMouse || slot.mode !== 'empty');
+      hand.container.setVisible(isFocusedMouse || padSlots.has(slot.index));
     }
   }
 
   // -------------------------------------------------------------------------
-  // Confirm / cancel / custom-stage launch
+  // Confirm / cancel
   // -------------------------------------------------------------------------
 
+  /**
+   * Confirm — forward the lineup to `StageSelectScene` (fighters first,
+   * arena last — the Smash flow). The stage select then launches
+   * `MatchScene` with the completed config.
+   */
   private handleConfirm(): void {
     const projected = toCharacterSelectState(this.state);
     if (!canConfirmMatch(projected)) return;
-    const matchConfig = this.buildConfirmedMatchConfig();
-    // MatchScene's StockTracker indexes by player index 0..N-1 and
-    // the match render path assumes ≥ 2 fighters; a 1-player lineup
-    // crashes with `playerIndex 1 out of range [0, 1)`. Gate the
-    // confirm path on a min-of-2 lineup so the lobby surfaces the
-    // requirement instead of dumping into a broken match.
-    if (matchConfig.players.length < 2) return;
-    if (this.pendingCustomStage) {
-      const result = launchCustomStageMatchInScene(this, {
-        savedStageId: matchConfig.stageId,
-        matchConfig,
-        customStage: this.pendingCustomStage,
-      });
-      this.handleCustomStageLaunchOutcome(result);
-      return;
-    }
-    this.scene.start('MatchScene', { matchConfig });
-  }
-
-  private handleCustomStageLaunchOutcome(
-    result: CustomStageMatchLaunchResult,
-  ): void {
-    if (result.ok) return;
-    // eslint-disable-next-line no-console
-    console.warn(
-      `[CharacterSelectScene] custom stage launch failed: ${result.reason} — ${result.message}`,
-    );
-  }
-
-  private handleCancel(): void {
+    const players = buildPlayerSlotsFromHandCursor(this.state);
+    // MatchScene's StockTracker indexes by player index 0..N-1 and the
+    // match render path assumes ≥ 2 fighters — gate on a min-of-2
+    // lineup so the lobby surfaces the requirement instead of dumping
+    // into a broken match.
+    if (players.length < 2) return;
+    const base = this.pendingMatchConfig ?? this.fallbackPendingMatchConfig();
     this.scene.start('StageSelectScene', {
-      pendingMatchConfig: this.pendingMatchConfig,
+      pendingMatchConfig: { ...base, players },
       lobby: this.pendingLobby,
     });
   }
 
-  /**
-   * Compose the in-match controls reminder shown in the footer.
-   * Surfaces that DODGE is its own button (separate from SHIELD) — a
-   * common point of confusion since shielding looked like the only
-   * way to roll. Doesn't bake in specific key names because the
-   * dodge binding lives in a runtime profile manager that isn't in
-   * the registry; reading it from here would require either a
-   * refactor or coupling the scene to the input subsystem internals.
-   * The [ REBIND INPUTS ] button right above this hint shows / lets
-   * the player change the live keys, so steering them there keeps
-   * the hint truthful regardless of remapping.
-   */
-  private buildInMatchControlsHint(): string {
-    return 'In-match: SHIELD anchors you in place — press DODGE (its own button) to roll. See [ REBIND INPUTS ] for current keys.';
-  }
-
-  private buildConfirmedMatchConfig(): MatchConfig {
-    // Synthesise the lineup from the hand-cursor state — the helper
-    // funnels through {@link buildPlayerSlotsFromState} so the legacy
-    // PlayerSlot[] contract is preserved byte-for-byte.
-    const players = buildPlayerSlotsFromHandCursor(this.state);
+  private fallbackPendingMatchConfig(): NonNullable<
+    CharacterSelectSceneData['pendingMatchConfig']
+  > {
     const registrySeed = this.registry.get(BOOT_REGISTRY_KEYS.rngSeed) as
       | number
       | undefined;
-    const fallbackSeed =
+    const rngSeed =
       typeof registrySeed === 'number' && Number.isFinite(registrySeed)
         ? registrySeed
         : GAME_CONFIG.defaultRngSeed;
-    if (this.pendingMatchConfig) {
-      const mode = this.pendingMatchConfig.mode;
-      if (mode === 'time') {
-        return Object.freeze({
-          mode: 'time',
-          stockCount: this.pendingMatchConfig.stockCount,
-          timeLimitSeconds: this.pendingMatchConfig.timeLimitSeconds ?? 180,
-          stageId: this.pendingMatchConfig.stageId,
-          players,
-          rngSeed: this.pendingMatchConfig.rngSeed,
-        }) as MatchConfig;
-      }
-      return Object.freeze({
-        mode: 'stocks',
-        stockCount: this.pendingMatchConfig.stockCount,
-        stageId: this.pendingMatchConfig.stageId,
-        players,
-        rngSeed: this.pendingMatchConfig.rngSeed,
-      }) as MatchConfig;
-    }
-    return Object.freeze({
+    return {
       mode: 'stocks',
       stockCount: 3,
       stageId: FLAT_STAGE.id,
-      players,
-      rngSeed: fallbackSeed,
-    }) as MatchConfig;
+      rngSeed,
+    } as NonNullable<CharacterSelectSceneData['pendingMatchConfig']>;
+  }
+
+  private handleCancel(): void {
+    this.scene.start('ModeSelectScene', { lobby: this.pendingLobby });
   }
 }
 
@@ -1369,35 +1518,33 @@ function applyDeadzone(value: number, deadzone: number): number {
   return value;
 }
 
+/**
+ * Per-slot input-device label. `orphanedGamepad` marks a human gamepad
+ * slot with NO physical pad currently bound (a restored lobby whose
+ * pad bindings didn't survive the scene restart) — the label becomes a
+ * re-adopt prompt, since one Ⓐ press re-binds the slot.
+ */
 function formatInputTypeLabel(
   mode: 'empty' | 'human' | 'bot',
   preview: CharacterSelectSlotPreview,
+  orphanedGamepad = false,
 ): string {
   if (mode === 'empty') return '';
   if (mode === 'bot') {
     const tier = preview.aiDifficulty?.toUpperCase() ?? 'MEDIUM';
-    return `AI BOT — ${tier}`;
+    return `CPU — ${tier}`;
   }
   switch (preview.inputType) {
     case 'keyboard_p1':
-      return 'HUMAN — KB P1';
+      return 'KEYBOARD — P1 KEYS';
     case 'keyboard_p2':
-      return 'HUMAN — KB P2';
+      return 'KEYBOARD — P2 KEYS';
     case 'gamepad':
-      return 'HUMAN — GAMEPAD';
+      return orphanedGamepad ? 'GAMEPAD — PRESS Ⓐ' : 'GAMEPAD';
     case 'ai':
-      return 'AI BOT';
+      return 'CPU';
   }
 }
 
-// Re-export the SlotMode / SlotControls type symbols some smoke tests
-// import from this module's surface so a test that did
-// `import { SLOT_HAND_COLOURS } from './CharacterSelectScene'` keeps
-// working. Currently empty — add as needed.
+// Re-export under the legacy name so existing import sites keep working.
 export { SLOT_HAND_COLOURS };
-
-// Suppress unused-locals lint for the legacy character-select state
-// import — we keep `setSlotMode`, `setSlotPalette`, `cycleSlotMode`
-// imports live because the mode-toggle / palette swatch click handlers
-// use them.
-void setSlotMode;

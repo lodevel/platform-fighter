@@ -1,0 +1,25 @@
+{
+  "$schema": "../../src/characters/characterSerializer.schema.json",
+  "id": "blaze",
+  "displayName": "Blaze (Captain Falcon)",
+  "role": "rushdown (Captain Falcon)",
+  "body": {
+    "width": 50,
+    "height": 78,
+    "chamfer": 8
+  },
+  "movement": {
+    "maxRunSpeed": 9.0,
+    "groundAccel": 0.8,
+    "airAccel": 0.35,
+    "groundDamping": 0.8,
+    "airDamping": 0.95,
+    "jumpImpulse": 13.0,
+    "maxJumps": 2,
+    "mass": 14,
+    "fallAccel": 0.4,
+    "maxFallSpeed": 12.5,
+    "fastFallSpeed": 20.0,
+    "jumpCutFactor": 0.38
+  }
+}

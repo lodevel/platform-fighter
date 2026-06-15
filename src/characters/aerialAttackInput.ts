@@ -150,6 +150,8 @@ export interface AerialAttackInputSnapshot {
   readonly attackJustPressed: boolean;
   readonly heavyJustPressed: boolean;
   readonly moveX: number;
+  /** Vertical stick (-1 up … +1 down). Drives up-air / down-air dispatch. Optional → 0. */
+  readonly moveY?: number;
   readonly prevFacing: 1 | -1;
 }
 
@@ -193,6 +195,10 @@ export interface AerialAttackSlots {
   readonly aerialNeutralId: string | null;
   readonly aerialForwardId: string | null;
   readonly aerialBackId: string | null;
+  /** Up-air slot — fired on an up-stick aerial press. Optional → falls through to neutral. */
+  readonly aerialUpId?: string | null;
+  /** Down-air slot — fired on a down-stick aerial press. Optional → falls through to neutral. */
+  readonly aerialDownId?: string | null;
   readonly aerialAttackId: string | null;
   readonly lightAttackId: string | null;
   readonly defaultId: string | null;
@@ -258,7 +264,15 @@ export function classifyAerialDirection(
   moveX: number,
   prevFacing: 1 | -1,
   threshold: number = AERIAL_STICK_THRESHOLD,
+  moveY: number = 0,
 ): AerialDirection {
+  // Vertical stick wins when it dominates the horizontal axis — an up /
+  // down flick on the stick fires the up-air / down-air (moveY follows
+  // screen-space: -1 = up, +1 = down). Ties and pure-vertical both go to
+  // the vertical move; otherwise fall through to the horizontal logic.
+  if (Math.abs(moveY) >= threshold && Math.abs(moveY) >= Math.abs(moveX)) {
+    return moveY < 0 ? 'up' : 'down';
+  }
   if (isStickNeutral(moveX, threshold)) return 'neutral';
   const stickSign: 1 | -1 = moveX > 0 ? 1 : -1;
   return stickSign === prevFacing ? 'forward' : 'back';
@@ -342,6 +356,7 @@ export function classifyAerialAttack(
     input.moveX,
     input.prevFacing,
     stickThreshold,
+    input.moveY ?? 0,
   );
 
   // ---- 4. Slot lookup with cascading fallback -------------------------
@@ -362,6 +377,20 @@ export function classifyAerialAttack(
   } else if (direction === 'back') {
     moveId =
       slots.aerialBackId ??
+      slots.aerialNeutralId ??
+      slots.aerialAttackId ??
+      slots.lightAttackId ??
+      slots.defaultId;
+  } else if (direction === 'up') {
+    moveId =
+      slots.aerialUpId ??
+      slots.aerialNeutralId ??
+      slots.aerialAttackId ??
+      slots.lightAttackId ??
+      slots.defaultId;
+  } else if (direction === 'down') {
+    moveId =
+      slots.aerialDownId ??
       slots.aerialNeutralId ??
       slots.aerialAttackId ??
       slots.lightAttackId ??

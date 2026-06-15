@@ -6,6 +6,7 @@ import {
   CAT_SMASH,
   CAT_TILT,
   CAT_TUNING,
+  Character,
   HITBOX_COLLISION_FILTER,
   HITBOX_LABEL,
   Wolf,
@@ -14,10 +15,12 @@ import {
   WOLF_SMASH,
   WOLF_TILT,
   WOLF_TUNING,
+  createCharacterById,
   selectAnimationFrame,
   computeAttackPhase,
   type AttackMove,
 } from './index';
+import { FIGHTER_REGISTRY_IDS } from './fighterRegistry';
 import { COLLISION_CATEGORIES, COLLISION_MASKS } from '../engine/collisionCategories';
 import { PLATFORM_LABELS } from '../stages/StageRenderer';
 
@@ -157,7 +160,7 @@ function makePlatform(
 }
 
 /** Drop the character onto a platform so subsequent applyInput sees grounded=true. */
-function ground(ch: Wolf | Cat, m: MockScene): void {
+function ground(ch: Character, m: MockScene): void {
   const plat = makePlatform(ch.getPosition().x, ch.getPosition().y + 100);
   m.emit('collisionstart', [{ bodyA: ch.body, bodyB: plat }]);
 }
@@ -735,7 +738,9 @@ describe('Light vs heavy vs aerial dispatch (AC 203 Sub-AC 3.3)', () => {
     const m = createMockScene();
     const ch = new Wolf(m.scene, { spawnX: 0, spawnY: 0 });
     ground(ch, m);
+    // Smashes are now hold-to-charge: press starts the charge, release fires.
     ch.applyInput({ moveX: 0, jump: false, attack: false, attackHeavy: true });
+    ch.applyInput({ moveX: 0, jump: false, attack: false, attackHeavy: false });
     const snap = ch.getActiveAttack();
     expect(snap).not.toBeNull();
     expect(snap!.move.id).toBe(WOLF_SMASH.id);
@@ -745,11 +750,40 @@ describe('Light vs heavy vs aerial dispatch (AC 203 Sub-AC 3.3)', () => {
     const m = createMockScene();
     const ch = new Cat(m.scene, { spawnX: 0, spawnY: 0 });
     ground(ch, m);
+    // Heavy wins the priority cascade → enters the smash charge; release fires.
     ch.applyInput({ moveX: 0, jump: false, attack: true, attackHeavy: true });
+    ch.applyInput({ moveX: 0, jump: false, attack: false, attackHeavy: false });
     const snap = ch.getActiveAttack();
     expect(snap).not.toBeNull();
-    // Heavy wins on the priority cascade.
     expect(snap!.move.id).toBe(CAT_SMASH.id);
+  });
+
+  it("Wolf's jab chains jab1 → jab2 → jab3 on re-presses (Tier 4)", () => {
+    const m = createMockScene();
+    const ch = new Wolf(m.scene, { spawnX: 0, spawnY: 0 });
+    ground(ch, m);
+    // Advance the current stage into its active window (hitbox out), then
+    // release + re-press to step the chain.
+    const advanceAndRepress = (): void => {
+      const window = ch.getActiveAttack()!.move.startupFrames;
+      for (
+        let i = 0;
+        i < 30 &&
+        ch.getActiveAttack() !== null &&
+        ch.getActiveAttack()!.framesElapsed < window;
+        i += 1
+      ) {
+        ch.applyInput({ moveX: 0, jump: false, attack: false });
+      }
+      ch.applyInput({ moveX: 0, jump: false, attack: true });
+    };
+
+    ch.applyInput({ moveX: 0, jump: false, attack: true }); // jab1
+    expect(ch.getActiveAttack()!.move.id).toBe('wolf.jab');
+    advanceAndRepress();
+    expect(ch.getActiveAttack()!.move.id).toBe('wolf.jab2');
+    advanceAndRepress();
+    expect(ch.getActiveAttack()!.move.id).toBe('wolf.jab3'); // finisher
   });
 
   it('airborne `attack` press fires the aerial (nair) move', () => {
@@ -772,29 +806,29 @@ describe('Light vs heavy vs aerial dispatch (AC 203 Sub-AC 3.3)', () => {
   });
 
   it('grounded heavy press takes a press-and-release cycle to re-fire', () => {
-    // Same rising-edge contract as `attack`: holding the heavy button
-    // through the recovery window doesn't re-trigger automatically.
+    // Smashes are hold-to-charge with the same rising-edge contract: a
+    // FRESH press starts the charge; holding the button (no new rising
+    // edge) after a smash ends does NOT auto-start a new charge.
     const m = createMockScene();
     const ch = new Cat(m.scene, { spawnX: 0, spawnY: 0 });
     ground(ch, m);
 
+    // Press → charge → release → fire.
     ch.applyInput({ moveX: 0, jump: false, attackHeavy: true });
+    ch.applyInput({ moveX: 0, jump: false, attackHeavy: false });
     expect(ch.getActiveAttack()!.move.id).toBe(CAT_SMASH.id);
     const totalLockout =
       CAT_SMASH.startupFrames +
       CAT_SMASH.activeFrames +
       CAT_SMASH.recoveryFrames +
       CAT_SMASH.cooldownFrames;
-    // Hold the button throughout the entire move and cooldown.
-    runFrames(ch, totalLockout, () => true);
-    // Cooldown drained; canAttack is true. But the button never released
-    // so no rising edge fires.
+    // Ride out the move + cooldown with no input.
+    runFrames(ch, totalLockout, () => false);
     expect(ch.canAttack()).toBe(true);
     expect(ch.isAttacking()).toBe(false);
-    // Release.
-    ch.applyInput({ moveX: 0, jump: false, attackHeavy: false });
-    // Re-press — this rising edge connects.
+    // A fresh press-and-release cycle re-fires.
     ch.applyInput({ moveX: 0, jump: false, attackHeavy: true });
+    ch.applyInput({ moveX: 0, jump: false, attackHeavy: false });
     expect(ch.isAttacking()).toBe(true);
     expect(ch.getActiveAttack()!.move.id).toBe(CAT_SMASH.id);
   });
@@ -835,7 +869,8 @@ describe('Light vs heavy vs aerial dispatch (AC 203 Sub-AC 3.3)', () => {
       const m = createMockScene();
       const ch = new Wolf(m.scene, { spawnX: 0, spawnY: 0 });
       ground(ch, m);
-      ch.applyInput({ moveX: 0, jump: false, attackHeavy: true });
+      ch.applyInput({ moveX: 0, jump: false, attackHeavy: true }); // charge
+      ch.applyInput({ moveX: 0, jump: false, attackHeavy: false }); // release → fire
       runFrames(ch, WOLF_SMASH.startupFrames, () => false);
       const hb = liveHitbox(m)!;
       return (hb.options['plugin'] as { moveId: string }).moveId;
@@ -880,7 +915,10 @@ describe('Light vs heavy vs aerial dispatch (AC 203 Sub-AC 3.3)', () => {
       const m = createMockScene();
       const ch = new Wolf(m.scene, { spawnX: 0, spawnY: 0 });
       ground(ch, m);
+      // Charge + immediate release → uncharged smash spawns at base damage
+      // (the charge ramp's minDamage equals the move's authored damage).
       ch.applyInput({ moveX: 0, jump: false, attackHeavy: true });
+      ch.applyInput({ moveX: 0, jump: false, attackHeavy: false });
       expect(grabHitboxDamage(ch, m, WOLF_SMASH.startupFrames)).toBe(WOLF_SMASH.damage);
     }
     {
@@ -1320,5 +1358,191 @@ describe('Cat grounded triplet — animation state machine (AC 60003 Sub-AC 3)',
         prevIdx = sel.artFrameIndex;
       }
     }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Tier 4 — every roster fighter has a working jab combo (jab1 → jab2 → jab3).
+// Built uniformly through `createCharacterById` so registration + the chain
+// runtime are exercised for the whole roster, not just Wolf.
+// ---------------------------------------------------------------------------
+
+describe('Tier 4 — roster jab combos (every fighter chains jab1 → jab2 → jab3)', () => {
+  it.each(FIGHTER_REGISTRY_IDS)('%s chains its jab string', (id) => {
+    const m = createMockScene();
+    const ch: Character = createCharacterById(m.scene, id, {
+      spawnX: 0,
+      spawnY: 0,
+    });
+    ground(ch, m);
+
+    // Advance the current stage into its active window (hitbox out), then
+    // release + re-press to step the chain.
+    const advanceAndRepress = (): void => {
+      const window = ch.getActiveAttack()!.move.startupFrames;
+      for (
+        let i = 0;
+        i < 40 &&
+        ch.getActiveAttack() !== null &&
+        ch.getActiveAttack()!.framesElapsed < window;
+        i += 1
+      ) {
+        ch.applyInput({ moveX: 0, jump: false, attack: false });
+      }
+      ch.applyInput({ moveX: 0, jump: false, attack: true });
+    };
+
+    ch.applyInput({ moveX: 0, jump: false, attack: true }); // jab1
+    expect(ch.getActiveAttack()!.move.id).toBe(`${id}.jab`);
+    advanceAndRepress();
+    expect(ch.getActiveAttack()!.move.id).toBe(`${id}.jab2`);
+    advanceAndRepress();
+    expect(ch.getActiveAttack()!.move.id).toBe(`${id}.jab3`); // finisher
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Up-attack coverage — an up-tilt / up-smash must be able to hit a GROUNDED
+// opponent standing next to you, not only something directly overhead.
+//
+// Originally these hitboxes were NARROWER than the fighter's own body and sat
+// entirely above it (bottom edge ~y -15), so two adjacent fighters never
+// overlapped the box — the move was almost impossible to land on the ground.
+// The reshape gives every up-attack a dome that (1) clears both flanks of the
+// body, (2) drops to grounded-torso height, and (3) still reaches above the
+// head for the juggle / anti-air column. This locks all three across the
+// whole roster so the regression can't silently return.
+// ---------------------------------------------------------------------------
+
+describe('Up-attacks reach a grounded opponent in front (Smash-parity)', () => {
+  const upSlots = [
+    { slot: 'up-tilt', pick: (ch: Character) => ch.getUpTiltId() },
+    { slot: 'up-smash', pick: (ch: Character) => ch.getUpSmashId() },
+  ] as const;
+
+  for (const id of FIGHTER_REGISTRY_IDS) {
+    for (const { slot, pick } of upSlots) {
+      it(`${id} ${slot} clears the body, hits grounded height, and still covers overhead`, () => {
+        const m = createMockScene();
+        const ch = createCharacterById(m.scene, id, { spawnX: 0, spawnY: 0 });
+
+        const moveId = pick(ch);
+        expect(moveId, `${id} has a wired ${slot}`).not.toBeNull();
+        const move = ch.getAttack(moveId!);
+        expect(move, `${id} ${slot} (${moveId}) is registered`).toBeDefined();
+
+        const body = ch.getBodyHurtbox();
+        const halfBodyW = body.width / 2;
+        const halfBodyH = body.height / 2;
+        const hb = move!.hitbox;
+
+        // (1) The FRONT edge (offsetX is mirrored by facing, so +X is in
+        //     front) reaches clearly past the body's front edge — enough to
+        //     touch an opponent standing in front, not just graze the flank.
+        expect(hb.offsetX + hb.width / 2).toBeGreaterThanOrEqual(halfBodyW + 12);
+
+        // (2) Bottom edge drops to at least body-centre height (y >= 0), so a
+        //     standing opponent's torso is caught — not only an airborne one.
+        expect(hb.offsetY + hb.height / 2).toBeGreaterThanOrEqual(0);
+
+        // (3) Top edge is still above the head, preserving the overhead
+        //     juggle / anti-air column the move is built around.
+        expect(hb.offsetY - hb.height / 2).toBeLessThanOrEqual(-halfBodyH);
+      });
+    }
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Down-tilt coverage — a "low poke at the feet" must actually reach the floor
+// so it hits a LOW / CROUCHING opponent, not whiff over their head.
+//
+// Originally every down-tilt sat at offsetY ~12-16 (just below body centre)
+// while the feet are at +bodyHeight/2 (26-40), so the box hovered at chest
+// height — a move documented as a ground sweep that couldn't hit a crouching
+// target. The fix drops each box so its bottom edge lands at the feet/ground
+// line while keeping its forward reach. Locked roster-wide here.
+// ---------------------------------------------------------------------------
+
+describe('Down-tilts poke low at the feet and reach in front (Smash-parity)', () => {
+  for (const id of FIGHTER_REGISTRY_IDS) {
+    it(`${id} down-tilt reaches the feet/ground and pokes forward`, () => {
+      const m = createMockScene();
+      const ch = createCharacterById(m.scene, id, { spawnX: 0, spawnY: 0 });
+
+      const moveId = ch.getDownTiltId();
+      expect(moveId, `${id} has a wired down-tilt`).not.toBeNull();
+      const move = ch.getAttack(moveId!);
+      expect(move, `${id} down-tilt (${moveId}) is registered`).toBeDefined();
+
+      const body = ch.getBodyHurtbox();
+      // Body is centre-anchored (offsetY > 0 = down), feet at +height/2.
+      const feetY = body.height / 2;
+      const hb = move!.hitbox;
+
+      // (1) Bottom edge reaches the feet/ground (within 4px), so a low /
+      //     crouching opponent at the floor is inside the box.
+      expect(hb.offsetY + hb.height / 2).toBeGreaterThanOrEqual(feetY - 4);
+
+      // (2) Forward low poke — reaches past the body's front edge.
+      expect(hb.offsetX + hb.width / 2).toBeGreaterThan(body.width / 2);
+    });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Tap-jump buffer — with "tap up to jump", pressing UP to up-tilt/up-smash
+// also fires a jump and the jump would win, making grounded up-attacks nearly
+// impossible. The buffer holds an ambiguous up+jump a few frames so a
+// follow-up attack converts it to the up-attack instead of jumping. Plain
+// (no up-stick) jumps stay instant.
+// ---------------------------------------------------------------------------
+
+describe('Tap-jump buffer — up+attack beats the jump', () => {
+  const groundedWolf = (): Character => {
+    const m = createMockScene();
+    const ch = createCharacterById(m.scene, 'wolf', { spawnX: 0, spawnY: 0 });
+    ground(ch, m);
+    return ch;
+  };
+
+  it('a plain jump (no up-stick) still fires instantly', () => {
+    const ch = groundedWolf();
+    ch.applyInput({ moveX: 0, jump: true });
+    expect(ch.getVelocity().y).toBeLessThan(0); // left the ground this frame
+  });
+
+  it('an up+jump press is held back, not an instant jump', () => {
+    const ch = groundedWolf();
+    ch.applyInput({ moveX: 0, moveY: -1, jump: true });
+    expect(ch.getVelocity().y).toBeGreaterThanOrEqual(0); // buffered, not jumped
+    expect(ch.getActiveAttack()).toBeNull();
+  });
+
+  it('up+jump then attack within the window fires the up-attack, NOT a jump', () => {
+    const ch = groundedWolf();
+    ch.applyInput({ moveX: 0, moveY: -1, jump: true }); // press → buffer
+    ch.applyInput({ moveX: 0, moveY: -1, jump: true }); // hold → buffer ticks
+    ch.applyInput({ moveX: 0, moveY: -1, jump: true, attack: true }); // attack converts
+    expect(ch.getVelocity().y).toBeGreaterThanOrEqual(0); // did NOT jump
+    const active = ch.getActiveAttack();
+    expect(active).not.toBeNull();
+    expect(active!.move.id).toBe(ch.getUpTiltId());
+  });
+
+  it('up+jump with no follow-up attack still jumps once the buffer expires', () => {
+    const ch = groundedWolf();
+    ch.applyInput({ moveX: 0, moveY: -1, jump: true }); // press → buffer
+    let jumped = false;
+    // Hold up+jump; the buffered jump must fire within a handful of frames.
+    for (let i = 0; i < 8; i += 1) {
+      ch.applyInput({ moveX: 0, moveY: -1, jump: true });
+      if (ch.getVelocity().y < 0) {
+        jumped = true;
+        break;
+      }
+    }
+    expect(jumped).toBe(true);
+    expect(ch.getActiveAttack()).toBeNull(); // jumped, no attack fired
   });
 });

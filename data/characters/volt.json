@@ -1,0 +1,25 @@
+{
+  "$schema": "../../src/characters/characterSerializer.schema.json",
+  "id": "volt",
+  "displayName": "Volt (Pikachu)",
+  "role": "combo rushdown (Pikachu)",
+  "body": {
+    "width": 40,
+    "height": 52,
+    "chamfer": 8
+  },
+  "movement": {
+    "maxRunSpeed": 9.5,
+    "groundAccel": 0.82,
+    "airAccel": 0.46,
+    "groundDamping": 0.82,
+    "airDamping": 0.97,
+    "jumpImpulse": 13.0,
+    "maxJumps": 2,
+    "mass": 7,
+    "fallAccel": 0.37,
+    "maxFallSpeed": 12.0,
+    "fastFallSpeed": 19.5,
+    "jumpCutFactor": 0.36
+  }
+}

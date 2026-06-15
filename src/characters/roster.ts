@@ -122,6 +122,84 @@ import {
   BEAR_UP_SPECIAL,
   BEAR_DOWN_SPECIAL,
 } from './Bear';
+import {
+  BLAZE_TUNING,
+  BLAZE_JAB,
+  BLAZE_TILT,
+  BLAZE_SMASH,
+  BLAZE_NAIR,
+  BLAZE_FAIR,
+  BLAZE_BAIR,
+  BLAZE_NEUTRAL_SPECIAL,
+  BLAZE_SIDE_SPECIAL,
+  BLAZE_UP_SPECIAL,
+  BLAZE_DOWN_SPECIAL,
+} from './Blaze';
+import {
+  PUFF_TUNING,
+  PUFF_JAB,
+  PUFF_TILT,
+  PUFF_SMASH,
+  PUFF_NAIR,
+  PUFF_FAIR,
+  PUFF_BAIR,
+  PUFF_NEUTRAL_SPECIAL,
+  PUFF_SIDE_SPECIAL,
+  PUFF_UP_SPECIAL,
+  PUFF_DOWN_SPECIAL,
+} from './Puff';
+import {
+  AEGIS_TUNING,
+  AEGIS_JAB,
+  AEGIS_TILT,
+  AEGIS_SMASH,
+  AEGIS_NAIR,
+  AEGIS_FAIR,
+  AEGIS_BAIR,
+  AEGIS_NEUTRAL_SPECIAL,
+  AEGIS_SIDE_SPECIAL,
+  AEGIS_UP_SPECIAL,
+  AEGIS_DOWN_SPECIAL,
+} from './Aegis';
+import {
+  VOLT_TUNING,
+  VOLT_JAB,
+  VOLT_TILT,
+  VOLT_SMASH,
+  VOLT_NAIR,
+  VOLT_FAIR,
+  VOLT_BAIR,
+  VOLT_NEUTRAL_SPECIAL,
+  VOLT_SIDE_SPECIAL,
+  VOLT_UP_SPECIAL,
+  VOLT_DOWN_SPECIAL,
+} from './Volt';
+import {
+  NOVA_TUNING,
+  NOVA_JAB,
+  NOVA_TILT,
+  NOVA_SMASH,
+  NOVA_NAIR,
+  NOVA_FAIR,
+  NOVA_BAIR,
+  NOVA_NEUTRAL_SPECIAL,
+  NOVA_SIDE_SPECIAL,
+  NOVA_UP_SPECIAL,
+  NOVA_DOWN_SPECIAL,
+} from './Nova';
+import {
+  BRUNO_TUNING,
+  BRUNO_JAB,
+  BRUNO_TILT,
+  BRUNO_SMASH,
+  BRUNO_NAIR,
+  BRUNO_FAIR,
+  BRUNO_BAIR,
+  BRUNO_NEUTRAL_SPECIAL,
+  BRUNO_SIDE_SPECIAL,
+  BRUNO_UP_SPECIAL,
+  BRUNO_DOWN_SPECIAL,
+} from './Bruno';
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -206,7 +284,9 @@ export interface CharacterSpec {
    * `CharacterOptions.shield` directly when a future balance pass
    * differentiates them.
    */
-  readonly tuning: Required<Omit<CharacterTuning, 'shield' | 'dodge' | 'ledge' | 'ledgeDetection'>>;
+  readonly tuning: Required<
+    Omit<CharacterTuning, 'shield' | 'dodge' | 'ledge' | 'ledgeDetection' | 'locomotion'>
+  >;
   /**
    * Frozen, ordered list of moves this character ships with. Indexed
    * the same way the subclass calls `registerAttack(...)` — i.e. moves
@@ -359,6 +439,119 @@ export const BEAR_MOVES: ReadonlyArray<AttackMove> = Object.freeze([
   BEAR_DOWN_SPECIAL,
 ]);
 
+/**
+ * Blaze's full moveset — same 10-entry shape as {@link WOLF_MOVES} et
+ * al. (grounded triplet, then the contiguous aerial cut, then the four
+ * specials in neutral / side / up / down order — mirroring the
+ * registration call sequence in {@link Blaze}). Fifth roster slot:
+ * the fast-heavy rushdown (Captain Falcon archetype) joins the cast
+ * with a complete kit on day one.
+ */
+export const BLAZE_MOVES: ReadonlyArray<AttackMove> = Object.freeze([
+  BLAZE_JAB,
+  BLAZE_TILT,
+  BLAZE_SMASH,
+  BLAZE_NAIR,
+  BLAZE_FAIR,
+  BLAZE_BAIR,
+  BLAZE_NEUTRAL_SPECIAL,
+  BLAZE_SIDE_SPECIAL,
+  BLAZE_UP_SPECIAL,
+  BLAZE_DOWN_SPECIAL,
+]);
+
+/**
+ * Puff's full moveset — same 10-entry shape as the rest of the cast,
+ * mirroring the registration call sequence in {@link Puff}. Sixth
+ * roster slot: the five-jump balloon (Jigglypuff archetype).
+ */
+export const PUFF_MOVES: ReadonlyArray<AttackMove> = Object.freeze([
+  PUFF_JAB,
+  PUFF_TILT,
+  PUFF_SMASH,
+  PUFF_NAIR,
+  PUFF_FAIR,
+  PUFF_BAIR,
+  PUFF_NEUTRAL_SPECIAL,
+  PUFF_SIDE_SPECIAL,
+  PUFF_UP_SPECIAL,
+  PUFF_DOWN_SPECIAL,
+]);
+
+/**
+ * Aegis's full moveset — same 10-entry shape as the rest of the cast,
+ * mirroring the registration call sequence in {@link Aegis}. Seventh
+ * roster slot: the tip-sweet-spot sword spacer (Marth archetype) —
+ * every normal in this table authors a `sweetSpot` sub-region at the
+ * blade's far end.
+ */
+export const AEGIS_MOVES: ReadonlyArray<AttackMove> = Object.freeze([
+  AEGIS_JAB,
+  AEGIS_TILT,
+  AEGIS_SMASH,
+  AEGIS_NAIR,
+  AEGIS_FAIR,
+  AEGIS_BAIR,
+  AEGIS_NEUTRAL_SPECIAL,
+  AEGIS_SIDE_SPECIAL,
+  AEGIS_UP_SPECIAL,
+  AEGIS_DOWN_SPECIAL,
+]);
+
+/**
+ * Volt's full moveset — same 10-entry shape as the rest of the cast,
+ * mirroring the registration call sequence in {@link Volt}. Eighth
+ * roster slot: the tiny combo rushdown (Pikachu archetype).
+ */
+export const VOLT_MOVES: ReadonlyArray<AttackMove> = Object.freeze([
+  VOLT_JAB,
+  VOLT_TILT,
+  VOLT_SMASH,
+  VOLT_NAIR,
+  VOLT_FAIR,
+  VOLT_BAIR,
+  VOLT_NEUTRAL_SPECIAL,
+  VOLT_SIDE_SPECIAL,
+  VOLT_UP_SPECIAL,
+  VOLT_DOWN_SPECIAL,
+]);
+
+/**
+ * Nova's full moveset — same 10-entry shape as the rest of the cast,
+ * mirroring the registration call sequence in {@link Nova}. Ninth
+ * roster slot: the ranged zoner (Samus archetype).
+ */
+export const NOVA_MOVES: ReadonlyArray<AttackMove> = Object.freeze([
+  NOVA_JAB,
+  NOVA_TILT,
+  NOVA_SMASH,
+  NOVA_NAIR,
+  NOVA_FAIR,
+  NOVA_BAIR,
+  NOVA_NEUTRAL_SPECIAL,
+  NOVA_SIDE_SPECIAL,
+  NOVA_UP_SPECIAL,
+  NOVA_DOWN_SPECIAL,
+]);
+
+/**
+ * Bruno's full moveset — same 10-entry shape as the rest of the cast,
+ * mirroring the registration call sequence in {@link Bruno}. Tenth
+ * roster slot: the balanced all-rounder (Mario archetype).
+ */
+export const BRUNO_MOVES: ReadonlyArray<AttackMove> = Object.freeze([
+  BRUNO_JAB,
+  BRUNO_TILT,
+  BRUNO_SMASH,
+  BRUNO_NAIR,
+  BRUNO_FAIR,
+  BRUNO_BAIR,
+  BRUNO_NEUTRAL_SPECIAL,
+  BRUNO_SIDE_SPECIAL,
+  BRUNO_UP_SPECIAL,
+  BRUNO_DOWN_SPECIAL,
+]);
+
 // ---------------------------------------------------------------------------
 // Placeholder visual constants
 // ---------------------------------------------------------------------------
@@ -473,6 +666,119 @@ export const BEAR_PLACEHOLDER: CharacterPlaceholderVisual = Object.freeze({
   spriteKey: ASSET_KEYS.charBearIdle,
 });
 
+/**
+ * Blaze placeholder — ember orange with a cream accent. Distinct hue
+ * from the existing cast (Wolf red / Cat blue / Owl indigo / Bear
+ * umber) keeps the char-select grid readable.
+ *
+ * Post-M5 art drop — Blaze now ships a real spritesheet: the *Punk*
+ * brawler from CraftPix.net's "Free 3 Cyberpunk Characters Pixel Art"
+ * (OGA-BY 3.0, see ATTRIBUTION.md). 48×48 cells, idle 4 / run 6 /
+ * jump 4 / attack 6 strips under `assets/characters/blaze/animations/`.
+ * Non-null `spriteKey` → MatchScene picks the sprite-renderer branch
+ * and the rectangle drops to a low-alpha hurtbox debug overlay, same
+ * as the Wolf/Cat promotion in AC 10401/10402.
+ */
+export const BLAZE_PLACEHOLDER: CharacterPlaceholderVisual = Object.freeze({
+  primaryColor: 0xd9622b, // ember orange
+  accentColor: 0xffe8c0,
+  labelColor: 0xffe8c0,
+  width: BLAZE_TUNING.width,
+  height: BLAZE_TUNING.height,
+  spriteKey: ASSET_KEYS.charBlazeIdle,
+});
+
+/**
+ * Puff placeholder — bubblegum pink; the colours mirror her round
+ * balloon hurtbox in the HUD / banner layers.
+ *
+ * Post-M5 art drop — Puff now ships a real spritesheet: the round
+ * *Slime* creature from Segel's CC0 "Adventurer and Slime game
+ * Sprites" pack (see ATTRIBUTION.md). 136×89 cells, idle 12 / run 10
+ * / jump 4 / attack 8 strips under `assets/characters/puff/animations/`.
+ */
+export const PUFF_PLACEHOLDER: CharacterPlaceholderVisual = Object.freeze({
+  primaryColor: 0xe88bb8, // bubblegum pink
+  accentColor: 0xfff0f8,
+  labelColor: 0xfff0f8,
+  width: PUFF_TUNING.width,
+  height: PUFF_TUNING.height,
+  spriteKey: ASSET_KEYS.charPuffIdle,
+});
+
+/**
+ * Aegis placeholder — royal cobalt with a pale steel accent.
+ *
+ * Post-M5 art drop — Aegis now ships a real spritesheet: the
+ * sword-wielding *Adventurer* from Segel's CC0 "Adventurer and Slime
+ * game Sprites" pack (see ATTRIBUTION.md). 128×130 cells, idle 12 /
+ * run 10 / jump 2 / attack 8 (sword slash) strips under
+ * `assets/characters/aegis/animations/`.
+ */
+export const AEGIS_PLACEHOLDER: CharacterPlaceholderVisual = Object.freeze({
+  primaryColor: 0x4a55c2, // royal cobalt
+  accentColor: 0xc8d0ff,
+  labelColor: 0xc8d0ff,
+  width: AEGIS_TUNING.width,
+  height: AEGIS_TUNING.height,
+  spriteKey: ASSET_KEYS.charAegisIdle,
+});
+
+/**
+ * Volt placeholder — electric yellow with a charcoal accent (the
+ * Pikachu-inspired electric mouse).
+ *
+ * Post-batch-2 art drop — Volt ships a real spritesheet: Segel's CC0
+ * *Tiny Kitten Game Sprite* (a small chibi creature). 64×80 cells,
+ * idle 12 / run 10 / jump 5 / attack 5 strips under
+ * `assets/characters/volt/animations/`. Non-null `spriteKey` →
+ * MatchScene picks the sprite-renderer branch.
+ */
+export const VOLT_PLACEHOLDER: CharacterPlaceholderVisual = Object.freeze({
+  primaryColor: 0xf2c20c, // electric yellow
+  accentColor: 0x3a3320,
+  labelColor: 0xfff0a0,
+  width: VOLT_TUNING.width,
+  height: VOLT_TUNING.height,
+  spriteKey: ASSET_KEYS.charVoltIdle,
+});
+
+/**
+ * Nova placeholder — burnt orange with a teal accent (the Samus-inspired
+ * armoured zoner).
+ *
+ * Post-batch-2 art drop — Nova ships a real spritesheet: the CC0 *2D
+ * Douche Cyborg* ('CyborgMark') by Darius Guerrero. 72×96 cells, idle
+ * 15 / run 15 / jump 15 / attack 9 (arm-cannon shoot) strips under
+ * `assets/characters/nova/animations/`.
+ */
+export const NOVA_PLACEHOLDER: CharacterPlaceholderVisual = Object.freeze({
+  primaryColor: 0xd96b2b, // burnt orange (power-suit)
+  accentColor: 0x3ad0c8,
+  labelColor: 0xc8fff4,
+  width: NOVA_TUNING.width,
+  height: NOVA_TUNING.height,
+  spriteKey: ASSET_KEYS.charNovaIdle,
+});
+
+/**
+ * Bruno placeholder — fire red with a white accent (the Mario-inspired
+ * all-rounder).
+ *
+ * Post-batch-2 art drop — Bruno ships a real spritesheet: the CC0
+ * *Generic Platformer Pack* main character by bakudas. 28×36 cells,
+ * idle 4 / run 8 / jump 2 / attack 8 (run lunge) strips under
+ * `assets/characters/bruno/animations/`.
+ */
+export const BRUNO_PLACEHOLDER: CharacterPlaceholderVisual = Object.freeze({
+  primaryColor: 0xd6342b, // fire red
+  accentColor: 0xfff0f0,
+  labelColor: 0xfff0f0,
+  width: BRUNO_TUNING.width,
+  height: BRUNO_TUNING.height,
+  spriteKey: ASSET_KEYS.charBrunoIdle,
+});
+
 // ---------------------------------------------------------------------------
 // Specs
 // ---------------------------------------------------------------------------
@@ -542,6 +848,102 @@ export const BEAR_SPEC: CharacterSpec = Object.freeze({
   playable: true,
 });
 
+/**
+ * Blaze spec — the rushdown archetype (Captain Falcon-inspired). The
+ * fifth roster slot ships fully playable on day one: complete 10-move
+ * table (incl. the sweet-spot knee fair and the 24 % blaze punch) +
+ * rushdown-tuned movement (run 9.0, mass 14, the steepest fall
+ * shaping in the cast). Display name carries the inspiration in
+ * parentheses per the roster-expansion convention.
+ */
+export const BLAZE_SPEC: CharacterSpec = Object.freeze({
+  id: 'blaze',
+  displayName: 'Blaze (Captain Falcon)',
+  role: 'rushdown (Captain Falcon)',
+  tuning: BLAZE_TUNING,
+  moves: BLAZE_MOVES,
+  placeholder: BLAZE_PLACEHOLDER,
+  playable: true,
+});
+
+/**
+ * Puff spec — the balloon archetype (Jigglypuff-inspired). Sixth
+ * roster slot: five jumps, the floatiest fall shaping shipped, weak
+ * pokes around the high-risk slumber-slam down special.
+ */
+export const PUFF_SPEC: CharacterSpec = Object.freeze({
+  id: 'puff',
+  displayName: 'Puff (Jigglypuff)',
+  role: 'floaty (Jigglypuff)',
+  tuning: PUFF_TUNING,
+  moves: PUFF_MOVES,
+  placeholder: PUFF_PLACEHOLDER,
+  playable: true,
+});
+
+/**
+ * Aegis spec — the sword-spacing archetype (Marth-inspired). Seventh
+ * roster slot: mid stats, longest reach ladder in the cast, and a tip
+ * sweet-spot on every normal.
+ */
+export const AEGIS_SPEC: CharacterSpec = Object.freeze({
+  id: 'aegis',
+  displayName: 'Aegis (Marth)',
+  role: 'sword spacing (Marth)',
+  tuning: AEGIS_TUNING,
+  moves: AEGIS_MOVES,
+  placeholder: AEGIS_PLACEHOLDER,
+  playable: true,
+});
+
+/**
+ * Volt spec — the tiny combo rushdown (Pikachu-inspired). Eighth roster
+ * slot: highest run speed shipped on a featherweight body, low-knockback
+ * combo normals around an electric projectile and a quick-attack zip.
+ * Display name carries the inspiration in parentheses per the
+ * roster-expansion convention.
+ */
+export const VOLT_SPEC: CharacterSpec = Object.freeze({
+  id: 'volt',
+  displayName: 'Volt (Pikachu)',
+  role: 'combo rushdown (Pikachu)',
+  tuning: VOLT_TUNING,
+  moves: VOLT_MOVES,
+  placeholder: VOLT_PLACEHOLDER,
+  playable: true,
+});
+
+/**
+ * Nova spec — the ranged zoner (Samus-inspired). Ninth roster slot:
+ * mid-heavy mass and a slow run built around a chargeable shot, a
+ * missile barrage, and the screw-attack recovery.
+ */
+export const NOVA_SPEC: CharacterSpec = Object.freeze({
+  id: 'nova',
+  displayName: 'Nova (Samus)',
+  role: 'zoner (Samus)',
+  tuning: NOVA_TUNING,
+  moves: NOVA_MOVES,
+  placeholder: NOVA_PLACEHOLDER,
+  playable: true,
+});
+
+/**
+ * Bruno spec — the balanced all-rounder (Mario-inspired). Tenth roster
+ * slot: middleweight stats across the board, a fireball projectile and
+ * an anti-air super-jump-punch, reliable-if-unspectacular KO power. The
+ * "everyman" baseline the rest of the cast is read against.
+ */
+export const BRUNO_SPEC: CharacterSpec = Object.freeze({
+  id: 'bruno',
+  displayName: 'Bruno (Mario)',
+  role: 'all-rounder (Mario)',
+  tuning: BRUNO_TUNING,
+  moves: BRUNO_MOVES,
+  placeholder: BRUNO_PLACEHOLDER,
+  playable: true,
+});
+
 // ---------------------------------------------------------------------------
 // Registry
 // ---------------------------------------------------------------------------
@@ -558,6 +960,12 @@ export const CHARACTER_ROSTER: Readonly<Record<CharacterId, CharacterSpec>> =
     cat: CAT_SPEC,
     owl: OWL_SPEC,
     bear: BEAR_SPEC,
+    blaze: BLAZE_SPEC,
+    puff: PUFF_SPEC,
+    aegis: AEGIS_SPEC,
+    volt: VOLT_SPEC,
+    nova: NOVA_SPEC,
+    bruno: BRUNO_SPEC,
   });
 
 /**
@@ -567,7 +975,18 @@ export const CHARACTER_ROSTER: Readonly<Record<CharacterId, CharacterSpec>> =
  * Bear) so a grid renderer doesn't have to re-sort.
  */
 export const CHARACTER_SPECS_IN_ROSTER_ORDER: ReadonlyArray<CharacterSpec> =
-  Object.freeze([WOLF_SPEC, CAT_SPEC, OWL_SPEC, BEAR_SPEC]);
+  Object.freeze([
+    WOLF_SPEC,
+    CAT_SPEC,
+    OWL_SPEC,
+    BEAR_SPEC,
+    BLAZE_SPEC,
+    PUFF_SPEC,
+    AEGIS_SPEC,
+    VOLT_SPEC,
+    NOVA_SPEC,
+    BRUNO_SPEC,
+  ]);
 
 /**
  * Subset of specs that are wired up end-to-end (subclass + moveset +

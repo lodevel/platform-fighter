@@ -21,8 +21,7 @@ import {
 import {
   CAT_PALETTES,
   WOLF_PALETTES,
-  OWL_PALETTES,
-  BEAR_PALETTES,
+  CHARACTER_PALETTES,
   PALETTES_PER_CHARACTER,
 } from './palettes';
 import type { CharacterId, PlayerSlot } from '../types';
@@ -649,13 +648,13 @@ describe('asPaletteSwapTarget', () => {
 // ---------------------------------------------------------------------------
 
 describe('end-to-end determinism — full palette grid', () => {
-  const ids: ReadonlyArray<CharacterId> = ['wolf', 'cat', 'owl', 'bear'];
-  const ladders = {
-    wolf: WOLF_PALETTES,
-    cat: CAT_PALETTES,
-    owl: OWL_PALETTES,
-    bear: BEAR_PALETTES,
-  } as const;
+  // Post-M5 roster expansion — iterate the canonical registry so the
+  // grid automatically covers every roster slot (incl. blaze / puff /
+  // aegis) without a parallel literal table here.
+  const ids: ReadonlyArray<CharacterId> = Object.keys(
+    CHARACTER_PALETTES,
+  ) as CharacterId[];
+  const ladders = CHARACTER_PALETTES;
 
   it('every (id, paletteIndex) paints the rect with the exact (primary, accent) pair from the table', () => {
     const r = new RuntimePaletteRenderer();

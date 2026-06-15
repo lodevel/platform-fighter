@@ -49,6 +49,33 @@ const validFixture = (): CharacterDataFile => ({
     jumpImpulse: 12.5,
     maxJumps: 2,
     mass: 16,
+    fallAccel: 0.3,
+    maxFallSpeed: 11.0,
+    fastFallSpeed: 17.5,
+    jumpCutFactor: 0.4,
+  },
+});
+
+/**
+ * Pre-Smash-feel-pack movement block — no fall-shaping fields. Files
+ * authored before the pack landed look like this; the parser must
+ * accept them and default the missing fields from the fighter's
+ * registered movement profile.
+ */
+const legacyMovementFixture = (): CharacterDataFile => ({
+  id: 'wolf',
+  displayName: 'Wolf',
+  role: 'bruiser',
+  body: { width: 45, height: 66, chamfer: 8 },
+  movement: {
+    maxRunSpeed: 7.5,
+    groundAccel: 0.65,
+    airAccel: 0.3,
+    groundDamping: 0.78,
+    airDamping: 0.95,
+    jumpImpulse: 12.5,
+    maxJumps: 2,
+    mass: 16,
   },
 });
 
@@ -68,6 +95,49 @@ describe('parseCharacterDataFile — happy path', () => {
     expect(Object.isFrozen(spec)).toBe(true);
     expect(Object.isFrozen(spec.body)).toBe(true);
     expect(Object.isFrozen(spec.movement)).toBe(true);
+  });
+
+  it('defaults missing fall-shaping fields from the registered movement profile (legacy files)', () => {
+    const spec = parseCharacterDataFile(legacyMovementFixture());
+    // Wolf's registered profile supplies the pack values when the
+    // file omits them — old saves keep parsing AND gain the new
+    // mechanics at canonical tuning.
+    expect(spec.movement.fallAccel).toBe(0.3);
+    expect(spec.movement.maxFallSpeed).toBe(11.0);
+    expect(spec.movement.fastFallSpeed).toBe(17.5);
+    expect(spec.movement.jumpCutFactor).toBe(0.4);
+  });
+
+  it('materializes parse-time-defaulted fall-shaping fields on re-serialization', () => {
+    // Deliberate (documented) asymmetry: a legacy file with no
+    // fall-shaping fields does NOT re-serialize byte-identically —
+    // the validated spec always carries the full movement profile, so
+    // saving a legacy file upgrades it in place at canonical profile
+    // values.
+    const spec = parseCharacterDataFile(legacyMovementFixture());
+    const out = serializeCharacterDataSpec(spec);
+    expect(out.movement.fallAccel).toBe(0.3);
+    expect(out.movement.maxFallSpeed).toBe(11.0);
+    expect(out.movement.fastFallSpeed).toBe(17.5);
+    expect(out.movement.jumpCutFactor).toBe(0.4);
+  });
+
+  it('honours explicit fall-shaping overrides in the file', () => {
+    const fixture: CharacterDataFile = {
+      ...legacyMovementFixture(),
+      movement: {
+        ...legacyMovementFixture().movement,
+        fallAccel: 0.5,
+        maxFallSpeed: 9,
+        fastFallSpeed: 14,
+        jumpCutFactor: 0.6,
+      },
+    };
+    const spec = parseCharacterDataFile(fixture);
+    expect(spec.movement.fallAccel).toBe(0.5);
+    expect(spec.movement.maxFallSpeed).toBe(9);
+    expect(spec.movement.fastFallSpeed).toBe(14);
+    expect(spec.movement.jumpCutFactor).toBe(0.6);
   });
 });
 
@@ -560,6 +630,83 @@ describe('parseCharacterDataFile — moves block', () => {
   it('Wolf fair JSON includes aerialDirection: "forward"', () => {
     const spec = loadDataFile('wolf');
     expect(spec.moves?.fair?.aerialDirection).toBe('forward');
+  });
+});
+
+describe('parseCharacterDataFile — optional knockback components', () => {
+  // Minimal valid jab carrying the supplied knockback record —
+  // exercises parseKnockback through the public parse entry point.
+  const jabFixtureWithKnockback = (
+    knockback: Record<string, unknown>,
+  ): CharacterDataFile =>
+    ({
+      ...validFixture(),
+      moves: {
+        jab: {
+          id: 'wolf.jab',
+          type: 'jab',
+          damage: 3,
+          knockback,
+          hitbox: { offsetX: 25, offsetY: 0, width: 50, height: 30 },
+          startupFrames: 3,
+          activeFrames: 2,
+          recoveryFrames: 5,
+          cooldownFrames: 4,
+          animation: { startupFrames: 1, activeFrames: 1, recoveryFrames: 1 },
+        },
+      },
+    }) as unknown as CharacterDataFile;
+
+  it('accepts non-negative baseMagnitude / damageGrowth', () => {
+    const spec = parseCharacterDataFile(
+      jabFixtureWithKnockback({
+        x: 4.0,
+        y: -1.5,
+        scaling: 0.4,
+        baseMagnitude: 1.2,
+        damageGrowth: 0.5,
+      }),
+    );
+    expect(spec.moves?.jab?.knockback.baseMagnitude).toBe(1.2);
+    expect(spec.moves?.jab?.knockback.damageGrowth).toBe(0.5);
+  });
+
+  it('accepts zero for both components (the legacy identity)', () => {
+    const spec = parseCharacterDataFile(
+      jabFixtureWithKnockback({
+        x: 1,
+        y: 0,
+        scaling: 0.05,
+        baseMagnitude: 0,
+        damageGrowth: 0,
+      }),
+    );
+    expect(spec.moves?.jab?.knockback.baseMagnitude).toBe(0);
+    expect(spec.moves?.jab?.knockback.damageGrowth).toBe(0);
+  });
+
+  it('rejects negative baseMagnitude', () => {
+    expect(() =>
+      parseCharacterDataFile(
+        jabFixtureWithKnockback({ x: 1, y: 0, scaling: 0.05, baseMagnitude: -0.5 }),
+      ),
+    ).toThrow(/baseMagnitude.*>= 0/);
+  });
+
+  it('rejects negative damageGrowth (would reverse launch direction at high percent)', () => {
+    expect(() =>
+      parseCharacterDataFile(
+        jabFixtureWithKnockback({ x: 1, y: 0, scaling: 0.05, damageGrowth: -0.2 }),
+      ),
+    ).toThrow(/damageGrowth.*>= 0/);
+  });
+
+  it('rejects non-finite baseMagnitude', () => {
+    expect(() =>
+      parseCharacterDataFile(
+        jabFixtureWithKnockback({ x: 1, y: 0, scaling: 0.05, baseMagnitude: NaN }),
+      ),
+    ).toThrow(/baseMagnitude/);
   });
 });
 

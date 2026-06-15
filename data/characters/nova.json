@@ -1,0 +1,25 @@
+{
+  "$schema": "../../src/characters/characterSerializer.schema.json",
+  "id": "nova",
+  "displayName": "Nova (Samus)",
+  "role": "zoner (Samus)",
+  "body": {
+    "width": 48,
+    "height": 74,
+    "chamfer": 8
+  },
+  "movement": {
+    "maxRunSpeed": 6.8,
+    "groundAccel": 0.58,
+    "airAccel": 0.4,
+    "groundDamping": 0.79,
+    "airDamping": 0.96,
+    "jumpImpulse": 12.5,
+    "maxJumps": 2,
+    "mass": 13,
+    "fallAccel": 0.27,
+    "maxFallSpeed": 10.5,
+    "fastFallSpeed": 16.5,
+    "jumpCutFactor": 0.43
+  }
+}

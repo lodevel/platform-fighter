@@ -407,6 +407,38 @@ export interface FighterMovementProfile {
    * realised launch velocity.
    */
   readonly mass: number;
+  /**
+   * Extra downward acceleration (px per step²) applied while airborne
+   * AND falling (vy > 0), on top of the engine's global Matter
+   * gravity. The Smash-style "gravity" stat that differentiates a
+   * floaty fighter (low value) from a fast-faller (high value) —
+   * applied only on the descending half of the arc so jump height
+   * (impulse² / 2g on the rise) is unaffected.
+   */
+  readonly fallAccel: number;
+  /**
+   * Terminal velocity (px per step) while falling normally. The
+   * per-step integrator clamps vy here so long falls stay readable
+   * instead of accelerating without bound (Matter applies no
+   * terminal velocity of its own).
+   */
+  readonly maxFallSpeed: number;
+  /**
+   * Terminal velocity (px per step) while fast-falling. Holding the
+   * stick down during a descent latches the fast-fall (Smash-style):
+   * vy snaps to this value immediately and the latch holds until
+   * landing, a fresh jump, or hitstun. Typically ~1.5-1.7× of
+   * {@link maxFallSpeed}.
+   */
+  readonly fastFallSpeed: number;
+  /**
+   * Variable-jump-height cut factor (0..1). Releasing the jump button
+   * while still rising clamps the upward velocity to
+   * `jumpImpulse * jumpCutFactor` — a quick tap therefore produces a
+   * SHORT HOP, a held press the full jump. 1 disables the cut
+   * (legacy fixed-height behaviour).
+   */
+  readonly jumpCutFactor: number;
 }
 
 // ---------------------------------------------------------------------------

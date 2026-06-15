@@ -568,6 +568,7 @@ export class HitboxDamageHandler {
         damage,
         knockback: plugin.knockback,
         facing: plugin.facing,
+        ...(plugin.unblockable ? { unblockable: true } : {}),
       };
       const context: HitContext = {
         attackerOwnerId: plugin.ownerId,

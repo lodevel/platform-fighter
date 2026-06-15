@@ -62,6 +62,55 @@ export type {
 } from './shieldBubbleFormat';
 
 // ---------------------------------------------------------------------------
+// Per-fighter charge / wind-up indicator overlay
+// ---------------------------------------------------------------------------
+//
+// Procedural "charging" effect drawn around each fighter while they wind
+// a move up (Falcon-Punch-style specials, smash finishers, the heavy
+// hammer swing) — a pulsing cool → hot aura ring plus a head-mounted
+// charge bar, both driven off `Character.getChargeProgress()`. Pure
+// formatter helpers (colour ramp, pulse phase, bar width) live in
+// `chargeIndicatorFormat.ts` so the unit suite drives them under plain
+// Node; the Phaser-touching component in `ChargeIndicator.ts` wraps an
+// aura `Arc` + bar `Rectangle` pair per fighter for trivial per-frame
+// cost.
+export { ChargeIndicator, createChargeIndicator } from './ChargeIndicator';
+export type {
+  ChargeIndicatorOptions,
+  ChargeIndicatorSnapshot,
+  ChargeArcLike,
+  ChargeRectLike,
+  ChargeIndicatorSceneShim,
+} from './ChargeIndicator';
+export {
+  CHARGE_INDICATOR_BAR_FILL_ALPHA,
+  CHARGE_INDICATOR_BAR_GAP_ABOVE_HEAD,
+  CHARGE_INDICATOR_BAR_HEIGHT,
+  CHARGE_INDICATOR_BAR_TRACK_ALPHA,
+  CHARGE_INDICATOR_BAR_WIDTH,
+  CHARGE_INDICATOR_COLOR_RAMP,
+  CHARGE_INDICATOR_MIN_PROGRESS_TO_SHOW,
+  CHARGE_INDICATOR_PULSE_DEPTH,
+  CHARGE_INDICATOR_PULSE_PERIOD_FAST,
+  CHARGE_INDICATOR_PULSE_PERIOD_SLOW,
+  CHARGE_INDICATOR_RING_FILL_ALPHA_MAX,
+  CHARGE_INDICATOR_RING_FILL_ALPHA_MIN,
+  CHARGE_INDICATOR_RING_PADDING,
+  CHARGE_INDICATOR_RING_STROKE_ALPHA_MAX,
+  CHARGE_INDICATOR_RING_STROKE_ALPHA_MIN,
+  CHARGE_INDICATOR_RING_STROKE_WIDTH_MAX,
+  CHARGE_INDICATOR_RING_STROKE_WIDTH_MIN,
+  chargeIndicatorColor,
+  chargeIndicatorPulseMultiplier,
+  chargeIndicatorPulsePeriod,
+  computeChargeIndicatorVisual,
+} from './chargeIndicatorFormat';
+export type {
+  ChargeIndicatorInput,
+  ChargeIndicatorVisual,
+} from './chargeIndicatorFormat';
+
+// ---------------------------------------------------------------------------
 // Sub-AC 3 of AC 3 — FPS counter overlay
 // ---------------------------------------------------------------------------
 //

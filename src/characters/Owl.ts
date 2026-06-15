@@ -129,6 +129,7 @@
  */
 
 import type Phaser from 'phaser';
+import { ContractFighter } from './contractFighter';
 import { Character, type CharacterTuning } from './Character';
 import { registerFighterAttack } from './attackRegistration';
 import type { AttackMoveWithAnimation } from './moveSchema';
@@ -137,6 +138,7 @@ import type { ProjectileSpecialMove } from './specialSchema';
 import type { ReflectorSideSpecialMove } from './sideSpecialSchema';
 import type { DirectionalJumpUpSpecialMove } from './upSpecialSchema';
 import type { StallAndFallDownSpecialMove } from './downSpecialSchema';
+import type { GrabSpec } from './grabSchema';
 import { SHIELD_DEFAULTS } from './shieldState';
 import { DODGE_DEFAULTS } from './dodgeState';
 import type {
@@ -145,6 +147,12 @@ import type {
   FighterMovementProfile,
 } from './movesetContract';
 import { OWL_MOVEMENT_PROFILE } from './fighterMovementProfiles';
+// Extended-slot directional moves authored in `extendedMoves.ts` (post-M2
+// 14-slot kit). Owl's up-air / down-air / up-light were pre-authored there;
+// we import them here to register them as Owl's up-air, down-air, and
+// up-tilt respectively. Only the up-smash (`OWL_USMASH`) is authored
+// in-file below — it has no pre-authored extended-slot equivalent.
+import { OWL_UAIR, OWL_DAIR, OWL_UP_LIGHT, OWL_DOWN_LIGHT } from './extendedMoves';
 
 // Re-export so consumers that historically imported `OWL_MOVEMENT_PROFILE`
 // from this file (the per-fighter API surface) keep working byte-for-byte.
@@ -164,7 +172,7 @@ export { OWL_MOVEMENT_PROFILE };
  * Sub-AC 1's canonical `SHIELD_DEFAULTS`); a per-character shield
  * balance pass would land here later.
  */
-export const OWL_TUNING: Required<Omit<CharacterTuning, 'shield' | 'dodge' | 'ledge' | 'ledgeDetection'>> = {
+export const OWL_TUNING: Required<Omit<CharacterTuning, 'shield' | 'dodge' | 'ledge' | 'ledgeDetection' | 'locomotion'>> = {
   // Sub-AC 2.2 of the T2 refactor — movement-relevant fields composed
   // from `OWL_MOVEMENT_PROFILE` (the per-fighter movement profile —
   // single source of truth in `fighterMovementProfiles.ts`). Body
@@ -230,6 +238,63 @@ export const OWL_JAB: AttackMoveWithAnimation = {
     activeFrames: 1,
     recoveryFrames: 3,
   },
+  // Jab-combo opener: a re-press once jab1's hitbox is out advances to
+  // jab2 → jab3 (the finisher). Mirrors the Wolf jab string. Tier 4.
+  jabChain: { nextId: 'owl.jab2' },
+};
+
+/**
+ * Owl jab string — stage 2. A quick follow-up poke that chains from
+ * {@link OWL_JAB} on a re-press and itself links to the {@link OWL_JAB3}
+ * finisher. Registered as a `'jab'` move but never the light slot
+ * (first-registered jab1 keeps it) — reachable ONLY via the chain link.
+ *
+ *   • Damage    : 4 — ≈ round(jab1 5 × 0.7). A faster, lighter poke.
+ *   • Knockback : x 0.9 / y -0.25, scaling 0.04 — slightly below jab1 so
+ *                 it keeps the target in place for the jab3 finisher.
+ *   • Frames    : 2 startup / 2 active / 4 recovery + 7 cooldown — faster
+ *                 than jab1 so the string flows; the hitbox is nudged a
+ *                 touch further out (offsetX 32) on the second poke.
+ */
+export const OWL_JAB2: AttackMoveWithAnimation = {
+  id: 'owl.jab2',
+  type: 'jab',
+  damage: 4,
+  knockback: { x: 0.9, y: -0.25, scaling: 0.04 },
+  hitbox: { offsetX: 32, offsetY: -5, width: 35, height: 24 },
+  startupFrames: 2,
+  activeFrames: 2,
+  recoveryFrames: 4,
+  cooldownFrames: 7,
+  animation: { startupFrames: 2, activeFrames: 1, recoveryFrames: 3 },
+  jabChain: { nextId: 'owl.jab3' },
+};
+
+/**
+ * Owl jab string — finisher (stage 3). The launcher that ends the
+ * string: clearly bigger knockback than jab1 plus a `baseMagnitude`
+ * floor so it pops the opponent away even at low percent. No `jabChain`
+ * — the chain terminates here, and its `cooldownFrames` is the
+ * post-string lockout.
+ *
+ *   • Damage    : 6 — ≈ round(jab1 5 × 1.15). The hardest hit of the string.
+ *   • Knockback : x 2.4 / y -1.2, scaling 0.15, baseMagnitude 1.0 — clearly
+ *                 bigger x AND y than jab1 so it launches; the base floor
+ *                 pops the target at low percent.
+ *   • Frames    : 4 startup / 3 active / 11 recovery + 15 cooldown — slower,
+ *                 committal finisher with a slightly wider hitbox.
+ */
+export const OWL_JAB3: AttackMoveWithAnimation = {
+  id: 'owl.jab3',
+  type: 'jab',
+  damage: 6,
+  knockback: { x: 2.4, y: -1.2, scaling: 0.15, baseMagnitude: 1.0 },
+  hitbox: { offsetX: 33, offsetY: -5, width: 39, height: 27 },
+  startupFrames: 4,
+  activeFrames: 3,
+  recoveryFrames: 11,
+  cooldownFrames: 15,
+  animation: { startupFrames: 2, activeFrames: 1, recoveryFrames: 3 },
 };
 
 /**
@@ -325,7 +390,15 @@ export const OWL_SMASH: AttackMoveWithAnimation = {
   id: 'owl.smash',
   type: 'smash',
   damage: 12,
-  knockback: { x: 3.5, y: -1.4, scaling: 0.36 },
+  knockback: { x: 3.5, y: -1.4, scaling: 0.36, baseMagnitude: 1.1, damageGrowth: 0.5 },
+  charge: {
+    minChargeFrames: 0,
+    maxChargeFrames: 60,
+    minDamage: 12,
+    maxDamage: 16.8,
+    minKnockback: { x: 3.5, y: -1.4, scaling: 0.36, baseMagnitude: 1.1, damageGrowth: 0.5 },
+    maxKnockback: { x: 4.9, y: -1.96, scaling: 0.45, baseMagnitude: 1.1, damageGrowth: 0.5 },
+  },
   hitbox: {
     offsetX: 45,
     offsetY: -6,
@@ -881,6 +954,182 @@ export const OWL_DOWN_SPECIAL: StallAndFallDownSpecialMove = {
 };
 
 // ---------------------------------------------------------------------------
+// Directional attacks (up-stick) — up-air / down-air / up-tilt / up-smash.
+//
+// Up-air (`OWL_UAIR`), down-air (`OWL_DAIR`) and up-tilt (`OWL_UP_LIGHT`)
+// are pre-authored in `extendedMoves.ts` and imported at the top of this
+// file. Only the up-smash is authored here — it has no extended-slot
+// equivalent. All four are registered in the constructor (up-air / down-air
+// auto-wire via `aerialDirection`; up-tilt / up-smash are wired explicitly
+// with `setUpTilt` / `setUpSmash` because their forward 'tilt' / 'smash'
+// slots are already taken by `OWL_TILT` / `OWL_SMASH`).
+// ---------------------------------------------------------------------------
+
+/**
+ * Owl's up-smash — a rising arcane plume above his body (up-stick + heavy).
+ * The grounded vertical KO finisher: slow startup (12 frames) so it punishes
+ * whiffs hard, but a hard upward launch that closes out juggled opponents.
+ *
+ * Mirrors the KB *shape* of Owl's forward smash (`OWL_SMASH` —
+ * baseMagnitude 1.1 / damageGrowth 0.5 / scaling 0.36) so the two smashes
+ * read as the same character's finisher, redirected upward. Sits a touch
+ * below Wolf's up-smash (dmg 16, scaling 0.42) just as Owl's forward smash
+ * sits below Wolf's (dmg 12 vs 14) — Owl is the lighter, floatier flyer who
+ * KOs at slightly higher percent but covers vertical space Wolf can't.
+ *
+ *   • Damage    : 14 — between Owl's forward smash (12) and Wolf's up-smash
+ *                 (16). The up-smash is his hardest single hit, fitting the
+ *                 "charge it under a juggled opponent" niche.
+ *   • Knockback : x 0.3 / y -3.6, scaling 0.38, baseMagnitude 1.1,
+ *                 damageGrowth 0.5. Steep upward launch (atan2 ≈ 85° up).
+ *                 Scaling 0.38 is between Owl's forward smash (0.36) and
+ *                 Wolf's up-smash (0.42).
+ *   • Hitbox    : 0 px offset (body-centred column), 38×46 sensor pushed
+ *                 up (offsetY -36) so the plume covers the airspace above
+ *                 Owl's tall silhouette — the vertical analogue of his
+ *                 long forward reach.
+ *   • Frames    : 12 startup / 4 active / 20 recovery + 22 cooldown.
+ *                 Lockout = 58 frames (~967 ms). Slow, committal KO swing.
+ *
+ * Animation states: 8 art frames — 3 startup, 1 active, 4 recovery. The
+ * wind-up gets the most art frames so the anticipation telegraphs the
+ * commitment, mirroring `OWL_SMASH`'s animation budget.
+ */
+export const OWL_USMASH: AttackMoveWithAnimation = {
+  id: 'owl.usmash',
+  type: 'smash',
+  damage: 14,
+  knockback: { x: 0.3, y: -3.6, scaling: 0.38, baseMagnitude: 1.1, damageGrowth: 0.5 },
+  charge: {
+    minChargeFrames: 0,
+    maxChargeFrames: 60,
+    minDamage: 14,
+    maxDamage: 19.6,
+    minKnockback: { x: 0.3, y: -3.6, scaling: 0.38, baseMagnitude: 1.1, damageGrowth: 0.5 },
+    maxKnockback: { x: 0.42, y: -5.04, scaling: 0.475, baseMagnitude: 1.1, damageGrowth: 0.5 },
+  },
+  hitbox: { offsetX: 9, offsetY: -27, width: 62, height: 64 },
+  startupFrames: 12,
+  activeFrames: 4,
+  recoveryFrames: 20,
+  cooldownFrames: 22,
+  animation: { startupFrames: 3, activeFrames: 1, recoveryFrames: 4 },
+};
+
+// ---------------------------------------------------------------------------
+// Directional attacks (down-stick + dash) — down-tilt / down-smash / dash-attack.
+//
+// Down-tilt (`OWL_DOWN_LIGHT`) is pre-authored in `extendedMoves.ts` and
+// imported at the top of this file. Down-smash (`OWL_DSMASH`) and dash-attack
+// (`OWL_DASHATTACK`) are authored here — neither has an extended-slot
+// equivalent. All three are wired explicitly in the constructor via
+// `setDownTilt` / `setDownSmash` / `setDashAttack` because their forward
+// 'tilt' / 'smash' slots are already taken by `OWL_TILT` / `OWL_SMASH`.
+// ---------------------------------------------------------------------------
+
+/**
+ * Owl's down-smash — a sweeping arcane pulse along the ground at his feet
+ * (down-stick + heavy). The grounded horizontal KO finisher: a wide, low
+ * hitbox that sweeps both sides of his feet, sending caught opponents
+ * outward and low toward the side blast zone.
+ *
+ * Mirrors the KB *shape* of Owl's forward smash (`OWL_SMASH` —
+ * baseMagnitude 1.1 / damageGrowth 0.5 / scaling 0.36) so the two smashes
+ * read as the same character's finisher, redirected low-and-out. Sits a
+ * touch below Wolf's smashes just as Owl's forward smash does (dmg 12 vs
+ * 14) — Owl is the lighter, floatier flyer who KOs at slightly higher
+ * percent but covers ground-level horizontal space with a wider sweep.
+ *
+ *   • Damage    : 13 — between Owl's forward smash (12) and up-smash (14).
+ *                 The wide sweep hits a touch harder than the forward poke
+ *                 but doesn't reach as far out as the up-smash launches up.
+ *   • Knockback : x 3.4 / y -1.0, scaling 0.34, baseMagnitude 1.1,
+ *                 damageGrowth 0.5. Strong outward + low launch
+ *                 (atan2 ≈ 16° up) — the canonical "down-smash sends them
+ *                 skidding off the ledge" trajectory. Scaling 0.34 is a
+ *                 hair below the forward smash (0.36) — paid for by the
+ *                 wider coverage.
+ *   • Hitbox    : offsetX 30, offsetY +14 (at the feet), 72×18 sensor —
+ *                 the widest grounded sweep in Owl's kit (forward smash is
+ *                 54 wide). Low height keeps it a ground-level move that
+ *                 whiffs against airborne opponents.
+ *   • Frames    : 13 startup / 4 active / 18 recovery + 20 cooldown.
+ *                 Lockout = 55 frames (~917 ms). Slow, committal KO swing —
+ *                 between the forward smash (10 startup) and a fully
+ *                 telegraphed read.
+ *
+ * Animation states: 8 art frames — 3 startup, 1 active, 4 recovery. The
+ * wind-up gets the most art frames so the anticipation telegraphs the
+ * commitment, mirroring `OWL_SMASH` / `OWL_USMASH`'s animation budget.
+ */
+export const OWL_DSMASH: AttackMoveWithAnimation = {
+  id: 'owl.dsmash',
+  type: 'smash',
+  damage: 13,
+  knockback: { x: 3.4, y: -1.0, scaling: 0.34, baseMagnitude: 1.1, damageGrowth: 0.5 },
+  charge: {
+    minChargeFrames: 0,
+    maxChargeFrames: 60,
+    minDamage: 13,
+    maxDamage: 18.2,
+    minKnockback: { x: 3.4, y: -1.0, scaling: 0.34, baseMagnitude: 1.1, damageGrowth: 0.5 },
+    maxKnockback: { x: 4.76, y: -1.4, scaling: 0.425, baseMagnitude: 1.1, damageGrowth: 0.5 },
+  },
+  hitbox: { offsetX: 30, offsetY: 14, width: 72, height: 18 },
+  startupFrames: 13,
+  activeFrames: 4,
+  recoveryFrames: 18,
+  cooldownFrames: 20,
+  animation: { startupFrames: 3, activeFrames: 1, recoveryFrames: 4 },
+};
+
+/**
+ * Owl's dash-attack — a forward lunging staff-thrust used while running
+ * (dash + light). The mage's burst approach / combo-starter: a quick
+ * forward hit that closes distance, weaker than his smashes but faster,
+ * popping the opponent up-and-forward for a follow-up aerial.
+ *
+ * Weaker than a smash (no baseMagnitude / damageGrowth amplification),
+ * sitting between Owl's tilt (dmg 7) and smash (dmg 12) on the damage
+ * curve. Medium startup (7) — slower than his jab/tilt because the lunge
+ * has to cover ground, but it's a momentum tool, not a finisher. Moderate
+ * forward + up knockback sets up the floaty flyer's drift-in juggle game.
+ *
+ *   • Damage    : 9 — between Owl's tilt (7) and forward smash (12). A
+ *                 meaningful burst hit but not a KO option at low percent.
+ *   • Knockback : x 2.0 / y -1.2, scaling 0.16. Forward + up launch
+ *                 (atan2 ≈ 31° up) — pops the target up-and-away so the
+ *                 floaty Owl can drift in behind it for a fair / up-air
+ *                 follow-up. Scaling 0.16 sits between his tilt (0.13) and
+ *                 forward smash (0.36) — a combo tool, not a closer.
+ *   • Hitbox    : offsetX 42, offsetY -4, 56×26 sensor — pushed forward
+ *                 (positive offsetX) so the lunge connects ahead of his
+ *                 sliding body; mid-height so it catches grounded and
+ *                 short-hopping opponents during the running approach.
+ *   • Frames    : 7 startup / 4 active / 12 recovery + 11 cooldown.
+ *                 Lockout = 34 frames (~567 ms). Faster overall than either
+ *                 smash; the burst commitment is in the forward slide, not
+ *                 a long wind-up.
+ *
+ * Animation states: 7 art frames — 2 startup, 2 active, 3 recovery. The
+ * two active art frames let the lunge-thrust arc show through the hit
+ * window, mirroring `OWL_TILT`'s animation budget (this is a 'tilt'-typed
+ * burst, not a smash).
+ */
+export const OWL_DASHATTACK: AttackMoveWithAnimation = {
+  id: 'owl.dashAttack',
+  type: 'tilt',
+  damage: 9,
+  knockback: { x: 2.0, y: -1.2, scaling: 0.16 },
+  hitbox: { offsetX: 42, offsetY: -4, width: 56, height: 26 },
+  startupFrames: 7,
+  activeFrames: 4,
+  recoveryFrames: 12,
+  cooldownFrames: 11,
+  animation: { startupFrames: 2, activeFrames: 2, recoveryFrames: 3 },
+};
+
+// ---------------------------------------------------------------------------
 // AC 2 Sub-AC 2 — per-fighter scaffolding for the T2 refactor.
 //
 // The Owl class below now declares the canonical 10-slot contract surface
@@ -918,6 +1167,25 @@ export const OWL_DOWN_SPECIAL: StallAndFallDownSpecialMove = {
  * consume this record directly; until then the constructor still
  * calls `registerAttack(...)` so existing dispatch keeps working.
  */
+/** Owl's grab — modest floaty-flyer grab; up-throw feeds her aerial juggle. */
+export const OWL_GRAB: GrabSpec = {
+  id: 'owl.grab',
+  hitbox: { offsetX: 24, offsetY: -2, width: 24, height: 30 },
+  startupFrames: 7,
+  activeFrames: 2,
+  whiffRecoveryFrames: 30,
+  holdFramesMax: 84,
+  throwRecoveryFrames: 22,
+  pummel: { damage: 1.3, cooldownFrames: 12 },
+  dashGrab: { rangeBonusX: 12, momentumRetain: 0.5 },
+  throws: {
+    forward: { damage: 8, knockback: { x: 2.3, y: -1.1, scaling: 0.1 }, animationFrames: 19 },
+    back: { damage: 9, knockback: { x: 2.6, y: -1.2, scaling: 0.12 }, animationFrames: 23 },
+    up: { damage: 7, knockback: { x: 0.3, y: -3.2, scaling: 0.11 }, animationFrames: 14 },
+    down: { damage: 5, knockback: { x: 0.8, y: 1.0, scaling: 0.08 }, animationFrames: 16 },
+  },
+};
+
 export const OWL_MOVESET: FighterMoveset = Object.freeze({
   jab: OWL_JAB,
   tilt: OWL_TILT,
@@ -966,7 +1234,7 @@ export interface OwlOptions extends CharacterTuning {
  * move, the runtime continues dispatching through the legacy slot
  * table exactly as before — no behavioural change.
  */
-export class Owl extends Character {
+export class Owl extends ContractFighter {
   /**
    * Owl's 10-slot uniform moveset surface (Sub-AC 2 of T2 refactor).
    * Points at the frozen {@link OWL_MOVESET} table — every consumer that
@@ -1007,6 +1275,11 @@ export class Owl extends Character {
     // lights it up on a stick-direction + attack press in a future
     // sub-AC). Smash populates the heavy dispatch slot.
     registerFighterAttack(this, OWL_JAB);
+    // Jab string — jab2 / jab3 register as 'jab' moves but jab1 keeps the
+    // light slot (first-registered-wins); they're reachable only via the
+    // jabChain link off jab1 → jab2 → jab3 (finisher). Tier 4.
+    registerFighterAttack(this, OWL_JAB2);
+    registerFighterAttack(this, OWL_JAB3);
     registerFighterAttack(this, OWL_TILT);
     registerFighterAttack(this, OWL_SMASH);
     // Aerial cut — neutral / forward / back. AC 60004 Sub-AC 4 closes
@@ -1021,6 +1294,33 @@ export class Owl extends Character {
     registerFighterAttack(this, OWL_NAIR);
     registerFighterAttack(this, OWL_FAIR);
     registerFighterAttack(this, OWL_BAIR);
+    // Directional attacks (up-stick). Up-air / down-air auto-wire their
+    // aerial up/down slots via `aerialDirection`; up-tilt / up-smash are
+    // type 'tilt'/'smash' (their forward slots are taken by OWL_TILT /
+    // OWL_SMASH), so wire the dedicated up slots explicitly. Up-air /
+    // down-air / up-tilt are pre-authored in `extendedMoves.ts`
+    // (`OWL_UAIR` / `OWL_DAIR` / `OWL_UP_LIGHT`); only `OWL_USMASH` is
+    // authored in this file.
+    registerFighterAttack(this, OWL_UAIR);
+    registerFighterAttack(this, OWL_DAIR);
+    registerFighterAttack(this, OWL_UP_LIGHT);
+    registerFighterAttack(this, OWL_USMASH);
+    this.setUpTilt(OWL_UP_LIGHT.id);
+    this.setUpSmash(OWL_USMASH.id);
+    // Directional attacks (down-stick + dash). Down-tilt / down-smash /
+    // dash-attack are all type 'tilt'/'smash' (their forward slots are
+    // taken by OWL_TILT / OWL_SMASH), so wire the dedicated down / dash
+    // slots explicitly. Down-tilt is pre-authored in `extendedMoves.ts`
+    // (`OWL_DOWN_LIGHT`, a low feet-poke); down-smash (`OWL_DSMASH`, the
+    // grounded horizontal KO sweep) and dash-attack (`OWL_DASHATTACK`, the
+    // running burst combo-starter) are authored in this file.
+    registerFighterAttack(this, OWL_DOWN_LIGHT);
+    registerFighterAttack(this, OWL_DSMASH);
+    registerFighterAttack(this, OWL_DASHATTACK);
+    this.setDownTilt(OWL_DOWN_LIGHT.id);
+    this.setDownSmash(OWL_DSMASH.id);
+    this.setDashAttack(OWL_DASHATTACK.id);
+    this.setGrabSpec(OWL_GRAB);
     // Neutral special — charge attack (AC 60201 Sub-AC 1). Auto-fills
     // the `neutralSpecialId` dispatch slot via `registerAttack`'s
     // type-based slot wiring.
@@ -1043,84 +1343,9 @@ export class Owl extends Character {
     registerFighterAttack(this, OWL_DOWN_SPECIAL);
   }
 
-  // -------------------------------------------------------------------
-  // Sub-AC 2.1 of T2 refactor — per-slot execution methods.
-  //
-  // Each executeXxx method below owns the "fire WHICH move" decision
-  // for the named slot in the canonical 10-slot {@link FighterMoveset}
-  // contract. The base {@link Character} class no longer holds any
-  // "Owl-specific" knowledge — Owl alone decides that `executeJab`
-  // fires `OWL_JAB`, that `executeNeutralSpecial` fires Owl's charge
-  // attack, and so on.
-  //
-  // See {@link Wolf} for the full design notes; this class follows the
-  // same pattern.
-  // -------------------------------------------------------------------
 
-  /** Owl's jab — fires {@link OWL_JAB}. */
-  executeJab(): boolean {
-    if (this.runSlotOverride('jab')) return true;
-    return this.attemptAttack(OWL_JAB.id);
-  }
-
-  /** Owl's tilt — fires {@link OWL_TILT}. */
-  executeTilt(): boolean {
-    if (this.runSlotOverride('tilt')) return true;
-    return this.attemptAttack(OWL_TILT.id);
-  }
-
-  /** Owl's smash — fires {@link OWL_SMASH}. */
-  executeSmash(): boolean {
-    if (this.runSlotOverride('smash')) return true;
-    return this.attemptAttack(OWL_SMASH.id);
-  }
-
-  /** Owl's forward aerial — fires {@link OWL_FAIR}. */
-  executeFair(): boolean {
-    if (this.runSlotOverride('fair')) return true;
-    return this.attemptAttack(OWL_FAIR.id);
-  }
-
-  /** Owl's neutral special (charge) — fires {@link OWL_NEUTRAL_SPECIAL}. */
-  executeNeutralSpecial(): boolean {
-    if (this.runSlotOverride('neutralSpecial')) return true;
-    return this.attemptAttack(OWL_NEUTRAL_SPECIAL.id);
-  }
-
-  /** Owl's side special (reflector) — fires {@link OWL_SIDE_SPECIAL}. */
-  executeSideSpecial(): boolean {
-    if (this.runSlotOverride('sideSpecial')) return true;
-    return this.attemptAttack(OWL_SIDE_SPECIAL.id);
-  }
-
-  /**
-   * Owl's up special (directional jump) — fires {@link OWL_UP_SPECIAL}
-   * via {@link Character.attemptUpSpecial}, which integrates the
-   * recovery / vertical-physics on the press frame. The optional
-   * stick-direction arguments default to "straight up".
-   */
-  executeUpSpecial(stickX: number = 0, stickY: number = -1): boolean {
-    if (this.runSlotOverride('upSpecial')) return true;
-    return this.attemptUpSpecial(stickX, stickY);
-  }
-
-  /** Owl's down special (stall and fall) — fires {@link OWL_DOWN_SPECIAL}. */
-  executeDownSpecial(): boolean {
-    if (this.runSlotOverride('downSpecial')) return true;
-    return this.attemptAttack(OWL_DOWN_SPECIAL.id);
-  }
-
-  /**
-   * Owl's shield. Out of scope for Sub-AC 2.1 of the T2 refactor —
-   * the shield-state-machine entry continues to fire from
-   * {@link Character.applyInput}'s `tickShield` composition.
-   */
-  executeShield(): void {
-    /* TODO(T2 refactor): migrate shield state-machine entry out of Character. */
-  }
-
-  /** Owl's dodge. Out of scope for Sub-AC 2.1 — see {@link executeShield}. */
-  executeDodge(): void {
-    /* TODO(T2 refactor): migrate dodge state-machine entry out of Character. */
-  }
+  // Per-slot execute hooks (executeJab … executeDodge) are inherited
+  // from ContractFighter, which fires each slot via the frozen
+  // `moveset` declaration above — the slot ↔ move mapping lives in
+  // the data table, not in per-fighter method boilerplate.
 }

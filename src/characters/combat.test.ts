@@ -29,9 +29,18 @@ import {
   computeHitstun,
   computeKnockback,
   computeLaunchAngle,
+  computeRageMultiplier,
   computeScreenShake,
   computeShieldstun,
+  computeStaleMultiplier,
   type HitInfo,
+  KNOCKBACK_PERCENT_TEMPER,
+  RAGE_MAX_MULTIPLIER,
+  RAGE_MAX_PERCENT,
+  RAGE_START_PERCENT,
+  STALE_MIN_MULTIPLIER,
+  STALE_QUEUE_SIZE,
+  STALE_STEP,
 } from './combat';
 
 /**
@@ -137,8 +146,13 @@ describe('computeKnockback — percent scaling', () => {
     const r100 = computeKnockback(SAMPLE_HIT, 100, BASELINE_MASS);
     const r200 = computeKnockback(SAMPLE_HIT, 200, BASELINE_MASS);
     // factor at p%: (1 + 0.06 * p)
-    expect(r100.magnitude / r0.magnitude).toBeCloseTo(7); // 1 + 0.06*100 = 7
-    expect(r200.magnitude / r0.magnitude).toBeCloseTo(13); // 1 + 0.06*200 = 13
+    // factor at p%: (1 + 0.06 * p * TEMPER)
+    expect(r100.magnitude / r0.magnitude).toBeCloseTo(
+      1 + 0.06 * 100 * KNOCKBACK_PERCENT_TEMPER,
+    );
+    expect(r200.magnitude / r0.magnitude).toBeCloseTo(
+      1 + 0.06 * 200 * KNOCKBACK_PERCENT_TEMPER,
+    );
   });
 
   it('clamps target percent into [0, MAX] before scaling', () => {
@@ -346,7 +360,9 @@ describe('computeKnockback — launch velocity scaling formula', () => {
     const baseMag = Math.hypot(SAMPLE_HIT.knockback.x, SAMPLE_HIT.knockback.y);
     for (const p of [0, 25, 100, 200, 500, 999]) {
       const r = computeKnockback(SAMPLE_HIT, p, BASELINE_MASS);
-      const expected = baseMag * (1 + SAMPLE_HIT.knockback.scaling * p);
+      const expected =
+        baseMag *
+        (1 + SAMPLE_HIT.knockback.scaling * p * KNOCKBACK_PERCENT_TEMPER);
       expect(r.magnitude).toBeCloseTo(expected);
     }
   });
@@ -388,7 +404,7 @@ describe('computeKnockback — launch velocity scaling formula', () => {
     expect(uy9).toBeCloseTo(uy0);
     // Magnitude grew by the percent-only multiplier.
     expect(r999.magnitude / r0.magnitude).toBeCloseTo(
-      1 + SAMPLE_HIT.knockback.scaling * MAX_DAMAGE_PERCENT,
+      1 + SAMPLE_HIT.knockback.scaling * MAX_DAMAGE_PERCENT * KNOCKBACK_PERCENT_TEMPER,
     );
   });
 
@@ -461,10 +477,17 @@ describe('combat — combined behaviours', () => {
     expect(lightHit.hitstunFrames).toBeGreaterThanOrEqual(heavyHit.hitstunFrames);
   });
 
-  it('high-percent targets fly much farther than low-percent ones', () => {
+  it('high-percent targets fly farther than low-percent ones', () => {
     const lowPct = computeKnockback(SAMPLE_HIT, 0, BASELINE_MASS);
     const highPct = computeKnockback(SAMPLE_HIT, 200, BASELINE_MASS);
-    expect(highPct.magnitude).toBeGreaterThan(lowPct.magnitude * 5);
+    // SAMPLE_HIT is a JAB-tier move (scaling 0.06). Under the Smash-
+    // calibrated temper (0.06) a low-scaling poke deliberately grows
+    // only modestly with percent — kill scaling is reserved for smash-
+    // tier moves (scaling 0.4). So we assert "meaningfully farther"
+    // (>1.4×), not the old "double" threshold, which only held while
+    // the cast hit ~2× too hard. Smash-tier scaling is exercised in the
+    // dedicated damageGrowth / baseMagnitude blocks above.
+    expect(highPct.magnitude).toBeGreaterThan(lowPct.magnitude * 1.4);
   });
 
   it('a stronger move (higher base + scaling) lands harder than a weaker one', () => {
@@ -600,6 +623,58 @@ describe('applyDIToLaunchAngle', () => {
   });
 });
 
+describe('computeRageMultiplier (Tier 3 — rage)', () => {
+  it('is 1.0 at or below the start percent', () => {
+    expect(computeRageMultiplier(0)).toBe(1);
+    expect(computeRageMultiplier(RAGE_START_PERCENT)).toBe(1);
+  });
+
+  it('ramps linearly between start and max', () => {
+    const mid = (RAGE_START_PERCENT + RAGE_MAX_PERCENT) / 2;
+    const expectedMid = 1 + 0.5 * (RAGE_MAX_MULTIPLIER - 1);
+    expect(computeRageMultiplier(mid)).toBeCloseTo(expectedMid, 6);
+  });
+
+  it('caps at the max multiplier at and beyond the max percent', () => {
+    expect(computeRageMultiplier(RAGE_MAX_PERCENT)).toBeCloseTo(RAGE_MAX_MULTIPLIER, 6);
+    expect(computeRageMultiplier(999)).toBeCloseTo(RAGE_MAX_MULTIPLIER, 6);
+  });
+
+  it('is monotonic non-decreasing in percent', () => {
+    let prev = -Infinity;
+    for (let p = 0; p <= 200; p += 10) {
+      const v = computeRageMultiplier(p);
+      expect(v).toBeGreaterThanOrEqual(prev);
+      prev = v;
+    }
+  });
+});
+
+describe('computeStaleMultiplier (Tier 3 — stale-move negation)', () => {
+  it('is 1.0 for a fresh move (0 occurrences)', () => {
+    expect(computeStaleMultiplier(0)).toBe(1);
+  });
+
+  it('shaves STALE_STEP per prior occurrence', () => {
+    expect(computeStaleMultiplier(1)).toBeCloseTo(1 - STALE_STEP, 6);
+    expect(computeStaleMultiplier(3)).toBeCloseTo(1 - 3 * STALE_STEP, 6);
+  });
+
+  it('floors at STALE_MIN_MULTIPLIER for a fully-staled move', () => {
+    expect(computeStaleMultiplier(STALE_QUEUE_SIZE)).toBeCloseTo(STALE_MIN_MULTIPLIER, 6);
+    expect(computeStaleMultiplier(99)).toBeCloseTo(STALE_MIN_MULTIPLIER, 6);
+  });
+
+  it('is monotonic non-increasing in occurrences', () => {
+    let prev = Infinity;
+    for (let n = 0; n <= STALE_QUEUE_SIZE; n += 1) {
+      const v = computeStaleMultiplier(n);
+      expect(v).toBeLessThanOrEqual(prev);
+      prev = v;
+    }
+  });
+});
+
 describe('computeShieldstun', () => {
   it('returns at least the floor for tiny damage', () => {
     expect(computeShieldstun(1)).toBe(SHIELDSTUN_MIN_FRAMES);
@@ -646,5 +721,137 @@ describe('computeScreenShake — tier mapping', () => {
 
   it('caps shake duration at the heavy tier (research-backed 150 ms cap)', () => {
     expect(SHAKE_HEAVY_DURATION_FRAMES).toBeLessThanOrEqual(9);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Smash-style base + damage-fed growth knockback components
+// ---------------------------------------------------------------------------
+
+describe('computeKnockback — baseMagnitude (percent-independent launch floor)', () => {
+  const baseHit = (extra?: {
+    baseMagnitude?: number;
+    damageGrowth?: number;
+  }): HitInfo => ({
+    damage: 14,
+    knockback: { x: 4.0, y: -1.5, scaling: 0.4, ...(extra ?? {}) },
+    facing: 1,
+  });
+
+  it('moves WITHOUT the new fields produce byte-identical legacy math', () => {
+    const hit = baseHit();
+    const result = computeKnockback(hit, 60, BASELINE_MASS);
+    const expectedMult = 1 + 0.4 * 60 * KNOCKBACK_PERCENT_TEMPER;
+    expect(result.vector.x).toBeCloseTo(4.0 * expectedMult, 10);
+    expect(result.vector.y).toBeCloseTo(-1.5 * expectedMult, 10);
+  });
+
+  it('adds the floor along the authored direction at 0 % (magnitudes sum exactly)', () => {
+    const plain = computeKnockback(baseHit(), 0, BASELINE_MASS);
+    const floored = computeKnockback(
+      baseHit({ baseMagnitude: 1.2 }),
+      0,
+      BASELINE_MASS,
+    );
+    expect(floored.magnitude).toBeCloseTo(plain.magnitude + 1.2, 10);
+  });
+
+  it('preserves the launch angle (floor is collinear with the authored vector)', () => {
+    const plain = computeKnockback(baseHit(), 80, BASELINE_MASS);
+    const floored = computeKnockback(
+      baseHit({ baseMagnitude: 1.2 }),
+      80,
+      BASELINE_MASS,
+    );
+    expect(floored.angle).toBeCloseTo(plain.angle, 10);
+  });
+
+  it('does NOT scale the floor by target mass (canonical `+ b` semantics)', () => {
+    // Heavy target: the percent-scaled part shrinks by BASELINE/mass,
+    // the floor arrives whole.
+    const heavyMass = 24;
+    const plainHeavy = computeKnockback(baseHit(), 0, heavyMass);
+    const flooredHeavy = computeKnockback(
+      baseHit({ baseMagnitude: 1.2 }),
+      0,
+      heavyMass,
+    );
+    expect(flooredHeavy.magnitude).toBeCloseTo(plainHeavy.magnitude + 1.2, 10);
+  });
+
+  it('mirrors the floor with the attacker facing', () => {
+    const right = computeKnockback(
+      baseHit({ baseMagnitude: 1.2 }),
+      0,
+      BASELINE_MASS,
+    );
+    const left = computeKnockback(
+      { ...baseHit({ baseMagnitude: 1.2 }), facing: -1 },
+      0,
+      BASELINE_MASS,
+    );
+    expect(left.vector.x).toBeCloseTo(-right.vector.x, 10);
+    expect(left.vector.y).toBeCloseTo(right.vector.y, 10);
+  });
+
+  it('raises hitstun at 0 % (the floor is what makes early hits combo-able)', () => {
+    const plain = computeKnockback(baseHit(), 0, BASELINE_MASS);
+    const floored = computeKnockback(
+      baseHit({ baseMagnitude: 3.0 }),
+      0,
+      BASELINE_MASS,
+    );
+    expect(floored.hitstunFrames).toBeGreaterThanOrEqual(plain.hitstunFrames);
+    expect(floored.hitstunFrames).toBe(
+      Math.min(
+        Math.max(
+          Math.round(floored.magnitude * HITSTUN_FRAMES_PER_KNOCKBACK_UNIT),
+          MIN_HITSTUN_FRAMES,
+        ),
+        120,
+      ),
+    );
+  });
+});
+
+describe('computeKnockback — damageGrowth (damage-fed percent term)', () => {
+  const hitWithGrowth = (damage: number, damageGrowth?: number): HitInfo => ({
+    damage,
+    knockback: {
+      x: 4.0,
+      y: -1.5,
+      scaling: 0.4,
+      ...(damageGrowth !== undefined ? { damageGrowth } : {}),
+    },
+    facing: 1,
+  });
+
+  it('is inert at 0 % (the growth term multiplies the percent)', () => {
+    const plain = computeKnockback(hitWithGrowth(14), 0, BASELINE_MASS);
+    const grown = computeKnockback(hitWithGrowth(14, 0.5), 0, BASELINE_MASS);
+    expect(grown.magnitude).toBeCloseTo(plain.magnitude, 10);
+  });
+
+  it('amplifies knockback at percent proportionally to the move damage', () => {
+    const plain = computeKnockback(hitWithGrowth(14), 100, BASELINE_MASS);
+    const grown = computeKnockback(hitWithGrowth(14, 0.5), 100, BASELINE_MASS);
+    // growth = 0.4·100·(1 + 0.5·14/20) = 40·1.35 vs 40 — a 1.35×
+    // larger percent term.
+    const expectedRatio =
+      (1 + 0.4 * 100 * KNOCKBACK_PERCENT_TEMPER * 1.35) /
+      (1 + 0.4 * 100 * KNOCKBACK_PERCENT_TEMPER);
+    expect(grown.magnitude / plain.magnitude).toBeCloseTo(expectedRatio, 10);
+  });
+
+  it('keeps the launch angle invariant', () => {
+    const plain = computeKnockback(hitWithGrowth(14), 100, BASELINE_MASS);
+    const grown = computeKnockback(hitWithGrowth(14, 0.5), 100, BASELINE_MASS);
+    expect(grown.angle).toBeCloseTo(plain.angle, 10);
+  });
+
+  it('a heavier-damage move out-scales a lighter one with the same scaling + growth', () => {
+    const light = computeKnockback(hitWithGrowth(6, 0.5), 100, BASELINE_MASS);
+    const heavy = computeKnockback(hitWithGrowth(22, 0.5), 100, BASELINE_MASS);
+    expect(heavy.magnitude).toBeGreaterThan(light.magnitude);
   });
 });

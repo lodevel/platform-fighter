@@ -82,6 +82,47 @@ describe('chargeSchema', () => {
       expect(kb.y).toBeCloseTo(-0.55, 5);
       expect(kb.scaling).toBeCloseTo(0.12, 5);
     });
+
+    it('omits baseMagnitude / damageGrowth when BOTH endpoints omit them (legacy byte-identical)', () => {
+      const kb = computeChargedKnockbackFromSpec(FIXTURE, 34);
+      expect('baseMagnitude' in kb).toBe(false);
+      expect('damageGrowth' in kb).toBe(false);
+    });
+
+    it('lerps baseMagnitude / damageGrowth when both endpoints author them', () => {
+      const spec: ChargeSpec = {
+        ...FIXTURE,
+        minKnockback: { x: 1.0, y: -0.4, scaling: 0.06, baseMagnitude: 0.4, damageGrowth: 0.2 },
+        maxKnockback: { x: 2.5, y: -0.7, scaling: 0.18, baseMagnitude: 1.2, damageGrowth: 0.5 },
+      };
+      const kb = computeChargedKnockbackFromSpec(spec, 34); // t = 0.5
+      expect(kb.baseMagnitude).toBeCloseTo(0.8, 5);
+      expect(kb.damageGrowth).toBeCloseTo(0.35, 5);
+    });
+
+    it('treats a single absent endpoint as 0 — component fades in toward max charge', () => {
+      const spec: ChargeSpec = {
+        ...FIXTURE,
+        maxKnockback: { x: 2.5, y: -0.7, scaling: 0.18, baseMagnitude: 1.2 },
+      };
+      // min endpoint omits baseMagnitude → contributes 0; the field is
+      // PRESENT in the result at every t because one endpoint authors it.
+      expect(computeChargedKnockbackFromSpec(spec, 0).baseMagnitude).toBe(0);
+      expect(computeChargedKnockbackFromSpec(spec, 34).baseMagnitude).toBeCloseTo(0.6, 5);
+      expect(computeChargedKnockbackFromSpec(spec, 64).baseMagnitude).toBeCloseTo(1.2, 5);
+      // The other optional component stays absent — both endpoints omit it.
+      expect('damageGrowth' in computeChargedKnockbackFromSpec(spec, 34)).toBe(false);
+    });
+
+    it('treats a single absent MAX endpoint as 0 — component fades out toward max charge', () => {
+      const spec: ChargeSpec = {
+        ...FIXTURE,
+        minKnockback: { x: 1.0, y: -0.4, scaling: 0.06, damageGrowth: 0.5 },
+      };
+      expect(computeChargedKnockbackFromSpec(spec, 0).damageGrowth).toBe(0.5);
+      expect(computeChargedKnockbackFromSpec(spec, 34).damageGrowth).toBeCloseTo(0.25, 5);
+      expect(computeChargedKnockbackFromSpec(spec, 64).damageGrowth).toBeCloseTo(0, 5);
+    });
   });
 
   describe('validateChargeSpec', () => {

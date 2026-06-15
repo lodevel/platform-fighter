@@ -85,7 +85,7 @@ describe('createKeyboardInputProvider', () => {
 
     // Neutral key state.
     expect(provider.sample(0)).toEqual({
-      moveX: 0,
+      moveX: 0, moveY: 0,
       jump: false,
       attack: false,
       shield: false,
@@ -164,9 +164,9 @@ describe('createBothKeyboardInputProviders', () => {
 
 describe('closeCharacterInput', () => {
   it('fills every optional field with false / null', () => {
-    const closed = closeCharacterInput({ moveX: 0, jump: false });
+    const closed = closeCharacterInput({ moveX: 0, moveY: 0, jump: false });
     expect(closed).toEqual({
-      moveX: 0,
+      moveX: 0, moveY: 0,
       jump: false,
       attack: false,
       attackHeavy: false,
@@ -184,9 +184,9 @@ describe('closeCharacterInput', () => {
   });
 
   it('clamps moveX to [-1, 1] without rounding intermediate values', () => {
-    expect(closeCharacterInput({ moveX: 2, jump: false }).moveX).toBe(1);
-    expect(closeCharacterInput({ moveX: -3.5, jump: false }).moveX).toBe(-1);
-    expect(closeCharacterInput({ moveX: 0.42, jump: false }).moveX).toBe(0.42);
+    expect(closeCharacterInput({ moveX: 2, moveY: 0, jump: false }).moveX).toBe(1);
+    expect(closeCharacterInput({ moveX: -3.5, moveY: 0, jump: false }).moveX).toBe(-1);
+    expect(closeCharacterInput({ moveX: 0.42, moveY: 0, jump: false }).moveX).toBe(0.42);
   });
 
   it('coerces NaN / ±Infinity moveX to 0', () => {
@@ -199,7 +199,7 @@ describe('closeCharacterInput', () => {
 
   it('preserves explicit press flags', () => {
     const closed = closeCharacterInput({
-      moveX: 1,
+      moveX: 1, moveY: 0,
       jump: true,
       attack: true,
       attackHeavy: true,
@@ -211,7 +211,7 @@ describe('closeCharacterInput', () => {
       ledgeRelease: 'getUp',
     });
     expect(closed).toEqual({
-      moveX: 1,
+      moveX: 1, moveY: 0,
       jump: true,
       attack: true,
       attackHeavy: true,
@@ -225,7 +225,7 @@ describe('closeCharacterInput', () => {
   });
 
   it('returns a frozen record so the replay path can share the reference', () => {
-    const closed = closeCharacterInput({ moveX: 0, jump: false });
+    const closed = closeCharacterInput({ moveX: 0, moveY: 0, jump: false });
     expect(Object.isFrozen(closed)).toBe(true);
   });
 });
@@ -256,7 +256,7 @@ describe('PlayerInputProvider structural typing', () => {
       label: 'always-jump',
       sample(_frame) {
         calls += 1;
-        return closeCharacterInput({ moveX: 0, jump: true });
+        return closeCharacterInput({ moveX: 0, moveY: 0, jump: true });
       },
     };
     const sample0 = provider.sample(0);
@@ -310,7 +310,7 @@ describe('createBindingsKeyboardInputProvider — AC 40102 Sub-AC 2', () => {
 
     // Default P1 layout: jump = W, attack = F, left = A, right = D.
     expect(provider.sample(0)).toEqual({
-      moveX: 0,
+      moveX: 0, moveY: 0,
       jump: false,
       attack: false,
       shield: false,
@@ -427,7 +427,7 @@ describe('createBindingsKeyboardInputProvider — AC 40102 Sub-AC 2', () => {
     // No keyboard bindings on slot 3 by default → every keyboard press is a no-op.
     kb.press(KEY_CODE.W, KEY_CODE.F, KEY_CODE.SPACE, KEY_CODE.ARROW_UP);
     expect(provider.sample(0)).toEqual({
-      moveX: 0,
+      moveX: 0, moveY: 0,
       jump: false,
       attack: false,
       shield: false,
@@ -808,7 +808,7 @@ describe('createBindingsGamepadInputProvider — AC 40103 Sub-AC 3', () => {
 
     // Pad disconnected → every action released.
     expect(provider.sample(0)).toEqual({
-      moveX: 0,
+      moveX: 0, moveY: 0,
       jump: false,
       attack: false,
       shield: false,
@@ -942,7 +942,7 @@ describe('createBindingsGamepadInputProvider — AC 40103 Sub-AC 3', () => {
     gp.setButton(0, 2, pressedButton());
     gp.setAxis(0, 0, -1);
     expect(provider.sample(0)).toEqual({
-      moveX: 0,
+      moveX: 0, moveY: 0,
       jump: false,
       attack: false,
       shield: false,
@@ -1010,7 +1010,7 @@ describe('createBindingsGamepadInputProvider — AC 40103 Sub-AC 3', () => {
     gp.setButton(0, 2, pressedButton());
     gp.setAxis(0, 0, -1);
     expect(provider.sample(0)).toEqual({
-      moveX: 0,
+      moveX: 0, moveY: 0,
       jump: false,
       attack: false,
       shield: false,

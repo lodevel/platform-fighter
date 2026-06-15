@@ -490,15 +490,15 @@ describe('deserializeReplay — integration with migrations', () => {
         {
           frame: 0,
           inputs: [
-            { moveX: 1, jump: true, attack: false, dropThrough: false },
-            { moveX: -0.5, jump: false, attack: true, dropThrough: false },
+            { moveX: 1, moveY: 0, jump: true, attack: false, dropThrough: false },
+            { moveX: -0.5, moveY: 0, jump: false, attack: true, dropThrough: false },
           ],
         },
         {
           frame: 1,
           inputs: [
-            { moveX: 0, jump: false, attack: false, dropThrough: true },
-            { moveX: 0, jump: false, attack: false, dropThrough: false },
+            { moveX: 0, moveY: 0, jump: false, attack: false, dropThrough: true },
+            { moveX: 0, moveY: 0, jump: false, attack: false, dropThrough: false },
           ],
         },
       ],

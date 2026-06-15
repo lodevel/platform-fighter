@@ -3,8 +3,12 @@ import {
   DEFAULT_HAND_CURSOR_STATE,
   HOVERED_TARGET_NONE,
   SLOT_MODE_CYCLE_ORDER,
+  addCpuToNextEmptySlot,
   buildPlayerSlotsFromHandCursor,
+  cycleSlotAiDifficulty,
   cycleSlotMode,
+  joinNextEmptySlot,
+  participatingSlotCount,
   cycleSlotPalette,
   moveHand,
   nextFreePaletteIndex,
@@ -307,6 +311,102 @@ describe('setSlotMode (direct setter, lobby-handoff path)', () => {
     s = setSlotMode(s, 1, 'human');
     expect(s.slots[0]?.aiDifficulty).toBeUndefined();
   });
+
+  it('auto-picks the slot-keyed default character on a human join (join = valid pick)', () => {
+    const s = setSlotMode(DEFAULT_HAND_CURSOR_STATE, 2, 'human');
+    expect(s.slots[1]?.mode).toBe('human');
+    expect(s.slots[1]?.pickedCharacterId).toBe('cat');
+  });
+
+  it('auto-picks the slot-keyed default character on a bot join', () => {
+    const s = setSlotMode(DEFAULT_HAND_CURSOR_STATE, 3, 'bot');
+    expect(s.slots[2]?.pickedCharacterId).toBe('owl');
+  });
+
+  it('keeps an existing pick when re-joining (auto-pick only fills a null pick)', () => {
+    let s = withSlotPicked(DEFAULT_HAND_CURSOR_STATE, 1, 'cat', 3);
+    s = setSlotMode(s, 1, 'bot');
+    expect(s.slots[0]?.pickedCharacterId).toBe('cat');
+    expect(s.slots[0]?.paletteIndex).toBe(3);
+  });
+
+  it('auto-pick shifts the palette off another slot already on the same character', () => {
+    // Slot 2 joins on its default (cat). A second slot picking cat on
+    // the same default palette must land on a different palette.
+    let s = setSlotMode(DEFAULT_HAND_CURSOR_STATE, 2, 'human');
+    const slot2Palette = s.slots[1]?.paletteIndex;
+    s = withSlotPicked(s, 1, 'cat', slot2Palette ?? 0);
+    expect(s.slots[0]?.paletteIndex).not.toBe(slot2Palette);
+  });
+});
+
+describe('joinNextEmptySlot / addCpuToNextEmptySlot — device-driven join', () => {
+  it('claims the first empty slot as human with the given inputType and an auto-picked default', () => {
+    const { state: s, slotIndex } = joinNextEmptySlot(
+      DEFAULT_HAND_CURSOR_STATE,
+      'gamepad',
+    );
+    expect(slotIndex).toBe(1);
+    expect(s.slots[0]?.mode).toBe('human');
+    expect(s.slots[0]?.inputType).toBe('gamepad');
+    expect(s.slots[0]?.pickedCharacterId).toBe('wolf');
+  });
+
+  it('is idempotent for a keyboard half that already drives a slot', () => {
+    const first = joinNextEmptySlot(DEFAULT_HAND_CURSOR_STATE, 'keyboard_p1');
+    const second = joinNextEmptySlot(first.state, 'keyboard_p1');
+    expect(second.slotIndex).toBe(first.slotIndex);
+    expect(second.state).toBe(first.state);
+  });
+
+  it('lets a second gamepad claim a second slot (pads share the gamepad InputType)', () => {
+    const first = joinNextEmptySlot(DEFAULT_HAND_CURSOR_STATE, 'gamepad');
+    const second = joinNextEmptySlot(first.state, 'gamepad');
+    expect(first.slotIndex).toBe(1);
+    expect(second.slotIndex).toBe(2);
+  });
+
+  it('returns slotIndex null (state unchanged) when every slot is taken', () => {
+    let s = DEFAULT_HAND_CURSOR_STATE;
+    for (const i of [1, 2, 3, 4] as const) s = setSlotMode(s, i, 'bot');
+    const result = joinNextEmptySlot(s, 'gamepad');
+    expect(result.slotIndex).toBeNull();
+    expect(result.state).toBe(s);
+  });
+
+  it('addCpuToNextEmptySlot claims the first empty slot as a medium bot with a pick', () => {
+    const taken = setSlotMode(DEFAULT_HAND_CURSOR_STATE, 1, 'human');
+    const { state: s, slotIndex } = addCpuToNextEmptySlot(taken);
+    expect(slotIndex).toBe(2);
+    expect(s.slots[1]?.mode).toBe('bot');
+    expect(s.slots[1]?.aiDifficulty).toBe('medium');
+    expect(s.slots[1]?.pickedCharacterId).toBe('cat');
+  });
+});
+
+describe('cycleSlotAiDifficulty / participatingSlotCount', () => {
+  it('cycles a bot slot easy → medium → hard → easy', () => {
+    let s = setSlotMode(DEFAULT_HAND_CURSOR_STATE, 1, 'bot'); // medium
+    s = cycleSlotAiDifficulty(s, 1);
+    expect(s.slots[0]?.aiDifficulty).toBe('hard');
+    s = cycleSlotAiDifficulty(s, 1);
+    expect(s.slots[0]?.aiDifficulty).toBe('easy');
+    s = cycleSlotAiDifficulty(s, 1);
+    expect(s.slots[0]?.aiDifficulty).toBe('medium');
+  });
+
+  it('is a silent no-op on human / empty slots', () => {
+    expect(cycleSlotAiDifficulty(DEFAULT_HAND_CURSOR_STATE, 1)).toBe(
+      DEFAULT_HAND_CURSOR_STATE,
+    );
+  });
+
+  it('participatingSlotCount counts non-empty slots', () => {
+    expect(participatingSlotCount(DEFAULT_HAND_CURSOR_STATE)).toBe(0);
+    let s = setSlotMode(DEFAULT_HAND_CURSOR_STATE, 1, 'human');
+    s = setSlotMode(s, 3, 'bot');
+    expect(participatingSlotCount(s)).toBe(2);
+  });
 });
 
 describe('cycleSlotPalette / setSlotPalette', () => {
@@ -419,14 +519,18 @@ describe('toCharacterSelectState / buildPlayerSlotsFromHandCursor — legacy pro
     expect(projected.slots[0]?.aiDifficulty).toBeUndefined();
   });
 
-  it('buildPlayerSlotsFromHandCursor only emits slots with both mode!=empty AND a committed pick', () => {
+  it('buildPlayerSlotsFromHandCursor emits a valid entry for a slot joined via setSlotMode (join = auto-picked default)', () => {
     let s = withSlotPicked(DEFAULT_HAND_CURSOR_STATE, 1, 'wolf', 0);
-    // Slot 2 is human but never picked — should NOT appear.
+    // Smash-style contract: joining a slot as human auto-picks its
+    // slot-keyed default (slot 2 → cat), so the lineup includes it
+    // immediately — no separate "confirm pick" step exists.
     s = setSlotMode(s, 2, 'human');
     const lineup = buildPlayerSlotsFromHandCursor(s);
-    expect(lineup.length).toBe(1);
+    expect(lineup.length).toBe(2);
     expect(lineup[0]?.index).toBe(1);
     expect(lineup[0]?.characterId).toBe('wolf');
+    expect(lineup[1]?.index).toBe(2);
+    expect(lineup[1]?.characterId).toBe('cat');
   });
 
   it('buildPlayerSlotsFromHandCursor preserves duplicate characters with distinct palettes', () => {

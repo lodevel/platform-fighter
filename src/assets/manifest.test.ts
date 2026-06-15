@@ -171,13 +171,21 @@ describe('Path conventions', () => {
     }
   });
 
-  it('points spritesheet URLs at .png and audio URLs at .ogg', () => {
+  it('points spritesheet URLs at .png and audio URLs at a WebAudio-decodable format', () => {
     for (const entry of ASSET_MANIFEST.spritesheets) {
       expect(entry.url.endsWith('.png')).toBe(true);
     }
+    // The original combat/music cuts ship as `.ogg` (Vorbis) with `.mp3`
+    // codec-fallback companions for Safari. The M1.5 action-audio
+    // expansion (AC 10304) adds short `.wav` cuts sourced from the Kenney
+    // Interface Sounds CC0 mirror, which distributes WAV — Phaser's
+    // `load.audio` decodes all three natively, so we accept any of them
+    // rather than forcing a transcode step the asset pipeline doesn't run.
     for (const entry of [...ASSET_MANIFEST.audio, ...ASSET_MANIFEST.music]) {
       for (const url of entry.urls) {
-        expect(url.endsWith('.ogg') || url.endsWith('.mp3')).toBe(true);
+        expect(
+          url.endsWith('.ogg') || url.endsWith('.mp3') || url.endsWith('.wav'),
+        ).toBe(true);
       }
     }
   });
@@ -216,6 +224,18 @@ describe('Spritesheet frame metadata', () => {
       [ASSET_KEYS.charBearRun, 4],
       [ASSET_KEYS.charBearJump, 3],
       [ASSET_KEYS.charBearAttack, 4],
+      [ASSET_KEYS.charBlazeIdle, 4],
+      [ASSET_KEYS.charBlazeRun, 6],
+      [ASSET_KEYS.charBlazeJump, 4],
+      [ASSET_KEYS.charBlazeAttack, 6],
+      [ASSET_KEYS.charPuffIdle, 12],
+      [ASSET_KEYS.charPuffRun, 10],
+      [ASSET_KEYS.charPuffJump, 4],
+      [ASSET_KEYS.charPuffAttack, 8],
+      [ASSET_KEYS.charAegisIdle, 12],
+      [ASSET_KEYS.charAegisRun, 10],
+      [ASSET_KEYS.charAegisJump, 2],
+      [ASSET_KEYS.charAegisAttack, 8],
     ];
     for (const [key, expectedCount] of cases) {
       const entry = findAssetEntry(key);

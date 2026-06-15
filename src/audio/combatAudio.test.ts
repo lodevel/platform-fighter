@@ -1,6 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import {
   emitCombatSfx,
+  HEAVY_HIT_DAMAGE_THRESHOLD,
+  mapHitConnectToSfxKey,
+  mapJumpToSfxKey,
   mapMoveTypeToSfxKey,
   type CombatSfxSink,
 } from './combatAudio';
@@ -122,5 +125,59 @@ describe('emitCombatSfx — Sub-AC 2 of AC 10302', () => {
       ASSET_KEYS.sfxShield,
       ASSET_KEYS.sfxKo,
     ]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// mapHitConnectToSfxKey — AC 10304 connect-on-hit cue selection
+// ---------------------------------------------------------------------------
+
+describe('mapHitConnectToSfxKey — AC 10304', () => {
+  it('voices the LIGHT cue for low-damage hits below the threshold', () => {
+    expect(mapHitConnectToSfxKey({ damage: HEAVY_HIT_DAMAGE_THRESHOLD - 1 })).toBe(
+      ASSET_KEYS.sfxHitLight,
+    );
+    expect(mapHitConnectToSfxKey({ damage: 0 })).toBe(ASSET_KEYS.sfxHitLight);
+  });
+
+  it('voices the HEAVY cue at and above the threshold', () => {
+    expect(mapHitConnectToSfxKey({ damage: HEAVY_HIT_DAMAGE_THRESHOLD })).toBe(
+      ASSET_KEYS.sfxHitHeavy,
+    );
+    expect(mapHitConnectToSfxKey({ damage: 25 })).toBe(ASSET_KEYS.sfxHitHeavy);
+  });
+
+  it('voices the CLANG cue for a held-weapon hit regardless of damage', () => {
+    // Weapon overrides the damage scaling — a light weapon poke clangs.
+    expect(mapHitConnectToSfxKey({ damage: 1, heldWeapon: true })).toBe(
+      ASSET_KEYS.sfxClang,
+    );
+    expect(mapHitConnectToSfxKey({ damage: 30, heldWeapon: true })).toBe(
+      ASSET_KEYS.sfxClang,
+    );
+  });
+
+  it('treats a non-finite / negative damage defensively as a light hit', () => {
+    expect(mapHitConnectToSfxKey({ damage: Number.NaN })).toBe(ASSET_KEYS.sfxHitLight);
+    expect(mapHitConnectToSfxKey({ damage: -5 })).toBe(ASSET_KEYS.sfxHitLight);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// mapJumpToSfxKey — AC 10304 jump cue selection
+// ---------------------------------------------------------------------------
+
+describe('mapJumpToSfxKey — AC 10304', () => {
+  it('voices the full jump cue for the first (grounded) jump', () => {
+    expect(mapJumpToSfxKey(1)).toBe(ASSET_KEYS.sfxJump);
+  });
+
+  it('voices the lighter air-jump cue for every multi-jump after the first', () => {
+    expect(mapJumpToSfxKey(2)).toBe(ASSET_KEYS.sfxJumpAir);
+    expect(mapJumpToSfxKey(3)).toBe(ASSET_KEYS.sfxJumpAir);
+  });
+
+  it('falls back to the ground cue for a defensive jumpNumber <= 1', () => {
+    expect(mapJumpToSfxKey(0)).toBe(ASSET_KEYS.sfxJump);
   });
 });

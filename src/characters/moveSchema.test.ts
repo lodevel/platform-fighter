@@ -597,6 +597,77 @@ describe('knockbackToAngleMagnitude / angleMagnitudeToKnockback', () => {
     void TOL;
   });
 
+  it('carries baseMagnitude / damageGrowth through the polar transform verbatim', () => {
+    // Wolf's authored smash values — the optional components are
+    // direction-independent scalars, so the polar transform must not
+    // touch them.
+    const polar = knockbackToAngleMagnitude({
+      x: 4.0,
+      y: -1.5,
+      scaling: 0.4,
+      baseMagnitude: 1.2,
+      damageGrowth: 0.5,
+    });
+    expect(polar.baseMagnitude).toBe(1.2);
+    expect(polar.damageGrowth).toBe(0.5);
+  });
+
+  it('roundtrips Wolf smash (with optional components) Cartesian → polar → Cartesian', () => {
+    const original: KnockbackSpec = {
+      x: 4.0,
+      y: -1.5,
+      scaling: 0.4,
+      baseMagnitude: 1.2,
+      damageGrowth: 0.5,
+    };
+    const back = angleMagnitudeToKnockback(knockbackToAngleMagnitude(original));
+    expect(back.x).toBeCloseTo(original.x, 9);
+    expect(back.y).toBeCloseTo(original.y, 9);
+    expect(back.scaling).toBe(original.scaling);
+    // Verbatim — not approximate — pass-through of the scalars.
+    expect(back.baseMagnitude).toBe(1.2);
+    expect(back.damageGrowth).toBe(0.5);
+  });
+
+  it('roundtrips polar → Cartesian → polar with optional components verbatim', () => {
+    const original: KnockbackAngleMagnitude = {
+      angleDegrees: 20.556,
+      magnitude: 4.272,
+      scaling: 0.4,
+      baseMagnitude: 1.2,
+      damageGrowth: 0.5,
+    };
+    const back = knockbackToAngleMagnitude(angleMagnitudeToKnockback(original));
+    expect(back.angleDegrees).toBeCloseTo(original.angleDegrees, 9);
+    expect(back.magnitude).toBeCloseTo(original.magnitude, 9);
+    expect(back.baseMagnitude).toBe(1.2);
+    expect(back.damageGrowth).toBe(0.5);
+  });
+
+  it('legacy 3-field specs round-trip without gaining the optional keys', () => {
+    const original: KnockbackSpec = { x: 4.0, y: -1.5, scaling: 0.4 };
+    const polar = knockbackToAngleMagnitude(original);
+    expect('baseMagnitude' in polar).toBe(false);
+    expect('damageGrowth' in polar).toBe(false);
+    const back = angleMagnitudeToKnockback(polar);
+    expect('baseMagnitude' in back).toBe(false);
+    expect('damageGrowth' in back).toBe(false);
+  });
+
+  it('preserves presence of one optional component independently of the other', () => {
+    const polar = knockbackToAngleMagnitude({
+      x: 4.0,
+      y: -1.5,
+      scaling: 0.4,
+      baseMagnitude: 1.2,
+    });
+    expect(polar.baseMagnitude).toBe(1.2);
+    expect('damageGrowth' in polar).toBe(false);
+    const back = angleMagnitudeToKnockback(polar);
+    expect(back.baseMagnitude).toBe(1.2);
+    expect('damageGrowth' in back).toBe(false);
+  });
+
   it('is deterministic — repeated calls produce identical records', () => {
     const cart: KnockbackSpec = { x: 1.337, y: -2.5, scaling: 0.08 };
     const a = knockbackToAngleMagnitude(cart);

@@ -260,6 +260,155 @@ export const BEAR_PALETTES: ReadonlyArray<CharacterPalette> = Object.freeze([
   palette(7, 'Bloodied', 0xa03030, 0xffb0a0),
 ]);
 
+/**
+ * Blaze palette ladder — ember orange is canonical (palette 0, mirrors
+ * {@link BLAZE_PLACEHOLDER}); the variants run the canonical
+ * tournament-hue ladder so a four-Blaze lineup reads cleanly. Blaze
+ * renders through the procedural placeholder pipeline (no sprite
+ * atlas), so these colours ARE the fighter's whole on-screen identity.
+ */
+export const BLAZE_PALETTES: ReadonlyArray<CharacterPalette> = Object.freeze([
+  // 0 — canonical ember orange (matches BLAZE_PLACEHOLDER)
+  palette(0, 'Ember', 0xd9622b, 0xffe8c0),
+  // 1 — cool blue counterpart, the classic "P2" colour
+  palette(1, 'Cobalt', 0x2b62d9, 0xc0d8ff),
+  // 2 — racing green
+  palette(2, 'Circuit', 0x2bd962, 0xc0ffd8),
+  // 3 — gold trim
+  palette(3, 'Champion', 0xd9b22b, 0xfff4c0),
+  // 4 — crimson
+  palette(4, 'Scarlet', 0xd92b3b, 0xffc0c8),
+  // 5 — violet
+  palette(5, 'Nebula', 0x8b2bd9, 0xe4c0ff),
+  // 6 — teal
+  palette(6, 'Turbine', 0x2bc4d9, 0xc0f4ff),
+  // 7 — blacked-out chassis with silver accent
+  palette(7, 'Midnight', 0x303038, 0xb0b0c0),
+]);
+
+/**
+ * Puff palette ladder — bubblegum pink is canonical (palette 0,
+ * mirrors {@link PUFF_PLACEHOLDER}); the variants stay in soft pastel
+ * territory because her round 56×56 silhouette reads best in light
+ * hues. Index 7 ("Eclipse") is the high-contrast outlier.
+ */
+export const PUFF_PALETTES: ReadonlyArray<CharacterPalette> = Object.freeze([
+  // 0 — canonical bubblegum pink (matches PUFF_PLACEHOLDER)
+  palette(0, 'Bubblegum', 0xe88bb8, 0xfff0f8),
+  // 1 — sky pastel
+  palette(1, 'Daydream', 0x8bb8e8, 0xf0f8ff),
+  // 2 — mint pastel
+  palette(2, 'Spearmint', 0x8be8b8, 0xf0fff8),
+  // 3 — butter yellow
+  palette(3, 'Custard', 0xe8d88b, 0xfffce8),
+  // 4 — lilac
+  palette(4, 'Lilac', 0xb88be8, 0xf4ecff),
+  // 5 — peach
+  palette(5, 'Peach', 0xe8a88b, 0xfff0e8),
+  // 6 — seafoam
+  palette(6, 'Seafoam', 0x8be8e0, 0xecfffc),
+  // 7 — deep plum with pink accent: the "asleep" colourway
+  palette(7, 'Eclipse', 0x4a3050, 0xe0b0d0),
+]);
+
+/**
+ * Aegis palette ladder — royal cobalt is canonical (palette 0, mirrors
+ * {@link AEGIS_PLACEHOLDER}); the variants lean into heraldic
+ * "knight's livery" colours so each swap reads as a different banner.
+ */
+export const AEGIS_PALETTES: ReadonlyArray<CharacterPalette> = Object.freeze([
+  // 0 — canonical royal cobalt (matches AEGIS_PLACEHOLDER)
+  palette(0, 'Royal', 0x4a55c2, 0xc8d0ff),
+  // 1 — crimson banner
+  palette(1, 'Vermilion', 0xc24a55, 0xffc8d0),
+  // 2 — verdant banner
+  palette(2, 'Verdant', 0x4ac255, 0xc8ffd0),
+  // 3 — white-and-gold paladin
+  palette(3, 'Paladin', 0xe8e8f0, 0xd9b23a),
+  // 4 — regal violet
+  palette(4, 'Amethyst', 0x8b4ac2, 0xe0c8ff),
+  // 5 — burnished bronze
+  palette(5, 'Bronze', 0xc2854a, 0xffe0c0),
+  // 6 — glacial steel
+  palette(6, 'Glacier', 0x4ab2c2, 0xc8f4ff),
+  // 7 — blackened armour with silver accent
+  palette(7, 'Oathbound', 0x383840, 0xb8b8c8),
+]);
+
+/**
+ * Volt palette ladder — electric yellow is canonical (palette 0, mirrors
+ * {@link VOLT_PLACEHOLDER}); the variants run the tournament-hue ladder
+ * so a four-Volt lineup reads cleanly on his tiny silhouette.
+ */
+export const VOLT_PALETTES: ReadonlyArray<CharacterPalette> = Object.freeze([
+  // 0 — canonical electric yellow (matches VOLT_PLACEHOLDER)
+  palette(0, 'Voltage', 0xf2c20c, 0x3a3320, 0xfff0a0),
+  // 1 — cool blue counterpart, the classic "P2" colour
+  palette(1, 'Static', 0x2b8ed9, 0xc0e4ff),
+  // 2 — racing green
+  palette(2, 'Circuit', 0x2bd96a, 0xc0ffd0),
+  // 3 — hot pink
+  palette(3, 'Spark', 0xe84a9a, 0xffc0e0),
+  // 4 — crimson
+  palette(4, 'Scarlet', 0xd92b3b, 0xffc0c8),
+  // 5 — violet
+  palette(5, 'Plasma', 0x8b4ad9, 0xe0c0ff),
+  // 6 — teal
+  palette(6, 'Ozone', 0x2bc4c0, 0xc0fffa),
+  // 7 — charcoal with amber accent (the "shadow bolt")
+  palette(7, 'Blackout', 0x303028, 0xf2c20c),
+]);
+
+/**
+ * Nova palette ladder — burnt orange is canonical (palette 0, mirrors
+ * {@link NOVA_PLACEHOLDER}); the variants run the canonical power-suit
+ * colourways (orange / fusion-blue / gravity-purple / dark-suit) so a
+ * four-Nova lineup reads cleanly.
+ */
+export const NOVA_PALETTES: ReadonlyArray<CharacterPalette> = Object.freeze([
+  // 0 — canonical burnt orange (matches NOVA_PLACEHOLDER)
+  palette(0, 'Power Suit', 0xd96b2b, 0x3ad0c8, 0xc8fff4),
+  // 1 — fusion blue
+  palette(1, 'Fusion', 0x2b7ad9, 0xc0e0ff),
+  // 2 — varia green
+  palette(2, 'Varia', 0x4ab23a, 0xc8ffb8),
+  // 3 — gravity purple
+  palette(3, 'Gravity', 0x7a3ad9, 0xd8c0ff),
+  // 4 — crimson
+  palette(4, 'Phazon', 0xc23a3a, 0xffc8c8),
+  // 5 — gold trim
+  palette(5, 'Gold', 0xd9a82b, 0xfff0b0),
+  // 6 — glacial cyan
+  palette(6, 'Glacier', 0x3ab2c2, 0xc8f4ff),
+  // 7 — dark suit with red accent
+  palette(7, 'Dark Suit', 0x303038, 0xd96b2b),
+]);
+
+/**
+ * Bruno palette ladder — fire red is canonical (palette 0, mirrors
+ * {@link BRUNO_PLACEHOLDER}); the variants run the "overalls hero"
+ * colourways (red / green-brother / blue / fire-flower white) so the
+ * char-select grid reads as the canonical four-player set.
+ */
+export const BRUNO_PALETTES: ReadonlyArray<CharacterPalette> = Object.freeze([
+  // 0 — canonical fire red (matches BRUNO_PLACEHOLDER)
+  palette(0, 'Classic', 0xd6342b, 0xfff0f0),
+  // 1 — green brother
+  palette(1, 'Sibling', 0x2ba84a, 0xd0ffd8),
+  // 2 — cool blue
+  palette(2, 'Cobalt', 0x2b62d9, 0xc0d8ff),
+  // 3 — fire flower white-and-red
+  palette(3, 'Fire Flower', 0xeaeaea, 0xd6342b),
+  // 4 — wario yellow-and-purple
+  palette(4, 'Sunny', 0xe8c22b, 0x7a3a8a),
+  // 5 — autumn orange
+  palette(5, 'Pumpkin', 0xd97a2b, 0xffd8b0),
+  // 6 — teal plumber
+  palette(6, 'Aqua', 0x2bc4b8, 0xc0fff4),
+  // 7 — shadow black with red accent
+  palette(7, 'Shadow', 0x2a2a30, 0xd6342b),
+]);
+
 // ---------------------------------------------------------------------------
 // Registry
 // ---------------------------------------------------------------------------
@@ -280,6 +429,12 @@ export const CHARACTER_PALETTES: Readonly<
   cat: CAT_PALETTES,
   owl: OWL_PALETTES,
   bear: BEAR_PALETTES,
+  blaze: BLAZE_PALETTES,
+  puff: PUFF_PALETTES,
+  aegis: AEGIS_PALETTES,
+  volt: VOLT_PALETTES,
+  nova: NOVA_PALETTES,
+  bruno: BRUNO_PALETTES,
 });
 
 // ---------------------------------------------------------------------------

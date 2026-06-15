@@ -256,23 +256,23 @@ describe('MainMenuScene — ENTER routes past Lobby into the select chain', () =
 });
 
 describe('ModeSelectScene + StageSelectScene — forward the lobby payload', () => {
-  it('ModeSelectScene starts StageSelectScene with a lobby field', () => {
+  it('ModeSelectScene starts CharacterSelectScene with a lobby field', () => {
     const src = readFileSync(
       resolve(__dirname, './ModeSelectScene.ts'),
       'utf8',
     );
     expect(src).toMatch(
-      /scene\.start\(\s*['"]StageSelectScene['"]\s*,\s*\{[\s\S]*?lobby/,
+      /scene\.start\(\s*['"]CharacterSelectScene['"]\s*,\s*\{[\s\S]*?lobby/,
     );
   });
 
-  it('StageSelectScene starts CharacterSelectScene with a lobby field', () => {
+  it('CharacterSelectScene starts StageSelectScene with a lobby field', () => {
     const src = readFileSync(
-      resolve(__dirname, './StageSelectScene.ts'),
+      resolve(__dirname, './CharacterSelectScene.ts'),
       'utf8',
     );
     expect(src).toMatch(
-      /scene\.start\(\s*['"]CharacterSelectScene['"]\s*,\s*\{[\s\S]*?lobby/,
+      /scene\.start\(\s*['"]StageSelectScene['"]\s*,\s*\{[\s\S]*?lobby/,
     );
   });
 
@@ -431,12 +431,14 @@ describe('AC 10404 Sub-AC 4 — lobby → match wiring contract', () => {
   // a synthesised matchConfig.
   // -----------------------------------------------------------------
 
-  it('CharacterSelectScene starts MatchScene with the matchConfig payload', () => {
-    // The terminal hop. CharacterSelectScene synthesises the final
-    // `MatchConfig` and forwards it via scene-data so MatchScene's
-    // `create(data)` reads `data.matchConfig.players` directly.
+  it('StageSelectScene starts MatchScene with the matchConfig payload', () => {
+    // The terminal hop. The stage select is the final pre-match screen
+    // in the Smash-style flow (fighters first, arena last): it merges
+    // the lineup from CharacterSelectScene with the picked stage id
+    // and forwards the completed `MatchConfig` via scene-data so
+    // MatchScene's `create(data)` reads `data.matchConfig.players`.
     const src = readFileSync(
-      resolve(__dirname, './CharacterSelectScene.ts'),
+      resolve(__dirname, './StageSelectScene.ts'),
       'utf8',
     );
     expect(src).toMatch(

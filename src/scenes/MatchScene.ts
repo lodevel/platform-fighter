@@ -15,7 +15,10 @@ import {
   customStageSlotIdFromRuntimeId,
   isCustomStageId,
   PLATFORM_LABELS,
+  BACKGROUND_AMBIENT_DEPTH,
+  renderStageBackground,
   type RenderedStage,
+  type RenderedStageBackground,
 } from '../stages';
 import {
   loadCustomStage,
@@ -25,11 +28,17 @@ import { CameraController, type CameraTarget } from '../camera';
 import {
   type Character,
   type CharacterInput,
+  computeHeldItemPosition,
   createCharacterById,
   createSpriteAnimationStateMachine,
   getCharacterSpec,
   applySpriteDisplayHeight,
   getCharacterSpriteDisplaySize,
+  getCharacterSpriteArtOffsetX,
+  getCharacterSpriteArtOffsetY,
+  shouldFlipSprite,
+  ledgeCandidatesFromPlatform,
+  type LedgeCandidate,
   paletteSwapForCharacter,
   registerAllCharacterSpriteAnimations,
   resolveSlotCharacterId,
@@ -39,6 +48,20 @@ import {
   type SpriteAnimationSnapshot,
   type SpriteAnimationStateMachine,
 } from '../characters';
+// Truthful hitbox-centre math — shared with `spawnHitbox` so the hit
+// spark / debug overlay land exactly where the real Matter sensor does.
+import { computeHitboxCenter } from '../characters/attacks';
+import {
+  computeRageMultiplier,
+  computeStaleMultiplier,
+  type HitInfo,
+} from '../characters/combat';
+import {
+  type ChargeSpec,
+  computeChargeTFromSpec,
+  computeChargedDamageFromSpec,
+  computeChargedKnockbackFromSpec,
+} from '../characters/chargeSchema';
 // M2 — simple stub AI for AI-tier slots. Full Easy/Medium/Hard tier
 // integration (WorldSnapshot perception, behavior trees) is the next
 // step; this stub gets AI slots moving + attacking immediately.
@@ -95,7 +118,22 @@ import {
   ReconnectPromptOverlay,
   ShieldBubble,
   createShieldBubble,
+  ChargeIndicator,
+  createChargeIndicator,
 } from '../ui';
+// World-space combat FX (thin Phaser layers over pure formatters):
+//   • HitSparkPool   — on-contact impact burst spawned in the damage path.
+//   • SwingTrail     — per-fighter weapon / smash sweep streak.
+//   • HitboxDebugLayer — F3 toggleable hitbox / hurtbox / grab diagnostic.
+import {
+  HitSparkPool,
+  createHitSparkPool,
+  SwingTrail,
+  createSwingTrail,
+  HitboxDebugLayer,
+  createHitboxDebugLayer,
+  type HitboxDebugFighterSnapshot,
+} from '../fx';
 import {
   ItemSpawnManager,
   resolveItemFrequency,
@@ -105,17 +143,24 @@ import {
   PickupController,
   ThrowController,
   BAT_DEFINITION,
+  SWORD_DEFINITION,
+  HAMMER_DEFINITION,
+  SPEAR_DEFINITION,
   RAY_GUN_DEFINITION,
   BOMB_DEFINITION,
   type ItemDefinition,
 } from '../items';
 import { ItemSpawnEventLog } from '../replay/ItemSpawnEventLog';
 import {
+  AudioManager,
   DEFAULT_STAGE_MUSIC_KEY,
+  emitCombatSfx,
+  mapHitConnectToSfxKey,
   StageMusicController,
   type SoundManagerLike,
 } from '../audio';
 import { BOOT_REGISTRY_KEYS } from './bootKeys';
+import type { PauseAction } from './pauseMenu';
 
 /**
  * Optional scene-data payload accepted by `MatchScene.create()`.
@@ -260,6 +305,34 @@ export class MatchScene extends Phaser.Scene {
    * `create()` / `update()` / SHUTDOWN scaffolding.
    */
   private baseStage!: BaseStage;
+
+  /**
+   * Themed parallax background handle (gradient + silhouette layers
+   * behind the platforms). Created right before the BaseStage in
+   * `create()`, ticked on the fixed step (ambient pulse), parallax-
+   * updated after the camera each render frame, destroyed on SHUTDOWN.
+   */
+  private stageBackground: RenderedStageBackground | null = null;
+
+  /**
+   * Pause-menu freeze flag. While `true`, {@link update} skips the
+   * deterministic fixed-step advance entirely — the match becomes a
+   * frozen still-life under the `PauseMenuScene` overlay — and resumes
+   * byte-identically when the overlay dispatches `'resume'` (the
+   * accumulator inside `PhysicsEngine` is never advanced while paused,
+   * so no wall-clock drift leaks into the sim). The overlay itself owns
+   * NO simulation state; it only calls back into
+   * {@link handlePauseAction}.
+   */
+  private pausedForMenu = false;
+
+  /**
+   * Rising-edge latch for the gamepad START button (standard-mapping
+   * index 9), which opens the pause menu the same way the keyboard ESC
+   * does. Polled in {@link update} because Phaser's pad buttons are
+   * level-triggered.
+   */
+  private prevStartHeld = false;
   /**
    * The `StageLayout` actually rendered for the active match. Resolved
    * from `MatchConfig.stageId` (via the `STAGES` registry) when a
@@ -269,6 +342,13 @@ export class MatchScene extends Phaser.Scene {
    * spawn points reads the same source of truth.
    */
   private activeStage!: StageLayout;
+  /**
+   * Grabbable ledge corners derived once from the active stage's solid
+   * platforms (see the ledge-system wiring in `create`). Fed to every
+   * fighter via `setLedgeCandidates`; also the source for the per-frame
+   * ledge-occupancy conflict pass (trump / edge-hog).
+   */
+  private ledgeCandidatesByStage: ReadonlyArray<LedgeCandidate> = [];
   /*
    * The four hazard-related fields previously held here
    * (`lavaHazards`, `lavaCollisionWatcher`, `windHazards`,
@@ -449,6 +529,67 @@ export class MatchScene extends Phaser.Scene {
    * test coverage; this scene only owns the lifecycle wiring.
    */
   private shieldBubbles = new Map<number, ShieldBubble>();
+
+  // ---- Per-fighter charge / wind-up indicator overlay ----------------------
+  /**
+   * One {@link ChargeIndicator} per fighter slot, keyed by `playerIndex`.
+   * Constructed at scene-create alongside the shield bubble; updated each
+   * render frame from `Character.getChargeProgress()`.
+   *
+   * The indicator is the on-screen feedback for charge-type wind-ups
+   * (Falcon-Punch-style specials, smash finishers, the heavy hammer
+   * swing): a pulsing cool → hot aura ring plus a head-mounted charge bar
+   * that intensify as the swing winds up. Hidden whenever the fighter is
+   * not winding a move up (`getChargeProgress()` returns `null`).
+   *
+   * The visual derivations live in `ui/chargeIndicatorFormat.ts` for
+   * unit-test coverage; this scene only owns the lifecycle wiring.
+   */
+  private chargeIndicators = new Map<number, ChargeIndicator>();
+
+  // ---- Hit-feedback FX: on-contact impact spark ----------------------------
+  /**
+   * Pool of short-lived "hit spark" bursts (core flash + radial shards)
+   * spawned at the contact point when an attack lands — the visible cue
+   * that "we are hitting them". Spawned from the hitbox-damage callback
+   * (the exact frame `Character.applyHit` fires) and advanced each
+   * render frame off the simulated frame counter; pooled so a frantic
+   * multi-hit exchange never leaks Phaser GameObjects.
+   *
+   * The visual derivations live in `fx/hitSparkFormat.ts` for unit
+   * coverage; this scene owns the spawn-on-hit + per-frame-advance
+   * lifecycle wiring. World-camera partitioned (default scrollFactor).
+   */
+  private hitSparkPool!: HitSparkPool;
+
+  // ---- Hit-feedback FX: per-fighter melee swing trail ----------------------
+  /**
+   * One {@link SwingTrail} per fighter — a translucent streak drawn
+   * along a held weapon's (sword / bat / hammer / spear) or smash
+   * finisher's active-frame hitbox sweep. Fixes "the sword lands with no
+   * visible arc". Tied to the real hitbox geometry so the streak never
+   * overstates reach. The classification + fade live in
+   * `fx/swingTrailFormat.ts`; this scene owns the per-slot lifecycle.
+   */
+  private swingTrails = new Map<number, SwingTrail>();
+
+  // ---- F3 hitbox debug overlay ---------------------------------------------
+  /**
+   * Toggleable (F3) diagnostic layer drawing the real collision
+   * geometry: active attack hitboxes (red), hurtboxes (green), and grab
+   * ranges (yellow). Pure visualisation — no sim effect. Redrawn each
+   * frame while enabled, cleared when disabled. The box derivation lives
+   * in `fx/hitboxDebugFormat.ts`; this scene owns the F3 keybinding (the
+   * F9 platform-diag pattern) and the per-frame snapshot feed.
+   */
+  private hitboxDebugLayer!: HitboxDebugLayer;
+
+  /**
+   * HUD hint text for the F3 toggle ("F3: hitboxes"). Lives on the HUD
+   * camera (scrollFactor 0). Updated to reflect on/off state when F3 is
+   * pressed; torn down on SHUTDOWN.
+   */
+  private hitboxDebugHintText: Phaser.GameObjects.Text | null = null;
 
   // ---- Sub-AC 2 of AC 60202: position-based KO detector --------------------
   /**
@@ -775,6 +916,32 @@ export class MatchScene extends Phaser.Scene {
    */
   private stageMusicController: StageMusicController | null = null;
 
+  /**
+   * AC 10304 — scene-owned {@link AudioManager} for combat / movement
+   * SFX. Distinct from the music AudioManager the
+   * {@link StageMusicController} owns (that one drives the looping
+   * soundtrack on the `music` bus): this one drives every one-shot
+   * gameplay cue on the `sfx` bus and is the {@link CombatSfxSink} wired
+   * into each fighter via `setSfxSink`. Mints from `this.sound` in
+   * `create()`, torn down on SHUTDOWN. `null` until the audio cache is
+   * confirmed present, so a preload-bypassed test scene never throws.
+   *
+   * Determinism: SFX playback is a presentation side-effect only —
+   * fighters emit cue *requests* from the deterministic tick, but the
+   * wall-clock cooldown / voice-limit / mute decisions this manager
+   * makes never feed back into simulation state or the replay.
+   */
+  private sfxAudioManager: AudioManager | null = null;
+
+  /**
+   * AC 10304 — per-player charge-loop bookkeeping. Tracks whether the
+   * looping charge hum is currently playing for a fighter so the render
+   * loop can start it on the rising edge of a wind-up and stop it the
+   * frame the charge ends — a looping SFX, unlike a one-shot, needs an
+   * explicit stop. Keyed by `playerIndex`.
+   */
+  private readonly chargeLoopActive = new Map<number, boolean>();
+
   /** HUD toggle in the upper-right corner that mutes / unmutes stage music. */
   private musicToggleButton: Phaser.GameObjects.Text | null = null;
 
@@ -964,6 +1131,58 @@ export class MatchScene extends Phaser.Scene {
     framesRemaining: number;
   }> = [];
 
+  /**
+   * One-shot procedural BURST flashes — an expanding, fading ring. Used
+   * for the down-special dive LANDING shockwave (so a whiffed dive that
+   * fires no collisionstart still flashes) and the charge-beam MUZZLE
+   * flash. Render-only: each entry's radius/alpha are pure functions of
+   * its age (no RNG), so replays paint identically. Positions are baked at
+   * spawn (raw world coords for fighter-anchored bursts, stage-transformed
+   * for the design-space cannon origin).
+   */
+  private oneShotBursts: Array<{
+    arc: Phaser.GameObjects.Arc;
+    framesRemaining: number;
+    lifetime: number;
+    baseRadius: number;
+    growth: number;
+  }> = [];
+
+  /**
+   * Spawn a one-shot expanding burst flash at an ALREADY-SCREEN-SPACE
+   * point. Render-only; the {@link oneShotBursts} tick grows the radius
+   * and fades the alpha to zero over `lifetime` frames. Callers bake the
+   * coordinate space (raw world for fighter-anchored, stage-transformed
+   * for design-space) before calling.
+   */
+  private spawnBurst(
+    screenX: number,
+    screenY: number,
+    color: number,
+    baseRadius: number,
+    lifetime: number,
+    growth: number,
+    depth: number,
+  ): void {
+    const arc = this.add.circle(screenX, screenY, baseRadius, color, 0.8).setDepth(depth);
+    this.oneShotBursts.push({ arc, framesRemaining: lifetime, lifetime, baseRadius, growth });
+  }
+
+  /** Advance + expire every one-shot burst flash. Render-only. */
+  private tickOneShotBursts(): void {
+    if (this.oneShotBursts.length === 0) return;
+    const survivors: typeof this.oneShotBursts = [];
+    for (const b of this.oneShotBursts) {
+      b.framesRemaining -= 1;
+      const age = b.lifetime - b.framesRemaining;
+      b.arc.setRadius(Math.max(0.5, b.baseRadius + age * b.growth));
+      b.arc.setAlpha(Math.max(0, b.framesRemaining / b.lifetime) * 0.8);
+      if (b.framesRemaining <= 0) b.arc.destroy();
+      else survivors.push(b);
+    }
+    this.oneShotBursts = survivors;
+  }
+
   /** Read-only access to the inventory map (test / replay scrubber). */
   getInventory(playerIndex: number): Inventory | null {
     return this.inventoriesByPlayerIndex.get(playerIndex) ?? null;
@@ -1007,7 +1226,14 @@ export class MatchScene extends Phaser.Scene {
    * counter is private state that the snapshot writer captures.
    */
   private nextItemType(): ItemDefinition {
-    const roster = [BAT_DEFINITION, RAY_GUN_DEFINITION, BOMB_DEFINITION] as const;
+    const roster = [
+      BAT_DEFINITION,
+      SWORD_DEFINITION,
+      HAMMER_DEFINITION,
+      SPEAR_DEFINITION,
+      RAY_GUN_DEFINITION,
+      BOMB_DEFINITION,
+    ] as const;
     const def = roster[this.itemSpawnTypeIndex % roster.length]!;
     this.itemSpawnTypeIndex += 1;
     return def;
@@ -1445,11 +1671,31 @@ export class MatchScene extends Phaser.Scene {
       if (event.eliminated) {
         this.matchStatsTracker.recordElimination(playerIndex, frame);
       }
+      // AC 10304 — voice the trademark Smash "blast" KO cue on every
+      // REAL stock loss. Gated on the same `stocksRemaining < before`
+      // branch the stats ledger uses, so a duplicate blast-zone
+      // collision on a body lingering past the boundary (a no-op
+      // `loseStock`) can't double-fire the boom. Routed through the
+      // scene's SFX AudioManager; `emitCombatSfx` swallows any backend
+      // error. This call sits in the deterministic stock-loss path but
+      // the audio it requests is a pure side-effect that never alters
+      // the StockTracker / replay state.
+      emitCombatSfx(this.sfxAudioManager ?? undefined, ASSET_KEYS.sfxKo);
     }
     return event;
   }
 
   create(data?: MatchSceneData): void {
+    // Phaser REUSES the scene instance across `scene.start('MatchScene')`
+    // calls, so instance fields survive a scene swap. The pause flags must
+    // be reset on every (re-)entry: without this, opening the pause menu
+    // (`pausedForMenu = true`) and then leaving the match — to the character
+    // picker or a rematch — re-enters this same instance still flagged
+    // paused, so the new match boots FROZEN (the `if (pausedForMenu) return`
+    // guard in update() never advances the loop) and the player can't move.
+    this.pausedForMenu = false;
+    this.prevStartHeld = false;
+
     // ---- AC 30001 Sub-AC 1: capture the match seed FIRST -----------------
     // Done before *any* other subsystem is constructed so a future
     // hazard or AI controller built deeper in this method can call
@@ -1550,6 +1796,13 @@ export class MatchScene extends Phaser.Scene {
     // BaseStage itself decides whether to wire them based on the
     // layout's `hazards` array, so a flat-stage match still pays
     // zero hazard cost.
+    // ---- Themed parallax background -------------------------------------
+    // Painted BEFORE the stage geometry so the gradient + silhouette
+    // layers (depth −60…−30, scrollFactor 0) sit behind every platform.
+    // The handle's tick()/updateParallax() hooks are driven from the
+    // fixed-step loop and the per-render-frame camera read below.
+    this.stageBackground = renderStageBackground(this, this.activeStage);
+
     this.baseStage = new BaseStage(this, this.activeStage, {
       renderOptions: { drawBlastZone: false },
       onLavaKo: (playerIndex) => {
@@ -2113,27 +2366,133 @@ export class MatchScene extends Phaser.Scene {
           }
           return;
         }
-        slot.character.applyHit(hitInfo);
+        // AC 10304 — capture whether the defender was shielding BEFORE
+        // the hit resolves. A shielded hit drains shield health (and may
+        // shatter it) — the Character voices its own shield / shield-
+        // break cue for that case, so we must NOT also fire the flesh-
+        // and-bone connect cue or the block would double up.
+        const targetWasShielding = slot.character.isShielding();
 
-        // ---- Sub-AC 1 + Sub-AC 3 of AC 16: feed stats ledger -----------
-        // Map the hitbox owner's character id back to its slot index so
-        // the stats tracker can credit the right attacker for the damage
-        // (and, on a subsequent stock-loss within the attribution
-        // window, the KO). Self-hits are filtered upstream by the
-        // damage handler; we still pass through `recordDamage`'s own
-        // self-hit guard for defence-in-depth. A non-roster ownerId
-        // (e.g. an environmental hazard hitbox in a future AC) will not
-        // resolve to any slot and is silently skipped — environmental
-        // damage is not credited to any player.
+        // ---- Tier 3: RAGE + STALE-MOVE negation ------------------------
+        // Resolve the attacker BEFORE applying the hit so we can fold two
+        // attacker-side modifiers into the hit:
+        //   • RAGE — the attacker's own percent scales their knockback up
+        //     (a battered fighter KOs earlier).
+        //   • STALE-MOVE negation — a move repeated recently deals less
+        //     damage AND knockback; varying offence keeps moves fresh.
+        // Both are deterministic functions of attacker state, so the
+        // replay re-derives identical hits.
         const attackerSlot = this.playerSlots?.find(
           (s) => s.character.id === context.attackerOwnerId,
         );
+        let effectiveHit: HitInfo = hitInfo;
         if (attackerSlot) {
+          const rage = computeRageMultiplier(
+            attackerSlot.character.getDamagePercent(),
+          );
+          const staleOccurrences = attackerSlot.character.registerLandedMove(
+            context.moveId,
+          );
+          const stale = computeStaleMultiplier(staleOccurrences);
+          const kbFactor = rage * stale; // knockback: rage up, stale down
+          if (kbFactor !== 1 || stale !== 1) {
+            const base = hitInfo.knockback.baseMagnitude ?? 0;
+            effectiveHit = {
+              ...hitInfo,
+              damage: hitInfo.damage * stale, // stale shaves damage only
+              knockback: {
+                ...hitInfo.knockback,
+                x: hitInfo.knockback.x * kbFactor,
+                y: hitInfo.knockback.y * kbFactor,
+                ...(base > 0 ? { baseMagnitude: base * kbFactor } : {}),
+              },
+            };
+          }
+        }
+
+        slot.character.applyHit(effectiveHit);
+        // Both fighters FREEZE on contact (the genre's fundamental hit-pause
+        // / "freeze frames"). The attacker arms the SAME freeze the defender
+        // just took — with no launch — so the swing visibly stops on impact
+        // instead of animating straight through. Previously only the
+        // defender froze.
+        const contactFreeze = slot.character.getHitlagRemaining();
+
+        // ---- Sub-AC 1 + Sub-AC 3 of AC 16: feed stats ledger -----------
+        // Credit the attacker for the (post-stale) damage actually dealt
+        // and arm the matching contact freeze. Self-hits are filtered
+        // upstream; a non-roster ownerId resolves to no slot and is
+        // silently skipped (environmental damage is uncredited).
+        if (attackerSlot) {
+          attackerSlot.character.armAttackerHitlag(contactFreeze);
           this.matchStatsTracker.recordDamage(
             attackerSlot.playerIndex,
             slot.playerIndex,
-            hitInfo.damage,
+            effectiveHit.damage,
             this.physicsEngine.getFrame(),
+          );
+        }
+
+        // ---- AC 10304: connect-on-hit SFX ------------------------------
+        // The CONNECT cue (distinct from the SWING cue the Character
+        // fires when its hitbox spawns): a damage-scaled pop / thud the
+        // frame a hit actually lands on a defender, with a metallic clang
+        // when the attacker is swinging a held melee weapon. Skipped when
+        // the defender was shielding (the block's shield / shatter cue
+        // already covers that contact). Routed through the same SFX
+        // AudioManager the fighters use; `emitCombatSfx` swallows any
+        // backend error so a bad cue can never break the hit pipeline.
+        // This is a render-side presentation effect reading resolved sim
+        // state — it never feeds back into the deterministic step.
+        if (!targetWasShielding && this.sfxAudioManager) {
+          const attackerHeld = attackerSlot
+            ? this.inventoriesByPlayerIndex
+                .get(attackerSlot.playerIndex)
+                ?.getHeldItem()
+            : null;
+          const heldWeapon =
+            attackerHeld?.definition.category === 'melee-weapon';
+          const connectKey = mapHitConnectToSfxKey({
+            damage: hitInfo.damage,
+            heldWeapon,
+          });
+          emitCombatSfx(this.sfxAudioManager, connectKey);
+        }
+
+        // ---- Hit-feedback FX: spawn a hit spark at the contact point ----
+        // The visible "we connected" cue. Spawned the exact frame the
+        // hit resolves (right after `applyHit`) so the burst is frame-
+        // accurate. Contact point: the midpoint between the attacker's
+        // live hitbox sensor centre and the target's body, biased toward
+        // the target so the burst reads as landing ON the defender. The
+        // shard-scatter seed is the simulated frame plus the attacker's
+        // slot index — a deterministic integer (NOT a `Math.random()`
+        // read) so a replayed match paints identical sparks. World-camera
+        // partitioned (the pool's GameObjects keep scrollFactor 1).
+        {
+          const sparkFrame = this.physicsEngine.getFrame();
+          const targetPos = slot.character.getPosition();
+          let contactX = targetPos.x;
+          let contactY = targetPos.y;
+          const attackerActive = attackerSlot?.character.getActiveAttack();
+          if (attackerActive) {
+            const center = computeHitboxCenter(
+              attackerSlot!.character.getPosition(),
+              attackerActive.move,
+              attackerActive.facing,
+            );
+            // Bias 60% toward the defender so the pop sits on the body
+            // that just took the hit, not floating in front of the swing.
+            contactX = center.x + (targetPos.x - center.x) * 0.6;
+            contactY = center.y + (targetPos.y - center.y) * 0.6;
+          }
+          const sparkSeed = sparkFrame + (attackerSlot?.playerIndex ?? 0);
+          this.hitSparkPool.spawn(
+            contactX,
+            contactY,
+            hitInfo.damage,
+            sparkSeed,
+            sparkFrame,
           );
         }
         // Note: per user feedback (memory:
@@ -2339,6 +2698,62 @@ export class MatchScene extends Phaser.Scene {
       });
     }
 
+    // ---- AC 10304: combat / movement SFX bus --------------------------------
+    // Mint the scene-owned SFX {@link AudioManager} (separate from the
+    // music AudioManager the StageMusicController owns) and wire it into
+    // every fighter as their {@link CombatSfxSink}. Each Character then
+    // voices its own jump / land / shield / dodge / attack-swing cues
+    // from inside the deterministic tick (the manager's wall-clock
+    // cooldowns gate playback without touching sim state); the connect-
+    // on-hit, KO, and charge-loop cues are voiced from the scene below
+    // (hitbox callback, stock-loss helper, charge render loop) on the
+    // same manager.
+    //
+    // Guarded on the audio cache like the music path: a preload-bypassed
+    // test scene (or a 404'd asset) leaves `sfxAudioManager` null and
+    // every emit short-circuits silently — the match never crashes on
+    // missing audio. The persisted `sfxMuted` flag mirrors the music
+    // mute so a player who silenced SFX in a previous match stays
+    // silenced.
+    if (this.cache.audio.exists(ASSET_KEYS.sfxJab)) {
+      // Honour either persisted mute flag: the dedicated `sfxMuted`
+      // preference, or the shared speaker toggle's `musicMuted` (the one
+      // HUD control mutes both buses, so a player who silenced the
+      // speaker last match expects SFX to start muted too).
+      const sfxMutedAtStart =
+        this.registry.get(BOOT_REGISTRY_KEYS.sfxMuted) === true ||
+        this.registry.get(BOOT_REGISTRY_KEYS.musicMuted) === true;
+      this.sfxAudioManager = new AudioManager({
+        soundManager: this.sound as unknown as SoundManagerLike,
+        muted: sfxMutedAtStart,
+      });
+      for (const slot of this.playerSlots) {
+        slot.character.setSfxSink(this.sfxAudioManager);
+      }
+    }
+
+    // ---- Ledge system wiring -------------------------------------------
+    // Feed every fighter the stage's grabbable ledge corners. The whole
+    // ledge-grab / hang / trump / recovery feature was BUILT and tested but
+    // had zero runtime callers — `ledgeCandidates` was always empty, so no
+    // fighter could ever grab a ledge. Solid platform tops only (pass-
+    // through platforms aren't grabbable). Candidates are static stage
+    // geometry, so we set them once here.
+    this.ledgeCandidatesByStage = this.activeStage.platforms
+      .filter((p) => !p.passThrough)
+      .flatMap((p, i) =>
+        ledgeCandidatesFromPlatform({
+          id: p.id ?? `plat${i}`,
+          centerX: p.x,
+          centerY: p.y,
+          width: p.width,
+          height: p.height,
+        }),
+      );
+    for (const slot of this.playerSlots) {
+      slot.character.setLedgeCandidates(this.ledgeCandidatesByStage);
+    }
+
     // ---- AC 60401 Sub-AC 1: per-fighter shield bubble overlays -----------
     // Construct one bubble per fighter slot. The body radius reads
     // half the larger body dimension so an oblong fighter (taller
@@ -2361,7 +2776,32 @@ export class MatchScene extends Phaser.Scene {
         maxHealth,
       });
       this.shieldBubbles.set(slot.playerIndex, bubble);
+
+      // Charge / wind-up indicator — same world-space overlay pattern as
+      // the shield bubble (default scrollFactor, so the camera partition
+      // leaves it on the world camera). Sized from the same body radius;
+      // the bar floats above the head using the full body height.
+      const chargeIndicator = createChargeIndicator(this, {
+        bodyRadius,
+        bodyHeight: tuning.height,
+      });
+      this.chargeIndicators.set(slot.playerIndex, chargeIndicator);
+
+      // Melee swing trail — same world-space overlay pattern as the
+      // shield bubble / charge indicator (default scrollFactor, so the
+      // camera partition leaves it on the world camera). One per fighter;
+      // hidden unless the fighter's active move earns a trail.
+      const swingTrail = createSwingTrail(this);
+      this.swingTrails.set(slot.playerIndex, swingTrail);
     }
+
+    // ---- Hit-feedback FX + F3 debug overlay: scene-wide singletons ------
+    // The hit-spark pool is shared by every fighter (sparks are spawned
+    // at arbitrary contact points, not pinned to a slot); the F3 hitbox
+    // debug layer batches every fighter's boxes into one Graphics redraw.
+    // Both are world-camera partitioned (default scrollFactor 1).
+    this.hitSparkPool = createHitSparkPool(this);
+    this.hitboxDebugLayer = createHitboxDebugLayer(this);
 
     // ---- Sub-AC 3 of AC 303: respawn coordinator ------------------------
     // Phaser-free deterministic handler. Owns the canonical
@@ -2825,10 +3265,16 @@ export class MatchScene extends Phaser.Scene {
       .setScrollFactor(0)
       .setVisible(false);
 
-    // ESC returns to the menu.
-    this.input.keyboard?.once('keydown-ESC', () => {
-      this.matter.world.autoUpdate = true;
-      this.scene.start('MainMenuScene');
+    // ESC opens the in-match PAUSE MENU (Resume / Restart / Character
+    // Select / Main Menu / Controls) instead of jumping straight to the
+    // main menu — the menu's "Main Menu" option preserves the old exit.
+    // `.on` (not `.once`) so it works every pause/resume cycle; guarded
+    // so it can't re-open while already paused or during the end-game
+    // freeze (the overlay owns ESC-to-resume once it is up).
+    this.input.keyboard?.on('keydown-ESC', () => {
+      if (this.pausedForMenu) return;
+      if (this.matchEndDetector?.isMatchOver()) return;
+      this.openPauseMenu();
     });
 
     // ---- AC 10303 Sub-AC 3: stage music on seamless loop ----------------
@@ -2910,6 +3356,15 @@ export class MatchScene extends Phaser.Scene {
     // bubbles, spawn-platform overlays, disconnect banner) inherit
     // the partition via the ADDED_TO_SCENE event handler.
     const isHud = (obj: Phaser.GameObjects.GameObject): boolean => {
+      // Stage-background layers are scrollFactor-0 too (they parallax
+      // via manual position offsets, not camera scroll) but they belong
+      // to the WORLD camera — they sit at depth ≤ BACKGROUND_AMBIENT_DEPTH
+      // (−30) and must render UNDER the fighters. Without this depth
+      // carve-out the partition rule classifies the full-screen
+      // gradient as HUD and the UI camera paints it OVER the entire
+      // world render — invisible fighters on every themed stage.
+      const depth = (obj as { depth?: number }).depth ?? 0;
+      if (depth <= BACKGROUND_AMBIENT_DEPTH) return false;
       const x = (obj as { scrollFactorX?: number }).scrollFactorX;
       const y = (obj as { scrollFactorY?: number }).scrollFactorY;
       return x === 0 && y === 0;
@@ -2945,6 +3400,53 @@ export class MatchScene extends Phaser.Scene {
     };
     this.events.on(Phaser.Scenes.Events.ADDED_TO_SCENE, onAdded);
     this.cameraPartitionListener = onAdded;
+
+    // F9 — dump the platform-driver diagnostic ring buffer (see
+    // `recordPlatDiag`) as a JSON download. Debug aid for the
+    // "platform landing feels history-dependent" reports: press it the
+    // moment a landing misbehaves and share the file.
+    this.input.keyboard?.on('keydown-F9', () => {
+      const data = JSON.stringify({
+        stage: this.activeStage?.backgroundTheme ?? 'unknown',
+        entries: this.platformDiagLog,
+      });
+      // eslint-disable-next-line no-console
+      console.log(`[plat-diag] dumping ${this.platformDiagLog.length} entries`);
+      const blob = new Blob([data], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'platform-diag.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // ---- F3 — toggle the hitbox debug overlay --------------------------
+    // Mirrors the F9 platform-diag keybinding pattern: a single keydown
+    // handler flips the {@link HitboxDebugLayer} on / off and updates the
+    // HUD hint label. The overlay is a pure visualisation (no sim
+    // effect); the world-space boxes are partitioned to the world camera
+    // by the layer's default scrollFactor, while the hint text below is a
+    // HUD element (scrollFactor 0). Detached implicitly on SHUTDOWN — the
+    // input plugin is torn down by Phaser's scene shutdown, and the
+    // overlay + hint GameObjects are destroyed in the SHUTDOWN handler.
+    const HITBOX_HINT_ON = 'F3: hitboxes ON';
+    const HITBOX_HINT_OFF = 'F3: hitboxes';
+    // Unobtrusive bottom-left, above the damage HUD strip. Dim grey so it
+    // reads as a dev affordance, not gameplay UI; brightens when active.
+    this.hitboxDebugHintText = this.add
+      .text(12, height - 92, HITBOX_HINT_OFF, {
+        fontFamily: 'monospace',
+        fontSize: '12px',
+        color: '#888888',
+      })
+      .setScrollFactor(0)
+      .setDepth(120);
+    this.input.keyboard?.on('keydown-F3', () => {
+      const enabled = this.hitboxDebugLayer.toggle();
+      this.hitboxDebugHintText?.setText(enabled ? HITBOX_HINT_ON : HITBOX_HINT_OFF);
+      this.hitboxDebugHintText?.setColor(enabled ? '#ff6060' : '#888888');
+    });
 
     // Reset deterministic state when the scene shuts down.
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
@@ -3011,6 +3513,30 @@ export class MatchScene extends Phaser.Scene {
         bubble.destroy();
       }
       this.shieldBubbles.clear();
+      // Tear down the per-fighter charge / wind-up indicator GameObjects
+      // the same way so a re-entered match doesn't leak orphaned aura
+      // arcs / bar rectangles. `ChargeIndicator.destroy()` is idempotent
+      // so a defensive double-call won't crash.
+      for (const indicator of this.chargeIndicators.values()) {
+        indicator.destroy();
+      }
+      this.chargeIndicators.clear();
+      // Hit-feedback FX + F3 debug overlay teardown — destroy every
+      // pooled / per-fighter GameObject so a re-entered match doesn't
+      // leak orphaned sparks / trail rects / the debug Graphics into the
+      // next scene's display list. Every `destroy()` is idempotent so a
+      // defensive double-shutdown won't crash.
+      for (const trail of this.swingTrails.values()) {
+        trail.destroy();
+      }
+      this.swingTrails.clear();
+      this.hitSparkPool?.destroy();
+      // One-shot burst flashes (dive landings + muzzle flashes).
+      for (const b of this.oneShotBursts) b.arc.destroy();
+      this.oneShotBursts = [];
+      this.hitboxDebugLayer?.destroy();
+      this.hitboxDebugHintText?.destroy();
+      this.hitboxDebugHintText = null;
       // M2 — clear extra fighter slot arrays so a rematch starts
       // empty. The Character / Sprite / Rectangle / Triangle
       // GameObjects are destroyed by Phaser's own scene-shutdown
@@ -3089,6 +3615,16 @@ export class MatchScene extends Phaser.Scene {
       // scene transition is safe.
       this.stageMusicController?.destroy();
       this.stageMusicController = null;
+      // AC 10304 — tear down the scene-owned SFX AudioManager. Its
+      // `destroy()` stops every active voice (including a lingering
+      // charge loop) and marks the manager dead so any late fighter
+      // emit short-circuits. Idempotent. The charge-loop bookkeeping is
+      // cleared too so a scene re-entry starts with no stale "looping"
+      // flag (the fresh manager would otherwise never re-trigger the
+      // start edge).
+      this.sfxAudioManager?.destroy();
+      this.sfxAudioManager = null;
+      this.chargeLoopActive.clear();
       // Tear down the music toggle button — its closure captures
       // `this.stageMusicController`, so leaving it alive across a
       // scene re-entry would dispatch onto a destroyed controller.
@@ -3132,6 +3668,10 @@ export class MatchScene extends Phaser.Scene {
       // mirrored field references so a defensive late access from a
       // pending callback can't dereference a destroyed handle.
       this.baseStage?.destroy();
+      // Themed background teardown — destroy() is idempotent; nulling
+      // the handle keeps a late tick()/updateParallax() harmless.
+      this.stageBackground?.destroy();
+      this.stageBackground = null;
       // ---- AC 90302 Sub-AC 2: items framework spawn-manager teardown -----
       // Drop the per-match item-spawn scheduler so a re-entry into
       // MatchScene starts with a clean schedule. The manager itself is
@@ -3173,6 +3713,8 @@ export class MatchScene extends Phaser.Scene {
       this.swingFlashes = [];
       for (const b of this.explosionBursts) b.sprite.destroy();
       this.explosionBursts = [];
+      for (const b of this.oneShotBursts) b.arc.destroy();
+      this.oneShotBursts = [];
       this.prevGrabHeld.clear();
       this.suppressAttackUntilRelease.clear();
       // Clear the per-match RNG references on shutdown so a fresh
@@ -3191,6 +3733,21 @@ export class MatchScene extends Phaser.Scene {
    * (0..N) and renders exactly once per tick with an interpolation alpha.
    */
   update(_time: number, deltaMs: number): void {
+    // ---- Pause menu (START / ESC) -----------------------------------------
+    // Poll the gamepad START button (ESC is handled by its keydown
+    // listener). Opening is gated to an actively-playing match so a
+    // press during the end-game freeze can't strand the overlay. While
+    // paused, return BEFORE touching the deterministic loop so the
+    // accumulator never advances — the match freezes as a still-life
+    // under the overlay and resumes byte-identically.
+    if (!this.pausedForMenu && !this.matchEndDetector?.isMatchOver()) {
+      const startPressed = this.isStartButtonHeld();
+      if (startPressed && !this.prevStartHeld) this.openPauseMenu();
+      this.prevStartHeld = startPressed;
+    }
+    if (this.pausedForMenu) {
+      return;
+    }
     const stepsThisTick = this.physicsEngine.advance(
       deltaMs,
       () => {
@@ -3378,14 +3935,22 @@ export class MatchScene extends Phaser.Scene {
               : input;
             slot.character.applyInput(inputForCharacter);
             // ---- Held-item position tracking ---------------------------
-            // While holding, the item's snapshot position should mirror
-            // the holder's hand each tick so the visual stays attached
-            // and the (future) projectile spawn-offset is computed
-            // from the fresh position.
+            // While holding, the item's snapshot position mirrors the
+            // holder's HAND each tick — body centre + the fighter's
+            // grip anchor, mirrored by facing — so the visual sits in
+            // the hand (not at the waist), swaps sides on turnaround,
+            // and the throw / projectile spawn origin reads from the
+            // same point the player sees the weapon at.
             const inv = this.inventoriesByPlayerIndex.get(slot.playerIndex);
             const heldItem = inv?.getHeldItem();
             if (heldItem) {
-              heldItem.updateHeldPosition(slot.character.getPosition());
+              heldItem.updateHeldPosition(
+                computeHeldItemPosition(
+                  slot.character.getPosition(),
+                  slot.character.getFacing(),
+                  slot.character.id,
+                ),
+              );
             }
           }
           this.inputCaptureBuffer.captureFrame(frame, frameInputs);
@@ -3400,6 +3965,9 @@ export class MatchScene extends Phaser.Scene {
           // lethal. The stage is a no-op on hazard-free layouts so
           // the flat stage still pays zero cost.
           this.baseStage.tickHazards(frame);
+          // Ambient background pulse rides the same fixed frame counter
+          // so replays repaint identically.
+          this.stageBackground?.tick(frame);
 
           // One deterministic 16.67 ms physics step. Step the Matter world
           // explicitly so its integration uses *our* fixed dt, not Phaser's
@@ -3482,6 +4050,12 @@ export class MatchScene extends Phaser.Scene {
               const labelChar =
                 def.type === 'bat'
                   ? 'B'
+                  : def.type === 'sword'
+                  ? 'S'
+                  : def.type === 'hammer'
+                  ? 'H'
+                  : def.type === 'spear'
+                  ? 'P'
                   : def.type === 'rayGun'
                   ? 'R'
                   : def.type === 'bomb'
@@ -3496,7 +4070,40 @@ export class MatchScene extends Phaser.Scene {
               // the platform top, the visible silhouette sits ON the
               // platform instead of sinking halfway through it.
               const visualParts: Phaser.GameObjects.GameObject[] = [];
-              if (def.category === 'melee-weapon') {
+              if (def.type === 'sword') {
+                // Sword — long steel blade + crossguard + grip. The
+                // blade reads as the longest thin silhouette so the
+                // tipper weapon is recognisable at a glance.
+                const blade = this.add
+                  .rectangle(0, -24, 8, 40, 0xd8dde6, 1)
+                  .setStrokeStyle(2, 0x000000, 0.7);
+                const guard = this.add
+                  .rectangle(0, -5, 18, 4, 0xc9a86a, 1)
+                  .setStrokeStyle(1, 0x000000, 0.6);
+                const grip = this.add
+                  .rectangle(0, 0, 6, 8, 0x4d3a23, 1)
+                  .setStrokeStyle(1, 0x000000, 0.6);
+                visualParts.push(blade, guard, grip);
+              } else if (def.type === 'hammer') {
+                // Hammer — short shaft with a massive head: the
+                // unmistakable "this thing KOs" silhouette.
+                const shaft = this.add
+                  .rectangle(0, -14, 7, 30, 0x8b6f47, 1)
+                  .setStrokeStyle(2, 0x000000, 0.7);
+                const head = this.add
+                  .rectangle(0, -30, 30, 16, 0x9aa3ad, 1)
+                  .setStrokeStyle(2, 0x000000, 0.7);
+                visualParts.push(shaft, head);
+              } else if (def.type === 'spear') {
+                // Spear — the longest, thinnest shaft with a leaf tip.
+                const shaft = this.add
+                  .rectangle(0, -24, 5, 46, 0x8b6f47, 1)
+                  .setStrokeStyle(2, 0x000000, 0.7);
+                const tip = this.add
+                  .triangle(0, -50, 0, 8, 5, 0, 10, 8, 0xd8dde6)
+                  .setStrokeStyle(1, 0x000000, 0.7);
+                visualParts.push(shaft, tip);
+              } else if (def.category === 'melee-weapon') {
                 // Bat — procedural tapered baseball-bat PNG
                 // (`ASSET_KEYS.itemBat`). Falls back to the legacy
                 // shaft+grip rectangles if the texture failed to load.
@@ -3667,6 +4274,35 @@ export class MatchScene extends Phaser.Scene {
                 const pos = entity.getPosition();
                 container.x = toVx(pos.x);
                 container.y = toVy(pos.y);
+                // Held items mirror with the holder's facing so the
+                // weapon visually swaps hands on turnaround — the
+                // counterpart of the hitbox `offsetX * facing` mirror
+                // in attacks.ts. Grounded / thrown items stay unflipped.
+                const snap = entity.getSnapshot();
+                if (snap.state === 'held' && snap.holderPlayerIndex !== null) {
+                  const holder = this.playerSlots.find(
+                    (s) => s.playerIndex === snap.holderPlayerIndex,
+                  );
+                  if (holder) {
+                    const sign = holder.character.getFacing() < 0 ? -1 : 1;
+                    container.setScale(sign, 1);
+                    // Counter-flip text children so the letter label
+                    // stays readable when the weapon mirrors (parent
+                    // −1 × child −1 = +1).
+                    for (const child of container.list) {
+                      if (child instanceof Phaser.GameObjects.Text) {
+                        child.setScale(sign, 1);
+                      }
+                    }
+                  }
+                } else {
+                  container.setScale(1, 1);
+                  for (const child of container.list) {
+                    if (child instanceof Phaser.GameObjects.Text) {
+                      child.setScale(1, 1);
+                    }
+                  }
+                }
                 if (entity.isBroken()) container.setAlpha(0.4);
               }
             }
@@ -3712,6 +4348,12 @@ export class MatchScene extends Phaser.Scene {
                 spawnOffsetX: number;
                 spawnOffsetY: number;
               };
+              chargedProjectile?: {
+                charge: ChargeSpec;
+                maxSpeed: number;
+                maxWidth: number;
+                maxHeight: number;
+              };
               startupFrames: number;
               id: string;
             };
@@ -3724,31 +4366,59 @@ export class MatchScene extends Phaser.Scene {
               const facing = active.facing;
               const pos = slot.character.getPosition();
               const proj = move.projectile;
+              // Samus charge-beam scaling: the released shot's damage,
+              // knockback, travel speed, and size all lerp from the
+              // un-charged baseline (the move's authored damage/knockback
+              // and the parent projectile speed/width/height — the t=0
+              // endpoint) up to the full-charge endpoint, by how long the
+              // button was held. Pure integer-frame lerp → replay-safe.
+              const cp = move.chargedProjectile;
+              const heldFrames = active.chargeHeldFrames ?? 0;
+              const chargeT = cp ? computeChargeTFromSpec(cp.charge, heldFrames) : 0;
+              const pSpeed = cp ? proj.speed + (cp.maxSpeed - proj.speed) * chargeT : proj.speed;
+              const pWidth = cp ? proj.width + (cp.maxWidth - proj.width) * chargeT : proj.width;
+              const pHeight = cp ? proj.height + (cp.maxHeight - proj.height) * chargeT : proj.height;
+              const pDamage = cp ? computeChargedDamageFromSpec(cp.charge, heldFrames) : active.move.damage;
+              const pKnockback = cp ? computeChargedKnockbackFromSpec(cp.charge, heldFrames) : active.move.knockback;
               const px = pos.x + facing * proj.spawnOffsetX;
               const py = pos.y + proj.spawnOffsetY;
               const id = this.nextProjectileId;
               this.nextProjectileId += 1;
               // Procedural sprite — pointed shape per character.
               // Cat shuriken: yellow diamond. Owl feather: amber teardrop.
+              // Nova: a plasma orb that grows + brightens with charge.
               const isOwl = move.id.startsWith('owl');
+              const isNova = move.id.startsWith('nova');
               const shapeColor = isOwl ? 0xfff0a8 : 0xffd840;
               const accentColor = isOwl ? 0x8b4513 : 0xff8800;
               const parts: Phaser.GameObjects.GameObject[] = [];
-              if (isOwl) {
+              if (isNova) {
+                // Charge beam — concentric plasma orb. Cyan when weak,
+                // white-hot at full charge; an outer glow halo doubles the
+                // visible radius so a full shot reads as a real threat.
+                const hot = chargeT >= 0.85;
+                const coreColor = hot ? 0xffffff : 0x66e0ff;
+                const glowColor = hot ? 0x99f0ff : 0x2aa0ff;
+                const glow = this.add.circle(0, 0, pWidth * 0.75, glowColor, 0.3);
+                const core = this.add
+                  .circle(0, 0, pWidth * 0.5, coreColor, 1)
+                  .setStrokeStyle(2, 0xffffff, 0.9);
+                parts.push(glow, core);
+              } else if (isOwl) {
                 // Feather-bolt — elongated body with a darker tip.
                 const body = this.add
-                  .rectangle(0, 0, proj.width, proj.height, shapeColor, 1)
+                  .rectangle(0, 0, pWidth, pHeight, shapeColor, 1)
                   .setStrokeStyle(2, 0x000000, 0.6);
                 const tip = this.add
-                  .rectangle(facing * (proj.width / 2 - 4), 0, 8, proj.height * 0.6, accentColor, 1);
+                  .rectangle(facing * (pWidth / 2 - 4), 0, 8, pHeight * 0.6, accentColor, 1);
                 parts.push(body, tip);
               } else {
                 // Shuriken — yellow center + cross arms.
                 const armH = this.add
-                  .rectangle(0, 0, proj.width, proj.height * 0.4, shapeColor, 1)
+                  .rectangle(0, 0, pWidth, pHeight * 0.4, shapeColor, 1)
                   .setStrokeStyle(2, 0x000000, 0.6);
                 const armV = this.add
-                  .rectangle(0, 0, proj.width * 0.4, proj.height, shapeColor, 1)
+                  .rectangle(0, 0, pWidth * 0.4, pHeight, shapeColor, 1)
                   .setStrokeStyle(2, 0x000000, 0.6);
                 parts.push(armH, armV);
               }
@@ -3767,18 +4437,34 @@ export class MatchScene extends Phaser.Scene {
                 ownerSlotIndex: slot.playerIndex,
                 moveId: move.id,
                 facing,
-                damage: active.move.damage,
-                knockback: active.move.knockback,
+                damage: pDamage,
+                knockback: pKnockback,
                 x: px,
                 y: py,
-                vx: facing * proj.speed,
+                vx: facing * pSpeed,
                 vy: 0,
-                width: proj.width,
-                height: proj.height,
+                width: pWidth,
+                height: pHeight,
                 framesRemaining: proj.lifetimeFrames,
                 container: cont,
                 spawnedThisFrameByMove: move.id,
               });
+              // Charge-beam MUZZLE flash at the cannon mouth — a quick
+              // bright pop the frame the shot leaves, sized/coloured by how
+              // charged it was (render-only). Design-space origin, so it
+              // takes the stage transform like the projectile.
+              if (isNova) {
+                const muzzleHot = chargeT >= 0.85;
+                this.spawnBurst(
+                  stageOffsetX + px * stageScale,
+                  stageOffsetY + py * stageScale,
+                  muzzleHot ? 0xffffff : 0x88e8ff,
+                  pWidth * 0.6 + 6,
+                  8,
+                  1.5,
+                  4,
+                );
+              }
             }
             // Drop the latch when the move ends so the NEXT press of
             // the same special spawns a fresh projectile.
@@ -3969,12 +4655,12 @@ export class MatchScene extends Phaser.Scene {
             if (!grabPressed) continue;
 
             // Direction = analog stick rounded to 4 cardinals + drop.
-            // Read the resolver's 2D move vector (CharacterInput
-            // exposes only moveX; vertical axis lives on the resolver).
+            // Read the CAPTURED frame input (same record the replay
+            // buffer stores) — a live resolver read here would bypass
+            // the capture pipeline and desync item throws on playback.
             const facing = slot.character.getFacing();
-            const moveVec = this.inputResolver.getMoveVector(slot.bindingsSlot);
-            const moveX = moveVec.x;
-            const moveY = moveVec.y;
+            const moveX = fi?.moveX ?? 0;
+            const moveY = fi?.moveY ?? 0;
             const def = held.definition;
             let throwVec = def.throwBehavior.drop;
             if (Math.abs(moveX) > 0.4) {
@@ -4174,22 +4860,66 @@ export class MatchScene extends Phaser.Scene {
               p.framesRemaining -= 1;
               p.container.x = stageOffsetX + p.x * stageScale;
               p.container.y = stageOffsetY + p.y * stageScale;
-              let hit = false;
+
+              // ---- Reflector field (Owl side-B) -------------------------
+              // A projectile crossing an ACTIVE reflector it does NOT
+              // already own is bounced back: flipped, scaled up by
+              // `velocityScale`, damage amplified by `reflectMultiplier`,
+              // and RE-OWNED by the reflecting fighter. Re-owning is what
+              // stops the same reflector re-reflecting it next frame (the
+              // `playerIndex === p.ownerSlotIndex` guard now skips it), and
+              // lets the bounced shot hit the original attacker.
+              let reflected = false;
               for (const s of this.playerSlots) {
                 if (s.playerIndex === p.ownerSlotIndex) continue;
                 if (this.stockTracker.isEliminated(s.playerIndex)) continue;
-                const tuning = s.character.getTuning();
-                const tpos = s.character.getPosition();
-                const halfW = (tuning.width + p.width) / 2;
-                const halfH = (tuning.height + p.height) / 2;
-                if (Math.abs(p.x - tpos.x) <= halfW && Math.abs(p.y - tpos.y) <= halfH) {
-                  s.character.applyHit({
-                    damage: p.damage,
-                    knockback: p.knockback,
-                    facing: p.facing,
-                  });
-                  hit = true;
+                const ra = s.character.getActiveAttack();
+                if (!ra || ra.phase !== 'active') continue;
+                const rmove = ra.move as unknown as {
+                  sideSpecialKind?: string;
+                  reflector?: {
+                    reflectMultiplier: number;
+                    velocityScale: number;
+                    reflectorBody: { offsetX: number; offsetY: number; width: number; height: number };
+                  };
+                };
+                if (rmove.sideSpecialKind !== 'reflector' || !rmove.reflector) continue;
+                const rpos = s.character.getPosition();
+                const rb = rmove.reflector.reflectorBody;
+                const rx = rpos.x + ra.facing * rb.offsetX;
+                const ry = rpos.y + rb.offsetY;
+                if (
+                  Math.abs(p.x - rx) <= (rb.width + p.width) / 2 &&
+                  Math.abs(p.y - ry) <= (rb.height + p.height) / 2
+                ) {
+                  p.vx = -p.vx * rmove.reflector.velocityScale;
+                  p.vy = p.vy * rmove.reflector.velocityScale;
+                  p.facing = (p.facing === 1 ? -1 : 1) as 1 | -1;
+                  p.damage *= rmove.reflector.reflectMultiplier;
+                  p.ownerSlotIndex = s.playerIndex;
+                  reflected = true;
                   break;
+                }
+              }
+
+              let hit = false;
+              if (!reflected) {
+                for (const s of this.playerSlots) {
+                  if (s.playerIndex === p.ownerSlotIndex) continue;
+                  if (this.stockTracker.isEliminated(s.playerIndex)) continue;
+                  const tuning = s.character.getTuning();
+                  const tpos = s.character.getPosition();
+                  const halfW = (tuning.width + p.width) / 2;
+                  const halfH = (tuning.height + p.height) / 2;
+                  if (Math.abs(p.x - tpos.x) <= halfW && Math.abs(p.y - tpos.y) <= halfH) {
+                    s.character.applyHit({
+                      damage: p.damage,
+                      knockback: p.knockback,
+                      facing: p.facing,
+                    });
+                    hit = true;
+                    break;
+                  }
                 }
               }
               if (hit || p.framesRemaining <= 0 || p.x < -200 || p.x > 4200) {
@@ -4333,6 +5063,12 @@ export class MatchScene extends Phaser.Scene {
         }
         this.cameraController.setTargets(targets);
         this.cameraController.update(deltaMs);
+        // Parallax layers track the freshly-updated camera scroll so
+        // the background drifts slower than the action (depth cue).
+        {
+          const cam = this.cameras.main;
+          this.stageBackground?.updateParallax(cam.scrollX, cam.scrollY);
+        }
 
         // ---- Visual proxies pinned to each body -----------------------
         // Iterate every player slot (M2 4-player FFA) — each slot
@@ -4368,12 +5104,15 @@ export class MatchScene extends Phaser.Scene {
           if (!sprite) continue;
           const pos = slot.character.getPosition();
           const tuning = slot.character.getTuning();
-          // Anchor at body bottom (origin 0.5, 1.0 was set at create).
-          // The body's `pos` is the body CENTER, so y = pos.y + height/2
-          // puts the sprite's bottom edge on the body's bottom edge —
-          // i.e. on the platform surface.
-          sprite.setPosition(pos.x, pos.y + tuning.height / 2);
-          sprite.setFlipX(slot.character.getFacing() < 0);
+          // Flip relative to the source art's BASE facing — the new
+          // packs (Blaze/Puff/Aegis) are drawn facing left, so a bare
+          // `facing < 0` test ran them backwards. `shouldFlipSprite`
+          // folds in each fighter's authored direction.
+          const flipped = shouldFlipSprite(
+            slot.character.id,
+            slot.character.getFacing(),
+          );
+          sprite.setFlipX(flipped);
           slot.spriteAnimSm?.tick();
           // Phaser's `play(animKey)` resets displaySize and origin
           // back to the native frame defaults — re-apply each frame
@@ -4382,6 +5121,34 @@ export class MatchScene extends Phaser.Scene {
           const size = getCharacterSpriteDisplaySize(slot.character.id);
           applySpriteDisplayHeight(sprite, size);
           sprite.setOrigin(0.5, 1.0);
+          // Tier 5 — visually DUCK while crouching: squash the sprite
+          // vertically (the bottom-anchored origin keeps the feet planted
+          // and drops the head) and widen it a touch, matching the lowered
+          // crouch hurtbox so the on-screen body reads as a crouch.
+          if (slot.character.isCrouching()) {
+            const CROUCH_SQUASH_Y = 0.62;
+            const CROUCH_WIDEN_X = 1.12;
+            sprite.setScale(
+              sprite.scaleX * CROUCH_WIDEN_X,
+              sprite.scaleY * CROUCH_SQUASH_Y,
+            );
+          }
+          // Anchor at body bottom (origin 0.5, 1.0). `pos` is the body
+          // CENTER, so y = pos.y + height/2 puts the sprite's bottom edge on
+          // the body's bottom edge. X is re-centred: a few sheets draw the
+          // character off-centre in the cell, so shift by `-offset×width`
+          // (flipped with facing) to put the VISIBLE body on the body X —
+          // otherwise the hurtbox reads off to one side (Blaze/Puff).
+          const artOffX = getCharacterSpriteArtOffsetX(slot.character.id);
+          const shiftX =
+            artOffX === 0 ? 0 : -artOffX * sprite.displayWidth * (flipped ? -1 : 1);
+          // Seat the feet on the body bottom: shift DOWN by the sprite's
+          // transparent foot padding (fraction × CURRENT display height, so it
+          // tracks the crouch squash applied just above). The padding then
+          // hangs below into the floor instead of floating the feet.
+          const footShiftY =
+            getCharacterSpriteArtOffsetY(slot.character.id) * sprite.displayHeight;
+          sprite.setPosition(pos.x + shiftX, pos.y + tuning.height / 2 + footShiftY);
         }
 
         // ---- Sub-AC 3 of AC 303: spawn-platform overlays --------------
@@ -4507,6 +5274,145 @@ export class MatchScene extends Phaser.Scene {
             y: pos.y,
             frame,
           });
+        }
+
+        // ---- Per-fighter charge / wind-up indicator overlay ------------
+        // Refresh each fighter's charge indicator from their live charge
+        // progress. `getChargeProgress()` returns `null` whenever the
+        // fighter isn't winding a charge-type move up, so the indicator
+        // hides on its own; eliminated fighters are hidden explicitly so
+        // a corpse never carries a stale aura. The indicator's `update`
+        // reads the simulated `frame` for the pulse phase so the wind-up
+        // glow is replay-deterministic.
+        // AC 10304 — alongside the visual indicator, drive the looping
+        // charge wind-up hum. The hum is a single shared voice (the
+        // `sfx.charge` cue is registered `loop: true, voiceLimit: 1`):
+        // we aggregate "is ANY non-eliminated fighter mid-wind-up" this
+        // frame and start / stop the loop on that edge. `playSfxLoop` is
+        // idempotent (a no-op while already looping) so calling it every
+        // charging frame doesn't restart the sample; `stopSfx` ends it
+        // the frame the last charge finishes. Reads `getChargeProgress()`
+        // (the same deterministic source the indicator paints from) —
+        // the loop is a pure presentation side-effect, not sim state.
+        let anyCharging = false;
+        for (const slot of this.playerSlots) {
+          const indicator = this.chargeIndicators.get(slot.playerIndex);
+          const eliminated = this.stockTracker.isEliminated(slot.playerIndex);
+          const progress = eliminated ? null : slot.character.getChargeProgress();
+          if (progress !== null) anyCharging = true;
+          if (!indicator) continue;
+          if (eliminated) {
+            indicator.hide();
+            continue;
+          }
+          const pos = slot.character.getPosition();
+          indicator.update({
+            chargeProgress: progress,
+            x: pos.x,
+            y: pos.y,
+            frame,
+          });
+        }
+        // Edge-trigger the shared charge loop off the aggregate.
+        if (this.sfxAudioManager) {
+          const wasCharging = this.chargeLoopActive.get(0) === true;
+          if (anyCharging && !wasCharging) {
+            this.sfxAudioManager.playSfxLoop(ASSET_KEYS.sfxCharge);
+            this.chargeLoopActive.set(0, true);
+          } else if (!anyCharging && wasCharging) {
+            this.sfxAudioManager.stopSfx(ASSET_KEYS.sfxCharge);
+            this.chargeLoopActive.set(0, false);
+          }
+        }
+
+        // ---- Hit-feedback FX: per-fighter swing trails -----------------
+        // Draw a translucent streak along a held weapon's / smash
+        // finisher's active-frame hitbox sweep so the swing has a visible
+        // arc. Tied to the live `getActiveAttack()` geometry; the
+        // formatter hides the trail for non-trailed moves / non-active
+        // phases, so a fighter who isn't mid-weapon-swing shows nothing.
+        // Eliminated fighters are hidden so a corpse never trails.
+        for (const slot of this.playerSlots) {
+          const trail = this.swingTrails.get(slot.playerIndex);
+          if (!trail) continue;
+          if (this.stockTracker.isEliminated(slot.playerIndex)) {
+            trail.hide();
+            continue;
+          }
+          const active = slot.character.getActiveAttack();
+          if (!active) {
+            trail.hide();
+            continue;
+          }
+          const pos = slot.character.getPosition();
+          trail.update({
+            moveId: active.move.id,
+            moveType: active.move.type,
+            damage: active.move.damage,
+            phase: active.phase,
+            framesIntoActive: active.framesElapsed - active.move.startupFrames,
+            hitbox: active.move.hitbox,
+            facing: active.facing,
+            bodyX: pos.x,
+            bodyY: pos.y,
+          });
+        }
+
+        // ---- Hit-feedback FX: advance live hit sparks ------------------
+        // Age every live spark off the simulated frame counter and
+        // recycle expired ones. Spawning happens in the hitbox-damage
+        // callback; this only drives the per-frame expand / fade.
+        this.hitSparkPool.update(frame);
+
+        // ---- Down-special dive LANDING burst ---------------------------
+        // Poll each fighter's one-shot landing event (set in the sim the
+        // frame a dive touches down). A whiffed dive fires no collisionstart
+        // and so no hit spark — this flashes a shockwave ring regardless,
+        // at the RAW world landing point (fighter-anchored, like the hit
+        // spark — NOT the stage transform).
+        for (const slot of this.playerSlots) {
+          const landing = slot.character.consumeDiveLandingEvent();
+          if (landing !== null) {
+            this.spawnBurst(landing.x, landing.y, 0xffe08a, 22, 14, 4, 5);
+            this.spawnBurst(landing.x, landing.y, 0xffffff, 12, 10, 3, 5);
+          }
+        }
+        // Advance + fade every one-shot burst (dive landings + muzzle flashes).
+        this.tickOneShotBursts();
+
+        // ---- F3 hitbox debug overlay -----------------------------------
+        // Redraw the diagnostic boxes from each fighter's live geometry
+        // when enabled (a cheap no-op while toggled off). Snapshots feed
+        // the SAME `computeHitboxCenter` math the runtime spawns sensors
+        // from, so the red boxes are truthful. Eliminated fighters are
+        // skipped so a corpse doesn't carry stale boxes.
+        if (this.hitboxDebugLayer.isEnabled()) {
+          const debugSnapshots: HitboxDebugFighterSnapshot[] = [];
+          for (const slot of this.playerSlots) {
+            if (this.stockTracker.isEliminated(slot.playerIndex)) continue;
+            const pos = slot.character.getPosition();
+            const active = slot.character.getActiveAttack();
+            const grabState = slot.character.getGrabState();
+            const grabSpec = slot.character.getGrabSpec();
+            // The grab range sensor is live only during the grab's
+            // `whiffActive` window (mirrors `handleGrabStateTransition`).
+            const grabRangeLive =
+              grabState.name === 'whiffActive' && grabSpec !== null;
+            debugSnapshots.push({
+              bodyX: pos.x,
+              bodyY: pos.y,
+              facing: slot.character.getFacing(),
+              hurtboxes: slot.character.getActiveHurtboxes(),
+              activeAttack: active
+                ? { move: active.move, facing: active.facing, phase: active.phase }
+                : null,
+              activeGrab:
+                grabRangeLive && grabSpec
+                  ? { hitbox: grabSpec.hitbox }
+                  : null,
+            });
+          }
+          this.hitboxDebugLayer.render(debugSnapshots);
         }
 
         // ---- HUD -------------------------------------------------------
@@ -4644,6 +5550,66 @@ export class MatchScene extends Phaser.Scene {
   private prevFighterFeetY: WeakMap<Character, number> = new WeakMap();
 
   /**
+   * Landing-grace registry for the pass-through driver, keyed
+   * fighter → set of platform body ids currently in a "resolving a
+   * landing" state.
+   *
+   * Why it exists: the driver's original crossing rule granted exactly
+   * ONE solid frame ("prevFeet above, feet below") and then phased on
+   * "below for 2 consecutive steps". That held at legacy fall speeds
+   * (≤ ~12 px/step penetrates a 22-24 px float shallowly enough for
+   * Matter to resolve within the frame), but the Smash-feel pack's
+   * fast-fall (17.5-20 px/step) buries the feet ~16 px into the float
+   * on the crossing step — deeper than Matter's position correction
+   * can unwind in one frame — so the 2-consecutive-steps rule read the
+   * still-resolving landing as "lateral approach" and dropped the
+   * collision mid-landing: fighters fell straight through every float
+   * they fast-fell onto.
+   *
+   * The grace entry keeps the pair solid from the crossing frame until
+   * the landing actually resolves (feet back above the top epsilon),
+   * the fighter tunnels clear past the platform's BOTTOM (give up —
+   * phase so they fall cleanly), or a deliberate drop-through window
+   * opens. Lateral approaches never enter the grace (their prevFeet
+   * were already below on the crossing frame), so the case the
+   * 2-consecutive-steps rule was built for still phases instantly.
+   *
+   * Determinism: driven purely by simulation state (feet positions,
+   * platform bounds, drop-through window) — replay-safe.
+   */
+  private passThroughLandingGrace: WeakMap<Character, Set<number>> = new WeakMap();
+
+  /**
+   * Platform-driver diagnostic ring buffer (last ~6000 decisions).
+   * Every per-fighter / per-platform branch the pass-through driver
+   * takes while the fighter overlaps the platform's column is recorded
+   * here; pressing F9 in-match downloads the buffer as
+   * `platform-diag.json` for offline analysis. Pure observation — the
+   * log never feeds back into the simulation.
+   */
+  private platformDiagLog: Array<{
+    f: number; b: number; s: number; br: string;
+    feet: number; prev: number; top: number; vy: number; m: number;
+  }> = [];
+
+  private recordPlatDiag(
+    b: number, s: number, br: string,
+    feet: number, prev: number, top: number, vy: number, m: number,
+  ): void {
+    this.platformDiagLog.push({
+      f: this.physicsEngine.getFrame(), b, s, br,
+      feet: Math.round(feet * 10) / 10,
+      prev: Math.round(prev * 10) / 10,
+      top: Math.round(top * 10) / 10,
+      vy: Math.round(vy * 100) / 100,
+      m,
+    });
+    if (this.platformDiagLog.length > 6000) {
+      this.platformDiagLog.splice(0, this.platformDiagLog.length - 6000);
+    }
+  }
+
+  /**
    * Per-step pass-through-platform mask driver. Iterates every
    * pass-through platform in the stage and decides whether it should
    * currently be character-collidable based on each fighter's vertical
@@ -4702,15 +5668,28 @@ export class MatchScene extends Phaser.Scene {
     // isn't borderline-counted.
     const FEET_EPS = 4;
     const X_EPS = 2;
+    // Vertical band around a platform's top within which, while we hold the
+    // fighter SOLID and it is descending, we tell the fighter to suppress its
+    // per-fighter fall-accel for the next step (`markPlatformFallSupported`).
+    // Covers the ~15 px the body can be ejected above a thin float during a
+    // landing wobble so the fall speed can't re-spike and tunnel back through.
+    // Kept tight so a fighter merely passing high above a platform is
+    // unaffected — free-fall feel only changes within this landing band.
+    const SUPPORT_BAND = 20;
 
     for (const body of platforms) {
-      if (body.label !== PLATFORM_LABELS.passThrough) continue;
+      const isPassThrough = body.label === PLATFORM_LABELS.passThrough;
+      const isPlatform =
+        isPassThrough || body.label === PLATFORM_LABELS.solid;
+      if (!isPlatform) continue;
       const filter = body.collisionFilter;
       // Crumble adapter writes mask=0 for the lifecycle 'falling' /
-      // 'gone' states. Skip — we must not resurrect a fallen platform.
+      // 'gone' states. Skip — we must not resurrect a fallen platform
+      // (and must not landing-assist onto one).
       if (filter.mask === 0) continue;
       const platBounds = body.bounds;
       const platTop = platBounds?.min?.y ?? body.position.y;
+      const platBottom = platBounds?.max?.y ?? body.position.y;
       const platLeft = platBounds?.min?.x ?? body.position.x;
       const platRight = platBounds?.max?.x ?? body.position.x;
 
@@ -4718,20 +5697,31 @@ export class MatchScene extends Phaser.Scene {
       for (const fighter of fighters) {
         const slotBit = CHARACTER_SLOT_BITS[fighter.slotIndex];
         if (slotBit === undefined) continue;
+        let grace = this.passThroughLandingGrace.get(fighter);
 
         const fLeft = fighter.getBodyLeftX();
         const fRight = fighter.getBodyRightX();
         const overlapsX = fRight >= platLeft - X_EPS && fLeft <= platRight + X_EPS;
         // No horizontal overlap — keep this slot solid by default so
         // any future approach starts from the correct state. The next
-        // step will recompute once they overlap.
+        // step will recompute once they overlap. Any landing grace is
+        // stale once the fighter has left the platform's column.
         if (!overlapsX) {
+          grace?.delete(body.id);
           mask |= slotBit;
           continue;
         }
 
-        if (fighter.isInDropThroughWindow()) {
-          // Phase — drop this slot bit.
+        if (isPassThrough && fighter.isInDropThroughWindow()) {
+          // Phase — drop this slot bit. A deliberate drop-through
+          // cancels any in-flight landing grace for this platform.
+          grace?.delete(body.id);
+          this.recordPlatDiag(
+            body.id, fighter.slotIndex, 'dropWindow',
+            currentFeet.get(fighter)!,
+            this.prevFighterFeetY.get(fighter) ?? currentFeet.get(fighter)!,
+            platTop, fighter.getVelocity().y, mask,
+          );
           continue;
         }
 
@@ -4743,20 +5733,219 @@ export class MatchScene extends Phaser.Scene {
         const prevFeet = this.prevFighterFeetY.get(fighter) ?? feet;
         const feetBelowTop = feet > platTop + FEET_EPS;
         const prevFeetBelowTop = prevFeet > platTop + FEET_EPS;
-        if (feetBelowTop && prevFeetBelowTop) {
-          // Already below for ≥ 1 step — phase for this fighter.
+
+        // ---- Landing assist (CCD for thin platforms) ----------------
+        // A genuine falling crossing — feet above the top last step,
+        // below it now, still moving downward. At Smash-feel fall
+        // speeds (11-20 px/step) the crossing step can bury the feet
+        // PAST the mid-plane of a 22-24 px float, and Matter resolves
+        // overlap along the SHORTEST exit — ejecting the fighter
+        // downward THROUGH the platform instead of up onto it,
+        // sub-pixel-dependent (the "sometimes lands, sometimes falls
+        // through" coin flip). Don't gamble on the solver: snap the
+        // body up so the feet rest 1 px into the surface and kill the
+        // fall velocity — the standard platform-fighter landing
+        // resolution. Applies to BOTH pass-through floats and thin
+        // solid carriers; purely simulation-state-driven, replay-safe.
+        // Solid bodies only qualify when THIN (≤ 48 px — the moving
+        // carriers): thick grounds resolve fine on their own (the
+        // penetration can never reach their mid-plane), and custom-
+        // stage SLOPES are solid rotated bodies whose bounding-box top
+        // is not their walking surface — snapping to it would teleport
+        // the fighter uphill.
+        const assistEligible =
+          isPassThrough || platBottom - platTop <= 48;
+        if (
+          assistEligible &&
+          feetBelowTop &&
+          !prevFeetBelowTop &&
+          fighter.getVelocity().y >= 0
+        ) {
+          const lift = feet - (platTop + 1);
+          const pos = fighter.getPosition();
+          this.matter.body.setPosition(fighter.body, {
+            x: pos.x,
+            y: pos.y - lift,
+          });
+          this.matter.body.setVelocity(fighter.body, {
+            x: fighter.getVelocity().x,
+            y: 0,
+          });
+          grace?.delete(body.id);
+          mask |= slotBit;
+          // We just resolved this fighter's landing onto the float — hold its
+          // fall-accel off next step so it settles instead of re-spiking and
+          // tunnelling back through (the pass-through platform jitter).
+          fighter.markPlatformFallSupported();
+          this.recordPlatDiag(
+            body.id, fighter.slotIndex, 'assistSnap',
+            feet, prevFeet, platTop, 0, mask,
+          );
           continue;
         }
-        // Solid for this fighter.
-        mask |= slotBit;
+
+        if (!isPassThrough) {
+          // Solid platforms never phase — the landing assist above is
+          // the only per-fighter work they need.
+          continue;
+        }
+
+        if (!feetBelowTop) {
+          // At or above the top — standing / falling toward it. Solid;
+          // any prior landing grace has resolved.
+          grace?.delete(body.id);
+          mask |= slotBit;
+          // Descending onto / resting just above the surface within the
+          // landing band: suppress fall-accel next step so a contact flicker
+          // can't ramp the fall speed back up and tunnel the body through.
+          if (
+            fighter.getVelocity().y >= 0 &&
+            Math.abs(feet - platTop) <= SUPPORT_BAND
+          ) {
+            fighter.markPlatformFallSupported();
+          }
+          if (Math.abs(feet - platTop) < 60) {
+            this.recordPlatDiag(
+              body.id, fighter.slotIndex, 'solidAbove',
+              feet, prevFeet, platTop, fighter.getVelocity().y, mask,
+            );
+          }
+          continue;
+        }
+
+        if (!prevFeetBelowTop) {
+          // CROSSING FRAME while moving upward (the landing assist
+          // above handles the downward case) — e.g. clipped while
+          // rising. Open the landing grace so the pair stays solid
+          // while Matter unwinds the overlap.
+          if (!grace) {
+            grace = new Set<number>();
+            this.passThroughLandingGrace.set(fighter, grace);
+          }
+          grace.add(body.id);
+          mask |= slotBit;
+          this.recordPlatDiag(
+            body.id, fighter.slotIndex, 'graceOpenRising',
+            feet, prevFeet, platTop, fighter.getVelocity().y, mask,
+          );
+          continue;
+        }
+
+        if (grace?.has(body.id)) {
+          if (feet > platBottom + FEET_EPS) {
+            // The body tunnelled clear past the platform's bottom —
+            // the landing failed; phase so the fall completes cleanly
+            // instead of warping the fighter back up.
+            grace.delete(body.id);
+            this.recordPlatDiag(
+              body.id, fighter.slotIndex, 'graceBottomOut',
+              feet, prevFeet, platTop, fighter.getVelocity().y, mask,
+            );
+            continue;
+          }
+          // Still resolving the landing — keep solid.
+          mask |= slotBit;
+          this.recordPlatDiag(
+            body.id, fighter.slotIndex, 'graceHold',
+            feet, prevFeet, platTop, fighter.getVelocity().y, mask,
+          );
+          continue;
+        }
+
+        // Below for ≥ 1 step with no landing in flight — lateral /
+        // from-under approach (or post-drop-through tail): phase.
+        this.recordPlatDiag(
+          body.id, fighter.slotIndex, 'phase',
+          feet, prevFeet, platTop, fighter.getVelocity().y, mask,
+        );
       }
 
-      filter.category = COLLISION_CATEGORIES.PLATFORM_PASS_THROUGH;
-      filter.mask = mask;
+      if (isPassThrough) {
+        filter.category = COLLISION_CATEGORIES.PLATFORM_PASS_THROUGH;
+        // KEEPALIVE keeps a fully-phased platform's mask non-zero so
+        // the crumble sentinel check above can never mistake the
+        // driver's own write for a crumbled platform (the bit matches
+        // no body, so it creates no collisions).
+        filter.mask = mask | COLLISION_CATEGORIES.PASS_THROUGH_DRIVER_KEEPALIVE;
+      }
     }
 
     for (const fighter of fighters) {
       this.prevFighterFeetY.set(fighter, currentFeet.get(fighter)!);
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // Pause menu (START / ESC) — overlay handoff
+  // -------------------------------------------------------------------------
+
+  /** True iff any connected gamepad holds START (standard-mapping index 9). */
+  private isStartButtonHeld(): boolean {
+    const pads = this.input.gamepad?.gamepads ?? [];
+    for (const pad of pads) {
+      if (pad && pad.buttons[9]?.pressed) return true;
+    }
+    return false;
+  }
+
+  /**
+   * Freeze the simulation and launch the {@link PauseMenuScene} overlay
+   * on top of the still-rendered match. `scene.launch` runs the overlay
+   * in PARALLEL (this scene stays active so its frozen frame keeps
+   * rendering); the freeze itself is the {@link pausedForMenu} guard in
+   * {@link update}, NOT a Phaser `scene.pause` (which would also stop
+   * our render). Idempotent — a double-trigger while already paused is
+   * a no-op.
+   */
+  private openPauseMenu(): void {
+    if (this.pausedForMenu) return;
+    this.pausedForMenu = true;
+    this.prevStartHeld = true; // swallow the opening press's edge
+    this.scene.launch('PauseMenuScene');
+  }
+
+  /**
+   * Callback the {@link PauseMenuScene} overlay dispatches into (it has
+   * already stopped itself before calling). MatchScene owns the
+   * freeze-lift and every scene transition so the flow contract lives in
+   * one place.
+   *
+   *   • `resume`          — lift the freeze; the loop continues exactly
+   *                         where it left off.
+   *   • `restart`         — relaunch this match from the stashed config
+   *                         (same `lastMatchConfig` rematch path the
+   *                         results screen uses), preserving characters /
+   *                         palettes / stage.
+   *   • `characterSelect` — back to the fighter picker.
+   *   • `mainMenu`        — back to the title.
+   *   • `controls`        — open the rebinding screen (returns to the
+   *                         main menu afterwards; the live match is not
+   *                         resumable across a full scene swap).
+   */
+  handlePauseAction(action: PauseAction): void {
+    switch (action) {
+      case 'resume':
+        this.pausedForMenu = false;
+        // Re-arm the START latch so the resume press doesn't instantly
+        // re-open the menu on the next frame.
+        this.prevStartHeld = true;
+        return;
+      case 'restart': {
+        const cfg = this.registry.get(BOOT_REGISTRY_KEYS.lastMatchConfig) as
+          | MatchConfig
+          | undefined;
+        this.scene.start('MatchScene', cfg ? { matchConfig: cfg } : undefined);
+        return;
+      }
+      case 'characterSelect':
+        this.scene.start('CharacterSelectScene');
+        return;
+      case 'mainMenu':
+        this.scene.start('MainMenuScene');
+        return;
+      case 'controls':
+        this.scene.start('RebindingScene', { returnTo: 'MainMenuScene' });
+        return;
     }
   }
 
@@ -4786,6 +5975,15 @@ export class MatchScene extends Phaser.Scene {
       } else {
         this.stageMusicController?.start();
       }
+      // AC 10304 — the single HUD speaker toggle controls SFX too: a
+      // player who silences the speaker expects the whole match to go
+      // quiet, not just the soundtrack. Mirror the flag onto the SFX
+      // bus + persist it so the preference survives the next match (the
+      // SFX AudioManager reads `sfxMuted` at boot). The SFX mute is a
+      // live `setMuted` so any in-flight cue (e.g. a charge loop) drops
+      // immediately rather than only on the next play.
+      this.registry.set(BOOT_REGISTRY_KEYS.sfxMuted, nextMuted);
+      this.sfxAudioManager?.setMuted(nextMuted);
       button.setText(nextMuted ? ICON_OFF : ICON_ON);
     };
 

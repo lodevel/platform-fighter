@@ -56,6 +56,12 @@ import { Wolf, WOLF_FIGHTER_CONTRACT } from './Wolf';
 import { Cat, CAT_FIGHTER_CONTRACT } from './Cat';
 import { Owl, OWL_FIGHTER_CONTRACT } from './Owl';
 import { Bear, BEAR_FIGHTER_CONTRACT } from './Bear';
+import { Blaze, BLAZE_FIGHTER_CONTRACT } from './Blaze';
+import { Puff, PUFF_FIGHTER_CONTRACT } from './Puff';
+import { Aegis, AEGIS_FIGHTER_CONTRACT } from './Aegis';
+import { Volt, VOLT_FIGHTER_CONTRACT } from './Volt';
+import { Nova, NOVA_FIGHTER_CONTRACT } from './Nova';
+import { Bruno, BRUNO_FIGHTER_CONTRACT } from './Bruno';
 
 /**
  * Spawn-point + optional-tuning options forwarded to a registered
@@ -161,6 +167,36 @@ export const FIGHTER_REGISTRY: Readonly<Record<CharacterId, FighterRegistryEntry
       ctor: Bear as unknown as FighterConstructor,
       contract: BEAR_FIGHTER_CONTRACT,
     }),
+    blaze: Object.freeze({
+      id: 'blaze',
+      ctor: Blaze as unknown as FighterConstructor,
+      contract: BLAZE_FIGHTER_CONTRACT,
+    }),
+    puff: Object.freeze({
+      id: 'puff',
+      ctor: Puff as unknown as FighterConstructor,
+      contract: PUFF_FIGHTER_CONTRACT,
+    }),
+    aegis: Object.freeze({
+      id: 'aegis',
+      ctor: Aegis as unknown as FighterConstructor,
+      contract: AEGIS_FIGHTER_CONTRACT,
+    }),
+    volt: Object.freeze({
+      id: 'volt',
+      ctor: Volt as unknown as FighterConstructor,
+      contract: VOLT_FIGHTER_CONTRACT,
+    }),
+    nova: Object.freeze({
+      id: 'nova',
+      ctor: Nova as unknown as FighterConstructor,
+      contract: NOVA_FIGHTER_CONTRACT,
+    }),
+    bruno: Object.freeze({
+      id: 'bruno',
+      ctor: Bruno as unknown as FighterConstructor,
+      contract: BRUNO_FIGHTER_CONTRACT,
+    }),
   });
 
 /**
@@ -176,6 +212,12 @@ export const FIGHTER_REGISTRY_IDS: ReadonlyArray<CharacterId> = Object.freeze([
   'cat',
   'owl',
   'bear',
+  'blaze',
+  'puff',
+  'aegis',
+  'volt',
+  'nova',
+  'bruno',
 ]);
 
 /**

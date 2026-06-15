@@ -30,7 +30,18 @@ export type {
 // `emitCombatSfx` wraps the sink call in a defensive try/catch so a
 // misbehaving audio backend can never desync the deterministic
 // simulation.
-export { emitCombatSfx, mapMoveTypeToSfxKey } from './combatAudio';
+// AC 10304 — action-audio expansion. `mapHitConnectToSfxKey` picks the
+// light / heavy / clang connect cue from the landed hit's damage +
+// held-weapon flag; `mapJumpToSfxKey` picks the ground vs air-jump cue
+// from the post-impulse jump count. `HEAVY_HIT_DAMAGE_THRESHOLD` is the
+// frozen light↔heavy cut point. All pure / deterministic.
+export {
+  emitCombatSfx,
+  HEAVY_HIT_DAMAGE_THRESHOLD,
+  mapHitConnectToSfxKey,
+  mapJumpToSfxKey,
+  mapMoveTypeToSfxKey,
+} from './combatAudio';
 export type { CombatSfxSink } from './combatAudio';
 
 // AC 10303 Sub-AC 3 — stage music lifecycle controller. Wraps the

@@ -78,7 +78,7 @@ describe('InputCaptureBuffer — construction', () => {
 describe('InputCaptureBuffer — NEUTRAL_INPUT', () => {
   it('has every field at its zero / false value', () => {
     expect(NEUTRAL_INPUT).toEqual({
-      moveX: 0,
+      moveX: 0, moveY: 0,
       jump: false,
       attack: false,
       dropThrough: false,
@@ -97,8 +97,8 @@ describe('InputCaptureBuffer — NEUTRAL_INPUT', () => {
 describe('InputCaptureBuffer — captureFrame', () => {
   it('records a single frame with both players', () => {
     const buf = new InputCaptureBuffer({ playerCount: 2 });
-    const p1: CharacterInput = { moveX: 1, jump: true, attack: false };
-    const p2: CharacterInput = { moveX: -1, jump: false, attack: true };
+    const p1: CharacterInput = { moveX: 1, moveY: 0, jump: true, attack: false };
+    const p2: CharacterInput = { moveX: -1, moveY: 0, jump: false, attack: true };
 
     buf.captureFrame(0, [p1, p2]);
 
@@ -111,13 +111,13 @@ describe('InputCaptureBuffer — captureFrame', () => {
     expect(entry!.frame).toBe(0);
     expect(entry!.inputs).toHaveLength(2);
     expect(entry!.inputs[0]).toEqual({
-      moveX: 1,
+      moveX: 1, moveY: 0,
       jump: true,
       attack: false,
       dropThrough: false,
     });
     expect(entry!.inputs[1]).toEqual({
-      moveX: -1,
+      moveX: -1, moveY: 0,
       jump: false,
       attack: true,
       dropThrough: false,
@@ -128,10 +128,10 @@ describe('InputCaptureBuffer — captureFrame', () => {
     const buf = new InputCaptureBuffer({ playerCount: 1 });
     // No `attack`, no `dropThrough` — the normalised entry must be a
     // closed shape with both flags as `false`.
-    buf.captureFrame(0, [{ moveX: 0, jump: false }]);
+    buf.captureFrame(0, [{ moveX: 0, moveY: 0, jump: false }]);
     const entry = buf.getFrame(0)!;
     expect(entry.inputs[0]).toEqual({
-      moveX: 0,
+      moveX: 0, moveY: 0,
       jump: false,
       attack: false,
       dropThrough: false,
@@ -141,7 +141,7 @@ describe('InputCaptureBuffer — captureFrame', () => {
   it('coerces undefined slot inputs to NEUTRAL_INPUT', () => {
     const buf = new InputCaptureBuffer({ playerCount: 2 });
     buf.captureFrame(0, [
-      { moveX: 1, jump: true, attack: true },
+      { moveX: 1, moveY: 0, jump: true, attack: true },
       undefined,
     ]);
     const entry = buf.getFrame(0)!;
@@ -150,8 +150,8 @@ describe('InputCaptureBuffer — captureFrame', () => {
 
   it('clamps moveX into [-1, 1]', () => {
     const buf = new InputCaptureBuffer({ playerCount: 1 });
-    buf.captureFrame(0, [{ moveX: 5, jump: false }]);
-    buf.captureFrame(1, [{ moveX: -3, jump: false }]);
+    buf.captureFrame(0, [{ moveX: 5, moveY: 0, jump: false }]);
+    buf.captureFrame(1, [{ moveX: -3, moveY: 0, jump: false }]);
     expect(buf.getFrame(0)!.inputs[0]!.moveX).toBe(1);
     expect(buf.getFrame(1)!.inputs[0]!.moveX).toBe(-1);
   });
@@ -166,9 +166,9 @@ describe('InputCaptureBuffer — captureFrame', () => {
 
   it('stores entries keyed by frame number', () => {
     const buf = new InputCaptureBuffer({ playerCount: 1 });
-    buf.captureFrame(10, [{ moveX: 1, jump: false }]);
-    buf.captureFrame(11, [{ moveX: -1, jump: true }]);
-    buf.captureFrame(20, [{ moveX: 0, jump: false }]);
+    buf.captureFrame(10, [{ moveX: 1, moveY: 0, jump: false }]);
+    buf.captureFrame(11, [{ moveX: -1, moveY: 0, jump: true }]);
+    buf.captureFrame(20, [{ moveX: 0, moveY: 0, jump: false }]);
 
     expect(buf.getFrame(10)!.inputs[0]!.moveX).toBe(1);
     expect(buf.getFrame(11)!.inputs[0]!.jump).toBe(true);
@@ -182,9 +182,9 @@ describe('InputCaptureBuffer — captureFrame', () => {
   it('captures all 4 players when configured for a 4P FFA', () => {
     const buf = new InputCaptureBuffer({ playerCount: 4 });
     buf.captureFrame(0, [
-      { moveX: 1, jump: false },
-      { moveX: 0, jump: true, attack: true },
-      { moveX: -1, jump: false, dropThrough: true },
+      { moveX: 1, moveY: 0, jump: false },
+      { moveX: 0, moveY: 0, jump: true, attack: true },
+      { moveX: -1, moveY: 0, jump: false, dropThrough: true },
       undefined,
     ]);
     const entry = buf.getFrame(0)!;
@@ -203,33 +203,33 @@ describe('InputCaptureBuffer — captureFrame', () => {
 describe('InputCaptureBuffer — frame validation', () => {
   it('rejects negative frames', () => {
     const buf = new InputCaptureBuffer({ playerCount: 1 });
-    expect(() => buf.captureFrame(-1, [{ moveX: 0, jump: false }])).toThrow(
+    expect(() => buf.captureFrame(-1, [{ moveX: 0, moveY: 0, jump: false }])).toThrow(
       /non-negative/i,
     );
   });
 
   it('rejects non-integer frames', () => {
     const buf = new InputCaptureBuffer({ playerCount: 1 });
-    expect(() => buf.captureFrame(1.5, [{ moveX: 0, jump: false }])).toThrow(
+    expect(() => buf.captureFrame(1.5, [{ moveX: 0, moveY: 0, jump: false }])).toThrow(
       /integer/i,
     );
     expect(() =>
-      buf.captureFrame(Number.NaN, [{ moveX: 0, jump: false }]),
+      buf.captureFrame(Number.NaN, [{ moveX: 0, moveY: 0, jump: false }]),
     ).toThrow(/integer/i);
   });
 
   it('rejects non-monotonic frames (duplicate)', () => {
     const buf = new InputCaptureBuffer({ playerCount: 1 });
-    buf.captureFrame(5, [{ moveX: 0, jump: false }]);
-    expect(() => buf.captureFrame(5, [{ moveX: 1, jump: false }])).toThrow(
+    buf.captureFrame(5, [{ moveX: 0, moveY: 0, jump: false }]);
+    expect(() => buf.captureFrame(5, [{ moveX: 1, moveY: 0, jump: false }])).toThrow(
       /monotonic/i,
     );
   });
 
   it('rejects non-monotonic frames (rewinds)', () => {
     const buf = new InputCaptureBuffer({ playerCount: 1 });
-    buf.captureFrame(10, [{ moveX: 0, jump: false }]);
-    expect(() => buf.captureFrame(9, [{ moveX: 1, jump: false }])).toThrow(
+    buf.captureFrame(10, [{ moveX: 0, moveY: 0, jump: false }]);
+    expect(() => buf.captureFrame(9, [{ moveX: 1, moveY: 0, jump: false }])).toThrow(
       /monotonic/i,
     );
   });
@@ -239,9 +239,9 @@ describe('InputCaptureBuffer — frame validation', () => {
     // only requires monotonicity. The replay system can run-length
     // encode "no input change for 8 frames" later.
     const buf = new InputCaptureBuffer({ playerCount: 1 });
-    buf.captureFrame(0, [{ moveX: 0, jump: false }]);
-    buf.captureFrame(50, [{ moveX: 1, jump: false }]);
-    buf.captureFrame(300, [{ moveX: -1, jump: true }]);
+    buf.captureFrame(0, [{ moveX: 0, moveY: 0, jump: false }]);
+    buf.captureFrame(50, [{ moveX: 1, moveY: 0, jump: false }]);
+    buf.captureFrame(300, [{ moveX: -1, moveY: 0, jump: true }]);
     expect(buf.size()).toBe(3);
     expect(buf.getLastFrame()).toBe(300);
   });
@@ -251,7 +251,7 @@ describe('InputCaptureBuffer — player-count validation', () => {
   it('rejects an inputs array shorter than playerCount', () => {
     const buf = new InputCaptureBuffer({ playerCount: 2 });
     expect(() =>
-      buf.captureFrame(0, [{ moveX: 0, jump: false }]),
+      buf.captureFrame(0, [{ moveX: 0, moveY: 0, jump: false }]),
     ).toThrow(/expected 2/i);
   });
 
@@ -259,9 +259,9 @@ describe('InputCaptureBuffer — player-count validation', () => {
     const buf = new InputCaptureBuffer({ playerCount: 2 });
     expect(() =>
       buf.captureFrame(0, [
-        { moveX: 0, jump: false },
-        { moveX: 1, jump: false },
-        { moveX: -1, jump: true },
+        { moveX: 0, moveY: 0, jump: false },
+        { moveX: 1, moveY: 0, jump: false },
+        { moveX: -1, moveY: 0, jump: true },
       ]),
     ).toThrow(/expected 2/i);
   });
@@ -275,7 +275,7 @@ describe('InputCaptureBuffer — defensive copy', () => {
   it('mutating the original CharacterInput does not affect the recorded entry', () => {
     const buf = new InputCaptureBuffer({ playerCount: 1 });
     // Use a mutable record to simulate a caller reusing its sample buffer.
-    const live = { moveX: 1, jump: true, attack: true, dropThrough: false };
+    const live = { moveX: 1, moveY: 0, jump: true, attack: true, dropThrough: false };
     buf.captureFrame(0, [live]);
 
     // Mutate every field after capture. The recorded entry must not change.
@@ -286,7 +286,7 @@ describe('InputCaptureBuffer — defensive copy', () => {
 
     const entry = buf.getFrame(0)!;
     expect(entry.inputs[0]).toEqual({
-      moveX: 1,
+      moveX: 1, moveY: 0,
       jump: true,
       attack: true,
       dropThrough: false,
@@ -295,7 +295,7 @@ describe('InputCaptureBuffer — defensive copy', () => {
 
   it('recorded entries are frozen', () => {
     const buf = new InputCaptureBuffer({ playerCount: 1 });
-    buf.captureFrame(0, [{ moveX: 1, jump: true }]);
+    buf.captureFrame(0, [{ moveX: 1, moveY: 0, jump: true }]);
     const entry = buf.getFrame(0)!;
     expect(Object.isFrozen(entry)).toBe(true);
     expect(Object.isFrozen(entry.inputs)).toBe(true);
@@ -311,12 +311,12 @@ describe('InputCaptureBuffer — getPlayerInput', () => {
   it('returns the right player slot for the right frame', () => {
     const buf = new InputCaptureBuffer({ playerCount: 2 });
     buf.captureFrame(0, [
-      { moveX: 1, jump: false },
-      { moveX: -1, jump: true },
+      { moveX: 1, moveY: 0, jump: false },
+      { moveX: -1, moveY: 0, jump: true },
     ]);
     buf.captureFrame(1, [
-      { moveX: 0, jump: true, attack: true },
-      { moveX: 0, jump: false },
+      { moveX: 0, moveY: 0, jump: true, attack: true },
+      { moveX: 0, moveY: 0, jump: false },
     ]);
 
     expect(buf.getPlayerInput(0, 0)!.moveX).toBe(1);
@@ -328,8 +328,8 @@ describe('InputCaptureBuffer — getPlayerInput', () => {
   it('returns null for an out-of-range player index', () => {
     const buf = new InputCaptureBuffer({ playerCount: 2 });
     buf.captureFrame(0, [
-      { moveX: 1, jump: false },
-      { moveX: 0, jump: false },
+      { moveX: 1, moveY: 0, jump: false },
+      { moveX: 0, moveY: 0, jump: false },
     ]);
     // Slot 2 doesn't exist in a 2P match.
     // Cast through unknown to bypass the PlayerIndex literal-type
@@ -339,7 +339,7 @@ describe('InputCaptureBuffer — getPlayerInput', () => {
 
   it('returns null for unknown frames', () => {
     const buf = new InputCaptureBuffer({ playerCount: 1 });
-    buf.captureFrame(0, [{ moveX: 0, jump: false }]);
+    buf.captureFrame(0, [{ moveX: 0, moveY: 0, jump: false }]);
     expect(buf.getPlayerInput(99, 0)).toBeNull();
   });
 });
@@ -374,8 +374,8 @@ describe('InputCaptureBuffer — getEntries', () => {
 describe('InputCaptureBuffer — reset', () => {
   it('clears the log and the monotonic invariant', () => {
     const buf = new InputCaptureBuffer({ playerCount: 1 });
-    buf.captureFrame(10, [{ moveX: 1, jump: false }]);
-    buf.captureFrame(11, [{ moveX: 0, jump: false }]);
+    buf.captureFrame(10, [{ moveX: 1, moveY: 0, jump: false }]);
+    buf.captureFrame(11, [{ moveX: 0, moveY: 0, jump: false }]);
     expect(buf.size()).toBe(2);
 
     buf.reset();
@@ -384,7 +384,7 @@ describe('InputCaptureBuffer — reset', () => {
     expect(buf.getLastFrame()).toBeNull();
     // Frame 0 capture must succeed after reset — the monotonic
     // invariant has been cleared along with the log.
-    expect(() => buf.captureFrame(0, [{ moveX: 0, jump: false }])).not.toThrow();
+    expect(() => buf.captureFrame(0, [{ moveX: 0, moveY: 0, jump: false }])).not.toThrow();
     expect(buf.getLastFrame()).toBe(0);
   });
 });
@@ -396,10 +396,10 @@ describe('InputCaptureBuffer — reset', () => {
 describe('InputCaptureBuffer — determinism', () => {
   it('two buffers fed the same sequence produce identical entries', () => {
     const sequence: Array<[number, CharacterInput, CharacterInput]> = [
-      [0, { moveX: 0, jump: false }, { moveX: 0, jump: false }],
-      [1, { moveX: 1, jump: true }, { moveX: -1, jump: false }],
-      [2, { moveX: 1, jump: false, attack: true }, { moveX: 0, jump: false }],
-      [3, { moveX: 0, jump: false, dropThrough: true }, { moveX: 1, jump: true }],
+      [0, { moveX: 0, moveY: 0, jump: false }, { moveX: 0, moveY: 0, jump: false }],
+      [1, { moveX: 1, moveY: 0, jump: true }, { moveX: -1, moveY: 0, jump: false }],
+      [2, { moveX: 1, moveY: 0, jump: false, attack: true }, { moveX: 0, moveY: 0, jump: false }],
+      [3, { moveX: 0, moveY: 0, jump: false, dropThrough: true }, { moveX: 1, moveY: 0, jump: true }],
     ];
 
     const a = new InputCaptureBuffer({ playerCount: 2 });
@@ -429,7 +429,7 @@ describe('InputCaptureBuffer — determinism', () => {
   it('round-trip through getFrame yields the exact same RecordedCharacterInput', () => {
     const buf = new InputCaptureBuffer({ playerCount: 1 });
     const expected: RecordedCharacterInput = {
-      moveX: 1,
+      moveX: 1, moveY: 0,
       jump: true,
       attack: true,
       dropThrough: true,

@@ -73,7 +73,7 @@ function makeReplay(
   const buffer = new InputCaptureBuffer({ playerCount });
   for (const [frame, p1, p2] of sequence) {
     const inputs: CharacterInput[] = [p1];
-    if (playerCount >= 2) inputs.push(p2 ?? { moveX: 0, jump: false });
+    if (playerCount >= 2) inputs.push(p2 ?? { moveX: 0, moveY: 0, jump: false });
     buffer.captureFrame(frame, inputs);
   }
   return serializeReplay({
@@ -127,8 +127,8 @@ describe('ReplayPlaybackController — construction', () => {
 
   it('accepts a replay in the constructor', () => {
     const replay = makeReplay([
-      [0, { moveX: 1, jump: false }, { moveX: 0, jump: false }],
-      [1, { moveX: 0, jump: true }, { moveX: -1, jump: false }],
+      [0, { moveX: 1, moveY: 0, jump: false }, { moveX: 0, moveY: 0, jump: false }],
+      [1, { moveX: 0, moveY: 0, jump: true }, { moveX: -1, moveY: 0, jump: false }],
     ]);
     const c = new ReplayPlaybackController({ replay });
     expect(c.getPhase()).toBe('loaded');
@@ -137,9 +137,9 @@ describe('ReplayPlaybackController — construction', () => {
 
   it('respects startFrame override in constructor', () => {
     const replay = makeReplay([
-      [0, { moveX: 1, jump: false }],
-      [1, { moveX: 0, jump: true }],
-      [2, { moveX: -1, jump: false }],
+      [0, { moveX: 1, moveY: 0, jump: false }],
+      [1, { moveX: 0, moveY: 0, jump: true }],
+      [2, { moveX: -1, moveY: 0, jump: false }],
     ]);
     const c = new ReplayPlaybackController({ replay, startFrame: 2 });
     expect(c.getCurrentFrame()).toBe(2);
@@ -158,7 +158,7 @@ describe('ReplayPlaybackController — load', () => {
   });
 
   it('transitions IDLE → LOADED', () => {
-    const replay = makeReplay([[0, { moveX: 1, jump: false }]]);
+    const replay = makeReplay([[0, { moveX: 1, moveY: 0, jump: false }]]);
     c.load(replay);
     expect(c.getPhase()).toBe('loaded');
     expect(c.isLoaded()).toBe(true);
@@ -166,9 +166,9 @@ describe('ReplayPlaybackController — load', () => {
 
   it('parks the cursor at the first recorded frame', () => {
     const replay = makeReplay([
-      [10, { moveX: 1, jump: false }],
-      [11, { moveX: 0, jump: false }],
-      [12, { moveX: -1, jump: true }],
+      [10, { moveX: 1, moveY: 0, jump: false }],
+      [11, { moveX: 0, moveY: 0, jump: false }],
+      [12, { moveX: -1, moveY: 0, jump: true }],
     ]);
     c.load(replay);
     expect(c.getCurrentFrame()).toBe(10);
@@ -178,7 +178,7 @@ describe('ReplayPlaybackController — load', () => {
   });
 
   it('exposes match config + seed for match-init bootstrap', () => {
-    const replay = makeReplay([[0, { moveX: 0, jump: false }]]);
+    const replay = makeReplay([[0, { moveX: 0, moveY: 0, jump: false }]]);
     c.load(replay);
     const cfg = c.getMatchConfig();
     expect(cfg).not.toBeNull();
@@ -190,19 +190,19 @@ describe('ReplayPlaybackController — load', () => {
   });
 
   it('exposes the loaded replay file', () => {
-    const replay = makeReplay([[0, { moveX: 0, jump: false }]]);
+    const replay = makeReplay([[0, { moveX: 0, moveY: 0, jump: false }]]);
     c.load(replay);
     expect(c.getReplay()).toBe(replay);
   });
 
   it('exposes the player count', () => {
-    const replay = makeReplay([[0, { moveX: 0, jump: false }]], 1);
+    const replay = makeReplay([[0, { moveX: 0, moveY: 0, jump: false }]], 1);
     c.load(replay);
     expect(c.getPlayerCount()).toBe(1);
   });
 
   it('refuses to load while not IDLE', () => {
-    const replay = makeReplay([[0, { moveX: 0, jump: false }]]);
+    const replay = makeReplay([[0, { moveX: 0, moveY: 0, jump: false }]]);
     c.load(replay);
     expect(() => c.load(replay)).toThrow(/cannot load while phase is/);
   });
@@ -254,8 +254,8 @@ describe('ReplayPlaybackController — load', () => {
       inputTimeline: {
         playerCount: 1,
         entries: [
-          { frame: 5, inputs: [{ moveX: 0, jump: false }] },
-          { frame: 3, inputs: [{ moveX: 0, jump: false }] }, // rewind
+          { frame: 5, inputs: [{ moveX: 0, moveY: 0, jump: false }] },
+          { frame: 3, inputs: [{ moveX: 0, moveY: 0, jump: false }] }, // rewind
         ],
       },
     } as unknown as ReplayFile;
@@ -263,7 +263,7 @@ describe('ReplayPlaybackController — load', () => {
   });
 
   it('rejects negative startFrame', () => {
-    const replay = makeReplay([[0, { moveX: 0, jump: false }]]);
+    const replay = makeReplay([[0, { moveX: 0, moveY: 0, jump: false }]]);
     expect(() => c.load(replay, -1)).toThrow(/non-negative/);
   });
 
@@ -284,7 +284,7 @@ describe('ReplayPlaybackController — load', () => {
 
 describe('ReplayPlaybackController — start', () => {
   it('transitions LOADED → PLAYING', () => {
-    const replay = makeReplay([[0, { moveX: 1, jump: false }]]);
+    const replay = makeReplay([[0, { moveX: 1, moveY: 0, jump: false }]]);
     const c = new ReplayPlaybackController({ replay });
     c.start();
     expect(c.getPhase()).toBe('playing');
@@ -292,7 +292,7 @@ describe('ReplayPlaybackController — start', () => {
   });
 
   it('is idempotent in PLAYING', () => {
-    const replay = makeReplay([[0, { moveX: 1, jump: false }]]);
+    const replay = makeReplay([[0, { moveX: 1, moveY: 0, jump: false }]]);
     const c = new ReplayPlaybackController({ replay });
     c.start();
     expect(() => c.start()).not.toThrow();
@@ -305,7 +305,7 @@ describe('ReplayPlaybackController — start', () => {
   });
 
   it('rejects start from FINISHED (caller must seek/reset first)', () => {
-    const replay = makeReplay([[0, { moveX: 1, jump: false }]]);
+    const replay = makeReplay([[0, { moveX: 1, moveY: 0, jump: false }]]);
     const c = new ReplayPlaybackController({ replay });
     c.stop();
     expect(c.getPhase()).toBe('finished');
@@ -328,21 +328,21 @@ describe('ReplayPlaybackController — start', () => {
 describe('ReplayPlaybackController — sampleFrame', () => {
   it('returns the recorded inputs for a captured frame', () => {
     const replay = makeReplay([
-      [0, { moveX: 1, jump: false }, { moveX: -1, jump: true }],
-      [1, { moveX: 0, jump: true, attack: true }, { moveX: 0, jump: false }],
+      [0, { moveX: 1, moveY: 0, jump: false }, { moveX: -1, moveY: 0, jump: true }],
+      [1, { moveX: 0, moveY: 0, jump: true, attack: true }, { moveX: 0, moveY: 0, jump: false }],
     ]);
     const c = new ReplayPlaybackController({ replay });
 
     const f0 = c.sampleFrame(0)!;
     expect(f0).toHaveLength(2);
     expect(f0[0]).toEqual({
-      moveX: 1,
+      moveX: 1, moveY: 0,
       jump: false,
       attack: false,
       dropThrough: false,
     });
     expect(f0[1]).toEqual({
-      moveX: -1,
+      moveX: -1, moveY: 0,
       jump: true,
       attack: false,
       dropThrough: false,
@@ -350,7 +350,7 @@ describe('ReplayPlaybackController — sampleFrame', () => {
 
     const f1 = c.sampleFrame(1)!;
     expect(f1[0]).toEqual({
-      moveX: 0,
+      moveX: 0, moveY: 0,
       jump: true,
       attack: true,
       dropThrough: false,
@@ -359,8 +359,8 @@ describe('ReplayPlaybackController — sampleFrame', () => {
 
   it('returns null for frames not in the timeline', () => {
     const replay = makeReplay([
-      [0, { moveX: 1, jump: false }],
-      [10, { moveX: 0, jump: true }],
+      [0, { moveX: 1, moveY: 0, jump: false }],
+      [10, { moveX: 0, moveY: 0, jump: true }],
     ]);
     const c = new ReplayPlaybackController({ replay });
     expect(c.sampleFrame(5)).toBeNull();
@@ -375,8 +375,8 @@ describe('ReplayPlaybackController — sampleFrame', () => {
 
   it('does not advance the cursor', () => {
     const replay = makeReplay([
-      [0, { moveX: 1, jump: false }],
-      [1, { moveX: 0, jump: false }],
+      [0, { moveX: 1, moveY: 0, jump: false }],
+      [1, { moveX: 0, moveY: 0, jump: false }],
     ]);
     const c = new ReplayPlaybackController({ replay });
     expect(c.getCurrentFrame()).toBe(0);
@@ -389,7 +389,7 @@ describe('ReplayPlaybackController — sampleFrame', () => {
 describe('ReplayPlaybackController — samplePlayer', () => {
   it('returns a single player slot for a captured frame', () => {
     const replay = makeReplay([
-      [0, { moveX: 1, jump: false }, { moveX: -1, jump: true }],
+      [0, { moveX: 1, moveY: 0, jump: false }, { moveX: -1, moveY: 0, jump: true }],
     ]);
     const c = new ReplayPlaybackController({ replay });
     expect(c.samplePlayer(0, 0)!.moveX).toBe(1);
@@ -397,7 +397,7 @@ describe('ReplayPlaybackController — samplePlayer', () => {
   });
 
   it('returns null for missing frame or out-of-range slot', () => {
-    const replay = makeReplay([[0, { moveX: 1, jump: false }]], 2);
+    const replay = makeReplay([[0, { moveX: 1, moveY: 0, jump: false }]], 2);
     const c = new ReplayPlaybackController({ replay });
     expect(c.samplePlayer(99, 0)).toBeNull();
     // Slot 2 doesn't exist in a 2P replay; same convention as
@@ -418,9 +418,9 @@ describe('ReplayPlaybackController — samplePlayer', () => {
 describe('ReplayPlaybackController — advance', () => {
   it('returns the inputs for the cursor frame and post-increments', () => {
     const replay = makeReplay([
-      [0, { moveX: 1, jump: false }, { moveX: -1, jump: false }],
-      [1, { moveX: 0, jump: true }, { moveX: 0, jump: false }],
-      [2, { moveX: -1, jump: false }, { moveX: 1, jump: true }],
+      [0, { moveX: 1, moveY: 0, jump: false }, { moveX: -1, moveY: 0, jump: false }],
+      [1, { moveX: 0, moveY: 0, jump: true }, { moveX: 0, moveY: 0, jump: false }],
+      [2, { moveX: -1, moveY: 0, jump: false }, { moveX: 1, moveY: 0, jump: true }],
     ]);
     const c = new ReplayPlaybackController({ replay });
     c.start();
@@ -442,8 +442,8 @@ describe('ReplayPlaybackController — advance', () => {
 
   it('transitions to FINISHED after reading the last frame', () => {
     const replay = makeReplay([
-      [0, { moveX: 1, jump: false }],
-      [1, { moveX: 0, jump: false }],
+      [0, { moveX: 1, moveY: 0, jump: false }],
+      [1, { moveX: 0, moveY: 0, jump: false }],
     ]);
     const c = new ReplayPlaybackController({ replay });
     c.start();
@@ -458,7 +458,7 @@ describe('ReplayPlaybackController — advance', () => {
     const c = new ReplayPlaybackController();
     expect(() => c.advance()).toThrow(/not playing/);
 
-    const replay = makeReplay([[0, { moveX: 1, jump: false }]]);
+    const replay = makeReplay([[0, { moveX: 1, moveY: 0, jump: false }]]);
     c.load(replay);
     expect(() => c.advance()).toThrow(/not playing/); // LOADED, not PLAYING
 
@@ -472,8 +472,8 @@ describe('ReplayPlaybackController — advance', () => {
     // cursor by 1 each call regardless. Frames between the recorded
     // ones return null — caller treats as "no input recorded".
     const replay = makeReplay([
-      [0, { moveX: 1, jump: false }],
-      [3, { moveX: 0, jump: true }],
+      [0, { moveX: 1, moveY: 0, jump: false }],
+      [3, { moveX: 0, moveY: 0, jump: true }],
     ]);
     const c = new ReplayPlaybackController({ replay });
     c.start();
@@ -492,9 +492,9 @@ describe('ReplayPlaybackController — advance', () => {
 describe('ReplayPlaybackController — seek', () => {
   it('moves the cursor to the requested frame', () => {
     const replay = makeReplay([
-      [0, { moveX: 1, jump: false }],
-      [1, { moveX: 0, jump: false }],
-      [2, { moveX: -1, jump: false }],
+      [0, { moveX: 1, moveY: 0, jump: false }],
+      [1, { moveX: 0, moveY: 0, jump: false }],
+      [2, { moveX: -1, moveY: 0, jump: false }],
     ]);
     const c = new ReplayPlaybackController({ replay });
     c.start();
@@ -505,8 +505,8 @@ describe('ReplayPlaybackController — seek', () => {
 
   it('returns FINISHED → PLAYING when seeking back into the timeline', () => {
     const replay = makeReplay([
-      [0, { moveX: 1, jump: false }],
-      [1, { moveX: 0, jump: false }],
+      [0, { moveX: 1, moveY: 0, jump: false }],
+      [1, { moveX: 0, moveY: 0, jump: false }],
     ]);
     const c = new ReplayPlaybackController({ replay });
     c.start();
@@ -520,8 +520,8 @@ describe('ReplayPlaybackController — seek', () => {
 
   it('seeking past lastFrame transitions to FINISHED', () => {
     const replay = makeReplay([
-      [0, { moveX: 1, jump: false }],
-      [1, { moveX: 0, jump: false }],
+      [0, { moveX: 1, moveY: 0, jump: false }],
+      [1, { moveX: 0, moveY: 0, jump: false }],
     ]);
     const c = new ReplayPlaybackController({ replay });
     c.start();
@@ -536,7 +536,7 @@ describe('ReplayPlaybackController — seek', () => {
   });
 
   it('rejects negative or non-integer frames', () => {
-    const replay = makeReplay([[0, { moveX: 1, jump: false }]]);
+    const replay = makeReplay([[0, { moveX: 1, moveY: 0, jump: false }]]);
     const c = new ReplayPlaybackController({ replay });
     expect(() => c.seek(-1)).toThrow(/non-negative/);
     expect(() => c.seek(1.5)).toThrow(/non-negative integer/);
@@ -557,7 +557,7 @@ describe('ReplayPlaybackController — seek', () => {
 
 describe('ReplayPlaybackController — stop', () => {
   it('transitions any non-IDLE phase to FINISHED', () => {
-    const replay = makeReplay([[0, { moveX: 1, jump: false }]]);
+    const replay = makeReplay([[0, { moveX: 1, moveY: 0, jump: false }]]);
     const c = new ReplayPlaybackController({ replay });
     c.stop();
     expect(c.getPhase()).toBe('finished');
@@ -570,7 +570,7 @@ describe('ReplayPlaybackController — stop', () => {
   });
 
   it('is idempotent in FINISHED', () => {
-    const replay = makeReplay([[0, { moveX: 1, jump: false }]]);
+    const replay = makeReplay([[0, { moveX: 1, moveY: 0, jump: false }]]);
     const c = new ReplayPlaybackController({ replay });
     c.stop();
     c.stop();
@@ -585,8 +585,8 @@ describe('ReplayPlaybackController — stop', () => {
 describe('ReplayPlaybackController — reset', () => {
   it('returns to IDLE and drops state', () => {
     const replay = makeReplay([
-      [0, { moveX: 1, jump: false }],
-      [1, { moveX: 0, jump: false }],
+      [0, { moveX: 1, moveY: 0, jump: false }],
+      [1, { moveX: 0, moveY: 0, jump: false }],
     ]);
     const c = new ReplayPlaybackController({ replay });
     c.start();
@@ -601,10 +601,10 @@ describe('ReplayPlaybackController — reset', () => {
   });
 
   it('allows a new load after reset', () => {
-    const a = makeReplay([[0, { moveX: 1, jump: false }]]);
+    const a = makeReplay([[0, { moveX: 1, moveY: 0, jump: false }]]);
     const b = makeReplay([
-      [0, { moveX: 0, jump: false }],
-      [1, { moveX: -1, jump: true }],
+      [0, { moveX: 0, moveY: 0, jump: false }],
+      [1, { moveX: -1, moveY: 0, jump: true }],
     ]);
     const c = new ReplayPlaybackController({ replay: a });
     c.start();
@@ -624,17 +624,17 @@ describe('ReplayPlaybackController — recorder/playback symmetry', () => {
     // Construct a "recorded" sequence by hand, then prove the playback
     // controller emits the exact same RecordedCharacterInput shape.
     const sequence: Array<[number, CharacterInput, CharacterInput]> = [
-      [0, { moveX: 0, jump: false }, { moveX: 0, jump: false }],
-      [1, { moveX: 1, jump: true }, { moveX: -1, jump: false }],
+      [0, { moveX: 0, moveY: 0, jump: false }, { moveX: 0, moveY: 0, jump: false }],
+      [1, { moveX: 1, moveY: 0, jump: true }, { moveX: -1, moveY: 0, jump: false }],
       [
         2,
-        { moveX: 1, jump: false, attack: true },
-        { moveX: 0, jump: false },
+        { moveX: 1, moveY: 0, jump: false, attack: true },
+        { moveX: 0, moveY: 0, jump: false },
       ],
       [
         3,
-        { moveX: 0, jump: false, dropThrough: true },
-        { moveX: 1, jump: true },
+        { moveX: 0, moveY: 0, jump: false, dropThrough: true },
+        { moveX: 1, moveY: 0, jump: true },
       ],
     ];
 
@@ -664,9 +664,9 @@ describe('ReplayPlaybackController — recorder/playback symmetry', () => {
 
   it('feeds inputs to a mock simulator frame-by-frame in cursor order', () => {
     const replay = makeReplay([
-      [0, { moveX: 1, jump: false }, { moveX: -1, jump: false }],
-      [1, { moveX: 0, jump: true }, { moveX: 0, jump: false }],
-      [2, { moveX: -1, jump: false }, { moveX: 1, jump: true }],
+      [0, { moveX: 1, moveY: 0, jump: false }, { moveX: -1, moveY: 0, jump: false }],
+      [1, { moveX: 0, moveY: 0, jump: true }, { moveX: 0, moveY: 0, jump: false }],
+      [2, { moveX: -1, moveY: 0, jump: false }, { moveX: 1, moveY: 0, jump: true }],
     ]);
 
     // Mock simulator: collects every input it sees per slot. Replaces
@@ -701,8 +701,8 @@ describe('ReplayPlaybackController — recorder/playback symmetry', () => {
     // The playback controller must round-trip that exactly — otherwise
     // an "eliminated player" frame would diverge from the original.
     const buffer = new InputCaptureBuffer({ playerCount: 2 });
-    buffer.captureFrame(0, [{ moveX: 1, jump: true, attack: true }, undefined]);
-    buffer.captureFrame(1, [undefined, { moveX: -1, jump: false }]);
+    buffer.captureFrame(0, [{ moveX: 1, moveY: 0, jump: true, attack: true }, undefined]);
+    buffer.captureFrame(1, [undefined, { moveX: -1, moveY: 0, jump: false }]);
     const replay = serializeReplay({
       matchConfig: makeMatchConfig(),
       capturedFrames: buffer.getEntries(),
@@ -724,10 +724,10 @@ describe('ReplayPlaybackController — recorder/playback symmetry', () => {
 describe('ReplayPlaybackController — determinism', () => {
   it('two controllers loaded from the same replay produce identical frame streams', () => {
     const replay = makeReplay([
-      [0, { moveX: 1, jump: false }, { moveX: -1, jump: false }],
-      [1, { moveX: 0, jump: true }, { moveX: 0, jump: true }],
-      [2, { moveX: -1, jump: false }, { moveX: 1, jump: false }],
-      [3, { moveX: 0, jump: false }, { moveX: 0, jump: false }],
+      [0, { moveX: 1, moveY: 0, jump: false }, { moveX: -1, moveY: 0, jump: false }],
+      [1, { moveX: 0, moveY: 0, jump: true }, { moveX: 0, moveY: 0, jump: true }],
+      [2, { moveX: -1, moveY: 0, jump: false }, { moveX: 1, moveY: 0, jump: false }],
+      [3, { moveX: 0, moveY: 0, jump: false }, { moveX: 0, moveY: 0, jump: false }],
     ]);
 
     const a = new ReplayPlaybackController({ replay });
@@ -754,9 +754,9 @@ describe('ReplayPlaybackController — determinism', () => {
 
   it('seek() + advance() reproduce the same inputs as a fresh playback', () => {
     const replay = makeReplay([
-      [0, { moveX: 1, jump: false }],
-      [1, { moveX: 0, jump: true }],
-      [2, { moveX: -1, jump: false }],
+      [0, { moveX: 1, moveY: 0, jump: false }],
+      [1, { moveX: 0, moveY: 0, jump: true }],
+      [2, { moveX: -1, moveY: 0, jump: false }],
     ]);
 
     // Fresh playback from frame 1 onwards.
@@ -792,9 +792,9 @@ describe('ReplayPlaybackController — determinism', () => {
 describe('ReplayPlaybackController — getEntries', () => {
   it('exposes every captured frame in order', () => {
     const replay = makeReplay([
-      [0, { moveX: 1, jump: false }],
-      [5, { moveX: 0, jump: true }],
-      [10, { moveX: -1, jump: false }],
+      [0, { moveX: 1, moveY: 0, jump: false }],
+      [5, { moveX: 0, moveY: 0, jump: true }],
+      [10, { moveX: -1, moveY: 0, jump: false }],
     ]);
     const c = new ReplayPlaybackController({ replay });
     const entries: ReadonlyArray<CapturedFrame> = c.getEntries();

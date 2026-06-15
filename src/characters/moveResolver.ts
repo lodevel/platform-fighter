@@ -452,6 +452,13 @@ function specialDirectionToSlot(
 function groundedPatternToSlot(
   pattern: GroundedAttackPattern,
 ): GroundedNormalSlotName {
+  // The up-tilt / up-smash channels resolve to the same canonical
+  // grounded-normal slot family for this (AI / replay) resolver — the
+  // live dispatch in Character routes them to their dedicated up slots.
+  if (pattern === 'utilt' || pattern === 'dtilt' || pattern === 'dashAttack') {
+    return 'tilt';
+  }
+  if (pattern === 'usmash' || pattern === 'dsmash') return 'smash';
   return pattern;
 }
 

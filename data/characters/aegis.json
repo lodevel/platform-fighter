@@ -1,0 +1,25 @@
+{
+  "$schema": "../../src/characters/characterSerializer.schema.json",
+  "id": "aegis",
+  "displayName": "Aegis (Marth)",
+  "role": "sword spacing (Marth)",
+  "body": {
+    "width": 46,
+    "height": 76,
+    "chamfer": 8
+  },
+  "movement": {
+    "maxRunSpeed": 8.0,
+    "groundAccel": 0.7,
+    "airAccel": 0.4,
+    "groundDamping": 0.8,
+    "airDamping": 0.96,
+    "jumpImpulse": 13.0,
+    "maxJumps": 2,
+    "mass": 11,
+    "fallAccel": 0.28,
+    "maxFallSpeed": 10.5,
+    "fastFallSpeed": 17.0,
+    "jumpCutFactor": 0.42
+  }
+}

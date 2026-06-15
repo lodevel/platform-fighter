@@ -115,6 +115,14 @@ export function computeChargedDamageFromSpec(
  * Charge moves at higher hold percentages get BOTH a stronger base
  * vector AND steeper percent-scaling, matching the Smash idiom of
  * "fully charged smash launches at lower percent than uncharged".
+ *
+ * The optional Smash-style components (`baseMagnitude`,
+ * `damageGrowth`) lerp with absent-treated-as-0 semantics: when only
+ * ONE endpoint authors the field, the other endpoint contributes 0,
+ * so charging smoothly fades the component in (toward max) or out
+ * (toward min). The field is omitted from the result only when BOTH
+ * endpoints omit it — legacy 3-field charge specs keep producing
+ * byte-identical results (no keys gained).
  */
 export function computeChargedKnockbackFromSpec(
   spec: ChargeSpec,
@@ -123,10 +131,20 @@ export function computeChargedKnockbackFromSpec(
   const t = computeChargeTFromSpec(spec, heldFrames);
   const a = spec.minKnockback;
   const b = spec.maxKnockback;
+  // Optional-component lerp — see the one-endpoint-absent rule in the
+  // JSDoc above. `undefined` here means "omit from the result".
+  const lerpOpt = (av?: number, bv?: number): number | undefined =>
+    av === undefined && bv === undefined
+      ? undefined
+      : (av ?? 0) + ((bv ?? 0) - (av ?? 0)) * t;
+  const baseMagnitude = lerpOpt(a.baseMagnitude, b.baseMagnitude);
+  const damageGrowth = lerpOpt(a.damageGrowth, b.damageGrowth);
   return {
     x: a.x + (b.x - a.x) * t,
     y: a.y + (b.y - a.y) * t,
     scaling: a.scaling + (b.scaling - a.scaling) * t,
+    ...(baseMagnitude !== undefined ? { baseMagnitude } : {}),
+    ...(damageGrowth !== undefined ? { damageGrowth } : {}),
   };
 }
 

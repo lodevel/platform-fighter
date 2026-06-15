@@ -88,6 +88,7 @@
  */
 
 import type Phaser from 'phaser';
+import { ContractFighter } from './contractFighter';
 import { Character, type CharacterTuning } from './Character';
 import { registerFighterAttack } from './attackRegistration';
 import type { AttackMove } from './attacks';
@@ -97,6 +98,7 @@ import type { ChargeSpecialMove } from './specialSchema';
 import type { MultiHitSideSpecialMove } from './sideSpecialSchema';
 import type { TeleportUpSpecialMove } from './upSpecialSchema';
 import type { TrapDownSpecialMove } from './downSpecialSchema';
+import type { GrabSpec } from './grabSchema';
 import { SHIELD_DEFAULTS } from './shieldState';
 import { DODGE_DEFAULTS } from './dodgeState';
 import type {
@@ -105,6 +107,11 @@ import type {
   FighterMovementProfile,
 } from './movesetContract';
 import { CAT_MOVEMENT_PROFILE } from './fighterMovementProfiles';
+// Directional-attack moves authored in the shared extended-slot file —
+// Cat's up-air / down-air launchers and her up-stick grounded light
+// (reused here as the up-tilt). Imported so the constructor can register
+// them alongside the up-smash authored in this file.
+import { CAT_UAIR, CAT_DAIR, CAT_UP_LIGHT, CAT_DOWN_LIGHT } from './extendedMoves';
 
 // Re-export so consumers that historically imported `CAT_MOVEMENT_PROFILE`
 // from this file (the per-fighter API surface) keep working byte-for-byte.
@@ -135,7 +142,7 @@ export { CAT_MOVEMENT_PROFILE };
  * Sub-AC 1's canonical `SHIELD_DEFAULTS`); a per-character shield
  * balance pass would land here later.
  */
-export const CAT_TUNING: Required<Omit<CharacterTuning, 'shield' | 'dodge' | 'ledge' | 'ledgeDetection'>> = {
+export const CAT_TUNING: Required<Omit<CharacterTuning, 'shield' | 'dodge' | 'ledge' | 'ledgeDetection' | 'locomotion'>> = {
   // Sub-AC 2.2 of the T2 refactor — movement-relevant fields composed
   // from `CAT_MOVEMENT_PROFILE` (the per-fighter movement profile —
   // single source of truth in `fighterMovementProfiles.ts`). Body
@@ -212,6 +219,53 @@ export const CAT_JAB: AttackMoveWithAnimation = {
     activeFrames: 1,
     recoveryFrames: 3,
   },
+  // Jab-combo opener: a re-press once jab1's hitbox is out advances to
+  // jab2 → jab3 (the finisher). Mirrors the Wolf jab-string contract.
+  jabChain: { nextId: 'cat.jab2' },
+};
+
+/**
+ * Cat jab string — stage 2. A quick follow-up poke that chains from
+ * {@link CAT_JAB} on a re-press and itself links to the {@link CAT_JAB3}
+ * finisher. Registered as a `'jab'` move but never the light slot
+ * (first-registered jab1 keeps it) — reachable ONLY via the chain link.
+ * Faster and slightly weaker than jab1: damage ≈ round(jab1 × 0.7),
+ * knockback a touch lighter, hitbox nudged out so the second poke reads
+ * as reaching a hair further than the opener.
+ */
+export const CAT_JAB2: AttackMoveWithAnimation = {
+  id: 'cat.jab2',
+  type: 'jab',
+  damage: 2,
+  knockback: { x: 0.6, y: -0.2, scaling: 0.03 },
+  hitbox: { offsetX: 22, offsetY: -2, width: 28, height: 15 },
+  startupFrames: 2,
+  activeFrames: 2,
+  recoveryFrames: 4,
+  cooldownFrames: 4,
+  animation: { startupFrames: 2, activeFrames: 1, recoveryFrames: 3 },
+  jabChain: { nextId: 'cat.jab3' },
+};
+
+/**
+ * Cat jab string — finisher (stage 3). The launcher that ends the
+ * string: clearly bigger knockback (x and y) plus a `baseMagnitude`
+ * floor so it pops the opponent away even at low percent. Slower /
+ * more committal than jab1 (longer recovery + cooldown). No `jabChain` —
+ * the chain terminates here, and its `cooldownFrames` is the
+ * post-string lockout. Mirrors the Wolf jab-string finisher contract.
+ */
+export const CAT_JAB3: AttackMoveWithAnimation = {
+  id: 'cat.jab3',
+  type: 'jab',
+  damage: 3,
+  knockback: { x: 2.4, y: -1.6, scaling: 0.15, baseMagnitude: 1.0 },
+  hitbox: { offsetX: 24, offsetY: -2, width: 32, height: 17 },
+  startupFrames: 3,
+  activeFrames: 3,
+  recoveryFrames: 11,
+  cooldownFrames: 12,
+  animation: { startupFrames: 2, activeFrames: 1, recoveryFrames: 4 },
 };
 
 /**
@@ -298,7 +352,15 @@ export const CAT_SMASH: AttackMoveWithAnimation = {
   id: 'cat.smash',
   type: 'smash',
   damage: 9,
-  knockback: { x: 2.8, y: -1.2, scaling: 0.3 },
+  knockback: { x: 2.8, y: -1.2, scaling: 0.3, baseMagnitude: 1.0, damageGrowth: 0.5 },
+  charge: {
+    minChargeFrames: 0,
+    maxChargeFrames: 60,
+    minDamage: 9,
+    maxDamage: 12.6,
+    minKnockback: { x: 2.8, y: -1.2, scaling: 0.3, baseMagnitude: 1.0, damageGrowth: 0.5 },
+    maxKnockback: { x: 3.92, y: -1.68, scaling: 0.375, baseMagnitude: 1.0, damageGrowth: 0.5 },
+  },
   // AC 10404 Sub-AC 4 — re-tuned for the 75×75 body. Reach (52 px
   // offset) is the longest grounded option (jab 38, tilt 46, smash 52)
   // and the 72×34 hitbox is the largest, mirroring the legacy
@@ -317,6 +379,179 @@ export const CAT_SMASH: AttackMoveWithAnimation = {
     startupFrames: 3,
     activeFrames: 1,
     recoveryFrames: 4,
+  },
+};
+
+/**
+ * Cat's up-smash — a rising vertical strike (up-stick + heavy). The
+ * grounded vertical KO move, mirroring the AC 60002 Sub-AC 2 work that
+ * gave Wolf his up-smash. Like Wolf's, this is the canonical "charge it
+ * under a juggled opponent" finisher — slow startup punishes whiffs, but
+ * a clean hit launches straight up off the top blast zone.
+ *
+ * Ninja-tuned vs Wolf's up-smash (dmg 16 / startup 12 / scaling 0.42):
+ * Cat starts up faster and hits softer, the same fast-but-weaker trade
+ * her forward smash makes against Wolf's (Cat smash dmg 9 / startup 8 vs
+ * Wolf smash dmg 14 / startup 12). The KB vector mirrors her forward
+ * smash's SHAPE — `baseMagnitude: 1.0` + `damageGrowth: 0.5` matching
+ * CAT_SMASH — but rotated vertical: a near-zero horizontal push with a
+ * hard upward launch (y -3.2) and the steepest percent-scaling in Cat's
+ * grounded kit (0.36) so it opens KO percent like a real smash.
+ *
+ *   damage 13, knockback 0.3/-3.2 with 0.36 scaling.
+ *   startup 12 (~200 ms), active 3, recovery 16, cooldown 18.
+ *   Press-to-press lockout = 37 frames (~617 ms). Faster startup than
+ *   Wolf's up-smash (12 vs 12 startup but lighter recovery/cooldown).
+ *
+ * Hitbox: a tall dome over Cat's body (offsetX 0, width 48 so it clears
+ * both flanks of the 40-wide body, dropping to y +5 so a grounded
+ * opponent standing beside Cat is caught too — not an overhead-only
+ * column). Reaches well above the 65-tall body for the canonical
+ * anti-air / juggle-finisher coverage. Mirrors the reshaped up-stick
+ * geometry of CAT_UP_LIGHT but reaches higher and hits far harder.
+ *
+ * Animation states: 8 art frames total — 3 startup, 1 active, 4 recovery
+ * (mirrors CAT_SMASH's anticipation curve so the heavy wind-up reads
+ * clearly to the opponent).
+ */
+export const CAT_USMASH: AttackMoveWithAnimation = {
+  id: 'cat.usmash',
+  type: 'smash',
+  damage: 13,
+  knockback: { x: 0.3, y: -3.2, scaling: 0.36, baseMagnitude: 1.0, damageGrowth: 0.5 },
+  charge: {
+    minChargeFrames: 0,
+    maxChargeFrames: 60,
+    minDamage: 13,
+    maxDamage: 18.2,
+    minKnockback: { x: 0.3, y: -3.2, scaling: 0.36, baseMagnitude: 1.0, damageGrowth: 0.5 },
+    maxKnockback: { x: 0.42, y: -4.48, scaling: 0.45, baseMagnitude: 1.0, damageGrowth: 0.5 },
+  },
+  hitbox: {
+    offsetX: 9,
+    offsetY: -25,
+    width: 60,
+    height: 60,
+  },
+  startupFrames: 12,
+  activeFrames: 3,
+  recoveryFrames: 16,
+  cooldownFrames: 18,
+  animation: {
+    startupFrames: 3,
+    activeFrames: 1,
+    recoveryFrames: 4,
+  },
+};
+
+/**
+ * Cat's down-smash — a sweeping low strike at the feet (down-stick +
+ * heavy). The grounded HORIZONTAL KO move, mirroring the AC 60002
+ * Sub-AC 2 work that gave Wolf his directional smashes. Where her
+ * up-smash launches a juggled opponent straight up, the down-smash
+ * sweeps anyone standing next to Cat outward and low — the canonical
+ * "2-frame at the ledge" / "hit the roller" coverage.
+ *
+ * Ninja-tuned vs the bruiser scale: Cat's down-smash starts up faster
+ * and hits softer than a heavyweight's would, the same fast-but-weaker
+ * trade her forward smash makes. The KB vector mirrors her forward
+ * smash's SHAPE — `baseMagnitude: 1.0` + `damageGrowth: 0.5` matching
+ * CAT_SMASH, with the same 0.30 percent-scaling — so it opens KO
+ * percent like a real smash. The launch is hard-horizontal with a
+ * slight downward tilt (y -0.6 vs the forward smash's -1.2) so it
+ * sends low toward the side blast zone rather than popping up.
+ *
+ *   damage 10, knockback 3.0/-0.6 with 0.30 scaling.
+ *   startup 13 (~217 ms), active 3, recovery 15, cooldown 16.
+ *   Press-to-press lockout = 47 frames (~783 ms). Slowest startup in
+ *   Cat's grounded kit — the deliberate KO commitment.
+ *
+ * Hitbox: a WIDE, low sweep at the feet (offsetY +12 reaching down to
+ * ground level, large width 54, short height 16) — the canonical
+ * down-smash footprint. Reaches further horizontally than her forward
+ * smash (38 wide) so the sweep catches an opponent rolling behind or
+ * landing next to her.
+ *
+ * Animation states: 8 art frames total — 3 startup, 1 active, 4
+ * recovery (mirrors CAT_SMASH's anticipation curve so the heavy
+ * wind-up reads clearly to the opponent).
+ */
+export const CAT_DSMASH: AttackMoveWithAnimation = {
+  id: 'cat.dsmash',
+  type: 'smash',
+  damage: 10,
+  knockback: { x: 3.0, y: -0.6, scaling: 0.3, baseMagnitude: 1.0, damageGrowth: 0.5 },
+  charge: {
+    minChargeFrames: 0,
+    maxChargeFrames: 60,
+    minDamage: 10,
+    maxDamage: 14,
+    minKnockback: { x: 3.0, y: -0.6, scaling: 0.3, baseMagnitude: 1.0, damageGrowth: 0.5 },
+    maxKnockback: { x: 4.2, y: -0.84, scaling: 0.375, baseMagnitude: 1.0, damageGrowth: 0.5 },
+  },
+  hitbox: {
+    offsetX: 14,
+    offsetY: 12,
+    width: 54,
+    height: 16,
+  },
+  startupFrames: 13,
+  activeFrames: 3,
+  recoveryFrames: 15,
+  cooldownFrames: 16,
+  animation: {
+    startupFrames: 3,
+    activeFrames: 1,
+    recoveryFrames: 4,
+  },
+};
+
+/**
+ * Cat's dash-attack — a forward lunging hit thrown while running. The
+ * running burst / combo-starter, mirroring the AC 60002 Sub-AC 2 work
+ * on Wolf's directional grounded normals. Used to close distance and
+ * convert a dash-in into a combo: a forward hitbox out in front of her
+ * sprint, moderate forward-and-up knockback that pops the opponent into
+ * Cat's juggle range above her air-jump arc.
+ *
+ * Weaker than a smash by design — it's an approach tool, not a finisher.
+ * Sits between her tilt (dmg 5) and forward smash (dmg 9) on damage, with
+ * a forward+up launch (vs the smash's flat-and-hard push) so a clean dash
+ * attack at low percent flows straight into a follow-up uair / nair. Fast
+ * for a dash attack (startup 7) true to her ninja archetype — she's in
+ * and hitting before a heavier fighter would have committed.
+ *
+ *   damage 7, knockback 1.8/-1.2 with 0.14 scaling.
+ *   startup 7 (~117 ms), active 3, recovery 11, cooldown 10.
+ *   Press-to-press lockout = 31 frames (~517 ms).
+ *
+ * Hitbox: a forward sensor out in front of the running body (offsetX
+ * +30, 52×24) — reaches past her smash's lead (offsetX 28) so the lunge
+ * connects at the end of a dash. Chest-level (offsetY -2).
+ *
+ * Animation states: 7 art frames total — 2 startup, 2 active, 3 recovery.
+ * The two active art frames let the lunge arc show through the hit
+ * window (mirrors the tilt animation budget).
+ */
+export const CAT_DASHATTACK: AttackMoveWithAnimation = {
+  id: 'cat.dashAttack',
+  type: 'tilt',
+  damage: 7,
+  knockback: { x: 1.8, y: -1.2, scaling: 0.14 },
+  hitbox: {
+    offsetX: 30,
+    offsetY: -2,
+    width: 52,
+    height: 24,
+  },
+  startupFrames: 7,
+  activeFrames: 3,
+  recoveryFrames: 11,
+  cooldownFrames: 10,
+  animation: {
+    startupFrames: 2,
+    activeFrames: 2,
+    recoveryFrames: 3,
   },
 };
 
@@ -916,6 +1151,29 @@ export const CAT_DOWN_SPECIAL: TrapDownSpecialMove = {
  * consume this record directly; until then the constructor still
  * calls `registerAttack(...)` so existing dispatch keeps working.
  */
+/**
+ * Cat's grab — a fast, short-range standing grab fitting her lightweight
+ * ninja identity: quick startup, lower throw damage than the heavyweights,
+ * throws that reposition for her zoning/juggle game.
+ */
+export const CAT_GRAB: GrabSpec = {
+  id: 'cat.grab',
+  hitbox: { offsetX: 22, offsetY: -2, width: 22, height: 28 },
+  startupFrames: 6,
+  activeFrames: 2,
+  whiffRecoveryFrames: 28,
+  holdFramesMax: 80,
+  throwRecoveryFrames: 20,
+  pummel: { damage: 1.2, cooldownFrames: 11 },
+  dashGrab: { rangeBonusX: 12, momentumRetain: 0.5 },
+  throws: {
+    forward: { damage: 7, knockback: { x: 2.4, y: -0.9, scaling: 0.1 }, animationFrames: 18 },
+    back: { damage: 8, knockback: { x: 2.7, y: -1.0, scaling: 0.12 }, animationFrames: 22 },
+    up: { damage: 6, knockback: { x: 0.3, y: -3.0, scaling: 0.1 }, animationFrames: 14 },
+    down: { damage: 5, knockback: { x: 0.7, y: 1.0, scaling: 0.07 }, animationFrames: 15 },
+  },
+};
+
 export const CAT_MOVESET: FighterMoveset = Object.freeze({
   jab: CAT_JAB,
   tilt: CAT_TILT,
@@ -966,7 +1224,7 @@ export interface CatOptions extends CharacterTuning {
  * move, the runtime continues dispatching through the legacy slot
  * table exactly as before — no behavioural change.
  */
-export class Cat extends Character {
+export class Cat extends ContractFighter {
   /**
    * Cat's 10-slot uniform moveset surface (Sub-AC 2 of T2 refactor).
    * Points at the frozen {@link CAT_MOVESET} table — every consumer that
@@ -1008,6 +1266,11 @@ export class Cat extends Character {
     // down and the AC 60003 Sub-AC 3 tests lock down the tilt
     // addition too.
     registerFighterAttack(this, CAT_JAB);
+    // Jab-string stages 2/3 register as 'jab' moves too, but jab1 keeps
+    // the light slot via first-registered-wins — these are reachable
+    // ONLY through the `jabChain` link off the opener.
+    registerFighterAttack(this, CAT_JAB2);
+    registerFighterAttack(this, CAT_JAB3);
     registerFighterAttack(this, CAT_TILT);
     registerFighterAttack(this, CAT_SMASH);
     // Aerial cut — neutral / forward / back. AC 60003 Sub-AC 3 closes
@@ -1022,6 +1285,32 @@ export class Cat extends Character {
     registerFighterAttack(this, CAT_NAIR);
     registerFighterAttack(this, CAT_FAIR);
     registerFighterAttack(this, CAT_BAIR);
+    // Directional attacks (up-stick). Up-air / down-air auto-wire their
+    // aerial up/down slots via `aerialDirection`; up-tilt (reusing the
+    // extended-slot CAT_UP_LIGHT) / up-smash are type 'tilt'/'smash'
+    // (their forward slots are taken), so wire the dedicated up slots
+    // explicitly. Mirrors the AC 60002 Sub-AC 2 wiring on Wolf.
+    registerFighterAttack(this, CAT_UAIR);
+    registerFighterAttack(this, CAT_DAIR);
+    registerFighterAttack(this, CAT_UP_LIGHT);
+    registerFighterAttack(this, CAT_USMASH);
+    this.setUpTilt(CAT_UP_LIGHT.id);
+    this.setUpSmash(CAT_USMASH.id);
+    // Directional grounded normals (down-stick + dash). Down-tilt reuses
+    // the extended-slot CAT_DOWN_LIGHT (a low feet-poke); down-smash and
+    // dash-attack are authored in this file. All three are type
+    // 'tilt'/'smash' whose forward slots are already taken (jab/tilt/
+    // smash), so wire the dedicated down / dash slots explicitly —
+    // mirroring the up-tilt / up-smash wiring above and the AC 60002
+    // Sub-AC 2 wiring on Wolf.
+    registerFighterAttack(this, CAT_DOWN_LIGHT);
+    registerFighterAttack(this, CAT_DSMASH);
+    registerFighterAttack(this, CAT_DASHATTACK);
+    this.setDownTilt(CAT_DOWN_LIGHT.id);
+    this.setDownSmash(CAT_DSMASH.id);
+    this.setDashAttack(CAT_DASHATTACK.id);
+    // Grab + throws (grab button → catch → directional throw / pummel).
+    this.setGrabSpec(CAT_GRAB);
     // Neutral special — projectile shuriken (AC 60201 Sub-AC 1). Auto-
     // fills the `neutralSpecialId` dispatch slot via `registerAttack`'s
     // type-based slot wiring.
@@ -1044,88 +1333,9 @@ export class Cat extends Character {
     registerFighterAttack(this, CAT_DOWN_SPECIAL);
   }
 
-  // -------------------------------------------------------------------
-  // Sub-AC 2.1 of T2 refactor — per-slot execution methods.
-  //
-  // Each executeXxx method below owns the "fire WHICH move" decision
-  // for the named slot in the canonical 10-slot {@link FighterMoveset}
-  // contract. After Sub-AC 2.1 the {@link Character} base class's input
-  // dispatcher routes a per-frame press through to one of these methods
-  // based on the input pattern; the method then invokes the per-fighter
-  // move via {@link Character.attemptAttack} (or
-  // {@link Character.attemptUpSpecial} for the up-special's vertical-
-  // physics flow). The base class no longer holds any "Cat-specific"
-  // knowledge — Cat alone decides that `executeJab` fires `CAT_JAB`,
-  // that `executeNeutralSpecial` fires Cat's projectile shuriken, etc.
-  //
-  // See {@link Wolf} for the full design notes; this class follows the
-  // same pattern.
-  // -------------------------------------------------------------------
 
-  /** Cat's jab — fires {@link CAT_JAB}. */
-  executeJab(): boolean {
-    if (this.runSlotOverride('jab')) return true;
-    return this.attemptAttack(CAT_JAB.id);
-  }
-
-  /** Cat's tilt — fires {@link CAT_TILT}. */
-  executeTilt(): boolean {
-    if (this.runSlotOverride('tilt')) return true;
-    return this.attemptAttack(CAT_TILT.id);
-  }
-
-  /** Cat's smash — fires {@link CAT_SMASH}. */
-  executeSmash(): boolean {
-    if (this.runSlotOverride('smash')) return true;
-    return this.attemptAttack(CAT_SMASH.id);
-  }
-
-  /** Cat's forward aerial — fires {@link CAT_FAIR}. */
-  executeFair(): boolean {
-    if (this.runSlotOverride('fair')) return true;
-    return this.attemptAttack(CAT_FAIR.id);
-  }
-
-  /** Cat's neutral special (projectile shuriken) — fires {@link CAT_NEUTRAL_SPECIAL}. */
-  executeNeutralSpecial(): boolean {
-    if (this.runSlotOverride('neutralSpecial')) return true;
-    return this.attemptAttack(CAT_NEUTRAL_SPECIAL.id);
-  }
-
-  /** Cat's side special (multi-hit flurry) — fires {@link CAT_SIDE_SPECIAL}. */
-  executeSideSpecial(): boolean {
-    if (this.runSlotOverride('sideSpecial')) return true;
-    return this.attemptAttack(CAT_SIDE_SPECIAL.id);
-  }
-
-  /**
-   * Cat's up special (teleport) — fires {@link CAT_UP_SPECIAL} via
-   * {@link Character.attemptUpSpecial}, which integrates the recovery /
-   * vertical-physics on the press frame. The optional stick-direction
-   * arguments default to "straight up".
-   */
-  executeUpSpecial(stickX: number = 0, stickY: number = -1): boolean {
-    if (this.runSlotOverride('upSpecial')) return true;
-    return this.attemptUpSpecial(stickX, stickY);
-  }
-
-  /** Cat's down special (trap) — fires {@link CAT_DOWN_SPECIAL}. */
-  executeDownSpecial(): boolean {
-    if (this.runSlotOverride('downSpecial')) return true;
-    return this.attemptAttack(CAT_DOWN_SPECIAL.id);
-  }
-
-  /**
-   * Cat's shield. Out of scope for Sub-AC 2.1 of the T2 refactor —
-   * the shield-state-machine entry continues to fire from
-   * {@link Character.applyInput}'s `tickShield` composition.
-   */
-  executeShield(): void {
-    /* TODO(T2 refactor): migrate shield state-machine entry out of Character. */
-  }
-
-  /** Cat's dodge. Out of scope for Sub-AC 2.1 — see {@link executeShield}. */
-  executeDodge(): void {
-    /* TODO(T2 refactor): migrate dodge state-machine entry out of Character. */
-  }
+  // Per-slot execute hooks (executeJab … executeDodge) are inherited
+  // from ContractFighter, which fires each slot via the frozen
+  // `moveset` declaration above — the slot ↔ move mapping lives in
+  // the data table, not in per-fighter method boilerplate.
 }

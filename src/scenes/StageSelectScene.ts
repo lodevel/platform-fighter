@@ -5,7 +5,6 @@ import {
   loadCustomStage,
   type CustomStageData,
 } from '../builder';
-import type { CharacterSelectSceneData } from './CharacterSelectScene';
 import type { LobbyHandoffPayload } from './lobby';
 import type { MatchConfig, PlayerSlot } from '../types';
 import {
@@ -13,6 +12,23 @@ import {
   cycleStageCursor,
   type StageSelectEntry,
 } from './stageSelect';
+// AC 20203 Sub-AC 3 — canonical "saved stage id → live match" launcher.
+// The confirm path delegates the deserializer load + scene-start payload
+// build to this helper so a single source of truth handles every entry
+// point.
+import {
+  launchCustomStageMatchInScene,
+  type CustomStageMatchLaunchResult,
+} from './customStageMatchLauncher';
+import {
+  MENU_COLORS_CSS,
+  MENU_FONT,
+  paintFooterHints,
+  paintMenuBackground,
+  paintMenuTitle,
+  paintPanel,
+} from '../ui/menuTheme';
+import { MenuPadNav } from '../ui/menuPadNav';
 
 // Re-export the pure-helper symbols so call sites that import the
 // scene file get the entry-builder + entry types without having to
@@ -119,6 +135,9 @@ export class StageSelectScene extends Phaser.Scene {
 
   private subtitleText!: Phaser.GameObjects.Text;
 
+  /** Shared gamepad poller so pad-only players can navigate the menu. */
+  private padNav: MenuPadNav | undefined = undefined;
+
   constructor() {
     super({ key: 'StageSelectScene' });
   }
@@ -134,31 +153,25 @@ export class StageSelectScene extends Phaser.Scene {
   create(): void {
     const { width, height } = this.scale.gameSize;
 
-    // Title.
-    this.add
-      .text(width / 2, height * 0.1, 'STAGE SELECT', {
-        fontFamily: 'monospace',
-        fontSize: '48px',
-        color: '#e8e8f0',
-      })
-      .setOrigin(0.5);
+    // ---- Background + title -------------------------------------------------
+    paintMenuBackground(this);
+    paintMenuTitle(this, width / 2, height * 0.09, 'Stage Select', {
+      fontSize: 44,
+      subtitle:
+        'Pick the arena — custom stages from the builder list under the canonical five.',
+    });
 
-    this.add
-      .text(
-        width / 2,
-        height * 0.16,
-        'Pick the arena. Custom stages from the builder list under the canonical five.',
-        {
-          fontFamily: 'monospace',
-          fontSize: '14px',
-          color: '#888899',
-        },
-      )
-      .setOrigin(0.5);
-
-    // ---- Stage list -------------------------------------------------------
-    const startY = height * 0.24;
-    const lineHeight = 36;
+    // ---- Stage list panel ---------------------------------------------------
+    const startY = height * 0.25;
+    const lineHeight = 38;
+    const listHeight = Math.max(1, this.entries.length) * lineHeight + 40;
+    paintPanel(
+      this,
+      width / 2,
+      startY + (this.entries.length - 1) * lineHeight * 0.5,
+      Math.min(720, width * 0.6),
+      listHeight,
+    );
     this.rowTexts = [];
     for (let i = 0; i < this.entries.length; i += 1) {
       const entry = this.entries[i]!;
@@ -168,9 +181,9 @@ export class StageSelectScene extends Phaser.Scene {
           startY + i * lineHeight,
           this.formatRowLabel(entry),
           {
-            fontFamily: 'monospace',
+            fontFamily: MENU_FONT,
             fontSize: '22px',
-            color: '#a0a0b8',
+            color: MENU_COLORS_CSS.textSecondary,
           },
         )
         .setOrigin(0.5);
@@ -180,25 +193,18 @@ export class StageSelectScene extends Phaser.Scene {
     // ---- Subtitle (description of the highlighted entry) ------------------
     this.subtitleText = this.add
       .text(width / 2, height * 0.82, '', {
-        fontFamily: 'monospace',
+        fontFamily: MENU_FONT,
         fontSize: '16px',
-        color: '#9aa0b6',
+        color: MENU_COLORS_CSS.textSecondary,
       })
       .setOrigin(0.5);
 
     // ---- Footer hint ------------------------------------------------------
-    this.add
-      .text(
-        width / 2,
-        height * 0.9,
-        '^ / v select stage    [ENTER] confirm    [ESC] back',
-        {
-          fontFamily: 'monospace',
-          fontSize: '14px',
-          color: '#888899',
-        },
-      )
-      .setOrigin(0.5);
+    paintFooterHints(this, height * 0.9, [
+      '˄ / ˅  select stage',
+      '[ENTER] / Ⓐ  fight',
+      '[ESC] / Ⓑ  back to fighters',
+    ]);
 
     this.refreshHighlight();
 
@@ -211,9 +217,20 @@ export class StageSelectScene extends Phaser.Scene {
       kb.on('keydown-ESC', () => this.handleCancel());
     }
 
+    this.padNav = new MenuPadNav(this);
+
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.input.keyboard?.removeAllListeners();
     });
+  }
+
+  update(): void {
+    const pad = this.padNav?.poll();
+    if (!pad) return;
+    if (pad.up) this.handleCursor(-1);
+    if (pad.down) this.handleCursor(+1);
+    if (pad.confirm) this.handleConfirm();
+    else if (pad.back) this.handleCancel();
   }
 
   // -------------------------------------------------------------------------
@@ -250,7 +267,7 @@ export class StageSelectScene extends Phaser.Scene {
     const entry = this.entries[this.cursorIndex];
     if (!entry) return;
     if (entry.kind === 'built-in') {
-      this.startCharacterSelect(entry.id, undefined);
+      this.startMatch(entry.id, undefined);
       return;
     }
     // Custom stage — eagerly load the saved blob so the match scene
@@ -264,27 +281,23 @@ export class StageSelectScene extends Phaser.Scene {
       this.subtitleText.setColor('#ff5a3c');
       return;
     }
-    this.startCharacterSelect(
-      customStageRuntimeId(entry.slotId),
-      loaded.value,
-    );
+    this.startMatch(customStageRuntimeId(entry.slotId), loaded.value);
   }
 
   /**
-   * AC 20403 Sub-AC 3 — back-navigation. The stage select scene is
-   * entered FROM `ModeSelectScene` (which itself was entered from
-   * `LobbyScene`). The cancel transition forwards the lobby hand-off
-   * payload back to `ModeSelectScene` so the player's lobby acquisition
-   * (joined slots, input-type assignments, AI difficulties) survives
-   * the round-trip — without this threading, ESC would silently drop
-   * the persisted roster data on the floor and force the player to
-   * Press Start again from the main-menu lobby.
+   * Back-navigation. The stage select is the LAST screen in the Smash-
+   * style flow (Mode → Character → Stage → Match), so ESC returns to
+   * `CharacterSelectScene` with the pending payload intact — the
+   * lineup the player just built survives the round-trip.
    *
    * Determinism: pure routing — no `Math.random()`, no wall-clock.
    * Same input scene-data → same scene-start payload byte-identically.
    */
   private handleCancel(): void {
-    this.scene.start('ModeSelectScene', { lobby: this.pendingLobby });
+    this.scene.start('CharacterSelectScene', {
+      pendingMatchConfig: this.pendingMatchConfig,
+      lobby: this.pendingLobby,
+    });
   }
 
   // -------------------------------------------------------------------------
@@ -317,45 +330,84 @@ export class StageSelectScene extends Phaser.Scene {
   }
 
   // -------------------------------------------------------------------------
-  // Forwarding to character select
+  // Match launch
   // -------------------------------------------------------------------------
 
   /**
-   * Forward the picked stage into the character select scene.
+   * Launch the match with the picked stage. The lineup arrives from
+   * `CharacterSelectScene` via `pendingMatchConfig.players` (the
+   * Smash-style flow runs fighters first, arena last); direct-launch /
+   * smoke-test paths that skip the character select fall back to the
+   * legacy P1 Wolf + P2 Cat duo.
    *
    * `customStage`, when supplied, is the loaded saved-stage blob the
-   * match scene needs to reconstruct the runtime `StageLayout`. It is
-   * carried separately from the `MatchConfig` because the config
-   * itself is JSON-serialisable / replay-header-safe — embedding the
-   * blob inside it would bloat replay headers and force every replay
-   * tooling consumer to track the schema.
+   * match scene needs to reconstruct the runtime `StageLayout` — the
+   * launch funnels through `launchCustomStageMatchInScene` so a single
+   * source of truth handles every custom-stage entry point.
    */
-  private startCharacterSelect(
+  private startMatch(
     stageId: string,
     customStage: CustomStageData | undefined,
   ): void {
-    const players: ReadonlyArray<PlayerSlot> =
-      this.pendingMatchConfig?.players ?? [];
-    const pendingMatchConfig: NonNullable<
-      CharacterSelectSceneData['pendingMatchConfig']
-    > = this.pendingMatchConfig
-      ? {
-          ...this.pendingMatchConfig,
-          stageId,
-          players,
-        }
-      : ({
-          mode: 'stocks',
-          stockCount: 3,
-          stageId,
-          players,
-          rngSeed: 0,
-        } as NonNullable<CharacterSelectSceneData['pendingMatchConfig']>);
+    const matchConfig = this.buildFinalMatchConfig(stageId);
+    if (customStage) {
+      const result = launchCustomStageMatchInScene(this, {
+        savedStageId: stageId,
+        matchConfig,
+        customStage,
+      });
+      this.reportCustomStageLaunchOutcome(result);
+      return;
+    }
+    this.scene.start('MatchScene', { matchConfig });
+  }
 
-    this.scene.start('CharacterSelectScene', {
-      pendingMatchConfig,
-      customStage,
-      lobby: this.pendingLobby,
-    });
+  private reportCustomStageLaunchOutcome(
+    result: CustomStageMatchLaunchResult,
+  ): void {
+    if (result.ok) return;
+    this.subtitleText.setText(
+      `Could not launch custom stage: ${result.reason} — ${result.message}`,
+    );
+    this.subtitleText.setColor('#ff5a3c');
+  }
+
+  /** Resolve the completed `MatchConfig` for the picked stage id. */
+  private buildFinalMatchConfig(stageId: string): MatchConfig {
+    const base = this.pendingMatchConfig;
+    const players: ReadonlyArray<PlayerSlot> =
+      base?.players && base.players.length >= 2
+        ? base.players
+        : Object.freeze([
+            Object.freeze({
+              index: 1 as const,
+              characterId: 'wolf' as const,
+              paletteIndex: 0,
+              inputType: 'keyboard_p1' as const,
+            }),
+            Object.freeze({
+              index: 2 as const,
+              characterId: 'cat' as const,
+              paletteIndex: 0,
+              inputType: 'keyboard_p2' as const,
+            }),
+          ]);
+    if (base?.mode === 'time') {
+      return Object.freeze({
+        mode: 'time',
+        stockCount: base.stockCount,
+        timeLimitSeconds: base.timeLimitSeconds ?? 180,
+        stageId,
+        players,
+        rngSeed: base.rngSeed,
+      }) as MatchConfig;
+    }
+    return Object.freeze({
+      mode: 'stocks',
+      stockCount: base?.stockCount ?? 3,
+      stageId,
+      players,
+      rngSeed: base?.rngSeed ?? 0,
+    }) as MatchConfig;
   }
 }

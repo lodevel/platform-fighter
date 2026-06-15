@@ -42,9 +42,9 @@ describe('replayTypes — schema constants', () => {
     expectTypeOf(REPLAY_FORMAT_MAGIC).toEqualTypeOf<'platform-fighter-replay'>();
   });
 
-  it('REPLAY_FORMAT_VERSION is the integer 2 for today\'s writer', () => {
-    expect(REPLAY_FORMAT_VERSION).toBe(2);
-    expectTypeOf(REPLAY_FORMAT_VERSION).toEqualTypeOf<2>();
+  it('REPLAY_FORMAT_VERSION is the integer 3 for today\'s writer (v3 added inputTimeline moveY)', () => {
+    expect(REPLAY_FORMAT_VERSION).toBe(3);
+    expectTypeOf(REPLAY_FORMAT_VERSION).toEqualTypeOf<3>();
   });
 
   it('REPLAY_FILE_EXTENSION is the .replay.json suffix', () => {
@@ -56,7 +56,7 @@ describe('replayTypes — schema constants', () => {
 describe('replayTypes — per-frame input format', () => {
   it('RecordedCharacterInput is the closed { moveX, jump, attack, dropThrough } shape', () => {
     const input: RecordedCharacterInput = {
-      moveX: 0.75,
+      moveX: 0.75, moveY: 0,
       jump: false,
       attack: true,
       dropThrough: false,
@@ -76,8 +76,8 @@ describe('replayTypes — per-frame input format', () => {
     const frame: CapturedFrame = {
       frame: 42,
       inputs: [
-        { moveX: 0, jump: false, attack: false, dropThrough: false },
-        { moveX: -1, jump: true, attack: false, dropThrough: false },
+        { moveX: 0, moveY: 0, jump: false, attack: false, dropThrough: false },
+        { moveX: -1, moveY: 0, jump: true, attack: false, dropThrough: false },
       ],
     };
     expect(frame.frame).toBe(42);
@@ -152,7 +152,7 @@ describe('replayTypes — top-level schema', () => {
   it('SerializedCapturedFrame mirrors the CapturedFrame shape on disk', () => {
     const onDisk: SerializedCapturedFrame = {
       frame: 0,
-      inputs: [{ moveX: 0, jump: false, attack: false, dropThrough: false }],
+      inputs: [{ moveX: 0, moveY: 0, jump: false, attack: false, dropThrough: false }],
     };
     // `SerializedCapturedFrame.inputs` is the per-frame input format
     // re-exported from this module — assignability proves the on-disk

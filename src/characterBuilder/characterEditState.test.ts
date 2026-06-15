@@ -21,6 +21,10 @@ const seed = (): CharacterDataSpec =>
       jumpImpulse: 12.5,
       maxJumps: 2,
       mass: 16,
+      fallAccel: 0.3,
+      maxFallSpeed: 11.0,
+      fastFallSpeed: 17.5,
+      jumpCutFactor: 0.4,
     },
   });
 

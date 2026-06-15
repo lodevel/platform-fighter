@@ -29,7 +29,7 @@ import type { DodgeState } from './dodgeState';
 import type { LedgeHangState } from './ledgeHangState';
 import type { CharacterId } from '../types';
 
-const ALL_CHARACTERS: ReadonlyArray<CharacterId> = ['wolf', 'cat', 'owl', 'bear'];
+const ALL_CHARACTERS: ReadonlyArray<CharacterId> = ['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno'];
 
 describe('AC 10003 Sub-AC 3 — defensive animation state', () => {
   describe('Constants', () => {
@@ -311,11 +311,11 @@ describe('AC 10003 Sub-AC 3 — defensive animation state', () => {
       expect(keys).toContain('wolf.hurt');
     });
 
-    it('enumerateAllDefensiveAnimationKeys covers all 4 characters in canonical order', () => {
+    it('enumerateAllDefensiveAnimationKeys covers all 10 characters in canonical order', () => {
       const all = enumerateAllDefensiveAnimationKeys();
       const perChar = enumerateDefensiveAnimationKeys('wolf').length;
-      expect(all).toHaveLength(perChar * 4);
-      // Hurt keys for all 4 characters present.
+      expect(all).toHaveLength(perChar * ALL_CHARACTERS.length);
+      // Hurt keys for all 10 characters present.
       for (const id of ALL_CHARACTERS) {
         expect(all).toContain(`${id}.hurt`);
       }

@@ -1,0 +1,40 @@
+{
+  "meta": {
+    "source": "Generic Platformer Pack — main character ('Player') by bakudas",
+    "cellWidth": 28,
+    "cellHeight": 36,
+    "license": "CC0 1.0",
+    "attribution": "Generic Platformer Pack by bakudas — https://opengameart.org/content/generic-platformer-pack (CC0 1.0)",
+    "notes": "Native pixel-art frames (22x32 canvas) were cropped to a fixed global union bounding rect across idle/run/jump and re-laid (near 1:1, light box filter) into 28x36 cells (see tools/build-newchar-sprites.cjs). The 'attack' strip reuses the run lunge frames as the attack pose (no dedicated attack animation in the pack)."
+  },
+  "animations": {
+    "idle": {
+      "strip": "animations/idle.png",
+      "frameCount": 4,
+      "frameWidth": 28,
+      "frameHeight": 36,
+      "sourceFrames": ["Player/idle/anim1..4.png"]
+    },
+    "run": {
+      "strip": "animations/run.png",
+      "frameCount": 8,
+      "frameWidth": 28,
+      "frameHeight": 36,
+      "sourceFrames": ["Player/run/anim5..12.png"]
+    },
+    "jump": {
+      "strip": "animations/jump.png",
+      "frameCount": 2,
+      "frameWidth": 28,
+      "frameHeight": 36,
+      "sourceFrames": ["Player/jump/anim8,anim11.png"]
+    },
+    "attack": {
+      "strip": "animations/attack.png",
+      "frameCount": 8,
+      "frameWidth": 28,
+      "frameHeight": 36,
+      "sourceFrames": ["Player/run/anim5..12.png (reused as attack pose)"]
+    }
+  }
+}

@@ -17,6 +17,15 @@ import { BOOT_REGISTRY_KEYS } from './bootKeys';
 import { GAME_CONFIG } from '../engine/constants';
 import { FLAT_STAGE } from '../stages';
 import type { MatchConfig, PlayerSlot } from '../types';
+import {
+  MENU_COLORS_CSS,
+  MENU_FONT,
+  paintFooterHints,
+  paintMenuBackground,
+  paintMenuTitle,
+  paintPanel,
+} from '../ui/menuTheme';
+import { MenuPadNav } from '../ui/menuPadNav';
 
 /**
  * ModeSelectScene — AC 11 ("Both Stock and Time modes selectable
@@ -85,6 +94,9 @@ export class ModeSelectScene extends Phaser.Scene {
   private modeRow!: Phaser.GameObjects.Text;
   private quantityRow!: Phaser.GameObjects.Text;
 
+  /** Shared gamepad poller so pad-only players can navigate the menu. */
+  private padNav: MenuPadNav | undefined = undefined;
+
   /**
    * AC 2 Sub-AC 5 — lobby payload forwarded from `LobbyScene`. Captured
    * in `init()` and threaded into the `StageSelectScene` start payload
@@ -103,61 +115,45 @@ export class ModeSelectScene extends Phaser.Scene {
   create(): void {
     const { width, height } = this.scale.gameSize;
 
-    // ---- Title -------------------------------------------------------------
-    this.add
-      .text(width / 2, height * 0.22, 'MATCH MODE', {
-        fontFamily: 'monospace',
-        fontSize: '56px',
-        color: '#e8e8f0',
-      })
-      .setOrigin(0.5);
+    // ---- Background + title -------------------------------------------------
+    paintMenuBackground(this);
+    paintMenuTitle(this, width / 2, height * 0.16, 'Match Mode', {
+      fontSize: 52,
+      subtitle: 'Pick the match shape — fighters and arena come next',
+    });
 
-    // ---- Mode row ----------------------------------------------------------
-    // The two largest controls — mode and the active quantity — are
-    // drawn as monospace lines so the "← STOCK →" / "← 3 stocks →"
-    // shape reads as a wheel-style selector without any custom widgets.
+    // ---- Selector panel ------------------------------------------------------
+    paintPanel(this, width / 2, height * 0.47, Math.min(640, width * 0.55), height * 0.3);
+
+    // The two largest controls — mode and the active quantity — read
+    // as a wheel-style selector ("‹ STOCK ›" / "˄ 3 stocks ˅").
     this.modeRow = this.add
       .text(width / 2, height * 0.42, '', {
-        fontFamily: 'monospace',
-        fontSize: '40px',
-        color: '#6cf0c2',
+        fontFamily: MENU_FONT,
+        fontSize: '42px',
+        fontStyle: 'bold',
+        color: MENU_COLORS_CSS.accent,
       })
-      .setOrigin(0.5);
+      .setOrigin(0.5)
+      .setShadow(0, 3, '#000000', 6, true, true);
 
     this.quantityRow = this.add
-      .text(width / 2, height * 0.52, '', {
-        fontFamily: 'monospace',
-        fontSize: '32px',
-        color: '#a0a0b8',
+      .text(width / 2, height * 0.53, '', {
+        fontFamily: MENU_FONT,
+        fontSize: '30px',
+        color: MENU_COLORS_CSS.textSecondary,
       })
       .setOrigin(0.5);
 
     // ---- Help / hint footer -----------------------------------------------
-    this.add
-      .text(
-        width / 2,
-        height * 0.66,
-        '< / >  toggle mode      ^ / v  change amount',
-        {
-          fontFamily: 'monospace',
-          fontSize: '18px',
-          color: '#888899',
-        },
-      )
-      .setOrigin(0.5);
-
-    this.add
-      .text(
-        width / 2,
-        height * 0.74,
-        '[ENTER] start match     [ESC] back to menu',
-        {
-          fontFamily: 'monospace',
-          fontSize: '18px',
-          color: '#888899',
-        },
-      )
-      .setOrigin(0.5);
+    paintFooterHints(this, height * 0.7, [
+      '‹ / ›  toggle mode',
+      '˄ / ˅  change amount',
+    ]);
+    paintFooterHints(this, height - 16, [
+      '[ENTER] / Ⓐ  continue',
+      '[ESC] / Ⓑ  back to menu',
+    ]);
 
     // First paint after the text objects exist.
     this.refreshLabels();
@@ -176,11 +172,24 @@ export class ModeSelectScene extends Phaser.Scene {
       kb.on('keydown-ESC', () => this.handleCancel());
     }
 
+    this.padNav = new MenuPadNav(this);
+
     // SHUTDOWN runs when this scene is replaced by another; clean up
     // listeners so a re-entry doesn't double-fire.
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.input.keyboard?.removeAllListeners();
     });
+  }
+
+  update(): void {
+    const pad = this.padNav?.poll();
+    if (!pad) return;
+    if (pad.left) this.handleModeCycle(-1);
+    if (pad.right) this.handleModeCycle(+1);
+    if (pad.up) this.handleQuantityCycle(+1);
+    if (pad.down) this.handleQuantityCycle(-1);
+    if (pad.confirm) this.handleConfirm();
+    else if (pad.back) this.handleCancel();
   }
 
   // -------------------------------------------------------------------------
@@ -216,20 +225,18 @@ export class ModeSelectScene extends Phaser.Scene {
 
   private handleConfirm(): void {
     const matchConfig = this.buildConfirmedMatchConfig();
-    // AC 20104 Sub-AC 4 — funnel through `StageSelectScene` so the
-    // player picks the arena (built-in OR a saved custom stage) after
-    // locking in the match shape. `StageSelectScene` then forwards
-    // through to `CharacterSelectScene`, which replaces the synthesised
-    // default lineup with its own. The custom-stage payload (when the
-    // player picks a saved stage) rides through both scenes via the
-    // typed scene-data so `MatchScene` can build the runtime layout
-    // without re-reading `localStorage`.
+    // Smash-style flow ordering: fighters first, arena last. The
+    // confirm path funnels through `CharacterSelectScene` (join + pick
+    // + CPU setup on one screen), which then forwards the completed
+    // lineup to `StageSelectScene`; the stage select launches the
+    // match. The `stageId` carried here is a placeholder the stage
+    // select replaces on its own confirm.
     //
     // AC 2 Sub-AC 5 — when the lobby populated `pendingLobby`, the
     // payload rides through the same scene-data chain so the
     // downstream character-select scene can pre-light up the joined
     // slots without making the player Press Start a second time.
-    this.scene.start('StageSelectScene', {
+    this.scene.start('CharacterSelectScene', {
       pendingMatchConfig: matchConfig,
       lobby: this.pendingLobby,
     });
@@ -245,10 +252,10 @@ export class ModeSelectScene extends Phaser.Scene {
 
   private refreshLabels(): void {
     if (this.modeRow) {
-      this.modeRow.setText(`<  ${formatModeLabel(this.state.mode)}  >`);
+      this.modeRow.setText(`‹   ${formatModeLabel(this.state.mode)}   ›`);
     }
     if (this.quantityRow) {
-      this.quantityRow.setText(`^  ${formatQuantityLabel(this.state)}  v`);
+      this.quantityRow.setText(`˄   ${formatQuantityLabel(this.state)}   ˅`);
     }
   }
 

@@ -37,7 +37,7 @@ import type { CharacterId } from '../types';
  *      its move id and returns null on misses.
  */
 
-const ALL_CHARACTERS: ReadonlyArray<CharacterId> = ['wolf', 'cat', 'owl', 'bear'];
+const ALL_CHARACTERS: ReadonlyArray<CharacterId> = ['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno'];
 
 describe('AC 10003 Sub-AC 3 — full-moveset animation driver', () => {
   describe('Slot taxonomy', () => {
@@ -88,8 +88,8 @@ describe('AC 10003 Sub-AC 3 — full-moveset animation driver', () => {
       }
     });
 
-    it('flat MOVESET_ENTRIES has 40 entries (4 chars × 10 slots)', () => {
-      expect(MOVESET_ENTRIES).toHaveLength(40);
+    it('flat MOVESET_ENTRIES has 100 entries (10 chars × 10 slots)', () => {
+      expect(MOVESET_ENTRIES).toHaveLength(100);
     });
 
     it('every entry carries a non-empty move id with the right character prefix', () => {
@@ -231,8 +231,9 @@ describe('AC 10003 Sub-AC 3 — full-moveset animation driver', () => {
 
     it('enumerateAllMovesetAnimationKeys covers every (character × slot) lifecycle plus per-character idle', () => {
       const all = enumerateAllMovesetAnimationKeys();
-      // 4 idle keys + sum of all per-slot lifecycle keys.
-      let expectedCount = 4; // idle keys
+      // 7 idle keys (one per roster character) + sum of all per-slot
+      // lifecycle keys.
+      let expectedCount = ALL_CHARACTERS.length; // idle keys
       for (const id of ALL_CHARACTERS) {
         for (const slot of MOVESET_SLOTS) {
           expectedCount += enumerateMovesetSlotAnimationKeys(id, slot).length;

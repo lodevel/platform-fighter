@@ -1,0 +1,40 @@
+{
+  "meta": {
+    "source": "Tiny Kitten Game Sprite — Segel (Segel2D)",
+    "cellWidth": 64,
+    "cellHeight": 80,
+    "license": "CC0 1.0",
+    "attribution": "Tiny Kitten Game Sprite by Segel — https://opengameart.org/content/tiny-kitten-game-sprite (CC0 1.0)",
+    "notes": "Upstream per-frame PNGs (489x461 canvas) were cropped to a fixed global union bounding rect across all animations and box-filter downscaled into 64x80 cells (see tools/build-newchar-sprites.cjs). The 'attack' strip reuses the pack's JumpFall pounce pose (no dedicated attack animation in the pack), the same reuse approach the Owl/Aegis packs used for a missing slot."
+  },
+  "animations": {
+    "idle": {
+      "strip": "animations/idle.png",
+      "frameCount": 12,
+      "frameWidth": 64,
+      "frameHeight": 80,
+      "sourceFrames": ["01_Idle/__Cat_Idle_000..011.png"]
+    },
+    "run": {
+      "strip": "animations/run.png",
+      "frameCount": 10,
+      "frameWidth": 64,
+      "frameHeight": 80,
+      "sourceFrames": ["02_Run/__Cat_Run_000..009.png"]
+    },
+    "jump": {
+      "strip": "animations/jump.png",
+      "frameCount": 5,
+      "frameWidth": 64,
+      "frameHeight": 80,
+      "sourceFrames": ["03_Jump/01_Up/__Cat_JumpUp_000..004.png"]
+    },
+    "attack": {
+      "strip": "animations/attack.png",
+      "frameCount": 5,
+      "frameWidth": 64,
+      "frameHeight": 80,
+      "sourceFrames": ["03_Jump/02_Fall/__Cat_JumpFall_000..004.png (reused as attack pose)"]
+    }
+  }
+}

@@ -65,7 +65,7 @@ interface FieldRow {
 }
 
 const FIELD_ROWS: ReadonlyArray<FieldRow> = [
-  // Movement profile (8 fields)
+  // Movement profile (12 fields)
   { label: 'Max Run Speed', group: 'movement', field: 'maxRunSpeed', step: 0.5, minValue: 0.5, integer: false },
   { label: 'Ground Accel', group: 'movement', field: 'groundAccel', step: 0.05, minValue: 0.05, integer: false },
   { label: 'Air Accel', group: 'movement', field: 'airAccel', step: 0.05, minValue: 0.05, integer: false },
@@ -74,6 +74,10 @@ const FIELD_ROWS: ReadonlyArray<FieldRow> = [
   { label: 'Jump Impulse', group: 'movement', field: 'jumpImpulse', step: 0.5, minValue: 0.5, integer: false },
   { label: 'Max Jumps', group: 'movement', field: 'maxJumps', step: 1, minValue: 1, integer: true },
   { label: 'Mass', group: 'movement', field: 'mass', step: 1, minValue: 1, integer: false },
+  { label: 'Fall Accel', group: 'movement', field: 'fallAccel', step: 0.02, minValue: 0.02, integer: false },
+  { label: 'Max Fall Speed', group: 'movement', field: 'maxFallSpeed', step: 0.5, minValue: 0.5, integer: false },
+  { label: 'Fast Fall Speed', group: 'movement', field: 'fastFallSpeed', step: 0.5, minValue: 0.5, integer: false },
+  { label: 'Jump Cut Factor', group: 'movement', field: 'jumpCutFactor', step: 0.05, minValue: 0.05, integer: false },
   // Body geometry (3 fields)
   { label: 'Body Width', group: 'body', field: 'width', step: 1, minValue: 4, integer: true },
   { label: 'Body Height', group: 'body', field: 'height', step: 1, minValue: 4, integer: true },

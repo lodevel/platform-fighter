@@ -78,12 +78,12 @@ function buildReplay(
   });
   c.start({ matchConfig: makeMatchConfig(seed), notes: 'exhibition' });
   c.captureFrame(0, [
-    { moveX: 1, jump: false, attack: false, dropThrough: false },
-    { moveX: -1, jump: false, attack: false, dropThrough: false },
+    { moveX: 1, moveY: 0, jump: false, attack: false, dropThrough: false },
+    { moveX: -1, moveY: 0, jump: false, attack: false, dropThrough: false },
   ]);
   c.captureFrame(1, [
-    { moveX: 0, jump: true, attack: false, dropThrough: false },
-    { moveX: 0, jump: false, attack: true, dropThrough: false },
+    { moveX: 0, moveY: 0, jump: true, attack: false, dropThrough: false },
+    { moveX: 0, moveY: 0, jump: false, attack: true, dropThrough: false },
   ]);
   c.stop();
   return c.buildReplayFile();

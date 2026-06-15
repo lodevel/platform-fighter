@@ -242,6 +242,9 @@ export function createFlatStage(options: FlatStageOptions = {}): StageLayout {
     id,
     platforms,
     hazards: [], // Flat stage is the safe default — hazards land on later stages.
+    // Neutral dark parallax backdrop — visually closest to the M1-era
+    // flat clear colour. See `backgroundThemes.ts` for the registry.
+    backgroundTheme: 'midnight',
     blastZone: {
       left: -BLAST_ZONE_OUTSET.horizontal,
       right: STAGE_DESIGN_WIDTH + BLAST_ZONE_OUTSET.horizontal,
@@ -625,6 +628,9 @@ export function createLavaStage(options: LavaStageOptions = {}): StageLayout {
     id,
     platforms,
     hazards,
+    // Warm red/orange cavern backdrop with a pulsing molten glow —
+    // matches the lava pools' palette. See `backgroundThemes.ts`.
+    backgroundTheme: 'lava-cavern',
     blastZone: {
       left: -BLAST_ZONE_OUTSET.horizontal,
       right: STAGE_DESIGN_WIDTH + BLAST_ZONE_OUTSET.horizontal,
@@ -965,6 +971,9 @@ export function createWindStage(options: WindStageOptions = {}): StageLayout {
     id,
     platforms,
     hazards,
+    // Cool blue/teal canyon backdrop with drifting haze — matches the
+    // wind gust visuals. See `backgroundThemes.ts`.
+    backgroundTheme: 'wind-canyon',
     blastZone: {
       left: -BLAST_ZONE_OUTSET.horizontal,
       right: STAGE_DESIGN_WIDTH + BLAST_ZONE_OUTSET.horizontal,
@@ -1191,6 +1200,9 @@ export function createCrumblingStage(
     // builder serializes round-trip.
     hazards: [],
     platforms,
+    // Sandy/stone temple-ruin backdrop — eroded colonnades echo the
+    // crumbling floats. See `backgroundThemes.ts`.
+    backgroundTheme: 'crumbling-temple',
     blastZone: {
       left: -BLAST_ZONE_OUTSET.horizontal,
       right: STAGE_DESIGN_WIDTH + BLAST_ZONE_OUTSET.horizontal,
@@ -1455,6 +1467,9 @@ export function createMovingPlatformStage(
     // platforms through the platform array (where they belong) rather
     // than splitting them into a separate hazards bucket.
     hazards: [],
+    // Open-sky cloud backdrop — the moving carriers read as ferries
+    // drifting between cloud banks. See `backgroundThemes.ts`.
+    backgroundTheme: 'sky-ferry',
     blastZone: {
       left: -BLAST_ZONE_OUTSET.horizontal,
       right: STAGE_DESIGN_WIDTH + BLAST_ZONE_OUTSET.horizontal,

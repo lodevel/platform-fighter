@@ -16,9 +16,15 @@ import {
   resolveGroundedNormalAnimationKey,
 } from './groundedNormalDriver';
 import {
+  Aegis,
   Bear,
+  Blaze,
+  Bruno,
   Cat,
+  Nova,
   Owl,
+  Puff,
+  Volt,
   Wolf,
 } from './index';
 import { COLLISION_CATEGORIES, COLLISION_MASKS } from '../engine/collisionCategories';
@@ -176,6 +182,24 @@ function spawnFighter(
   if (characterId === 'owl') {
     return new Owl(m.scene as any, { spawnX, spawnY });
   }
+  if (characterId === 'blaze') {
+    return new Blaze(m.scene as any, { spawnX, spawnY });
+  }
+  if (characterId === 'puff') {
+    return new Puff(m.scene as any, { spawnX, spawnY });
+  }
+  if (characterId === 'aegis') {
+    return new Aegis(m.scene as any, { spawnX, spawnY });
+  }
+  if (characterId === 'volt') {
+    return new Volt(m.scene as any, { spawnX, spawnY });
+  }
+  if (characterId === 'nova') {
+    return new Nova(m.scene as any, { spawnX, spawnY });
+  }
+  if (characterId === 'bruno') {
+    return new Bruno(m.scene as any, { spawnX, spawnY });
+  }
   return new Bear(m.scene as any, { spawnX, spawnY });
 }
 
@@ -185,7 +209,7 @@ function spawnFighter(
 
 describe('GROUNDED_NORMAL_TABLE — move-table catalog (AC 60102 Sub-AC 2)', () => {
   it('exposes every roster slot × grounded-normal slot pair', () => {
-    const ids: CharacterId[] = ['wolf', 'cat', 'owl', 'bear'];
+    const ids: CharacterId[] = ['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis'];
     for (const id of ids) {
       for (const slot of GROUNDED_NORMAL_SLOTS) {
         const move = GROUNDED_NORMAL_TABLE[id][slot];
@@ -195,8 +219,8 @@ describe('GROUNDED_NORMAL_TABLE — move-table catalog (AC 60102 Sub-AC 2)', () 
     }
   });
 
-  it('flat catalog enumerates exactly 12 entries (4 chars × 3 slots)', () => {
-    expect(GROUNDED_NORMAL_MOVES.length).toBe(12);
+  it('flat catalog enumerates exactly 30 entries (10 chars × 3 slots)', () => {
+    expect(GROUNDED_NORMAL_MOVES.length).toBe(30);
     // Ensure no duplicates and the (id, slot) pairs cover the full grid.
     const seen = new Set<string>();
     for (const e of GROUNDED_NORMAL_MOVES) {
@@ -205,7 +229,7 @@ describe('GROUNDED_NORMAL_TABLE — move-table catalog (AC 60102 Sub-AC 2)', () 
       seen.add(key);
       expect(e.move.id).toBe(key);
     }
-    expect(seen.size).toBe(12);
+    expect(seen.size).toBe(30);
   });
 
   it('every grounded normal carries the schema fields the Sub-AC requires', () => {

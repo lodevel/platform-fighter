@@ -38,17 +38,16 @@ describe('ModeSelectScene — AC 11 wiring contract', () => {
     expect(SCENE_SRC).toMatch(/key:\s*['"]ModeSelectScene['"]/);
   });
 
-  it('confirm path starts StageSelectScene carrying the pending matchConfig', () => {
-    // AC 20104 Sub-AC 4 inserts the stage-select scene between
-    // ModeSelect and CharacterSelect. The chosen mode now reaches the
-    // match *through* the StageSelectScene's `pendingMatchConfig`
-    // payload, which forwards (with the picked stageId + optional
-    // saved-stage blob) into CharacterSelectScene, which merges in the
-    // synthesised `players[]` and finally launches `MatchScene`. Each
-    // scene preserves the mode reach-through so the AC is intact two
-    // indirections deeper.
+  it('confirm path starts CharacterSelectScene carrying the pending matchConfig', () => {
+    // Smash-style flow ordering: fighters first, arena last. The
+    // chosen mode reaches the match *through* the CharacterSelectScene's
+    // `pendingMatchConfig` payload, which forwards (with the lineup
+    // merged in) to StageSelectScene, which replaces the placeholder
+    // stageId and finally launches `MatchScene`. Each scene preserves
+    // the mode reach-through so the AC is intact two indirections
+    // deeper.
     expect(SCENE_SRC).toMatch(
-      /scene\.start\(\s*['"]StageSelectScene['"]\s*,\s*\{\s*pendingMatchConfig/,
+      /scene\.start\(\s*['"]CharacterSelectScene['"]\s*,\s*\{\s*pendingMatchConfig/,
     );
   });
 

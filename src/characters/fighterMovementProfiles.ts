@@ -61,6 +61,10 @@ export const WOLF_MOVEMENT_PROFILE: FighterMovementProfile = Object.freeze({
   jumpImpulse: 12.5, // ≈ 750 px/s upward
   maxJumps: 2,
   mass: 16, // heavier than the previous shared default of 12
+  fallAccel: 0.3, // mid-cast descent — committal but not lead-footed
+  maxFallSpeed: 11.0,
+  fastFallSpeed: 17.5, // ≈ 1.6× — Smash-standard fast-fall ratio
+  jumpCutFactor: 0.4, // early release clips the rise to 40% impulse
 });
 
 /**
@@ -76,6 +80,10 @@ export const CAT_MOVEMENT_PROFILE: FighterMovementProfile = Object.freeze({
   jumpImpulse: 13.5, // ≈ 810 px/s upward
   maxJumps: 2,
   mass: 8, // lighter than the previous shared default of 12
+  fallAccel: 0.38, // fastest faller in the cast — Fox-style hit-and-run
+  maxFallSpeed: 12.5,
+  fastFallSpeed: 20.0, // 1.6× — rushdown wants to be back on the deck NOW
+  jumpCutFactor: 0.35, // tightest short hop in the cast
 });
 
 /**
@@ -92,6 +100,10 @@ export const OWL_MOVEMENT_PROFILE: FighterMovementProfile = Object.freeze({
   jumpImpulse: 13.0, // ≈ 780 px/s upward
   maxJumps: 2,
   mass: 10, // between Cat (8) and Wolf (16)
+  fallAccel: 0.16, // floatiest descent in the cast — Jigglypuff-zone drift
+  maxFallSpeed: 8.5, // low terminal velocity = long, controllable falls
+  fastFallSpeed: 13.5, // ~1.6× — fast-fall still matters for a floaty
+  jumpCutFactor: 0.45,
 });
 
 /**
@@ -107,6 +119,144 @@ export const BEAR_MOVEMENT_PROFILE: FighterMovementProfile = Object.freeze({
   jumpImpulse: 11.5, // ≈ 690 px/s upward — shortest hop in the cast
   maxJumps: 2,
   mass: 20, // heaviest in the cast
+  fallAccel: 0.34, // heavy = drops like a stone once committed
+  maxFallSpeed: 12.0,
+  fastFallSpeed: 18.0, // 1.5× — grapplers chase landings, not juggles
+  jumpCutFactor: 0.5, // least jump control — committed arcs
+});
+
+/**
+ * Blaze — rushdown archetype (Captain Falcon-inspired). The cast's
+ * "fast heavy": near-Cat ground speed on a Wolf-class mass so he
+ * sprints into range, lands a heavy hit, and survives the trade.
+ * Pays for it with the steepest descent in the cast — high `fallAccel`
+ * + high `maxFallSpeed` means off-stage mistakes are unforgiving.
+ */
+export const BLAZE_MOVEMENT_PROFILE: FighterMovementProfile = Object.freeze({
+  maxRunSpeed: 9.0, // ≈ 540 px/s — second-fastest, behind Cat (10)
+  groundAccel: 0.8,
+  airAccel: 0.35,
+  groundDamping: 0.8,
+  airDamping: 0.95,
+  jumpImpulse: 13.0, // ≈ 780 px/s upward
+  maxJumps: 2,
+  mass: 14, // heavy for his speed class — between Wolf (16) and Cat (8)
+  fallAccel: 0.4, // steepest gravity in the cast — fast-faller identity
+  maxFallSpeed: 12.5,
+  fastFallSpeed: 20.0, // 1.6× — rushdown wants to be back on the deck NOW
+  jumpCutFactor: 0.38, // tight short hop for dash-in aerial pressure
+});
+
+/**
+ * Puff — balloon archetype (Jigglypuff-inspired). Floatiest fighter by
+ * a wide margin: five jumps, near-zero fall acceleration, the lowest
+ * terminal velocity, and the strongest air acceleration in the cast.
+ * Trades all of it for the lightest mass (launches earliest) and the
+ * slowest ground game.
+ */
+export const PUFF_MOVEMENT_PROFILE: FighterMovementProfile = Object.freeze({
+  maxRunSpeed: 5.0, // ≈ 300 px/s — slowest ground speed in the cast
+  groundAccel: 0.45,
+  airAccel: 0.6, // best air-control in the cast — the air IS her stage
+  groundDamping: 0.8,
+  airDamping: 0.98,
+  jumpImpulse: 10.5, // short hops — height comes from jump COUNT
+  maxJumps: 5, // five jumps: the canonical balloon recovery
+  mass: 6, // lightest in the cast — dies earliest off a clean hit
+  fallAccel: 0.08, // barely falls — half of Owl's already-floaty 0.16
+  maxFallSpeed: 6.5, // lowest terminal velocity in the cast
+  fastFallSpeed: 10.5, // ~1.6× — fast-fall opt-in keeps landings honest
+  jumpCutFactor: 0.55,
+});
+
+/**
+ * Aegis — sword-spacing archetype (Marth-inspired). Mid stats across
+ * the board: real run speed, standard double jump, mid mass. The
+ * identity lives in the moveset (tip sweet-spots on every normal —
+ * see `Aegis.ts`), not the movement profile, so the profile stays
+ * deliberately unexceptional.
+ */
+export const AEGIS_MOVEMENT_PROFILE: FighterMovementProfile = Object.freeze({
+  maxRunSpeed: 8.0, // ≈ 480 px/s — the cast's baseline tempo
+  groundAccel: 0.7,
+  airAccel: 0.4,
+  groundDamping: 0.8,
+  airDamping: 0.96,
+  jumpImpulse: 13.0, // ≈ 780 px/s upward
+  maxJumps: 2,
+  mass: 11, // mid-weight — between Owl (10) and Wolf (16)
+  fallAccel: 0.28, // slightly under Wolf — graceful but committed arcs
+  maxFallSpeed: 10.5,
+  fastFallSpeed: 17.0, // ~1.6× — Smash-standard fast-fall ratio
+  jumpCutFactor: 0.42,
+});
+
+/**
+ * Volt — combo-rushdown archetype (Pikachu-inspired). The cast's tiny
+ * speedster: highest run speed shipped (9.5, edging past Cat's 10 only
+ * because Cat keeps the ground-accel crown), near-lightest mass (7 —
+ * heavier only than Puff's 6) and a fast-faller fall line so he can
+ * weave in, rattle off low-knockback multi-hits, and drop back to the
+ * deck. Dies early; wins with speed + combos.
+ */
+export const VOLT_MOVEMENT_PROFILE: FighterMovementProfile = Object.freeze({
+  maxRunSpeed: 9.5, // ≈ 570 px/s — second only to Cat (10)
+  groundAccel: 0.82,
+  airAccel: 0.46,
+  groundDamping: 0.82,
+  airDamping: 0.97,
+  jumpImpulse: 13.0, // ≈ 780 px/s upward
+  maxJumps: 2,
+  mass: 7, // featherweight — only Puff (6) is lighter
+  fallAccel: 0.37, // fast-faller — hit-and-run, back on the deck NOW
+  maxFallSpeed: 12.0,
+  fastFallSpeed: 19.5, // ~1.6× — Smash-standard fast-fall ratio
+  jumpCutFactor: 0.36, // tight short hop for short-hop aerial pressure
+});
+
+/**
+ * Nova — zoner archetype (Samus-inspired). Mid-heavy mass (13) and a
+ * deliberately slow run (6.8 — between Owl 6.5 and Wolf 7.5) so she
+ * controls space with ranged tools rather than chasing. Mid fall
+ * shaping: she's not a fast-faller (her game is staying out, not diving
+ * in) but heavy enough to survive the trades a slow zoner inevitably
+ * eats.
+ */
+export const NOVA_MOVEMENT_PROFILE: FighterMovementProfile = Object.freeze({
+  maxRunSpeed: 6.8, // ≈ 408 px/s — slow, the zoner wants distance not closure
+  groundAccel: 0.58,
+  airAccel: 0.4,
+  groundDamping: 0.79,
+  airDamping: 0.96,
+  jumpImpulse: 12.5, // ≈ 750 px/s upward
+  maxJumps: 2,
+  mass: 13, // mid-heavy — between Aegis (11) and Blaze (14)
+  fallAccel: 0.27, // mid descent — neither floaty nor a fast-faller
+  maxFallSpeed: 10.5,
+  fastFallSpeed: 16.5, // ~1.6× — Smash-standard fast-fall ratio
+  jumpCutFactor: 0.43,
+});
+
+/**
+ * Bruno — balanced all-rounder archetype (Mario-inspired). The cast's
+ * "everyman" baseline: middleweight mass (11), real-but-unremarkable
+ * run (8.0, the cast's baseline tempo, same as Aegis), standard double
+ * jump, mid fall shaping. Nothing here is exceptional by design — the
+ * identity is reliability across the whole stat line.
+ */
+export const BRUNO_MOVEMENT_PROFILE: FighterMovementProfile = Object.freeze({
+  maxRunSpeed: 8.0, // ≈ 480 px/s — the cast's baseline tempo
+  groundAccel: 0.7,
+  airAccel: 0.42,
+  groundDamping: 0.8,
+  airDamping: 0.96,
+  jumpImpulse: 13.0, // ≈ 780 px/s upward
+  maxJumps: 2,
+  mass: 11, // middleweight — the baseline the rest of the cast is read against
+  fallAccel: 0.29, // mid descent — graceful but committed arcs
+  maxFallSpeed: 11.0,
+  fastFallSpeed: 17.5, // ~1.6× — Smash-standard fast-fall ratio
+  jumpCutFactor: 0.42,
 });
 
 // ---------------------------------------------------------------------------
@@ -127,6 +277,12 @@ export const FIGHTER_MOVEMENT_PROFILES: Readonly<
   cat: CAT_MOVEMENT_PROFILE,
   owl: OWL_MOVEMENT_PROFILE,
   bear: BEAR_MOVEMENT_PROFILE,
+  blaze: BLAZE_MOVEMENT_PROFILE,
+  puff: PUFF_MOVEMENT_PROFILE,
+  aegis: AEGIS_MOVEMENT_PROFILE,
+  volt: VOLT_MOVEMENT_PROFILE,
+  nova: NOVA_MOVEMENT_PROFILE,
+  bruno: BRUNO_MOVEMENT_PROFILE,
 });
 
 /**

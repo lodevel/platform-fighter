@@ -83,7 +83,7 @@ function makeReplay(
   const buffer = new InputCaptureBuffer({ playerCount });
   for (const [frame, p1, p2] of sequence) {
     const inputs: CharacterInput[] = [p1];
-    if (playerCount >= 2) inputs.push(p2 ?? { moveX: 0, jump: false });
+    if (playerCount >= 2) inputs.push(p2 ?? { moveX: 0, moveY: 0, jump: false });
     buffer.captureFrame(frame, inputs);
   }
   return serializeReplay({
@@ -201,7 +201,7 @@ describe('FrameAdvanceStepper — construction', () => {
 
   it('rejects missing applyInputs', () => {
     const playback = new ReplayPlaybackController({
-      replay: makeReplay([[0, { moveX: 0, jump: false }]]),
+      replay: makeReplay([[0, { moveX: 0, moveY: 0, jump: false }]]),
     });
     expect(
       () =>
@@ -216,7 +216,7 @@ describe('FrameAdvanceStepper — construction', () => {
 
   it('rejects missing stepPhysics', () => {
     const playback = new ReplayPlaybackController({
-      replay: makeReplay([[0, { moveX: 0, jump: false }]]),
+      replay: makeReplay([[0, { moveX: 0, moveY: 0, jump: false }]]),
     });
     expect(
       () =>
@@ -231,7 +231,7 @@ describe('FrameAdvanceStepper — construction', () => {
 
   it('rejects invalid fixedTimestepMs override', () => {
     const playback = new ReplayPlaybackController({
-      replay: makeReplay([[0, { moveX: 0, jump: false }]]),
+      replay: makeReplay([[0, { moveX: 0, moveY: 0, jump: false }]]),
     });
     expect(
       () =>
@@ -254,7 +254,7 @@ describe('FrameAdvanceStepper — construction', () => {
   });
 
   it('exposes default fixedTimestepMs from simulation manager', () => {
-    const replay = makeReplay([[0, { moveX: 0, jump: false }]]);
+    const replay = makeReplay([[0, { moveX: 0, moveY: 0, jump: false }]]);
     const sim = new PlaybackSimulationStateManager({
       fixedTimestepMs: 20,
     });
@@ -270,7 +270,7 @@ describe('FrameAdvanceStepper — construction', () => {
 
   it('falls back to GAME_CONFIG when no simulation supplied', () => {
     const playback = new ReplayPlaybackController({
-      replay: makeReplay([[0, { moveX: 0, jump: false }]]),
+      replay: makeReplay([[0, { moveX: 0, moveY: 0, jump: false }]]),
     });
     const stepper = new FrameAdvanceStepper({
       playback,
@@ -303,8 +303,8 @@ describe('FrameAdvanceStepper — pre-condition gate', () => {
 
   it('returns noop-not-paused while simulation is playing', () => {
     const replay = makeReplay([
-      [0, { moveX: 1, jump: false }],
-      [1, { moveX: 0, jump: true }],
+      [0, { moveX: 1, moveY: 0, jump: false }],
+      [1, { moveX: 0, moveY: 0, jump: true }],
     ]);
     const spy = makeSpy();
     const sim = new PlaybackSimulationStateManager({
@@ -319,7 +319,7 @@ describe('FrameAdvanceStepper — pre-condition gate', () => {
   });
 
   it('returns noop-finished after exhausting the timeline', () => {
-    const replay = makeReplay([[0, { moveX: 0, jump: false }]]);
+    const replay = makeReplay([[0, { moveX: 0, moveY: 0, jump: false }]]);
     const spy = makeSpy();
     const { stepper, playback } = makeStepper(replay, spy);
     // Walk the only frame.
@@ -335,8 +335,8 @@ describe('FrameAdvanceStepper — pre-condition gate', () => {
 
   it('with requirePaused=false advances even while playing', () => {
     const replay = makeReplay([
-      [0, { moveX: 1, jump: false }],
-      [1, { moveX: 0, jump: true }],
+      [0, { moveX: 1, moveY: 0, jump: false }],
+      [1, { moveX: 0, moveY: 0, jump: true }],
     ]);
     const spy = makeSpy();
     const sim = new PlaybackSimulationStateManager({ initialPhase: 'playing' });
@@ -352,8 +352,8 @@ describe('FrameAdvanceStepper — pre-condition gate', () => {
 
   it('without simulation manager always passes the phase gate', () => {
     const replay = makeReplay([
-      [0, { moveX: 1, jump: false }],
-      [1, { moveX: -1, jump: false }],
+      [0, { moveX: 1, moveY: 0, jump: false }],
+      [1, { moveX: -1, moveY: 0, jump: false }],
     ]);
     const spy = makeSpy();
     const playback = new ReplayPlaybackController({ replay });
@@ -384,9 +384,9 @@ describe('FrameAdvanceStepper — pre-condition gate', () => {
 describe('FrameAdvanceStepper — single-step semantics', () => {
   it('one trigger advances cursor by exactly one frame', () => {
     const replay = makeReplay([
-      [0, { moveX: 1, jump: false }],
-      [1, { moveX: 0, jump: true }],
-      [2, { moveX: -1, jump: false }],
+      [0, { moveX: 1, moveY: 0, jump: false }],
+      [1, { moveX: 0, moveY: 0, jump: true }],
+      [2, { moveX: -1, moveY: 0, jump: false }],
     ]);
     const spy = makeSpy();
     const { stepper, playback } = makeStepper(replay, spy);
@@ -400,8 +400,8 @@ describe('FrameAdvanceStepper — single-step semantics', () => {
 
   it('calls applyInputs then stepPhysics in lockstep', () => {
     const replay = makeReplay([
-      [0, { moveX: 1, jump: false }],
-      [1, { moveX: 0, jump: true }],
+      [0, { moveX: 1, moveY: 0, jump: false }],
+      [1, { moveX: 0, moveY: 0, jump: true }],
     ]);
     const spy = makeSpy();
     const { stepper } = makeStepper(replay, spy);
@@ -414,7 +414,7 @@ describe('FrameAdvanceStepper — single-step semantics', () => {
 
   it('forwards the recorded inputs unchanged to applyInputs', () => {
     const replay = makeReplay([
-      [0, { moveX: 1, jump: false, attack: true }],
+      [0, { moveX: 1, moveY: 0, jump: false, attack: true }],
     ]);
     const spy = makeSpy();
     const { stepper } = makeStepper(replay, spy);
@@ -428,7 +428,7 @@ describe('FrameAdvanceStepper — single-step semantics', () => {
   });
 
   it('forwards the configured fixedTimestepMs to stepPhysics', () => {
-    const replay = makeReplay([[0, { moveX: 0, jump: false }]]);
+    const replay = makeReplay([[0, { moveX: 0, moveY: 0, jump: false }]]);
     const spy = makeSpy();
     const { stepper } = makeStepper(replay, spy);
     stepper.step();
@@ -438,7 +438,7 @@ describe('FrameAdvanceStepper — single-step semantics', () => {
   });
 
   it('result.fixedTimestepMs matches the configured value', () => {
-    const replay = makeReplay([[0, { moveX: 0, jump: false }]]);
+    const replay = makeReplay([[0, { moveX: 0, moveY: 0, jump: false }]]);
     const spy = makeSpy();
     const { stepper } = makeStepper(replay, spy);
     const r = stepper.step();
@@ -448,8 +448,8 @@ describe('FrameAdvanceStepper — single-step semantics', () => {
   it('null inputs flow through to applyInputs on a sparse-gap frame', () => {
     // Sparse timeline: frame 0 then frame 5 (gap at 1..4).
     const replay = makeReplay([
-      [0, { moveX: 1, jump: false }],
-      [5, { moveX: -1, jump: false }],
+      [0, { moveX: 1, moveY: 0, jump: false }],
+      [5, { moveX: -1, moveY: 0, jump: false }],
     ]);
     const spy = makeSpy();
     const { stepper, playback } = makeStepper(replay, spy);
@@ -472,10 +472,10 @@ describe('FrameAdvanceStepper — single-step semantics', () => {
 describe('FrameAdvanceStepper — lockstep walk', () => {
   it('walks N frames in lockstep with one apply + one step per trigger', () => {
     const replay = makeReplay([
-      [0, { moveX: 1, jump: false }],
-      [1, { moveX: 0, jump: true }],
-      [2, { moveX: -1, jump: false }],
-      [3, { moveX: 0, jump: false, attack: true }],
+      [0, { moveX: 1, moveY: 0, jump: false }],
+      [1, { moveX: 0, moveY: 0, jump: true }],
+      [2, { moveX: -1, moveY: 0, jump: false }],
+      [3, { moveX: 0, moveY: 0, jump: false, attack: true }],
     ]);
     const spy = makeSpy();
     const { stepper } = makeStepper(replay, spy);
@@ -503,8 +503,8 @@ describe('FrameAdvanceStepper — lockstep walk', () => {
 
   it('stepBy(n) walks n frames and stops on first non-success', () => {
     const replay = makeReplay([
-      [0, { moveX: 1, jump: false }],
-      [1, { moveX: 0, jump: true }],
+      [0, { moveX: 1, moveY: 0, jump: false }],
+      [1, { moveX: 0, moveY: 0, jump: true }],
     ]);
     const spy = makeSpy();
     const { stepper } = makeStepper(replay, spy);
@@ -518,7 +518,7 @@ describe('FrameAdvanceStepper — lockstep walk', () => {
   });
 
   it('stepBy rejects non-positive counts', () => {
-    const replay = makeReplay([[0, { moveX: 0, jump: false }]]);
+    const replay = makeReplay([[0, { moveX: 0, moveY: 0, jump: false }]]);
     const spy = makeSpy();
     const { stepper } = makeStepper(replay, spy);
     expect(() => stepper.stepBy(0)).toThrow(/positive integer/);
@@ -528,9 +528,9 @@ describe('FrameAdvanceStepper — lockstep walk', () => {
 
   it('cursor never advances without a paired applyInputs call', () => {
     const replay = makeReplay([
-      [0, { moveX: 0, jump: false }],
-      [1, { moveX: 1, jump: false }],
-      [2, { moveX: 0, jump: false }],
+      [0, { moveX: 0, moveY: 0, jump: false }],
+      [1, { moveX: 1, moveY: 0, jump: false }],
+      [2, { moveX: 0, moveY: 0, jump: false }],
     ]);
     const spy = makeSpy();
     const { stepper, playback } = makeStepper(replay, spy);
@@ -556,7 +556,7 @@ describe('FrameAdvanceStepper — lockstep walk', () => {
 
 describe('FrameAdvanceStepper — failure handling', () => {
   it('applyInputs throw → stepPhysics is NOT called, status is failed-apply-inputs', () => {
-    const replay = makeReplay([[0, { moveX: 1, jump: false }]]);
+    const replay = makeReplay([[0, { moveX: 1, moveY: 0, jump: false }]]);
     const spy = makeSpy();
     spy.applyInputsImpl = () => {
       throw new Error('boom-apply');
@@ -573,7 +573,7 @@ describe('FrameAdvanceStepper — failure handling', () => {
   });
 
   it('stepPhysics throw → status is failed-step-physics, error captured', () => {
-    const replay = makeReplay([[0, { moveX: 1, jump: false }]]);
+    const replay = makeReplay([[0, { moveX: 1, moveY: 0, jump: false }]]);
     const spy = makeSpy();
     spy.stepPhysicsImpl = () => {
       throw new Error('boom-step');
@@ -589,7 +589,7 @@ describe('FrameAdvanceStepper — failure handling', () => {
   });
 
   it('does NOT re-propagate callback throws (button click safety)', () => {
-    const replay = makeReplay([[0, { moveX: 1, jump: false }]]);
+    const replay = makeReplay([[0, { moveX: 1, moveY: 0, jump: false }]]);
     const spy = makeSpy();
     spy.applyInputsImpl = () => {
       throw new Error('boom');
@@ -607,8 +607,8 @@ describe('FrameAdvanceStepper — failure handling', () => {
 describe('FrameAdvanceStepper — stats', () => {
   it('tracks success / noop / failure counts and lastSteppedFrame', () => {
     const replay = makeReplay([
-      [0, { moveX: 1, jump: false }],
-      [1, { moveX: 0, jump: false }],
+      [0, { moveX: 1, moveY: 0, jump: false }],
+      [1, { moveX: 0, moveY: 0, jump: false }],
     ]);
     const spy = makeSpy();
     const { stepper } = makeStepper(replay, spy);
@@ -635,8 +635,8 @@ describe('FrameAdvanceStepper — stats', () => {
 
   it('reset() zeroes stats but preserves callbacks', () => {
     const replay = makeReplay([
-      [0, { moveX: 1, jump: false }],
-      [1, { moveX: 0, jump: false }],
+      [0, { moveX: 1, moveY: 0, jump: false }],
+      [1, { moveX: 0, moveY: 0, jump: false }],
     ]);
     const spy = makeSpy();
     const { stepper } = makeStepper(replay, spy);
@@ -659,7 +659,7 @@ describe('FrameAdvanceStepper — stats', () => {
   });
 
   it('returned result is frozen', () => {
-    const replay = makeReplay([[0, { moveX: 0, jump: false }]]);
+    const replay = makeReplay([[0, { moveX: 0, moveY: 0, jump: false }]]);
     const spy = makeSpy();
     const { stepper } = makeStepper(replay, spy);
     const r = stepper.step();
@@ -667,7 +667,7 @@ describe('FrameAdvanceStepper — stats', () => {
   });
 
   it('returned stats record is frozen', () => {
-    const replay = makeReplay([[0, { moveX: 0, jump: false }]]);
+    const replay = makeReplay([[0, { moveX: 0, moveY: 0, jump: false }]]);
     const spy = makeSpy();
     const { stepper } = makeStepper(replay, spy);
     expect(Object.isFrozen(stepper.getStats())).toBe(true);
@@ -697,11 +697,11 @@ describe('FrameAdvanceStepper — empty timeline', () => {
 describe('FrameAdvanceStepper — determinism', () => {
   it('two steppers driven through the same replay produce identical traces', () => {
     const replay = makeReplay([
-      [0, { moveX: 1, jump: false }],
-      [1, { moveX: 0, jump: true }],
-      [2, { moveX: -1, jump: false }],
-      [3, { moveX: 0, jump: false, attack: true }],
-      [4, { moveX: 1, jump: false }],
+      [0, { moveX: 1, moveY: 0, jump: false }],
+      [1, { moveX: 0, moveY: 0, jump: true }],
+      [2, { moveX: -1, moveY: 0, jump: false }],
+      [3, { moveX: 0, moveY: 0, jump: false, attack: true }],
+      [4, { moveX: 1, moveY: 0, jump: false }],
     ]);
 
     const spyA = makeSpy();
@@ -732,9 +732,9 @@ describe('FrameAdvanceStepper — determinism', () => {
 describe('FrameAdvanceStepper — simulation manager integration', () => {
   it('folds successful steps into emittedSteps when paused', () => {
     const replay = makeReplay([
-      [0, { moveX: 1, jump: false }],
-      [1, { moveX: 0, jump: true }],
-      [2, { moveX: -1, jump: false }],
+      [0, { moveX: 1, moveY: 0, jump: false }],
+      [1, { moveX: 0, moveY: 0, jump: true }],
+      [2, { moveX: -1, moveY: 0, jump: false }],
     ]);
     const spy = makeSpy();
     const sim = new PlaybackSimulationStateManager({ initialPhase: 'paused' });
@@ -749,8 +749,8 @@ describe('FrameAdvanceStepper — simulation manager integration', () => {
 
   it('does not fold emitted-steps when not paused (requirePaused=false)', () => {
     const replay = makeReplay([
-      [0, { moveX: 1, jump: false }],
-      [1, { moveX: 0, jump: true }],
+      [0, { moveX: 1, moveY: 0, jump: false }],
+      [1, { moveX: 0, moveY: 0, jump: true }],
     ]);
     const spy = makeSpy();
     const sim = new PlaybackSimulationStateManager({ initialPhase: 'playing' });
@@ -771,10 +771,10 @@ describe('FrameAdvanceStepper — simulation manager integration', () => {
 
   it('full canonical VCR flow: pause, step F times, unpause, resume', () => {
     const replay = makeReplay([
-      [0, { moveX: 1, jump: false }],
-      [1, { moveX: 0, jump: true }],
-      [2, { moveX: -1, jump: false }],
-      [3, { moveX: 0, jump: false }],
+      [0, { moveX: 1, moveY: 0, jump: false }],
+      [1, { moveX: 0, moveY: 0, jump: true }],
+      [2, { moveX: -1, moveY: 0, jump: false }],
+      [3, { moveX: 0, moveY: 0, jump: false }],
     ]);
     const spy = makeSpy();
     const sim = new PlaybackSimulationStateManager({ initialPhase: 'paused' });
@@ -803,8 +803,8 @@ describe('FrameAdvanceStepper — simulation manager integration', () => {
 describe('FrameAdvanceStepper — auto-start from LOADED', () => {
   it('auto-starts the controller if it has not been started yet', () => {
     const replay = makeReplay([
-      [0, { moveX: 1, jump: false }],
-      [1, { moveX: 0, jump: true }],
+      [0, { moveX: 1, moveY: 0, jump: false }],
+      [1, { moveX: 0, moveY: 0, jump: true }],
     ]);
     const spy = makeSpy();
     // autoStart=false — controller stays in LOADED until first step.

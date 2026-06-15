@@ -94,6 +94,44 @@ export const MAX_DAMAGE_PERCENT = 999;
 export const BASELINE_MASS = 12;
 
 /**
+ * Global percent-growth temper — the single balance lever between
+ * "authored move scaling" and "realised launch growth".
+ *
+ * The per-move `scaling` values were authored against the original
+ * formula where `multiplier = 1 + scaling · percent` — which explodes
+ * at Smash-like percents (a 0.4-scaling smash at 100 % yields a 41×
+ * multiplier ≈ 175 px/step: across the blast zone in two frames).
+ * Playtest feedback: "it's very easy to send an enemy flying — in
+ * Smash you need serious damage before base attacks launch."
+ *
+ * Tempering the percent term globally (rather than re-authoring every
+ * move record + JSON mirror) keeps all RELATIVE balance intact —
+ * smashes still out-scale jabs by the same ratio at every percent —
+ * while bringing absolute kill thresholds into the Smash band.
+ * Authored `baseMagnitude` floors are deliberately NOT tempered (they
+ * are percent-independent by design — this is what keeps a Falcon-
+ * Punch-style move a strong LOW-percent killer while ordinary smashes
+ * need real damage first).
+ *
+ * Calibration (2026-06): headless KO-percent probing against the flat
+ * stage showed `0.15` still sent a lightweight (mass 8) across the
+ * side blast from a single forward-smash at ~30 % — because there is
+ * NO velocity damping during hitstun, KO *reach* scales with knockback
+ * *squared*, so even a modest over-tune launches absurdly far. `0.06`
+ * moves a smash's KO threshold to ~75-80 % on a lightweight / ~105 %
+ * on a middleweight and a Falcon-Punch-class special to ~50-55 %
+ * (matching Smash Ultimate's ~55 % centre-stage Falcon Punch), while
+ * the un-tempered `baseMagnitude` floors keep early-percent shoves
+ * intact. Lowering the temper also deepens combos (less knockback =
+ * longer follow-up windows), another step toward the Smash feel.
+ *
+ * (The hook in `computeKnockback` reads an optional `globalThis.__kbTemper`
+ * override first so headless balance sweeps can try values without a
+ * recompile; the global is never set in normal play.)
+ */
+export const KNOCKBACK_PERCENT_TEMPER = 0.06;
+
+/**
  * Frames of hitstun applied per unit of realised knockback magnitude.
  * Tuned so a baseline jab (mag ≈ 1.5) produces ~3 frames before MIN
  * kicks in, while a heavy smash launcher (mag ≈ 15) produces ~30
@@ -205,6 +243,10 @@ export interface HitInfo {
     readonly x: number;
     readonly y: number;
     readonly scaling: number;
+    /** Optional Smash-style percent-independent launch floor (see `AttackMove.knockback`). */
+    readonly baseMagnitude?: number;
+    /** Optional Smash-style damage-fed growth term (see `AttackMove.knockback`). */
+    readonly damageGrowth?: number;
   };
   /** Attacker's facing direction at the moment the hit was registered. */
   readonly facing: 1 | -1;
@@ -217,6 +259,14 @@ export interface HitInfo {
    * unchanged.
    */
   readonly sweetSpot?: boolean;
+  /**
+   * Optional flag — `true` for an UNBLOCKABLE hit that bypasses a raised
+   * shield (the canonical Smash "grabs beat shield" rule). Command grabs
+   * (`commandGrab` neutral / `commandDash` side) set this so a shielding
+   * victim is still thrown. Falsy / omitted means a normal hit that a
+   * raised shield absorbs — every existing call site stays unchanged.
+   */
+  readonly unblockable?: boolean;
 }
 
 /**
@@ -337,15 +387,46 @@ export function computeKnockback(
   const safePercent = clamp(targetPercent, 0, MAX_DAMAGE_PERCENT);
   const safeMass = Math.max(1, targetMass);
 
-  const percentMultiplier = 1 + hit.knockback.scaling * safePercent;
+  // Smash-style damage-fed growth (the `p·d/20` term of the canonical
+  // formula): when a move authors `damageGrowth`, its percent term is
+  // amplified by the move's own damage, so heavy hits out-scale light
+  // pokes that share the same `scaling`. Absent → 0 → legacy math.
+  const damageGrowth = hit.knockback.damageGrowth ?? 0;
+  // DEV-ONLY temper override hook for headless balance sweeps — lets a
+  // probe try candidate temper values without recompiling. Falls back
+  // to the compiled constant in production (the global is never set).
+  const temper =
+    (globalThis as { __kbTemper?: number }).__kbTemper ??
+    KNOCKBACK_PERCENT_TEMPER;
+  const growth =
+    hit.knockback.scaling *
+    safePercent *
+    temper *
+    (1 + (damageGrowth * hit.damage) / 20);
+  const percentMultiplier = 1 + growth;
   const massMultiplier = BASELINE_MASS / safeMass;
   const totalMultiplier = percentMultiplier * massMultiplier;
 
   // Horizontal direction follows the attacker's facing — knockback always
   // pushes the target away from the source. The base vector is authored
   // as if attacking right (positive x = "outward").
-  const vx = hit.knockback.x * totalMultiplier * hit.facing;
-  const vy = hit.knockback.y * totalMultiplier;
+  let vx = hit.knockback.x * totalMultiplier * hit.facing;
+  let vy = hit.knockback.y * totalMultiplier;
+
+  // Smash-style BASE knockback (the `+ b` term): a percent-independent
+  // launch floor along the move's authored direction. Deliberately NOT
+  // scaled by target mass — the canonical formula adds `b` outside the
+  // weight term — so a 0 % target still gets shoved (and hit-stunned)
+  // meaningfully by moves that author it. Adding along the SAME unit
+  // direction preserves the angle-invariance property the suite pins.
+  const baseMagnitude = hit.knockback.baseMagnitude ?? 0;
+  if (baseMagnitude > 0) {
+    const dirLen = Math.hypot(hit.knockback.x, hit.knockback.y);
+    if (dirLen > 0) {
+      vx += (hit.knockback.x / dirLen) * baseMagnitude * hit.facing;
+      vy += (hit.knockback.y / dirLen) * baseMagnitude;
+    }
+  }
 
   const magnitude = Math.hypot(vx, vy);
   const angle = Math.atan2(vy, vx);
@@ -501,6 +582,66 @@ export function applyDIToLaunchAngle(
   const perp = clamp(perpRaw, -1, 1);
   const maxRotationRad = (DI_MAX_ROTATION_DEGREES * Math.PI) / 180;
   return launchAngle + perp * maxRotationRad;
+}
+
+/**
+ * Attacker percent at/below which RAGE is inactive (multiplier 1.0).
+ * Below this you deal "normal" knockback; the comeback boost only kicks
+ * in once you're taking damage.
+ */
+export const RAGE_START_PERCENT = 35;
+/** Attacker percent at/above which RAGE is maxed at {@link RAGE_MAX_MULTIPLIER}. */
+export const RAGE_MAX_PERCENT = 150;
+/**
+ * Peak knockback multiplier from RAGE. At {@link RAGE_MAX_PERCENT}+ the
+ * attacker's launches hit this much harder — the Smash "rage" comeback
+ * mechanic (a high-% fighter KOs earlier). Tuned modest (1.15) so it
+ * tilts close games without dominating.
+ */
+export const RAGE_MAX_MULTIPLIER = 1.15;
+
+/**
+ * Compute the RAGE knockback multiplier for an attacker at the given
+ * percent. Linear ramp: 1.0 at/below {@link RAGE_START_PERCENT}, climbing
+ * to {@link RAGE_MAX_MULTIPLIER} at/above {@link RAGE_MAX_PERCENT}. Scales
+ * only KNOCKBACK (not damage), mirroring Smash — a battered fighter sends
+ * opponents flying harder, a small persistent comeback lever.
+ *
+ * Pure: percent in → multiplier out, no state.
+ */
+export function computeRageMultiplier(attackerPercent: number): number {
+  const p = clamp(attackerPercent, 0, MAX_DAMAGE_PERCENT);
+  if (p <= RAGE_START_PERCENT) return 1;
+  const t = clamp(
+    (p - RAGE_START_PERCENT) / (RAGE_MAX_PERCENT - RAGE_START_PERCENT),
+    0,
+    1,
+  );
+  return 1 + t * (RAGE_MAX_MULTIPLIER - 1);
+}
+
+/** Number of recently-landed moves tracked for stale-move negation. */
+export const STALE_QUEUE_SIZE = 9;
+/** Damage/knockback reduction per prior occurrence of a move in the stale queue. */
+export const STALE_STEP = 0.05;
+/** Floor on the stale multiplier — a fully-staled move still deals this fraction. */
+export const STALE_MIN_MULTIPLIER = 1 - STALE_QUEUE_SIZE * STALE_STEP; // 0.55
+
+/**
+ * Compute the STALE-MOVE multiplier for a move that already appears
+ * `occurrences` times in the attacker's recent-move queue. Fresh (0
+ * occurrences) → 1.0; each prior use shaves {@link STALE_STEP} off, down
+ * to {@link STALE_MIN_MULTIPLIER}. Mirrors Smash's stale-move negation:
+ * spamming one move makes it weaker, so you vary your offence (and a move
+ * "freshens" as it rotates out of the queue).
+ *
+ * Applied to BOTH damage and knockback at the hit-resolution boundary.
+ *
+ * Pure: occurrence count in → multiplier out, no state.
+ */
+export function computeStaleMultiplier(occurrences: number): number {
+  const n = clamp(occurrences, 0, STALE_QUEUE_SIZE);
+  return clamp(1 - n * STALE_STEP, STALE_MIN_MULTIPLIER, 1);
 }
 
 /**

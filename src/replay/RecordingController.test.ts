@@ -93,7 +93,7 @@ describe('RecordingController — construction', () => {
     const c = new RecordingController();
     expect(() =>
       c.captureFrame(0, [
-        { moveX: 1, jump: false, attack: false, dropThrough: false },
+        { moveX: 1, moveY: 0, jump: false, attack: false, dropThrough: false },
       ]),
     ).not.toThrow();
     expect(c.getStatus().frameCount).toBe(0);
@@ -182,12 +182,12 @@ describe('RecordingController — captureFrame', () => {
     const c = new RecordingController();
     c.start({ matchConfig: makeMatchConfig() });
     c.captureFrame(0, [
-      { moveX: 1, jump: false, attack: false, dropThrough: false },
-      { moveX: -1, jump: true, attack: true, dropThrough: false },
+      { moveX: 1, moveY: 0, jump: false, attack: false, dropThrough: false },
+      { moveX: -1, moveY: 0, jump: true, attack: true, dropThrough: false },
     ]);
     c.captureFrame(1, [
-      { moveX: 0, jump: false, attack: false, dropThrough: false },
-      { moveX: 0, jump: false, attack: false, dropThrough: false },
+      { moveX: 0, moveY: 0, jump: false, attack: false, dropThrough: false },
+      { moveX: 0, moveY: 0, jump: false, attack: false, dropThrough: false },
     ]);
     const buf = c.getBuffer()!;
     expect(buf.size()).toBe(2);
@@ -199,7 +199,7 @@ describe('RecordingController — captureFrame', () => {
     c.start({ matchConfig: makeMatchConfig() });
     c.captureFrame(0, [
       undefined,
-      { moveX: 1, jump: false, attack: false, dropThrough: false },
+      { moveX: 1, moveY: 0, jump: false, attack: false, dropThrough: false },
     ]);
     const captured = c.getBuffer()!.getFrame(0)!;
     expect(captured.inputs[0]).toEqual(NEUTRAL_INPUT);
@@ -210,13 +210,13 @@ describe('RecordingController — captureFrame', () => {
     const c = new RecordingController();
     c.start({ matchConfig: makeMatchConfig() });
     c.captureFrame(0, [
-      { moveX: 0, jump: false, attack: false, dropThrough: false },
-      { moveX: 0, jump: false, attack: false, dropThrough: false },
+      { moveX: 0, moveY: 0, jump: false, attack: false, dropThrough: false },
+      { moveX: 0, moveY: 0, jump: false, attack: false, dropThrough: false },
     ]);
     c.stop();
     c.captureFrame(1, [
-      { moveX: 1, jump: false, attack: false, dropThrough: false },
-      { moveX: 1, jump: false, attack: false, dropThrough: false },
+      { moveX: 1, moveY: 0, jump: false, attack: false, dropThrough: false },
+      { moveX: 1, moveY: 0, jump: false, attack: false, dropThrough: false },
     ]);
     expect(c.getBuffer()!.size()).toBe(1);
   });
@@ -268,12 +268,12 @@ describe('RecordingController — buildReplayFile', () => {
     });
     c.start({ matchConfig: makeMatchConfig(), notes: 'best of three' });
     c.captureFrame(0, [
-      { moveX: 1, jump: false, attack: false, dropThrough: false },
-      { moveX: 0, jump: false, attack: false, dropThrough: false },
+      { moveX: 1, moveY: 0, jump: false, attack: false, dropThrough: false },
+      { moveX: 0, moveY: 0, jump: false, attack: false, dropThrough: false },
     ]);
     c.captureFrame(1, [
-      { moveX: 0, jump: true, attack: false, dropThrough: false },
-      { moveX: 0, jump: false, attack: true, dropThrough: false },
+      { moveX: 0, moveY: 0, jump: true, attack: false, dropThrough: false },
+      { moveX: 0, moveY: 0, jump: false, attack: true, dropThrough: false },
     ]);
     c.stop();
     const file = c.buildReplayFile();
@@ -347,8 +347,8 @@ describe('RecordingController — reset', () => {
     const c = new RecordingController();
     c.start({ matchConfig: makeMatchConfig() });
     c.captureFrame(0, [
-      { moveX: 0, jump: false, attack: false, dropThrough: false },
-      { moveX: 0, jump: false, attack: false, dropThrough: false },
+      { moveX: 0, moveY: 0, jump: false, attack: false, dropThrough: false },
+      { moveX: 0, moveY: 0, jump: false, attack: false, dropThrough: false },
     ]);
     c.reset();
     expect(c.getPhase()).toBe('idle');
@@ -370,8 +370,8 @@ describe('RecordingController — reset', () => {
     const c = new RecordingController({ buffer: buf });
     c.start({ matchConfig: makeMatchConfig() });
     c.captureFrame(0, [
-      { moveX: 0, jump: false, attack: false, dropThrough: false },
-      { moveX: 0, jump: false, attack: false, dropThrough: false },
+      { moveX: 0, moveY: 0, jump: false, attack: false, dropThrough: false },
+      { moveX: 0, moveY: 0, jump: false, attack: false, dropThrough: false },
     ]);
     c.reset();
     // The external buffer is the same instance; the caller is
@@ -475,8 +475,8 @@ describe('RecordingController — surface', () => {
     const c = new RecordingController({ nowFactory: makeFixedNow() });
     c.start({ matchConfig: makeMatchConfig() });
     c.captureFrame(0, [
-      { moveX: 0, jump: false, attack: false, dropThrough: false },
-      { moveX: 0, jump: false, attack: false, dropThrough: false },
+      { moveX: 0, moveY: 0, jump: false, attack: false, dropThrough: false },
+      { moveX: 0, moveY: 0, jump: false, attack: false, dropThrough: false },
     ]);
     c.stop();
     const json = c.buildReplayJson();

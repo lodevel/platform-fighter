@@ -47,6 +47,47 @@ export {
   type StageRenderOptions,
 } from './StageRenderer';
 
+// Themed parallax stage backgrounds. `backgroundThemes` is the pure
+// data registry (Phaser-free — gradient colours, parallax layer specs,
+// procedural silhouette generation, ambient pulse math) that each
+// `StageLayout.backgroundTheme` id resolves against;
+// `StageBackgroundRenderer` is the thin Phaser painter that turns a
+// resolved theme into a gradient + TileSprite/Graphics layer stack
+// behind the platforms, with `updateParallax(scrollX, scrollY)` /
+// `tick(frame)` hooks the owning scene drives each frame.
+export {
+  BACKGROUND_AMBIENT_DEPTH,
+  BACKGROUND_GRADIENT_DEPTH,
+  BACKGROUND_LAYER_DEPTH_BASE,
+  BACKGROUND_LAYER_DEPTH_LIMIT,
+  BACKGROUND_LAYER_DEPTH_STEP,
+  BACKGROUND_OVERSCAN_FRACTION,
+  BACKGROUND_PARALLAX_MAX,
+  BACKGROUND_PARALLAX_MIN,
+  BACKGROUND_TEXTURE_TILE_SIZE,
+  DEFAULT_BACKGROUND_THEME_ID,
+  DEFAULT_TEXTURE_TILE_SCALE,
+  STAGE_BACKGROUND_THEMES,
+  backgroundLayerDepth,
+  buildProceduralLayerPolygons,
+  computeAmbientPulseAlpha,
+  getBackgroundTheme,
+  isStageBackgroundThemeId,
+  type AmbientPulseSpec,
+  type BackgroundPolygon,
+  type ParallaxLayerSpec,
+  type ProceduralLayerSpec,
+  type ProceduralShapeKind,
+  type StageBackgroundTheme,
+  type StageBackgroundThemeId,
+} from './backgroundThemes';
+export {
+  renderStageBackground,
+  type RenderedBackgroundLayer,
+  type RenderedStageBackground,
+  type StageBackgroundViewport,
+} from './StageBackgroundRenderer';
+
 // AC 20101 Sub-AC 1 — `BaseStage` is the shared stage runtime contract
 // that consolidates geometry loading, platform colliders, spawn points,
 // blast zones, and hazard lifecycle hooks into a single class the

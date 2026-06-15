@@ -27,6 +27,7 @@ import { ModeSelectScene } from '../scenes/ModeSelectScene';
 import { StageSelectScene } from '../scenes/StageSelectScene';
 import { CharacterSelectScene } from '../scenes/CharacterSelectScene';
 import { MatchScene } from '../scenes/MatchScene';
+import { PauseMenuScene } from '../scenes/PauseMenuScene';
 import { ResultsScene } from '../scenes/ResultsScene';
 import { RebindingScene } from '../scenes/RebindingScene';
 import { StageBuilderScene } from '../scenes/StageBuilderScene';
@@ -55,6 +56,8 @@ export const SCENES: ReadonlyArray<new () => Phaser.Scene> = [
   StageSelectScene,
   CharacterSelectScene,
   MatchScene,
+  // M2 pause overlay — `scene.launch`ed on top of the frozen MatchScene.
+  PauseMenuScene,
   ResultsScene,
   RebindingScene,
   StageBuilderScene,

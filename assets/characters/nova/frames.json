@@ -1,0 +1,40 @@
+{
+  "meta": {
+    "source": "CC0 2D Douche Cyborg (Jump, Run, Shoot, Idle) — 'CyborgMark'",
+    "cellWidth": 72,
+    "cellHeight": 96,
+    "license": "CC0 1.0",
+    "attribution": "CC0 2D Douche Cyborg by Darius Guerrero — https://opengameart.org/content/cc0-2d-douche-cyborg-jump-run-shoot-idle (CC0 1.0)",
+    "notes": "Upstream per-frame PNGs (~114-139 px wide canvases) were cropped to a fixed global union bounding rect across all animations and box-filter downscaled into 72x96 cells (see tools/build-newchar-sprites.cjs). The 'attack' strip is the pack's Shoot animation (the cyborg fires its arm-cannon) — fitting the Samus-inspired zoner's projectile identity."
+  },
+  "animations": {
+    "idle": {
+      "strip": "animations/idle.png",
+      "frameCount": 15,
+      "frameWidth": 72,
+      "frameHeight": 96,
+      "sourceFrames": ["Idle/IdleMark_000..014.png"]
+    },
+    "run": {
+      "strip": "animations/run.png",
+      "frameCount": 15,
+      "frameWidth": 72,
+      "frameHeight": 96,
+      "sourceFrames": ["RUN/MarkRun_000..014.png"]
+    },
+    "jump": {
+      "strip": "animations/jump.png",
+      "frameCount": 15,
+      "frameWidth": 72,
+      "frameHeight": 96,
+      "sourceFrames": ["Jump/JumpMark_000..014.png"]
+    },
+    "attack": {
+      "strip": "animations/attack.png",
+      "frameCount": 9,
+      "frameWidth": 72,
+      "frameHeight": 96,
+      "sourceFrames": ["Shoot/MarkShoot_000..008.png"]
+    }
+  }
+}

@@ -73,6 +73,9 @@ export { ITEM_CATEGORIES } from './ItemDefinition';
 
 // Reference items.
 export { BAT_DEFINITION } from './Bat';
+export { SWORD_DEFINITION, SWORD_SLASH_MOVE } from './Sword';
+export { HAMMER_DEFINITION, HAMMER_SMASH_MOVE } from './Hammer';
+export { SPEAR_DEFINITION, SPEAR_THRUST_MOVE } from './Spear';
 export { RAY_GUN_DEFINITION } from './RayGun';
 export { BOMB_DEFINITION } from './Bomb';
 

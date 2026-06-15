@@ -126,6 +126,60 @@ import {
   BEAR_UP_SPECIAL,
   BEAR_DOWN_SPECIAL,
 } from './Bear';
+import {
+  BLAZE_NAIR,
+  BLAZE_FAIR,
+  BLAZE_BAIR,
+  BLAZE_NEUTRAL_SPECIAL,
+  BLAZE_SIDE_SPECIAL,
+  BLAZE_UP_SPECIAL,
+  BLAZE_DOWN_SPECIAL,
+} from './Blaze';
+import {
+  PUFF_NAIR,
+  PUFF_FAIR,
+  PUFF_BAIR,
+  PUFF_NEUTRAL_SPECIAL,
+  PUFF_SIDE_SPECIAL,
+  PUFF_UP_SPECIAL,
+  PUFF_DOWN_SPECIAL,
+} from './Puff';
+import {
+  AEGIS_NAIR,
+  AEGIS_FAIR,
+  AEGIS_BAIR,
+  AEGIS_NEUTRAL_SPECIAL,
+  AEGIS_SIDE_SPECIAL,
+  AEGIS_UP_SPECIAL,
+  AEGIS_DOWN_SPECIAL,
+} from './Aegis';
+import {
+  VOLT_NAIR,
+  VOLT_FAIR,
+  VOLT_BAIR,
+  VOLT_NEUTRAL_SPECIAL,
+  VOLT_SIDE_SPECIAL,
+  VOLT_UP_SPECIAL,
+  VOLT_DOWN_SPECIAL,
+} from './Volt';
+import {
+  NOVA_NAIR,
+  NOVA_FAIR,
+  NOVA_BAIR,
+  NOVA_NEUTRAL_SPECIAL,
+  NOVA_SIDE_SPECIAL,
+  NOVA_UP_SPECIAL,
+  NOVA_DOWN_SPECIAL,
+} from './Nova';
+import {
+  BRUNO_NAIR,
+  BRUNO_FAIR,
+  BRUNO_BAIR,
+  BRUNO_NEUTRAL_SPECIAL,
+  BRUNO_SIDE_SPECIAL,
+  BRUNO_UP_SPECIAL,
+  BRUNO_DOWN_SPECIAL,
+} from './Bruno';
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -276,15 +330,88 @@ export const MOVESET_TABLE: Readonly<Record<CharacterId, CharacterMoveset>> = Ob
     upSpecial: BEAR_UP_SPECIAL,
     downSpecial: BEAR_DOWN_SPECIAL,
   }),
+  blaze: Object.freeze({
+    jab: GROUNDED_NORMAL_TABLE.blaze.jab,
+    tilt: GROUNDED_NORMAL_TABLE.blaze.tilt,
+    smash: GROUNDED_NORMAL_TABLE.blaze.smash,
+    nair: BLAZE_NAIR,
+    fair: BLAZE_FAIR,
+    bair: BLAZE_BAIR,
+    neutralSpecial: BLAZE_NEUTRAL_SPECIAL,
+    sideSpecial: BLAZE_SIDE_SPECIAL,
+    upSpecial: BLAZE_UP_SPECIAL,
+    downSpecial: BLAZE_DOWN_SPECIAL,
+  }),
+  puff: Object.freeze({
+    jab: GROUNDED_NORMAL_TABLE.puff.jab,
+    tilt: GROUNDED_NORMAL_TABLE.puff.tilt,
+    smash: GROUNDED_NORMAL_TABLE.puff.smash,
+    nair: PUFF_NAIR,
+    fair: PUFF_FAIR,
+    bair: PUFF_BAIR,
+    neutralSpecial: PUFF_NEUTRAL_SPECIAL,
+    sideSpecial: PUFF_SIDE_SPECIAL,
+    upSpecial: PUFF_UP_SPECIAL,
+    downSpecial: PUFF_DOWN_SPECIAL,
+  }),
+  aegis: Object.freeze({
+    jab: GROUNDED_NORMAL_TABLE.aegis.jab,
+    tilt: GROUNDED_NORMAL_TABLE.aegis.tilt,
+    smash: GROUNDED_NORMAL_TABLE.aegis.smash,
+    nair: AEGIS_NAIR,
+    fair: AEGIS_FAIR,
+    bair: AEGIS_BAIR,
+    neutralSpecial: AEGIS_NEUTRAL_SPECIAL,
+    sideSpecial: AEGIS_SIDE_SPECIAL,
+    upSpecial: AEGIS_UP_SPECIAL,
+    downSpecial: AEGIS_DOWN_SPECIAL,
+  }),
+  volt: Object.freeze({
+    jab: GROUNDED_NORMAL_TABLE.volt.jab,
+    tilt: GROUNDED_NORMAL_TABLE.volt.tilt,
+    smash: GROUNDED_NORMAL_TABLE.volt.smash,
+    nair: VOLT_NAIR,
+    fair: VOLT_FAIR,
+    bair: VOLT_BAIR,
+    neutralSpecial: VOLT_NEUTRAL_SPECIAL,
+    sideSpecial: VOLT_SIDE_SPECIAL,
+    upSpecial: VOLT_UP_SPECIAL,
+    downSpecial: VOLT_DOWN_SPECIAL,
+  }),
+  nova: Object.freeze({
+    jab: GROUNDED_NORMAL_TABLE.nova.jab,
+    tilt: GROUNDED_NORMAL_TABLE.nova.tilt,
+    smash: GROUNDED_NORMAL_TABLE.nova.smash,
+    nair: NOVA_NAIR,
+    fair: NOVA_FAIR,
+    bair: NOVA_BAIR,
+    neutralSpecial: NOVA_NEUTRAL_SPECIAL,
+    sideSpecial: NOVA_SIDE_SPECIAL,
+    upSpecial: NOVA_UP_SPECIAL,
+    downSpecial: NOVA_DOWN_SPECIAL,
+  }),
+  bruno: Object.freeze({
+    jab: GROUNDED_NORMAL_TABLE.bruno.jab,
+    tilt: GROUNDED_NORMAL_TABLE.bruno.tilt,
+    smash: GROUNDED_NORMAL_TABLE.bruno.smash,
+    nair: BRUNO_NAIR,
+    fair: BRUNO_FAIR,
+    bair: BRUNO_BAIR,
+    neutralSpecial: BRUNO_NEUTRAL_SPECIAL,
+    sideSpecial: BRUNO_SIDE_SPECIAL,
+    upSpecial: BRUNO_UP_SPECIAL,
+    downSpecial: BRUNO_DOWN_SPECIAL,
+  }),
 });
 
 /**
- * Flat array of every moveset entry across the roster — 40 entries
- * (4 characters × 10 slots). Iteration order: roster on the outer axis
- * (wolf → cat → owl → bear), slot on the inner ({@link MOVESET_SLOTS}).
+ * Flat array of every moveset entry across the roster — 100 entries
+ * (10 characters × 10 slots). Iteration order: roster on the outer axis
+ * (wolf → cat → owl → bear → blaze → puff → aegis → volt → nova →
+ * bruno), slot on the inner ({@link MOVESET_SLOTS}).
  */
 export const MOVESET_ENTRIES: ReadonlyArray<MovesetEntry> = Object.freeze(
-  (['wolf', 'cat', 'owl', 'bear'] as const).flatMap((characterId) =>
+  (['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno'] as const).flatMap((characterId) =>
     MOVESET_SLOTS.map((slot) =>
       Object.freeze({
         characterId,
@@ -373,7 +500,7 @@ export function enumerateMovesetSlotAnimationKeys(
  * moveset — the canonical list the (later) sprite-atlas pipeline iterates
  * to register textures. Includes idle keys (one per character).
  *
- *   keys.length = 4 idle + Σ over all 40 moveset entries of their
+ *   keys.length = 7 idle + Σ over all 70 moveset entries of their
  *                 lifecycle key counts
  *
  * Pure / deterministic — same iteration order on every call. Frozen
@@ -381,7 +508,7 @@ export function enumerateMovesetSlotAnimationKeys(
  */
 export function enumerateAllMovesetAnimationKeys(): ReadonlyArray<string> {
   const out: string[] = [];
-  for (const id of ['wolf', 'cat', 'owl', 'bear'] as const) {
+  for (const id of ['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno'] as const) {
     out.push(getIdleAnimationKey(id));
     for (const slot of MOVESET_SLOTS) {
       const move = MOVESET_TABLE[id][slot];

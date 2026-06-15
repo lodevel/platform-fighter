@@ -1,0 +1,25 @@
+{
+  "$schema": "../../src/characters/characterSerializer.schema.json",
+  "id": "bruno",
+  "displayName": "Bruno (Mario)",
+  "role": "all-rounder (Mario)",
+  "body": {
+    "width": 46,
+    "height": 68,
+    "chamfer": 8
+  },
+  "movement": {
+    "maxRunSpeed": 8.0,
+    "groundAccel": 0.7,
+    "airAccel": 0.42,
+    "groundDamping": 0.8,
+    "airDamping": 0.96,
+    "jumpImpulse": 13.0,
+    "maxJumps": 2,
+    "mass": 11,
+    "fallAccel": 0.29,
+    "maxFallSpeed": 11.0,
+    "fastFallSpeed": 17.5,
+    "jumpCutFactor": 0.42
+  }
+}

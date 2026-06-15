@@ -80,7 +80,7 @@ describe('ReplayFile constants', () => {
   });
 
   it('exposes a numeric schema version', () => {
-    expect(REPLAY_FORMAT_VERSION).toBe(2);
+    expect(REPLAY_FORMAT_VERSION).toBe(3);
   });
 
   it('exposes the recommended file extension', () => {
@@ -97,16 +97,16 @@ describe('serializeReplay — happy path', () => {
     const config = makeMatchConfig();
     const buf = new InputCaptureBuffer({ playerCount: 2 });
     buf.captureFrame(0, [
-      { moveX: 1, jump: true, attack: false },
-      { moveX: -1, jump: false, attack: true },
+      { moveX: 1, moveY: 0, jump: true, attack: false },
+      { moveX: -1, moveY: 0, jump: false, attack: true },
     ]);
     buf.captureFrame(1, [
-      { moveX: 0, jump: false },
-      { moveX: 0, jump: false, dropThrough: true },
+      { moveX: 0, moveY: 0, jump: false },
+      { moveX: 0, moveY: 0, jump: false, dropThrough: true },
     ]);
     buf.captureFrame(2, [
-      { moveX: -1, jump: true, attack: true },
-      { moveX: 1, jump: true },
+      { moveX: -1, moveY: 0, jump: true, attack: true },
+      { moveX: 1, moveY: 0, jump: true },
     ]);
 
     const file = serializeReplay({
@@ -138,10 +138,10 @@ describe('serializeReplay — happy path', () => {
     expect(file.inputTimeline.entries).toHaveLength(3);
     expect(file.inputTimeline.entries[0]!.frame).toBe(0);
     expect(file.inputTimeline.entries[0]!.inputs[0]).toEqual({
-      moveX: 1, jump: true, attack: false, dropThrough: false,
+      moveX: 1, moveY: 0, jump: true, attack: false, dropThrough: false,
     });
     expect(file.inputTimeline.entries[2]!.inputs[1]).toEqual({
-      moveX: 1, jump: true, attack: false, dropThrough: false,
+      moveX: 1, moveY: 0, jump: true, attack: false, dropThrough: false,
     });
   });
 
@@ -149,10 +149,10 @@ describe('serializeReplay — happy path', () => {
     const config = makeMatchConfig({ players: makePlayerSlots(4) });
     const buf = new InputCaptureBuffer({ playerCount: 4 });
     buf.captureFrame(0, [
-      { moveX: 1, jump: false },
-      { moveX: -1, jump: true },
-      { moveX: 0, jump: false, attack: true },
-      { moveX: 0, jump: false, dropThrough: true },
+      { moveX: 1, moveY: 0, jump: false },
+      { moveX: -1, moveY: 0, jump: true },
+      { moveX: 0, moveY: 0, jump: false, attack: true },
+      { moveX: 0, moveY: 0, jump: false, dropThrough: true },
     ]);
 
     const file = serializeReplay({
@@ -176,9 +176,9 @@ describe('serializeReplay — happy path', () => {
 
   it('captures non-contiguous monotonic frames verbatim', () => {
     const buf = new InputCaptureBuffer({ playerCount: 1 });
-    buf.captureFrame(10, [{ moveX: 1, jump: false }]);
-    buf.captureFrame(50, [{ moveX: -1, jump: true }]);
-    buf.captureFrame(300, [{ moveX: 0, jump: false }]);
+    buf.captureFrame(10, [{ moveX: 1, moveY: 0, jump: false }]);
+    buf.captureFrame(50, [{ moveX: -1, moveY: 0, jump: true }]);
+    buf.captureFrame(300, [{ moveX: 0, moveY: 0, jump: false }]);
 
     const file = serializeReplay({
       matchConfig: makeMatchConfig({ players: makePlayerSlots(1) }),
@@ -190,8 +190,8 @@ describe('serializeReplay — happy path', () => {
 
   it('preserves analog moveX exactly (no requantisation)', () => {
     const buf = new InputCaptureBuffer({ playerCount: 1 });
-    buf.captureFrame(0, [{ moveX: 0.42, jump: false }]);
-    buf.captureFrame(1, [{ moveX: -0.7314, jump: false }]);
+    buf.captureFrame(0, [{ moveX: 0.42, moveY: 0, jump: false }]);
+    buf.captureFrame(1, [{ moveX: -0.7314, moveY: 0, jump: false }]);
 
     const file = serializeReplay({
       matchConfig: makeMatchConfig({ players: makePlayerSlots(1) }),
@@ -366,8 +366,8 @@ describe('serializeReplay — validation rejects malformed inputs', () => {
       serializeReplay({
         matchConfig: makeMatchConfig({ players: makePlayerSlots(1) }),
         capturedFrames: [
-          { frame: 5, inputs: [{ moveX: 0, jump: false, attack: false, dropThrough: false }] },
-          { frame: 5, inputs: [{ moveX: 0, jump: false, attack: false, dropThrough: false }] },
+          { frame: 5, inputs: [{ moveX: 0, moveY: 0, jump: false, attack: false, dropThrough: false }] },
+          { frame: 5, inputs: [{ moveX: 0, moveY: 0, jump: false, attack: false, dropThrough: false }] },
         ],
       }),
     ).toThrow(/monotonic/);
@@ -378,7 +378,7 @@ describe('serializeReplay — validation rejects malformed inputs', () => {
       serializeReplay({
         matchConfig: makeMatchConfig({ players: makePlayerSlots(1) }),
         capturedFrames: [
-          { frame: -1, inputs: [{ moveX: 0, jump: false, attack: false, dropThrough: false }] },
+          { frame: -1, inputs: [{ moveX: 0, moveY: 0, jump: false, attack: false, dropThrough: false }] },
         ],
       }),
     ).toThrow(/non-negative/);
@@ -391,7 +391,7 @@ describe('serializeReplay — validation rejects malformed inputs', () => {
         capturedFrames: [
           {
             frame: 0,
-            inputs: [{ moveX: 0, jump: false, attack: false, dropThrough: false }],
+            inputs: [{ moveX: 0, moveY: 0, jump: false, attack: false, dropThrough: false }],
           },
         ],
       }),
@@ -405,7 +405,7 @@ describe('serializeReplay — validation rejects malformed inputs', () => {
         capturedFrames: [
           {
             frame: 0,
-            inputs: [{ moveX: Number.POSITIVE_INFINITY, jump: false, attack: false, dropThrough: false }],
+            inputs: [{ moveX: Number.POSITIVE_INFINITY, moveY: 0, jump: false, attack: false, dropThrough: false }],
           },
         ],
       }),
@@ -419,7 +419,7 @@ describe('serializeReplay — validation rejects malformed inputs', () => {
         capturedFrames: [
           {
             frame: 0,
-            inputs: [{ moveX: 0, jump: 'yes' as unknown as boolean, attack: false, dropThrough: false }],
+            inputs: [{ moveX: 0, moveY: 0, jump: 'yes' as unknown as boolean, attack: false, dropThrough: false }],
           },
         ],
       }),
@@ -436,14 +436,14 @@ describe('deserializeReplay — round-trip equality', () => {
     const config = makeMatchConfig({ players: makePlayerSlots(3) });
     const buf = new InputCaptureBuffer({ playerCount: 3 });
     buf.captureFrame(0, [
-      { moveX: 1, jump: false, attack: false },
-      { moveX: -1, jump: true },
-      { moveX: 0.5, jump: false, attack: true, dropThrough: false },
+      { moveX: 1, moveY: 0, jump: false, attack: false },
+      { moveX: -1, moveY: 0, jump: true },
+      { moveX: 0.5, moveY: 0, jump: false, attack: true, dropThrough: false },
     ]);
     buf.captureFrame(2, [
-      { moveX: 0, jump: false, dropThrough: true },
-      { moveX: 0, jump: false },
-      { moveX: -0.25, jump: true },
+      { moveX: 0, moveY: 0, jump: false, dropThrough: true },
+      { moveX: 0, moveY: 0, jump: false },
+      { moveX: -0.25, moveY: 0, jump: true },
     ]);
 
     const original = serializeReplay({
@@ -477,8 +477,8 @@ describe('deserializeReplay — round-trip equality', () => {
     const config = makeMatchConfig({ players: makePlayerSlots(2) });
     const buf = new InputCaptureBuffer({ playerCount: 2 });
     buf.captureFrame(0, [
-      { moveX: 0.5, jump: true, attack: false },
-      { moveX: -0.5, jump: false, attack: true },
+      { moveX: 0.5, moveY: 0, jump: true, attack: false },
+      { moveX: -0.5, moveY: 0, jump: false, attack: true },
     ]);
 
     const text = serializeReplayToString(
@@ -611,8 +611,8 @@ describe('deserializeReplay — invalid inputs', () => {
 
   it('rejects mismatched durationFrames', () => {
     const buf = new InputCaptureBuffer({ playerCount: 1 });
-    buf.captureFrame(0, [{ moveX: 0, jump: false }]);
-    buf.captureFrame(1, [{ moveX: 0, jump: false }]);
+    buf.captureFrame(0, [{ moveX: 0, moveY: 0, jump: false }]);
+    buf.captureFrame(1, [{ moveX: 0, moveY: 0, jump: false }]);
     const file = serializeReplay({
       matchConfig: makeMatchConfig({ players: makePlayerSlots(1) }),
       capturedFrames: buf.getEntries(),
@@ -633,11 +633,11 @@ describe('deserializeReplay — invalid inputs', () => {
     broken.inputTimeline.entries = [
       {
         frame: 5,
-        inputs: [{ moveX: 0, jump: false, attack: false, dropThrough: false }],
+        inputs: [{ moveX: 0, moveY: 0, jump: false, attack: false, dropThrough: false }],
       },
       {
         frame: 5, // duplicate — must be rejected
-        inputs: [{ moveX: 0, jump: false, attack: false, dropThrough: false }],
+        inputs: [{ moveX: 0, moveY: 0, jump: false, attack: false, dropThrough: false }],
       },
     ];
     broken.metadata.durationFrames = 6;
@@ -654,7 +654,7 @@ describe('deserializeReplay — invalid inputs', () => {
     broken.inputTimeline.entries = [
       {
         frame: 0,
-        inputs: [{ moveX: 0, jump: false, attack: false, dropThrough: false }],
+        inputs: [{ moveX: 0, moveY: 0, jump: false, attack: false, dropThrough: false }],
       },
     ];
     broken.metadata.durationFrames = 1;
@@ -687,12 +687,12 @@ describe('deserializeReplay — invalid inputs', () => {
 describe('ReplayFile end-to-end', () => {
   it('preserves an InputCaptureBuffer exactly across save / load', () => {
     const buf = new InputCaptureBuffer({ playerCount: 2 });
-    const sequence: Array<[number, { moveX: number; jump: boolean; attack?: boolean; dropThrough?: boolean }, { moveX: number; jump: boolean; attack?: boolean; dropThrough?: boolean }]> = [
-      [0, { moveX: 0, jump: false }, { moveX: 0, jump: false }],
-      [1, { moveX: 1, jump: true }, { moveX: -1, jump: false }],
-      [2, { moveX: 1, jump: false, attack: true }, { moveX: 0, jump: false }],
-      [3, { moveX: 0, jump: false, dropThrough: true }, { moveX: 1, jump: true }],
-      [10, { moveX: -0.5, jump: false }, { moveX: 0.5, jump: true, attack: true }],
+    const sequence: Array<[number, { moveX: number; moveY?: number; jump: boolean; attack?: boolean; dropThrough?: boolean }, { moveX: number; moveY?: number; jump: boolean; attack?: boolean; dropThrough?: boolean }]> = [
+      [0, { moveX: 0, moveY: 0, jump: false }, { moveX: 0, moveY: 0, jump: false }],
+      [1, { moveX: 1, moveY: 0, jump: true }, { moveX: -1, moveY: 0, jump: false }],
+      [2, { moveX: 1, moveY: 0, jump: false, attack: true }, { moveX: 0, moveY: 0, jump: false }],
+      [3, { moveX: 0, moveY: 0, jump: false, dropThrough: true }, { moveX: 1, moveY: 0, jump: true }],
+      [10, { moveX: -0.5, moveY: 0, jump: false }, { moveX: 0.5, moveY: 0, jump: true, attack: true }],
     ];
     for (const [frame, p1, p2] of sequence) {
       buf.captureFrame(frame, [p1, p2]);
@@ -729,8 +729,8 @@ describe('ReplayFile end-to-end', () => {
 
   it('two consecutive serialises of the same buffer are byte-identical (modulo recordedAt)', () => {
     const buf = new InputCaptureBuffer({ playerCount: 1 });
-    buf.captureFrame(0, [{ moveX: 1, jump: true, attack: true, dropThrough: false }]);
-    buf.captureFrame(1, [{ moveX: -1, jump: false, attack: false, dropThrough: true }]);
+    buf.captureFrame(0, [{ moveX: 1, moveY: 0, jump: true, attack: true, dropThrough: false }]);
+    buf.captureFrame(1, [{ moveX: -1, moveY: 0, jump: false, attack: false, dropThrough: true }]);
 
     const opts = {
       matchConfig: makeMatchConfig({ players: makePlayerSlots(1) }),

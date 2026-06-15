@@ -216,7 +216,7 @@ describe('StageBuilderScene — AC 20101 Sub-AC 1 drag-drop + ghost wiring', () 
 
   it('imports the DragDropController + GhostPreview from the builder module', () => {
     expect(SCENE_SRC).toMatch(
-      /import\s*\{\s*DragDropController\s*\}\s*from\s*['"]\.\.\/builder\/dragDrop['"]/,
+      /import\s*\{[^}]*DragDropController[^}]*\}\s*from\s*['"]\.\.\/builder\/dragDrop['"]/,
     );
     expect(SCENE_SRC).toMatch(
       /import\s*\{\s*GhostPreview\s*\}\s*from\s*['"]\.\.\/builder\/GhostPreview['"]/,
@@ -455,6 +455,163 @@ describe('builder barrel — re-exports the AC 20103 Sub-AC 3 surface', () => {
     expect(barrel).toMatch(/validateNameDraft/);
     expect(barrel).toMatch(/describeSaveError/);
     expect(barrel).toMatch(/describeLoadError/);
+  });
+});
+
+describe('StageBuilderScene — selection + delete + undo/redo wiring', () => {
+  const SCENE_SRC = readFileSync(
+    resolve(__dirname, './StageBuilderScene.ts'),
+    'utf8',
+  );
+
+  it('imports the selection, history, and highlight modules from the builder', () => {
+    // The pure state machines (selection transitions, bounded history)
+    // live in Phaser-free modules with their own unit suites; the scene
+    // only wires gestures into them and paints the outcomes.
+    expect(SCENE_SRC).toMatch(
+      /from\s*['"]\.\.\/builder\/pieceSelection['"]/,
+    );
+    expect(SCENE_SRC).toMatch(
+      /from\s*['"]\.\.\/builder\/editHistory['"]/,
+    );
+    expect(SCENE_SRC).toMatch(
+      /import\s*\{\s*SelectionHighlight\s*\}\s*from\s*['"]\.\.\/builder\/SelectionHighlight['"]/,
+    );
+  });
+
+  it('instantiates a SelectionHighlight at the dedicated selection depth tier', () => {
+    expect(SCENE_SRC).toMatch(/new\s+SelectionHighlight\s*\(/);
+    expect(SCENE_SRC).toMatch(/selection:\s*\d+/);
+    expect(SCENE_SRC).toMatch(/STAGE_BUILDER_DEPTHS\.selection/);
+  });
+
+  it('routes non-catalog pointer-downs into the canvas selection path', () => {
+    // Pointer-down that misses every catalog row falls through to the
+    // click-to-select hit-test (topmost wins via selectPieceAt; empty
+    // canvas clicks clear).
+    expect(SCENE_SRC).toMatch(/this\.handleCanvasSelection\(pointer\.x,\s*pointer\.y\)/);
+    expect(SCENE_SRC).toMatch(/selectPieceAt\(/);
+  });
+
+  it('wires DELETE and BACKSPACE to remove the selected piece', () => {
+    expect(SCENE_SRC).toMatch(/keydown-DELETE/);
+    expect(SCENE_SRC).toMatch(/keydown-BACKSPACE/);
+    expect(SCENE_SRC).toMatch(/this\.stageData\.removePiece\(id\)/);
+  });
+
+  it('paints a REMOVE PIECE button alongside UNDO / REDO toolbar buttons', () => {
+    expect(SCENE_SRC).toMatch(/\[REMOVE PIECE\]/);
+    expect(SCENE_SRC).toMatch(/\[UNDO\]/);
+    expect(SCENE_SRC).toMatch(/\[REDO\]/);
+  });
+
+  it('toolbar button clicks do not fall through into the canvas hit-test', () => {
+    // The default 1× canvas spans the full viewport width, so the
+    // bottom-right buttons float over the canvas rect. Phaser fires
+    // the button's own pointerdown first and the scene-level event
+    // second — the selection path must skip pointer-downs that landed
+    // on a button or a REMOVE click could re-select under itself.
+    expect(SCENE_SRC).toMatch(/this\.isOverEditToolbar\(viewportX,\s*viewportY\)/);
+  });
+
+  it('clears the selection when a new piece is placed', () => {
+    // Spec: placing a new piece clears the selection — the player's
+    // intent has moved on from the delete flow.
+    expect(SCENE_SRC).toMatch(/result\.ok/);
+    expect(SCENE_SRC).toMatch(/this\.selection\s*=\s*clearSelection\(this\.selection\)/);
+  });
+
+  it('reconciles the selection inside the data-model change listener', () => {
+    // A delete / clear / bulk load can remove the selected piece out
+    // from under the selection; the listener drops stale ids via the
+    // pure reconcile transition (same-ref no-op when nothing changed).
+    expect(SCENE_SRC).toMatch(/reconcileSelection\(this\.selection,\s*pieces\)/);
+  });
+
+  it('seeds the bounded history with the empty-canvas snapshot', () => {
+    expect(SCENE_SRC).toMatch(/createEditHistory<BuilderHistorySnapshot>/);
+    expect(SCENE_SRC).toMatch(/snapshotStageData\(\)/);
+  });
+
+  it('pushes a history snapshot on every committed mutation (place, delete, load)', () => {
+    expect(SCENE_SRC).toMatch(/pushHistory\(this\.history,\s*this\.snapshotStageData\(\)\)/);
+    // All three commit sites route through commitHistory().
+    const commits = SCENE_SRC.match(/this\.commitHistory\(\)/g) ?? [];
+    expect(commits.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it('wires Ctrl+Z to undo and Ctrl+Shift+Z / Ctrl+Y to redo', () => {
+    expect(SCENE_SRC).toMatch(/keydown-Z/);
+    expect(SCENE_SRC).toMatch(/keydown-Y/);
+    expect(SCENE_SRC).toMatch(/event\.ctrlKey/);
+    expect(SCENE_SRC).toMatch(/event\.shiftKey/);
+    expect(SCENE_SRC).toMatch(/this\.performUndo\(\)/);
+    expect(SCENE_SRC).toMatch(/this\.performRedo\(\)/);
+  });
+
+  it('undo / redo use the same-ref no-op guard before re-applying', () => {
+    // The pure transitions return the same history reference when
+    // nothing changes; the scene must not bulk-reimport the roster on
+    // a no-op keystroke.
+    expect(SCENE_SRC).toMatch(/next\s*===\s*this\.history/);
+  });
+
+  it('restores snapshots through the registry bulk-import path', () => {
+    expect(SCENE_SRC).toMatch(
+      /this\.stageData\.replaceAllPieces\(snapshot\.pieces/,
+    );
+  });
+
+  it('shows a history-depth HUD line driven by the format helper', () => {
+    expect(SCENE_SRC).toMatch(/historyStatusHud/);
+    expect(SCENE_SRC).toMatch(/formatHistoryStatusLabel/);
+  });
+
+  it('ESC clears an active selection before falling through to the menu', () => {
+    expect(SCENE_SRC).toMatch(/this\.selection\.selectedId\s*!==\s*null/);
+  });
+
+  it('keyboard delete / undo / redo are gated off while the save/load modal is open', () => {
+    // BACKSPACE edits the slot-name draft inside the modal; Ctrl+Z
+    // there must not mutate the canvas behind the dialog.
+    const guards = SCENE_SRC.match(/saveLoadDialog\?\.isModalOpen\(\)/g) ?? [];
+    expect(guards.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it('tears down the highlight + toolbar and drops the selection / history state', () => {
+    expect(SCENE_SRC).toMatch(/this\.selectionHighlight\.destroy\(\)/);
+    expect(SCENE_SRC).toMatch(/this\.selectionHighlight\s*=\s*null/);
+    expect(SCENE_SRC).toMatch(/this\.historyStatusHud\.destroy\(\)/);
+    expect(SCENE_SRC).toMatch(/this\.selection\s*=\s*NO_SELECTION/);
+    expect(SCENE_SRC).toMatch(/this\.history\s*=\s*null/);
+  });
+
+  it('exposes getter seams for tests + future sub-ACs', () => {
+    expect(SCENE_SRC).toMatch(/getSelection\(\)/);
+    expect(SCENE_SRC).toMatch(/getSelectionHighlight\(\)/);
+    expect(SCENE_SRC).toMatch(/getEditHistory\(\)/);
+  });
+
+  it('exports the BuilderHistorySnapshot type for history consumers', () => {
+    expect(SCENE_SRC).toMatch(/export\s+interface\s+BuilderHistorySnapshot/);
+  });
+});
+
+describe('builder barrel — re-exports the selection + history surface', () => {
+  it('exports the pieceSelection / editHistory / SelectionHighlight API from src/builder/index.ts', () => {
+    const barrel = readFileSync(
+      resolve(__dirname, '../builder/index.ts'),
+      'utf8',
+    );
+    expect(barrel).toMatch(/NO_SELECTION/);
+    expect(barrel).toMatch(/selectPieceAt/);
+    expect(barrel).toMatch(/hitTestTopmostPiece/);
+    expect(barrel).toMatch(/reconcileSelection/);
+    expect(barrel).toMatch(/EDIT_HISTORY_LIMIT/);
+    expect(barrel).toMatch(/createEditHistory/);
+    expect(barrel).toMatch(/pushHistory/);
+    expect(barrel).toMatch(/SelectionHighlight/);
+    expect(barrel).toMatch(/SELECTION_HIGHLIGHT_COLORS/);
   });
 });
 

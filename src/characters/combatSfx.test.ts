@@ -503,6 +503,213 @@ describe('Character — dodge SFX firing (AC 10302 Sub-AC 2)', () => {
 });
 
 // ---------------------------------------------------------------------------
+// Jump SFX — AC 10304 (ground vs air-jump variants)
+// ---------------------------------------------------------------------------
+
+function unground(ch: Character, m: MockScene): void {
+  // Drop every platform support so `isGrounded()` reads false — mirrors
+  // the fighter walking off / being launched off a ledge.
+  const plat = makePlatform(ch.getPosition().x, ch.getPosition().y + 100);
+  m.emit('collisionend', [{ bodyA: ch.body, bodyB: plat }]);
+}
+
+describe('Character — jump SFX firing (AC 10304)', () => {
+  it('fires sfx.jump on the first (grounded) jump impulse', () => {
+    const m = createMockScene();
+    const sink = new RecorderSink();
+    const ch = new Character(m.scene, {
+      id: 'wolf',
+      spawnX: 0,
+      spawnY: 0,
+      sfxSink: sink,
+    });
+    ground(ch, m);
+    ch.applyInput({ moveX: 0, jump: true });
+    expect(sink.calls).toEqual([ASSET_KEYS.sfxJump]);
+  });
+
+  it('fires the lighter sfx.jump.air on a mid-air second jump', () => {
+    const m = createMockScene();
+    const sink = new RecorderSink();
+    const ch = new Character(m.scene, {
+      id: 'wolf',
+      spawnX: 0,
+      spawnY: 0,
+      sfxSink: sink,
+    });
+    ground(ch, m);
+    // First jump off the ground → sfx.jump.
+    ch.applyInput({ moveX: 0, jump: true });
+    // Leave the ground + release the button so the next press is a fresh
+    // rising edge consuming the air jump.
+    unground(ch, m);
+    ch.applyInput({ moveX: 0, jump: false });
+    ch.applyInput({ moveX: 0, jump: true });
+    expect(sink.calls).toEqual([ASSET_KEYS.sfxJump, ASSET_KEYS.sfxJumpAir]);
+  });
+
+  it('does not fire while the jump button is held (single rising edge)', () => {
+    const m = createMockScene();
+    const sink = new RecorderSink();
+    const ch = new Character(m.scene, {
+      id: 'wolf',
+      spawnX: 0,
+      spawnY: 0,
+      sfxSink: sink,
+    });
+    ground(ch, m);
+    for (let i = 0; i < 5; i += 1) ch.applyInput({ moveX: 0, jump: true });
+    expect(sink.calls).toEqual([ASSET_KEYS.sfxJump]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Landing SFX — AC 10304
+// ---------------------------------------------------------------------------
+
+/**
+ * Mark a fighter as descending so the landing-cue's "was actually
+ * falling" gate (`velocity.y > 0`) is satisfied — mirrors a real fall /
+ * jump arc touching down with downward velocity. The mock body keeps a
+ * plain `velocity` object the Character reads, so a direct poke is the
+ * cleanest way to model a descent in the unit harness.
+ */
+function setFalling(ch: Character): void {
+  ch.body.velocity.y = 3;
+}
+
+describe('Character — landing SFX firing (AC 10304)', () => {
+  it('fires sfx.land on a descending airborne → grounded transition', () => {
+    const m = createMockScene();
+    const sink = new RecorderSink();
+    const ch = new Character(m.scene, {
+      id: 'wolf',
+      spawnX: 0,
+      spawnY: 0,
+      sfxSink: sink,
+    });
+    // Start airborne: tick once with no ground contact so `prevGrounded`
+    // latches false.
+    ch.applyInput(NEUTRAL);
+    expect(sink.calls).toEqual([]);
+    // Touch down WHILE descending — the !prevGrounded && grounded edge
+    // plus downward velocity fires the thud.
+    ground(ch, m);
+    setFalling(ch);
+    ch.applyInput(NEUTRAL);
+    expect(sink.calls).toEqual([ASSET_KEYS.sfxLand]);
+  });
+
+  it('does not thud on a zero-velocity spawn-settle (no descent)', () => {
+    const m = createMockScene();
+    const sink = new RecorderSink();
+    const ch = new Character(m.scene, {
+      id: 'wolf',
+      spawnX: 0,
+      spawnY: 0,
+      sfxSink: sink,
+    });
+    ch.applyInput(NEUTRAL); // airborne, velocity.y == 0
+    ground(ch, m);
+    ch.applyInput(NEUTRAL); // grounded but never descended — silent
+    expect(sink.calls).toEqual([]);
+  });
+
+  it('does not fire land again while the fighter stays grounded', () => {
+    const m = createMockScene();
+    const sink = new RecorderSink();
+    const ch = new Character(m.scene, {
+      id: 'wolf',
+      spawnX: 0,
+      spawnY: 0,
+      sfxSink: sink,
+    });
+    ch.applyInput(NEUTRAL); // airborne
+    ground(ch, m);
+    setFalling(ch);
+    ch.applyInput(NEUTRAL); // land — fires once
+    for (let i = 0; i < 5; i += 1) ch.applyInput(NEUTRAL); // stays grounded
+    expect(sink.calls).toEqual([ASSET_KEYS.sfxLand]);
+  });
+
+  it('suppresses the land thud when the same frame buffers a jump press', () => {
+    const m = createMockScene();
+    const sink = new RecorderSink();
+    const ch = new Character(m.scene, {
+      id: 'wolf',
+      spawnX: 0,
+      spawnY: 0,
+      sfxSink: sink,
+    });
+    ch.applyInput(NEUTRAL); // airborne, jump released
+    ground(ch, m);
+    setFalling(ch);
+    // Land + jump on the same frame — the jump cue owns the frame, no thud.
+    ch.applyInput({ moveX: 0, jump: true });
+    expect(sink.calls).toEqual([ASSET_KEYS.sfxJump]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Shield-break SFX — AC 10304
+// ---------------------------------------------------------------------------
+
+describe('Character — shield-break SFX firing (AC 10304)', () => {
+  it('fires sfx.shield.break when a hit shatters the raised shield', () => {
+    const m = createMockScene();
+    const sink = new RecorderSink();
+    const ch = new Character(m.scene, {
+      id: 'wolf',
+      spawnX: 0,
+      spawnY: 0,
+      sfxSink: sink,
+    });
+    ground(ch, m);
+    // Raise the shield (fires sfx.shield).
+    ch.applyInput({ moveX: 0, jump: false, shield: true });
+    expect(sink.calls).toEqual([ASSET_KEYS.sfxShield]);
+    // Hold past the perfect-shield window so the hit is a NORMAL block
+    // (a frame-perfect raise would powershield — no break). Rising-edge
+    // SFX means these extra held frames add no further cue.
+    for (let i = 0; i < 4; i += 1) {
+      ch.applyInput({ moveX: 0, jump: false, shield: true });
+    }
+    // A single hit exceeding the 50-HP default shield drains it to break.
+    ch.applyHit({
+      damage: 60,
+      knockback: { x: 1, y: 0, scaling: 0 },
+      facing: 1,
+    });
+    expect(ch.isShieldBroken()).toBe(true);
+    expect(sink.calls).toEqual([ASSET_KEYS.sfxShield, ASSET_KEYS.sfxShieldBreak]);
+  });
+
+  it('does NOT fire shield-break on a chip hit that only dents the shield', () => {
+    const m = createMockScene();
+    const sink = new RecorderSink();
+    const ch = new Character(m.scene, {
+      id: 'wolf',
+      spawnX: 0,
+      spawnY: 0,
+      sfxSink: sink,
+    });
+    ground(ch, m);
+    // Hold past the perfect-shield window so this chip is a normal block.
+    for (let i = 0; i < 4; i += 1) {
+      ch.applyInput({ moveX: 0, jump: false, shield: true });
+    }
+    // Small hit — shield survives, no shatter cue.
+    ch.applyHit({
+      damage: 5,
+      knockback: { x: 1, y: 0, scaling: 0 },
+      facing: 1,
+    });
+    expect(ch.isShieldBroken()).toBe(false);
+    expect(sink.calls).toEqual([ASSET_KEYS.sfxShield]);
+  });
+});
+
+// ---------------------------------------------------------------------------
 // setSfxSink — wire / unwire a sink post-construction
 // ---------------------------------------------------------------------------
 

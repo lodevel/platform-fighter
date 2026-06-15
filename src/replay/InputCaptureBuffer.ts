@@ -95,6 +95,12 @@ export interface RecordedCharacterInput {
    * gamepad axes — that's a serialiser concern).
    */
   readonly moveX: number;
+  /**
+   * Vertical stick. -1 = full up, 0 = neutral, 1 = full down (canvas
+   * Y axis). Consumed by the fast-fall latch and the up/down item
+   * throw direction — recorded so playback reproduces both.
+   */
+  readonly moveY: number;
   /** Jump button held this frame. */
   readonly jump: boolean;
   /** Attack button held this frame. */
@@ -144,6 +150,7 @@ export interface InputCaptureBufferOptions {
  */
 export const NEUTRAL_INPUT: RecordedCharacterInput = Object.freeze({
   moveX: 0,
+  moveY: 0,
   jump: false,
   attack: false,
   dropThrough: false,
@@ -397,8 +404,18 @@ function normaliseInput(
     moveX = 1;
   }
 
+  let moveY = input.moveY ?? 0;
+  if (typeof moveY !== 'number' || !Number.isFinite(moveY)) {
+    moveY = 0;
+  } else if (moveY < -1) {
+    moveY = -1;
+  } else if (moveY > 1) {
+    moveY = 1;
+  }
+
   return Object.freeze({
     moveX,
+    moveY,
     jump: Boolean(input.jump),
     attack: Boolean(input.attack),
     dropThrough: Boolean(input.dropThrough),

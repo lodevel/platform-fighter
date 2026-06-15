@@ -369,6 +369,22 @@ export interface DownSpecialTrapSpec {
    * a positive integer.
    */
   readonly maxActiveTraps: number;
+  /**
+   * Optional TIMED-BOMB fuse. When set, the trap behaves like a thrown bomb
+   * instead of a contact mine: it stays inert until this many frames after
+   * spawn, then DETONATES — its blast hitbox spawns for a few frames (dealing
+   * `trapDamage` / `trapKnockback` to anyone in range) and the trap despawns.
+   * Overrides `armDelayFrames` / `trapLifetimeFrames`. Omit for the classic
+   * place-and-arm contact mine (Cat). This is Samus's morph-ball bomb.
+   */
+  readonly fuseDetonateFrames?: number;
+  /**
+   * Optional BOMB-JUMP self-bounce. When a fused bomb detonates, if the PLACER
+   * is within blast range their vertical velocity is set to this value
+   * (NEGATIVE = upward) — Samus's morph-ball bomb-jump recovery. Omit for no
+   * self-bounce. Ignored unless `fuseDetonateFrames` is set.
+   */
+  readonly selfBounceVelocity?: number;
 }
 
 /**

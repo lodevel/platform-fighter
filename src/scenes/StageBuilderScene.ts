@@ -17,9 +17,35 @@ import {
 import { formatSnapCursorLabel } from '../builder/canvasBounds';
 import { CatalogPanel } from '../builder/CatalogPanel';
 import { CATALOG_PANEL_LAYOUT, catalogPanelHeight } from '../builder/catalogPieces';
-import { DragDropController } from '../builder/dragDrop';
+import {
+  DragDropController,
+  viewportToCanvas,
+  type PlacedPiece,
+} from '../builder/dragDrop';
+import {
+  canRedo,
+  canUndo,
+  createEditHistory,
+  currentEntry,
+  formatHistoryStatusLabel,
+  pushHistory,
+  redo as redoHistory,
+  redoDepth,
+  undo as undoHistory,
+  undoDepth,
+  type EditHistory,
+} from '../builder/editHistory';
 import { GhostPreview } from '../builder/GhostPreview';
+import {
+  NO_SELECTION,
+  clearSelection,
+  findSelectedPiece,
+  reconcileSelection,
+  selectPieceAt,
+  type PieceSelection,
+} from '../builder/pieceSelection';
 import { PlacedPieceRenderer } from '../builder/PlacedPieceRenderer';
+import { SelectionHighlight } from '../builder/SelectionHighlight';
 import {
   StageDataModel,
   formatPlacedCountLabel,
@@ -197,6 +223,44 @@ export class StageBuilderScene extends Phaser.Scene {
   private saveLoadDialog: SaveLoadDialog | null = null;
 
   /**
+   * Click-to-select state for the delete flow. Immutable value object
+   * from the Phaser-free `pieceSelection.ts` module — every transition
+   * (select / clear / reconcile) returns a new reference, and the
+   * same-ref no-op contract lets the scene skip repaint work when a
+   * click changed nothing. `NO_SELECTION` between sessions.
+   */
+  private selection: PieceSelection = NO_SELECTION;
+
+  /**
+   * Phaser host that paints the selected-piece outline + the floating
+   * `[DEL] remove` hint. Updated whenever the selection or the roster
+   * changes; hidden while nothing is selected.
+   */
+  private selectionHighlight: SelectionHighlight | null = null;
+
+  /**
+   * Bounded undo/redo history (cap 50) of stage-data snapshots. Every
+   * committed mutation (place, delete, load) pushes a frozen
+   * `{ gridSpec, pieces }` snapshot; Ctrl+Z / Ctrl+Y (or the UNDO /
+   * REDO buttons) step the index and bulk-reapply the snapshot via
+   * `replaceAllPieces`. Snapshots are cheap reference bundles — the
+   * model's piece records are frozen, so no deep copies are taken.
+   */
+  private history: EditHistory<BuilderHistorySnapshot> | null = null;
+
+  /**
+   * Live HUD line showing the available undo/redo depths
+   * (`UNDO 3 · REDO 1`). Updated after every commit / undo / redo so
+   * the player can see how far back the history reaches.
+   */
+  private historyStatusHud: Phaser.GameObjects.Text | null = null;
+
+  /** Bottom-right edit-toolbar buttons (UNDO / REDO / REMOVE PIECE). */
+  private undoButton: Phaser.GameObjects.Text | null = null;
+  private redoButton: Phaser.GameObjects.Text | null = null;
+  private removeButton: Phaser.GameObjects.Text | null = null;
+
+  /**
    * AC 20001 Sub-AC 1 — pre-computed base layout regions for the two
    * primary builder surfaces (catalog panel on the left, canvas area
    * on the right). Populated by {@link init} before any GameObjects
@@ -247,6 +311,13 @@ export class StageBuilderScene extends Phaser.Scene {
     this.placedCountHud = null;
     this.saveLoadController = null;
     this.saveLoadDialog = null;
+    this.selection = NO_SELECTION;
+    this.selectionHighlight = null;
+    this.history = null;
+    this.historyStatusHud = null;
+    this.undoButton = null;
+    this.redoButton = null;
+    this.removeButton = null;
     this.layoutRegions = this.computeLayoutRegions();
   }
 
@@ -426,7 +497,58 @@ export class StageBuilderScene extends Phaser.Scene {
           formatPlacedCountLabel(pieces.length, this.stageData.getMaxPieces()),
         );
       }
+      // Selection + delete — a mutation can remove the selected
+      // piece out from under the selection (delete, clear, bulk load,
+      // undo). Reconcile drops stale ids with a same-ref no-op on the
+      // common nothing-changed path, then the highlight + edit HUD
+      // re-derive from the reconciled state.
+      this.selection = reconcileSelection(this.selection, pieces);
+      this.refreshSelectionVisuals();
     });
+
+    // ---- Selection + delete ----------------------------------------------
+    // Click-to-select on placed pieces with a highlight outline + a
+    // floating "[DEL] remove" hint. The pure selection state machine
+    // lives in `pieceSelection.ts`; this host only paints the outcome.
+    this.selectionHighlight = new SelectionHighlight(this, {
+      depth: STAGE_BUILDER_DEPTHS.selection,
+      canvasOriginX,
+      canvasOriginY,
+    });
+
+    // ---- Undo / redo history ---------------------------------------------
+    // Seed the bounded snapshot stack with the empty-canvas state so
+    // the player can always undo back to where the session opened.
+    // Every committed mutation (place, delete, load) pushes via
+    // `commitHistory()`; Ctrl+Z / Ctrl+Y and the toolbar buttons step
+    // the index and bulk-reapply the snapshot.
+    this.history = createEditHistory<BuilderHistorySnapshot>(
+      this.snapshotStageData(),
+    );
+
+    // Edit toolbar — UNDO / REDO / REMOVE PIECE buttons stacked above
+    // the count HUD in the bottom-right, plus a history-depth status
+    // line. Buttons dim when their action is unavailable; the disabled
+    // state is purely visual because the underlying handlers are
+    // same-ref no-ops anyway.
+    this.historyStatusHud = this.add
+      .text(viewW - 32, viewH - 100, formatHistoryStatusLabel(0, 0), {
+        fontFamily: 'monospace',
+        fontSize: '12px',
+        color: '#9aa0b6',
+      })
+      .setOrigin(1, 1)
+      .setDepth(STAGE_BUILDER_DEPTHS.chrome);
+    this.removeButton = this.buildEditButton(viewW - 32, viewH - 64, '[REMOVE PIECE]', () =>
+      this.removeSelectedPiece(),
+    );
+    this.redoButton = this.buildEditButton(viewW - 176, viewH - 64, '[REDO]', () =>
+      this.performRedo(),
+    );
+    this.undoButton = this.buildEditButton(viewW - 248, viewH - 64, '[UNDO]', () =>
+      this.performUndo(),
+    );
+    this.refreshEditHud();
 
     // ---- Save / Load (AC 20103 Sub-AC 3) --------------------------------
     // Wire the Phaser-free SaveLoadController to the live registry +
@@ -449,6 +571,10 @@ export class StageBuilderScene extends Phaser.Scene {
       },
       applyLoad: (data) => {
         if (!this.stageData) return { accepted: 0, rejected: 0 };
+        // A bulk import renumbers every piece id, so any active
+        // selection would dangle (or worse, silently re-target a
+        // different piece that inherited the id). Clear it first.
+        this.selection = clearSelection(this.selection);
         const pieces = toPlacedPieces(data);
         const report = this.stageData.replaceAllPieces(pieces, {
           gridSpec: {
@@ -457,6 +583,9 @@ export class StageBuilderScene extends Phaser.Scene {
             height: data.gridSpec.height,
           },
         });
+        // A load is a committed mutation like any other — push it so
+        // Ctrl+Z steps back to the pre-load canvas.
+        this.commitHistory();
         return { accepted: report.accepted, rejected: report.rejected.length };
       },
     });
@@ -486,6 +615,9 @@ export class StageBuilderScene extends Phaser.Scene {
 
     // Drag initiation: pointer-down on a catalog row picks up the
     // matching piece and starts the ghost preview at the cursor.
+    // Pointer-downs that miss the catalog fall through to the canvas
+    // selection path — click a placed piece to select it (topmost wins
+    // on overlap), click empty canvas to clear the selection.
     this.input.on(
       Phaser.Input.Events.POINTER_DOWN,
       (pointer: Phaser.Input.Pointer) => {
@@ -493,7 +625,9 @@ export class StageBuilderScene extends Phaser.Scene {
         if (picked) {
           this.catalogPanel?.setSelected(picked.type);
           this.ghostPreview?.update(this.dragDrop?.getGhostState() ?? null);
+          return;
         }
+        this.handleCanvasSelection(pointer.x, pointer.y);
       },
     );
 
@@ -526,7 +660,15 @@ export class StageBuilderScene extends Phaser.Scene {
           // visible signal that the cap was reached. A future sub-AC
           // can wire a transient toast banner ("Piece limit reached")
           // off the rejection reason.
-          this.stageData.addPiece(placed);
+          const result = this.stageData.addPiece(placed);
+          if (result.ok) {
+            // Placing a new piece clears any active selection (the
+            // player's intent has moved on) and commits a history
+            // snapshot so Ctrl+Z can take the placement back.
+            this.selection = clearSelection(this.selection);
+            this.commitHistory();
+            this.refreshSelectionVisuals();
+          }
         }
         this.ghostPreview?.clear();
         this.catalogPanel?.clearSelection();
@@ -534,9 +676,34 @@ export class StageBuilderScene extends Phaser.Scene {
     );
 
     // ---- Input handlers --------------------------------------------------
-    // ESC = cancel any in-flight drag if one is active, otherwise
-    // return to the main menu. Future sub-ACs add pan/zoom keys,
-    // piece-catalog hotkeys, undo/redo (CTRL+Z / CTRL+Y), and a
+    // DELETE / BACKSPACE remove the selected piece. Both keys map to
+    // the same action — DELETE is the canonical key the floating hint
+    // names, BACKSPACE covers compact keyboards without a dedicated
+    // DELETE. The handler is a no-op while the save/load modal is open
+    // (BACKSPACE there edits the slot-name draft).
+    this.input.keyboard?.on('keydown-DELETE', () => this.removeSelectedPiece());
+    this.input.keyboard?.on('keydown-BACKSPACE', () => this.removeSelectedPiece());
+
+    // Ctrl+Z undoes, Ctrl+Shift+Z and Ctrl+Y redo — the standard
+    // editor bindings (metaKey honoured for macOS Cmd). Plain Z / Y
+    // keystrokes fall through untouched so future piece-catalog
+    // hotkeys can claim them.
+    this.input.keyboard?.on('keydown-Z', (event: KeyboardEvent) => {
+      if (!event.ctrlKey && !event.metaKey) return;
+      if (event.shiftKey) {
+        this.performRedo();
+      } else {
+        this.performUndo();
+      }
+    });
+    this.input.keyboard?.on('keydown-Y', (event: KeyboardEvent) => {
+      if (!event.ctrlKey && !event.metaKey) return;
+      this.performRedo();
+    });
+
+    // ESC = cancel any in-flight drag if one is active, then clear an
+    // active piece selection, otherwise return to the main menu.
+    // Future sub-ACs add pan/zoom keys, piece-catalog hotkeys, and a
     // SAVE shortcut.
     this.input.keyboard?.on('keydown-ESC', () => {
       // AC 20103 Sub-AC 3 — when the save/load modal is open, ESC is
@@ -552,6 +719,14 @@ export class StageBuilderScene extends Phaser.Scene {
         this.dragDrop.cancel();
         this.ghostPreview?.clear();
         this.catalogPanel?.clearSelection();
+        return;
+      }
+      // An active piece selection is the next-innermost mode: ESC
+      // deselects before it exits, so a player backing out of the
+      // delete flow doesn't get bounced to the menu.
+      if (this.selection.selectedId !== null) {
+        this.selection = clearSelection(this.selection);
+        this.refreshSelectionVisuals();
         return;
       }
       this.scene.start('MainMenuScene');
@@ -667,6 +842,207 @@ export class StageBuilderScene extends Phaser.Scene {
         height: gridH,
       },
     };
+  }
+
+  // -------------------------------------------------------------------------
+  // Selection + delete + undo/redo — thin wiring around the Phaser-free
+  // `pieceSelection.ts` / `editHistory.ts` state machines.
+  // -------------------------------------------------------------------------
+
+  /**
+   * Route a non-catalog pointer-down into the selection state machine.
+   * Only clicks that land on the canvas surface participate — clicks
+   * on chrome (toolbar buttons, HUD) leave the selection alone so a
+   * REMOVE-button press can't clear its own target first. No-op while
+   * the save/load modal is open (the modal owns the pointer).
+   */
+  private handleCanvasSelection(viewportX: number, viewportY: number): void {
+    if (!this.stageData || !this.layoutRegions) return;
+    if (this.saveLoadDialog?.isModalOpen()) return;
+    // The default 1× canvas is as wide as the viewport, so the edit
+    // toolbar overlaps the canvas rect. Phaser delivers the button's
+    // own pointerdown FIRST and the scene-level event second — without
+    // this guard a REMOVE click would fall through and select (or
+    // clear) whatever sits under the button.
+    if (this.isOverEditToolbar(viewportX, viewportY)) return;
+    const { canvasArea } = this.layoutRegions;
+    const withinCanvas =
+      viewportX >= canvasArea.x &&
+      viewportX < canvasArea.x + canvasArea.width &&
+      viewportY >= canvasArea.y &&
+      viewportY < canvasArea.y + canvasArea.height;
+    if (!withinCanvas) return;
+    const local = viewportToCanvas(viewportX, viewportY, canvasArea.x, canvasArea.y);
+    const next = selectPieceAt(
+      this.selection,
+      this.stageData.getPieces(),
+      local.x,
+      local.y,
+    );
+    if (next === this.selection) return; // same-ref no-op: nothing to repaint
+    this.selection = next;
+    this.refreshSelectionVisuals();
+  }
+
+  /**
+   * Remove the selected piece from the data model. Wired to DELETE /
+   * BACKSPACE and the REMOVE PIECE button. The model's change listener
+   * drives the repaint + selection reconcile; this method only commits
+   * the history snapshot on a successful removal.
+   */
+  private removeSelectedPiece(): void {
+    if (!this.stageData) return;
+    if (this.saveLoadDialog?.isModalOpen()) return;
+    const id = this.selection.selectedId;
+    if (id === null) return;
+    const removed = this.stageData.removePiece(id);
+    if (!removed) return;
+    // The listener's reconcile pass already cleared the stale id;
+    // clearing again here is a same-ref no-op that keeps the method
+    // correct even if the listener wiring changes.
+    this.selection = clearSelection(this.selection);
+    this.commitHistory();
+    this.refreshSelectionVisuals();
+  }
+
+  /** Step the history backward and bulk-reapply the snapshot. */
+  private performUndo(): void {
+    if (!this.history) return;
+    if (this.saveLoadDialog?.isModalOpen()) return;
+    const next = undoHistory(this.history);
+    if (next === this.history) return; // nothing to undo
+    this.history = next;
+    this.applyHistorySnapshot(currentEntry(next));
+  }
+
+  /** Step the history forward and bulk-reapply the snapshot. */
+  private performRedo(): void {
+    if (!this.history) return;
+    if (this.saveLoadDialog?.isModalOpen()) return;
+    const next = redoHistory(this.history);
+    if (next === this.history) return; // nothing to redo
+    this.history = next;
+    this.applyHistorySnapshot(currentEntry(next));
+  }
+
+  /**
+   * Freeze the live registry into a history snapshot. Cheap by
+   * construction: `toPlacedPieces()` is a fresh array of geometry-only
+   * records, and the grid spec is shared by reference.
+   */
+  private snapshotStageData(): BuilderHistorySnapshot {
+    return Object.freeze({
+      gridSpec: this.stageData?.getGridSpec() ?? this.gridSpec,
+      pieces: this.stageData?.toPlacedPieces() ?? [],
+    });
+  }
+
+  /**
+   * Push the current registry state onto the history. Called after
+   * every committed mutation (place, delete, load) — and ONLY from
+   * those commit sites, never from the model's change listener, so an
+   * undo/redo restore doesn't push the state it just applied.
+   */
+  private commitHistory(): void {
+    if (!this.history) return;
+    this.history = pushHistory(this.history, this.snapshotStageData());
+    this.refreshEditHud();
+  }
+
+  /**
+   * Bulk-reapply a history snapshot to the data model. The import
+   * renumbers piece ids, so the selection is cleared first — a stale
+   * id could otherwise silently re-target whichever piece inherited
+   * it. `replaceAllPieces` re-runs the standard validators; snapshots
+   * were captured from valid states, so the restore is lossless and
+   * deterministic (same input → byte-identical registry).
+   */
+  private applyHistorySnapshot(snapshot: BuilderHistorySnapshot): void {
+    if (!this.stageData) return;
+    this.selection = clearSelection(this.selection);
+    this.stageData.replaceAllPieces(snapshot.pieces, {
+      gridSpec: snapshot.gridSpec,
+    });
+    this.refreshSelectionVisuals();
+  }
+
+  /**
+   * Re-derive the highlight outline + hint from the current selection
+   * and refresh the edit HUD. Safe to call redundantly — the painter
+   * is allocation-free and idempotent on identical inputs.
+   */
+  private refreshSelectionVisuals(): void {
+    const piece = this.stageData
+      ? findSelectedPiece(this.selection, this.stageData.getPieces())
+      : null;
+    this.selectionHighlight?.update(piece);
+    this.refreshEditHud();
+  }
+
+  /**
+   * Sync the edit-toolbar visuals with the live history + selection:
+   * the status line shows the available depths, and each button dims
+   * when its action would be a no-op.
+   */
+  private refreshEditHud(): void {
+    if (this.history) {
+      this.historyStatusHud?.setText(
+        formatHistoryStatusLabel(undoDepth(this.history), redoDepth(this.history)),
+      );
+    }
+    const enabled = '#e8e8f0';
+    const disabled = '#6c7491';
+    this.undoButton?.setColor(
+      this.history && canUndo(this.history) ? enabled : disabled,
+    );
+    this.redoButton?.setColor(
+      this.history && canRedo(this.history) ? enabled : disabled,
+    );
+    this.removeButton?.setColor(
+      this.selection.selectedId !== null ? enabled : disabled,
+    );
+  }
+
+  /**
+   * `true` iff viewport-space `(x, y)` lands on one of the edit
+   * toolbar buttons. Used to stop button clicks from falling through
+   * into the canvas selection hit-test (the buttons float over the
+   * canvas rect on the default 1× canvas).
+   */
+  private isOverEditToolbar(x: number, y: number): boolean {
+    const buttons = [this.undoButton, this.redoButton, this.removeButton];
+    for (const button of buttons) {
+      if (button && button.getBounds().contains(x, y)) return true;
+    }
+    return false;
+  }
+
+  /**
+   * Build one right-anchored edit-toolbar text button. Interactive
+   * Text with a flat background — same procedural-chrome approach as
+   * the rest of the builder UI. Disabled states are handled by the
+   * caller dimming the text colour; the handlers themselves are
+   * same-ref no-ops when their action is unavailable.
+   */
+  private buildEditButton(
+    x: number,
+    y: number,
+    label: string,
+    onClick: () => void,
+  ): Phaser.GameObjects.Text {
+    const button = this.add
+      .text(x, y, label, {
+        fontFamily: 'monospace',
+        fontSize: '14px',
+        color: '#e8e8f0',
+        backgroundColor: '#2c3656',
+        padding: { x: 8, y: 4 },
+      })
+      .setOrigin(1, 1)
+      .setDepth(STAGE_BUILDER_DEPTHS.chrome)
+      .setInteractive({ useHandCursor: true });
+    button.on('pointerdown', onClick);
+    return button;
   }
 
   // -------------------------------------------------------------------------
@@ -803,6 +1179,33 @@ export class StageBuilderScene extends Phaser.Scene {
       this.placedCountHud.destroy();
       this.placedCountHud = null;
     }
+    // Selection + undo/redo — release the highlight painter + the
+    // edit-toolbar GameObjects, then drop the pure-value state. The
+    // selection / history objects are Phaser-free references; nulling
+    // them means a re-entered session seeds a fresh empty-canvas
+    // history instead of resuming the old one.
+    if (this.selectionHighlight) {
+      this.selectionHighlight.destroy();
+      this.selectionHighlight = null;
+    }
+    if (this.historyStatusHud) {
+      this.historyStatusHud.destroy();
+      this.historyStatusHud = null;
+    }
+    if (this.undoButton) {
+      this.undoButton.destroy();
+      this.undoButton = null;
+    }
+    if (this.redoButton) {
+      this.redoButton.destroy();
+      this.redoButton = null;
+    }
+    if (this.removeButton) {
+      this.removeButton.destroy();
+      this.removeButton = null;
+    }
+    this.selection = NO_SELECTION;
+    this.history = null;
     this.stageData = null;
     // AC 20103 Sub-AC 3 — release the dialog GameObjects + drop the
     // controller reference. The controller is Phaser-free so there's
@@ -910,6 +1313,35 @@ export class StageBuilderScene extends Phaser.Scene {
   getSaveLoadDialog(): SaveLoadDialog | null {
     return this.saveLoadDialog;
   }
+
+  /**
+   * Read-only snapshot of the live piece selection. `NO_SELECTION`
+   * (selectedId `null`) when nothing is selected or the scene is
+   * inactive. Exposed so tests + future sub-ACs (multi-select, move
+   * tool) can read the delete target without poking private fields.
+   */
+  getSelection(): PieceSelection {
+    return this.selection;
+  }
+
+  /**
+   * Selection-highlight painter handle — exposed so tests can assert
+   * the outline + hint mirror the selection state. Returns `null`
+   * before `create()` runs and after `tearDown()`.
+   */
+  getSelectionHighlight(): SelectionHighlight | null {
+    return this.selectionHighlight;
+  }
+
+  /**
+   * Live undo/redo history handle. Returns `null` before
+   * `create()` runs and after `tearDown()`. The value is immutable —
+   * callers can hold a reference and compare against a later read to
+   * detect whether a commit / undo / redo happened in between.
+   */
+  getEditHistory(): EditHistory<BuilderHistorySnapshot> | null {
+    return this.history;
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -952,6 +1384,22 @@ export interface StageBuilderLayoutRegions {
   readonly viewport: StageBuilderLayoutRect;
   readonly catalogPanel: StageBuilderLayoutRect;
   readonly canvasArea: StageBuilderLayoutRect;
+}
+
+/**
+ * One undo/redo history entry — the full committed canvas
+ * state at a point in time. Both fields are immutable references:
+ * `pieces` is a frozen geometry-only projection of the registry
+ * (`StageDataModel.toPlacedPieces()`), and `gridSpec` is captured so
+ * undoing across a load restores the canvas size the pieces were
+ * authored against. Restores route through
+ * `StageDataModel.replaceAllPieces`, which re-validates every entry —
+ * deterministic, so the same snapshot always rebuilds the same
+ * registry.
+ */
+export interface BuilderHistorySnapshot {
+  readonly gridSpec: GridSpec;
+  readonly pieces: ReadonlyArray<PlacedPiece>;
 }
 
 // ---------------------------------------------------------------------------
@@ -1011,6 +1459,14 @@ export const STAGE_BUILDER_DEPTHS = Object.freeze({
    * chrome.
    */
   placedPiece: 35,
+  /**
+   * Selection highlight — the outline + "[DEL] remove"
+   * hint around the selected piece. Sits ABOVE the placed pieces so
+   * the outline reads over the piece it wraps, and BELOW the catalog
+   * so panel chrome still occludes a selection near the canvas's left
+   * edge.
+   */
+  selection: 40,
   /**
    * Catalog panel (AC 20002 Sub-AC 2) — sits above the grid so the
    * panel chrome occludes the grid lines that fall behind it, and

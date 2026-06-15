@@ -73,6 +73,7 @@
  */
 
 import type Phaser from 'phaser';
+import { ContractFighter } from './contractFighter';
 import { Character, type CharacterTuning } from './Character';
 import { registerFighterAttack } from './attackRegistration';
 import type { AttackMove } from './attacks';
@@ -110,7 +111,7 @@ export { WOLF_MOVEMENT_PROFILE };
  * Sub-AC 1's canonical `SHIELD_DEFAULTS`); a per-character shield
  * balance pass would land here later.
  */
-export const WOLF_TUNING: Required<Omit<CharacterTuning, 'shield' | 'dodge' | 'ledge' | 'ledgeDetection'>> = {
+export const WOLF_TUNING: Required<Omit<CharacterTuning, 'shield' | 'dodge' | 'ledge' | 'ledgeDetection' | 'locomotion'>> = {
   // Sub-AC 2.2 of the T2 refactor — movement-relevant fields composed
   // from `WOLF_MOVEMENT_PROFILE` (the per-fighter movement profile —
   // single source of truth in `fighterMovementProfiles.ts`). Body
@@ -195,6 +196,49 @@ export const WOLF_JAB: AttackMoveWithAnimation = {
     activeFrames: 1,
     recoveryFrames: 3,
   },
+  // Jab-combo opener: a re-press once jab1's hitbox is out advances to
+  // jab2 → jab3 (the finisher). Tier 4.
+  jabChain: { nextId: 'wolf.jab2' },
+};
+
+/**
+ * Wolf jab string — stage 2. A quick follow-up poke that chains from
+ * {@link WOLF_JAB} on a re-press and itself links to the
+ * {@link WOLF_JAB3} finisher. Registered as a `'jab'` move but never the
+ * light slot (first-registered jab1 keeps it) — reachable ONLY via the
+ * chain link.
+ */
+export const WOLF_JAB2: AttackMoveWithAnimation = {
+  id: 'wolf.jab2',
+  type: 'jab',
+  damage: 4,
+  knockback: { x: 1.2, y: -0.3, scaling: 0.05 },
+  hitbox: { offsetX: 24, offsetY: -3, width: 32, height: 17 },
+  startupFrames: 3,
+  activeFrames: 2,
+  recoveryFrames: 8,
+  cooldownFrames: 12,
+  animation: { startupFrames: 2, activeFrames: 1, recoveryFrames: 3 },
+  jabChain: { nextId: 'wolf.jab3' },
+};
+
+/**
+ * Wolf jab string — finisher (stage 3). The launcher that ends the
+ * string: more knockback + a base-magnitude floor so it pops the
+ * opponent away even at low percent. No `jabChain` — the chain
+ * terminates here, and its `cooldownFrames` is the post-string lockout.
+ */
+export const WOLF_JAB3: AttackMoveWithAnimation = {
+  id: 'wolf.jab3',
+  type: 'jab',
+  damage: 7,
+  knockback: { x: 3.2, y: -1.6, scaling: 0.16, baseMagnitude: 1.0 },
+  hitbox: { offsetX: 26, offsetY: -3, width: 36, height: 20 },
+  startupFrames: 5,
+  activeFrames: 3,
+  recoveryFrames: 16,
+  cooldownFrames: 20,
+  animation: { startupFrames: 2, activeFrames: 1, recoveryFrames: 4 },
 };
 
 /**
@@ -278,7 +322,17 @@ export const WOLF_SMASH: AttackMoveWithAnimation = {
   id: 'wolf.smash',
   type: 'smash',
   damage: 14,
-  knockback: { x: 4.0, y: -1.5, scaling: 0.4 },
+  knockback: { x: 4.0, y: -1.5, scaling: 0.4, baseMagnitude: 1.2, damageGrowth: 0.5 },
+  // Hold-to-charge ramp (Tier 4). minDamage/minKnockback EQUAL the base so
+  // a tap fires the authored smash unchanged; a full hold scales it up.
+  charge: {
+    minChargeFrames: 0,
+    maxChargeFrames: 60,
+    minDamage: 14,
+    maxDamage: 19.6,
+    minKnockback: { x: 4.0, y: -1.5, scaling: 0.4, baseMagnitude: 1.2, damageGrowth: 0.5 },
+    maxKnockback: { x: 5.6, y: -2.1, scaling: 0.5, baseMagnitude: 1.2, damageGrowth: 0.5 },
+  },
   // AC 10404 Sub-AC 4 — re-tuned for the 100×100 body. Reach (70 px
   // offset, 90 px width) is the longest grounded option (jab 50/70,
   // tilt 60/80, smash 70/90), preserving the legacy reach gradient at
@@ -860,6 +914,7 @@ export const WOLF_GRAB: GrabSpec = {
   holdFramesMax: 90,
   throwRecoveryFrames: 24,
   pummel: { damage: 1.5, cooldownFrames: 14 },
+  dashGrab: { rangeBonusX: 12, momentumRetain: 0.5 },
   throws: {
     forward: { damage: 8, knockback: { x: 2.5, y: -1.0, scaling: 0.1 }, animationFrames: 22 },
     back:    { damage: 10, knockback: { x: 2.8, y: -1.2, scaling: 0.12 }, animationFrames: 26 },
@@ -1021,6 +1076,178 @@ export const WOLF_DAIR: AerialMove = {
   autoCancelWindows: [{ startFrame: 0, endFrame: 4 }],
 };
 
+/**
+ * Wolf's up-tilt — a quick overhead swipe (up-stick + light). Fast,
+ * upward-launching anti-air / juggle-starter; weaker than the up-smash
+ * but low-commitment.
+ */
+export const WOLF_UTILT: AttackMoveWithAnimation = {
+  id: 'wolf.utilt',
+  type: 'tilt',
+  damage: 7,
+  knockback: { x: 0.2, y: -2.2, scaling: 0.16 },
+  hitbox: { offsetX: 9, offsetY: -20, width: 61, height: 50 },
+  startupFrames: 5,
+  activeFrames: 3,
+  recoveryFrames: 10,
+  cooldownFrames: 11,
+  animation: { startupFrames: 1, activeFrames: 1, recoveryFrames: 3 },
+};
+
+/**
+ * Wolf's up-smash — a rising vertical strike (up-stick + heavy). Slow but
+ * a hard upward KO move; the canonical "charge it under a juggled
+ * opponent" finisher.
+ */
+export const WOLF_USMASH: AttackMoveWithAnimation = {
+  id: 'wolf.usmash',
+  type: 'smash',
+  damage: 16,
+  knockback: { x: 0.3, y: -3.6, scaling: 0.42, baseMagnitude: 1.2, damageGrowth: 0.5 },
+  charge: {
+    minChargeFrames: 0,
+    maxChargeFrames: 60,
+    minDamage: 16,
+    maxDamage: 22.4,
+    minKnockback: { x: 0.3, y: -3.6, scaling: 0.42, baseMagnitude: 1.2, damageGrowth: 0.5 },
+    maxKnockback: { x: 0.42, y: -5.04, scaling: 0.525, baseMagnitude: 1.2, damageGrowth: 0.5 },
+  },
+  hitbox: { offsetX: 10, offsetY: -27, width: 65, height: 64 },
+  startupFrames: 12,
+  activeFrames: 4,
+  recoveryFrames: 20,
+  cooldownFrames: 22,
+  animation: { startupFrames: 3, activeFrames: 1, recoveryFrames: 4 },
+};
+
+/**
+ * Wolf's down-tilt — a low, fast poke at the feet (down-stick + light).
+ * Crouches and jabs forward-low along the ground: the bruiser's
+ * fastest grounded option and a combo/spacing tool.
+ *
+ *   • Reach     : 24 px offset, 34×14 hitbox sitting LOW (offsetY +12,
+ *                 short height) so it strikes at Wolf's feet — beats
+ *                 grounded approaches and pokes shielding opponents'
+ *                 toes. Slightly longer reach than the down-light
+ *                 (32×14) but the same hug-the-floor profile.
+ *   • Damage    : 6 — between the down-light (6) and the tilt (8). A
+ *                 chip-and-reset poke, not a damage-dealer.
+ *   • Knockback : x 1.6 / y -0.3, scaling 0.08. A near-horizontal,
+ *                 LOW "trip" launch — barely lifts the target off the
+ *                 ground so Wolf can re-engage. Weaker than the forward
+ *                 tilt (2.0 / -0.6 / 0.12) so it stays a combo opener,
+ *                 not a finisher.
+ *   • Frames    : 5 startup (fast) / 3 active / 10 recovery + 12
+ *                 cooldown. Lockout = 30 frames — matches jab tempo so
+ *                 it's safe to throw out in neutral.
+ *
+ * Animation states: 6 art frames — 1 startup, 2 active, 3 recovery.
+ * The short startup gets a single windup frame; the active poke gets
+ * two so the low jab reads through the hit window.
+ */
+export const WOLF_DTILT: AttackMoveWithAnimation = {
+  id: 'wolf.dtilt',
+  type: 'tilt',
+  damage: 6,
+  knockback: { x: 1.6, y: -0.3, scaling: 0.08 },
+  hitbox: { offsetX: 24, offsetY: 26, width: 34, height: 14 },
+  startupFrames: 5,
+  activeFrames: 3,
+  recoveryFrames: 10,
+  cooldownFrames: 12,
+  animation: { startupFrames: 1, activeFrames: 2, recoveryFrames: 3 },
+};
+
+/**
+ * Wolf's down-smash — a sweeping ground KO move (down-stick + heavy).
+ * Wolf drops low and sweeps wide along the floor, catching opponents
+ * on either side of his feet and launching them outward-and-low toward
+ * the side blast zone. The grounded HORIZONTAL KO finisher — the
+ * floor-level counterpart to the up-smash's vertical kill.
+ *
+ *   • Reach     : 0 px offset, 92×20 hitbox at the feet (offsetY +14,
+ *                 low height). The WIDEST grounded hitbox in Wolf's kit
+ *                 (forward smash 40, up-smash 40) — a body-centred sweep
+ *                 so the move covers both sides of the landing spot the
+ *                 way a Smash down-smash does.
+ *   • Damage    : 15 — between the forward smash (14) and the up-smash
+ *                 (16); the heaviest grounded horizontal hit.
+ *   • Knockback : x 3.6 / y -1.2, scaling 0.40, baseMagnitude 1.2,
+ *                 damageGrowth 0.5. Mirrors the forward smash's KB SHAPE
+ *                 (scaling 0.40 / baseMagnitude 1.2 / damageGrowth 0.5)
+ *                 tuned for Wolf's heavyweight mass — strong outward
+ *                 launch with a low, flat angle (atan2(1.2, 3.6) ≈ 18°)
+ *                 so it sends the target along the floor and off the
+ *                 side, not up. KOs Cat from centre stage at ~120 %.
+ *   • Frames    : 13 startup (slow) / 4 active / 18 recovery + 22
+ *                 cooldown. Lockout = 57 frames — between the forward
+ *                 smash (56) and the up-smash (58); the committal
+ *                 windup punishes whiff-prone opponents.
+ *
+ * Animation states: 8 art frames — 3 startup, 1 active, 4 recovery.
+ * Mirrors the smash anticipation curve: the long telegraphed windup
+ * reads "Wolf is committing to a hard hit" the way the forward smash
+ * and up-smash do.
+ */
+export const WOLF_DSMASH: AttackMoveWithAnimation = {
+  id: 'wolf.dsmash',
+  type: 'smash',
+  damage: 15,
+  knockback: { x: 3.6, y: -1.2, scaling: 0.40, baseMagnitude: 1.2, damageGrowth: 0.5 },
+  charge: {
+    minChargeFrames: 0,
+    maxChargeFrames: 60,
+    minDamage: 15,
+    maxDamage: 21,
+    minKnockback: { x: 3.6, y: -1.2, scaling: 0.40, baseMagnitude: 1.2, damageGrowth: 0.5 },
+    maxKnockback: { x: 5.04, y: -1.68, scaling: 0.5, baseMagnitude: 1.2, damageGrowth: 0.5 },
+  },
+  hitbox: { offsetX: 0, offsetY: 14, width: 92, height: 20 },
+  startupFrames: 13,
+  activeFrames: 4,
+  recoveryFrames: 18,
+  cooldownFrames: 22,
+  animation: { startupFrames: 3, activeFrames: 1, recoveryFrames: 4 },
+};
+
+/**
+ * Wolf's dash-attack — a forward lunging hit used while running
+ * (light press during a dash). The bruiser's running burst: he
+ * shoulder-charges forward to close distance and open a combo. Weaker
+ * than a smash but a real approach / combo-starter.
+ *
+ *   • Reach     : 30 px offset (well in front), 44×24 hitbox — extends
+ *                 past Wolf's body in the run direction so the lunge
+ *                 catches a retreating opponent.
+ *   • Damage    : 10 — between the forward tilt (8) and the forward
+ *                 smash (14). Solid burst damage for an approach tool.
+ *   • Knockback : x 2.2 / y -1.4, scaling 0.16. Moderate forward-AND-up
+ *                 launch (atan2(1.4, 2.2) ≈ 32°) — pops the target up
+ *                 and away so Wolf can follow with an up-tilt / aerial.
+ *                 Stronger than the tilt's 0.12 scaling but well short
+ *                 of smash territory, so it stays a combo-starter.
+ *   • Frames    : 8 startup (medium) / 4 active / 14 recovery + 12
+ *                 cooldown. Lockout = 38 frames — the running burst
+ *                 commits harder than a tilt (37) but reads faster than
+ *                 a smash (56).
+ *
+ * Animation states: 7 art frames — 2 startup, 2 active, 3 recovery.
+ * The two active art frames let the shoulder-charge arc visibly
+ * through the hit window so the lunge reads kinetically.
+ */
+export const WOLF_DASHATTACK: AttackMoveWithAnimation = {
+  id: 'wolf.dashAttack',
+  type: 'tilt',
+  damage: 10,
+  knockback: { x: 2.2, y: -1.4, scaling: 0.16 },
+  hitbox: { offsetX: 30, offsetY: -3, width: 44, height: 24 },
+  startupFrames: 8,
+  activeFrames: 4,
+  recoveryFrames: 14,
+  cooldownFrames: 12,
+  animation: { startupFrames: 2, activeFrames: 2, recoveryFrames: 3 },
+};
+
 // ---------------------------------------------------------------------------
 // AC 2 Sub-AC 2 — per-fighter scaffolding for the T2 refactor.
 //
@@ -1110,7 +1337,7 @@ export interface WolfOptions extends CharacterTuning {
  * move, the runtime continues dispatching through the legacy slot table
  * exactly as before — no behavioural change.
  */
-export class Wolf extends Character {
+export class Wolf extends ContractFighter {
   /**
    * Wolf's 10-slot uniform moveset surface (Sub-AC 2 of T2 refactor).
    * Points at the frozen {@link WOLF_MOVESET} table — every consumer that
@@ -1154,6 +1381,10 @@ export class Wolf extends Character {
     // lights the right dispatch slot — Sub-AC 3.3 unit tests lock that
     // down.
     registerFighterAttack(this, WOLF_JAB);
+    // Jab-string stages 2 + 3 (reachable only via the chain link; jab1
+    // keeps the light slot via first-registered-wins).
+    registerFighterAttack(this, WOLF_JAB2);
+    registerFighterAttack(this, WOLF_JAB3);
     registerFighterAttack(this, WOLF_TILT);
     registerFighterAttack(this, WOLF_SMASH);
     // Aerial cut — neutral / forward / back. AC 60002 Sub-AC 2 closes
@@ -1166,6 +1397,29 @@ export class Wolf extends Character {
     registerFighterAttack(this, WOLF_NAIR);
     registerFighterAttack(this, WOLF_FAIR);
     registerFighterAttack(this, WOLF_BAIR);
+    // Directional attacks (up-stick). Up-air / down-air auto-wire their
+    // aerial up/down slots via `aerialDirection`; up-tilt / up-smash are
+    // type 'tilt'/'smash' (their forward slots are taken), so wire the
+    // dedicated up slots explicitly.
+    registerFighterAttack(this, WOLF_UAIR);
+    registerFighterAttack(this, WOLF_DAIR);
+    registerFighterAttack(this, WOLF_UTILT);
+    registerFighterAttack(this, WOLF_USMASH);
+    this.setUpTilt(WOLF_UTILT.id);
+    this.setUpSmash(WOLF_USMASH.id);
+    // Down-stick + dash grounded normals. Down-tilt / dash-attack are
+    // type 'tilt' and down-smash is type 'smash' — their forward slots
+    // are already taken by WOLF_TILT / WOLF_SMASH, so wire the dedicated
+    // down / dash slots explicitly via the setDownTilt / setDownSmash /
+    // setDashAttack dispatch setters. Down-tilt: low combo poke at the
+    // feet. Down-smash: wide sweeping grounded horizontal KO. Dash-
+    // attack: forward lunging running burst / combo-starter.
+    registerFighterAttack(this, WOLF_DTILT);
+    registerFighterAttack(this, WOLF_DSMASH);
+    registerFighterAttack(this, WOLF_DASHATTACK);
+    this.setDownTilt(WOLF_DTILT.id);
+    this.setDownSmash(WOLF_DSMASH.id);
+    this.setDashAttack(WOLF_DASHATTACK.id);
     // Neutral special — counter (AC 60201 Sub-AC 1). Auto-fills the
     // `neutralSpecialId` dispatch slot via `registerAttack`'s
     // type-based slot wiring.
@@ -1194,139 +1448,9 @@ export class Wolf extends Character {
     this.setGrabSpec(WOLF_GRAB);
   }
 
-  // -------------------------------------------------------------------
-  // Sub-AC 2.1 of T2 refactor — per-slot execution methods.
-  //
-  // Each executeXxx method below owns the "fire WHICH move" decision
-  // for the named slot in the canonical 10-slot {@link FighterMoveset}
-  // contract. After Sub-AC 2.1 the {@link Character} base class's input
-  // dispatcher (`tickAttack` / `classifyGroundedAttack` / `classifyAerialAttack`)
-  // routes a per-frame press through to one of these methods based on
-  // the input pattern; the method then invokes the per-fighter move via
-  // {@link Character.attemptAttack} (or {@link Character.attemptUpSpecial}
-  // for the up-special's vertical-physics flow). The base class no
-  // longer holds any "Wolf-specific" knowledge — Wolf alone decides
-  // that `executeJab` fires `WOLF_JAB`, that `executeNeutralSpecial`
-  // fires Wolf's counter, and so on.
-  //
-  // Return value contract (`boolean`): `true` if the underlying
-  // `attemptAttack` / `attemptUpSpecial` started the move, `false` if
-  // it was rejected (already mid-attack, on cooldown, destroyed, or —
-  // for the up-special — the slot was empty). The base
-  // {@link Character.tickAttack} dispatcher reads the return value to
-  // drive post-press follow-ups (e.g. inverting the active attack's
-  // facing on a back-aerial press).
-  //
-  // Per-fighter ownership: the move ids are referenced by their
-  // exported `*_JAB` / `*_TILT` / … constants instead of by string
-  // literals. That keeps the dispatch decision in lockstep with the
-  // move record's authored data — a balance pass that renames
-  // `WOLF_JAB.id` from `'wolf.jab'` to `'wolf.neutral'` flows through
-  // the executeJab call without manual edits, and a typo (`WOLF_JEB`)
-  // is a TypeScript compile error rather than a silent runtime miss.
-  //
-  // Shield / dodge: out of scope for Sub-AC 2.1. The seed Sub-AC scope
-  // is "light/heavy/special slots" — the defensive state-machine
-  // entries stay no-op stubs until a later refactor sub-AC migrates
-  // their entry points out of the per-frame `tickShield` / `tickDodge`
-  // composition in {@link Character.applyInput}.
-  // -------------------------------------------------------------------
 
-  /**
-   * Wolf's jab — fires {@link WOLF_JAB} via the base class's attack
-   * lifecycle. Returns `true` iff the move started.
-   */
-  executeJab(): boolean {
-    if (this.runSlotOverride('jab')) return true;
-    return this.attemptAttack(WOLF_JAB.id);
-  }
-
-  /**
-   * Wolf's tilt — fires {@link WOLF_TILT}. The grounded "directional
-   * tap + attack" classifier in {@link Character.tickAttack} routes
-   * the press here when the player held a direction past the neutral
-   * deadzone without a smash flick.
-   */
-  executeTilt(): boolean {
-    if (this.runSlotOverride('tilt')) return true;
-    return this.attemptAttack(WOLF_TILT.id);
-  }
-
-  /**
-   * Wolf's smash — fires {@link WOLF_SMASH}. Routed by the heavy-press
-   * branch (dedicated `attackHeavy` button) AND by the smash-flick
-   * branch (rest → deflected stick within one frame on a light press).
-   */
-  executeSmash(): boolean {
-    if (this.runSlotOverride('smash')) return true;
-    return this.attemptAttack(WOLF_SMASH.id);
-  }
-
-  /**
-   * Wolf's forward aerial — fires {@link WOLF_FAIR}. The airborne
-   * directional aerial classifier routes here when the stick sign
-   * matches the fighter's facing at the moment of the press.
-   */
-  executeFair(): boolean {
-    if (this.runSlotOverride('fair')) return true;
-    return this.attemptAttack(WOLF_FAIR.id);
-  }
-
-  /**
-   * Wolf's neutral special (counter) — fires {@link WOLF_NEUTRAL_SPECIAL}.
-   * The (later T1 sub-AC) special-press input wiring resolves the
-   * `special` button to this method.
-   */
-  executeNeutralSpecial(): boolean {
-    if (this.runSlotOverride('neutralSpecial')) return true;
-    return this.attemptAttack(WOLF_NEUTRAL_SPECIAL.id);
-  }
-
-  /**
-   * Wolf's side special (dash strike) — fires {@link WOLF_SIDE_SPECIAL}.
-   * Resolved by the (later T1 sub-AC) "stick-side + special" press.
-   */
-  executeSideSpecial(): boolean {
-    if (this.runSlotOverride('sideSpecial')) return true;
-    return this.attemptAttack(WOLF_SIDE_SPECIAL.id);
-  }
-
-  /**
-   * Wolf's up special (multi-hit rising) — fires {@link WOLF_UP_SPECIAL}
-   * via {@link Character.attemptUpSpecial}, which integrates the
-   * recovery / vertical-physics on the press frame. The optional
-   * stick-direction arguments default to "straight up" — the canonical
-   * no-stick recovery press.
-   */
-  executeUpSpecial(stickX: number = 0, stickY: number = -1): boolean {
-    if (this.runSlotOverride('upSpecial')) return true;
-    return this.attemptUpSpecial(stickX, stickY);
-  }
-
-  /**
-   * Wolf's down special (ground pound) — fires {@link WOLF_DOWN_SPECIAL}.
-   * Resolved by the (later T1 sub-AC) "stick-down + special" press.
-   */
-  executeDownSpecial(): boolean {
-    if (this.runSlotOverride('downSpecial')) return true;
-    return this.attemptAttack(WOLF_DOWN_SPECIAL.id);
-  }
-
-  /**
-   * Wolf's shield. Out of scope for Sub-AC 2.1 of the T2 refactor —
-   * the shield-state-machine entry continues to fire from
-   * {@link Character.applyInput}'s `tickShield` composition. A later
-   * sub-AC migrates the per-fighter shield tuning entry to here.
-   */
-  executeShield(): void {
-    /* TODO(T2 refactor): migrate shield state-machine entry out of Character. */
-  }
-
-  /**
-   * Wolf's dodge. Out of scope for Sub-AC 2.1 of the T2 refactor —
-   * see {@link executeShield}.
-   */
-  executeDodge(): void {
-    /* TODO(T2 refactor): migrate dodge state-machine entry out of Character. */
-  }
+  // Per-slot execute hooks (executeJab … executeDodge) are inherited
+  // from ContractFighter, which fires each slot via the frozen
+  // `moveset` declaration above — the slot ↔ move mapping lives in
+  // the data table, not in per-fighter method boilerplate.
 }

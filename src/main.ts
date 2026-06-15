@@ -12,6 +12,15 @@ import { createPhaserGameConfig } from './engine/GameConfig';
 function startGame(): Phaser.Game {
   const game = new Phaser.Game(createPhaserGameConfig());
 
+  // Diagnostic handle — lets headless-browser test harnesses (and quick
+  // console debugging) reach the live game instance. Exposed in dev AND
+  // in `vite preview` builds so balance/physics probes can run against a
+  // stable, HMR-immune production bundle. A fully-published deploy can
+  // strip this by building with `DEPLOY=1` (the env flag below).
+  if (import.meta.env.DEV || import.meta.env.MODE !== 'deploy') {
+    (window as unknown as { __game?: Phaser.Game }).__game = game;
+  }
+
   // Hide the boot overlay once Phaser takes over the canvas.
   const overlay = document.getElementById('boot-overlay');
   if (overlay) {

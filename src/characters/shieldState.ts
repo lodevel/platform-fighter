@@ -209,7 +209,23 @@ export interface ShieldHitResult {
   readonly state: ShieldState;
   /** True iff the hit broke the shield this call. */
   readonly broke: boolean;
+  /**
+   * True iff this was a PERFECT SHIELD (powershield): the hit landed
+   * within {@link PERFECT_SHIELD_WINDOW_FRAMES} of raising the shield.
+   * The block costs no shield HP and applies no shieldstun — the
+   * defender comes out free for an instant punish. The runtime can
+   * also use this to play a distinct cue / spark.
+   */
+  readonly perfect: boolean;
 }
+
+/**
+ * Frames after raising the shield within which an absorbed hit counts as
+ * a PERFECT SHIELD (powershield): no HP cost, no shieldstun, instant
+ * out-of-shield. Mirrors Smash's tight "shield right as it connects"
+ * timing — reward for precise defence, punished (normal block) if late.
+ */
+export const PERFECT_SHIELD_WINDOW_FRAMES = 3;
 
 // ---------------------------------------------------------------------------
 // Defaults
@@ -472,9 +488,35 @@ export function applyShieldHit(
   state: ShieldState,
   damage: number,
   tuning: ResolvedShieldTuning = SHIELD_DEFAULTS,
+  /**
+   * Frames the shield has been continuously raised when the hit lands.
+   * `<= PERFECT_SHIELD_WINDOW_FRAMES` → a perfect shield (no HP cost, no
+   * shieldstun). Omit (undefined) to disable powershielding — the hit is
+   * always a normal block. The pure shieldState tests pass it as needed.
+   */
+  framesActive?: number,
 ): ShieldHitResult {
   if (state.name !== 'active') {
-    return { absorbed: false, state, broke: false };
+    return { absorbed: false, state, broke: false, perfect: false };
+  }
+  // PERFECT SHIELD — a hit caught in the raise window costs nothing and
+  // applies no shieldstun. The defender is free to punish immediately.
+  if (
+    framesActive !== undefined &&
+    framesActive <= PERFECT_SHIELD_WINDOW_FRAMES
+  ) {
+    return {
+      absorbed: true,
+      broke: false,
+      perfect: true,
+      state: Object.freeze({
+        name: 'active',
+        health: state.health, // no HP cost
+        stunRemaining: 0,
+        blockStunRemaining: 0, // no shieldstun — instant out-of-shield
+        framesSinceLastDamage: 0,
+      }),
+    };
   }
   const safeDamage = damage > 0 ? damage : 0;
   const drained = state.health - safeDamage;
@@ -482,6 +524,7 @@ export function applyShieldHit(
     return {
       absorbed: true,
       broke: true,
+      perfect: false,
       state: Object.freeze({
         name: 'broken',
         health: 0,
@@ -503,6 +546,7 @@ export function applyShieldHit(
   return {
     absorbed: true,
     broke: false,
+    perfect: false,
     state: Object.freeze({
       name: 'active',
       health: drained,

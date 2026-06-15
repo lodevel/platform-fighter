@@ -846,6 +846,10 @@ export function buildCharacterInputFromResolver(
   // ship a smash but no neutral special.
   return Object.freeze({
     moveX: move.x,
+    // Vertical stick — consumed by the fast-fall latch, DI, and the
+    // up/down item-throw direction. Same canvas-Y convention as the
+    // resolver's move vector (down = positive).
+    moveY: move.y,
     jump,
     attack,
     special,

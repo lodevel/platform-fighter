@@ -91,6 +91,15 @@ export const BOOT_REGISTRY_KEYS = {
    * isn't blasted with audio at the start of the next.
    */
   musicMuted: 'musicMuted',
+  /**
+   * `true` when the player has muted combat / movement SFX. Mirrors
+   * {@link musicMuted} for the one-shot sound-effect bus so a streamer
+   * can drop SFX independently of the soundtrack, and the preference
+   * persists across matches the same way the music flag does. Read at
+   * MatchScene boot to set the scene's SFX {@link AudioManager} mute
+   * state before any fighter cue fires.
+   */
+  sfxMuted: 'sfxMuted',
 } as const;
 
 /**

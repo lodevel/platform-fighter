@@ -281,6 +281,22 @@ export const DEFAULT_AUDIO_CUES: Readonly<Record<string, AudioCueConfig>> =
     [ASSET_KEYS.sfxKo]: { bus: 'sfx', cooldownMs: 200, voiceLimit: 2 },
     [ASSET_KEYS.sfxShield]: { bus: 'sfx', cooldownMs: 100, voiceLimit: 2 },
     [ASSET_KEYS.sfxDodge]: { bus: 'sfx', cooldownMs: 100, voiceLimit: 2 },
+    // M1.5 action-audio expansion (AC 10304). Movement cues fire often
+    // (jump on every press, land on every touchdown) so they get a tight
+    // cooldown + a generous voice budget for 4-player pile-ons. Connect
+    // cues mirror the swing cooldowns. Shield-shatter is a sparse, loud
+    // event (2-voice cap). The charge cue is the only LOOPING SFX —
+    // `loop: true` + a single voice, started / stopped explicitly by the
+    // renderer as the wind-up begins / ends (NOT a one-shot), trimmed to
+    // 0.6 so a sustained hum sits under the combat mix.
+    [ASSET_KEYS.sfxJump]: { bus: 'sfx', cooldownMs: 80, voiceLimit: 4 },
+    [ASSET_KEYS.sfxJumpAir]: { bus: 'sfx', cooldownMs: 80, voiceLimit: 4 },
+    [ASSET_KEYS.sfxLand]: { bus: 'sfx', cooldownMs: 80, voiceLimit: 4, volume: 0.8 },
+    [ASSET_KEYS.sfxHitLight]: { bus: 'sfx', cooldownMs: 60, voiceLimit: 4 },
+    [ASSET_KEYS.sfxHitHeavy]: { bus: 'sfx', cooldownMs: 90, voiceLimit: 3 },
+    [ASSET_KEYS.sfxClang]: { bus: 'sfx', cooldownMs: 80, voiceLimit: 3 },
+    [ASSET_KEYS.sfxShieldBreak]: { bus: 'sfx', cooldownMs: 150, voiceLimit: 2 },
+    [ASSET_KEYS.sfxCharge]: { bus: 'sfx', cooldownMs: 0, voiceLimit: 1, loop: true, volume: 0.6 },
     [ASSET_KEYS.musicStageDefault]: { bus: 'music', loop: true, volume: 1 },
   });
 
@@ -476,6 +492,58 @@ export class AudioManager {
     if (!cue) return false;
     if (cue.bus !== 'sfx') return false;
     return this.playInternal(key, cue);
+  }
+
+  /**
+   * Start a **looping** SFX cue idempotently — the charge wind-up hum
+   * path (AC 10304).
+   *
+   * Unlike {@link playSfx} (a one-shot that voice-steals on a re-call),
+   * this is safe to call every frame while a sustained loop should be
+   * playing: if a voice for `key` is already active it is a no-op and
+   * returns `true`, so the renderer can drive "keep the charge hum
+   * going" without restarting the sample each tick. Returns `false`
+   * when the key isn't a registered SFX-bus cue or the manager is
+   * destroyed.
+   *
+   * The cue should be registered with `loop: true` (the AudioManager
+   * does not force it); the {@link DEFAULT_AUDIO_CUES} charge entry
+   * already is. Stop the loop with {@link stopSfx}.
+   */
+  playSfxLoop(key: string): boolean {
+    if (this.destroyed) return false;
+    const cue = this.cues.get(key);
+    if (!cue) return false;
+    if (cue.bus !== 'sfx') return false;
+    // Already looping — keep the live voice rather than voice-stealing
+    // it (which would audibly restart the sample mid-charge).
+    if (this.getActiveVoiceCount(key) > 0) return true;
+    return this.playInternal(key, cue);
+  }
+
+  /**
+   * Stop every active voice for an SFX cue — the companion to
+   * {@link playSfxLoop} for ending a sustained loop (charge hum stops
+   * the frame the wind-up ends). Safe to call when nothing is playing
+   * (no-op). Does NOT touch the music bus — use {@link stopMusic} for
+   * the soundtrack.
+   */
+  stopSfx(key: string): void {
+    if (this.destroyed) return;
+    const voices = this.activeVoices.get(key);
+    if (!voices) return;
+    // Copy + clear first so the `complete`-event pruning a `stop()` may
+    // synchronously fire can't mutate the array we're iterating.
+    const toStop = voices.slice();
+    this.activeVoices.delete(key);
+    for (const sound of toStop) {
+      try {
+        sound.stop();
+        sound.destroy();
+      } catch {
+        /* swallow — already torn down */
+      }
+    }
   }
 
   /**

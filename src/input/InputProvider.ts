@@ -183,10 +183,11 @@ export interface PlayerInputProvider {
  * Frozen so the reference is safe to share across slots and frames.
  */
 export const NEUTRAL_INPUT_SNAPSHOT: Readonly<Required<Pick<CharacterInput,
-  'moveX' | 'jump' | 'attack' | 'dropThrough'
+  'moveX' | 'moveY' | 'jump' | 'attack' | 'dropThrough'
 >>> &
   Readonly<CharacterInput> = Object.freeze({
   moveX: 0,
+  moveY: 0,
   jump: false,
   attack: false,
   dropThrough: false,
@@ -218,8 +219,20 @@ export function closeCharacterInput(input: CharacterInput): CharacterInput {
   } else if (moveX > 1) {
     moveX = 1;
   }
+  // Vertical stick — same clamp as moveX. Consumed by the fast-fall
+  // latch, DI, and the item-throw direction; closed to 0 so the sim
+  // never branches on `undefined`.
+  let moveY = input.moveY ?? 0;
+  if (typeof moveY !== 'number' || !Number.isFinite(moveY)) {
+    moveY = 0;
+  } else if (moveY < -1) {
+    moveY = -1;
+  } else if (moveY > 1) {
+    moveY = 1;
+  }
   return Object.freeze({
     moveX,
+    moveY,
     jump: input.jump === true,
     attack: input.attack === true,
     attackHeavy: input.attackHeavy === true,
@@ -554,9 +567,16 @@ export function createBindingsKeyboardInputProvider(
       let moveX = 0;
       if (left) moveX -= 1;
       if (right) moveX += 1;
+      // Digital vertical axis — up/down keys cancel out. Down-positive
+      // (canvas Y) so the fast-fall latch reads it directly.
+      const up = held(profile, 'up');
+      let moveY = 0;
+      if (up) moveY -= 1;
+      if (down) moveY += 1;
 
       return {
         moveX,
+        moveY,
         jump,
         attack,
         shield,
@@ -1009,9 +1029,13 @@ export function createBindingsGamepadInputProvider(
       // AC 60301 Sub-AC 1 — held shield flag flows through; the
       // runtime owns the cooldown / stun / break gating.
       const shield = held(profile, 'shield');
+      // Analog vertical axis — down minus up magnitudes, down-positive
+      // (canvas Y) so the fast-fall latch reads it directly.
+      const moveY = magnitude(profile, 'down') - magnitude(profile, 'up');
 
       return {
         moveX,
+        moveY,
         jump,
         attack,
         shield,

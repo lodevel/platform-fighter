@@ -120,6 +120,12 @@ describe('Character roster — shape', () => {
       'cat',
       'owl',
       'bear',
+      'blaze',
+      'puff',
+      'aegis',
+      'volt',
+      'nova',
+      'bruno',
     ]);
   });
 
@@ -142,18 +148,27 @@ describe('Character roster — shape', () => {
 // ---------------------------------------------------------------------------
 
 describe('Character roster — playable characters (Sub-AC 3.5 + AC 60004 Sub-AC 4 + AC 60001 Sub-AC 1)', () => {
-  it('publishes Wolf, Cat, Owl, and Bear playable specs in roster order', () => {
+  it('publishes every roster slot as a playable spec in roster order', () => {
     // M1 cut shipped Wolf + Cat. AC 60004 Sub-AC 4 promoted Owl from
     // placeholder-spec to a playable fighter by wiring his grounded
     // triplet (jab / tilt / smash) into the roster. AC 60001 Sub-AC 1
     // closed the loop by wiring Bear's grounded triplet so every
     // roster slot is `playable: true` — the Seed's "4 characters with
     // full movesets" milestone for the grounded triplet is met.
+    // Post-M5 roster expansion — Blaze / Puff / Aegis join with full
+    // kits on day one. Post-batch-2 — Volt / Nova / Bruno likewise join
+    // playable from their first build with full kits + sprite packs.
     expect(PLAYABLE_CHARACTER_SPECS.map((s) => s.id)).toEqual([
       'wolf',
       'cat',
       'owl',
       'bear',
+      'blaze',
+      'puff',
+      'aegis',
+      'volt',
+      'nova',
+      'bruno',
     ]);
   });
 
@@ -180,8 +195,11 @@ describe('Character roster — playable characters (Sub-AC 3.5 + AC 60004 Sub-AC
       // we accept either form here: a non-empty texture key OR null.
       const spriteKey = spec.placeholder.spriteKey;
       if (spriteKey === null) {
-        // Owl / Bear during the M1 cut — rectangle-only renderer.
-        expect(['owl', 'bear']).toContain(spec.id);
+        // Rectangle-only renderer: Owl / Bear during the M1 cut, plus
+        // the post-M5 expansion fighters (Blaze / Puff / Aegis), which
+        // ship on the procedural placeholder pipeline until sprite
+        // packs land.
+        expect(['owl', 'bear', 'blaze', 'puff', 'aegis']).toContain(spec.id);
       } else {
         expect(typeof spriteKey).toBe('string');
         expect(spriteKey.length).toBeGreaterThan(0);

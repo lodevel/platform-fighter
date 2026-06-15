@@ -30,9 +30,15 @@ import { resolve } from 'node:path';
 
 import { parseCharacterDataFile } from '../src/characters/characterSerializer';
 import {
+  AEGIS_MOVEMENT_PROFILE,
   BEAR_MOVEMENT_PROFILE,
+  BLAZE_MOVEMENT_PROFILE,
+  BRUNO_MOVEMENT_PROFILE,
   CAT_MOVEMENT_PROFILE,
+  NOVA_MOVEMENT_PROFILE,
   OWL_MOVEMENT_PROFILE,
+  PUFF_MOVEMENT_PROFILE,
+  VOLT_MOVEMENT_PROFILE,
   WOLF_MOVEMENT_PROFILE,
 } from '../src/characters/fighterMovementProfiles';
 import {
@@ -78,6 +84,18 @@ const CROSS_CHECKS: ReadonlyArray<CrossCheck> = [
   { id: 'cat', profile: CAT_MOVEMENT_PROFILE },
   { id: 'owl', profile: OWL_MOVEMENT_PROFILE },
   { id: 'bear', profile: BEAR_MOVEMENT_PROFILE },
+  // Post-M5 roster expansion — the three Smash-inspired fighters
+  // follow the cat/owl/bear pattern (movement-profile cross-check
+  // only; their move tables live in code until the JSON moves block
+  // gains sweet-spot support).
+  { id: 'blaze', profile: BLAZE_MOVEMENT_PROFILE },
+  { id: 'puff', profile: PUFF_MOVEMENT_PROFILE },
+  { id: 'aegis', profile: AEGIS_MOVEMENT_PROFILE },
+  // Post-batch-2 roster expansion — movement-profile cross-check only,
+  // same as the cat/owl/bear/blaze/puff/aegis pattern.
+  { id: 'volt', profile: VOLT_MOVEMENT_PROFILE },
+  { id: 'nova', profile: NOVA_MOVEMENT_PROFILE },
+  { id: 'bruno', profile: BRUNO_MOVEMENT_PROFILE },
 ];
 
 const DATA_DIR = resolve(process.cwd(), 'data/characters');
@@ -171,7 +189,18 @@ function main(): void {
     .filter((f) => f.endsWith('.json'))
     .map((f) => f.replace(/\.json$/, ''));
 
-  const knownIds: ReadonlyArray<CharacterId> = ['wolf', 'cat', 'owl', 'bear'];
+  const knownIds: ReadonlyArray<CharacterId> = [
+    'wolf',
+    'cat',
+    'owl',
+    'bear',
+    'blaze',
+    'puff',
+    'aegis',
+    'volt',
+    'nova',
+    'bruno',
+  ];
   for (const f of presentFiles) {
     if (!knownIds.includes(f as CharacterId)) {
       errors.push(

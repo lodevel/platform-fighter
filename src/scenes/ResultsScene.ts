@@ -18,6 +18,12 @@ import {
   DownloadReplayUnsupportedError,
   type ReplayFile,
 } from '../replay';
+import {
+  MENU_COLORS_CSS,
+  MENU_FONT,
+  paintMenuBackground,
+} from '../ui/menuTheme';
+import { MenuPadNav } from '../ui/menuPadNav';
 
 // Re-export so existing imports from `./ResultsScene` keep resolving.
 export { computeResultsHeadline };
@@ -80,6 +86,9 @@ const RESULTS_BUTTON_STROKE_HOVER = 0xffd166;
 export class ResultsScene extends Phaser.Scene {
   private payload: MatchResultPayload | null = null;
 
+  /** Shared gamepad poller so pad-only players can navigate the menu. */
+  private padNav: MenuPadNav | undefined = undefined;
+
   constructor() {
     super({ key: 'ResultsScene' });
   }
@@ -102,19 +111,27 @@ export class ResultsScene extends Phaser.Scene {
     const { width, height } = this.scale.gameSize;
     const cx = width / 2;
 
+    paintMenuBackground(this);
+
     // ---- Top banner: clear next-step hint ---------------------------------
     // Players reported "no idea what to do when match is done" — the
     // bottom-row buttons + ESC hint were apparently missed. Adding a
     // high-contrast prompt at the very top of the screen so the next
     // step is the FIRST thing read.
     this.add
-      .text(cx, 24, '[ENTER] REMATCH    [L] BACK TO LOBBY    [ESC] MAIN MENU', {
-        fontFamily: 'monospace',
-        fontSize: '20px',
-        color: '#6cf0c2',
-        backgroundColor: '#000000aa',
-        padding: { x: 10, y: 6 },
-      })
+      .text(
+        cx,
+        24,
+        '[ENTER] / Ⓐ REMATCH    [L] CHARACTER SELECT    [ESC] / Ⓑ MAIN MENU',
+        {
+          fontFamily: MENU_FONT,
+          fontSize: '19px',
+          fontStyle: 'bold',
+          color: MENU_COLORS_CSS.accent,
+          backgroundColor: '#000000aa',
+          padding: { x: 10, y: 6 },
+        },
+      )
       .setOrigin(0.5, 0)
       .setDepth(1000);
 
@@ -128,11 +145,13 @@ export class ResultsScene extends Phaser.Scene {
       : '#a0a0b8';
     this.add
       .text(cx, height * 0.22, headline, {
-        fontFamily: 'monospace',
+        fontFamily: MENU_FONT,
         fontSize: '88px',
+        fontStyle: 'bold',
         color: headlineColor,
       })
-      .setOrigin(0.5);
+      .setOrigin(0.5)
+      .setShadow(0, 6, '#000000', 14, true, true);
 
     // Optional subtitle: stage name. Keeps the eye on the headline but
     // confirms which stage the match was played on (handy when rematches
@@ -310,21 +329,8 @@ export class ResultsScene extends Phaser.Scene {
     // ENTER → rematch (MatchScene). Same contract as the pre-AC 18
     // results screen — only the visual representation changed (now a
     // big button instead of a single line of prompt text).
-    this.input.keyboard?.once('keydown-ENTER', () => {
-      // REMATCH preserves the previous match's character + palette
-      // assignments by forwarding the stashed `MatchConfig`. Without
-      // this hop the rematch would re-run with default palettes and
-      // a player who picked a non-default colour would suddenly see
-      // their character change shade.
-      const lastConfig = this.registry.get(
-        BOOT_REGISTRY_KEYS.lastMatchConfig,
-      ) as MatchConfig | undefined;
-      this.scene.start('MatchScene', lastConfig ? { matchConfig: lastConfig } : undefined);
-    });
+    this.input.keyboard?.once('keydown-ENTER', () => this.startRematch());
     // L → return to lobby (CharacterSelectScene). The AC 18 surface.
-    // The character-select scene's `init()` resets to the default
-    // selection state on entry, so going back to the lobby is a clean
-    // re-pick rather than carrying stale slot data forward.
     this.input.keyboard?.once('keydown-L', () => {
       this.scene.start('CharacterSelectScene');
     });
@@ -333,6 +339,28 @@ export class ResultsScene extends Phaser.Scene {
     this.input.keyboard?.once('keydown-ESC', () => {
       this.scene.start('MainMenuScene');
     });
+
+    this.padNav = new MenuPadNav(this);
+  }
+
+  update(): void {
+    const pad = this.padNav?.poll();
+    if (pad?.confirm) this.startRematch();
+    else if (pad?.back) this.scene.start('MainMenuScene');
+  }
+
+  /**
+   * REMATCH preserves the previous match's character + palette
+   * assignments by forwarding the stashed `MatchConfig`. Without this
+   * hop the rematch would re-run with default palettes and a player
+   * who picked a non-default colour would suddenly see their character
+   * change shade.
+   */
+  private startRematch(): void {
+    const lastConfig = this.registry.get(
+      BOOT_REGISTRY_KEYS.lastMatchConfig,
+    ) as MatchConfig | undefined;
+    this.scene.start('MatchScene', lastConfig ? { matchConfig: lastConfig } : undefined);
   }
 
   /**

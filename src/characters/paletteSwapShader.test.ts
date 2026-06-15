@@ -36,6 +36,7 @@ import {
   WOLF_PALETTES,
   OWL_PALETTES,
   BEAR_PALETTES,
+  CHARACTER_PALETTES,
   PALETTES_PER_CHARACTER,
 } from './palettes';
 import type { CharacterId, PlayerSlot } from '../types';
@@ -921,13 +922,13 @@ describe('colorWithinTolerance', () => {
 // ---------------------------------------------------------------------------
 
 describe('end-to-end — palette grid coverage', () => {
-  const ids: ReadonlyArray<CharacterId> = ['wolf', 'cat', 'owl', 'bear'];
-  const ladders = {
-    wolf: WOLF_PALETTES,
-    cat: CAT_PALETTES,
-    owl: OWL_PALETTES,
-    bear: BEAR_PALETTES,
-  } as const;
+  // Post-M5 roster expansion — iterate the canonical registry so the
+  // grid automatically covers every roster slot (incl. blaze / puff /
+  // aegis) without a parallel literal table here.
+  const ids: ReadonlyArray<CharacterId> = Object.keys(
+    CHARACTER_PALETTES,
+  ) as CharacterId[];
+  const ladders = CHARACTER_PALETTES;
 
   it('every (id, paletteIndex) builds a remap that round-trips body / accent / highlight', () => {
     for (const id of ids) {

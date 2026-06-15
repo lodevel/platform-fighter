@@ -1,0 +1,40 @@
+{
+  "meta": {
+    "source": "Free 3 Cyberpunk Characters Pixel Art — character 2 'Punk'",
+    "cellWidth": 48,
+    "cellHeight": 48,
+    "license": "OGA-BY 3.0",
+    "attribution": "Free 3 Cyberpunk Characters Pixel Art — CraftPix.net 2D Game Assets, https://opengameart.org/content/3-cyberpunk-characters",
+    "notes": "Strips are verbatim copies of the upstream horizontal strips (Punk_idle / Punk_run / Punk_jump / Punk_punch). No re-gridding was required — the pack ships ready-cut 48×48 cells."
+  },
+  "animations": {
+    "idle": {
+      "strip": "animations/idle.png",
+      "frameCount": 4,
+      "frameWidth": 48,
+      "frameHeight": 48,
+      "sourceFrames": ["2 Punk/Punk_idle.png frames 0-3"]
+    },
+    "run": {
+      "strip": "animations/run.png",
+      "frameCount": 6,
+      "frameWidth": 48,
+      "frameHeight": 48,
+      "sourceFrames": ["2 Punk/Punk_run.png frames 0-5"]
+    },
+    "jump": {
+      "strip": "animations/jump.png",
+      "frameCount": 4,
+      "frameWidth": 48,
+      "frameHeight": 48,
+      "sourceFrames": ["2 Punk/Punk_jump.png frames 0-3"]
+    },
+    "attack": {
+      "strip": "animations/attack.png",
+      "frameCount": 6,
+      "frameWidth": 48,
+      "frameHeight": 48,
+      "sourceFrames": ["2 Punk/Punk_punch.png frames 0-5"]
+    }
+  }
+}

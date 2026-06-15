@@ -26,8 +26,10 @@
  *     model's roster onto the canvas as one Phaser rectangle per
  *     piece (`stageDataModel.ts`, `PlacedPieceRenderer.ts`).
  *
- * Future sub-ACs add deletion brushes, undo/redo, and
- * `localStorage` persistence on top of this base.
+ *   - Selection + delete + undo/redo: click-to-select on placed
+ *     pieces with DELETE/BACKSPACE removal (`pieceSelection.ts`,
+ *     `SelectionHighlight.ts`) and a bounded snapshot history with
+ *     Ctrl+Z / Ctrl+Y stepping (`editHistory.ts`).
  */
 
 export {
@@ -289,3 +291,54 @@ export type {
 } from './saveLoadController';
 export { SAVE_LOAD_DIALOG_COLORS, SaveLoadDialog } from './SaveLoadDialog';
 export type { SaveLoadDialogOptions } from './SaveLoadDialog';
+
+// Selection + delete + undo/redo. Three modules:
+//
+//   • `pieceSelection`     — Phaser-free click-to-select state machine
+//                            (hit-test with topmost-wins ordering,
+//                            select / clear / reconcile transitions).
+//   • `editHistory`        — Phaser-free bounded undo/redo snapshot
+//                            stack (cap 50, branch-clearing pushes,
+//                            same-ref no-op transitions).
+//   • `SelectionHighlight` — Phaser host that paints the selected
+//                            piece's outline + "[DEL] remove" hint.
+export {
+  NO_SELECTION,
+  SELECTION_HINT_TEXT,
+  clearSelection,
+  findSelectedPiece,
+  hitTestTopmostPiece,
+  pieceContainsPoint,
+  reconcileSelection,
+  selectPieceAt,
+} from './pieceSelection';
+export type { PieceSelection, SelectablePiece } from './pieceSelection';
+
+export {
+  EDIT_HISTORY_LIMIT,
+  canRedo,
+  canUndo,
+  createEditHistory,
+  currentEntry,
+  formatHistoryStatusLabel,
+  pushHistory,
+  redo,
+  redoDepth,
+  undo,
+  undoDepth,
+} from './editHistory';
+export type { EditHistory } from './editHistory';
+
+export {
+  SELECTION_HIGHLIGHT_COLORS,
+  SELECTION_HINT_FLIP_THRESHOLD_PX,
+  SELECTION_HINT_GAP_PX,
+  SELECTION_OUTLINE_PAD_PX,
+  SELECTION_OUTLINE_STROKE_PX,
+  SelectionHighlight,
+  selectionHintAnchor,
+} from './SelectionHighlight';
+export type {
+  SelectionHighlightOptions,
+  SelectionHighlightVisualState,
+} from './SelectionHighlight';

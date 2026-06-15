@@ -397,7 +397,7 @@ function buildCharacterCues(
  * defensive cloning.
  *
  * Iteration order matches `MOVESET_TABLE` (and `MOVESET_ENTRIES`):
- * `wolf → cat → owl → bear`.
+ * `wolf → cat → owl → bear → blaze → puff → aegis`.
  */
 export const CHARACTER_MOVESET_ANIMATION_CUES: Readonly<
   Record<CharacterId, CharacterMovesetAnimationCues>
@@ -406,6 +406,12 @@ export const CHARACTER_MOVESET_ANIMATION_CUES: Readonly<
   cat: buildCharacterCues('cat', MOVESET_TABLE.cat),
   owl: buildCharacterCues('owl', MOVESET_TABLE.owl),
   bear: buildCharacterCues('bear', MOVESET_TABLE.bear),
+  blaze: buildCharacterCues('blaze', MOVESET_TABLE.blaze),
+  puff: buildCharacterCues('puff', MOVESET_TABLE.puff),
+  aegis: buildCharacterCues('aegis', MOVESET_TABLE.aegis),
+  volt: buildCharacterCues('volt', MOVESET_TABLE.volt),
+  nova: buildCharacterCues('nova', MOVESET_TABLE.nova),
+  bruno: buildCharacterCues('bruno', MOVESET_TABLE.bruno),
 });
 
 /**
@@ -447,14 +453,14 @@ export function getMoveAnimationCueAt(
 }
 
 /**
- * Flat list of every move cue bundle across the roster — 40 entries
- * (4 characters × 10 slots), in `(character, slot)` iteration order.
+ * Flat list of every move cue bundle across the roster — 70 entries
+ * (7 characters × 10 slots), in `(character, slot)` iteration order.
  * Useful for tests, the asset pipeline, and balance tooling that wants
  * to walk every authored move once without nested loops.
  */
 export const MOVESET_ANIMATION_CUE_BUNDLES: ReadonlyArray<MoveAnimationCueBundle> =
   Object.freeze(
-    (['wolf', 'cat', 'owl', 'bear'] as const).flatMap((id) =>
+    (['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno'] as const).flatMap((id) =>
       MOVESET_SLOTS.map((slot) => CHARACTER_MOVESET_ANIMATION_CUES[id].moves[slot]),
     ),
   );
@@ -471,7 +477,7 @@ export const MOVESET_ANIMATION_CUE_BUNDLES: ReadonlyArray<MoveAnimationCueBundle
  */
 export function enumerateAllMovesetAnimationCueKeys(): ReadonlyArray<string> {
   const out: string[] = [];
-  for (const id of ['wolf', 'cat', 'owl', 'bear'] as const) {
+  for (const id of ['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno'] as const) {
     const cues = CHARACTER_MOVESET_ANIMATION_CUES[id];
     out.push(cues.idleKey);
     for (const k of [

@@ -505,3 +505,107 @@ describe('AudioManager — lifecycle', () => {
     expect(() => mgr.destroy()).not.toThrow();
   });
 });
+
+// ---------------------------------------------------------------------------
+// AC 10304 — action-audio expansion: new cues + looping SFX API
+// ---------------------------------------------------------------------------
+
+describe('AudioManager — AC 10304 action-audio cues', () => {
+  let mgr: AudioManager;
+  let sm: FakeSoundManager;
+  let clock: FakeClock;
+
+  beforeEach(() => {
+    sm = new FakeSoundManager();
+    clock = new FakeClock();
+    mgr = new AudioManager({ soundManager: sm, clock });
+  });
+
+  it('registers every new action cue on the sfx bus', () => {
+    for (const key of [
+      ASSET_KEYS.sfxJump,
+      ASSET_KEYS.sfxJumpAir,
+      ASSET_KEYS.sfxLand,
+      ASSET_KEYS.sfxHitLight,
+      ASSET_KEYS.sfxHitHeavy,
+      ASSET_KEYS.sfxClang,
+      ASSET_KEYS.sfxShieldBreak,
+      ASSET_KEYS.sfxCharge,
+    ]) {
+      expect(mgr.getCueConfig(key)?.bus).toBe('sfx');
+    }
+  });
+
+  it('registers the charge cue as a single-voice loop', () => {
+    const charge = mgr.getCueConfig(ASSET_KEYS.sfxCharge);
+    expect(charge?.loop).toBe(true);
+    expect(charge?.voiceLimit).toBe(1);
+  });
+
+  it('playSfx voices the new movement / connect cues through the manager', () => {
+    expect(mgr.playSfx(ASSET_KEYS.sfxJump)).toBe(true);
+    expect(mgr.playSfx(ASSET_KEYS.sfxLand)).toBe(true);
+    expect(mgr.playSfx(ASSET_KEYS.sfxHitHeavy)).toBe(true);
+    expect(sm.forKey(ASSET_KEYS.sfxJump)).toHaveLength(1);
+    expect(sm.forKey(ASSET_KEYS.sfxHitHeavy)).toHaveLength(1);
+  });
+});
+
+describe('AudioManager — playSfxLoop / stopSfx (charge-loop API)', () => {
+  let mgr: AudioManager;
+  let sm: FakeSoundManager;
+  let clock: FakeClock;
+
+  beforeEach(() => {
+    sm = new FakeSoundManager();
+    clock = new FakeClock();
+    mgr = new AudioManager({ soundManager: sm, clock });
+  });
+
+  it('starts a looping voice with the cue loop flag applied', () => {
+    expect(mgr.playSfxLoop(ASSET_KEYS.sfxCharge)).toBe(true);
+    const voice = sm.forKey(ASSET_KEYS.sfxCharge)[0];
+    expect(voice?.lastPlayConfig?.loop).toBe(true);
+    expect(mgr.getActiveVoiceCount(ASSET_KEYS.sfxCharge)).toBe(1);
+  });
+
+  it('is idempotent while already looping — no sample restart per frame', () => {
+    mgr.playSfxLoop(ASSET_KEYS.sfxCharge);
+    // Many frames of "still charging" must not mint a second voice nor
+    // stop + restart the live one (which would audibly stutter).
+    for (let i = 0; i < 30; i++) {
+      expect(mgr.playSfxLoop(ASSET_KEYS.sfxCharge)).toBe(true);
+    }
+    expect(sm.forKey(ASSET_KEYS.sfxCharge)).toHaveLength(1);
+    expect(mgr.getActiveVoiceCount(ASSET_KEYS.sfxCharge)).toBe(1);
+  });
+
+  it('stopSfx ends the looping voice and clears the active count', () => {
+    mgr.playSfxLoop(ASSET_KEYS.sfxCharge);
+    const voice = sm.forKey(ASSET_KEYS.sfxCharge)[0];
+    mgr.stopSfx(ASSET_KEYS.sfxCharge);
+    expect(voice?.stopped).toBeGreaterThanOrEqual(1);
+    expect(mgr.getActiveVoiceCount(ASSET_KEYS.sfxCharge)).toBe(0);
+  });
+
+  it('can re-start the loop after a stop (start → stop → start edge)', () => {
+    mgr.playSfxLoop(ASSET_KEYS.sfxCharge);
+    mgr.stopSfx(ASSET_KEYS.sfxCharge);
+    expect(mgr.playSfxLoop(ASSET_KEYS.sfxCharge)).toBe(true);
+    // A fresh voice was minted for the second wind-up.
+    expect(sm.forKey(ASSET_KEYS.sfxCharge)).toHaveLength(2);
+    expect(mgr.getActiveVoiceCount(ASSET_KEYS.sfxCharge)).toBe(1);
+  });
+
+  it('stopSfx on nothing-playing and a destroyed manager are safe no-ops', () => {
+    expect(() => mgr.stopSfx(ASSET_KEYS.sfxCharge)).not.toThrow();
+    mgr.destroy();
+    expect(() => mgr.stopSfx(ASSET_KEYS.sfxCharge)).not.toThrow();
+    expect(mgr.playSfxLoop(ASSET_KEYS.sfxCharge)).toBe(false);
+  });
+
+  it('playSfxLoop rejects an unregistered key and the music bus', () => {
+    expect(mgr.playSfxLoop('sfx.does-not-exist')).toBe(false);
+    expect(mgr.playSfxLoop(ASSET_KEYS.musicStageDefault)).toBe(false);
+  });
+});

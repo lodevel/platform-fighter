@@ -484,7 +484,7 @@ export function cycleSlotMode(
 
 /**
  * Set a slot's mode directly (e.g. lobby-handoff path). Same side-
- * effects as {@link cycleSlotMode}, including the bot auto-pick.
+ * effects as {@link cycleSlotMode}, including the join auto-pick.
  */
 export function setSlotMode(
   state: HandCursorState,
@@ -493,34 +493,133 @@ export function setSlotMode(
 ): HandCursorState {
   assertSlotIndex(slotIndex);
   const next = replaceSlot(state, slotIndex, (slot) => applyModeTransition(slot, mode));
-  // Bot auto-pick — a slot transitioning into Bot mode picks a
-  // default character so it's immediately "ready" without human
-  // input. Default is the slot-index-keyed roster pick (slot 1 →
-  // Wolf, slot 2 → Cat, etc.); the palette is auto-shifted to avoid
+  // Join auto-pick — a slot transitioning into Human OR Bot mode picks
+  // a default character so joining IS a valid pick (Smash-style: a
+  // joined player always has a fighter; portrait clicks just change
+  // it). Default is the slot-index-keyed roster pick (slot 1 → Wolf,
+  // slot 2 → Cat, etc.); the palette is auto-shifted to avoid
   // collision with any other slot already on the same character.
-  if (mode === 'bot') {
-    const slotAfter = next.slots[slotIndex - 1];
-    if (slotAfter && slotAfter.mode === 'bot' && slotAfter.pickedCharacterId === null) {
-      const defaultSpec =
-        SELECTABLE_CHARACTER_SPECS[(slotIndex - 1) % SELECTABLE_CHARACTER_SPECS.length];
-      if (defaultSpec) {
-        const palette = nextFreePaletteIndex(
-          next,
-          slotIndex,
-          defaultSpec.id,
-          slotAfter.paletteIndex,
-        );
-        return replaceSlot(next, slotIndex, (s) =>
-          Object.freeze({
-            ...s,
-            pickedCharacterId: defaultSpec.id,
-            paletteIndex: palette,
-          }),
-        );
+  if (mode === 'bot' || mode === 'human') {
+    return autoPickDefaultIfNeeded(next, slotIndex);
+  }
+  return next;
+}
+
+/**
+ * If the slot participates (mode !== 'empty') but has no committed
+ * pick yet, commit the slot-index-keyed default character with a
+ * collision-free palette. No-op (same state ref) otherwise.
+ *
+ * This is what makes "join" and "valid pick" the same event — the
+ * Smash-style contract that a joined slot is always match-ready.
+ */
+export function autoPickDefaultIfNeeded(
+  state: HandCursorState,
+  slotIndex: 1 | 2 | 3 | 4,
+): HandCursorState {
+  assertSlotIndex(slotIndex);
+  const slot = state.slots[slotIndex - 1];
+  if (!slot || slot.mode === 'empty' || slot.pickedCharacterId !== null) {
+    return state;
+  }
+  const defaultSpec =
+    SELECTABLE_CHARACTER_SPECS[(slotIndex - 1) % SELECTABLE_CHARACTER_SPECS.length];
+  if (!defaultSpec) return state;
+  const palette = nextFreePaletteIndex(
+    state,
+    slotIndex,
+    defaultSpec.id,
+    slot.paletteIndex,
+  );
+  return replaceSlot(state, slotIndex, (s) =>
+    Object.freeze({
+      ...s,
+      pickedCharacterId: defaultSpec.id,
+      paletteIndex: palette,
+    }),
+  );
+}
+
+/**
+ * Press-button-to-join — claim the first empty slot for a human player
+ * on `inputType` (keyboard half or a specific gamepad). The slot joins
+ * with its auto-picked default character so the join is immediately a
+ * valid pick.
+ *
+ * Returns the new state plus the claimed slot index, or `null` when
+ * every slot is taken (state unchanged). If `inputType` already drives
+ * a non-empty slot, that slot's index is returned instead of claiming
+ * a second one — pressing JOIN twice on the same device is idempotent.
+ */
+export function joinNextEmptySlot(
+  state: HandCursorState,
+  inputType: InputType,
+): { readonly state: HandCursorState; readonly slotIndex: 1 | 2 | 3 | 4 | null } {
+  // Keyboard halves are exclusive — pressing JOIN twice on the same
+  // half re-targets the slot it already drives. Gamepads share the
+  // 'gamepad' InputType (the scene tracks which physical pad drives
+  // which slot), so every gamepad join claims a fresh slot.
+  if (inputType === 'keyboard_p1' || inputType === 'keyboard_p2') {
+    for (const slot of state.slots) {
+      if (slot.mode === 'human' && slot.inputType === inputType) {
+        return { state, slotIndex: slot.index };
       }
     }
   }
-  return next;
+  for (const slot of state.slots) {
+    if (slot.mode !== 'empty') continue;
+    let next = setSlotInputType(state, slot.index, inputType);
+    next = setSlotMode(next, slot.index, 'human');
+    return { state: next, slotIndex: slot.index };
+  }
+  return { state, slotIndex: null };
+}
+
+/**
+ * Host-side "+ CPU" — claim the first empty slot for a bot (medium
+ * difficulty, auto-picked default character). Returns `null` slotIndex
+ * when the lobby is full (state unchanged).
+ */
+export function addCpuToNextEmptySlot(
+  state: HandCursorState,
+): { readonly state: HandCursorState; readonly slotIndex: 1 | 2 | 3 | 4 | null } {
+  for (const slot of state.slots) {
+    if (slot.mode !== 'empty') continue;
+    return { state: setSlotMode(state, slot.index, 'bot'), slotIndex: slot.index };
+  }
+  return { state, slotIndex: null };
+}
+
+/** Canonical difficulty cycle order for the CPU card's difficulty button. */
+export const AI_DIFFICULTY_CYCLE: ReadonlyArray<AiDifficulty> = Object.freeze([
+  'easy',
+  'medium',
+  'hard',
+]);
+
+/**
+ * Cycle a bot slot's difficulty `easy → medium → hard → easy`. Silent
+ * no-op on human / empty slots.
+ */
+export function cycleSlotAiDifficulty(
+  state: HandCursorState,
+  slotIndex: 1 | 2 | 3 | 4,
+): HandCursorState {
+  assertSlotIndex(slotIndex);
+  const slot = state.slots[slotIndex - 1];
+  if (!slot || slot.mode !== 'bot') return state;
+  const current = AI_DIFFICULTY_CYCLE.indexOf(slot.aiDifficulty ?? 'medium');
+  const next = AI_DIFFICULTY_CYCLE[(current + 1) % AI_DIFFICULTY_CYCLE.length] ?? 'medium';
+  return setSlotAiDifficulty(state, slotIndex, next);
+}
+
+/** Number of participating (non-empty) slots — the match-start gate. */
+export function participatingSlotCount(state: HandCursorState): number {
+  let n = 0;
+  for (const slot of state.slots) {
+    if (slot.mode !== 'empty') n += 1;
+  }
+  return n;
 }
 
 function applyModeTransition(

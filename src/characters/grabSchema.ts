@@ -74,6 +74,52 @@ export interface PummelSpec {
 }
 
 /**
+ * Optional DASH GRAB modifier — a grab pressed while running carries
+ * forward dash momentum and reaches further. Present → the fighter can
+ * dash-grab; absent → grabbing while running just does a standing grab.
+ */
+export interface DashGrabSpec {
+  /**
+   * Forward px added to the grab hitbox's `offsetX` when dash-grabbing —
+   * the canonical "dash grab reaches further than a standing grab".
+   * Non-negative.
+   */
+  readonly rangeBonusX: number;
+  /**
+   * Fraction (`[0, 1]`) of the run-entry horizontal velocity preserved
+   * through the dash-grab whiff, so the grabber slides forward into the
+   * grab instead of rooting. 0 = stops dead (standing-grab feel); 1 =
+   * keeps full run speed.
+   */
+  readonly momentumRetain: number;
+}
+
+/**
+ * Validate a {@link DashGrabSpec} — non-negative finite `rangeBonusX`,
+ * `momentumRetain` a finite fraction in `[0, 1]`.
+ */
+export function validateDashGrabSpec(
+  spec: DashGrabSpec,
+  contextLabel: string,
+): DashGrabSpec {
+  if (!Number.isFinite(spec.rangeBonusX) || spec.rangeBonusX < 0) {
+    throw new Error(
+      `${contextLabel}.dashGrab: rangeBonusX must be a non-negative finite number, got ${spec.rangeBonusX}`,
+    );
+  }
+  if (
+    !Number.isFinite(spec.momentumRetain) ||
+    spec.momentumRetain < 0 ||
+    spec.momentumRetain > 1
+  ) {
+    throw new Error(
+      `${contextLabel}.dashGrab: momentumRetain must be a finite number in [0, 1], got ${spec.momentumRetain}`,
+    );
+  }
+  return spec;
+}
+
+/**
  * Validate a {@link PummelSpec} — non-negative damage, non-negative
  * integer cooldown.
  */
@@ -147,6 +193,8 @@ export interface GrabSpec {
   readonly throwRecoveryFrames: number;
   /** Optional pummel mechanic. */
   readonly pummel?: PummelSpec;
+  /** Optional dash-grab modifier (forward reach + momentum when grabbing out of a run). */
+  readonly dashGrab?: DashGrabSpec;
   /** The 4-throw set. */
   readonly throws: ThrowSet;
 }
@@ -208,6 +256,11 @@ export function validateGrabSpec(
   // Pummel
   if (spec.pummel !== undefined) {
     validatePummelSpec(spec.pummel, contextLabel);
+  }
+
+  // Dash grab
+  if (spec.dashGrab !== undefined) {
+    validateDashGrabSpec(spec.dashGrab, contextLabel);
   }
 
   // Throws

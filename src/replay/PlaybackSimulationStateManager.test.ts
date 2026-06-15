@@ -728,7 +728,7 @@ function makeReplay(
   const buffer = new InputCaptureBuffer({ playerCount });
   for (const [frame, p1, p2] of sequence) {
     const inputs: CharacterInput[] = [p1];
-    if (playerCount >= 2) inputs.push(p2 ?? { moveX: 0, jump: false });
+    if (playerCount >= 2) inputs.push(p2 ?? { moveX: 0, moveY: 0, jump: false });
     buffer.captureFrame(frame, inputs);
   }
   return serializeReplay({
@@ -802,7 +802,7 @@ describe('PlaybackSimulationStateManager — controller integration', () => {
       seq.push([
         f,
         { moveX: f % 2 === 0 ? 1 : -1, jump: f === 10 },
-        { moveX: 0, jump: f === 15 },
+        { moveX: 0, moveY: 0, jump: f === 15 },
       ]);
     }
     const replay = makeReplay(seq);
@@ -834,10 +834,10 @@ describe('PlaybackSimulationStateManager — controller integration', () => {
 
   it('pause then frame-advance feeds exactly one recorded frame per step request', () => {
     const seq: Array<[number, CharacterInput, CharacterInput]> = [
-      [0, { moveX: 1, jump: false }, { moveX: 0, jump: false }],
-      [1, { moveX: 0, jump: true }, { moveX: -1, jump: false }],
-      [2, { moveX: -1, jump: false }, { moveX: 1, jump: true }],
-      [3, { moveX: 1, jump: true, attack: true }, { moveX: 0, jump: false }],
+      [0, { moveX: 1, moveY: 0, jump: false }, { moveX: 0, moveY: 0, jump: false }],
+      [1, { moveX: 0, moveY: 0, jump: true }, { moveX: -1, moveY: 0, jump: false }],
+      [2, { moveX: -1, moveY: 0, jump: false }, { moveX: 1, moveY: 0, jump: true }],
+      [3, { moveX: 1, moveY: 0, jump: true, attack: true }, { moveX: 0, moveY: 0, jump: false }],
     ];
     const replay = makeReplay(seq);
     const playback = new ReplayPlaybackController({ replay });

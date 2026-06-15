@@ -90,6 +90,25 @@ _None yet._
 
 ## OGA-BY 3.0 (attribution required)
 
+- **Free 3 Cyberpunk Characters Pixel Art** — CraftPix.net 2D Game Assets
+  Source: https://opengameart.org/content/3-cyberpunk-characters
+  License: OGA-BY 3.0 — https://static.opengameart.org/OGA-BY-3.0.txt
+  Used in: `assets/characters/blaze/animations/{idle,run,jump,attack}.png`,
+  `assets/characters/blaze/frames.json` (in-house metadata describing the cuts)
+  Notes: Powers the **Blaze** post-M5 fighter (rushdown archetype).
+  The pack ships three side-view 48×48-cell characters (Biker / Punk /
+  Cyborg), each with idle / run / jump / punch / attack1-3 / hurt /
+  death strips. Blaze uses character 2 **Punk** — the athletic
+  street-brawler silhouette. The four repo strips are **verbatim
+  copies** of the upstream strips:
+
+  | Repo file                                      | Upstream source filename        |
+  |------------------------------------------------|---------------------------------|
+  | `assets/characters/blaze/animations/idle.png`   | `2 Punk/Punk_idle.png` (4 fr)   |
+  | `assets/characters/blaze/animations/run.png`    | `2 Punk/Punk_run.png` (6 fr)    |
+  | `assets/characters/blaze/animations/jump.png`   | `2 Punk/Punk_jump.png` (4 fr)   |
+  | `assets/characters/blaze/animations/attack.png` | `2 Punk/Punk_punch.png` (6 fr)  |
+
 - **Owl Animated person** — Vander96
   Source: https://opengameart.org/content/owl-animated-person
   License: OGA-BY 3.0 — https://static.opengameart.org/OGA-BY-3.0.txt
@@ -103,6 +122,80 @@ _None yet._
   `assets/characters/owl/.opaque_originals/owl_vander.png`.
 
 ## CC0 1.0 / Public Domain (attribution optional, listed for traceability)
+
+- **Adventurer and Slime game Sprites** — Segel (Segel2D)
+  Source: https://opengameart.org/content/adventurer-and-slime-game-sprites
+  License: CC0 1.0 — https://creativecommons.org/publicdomain/zero/1.0/
+  Used in: `assets/characters/aegis/animations/{idle,run,jump,attack}.png`,
+  `assets/characters/puff/animations/{idle,run,jump,attack}.png`,
+  `assets/characters/{aegis,puff}/frames.json` (in-house metadata
+  describing the cuts)
+  Notes: One CC0 pack powers **two** post-M5 fighters:
+  - **Aegis** (sword-spacing archetype) uses the pack's ADVENTURER —
+    a slender sword-wielder. idle (12 fr), run (10 fr),
+    jump = JumpUp + JumpFall poses (2 fr), attack = the 8-frame sword
+    slash.
+  - **Puff** (floaty balloon archetype) uses the pack's SLIME04 — a
+    small round blob. idle (12 fr), run = the 10-frame hop-scoot Move
+    cycle, attack = the 8-frame hop-lunge Attack, jump = re-extraction
+    of that lunge's airborne frames 1-4 (the slime has no dedicated
+    jump upstream — same single-source re-extraction approach as the
+    Owl pack's jump frame).
+  Upstream ships per-frame 1333×936 RGBA canvases (true alpha). Each
+  used frame was cropped to a per-character fixed union bounding rect
+  and box-filter downscaled (Adventurer ÷6 → 128×130 cells; Slime ÷4 →
+  136×89 cells), bottom-baseline preserved, then composed into
+  Phaser-friendly horizontal strips. Exact rects + frame mappings are
+  recorded in each character's `frames.json`. The large upstream
+  canvases are not kept in-repo (9.4 MB zip); re-derivation is a
+  re-download plus the documented crop/scale parameters.
+
+- **Tiny Kitten Game Sprite** — Segel (Segel2D)
+  Source: https://opengameart.org/content/tiny-kitten-game-sprite
+  License: CC0 1.0 — https://creativecommons.org/publicdomain/zero/1.0/
+  Used in: `assets/characters/volt/animations/{idle,run,jump,attack}.png`,
+  `assets/characters/volt/frames.json` (in-house metadata describing the cuts)
+  Notes: Powers the **Volt** post-batch-2 fighter (Pikachu-inspired tiny
+  combo rushdown) — a small chibi creature standing in for the electric
+  mouse. Upstream ships per-frame ~489×461 RGBA canvases (true alpha):
+  idle (12 fr), run (10 fr), jump = the JumpUp pose (5 fr),
+  attack = re-extraction of the JumpFall pounce pose (5 fr — the pack
+  has no dedicated attack, the same single-source re-extraction approach
+  the Owl/Puff packs used for a missing slot). Each used frame was
+  cropped to a fixed global union bounding rect and box-filter
+  downscaled into 64×80 cells (see `frames.json` +
+  `tools/build-newchar-sprites.cjs`). The large upstream canvases are
+  not kept in-repo; re-derivation is a re-download plus the documented
+  crop/scale parameters.
+
+- **CC0 2D Douche Cyborg (Jump, Run, Shoot, Idle)** — Darius Guerrero
+  Source: https://opengameart.org/content/cc0-2d-douche-cyborg-jump-run-shoot-idle
+  License: CC0 1.0 — https://creativecommons.org/publicdomain/zero/1.0/
+  Used in: `assets/characters/nova/animations/{idle,run,jump,attack}.png`,
+  `assets/characters/nova/frames.json` (in-house metadata describing the cuts)
+  Notes: Powers the **Nova** post-batch-2 fighter (Samus-inspired ranged
+  zoner) — an armoured cyborg ('CyborgMark') with an arm-cannon. Upstream
+  ships per-frame ~114-139 px-wide RGBA canvases (true alpha): idle
+  (15 fr), run (15 fr), jump (15 fr), attack = the pack's Shoot
+  animation (9 fr — the cyborg fires its arm-cannon, fitting the zoner's
+  projectile identity). Each used frame was cropped to a fixed global
+  union bounding rect and box-filter downscaled into 72×96 cells (see
+  `frames.json` + `tools/build-newchar-sprites.cjs`).
+
+- **Generic Platformer Pack** — bakudas
+  Source: https://opengameart.org/content/generic-platformer-pack
+  License: CC0 1.0 — https://creativecommons.org/publicdomain/zero/1.0/
+  Used in: `assets/characters/bruno/animations/{idle,run,jump,attack}.png`,
+  `assets/characters/bruno/frames.json` (in-house metadata describing the cuts)
+  Notes: Powers the **Bruno** post-batch-2 fighter (Mario-inspired
+  all-rounder) — the pack's main 'Player' character, a compact
+  cap-and-jumpsuit humanoid. Upstream ships native pixel-art per-frame
+  PNGs on a 22×32 canvas (true alpha): idle (4 fr), run (8 fr),
+  jump (2 fr), attack = re-extraction of the run lunge frames (8 fr —
+  the pack has no dedicated attack). Each used frame was cropped to a
+  fixed global union bounding rect and re-laid near 1:1 (light box
+  filter) into 28×36 cells (see `frames.json` +
+  `tools/build-newchar-sprites.cjs`).
 
 - **Platformer Art Deluxe (1.0)** — Kenney (kenney.nl)
   Source: https://kenney.nl/assets/platformer-art-deluxe
@@ -200,6 +293,38 @@ _None yet._
   enough not to overlap with combat impacts. Upstream license file
   preserved at `assets/audio/sfx/LICENSE-kenney-ui-audio.txt`.
 
+- **Interface Sounds (1.0)** — Kenney (kenney.nl)
+  Source: https://kenney.nl/assets/interface-sounds
+  License: CC0 1.0 — https://creativecommons.org/publicdomain/zero/1.0/
+  Mirror used for download (CC0 1.0, Godot-packaged):
+  https://github.com/Calinou/kenney-interface-sounds
+  Used in: the AC 10304 action-audio expansion — jump / air-jump,
+  landing, light / heavy hit connect, weapon clang, shield shatter, and
+  the charge wind-up loop.
+  Per-file source mapping (upstream filename inside the pack):
+
+  | Repo file                            | Upstream source filename |
+  |--------------------------------------|--------------------------|
+  | `assets/audio/sfx/jump.wav`          | `maximize_003.wav`       |
+  | `assets/audio/sfx/jump_air.wav`      | `maximize_007.wav`       |
+  | `assets/audio/sfx/land.wav`          | `minimize_003.wav`       |
+  | `assets/audio/sfx/hit_light.wav`     | `drop_001.wav`           |
+  | `assets/audio/sfx/hit_heavy.wav`     | `drop_003.wav`           |
+  | `assets/audio/sfx/clang.wav`         | `glass_001.wav`          |
+  | `assets/audio/sfx/shield_break.wav`  | `glass_004.wav`          |
+  | `assets/audio/sfx/charge.wav`        | `bong_001.wav`           |
+
+  Notes: Powers the M1.5 action-audio expansion (AC 10304) — the
+  movement, connect-on-hit, shield-shatter, and charge-loop cues that
+  round out the Smash-style action vocabulary on top of the original
+  seven combat / defensive cuts above. Shipped verbatim as `.wav`
+  (the CC0 mirror distributes WAV; Phaser's `load.audio` decodes it
+  natively, so no transcode step runs). Glass cuts voice the shield
+  shatter + weapon clang; `maximize` / `minimize` voice the jump /
+  land arcs; `drop` cuts voice the hit connect tiers; `bong` voices the
+  charge hum. Upstream license file preserved at
+  `assets/audio/sfx/LICENSE-kenney-interface-sounds.txt`.
+
 - **Music Jingles (1.0)** — Kenney (kenney.nl)
   Source: https://kenney.nl/assets/music-jingles
   License: CC0 1.0 — https://creativecommons.org/publicdomain/zero/1.0/
@@ -239,14 +364,15 @@ palette JSONs, used to skip work when neither input has changed). It
 contains no third-party pixel data and is regenerated from in-house
 TypeScript on every run.
 
-The `frames.json` files under `assets/characters/{cat,wolf}/`,
+The `frames.json` files under
+`assets/characters/{cat,wolf,blaze,puff,aegis,volt,nova,bruno}/`,
 `assets/sprites/characters/{cat,wolf}/`, and
 `assets/sprites/stages/m1/` are **in-house** strip-extraction /
 cell-cut metadata authored by this project (cell coordinates, frame
 counts, Phaser loader hints, and per-cut upstream-cell references
-back to the originating CC-BY / CC0 source). They are not derived
-pixel data and require no upstream attribution on their own — every
-PNG they describe is credited above.
+back to the originating CC-BY / CC0 / OGA-BY source). They are not
+derived pixel data and require no upstream attribution on their own —
+every PNG they describe is credited above.
 
 ---
 
@@ -263,6 +389,12 @@ references the asset directory tree against the entries above so AC
 | `assets/characters/wolf/`        | *Dog Fighter (Cat Fighter Remix Base + Add-on One)* (IsometricRobot, remix of dogchicken) | CC-BY 3.0 |
 | `assets/characters/owl/`         | *Owl Animated person* (Vander96)                   | OGA-BY 3.0                                 |
 | `assets/characters/bear/`        | *Bearsum (pixel-art bear)* (doudoulolita)          | CC-BY 3.0                                  |
+| `assets/characters/blaze/`       | *Free 3 Cyberpunk Characters Pixel Art* (CraftPix.net) — Punk character | OGA-BY 3.0            |
+| `assets/characters/puff/`        | *Adventurer and Slime game Sprites* (Segel) — SLIME04 character | CC0 1.0                        |
+| `assets/characters/aegis/`       | *Adventurer and Slime game Sprites* (Segel) — ADVENTURER character | CC0 1.0                     |
+| `assets/characters/volt/`        | *Tiny Kitten Game Sprite* (Segel)                  | CC0 1.0                                    |
+| `assets/characters/nova/`        | *CC0 2D Douche Cyborg* (Darius Guerrero) — 'CyborgMark' | CC0 1.0                                |
+| `assets/characters/bruno/`       | *Generic Platformer Pack* (bakudas) — main 'Player' character | CC0 1.0                         |
 | `assets/sprites/characters/cat/` | *Cat Fighter Sprite Sheet* (dogchicken) — full M1.5 moveset strips derived from the same source sheet | CC-BY 3.0 |
 | `assets/sprites/characters/wolf/`| *Dog Fighter (Cat Fighter Remix Base + Add-on One)* (IsometricRobot) — full M1.5 moveset strips derived from the same source sheet | CC-BY 3.0 |
 | `assets/generated/sprites/cat/`  | *Cat Fighter Sprite Sheet* (dogchicken) — 8 palette-swap derivatives produced by the M1.5 hue-shift script | CC-BY 3.0 |
@@ -301,8 +433,12 @@ entry in this file, with the following well-defined exclusions:
 Re-run the audit whenever new files land under `assets/` or before
 each milestone acceptance review.
 
-Last verified: 2026-05-03 (M1.5 / AC 10004 Sub-AC 4 — full coverage
-audit re-run; in-house metadata exclusions and upstream Kenney
-`Tilesheet-*.txt` info files explicitly enumerated in the audit method
-so every shipped file under `assets/` traces to either a sourced
-upstream entry or the in-house section).
+Last verified: 2026-06-13 (post-batch-2 roster art drop — Volt / Nova /
+Bruno sprite packs sourced and entered above: *Tiny Kitten Game Sprite*
+(Segel, CC0), *CC0 2D Douche Cyborg* (Darius Guerrero, CC0), and
+*Generic Platformer Pack* (bakudas, CC0); coverage table extended with
+the three new `assets/characters/{volt,nova,bruno}/` directories. All
+three packs are CC0, so attribution is listed for traceability only.
+Prior 2026-06-10 entry: post-M5 Blaze / Puff / Aegis packs — *Free 3
+Cyberpunk Characters Pixel Art* (OGA-BY 3.0) and *Adventurer and Slime
+game Sprites* (CC0).

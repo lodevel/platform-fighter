@@ -172,6 +172,103 @@ export function mapMoveTypeToSfxKey(type: MoveType): string | null {
 }
 
 // ---------------------------------------------------------------------------
+// M1.5 action-audio expansion (AC 10304) — movement / connect / charge
+// ---------------------------------------------------------------------------
+//
+// The four maps above voice the SWING of an attack (the swoosh as the
+// hitbox enters the world) and the shield / dodge defensive transitions.
+// This block adds the rest of the Smash-style action vocabulary:
+//
+//   • Jump — a rising "hup" on the first (grounded) jump, swapped for a
+//     lighter variant on every air / multi-jump after it.
+//   • Connect-on-hit — distinct from the swing: a light pop or a heavy
+//     thud depending on the damage the hit dealt, with a metallic clang
+//     override when the attacker is swinging a held weapon.
+//   • Shield shatter — a glass-break burst when a shield breaks (a
+//     separate, louder event than the shield-raise hum).
+//   • Charge wind-up — a sustained hum that voices a charge move's
+//     startup phase (ties to `Character.getChargeProgress()`).
+//
+// Every helper here is a PURE function — no side effects, no I/O, no
+// `Math.random()` / `Date.now()` — so it is safe to call from inside the
+// deterministic physics tick AND trivially unit-testable. The actual
+// playback decision (cooldown / voice-limit / mute) still lives in the
+// {@link AudioManager}; these helpers only decide *which* cue key voices
+// *which* event.
+
+/**
+ * Damage threshold (in percent-damage units) at and above which an
+ * attack connect voices the **heavy** hit cue instead of the light one.
+ *
+ * Tuned to the roster's move table: jabs / fast tilts deal ~2-6%, while
+ * smashes / heavy aerials / charged finishers deal ~10%+. A 9% cut
+ * point puts every quick poke on the light cue and every committed
+ * finisher on the heavy cue, so the player hears the *weight* of the
+ * blow that landed without any per-move audio authoring.
+ *
+ * Frozen as a named constant rather than a magic number so the cut
+ * point is a single-line tuning change and the test can assert against
+ * the same value the runtime reads.
+ */
+export const HEAVY_HIT_DAMAGE_THRESHOLD = 9;
+
+/**
+ * Choose the connect-on-hit cue for a landed attack.
+ *
+ * The CONNECT cue is deliberately distinct from the SWING cue
+ * ({@link mapMoveTypeToSfxKey}): the swing fires when the hitbox spawns
+ * (whether or not it touches anyone), the connect fires the frame a hit
+ * actually resolves on a defender. Smash plays both — the whoosh of the
+ * swing, then the crunch of the impact.
+ *
+ * Selection:
+ *
+ *   1. If the attacker is swinging a **held weapon** (`heldWeapon`),
+ *      the contact rings the metallic {@link ASSET_KEYS.sfxClang}
+ *      regardless of damage — a bat / sword landing should *clang*, not
+ *      thud. This mirrors the held-item swing trail the renderer
+ *      already draws for weapon hits.
+ *
+ *   2. Otherwise the cue scales by `damage`: a hit at or above
+ *      {@link HEAVY_HIT_DAMAGE_THRESHOLD} voices the heavy cue, anything
+ *      below voices the light cue. A non-finite / negative damage value
+ *      (defensive) collapses to the light cue.
+ *
+ * Pure function — same inputs always yield the same key, so a replayed
+ * match re-derives identical connect audio.
+ */
+export function mapHitConnectToSfxKey(args: {
+  readonly damage: number;
+  readonly heldWeapon?: boolean;
+}): string {
+  if (args.heldWeapon === true) return ASSET_KEYS.sfxClang;
+  if (Number.isFinite(args.damage) && args.damage >= HEAVY_HIT_DAMAGE_THRESHOLD) {
+    return ASSET_KEYS.sfxHitHeavy;
+  }
+  return ASSET_KEYS.sfxHitLight;
+}
+
+/**
+ * Choose the jump cue for a jump impulse.
+ *
+ * The FIRST jump off a platform (`jumpNumber === 1`) voices the full
+ * {@link ASSET_KEYS.sfxJump} "hup"; every air / multi-jump after it
+ * (`jumpNumber >= 2`) voices the lighter {@link ASSET_KEYS.sfxJumpAir}
+ * variant so a triple-jumper doesn't hammer the same heavy cue three
+ * times in a rise. A defensive `jumpNumber <= 1` (including 0, which
+ * the caller should never pass) falls back to the ground cue.
+ *
+ * `jumpNumber` is the post-increment jump count the Character tracks
+ * (`jumpsUsed` after the impulse): 1 on the grounded jump, 2 on the
+ * first air jump, and so on.
+ *
+ * Pure function — deterministic per `jumpNumber`.
+ */
+export function mapJumpToSfxKey(jumpNumber: number): string {
+  return jumpNumber >= 2 ? ASSET_KEYS.sfxJumpAir : ASSET_KEYS.sfxJump;
+}
+
+// ---------------------------------------------------------------------------
 // Defensive emit helper
 // ---------------------------------------------------------------------------
 

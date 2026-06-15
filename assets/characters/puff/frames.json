@@ -1,0 +1,40 @@
+{
+  "meta": {
+    "source": "Adventurer and Slime game Sprites — SLIME04",
+    "cellWidth": 136,
+    "cellHeight": 89,
+    "license": "CC0",
+    "attribution": "Adventurer and Slime game Sprites — Segel, https://opengameart.org/content/adventurer-and-slime-game-sprites",
+    "notes": "Upstream ships per-frame 1333×936 PNG canvases. Every frame was cropped to the fixed union bounding rect (x 276..818, y 444..799) across the idle/move/attack sets and box-filter downscaled ÷4 into uniform 136×89 cells, preserving the in-canvas baseline so all strips share one ground line. The jump strip re-extracts the airborne hop arc of the attack lunge (frames 1-4) — the slime has no dedicated jump animation upstream; same single-source re-extraction approach as the Owl pack."
+  },
+  "animations": {
+    "idle": {
+      "strip": "animations/idle.png",
+      "frameCount": 12,
+      "frameWidth": 136,
+      "frameHeight": 89,
+      "sourceFrames": ["SLIME04/01-Idle/FR_Slime4_Idle_000.png .. FR_Slime4_Idle_011.png"]
+    },
+    "run": {
+      "strip": "animations/run.png",
+      "frameCount": 10,
+      "frameWidth": 136,
+      "frameHeight": 89,
+      "sourceFrames": ["SLIME04/02-Move/FR_Slime4_Move_000.png .. FR_Slime4_Move_009.png"]
+    },
+    "jump": {
+      "strip": "animations/jump.png",
+      "frameCount": 4,
+      "frameWidth": 136,
+      "frameHeight": 89,
+      "sourceFrames": ["SLIME04/03-Attack/FR_Slime4_Attack_001.png .. FR_Slime4_Attack_004.png (airborne hop arc)"]
+    },
+    "attack": {
+      "strip": "animations/attack.png",
+      "frameCount": 8,
+      "frameWidth": 136,
+      "frameHeight": 89,
+      "sourceFrames": ["SLIME04/03-Attack/FR_Slime4_Attack_000.png .. FR_Slime4_Attack_007.png"]
+    }
+  }
+}

@@ -76,8 +76,27 @@ export interface AttackMove {
    * `scaling` is the per-percent multiplier — the realised knockback
    * vector at percent `p` is `(x, y) * (1 + scaling * p)`. A jab might
    * have `scaling: 0.05`; a finisher smash has `scaling: 0.4`+.
+   *
+   * Two OPTIONAL Smash-style components (absent = legacy math,
+   * byte-identical):
+   *
+   *   • `baseMagnitude` — percent-INDEPENDENT launch floor added along
+   *     the move's authored direction, NOT scaled by target mass
+   *     (mirrors the `+ b` term in the canonical Smash formula). Gives
+   *     finisher moves real shove — and real hitstun — at 0 %.
+   *   • `damageGrowth` — feeds the move's damage back into the percent
+   *     term (the `p·d/20` term in the canonical formula): growth
+   *     becomes `scaling · p · (1 + damageGrowth · damage / 20)`, so
+   *     heavy-hitting moves out-scale light pokes that author the same
+   *     `scaling`.
    */
-  readonly knockback: { readonly x: number; readonly y: number; readonly scaling: number };
+  readonly knockback: {
+    readonly x: number;
+    readonly y: number;
+    readonly scaling: number;
+    readonly baseMagnitude?: number;
+    readonly damageGrowth?: number;
+  };
   /**
    * Hitbox sensor geometry, in design pixels, relative to the
    * fighter's centre. `offsetX` is mirrored by `facing` automatically
@@ -172,6 +191,18 @@ export interface ActiveAttack {
    * can suppress self-hits.
    */
   readonly hitboxBody: MatterJS.BodyType | null;
+  /**
+   * Frames the special button was HELD before this move was released, or
+   * `null` for every non-charge move. Surfaced so the MatchScene
+   * projectile spawner can scale a charge-beam shot (Samus cannon) by how
+   * long it was charged. Latched once on the release frame, constant for
+   * the whole active window.
+   *
+   * Optional on the public DTO so hand-built test doubles need not set it;
+   * the real {@link Character.getActiveAttack} always populates it (to a
+   * number for a charge release, `null` for every other move).
+   */
+  readonly chargeHeldFrames?: number | null;
 }
 
 /** Plugin metadata stamped on every hitbox body. Read by damage/KO handlers. */
@@ -209,6 +240,12 @@ export interface HitboxPlugin {
    * attack hitbox is implicitly `'attack'`.
    */
   readonly kind?: 'attack' | 'grab';
+  /**
+   * Optional — `true` when this hitbox is UNBLOCKABLE (bypasses a raised
+   * shield). Propagated into the dispatched {@link HitInfo} so command
+   * grabs throw a shielding victim. Omitted on every normal hitbox.
+   */
+  readonly unblockable?: boolean;
 }
 
 /**
@@ -298,6 +335,12 @@ export function spawnHitbox(
     damage: move.damage,
     knockback: move.knockback,
     facing,
+    // Carry the unblockable tag (command grabs) through to the damage
+    // handler. Read defensively — only synthetic command-grab spawn-moves
+    // set it; every authored AttackMove omits it.
+    ...((move as { unblockable?: boolean }).unblockable
+      ? { unblockable: true }
+      : {}),
   };
 
   const body = scene.matter.add.rectangle(cx, cy, move.hitbox.width, move.hitbox.height, {

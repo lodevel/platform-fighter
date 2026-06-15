@@ -93,21 +93,22 @@ describe('AC 20403 Sub-AC 3 — lobby roster persistence across the scene chain'
       );
     });
 
-    it('ModeSelectScene confirm → StageSelectScene with lobby payload', () => {
-      // Mid-chain hop. ModeSelect must capture and forward the payload
+    it('ModeSelectScene confirm → CharacterSelectScene with lobby payload', () => {
+      // Mid-chain hop (Smash-style ordering: fighters first, arena
+      // last). ModeSelect must capture and forward the payload
       // verbatim — losing it here would silently force the player to
       // re-claim slots downstream.
       expect(MODE_SRC).toMatch(
-        /scene\.start\(\s*['"]StageSelectScene['"]\s*,\s*\{[\s\S]*?lobby/,
+        /scene\.start\(\s*['"]CharacterSelectScene['"]\s*,\s*\{[\s\S]*?lobby/,
       );
     });
 
-    it('StageSelectScene confirm → CharacterSelectScene with lobby payload', () => {
-      // Last hop before the lineup picker. The payload must arrive at
-      // character select so `applyLobbyHandoffToCharacterSelect` can
-      // pre-light the joined slots without forcing a second Press Start.
-      expect(STAGE_SRC).toMatch(
-        /scene\.start\(\s*['"]CharacterSelectScene['"]\s*,\s*\{[\s\S]*?lobby/,
+    it('CharacterSelectScene confirm → StageSelectScene with lobby payload', () => {
+      // The lineup picker forwards to the stage select (the final
+      // pre-match screen). The payload rides along so a back-hop can
+      // restore the joined slots without a second Press Start.
+      expect(CHAR_SRC).toMatch(
+        /scene\.start\(\s*['"]StageSelectScene['"]\s*,\s*\{[\s\S]*?lobby/,
       );
     });
 
@@ -143,21 +144,21 @@ describe('AC 20403 Sub-AC 3 — lobby roster persistence across the scene chain'
   // -----------------------------------------------------------------
 
   describe('back roster persistence', () => {
-    it('CharacterSelectScene cancel → StageSelectScene with lobby payload', () => {
+    it('CharacterSelectScene cancel → ModeSelectScene with lobby payload', () => {
       // ESC out of character select must NOT drop the lobby on the
       // floor — the player would have to re-Press-Start every slot.
       // Match the canonical handler that forwards `lobby: this.pendingLobby`.
       expect(CHAR_SRC).toMatch(
-        /scene\.start\(\s*['"]StageSelectScene['"]\s*,\s*\{[\s\S]*?lobby:\s*this\.pendingLobby/,
+        /scene\.start\(\s*['"]ModeSelectScene['"]\s*,\s*\{[\s\S]*?lobby:\s*this\.pendingLobby/,
       );
     });
 
-    it('StageSelectScene cancel → ModeSelectScene with lobby payload', () => {
+    it('StageSelectScene cancel → CharacterSelectScene with lobby payload', () => {
       // Symmetric back-hop. ESC out of stage select must thread the
       // payload back so a player who picked the wrong stage doesn't
-      // also lose their lobby acquisition.
+      // also lose their lineup.
       expect(STAGE_SRC).toMatch(
-        /scene\.start\(\s*['"]ModeSelectScene['"]\s*,\s*\{[\s\S]*?lobby:\s*this\.pendingLobby/,
+        /scene\.start\(\s*['"]CharacterSelectScene['"]\s*,\s*\{[\s\S]*?lobby:\s*this\.pendingLobby/,
       );
     });
   });

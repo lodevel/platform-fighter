@@ -496,6 +496,136 @@ export {
   BEAR_FIGHTER_CONTRACT,
 } from './Bear';
 export type { BearOptions } from './Bear';
+// Post-M5 roster expansion — three Smash-inspired fighters join the
+// cast with full kits on day one (grounded triplet + 3 aerials + 4
+// specials + grab), each rendered through the procedural placeholder
+// pipeline until sprite packs land: Blaze (Captain Falcon rushdown),
+// Puff (Jigglypuff balloon), Aegis (Marth sword spacing).
+export {
+  Blaze,
+  BLAZE_TUNING,
+  BLAZE_JAB,
+  BLAZE_TILT,
+  BLAZE_SMASH,
+  BLAZE_NAIR,
+  BLAZE_FAIR,
+  BLAZE_BAIR,
+  BLAZE_NEUTRAL_SPECIAL,
+  BLAZE_SIDE_SPECIAL,
+  BLAZE_UP_SPECIAL,
+  BLAZE_DOWN_SPECIAL,
+  BLAZE_GRAB,
+  // Frozen per-fighter declarations (10-slot moveset + movement
+  // profile + identity bundle) — same surface as the rest of the cast.
+  BLAZE_MOVESET,
+  BLAZE_MOVEMENT_PROFILE,
+  BLAZE_FIGHTER_CONTRACT,
+} from './Blaze';
+export type { BlazeOptions } from './Blaze';
+export {
+  Puff,
+  PUFF_TUNING,
+  PUFF_JAB,
+  PUFF_TILT,
+  PUFF_SMASH,
+  PUFF_NAIR,
+  PUFF_FAIR,
+  PUFF_BAIR,
+  PUFF_NEUTRAL_SPECIAL,
+  PUFF_SIDE_SPECIAL,
+  PUFF_UP_SPECIAL,
+  PUFF_DOWN_SPECIAL,
+  PUFF_GRAB,
+  // Frozen per-fighter declarations.
+  PUFF_MOVESET,
+  PUFF_MOVEMENT_PROFILE,
+  PUFF_FIGHTER_CONTRACT,
+} from './Puff';
+export type { PuffOptions } from './Puff';
+export {
+  Aegis,
+  AEGIS_TUNING,
+  AEGIS_JAB,
+  AEGIS_TILT,
+  AEGIS_SMASH,
+  AEGIS_NAIR,
+  AEGIS_FAIR,
+  AEGIS_BAIR,
+  AEGIS_NEUTRAL_SPECIAL,
+  AEGIS_SIDE_SPECIAL,
+  AEGIS_UP_SPECIAL,
+  AEGIS_DOWN_SPECIAL,
+  AEGIS_GRAB,
+  // Frozen per-fighter declarations.
+  AEGIS_MOVESET,
+  AEGIS_MOVEMENT_PROFILE,
+  AEGIS_FIGHTER_CONTRACT,
+} from './Aegis';
+export type { AegisOptions } from './Aegis';
+// Post-batch-2 roster expansion — three more Smash-inspired fighters
+// join the cast with full kits + sourced sprite packs: Volt (Pikachu
+// tiny combo rushdown), Nova (Samus ranged zoner), Bruno (Mario
+// all-rounder).
+export {
+  Volt,
+  VOLT_TUNING,
+  VOLT_JAB,
+  VOLT_TILT,
+  VOLT_SMASH,
+  VOLT_NAIR,
+  VOLT_FAIR,
+  VOLT_BAIR,
+  VOLT_NEUTRAL_SPECIAL,
+  VOLT_SIDE_SPECIAL,
+  VOLT_UP_SPECIAL,
+  VOLT_DOWN_SPECIAL,
+  VOLT_GRAB,
+  // Frozen per-fighter declarations.
+  VOLT_MOVESET,
+  VOLT_MOVEMENT_PROFILE,
+  VOLT_FIGHTER_CONTRACT,
+} from './Volt';
+export type { VoltOptions } from './Volt';
+export {
+  Nova,
+  NOVA_TUNING,
+  NOVA_JAB,
+  NOVA_TILT,
+  NOVA_SMASH,
+  NOVA_NAIR,
+  NOVA_FAIR,
+  NOVA_BAIR,
+  NOVA_NEUTRAL_SPECIAL,
+  NOVA_SIDE_SPECIAL,
+  NOVA_UP_SPECIAL,
+  NOVA_DOWN_SPECIAL,
+  NOVA_GRAB,
+  // Frozen per-fighter declarations.
+  NOVA_MOVESET,
+  NOVA_MOVEMENT_PROFILE,
+  NOVA_FIGHTER_CONTRACT,
+} from './Nova';
+export type { NovaOptions } from './Nova';
+export {
+  Bruno,
+  BRUNO_TUNING,
+  BRUNO_JAB,
+  BRUNO_TILT,
+  BRUNO_SMASH,
+  BRUNO_NAIR,
+  BRUNO_FAIR,
+  BRUNO_BAIR,
+  BRUNO_NEUTRAL_SPECIAL,
+  BRUNO_SIDE_SPECIAL,
+  BRUNO_UP_SPECIAL,
+  BRUNO_DOWN_SPECIAL,
+  BRUNO_GRAB,
+  // Frozen per-fighter declarations.
+  BRUNO_MOVESET,
+  BRUNO_MOVEMENT_PROFILE,
+  BRUNO_FIGHTER_CONTRACT,
+} from './Bruno';
+export type { BrunoOptions } from './Bruno';
 
 // Roster — Sub-AC 3.5 of AC 205. Aggregates stats + moves + placeholder
 // per character so the Fighter entity (and HUD / menu / replay layers)
@@ -508,14 +638,32 @@ export {
   CAT_SPEC,
   OWL_SPEC,
   BEAR_SPEC,
+  BLAZE_SPEC,
+  PUFF_SPEC,
+  AEGIS_SPEC,
+  VOLT_SPEC,
+  NOVA_SPEC,
+  BRUNO_SPEC,
   WOLF_MOVES,
   CAT_MOVES,
   OWL_MOVES,
   BEAR_MOVES,
+  BLAZE_MOVES,
+  PUFF_MOVES,
+  AEGIS_MOVES,
+  VOLT_MOVES,
+  NOVA_MOVES,
+  BRUNO_MOVES,
   WOLF_PLACEHOLDER,
   CAT_PLACEHOLDER,
   OWL_PLACEHOLDER,
   BEAR_PLACEHOLDER,
+  BLAZE_PLACEHOLDER,
+  PUFF_PLACEHOLDER,
+  AEGIS_PLACEHOLDER,
+  VOLT_PLACEHOLDER,
+  NOVA_PLACEHOLDER,
+  BRUNO_PLACEHOLDER,
   getCharacterSpec,
   findMoveByType,
 } from './roster';
@@ -531,6 +679,12 @@ export {
   CAT_PALETTES,
   OWL_PALETTES,
   BEAR_PALETTES,
+  BLAZE_PALETTES,
+  PUFF_PALETTES,
+  AEGIS_PALETTES,
+  VOLT_PALETTES,
+  NOVA_PALETTES,
+  BRUNO_PALETTES,
   applyPaletteToPlaceholder,
   getCharacterPalette,
   getCharacterPalettes,
@@ -979,7 +1133,13 @@ export type {
 export {
   applySpriteDisplayHeight,
   CHARACTER_SPRITE_DISPLAY_SIZE,
+  CHARACTER_SPRITE_FACES_LEFT,
+  CHARACTER_SPRITE_ART_OFFSET_X,
+  CHARACTER_SPRITE_ART_OFFSET_Y,
   getCharacterSpriteDisplaySize,
+  getCharacterSpriteArtOffsetX,
+  getCharacterSpriteArtOffsetY,
+  shouldFlipSprite,
 } from './visualScale';
 
 // Extended-slot routing — post-M2 character architecture pass. Resolves
@@ -1048,3 +1208,20 @@ export type {
   GrabState,
   GrabStateName,
 } from './grabState';
+
+// Per-fighter hand anchors — grip points for held items (weapons sit
+// in the hand, mirrored by facing, instead of pinned to the body
+// centre). The MatchScene held-item tracking and the throw origin
+// both resolve through `computeHeldItemPosition`.
+export {
+  DEFAULT_HAND_ANCHOR,
+  FIGHTER_HAND_ANCHORS,
+  computeHeldItemPosition,
+  getHandAnchor,
+} from './handAnchors';
+export type { HandAnchor } from './handAnchors';
+
+// Shared execute-hook base for contract-declaring fighters — fires
+// each slot off the fighter's frozen `moveset` table so the per-slot
+// dispatch boilerplate exists exactly once.
+export { ContractFighter } from './contractFighter';

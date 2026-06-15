@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   type GrabSpec,
   getGrabWhiffTotalFrames,
+  validateDashGrabSpec,
   validateGrabSpec,
   validatePummelSpec,
 } from './grabSchema';
@@ -136,6 +137,47 @@ describe('validatePummelSpec', () => {
     expect(() =>
       validatePummelSpec({ damage: 1, cooldownFrames: 12.5 }, 'test'),
     ).toThrow(/cooldownFrames/);
+  });
+});
+
+describe('validateDashGrabSpec', () => {
+  it('accepts a valid dash-grab modifier', () => {
+    const d = { rangeBonusX: 12, momentumRetain: 0.6 };
+    expect(validateDashGrabSpec(d, 'test')).toBe(d);
+  });
+
+  it('rejects negative rangeBonusX', () => {
+    expect(() =>
+      validateDashGrabSpec({ rangeBonusX: -1, momentumRetain: 0.5 }, 'test'),
+    ).toThrow(/rangeBonusX/);
+  });
+
+  it('rejects non-finite rangeBonusX', () => {
+    expect(() =>
+      validateDashGrabSpec(
+        { rangeBonusX: Number.POSITIVE_INFINITY, momentumRetain: 0.5 },
+        'test',
+      ),
+    ).toThrow(/rangeBonusX/);
+  });
+
+  it('rejects momentumRetain outside [0, 1]', () => {
+    expect(() =>
+      validateDashGrabSpec({ rangeBonusX: 8, momentumRetain: 1.5 }, 'test'),
+    ).toThrow(/momentumRetain/);
+    expect(() =>
+      validateDashGrabSpec({ rangeBonusX: 8, momentumRetain: -0.1 }, 'test'),
+    ).toThrow(/momentumRetain/);
+  });
+
+  it('validateGrabSpec accepts a spec carrying a dashGrab', () => {
+    const s = { ...validSpec(), dashGrab: { rangeBonusX: 12, momentumRetain: 0.6 } };
+    expect(() => validateGrabSpec(s)).not.toThrow();
+  });
+
+  it('validateGrabSpec rejects a malformed dashGrab', () => {
+    const s = { ...validSpec(), dashGrab: { rangeBonusX: -5, momentumRetain: 0.6 } };
+    expect(() => validateGrabSpec(s as GrabSpec)).toThrow(/rangeBonusX/);
   });
 });
 

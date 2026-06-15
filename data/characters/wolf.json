@@ -23,65 +23,158 @@
       "id": "wolf.jab",
       "type": "jab",
       "damage": 6,
-      "knockback": { "x": 1.4, "y": -0.4, "scaling": 0.06 },
-      "hitbox": { "offsetX": 22, "offsetY": -3, "width": 32, "height": 17 },
+      "knockback": {
+        "x": 1.4,
+        "y": -0.4,
+        "scaling": 0.06
+      },
+      "hitbox": {
+        "offsetX": 22,
+        "offsetY": -3,
+        "width": 32,
+        "height": 17
+      },
       "startupFrames": 4,
       "activeFrames": 3,
       "recoveryFrames": 9,
       "cooldownFrames": 14,
-      "animation": { "startupFrames": 2, "activeFrames": 1, "recoveryFrames": 3 }
+      "animation": {
+        "startupFrames": 2,
+        "activeFrames": 1,
+        "recoveryFrames": 3
+      },
+      "jabChain": { "nextId": "wolf.jab2" }
     },
     "tilt": {
       "id": "wolf.tilt",
       "type": "tilt",
       "damage": 8,
-      "knockback": { "x": 2.0, "y": -0.6, "scaling": 0.12 },
-      "hitbox": { "offsetX": 27, "offsetY": -3, "width": 36, "height": 18 },
+      "knockback": {
+        "x": 2.0,
+        "y": -0.6,
+        "scaling": 0.12
+      },
+      "hitbox": {
+        "offsetX": 27,
+        "offsetY": -3,
+        "width": 36,
+        "height": 18
+      },
       "startupFrames": 7,
       "activeFrames": 4,
       "recoveryFrames": 12,
       "cooldownFrames": 14,
-      "animation": { "startupFrames": 2, "activeFrames": 2, "recoveryFrames": 3 }
+      "animation": {
+        "startupFrames": 2,
+        "activeFrames": 2,
+        "recoveryFrames": 3
+      }
     },
     "smash": {
       "id": "wolf.smash",
       "type": "smash",
       "damage": 14,
-      "knockback": { "x": 4.0, "y": -1.5, "scaling": 0.4 },
-      "hitbox": { "offsetX": 32, "offsetY": -3, "width": 40, "height": 19 },
+      "knockback": {
+        "x": 4.0,
+        "y": -1.5,
+        "scaling": 0.4,
+        "baseMagnitude": 1.2,
+        "damageGrowth": 0.5
+      },
+      "charge": {
+        "minChargeFrames": 0,
+        "maxChargeFrames": 60,
+        "minDamage": 14,
+        "maxDamage": 19.6,
+        "minKnockback": {
+          "x": 4.0,
+          "y": -1.5,
+          "scaling": 0.4,
+          "baseMagnitude": 1.2,
+          "damageGrowth": 0.5
+        },
+        "maxKnockback": {
+          "x": 5.6,
+          "y": -2.1,
+          "scaling": 0.5,
+          "baseMagnitude": 1.2,
+          "damageGrowth": 0.5
+        }
+      },
+      "hitbox": {
+        "offsetX": 32,
+        "offsetY": -3,
+        "width": 40,
+        "height": 19
+      },
       "startupFrames": 12,
       "activeFrames": 4,
       "recoveryFrames": 18,
       "cooldownFrames": 22,
-      "animation": { "startupFrames": 3, "activeFrames": 1, "recoveryFrames": 4 }
+      "animation": {
+        "startupFrames": 3,
+        "activeFrames": 1,
+        "recoveryFrames": 4
+      }
     },
     "fair": {
       "id": "wolf.fair",
       "type": "aerial",
       "aerialDirection": "forward",
       "damage": 11,
-      "knockback": { "x": 2.4, "y": -0.9, "scaling": 0.18 },
-      "hitbox": { "offsetX": 27, "offsetY": -3, "width": 40, "height": 19 },
+      "knockback": {
+        "x": 2.4,
+        "y": -0.9,
+        "scaling": 0.18
+      },
+      "hitbox": {
+        "offsetX": 27,
+        "offsetY": -3,
+        "width": 40,
+        "height": 19
+      },
       "startupFrames": 8,
       "activeFrames": 4,
       "recoveryFrames": 14,
       "cooldownFrames": 10,
-      "animation": { "startupFrames": 2, "activeFrames": 2, "recoveryFrames": 3 },
+      "animation": {
+        "startupFrames": 2,
+        "activeFrames": 2,
+        "recoveryFrames": 3
+      },
       "landingLagFrames": 16,
-      "autoCancelWindows": [{ "startFrame": 0, "endFrame": 4 }]
+      "autoCancelWindows": [
+        {
+          "startFrame": 0,
+          "endFrame": 4
+        }
+      ]
     },
     "sideSpecial": {
       "id": "wolf.side_special",
       "type": "sideSpecial",
       "sideSpecialKind": "dashStrike",
       "damage": 16,
-      "knockback": { "x": 3.4, "y": -1.1, "scaling": 0.30 },
-      "hitbox": { "offsetX": 26, "offsetY": -3, "width": 52, "height": 30 },
+      "knockback": {
+        "x": 3.4,
+        "y": -1.1,
+        "scaling": 0.3
+      },
+      "hitbox": {
+        "offsetX": 26,
+        "offsetY": -3,
+        "width": 52,
+        "height": 30
+      },
       "startupFrames": 6,
       "activeFrames": 8,
       "recoveryFrames": 18,
       "cooldownFrames": 18,
-      "animation": { "startupFrames": 2, "activeFrames": 2, "recoveryFrames": 4 },
+      "animation": {
+        "startupFrames": 2,
+        "activeFrames": 2,
+        "recoveryFrames": 4
+      },
       "dashStrike": {
         "dashSpeed": 18,
         "dashFrames": 6,
@@ -93,22 +186,43 @@
       "type": "upSpecial",
       "upSpecialKind": "multiHitRising",
       "damage": 2,
-      "knockback": { "x": 0, "y": -0.4, "scaling": 0.02 },
-      "hitbox": { "offsetX": 0, "offsetY": -3, "width": 40, "height": 45 },
+      "knockback": {
+        "x": 0,
+        "y": -0.4,
+        "scaling": 0.02
+      },
+      "hitbox": {
+        "offsetX": 0,
+        "offsetY": -3,
+        "width": 40,
+        "height": 45
+      },
       "startupFrames": 4,
       "activeFrames": 18,
       "recoveryFrames": 22,
       "cooldownFrames": 18,
-      "animation": { "startupFrames": 1, "activeFrames": 5, "recoveryFrames": 2 },
+      "animation": {
+        "startupFrames": 1,
+        "activeFrames": 5,
+        "recoveryFrames": 2
+      },
       "multiHitRising": {
         "riseImpulse": -18,
         "driftImpulse": 0,
         "hitCount": 4,
         "hitInterval": 5,
         "linkDamage": 2,
-        "linkKnockback": { "x": 0, "y": -0.4, "scaling": 0.02 },
+        "linkKnockback": {
+          "x": 0,
+          "y": -0.4,
+          "scaling": 0.02
+        },
         "launcherDamage": 8,
-        "launcherKnockback": { "x": 0.5, "y": -3.2, "scaling": 0.36 }
+        "launcherKnockback": {
+          "x": 0.5,
+          "y": -3.2,
+          "scaling": 0.36
+        }
       }
     },
     "downSpecial": {
@@ -116,20 +230,42 @@
       "type": "downSpecial",
       "downSpecialKind": "groundPound",
       "damage": 14,
-      "knockback": { "x": 0.5, "y": 4.0, "scaling": 0.30 },
-      "hitbox": { "offsetX": 0, "offsetY": 0, "width": 45, "height": 45 },
+      "knockback": {
+        "x": 0.5,
+        "y": 4.0,
+        "scaling": 0.3
+      },
+      "hitbox": {
+        "offsetX": 0,
+        "offsetY": 0,
+        "width": 45,
+        "height": 45
+      },
       "startupFrames": 6,
       "activeFrames": 14,
       "recoveryFrames": 20,
       "cooldownFrames": 24,
-      "animation": { "startupFrames": 1, "activeFrames": 5, "recoveryFrames": 2 },
+      "animation": {
+        "startupFrames": 1,
+        "activeFrames": 5,
+        "recoveryFrames": 2
+      },
       "groundPound": {
         "hopFrames": 4,
         "hopImpulse": -10,
         "slamVelocity": 30,
         "shockwaveDamage": 8,
-        "shockwaveKnockback": { "x": 2.0, "y": -1.2, "scaling": 0.18 },
-        "shockwaveHitbox": { "offsetX": 0, "offsetY": 42, "width": 200, "height": 22 }
+        "shockwaveKnockback": {
+          "x": 2.0,
+          "y": -1.2,
+          "scaling": 0.18
+        },
+        "shockwaveHitbox": {
+          "offsetX": 0,
+          "offsetY": 42,
+          "width": 200,
+          "height": 22
+        }
       }
     },
     "neutralSpecial": {
@@ -137,51 +273,97 @@
       "type": "special",
       "specialKind": "counter",
       "damage": 0,
-      "knockback": { "x": 0, "y": 0, "scaling": 0 },
-      "hitbox": { "offsetX": 0, "offsetY": 0, "width": 1, "height": 1 },
+      "knockback": {
+        "x": 0,
+        "y": 0,
+        "scaling": 0
+      },
+      "hitbox": {
+        "offsetX": 0,
+        "offsetY": 0,
+        "width": 1,
+        "height": 1
+      },
       "startupFrames": 5,
       "activeFrames": 12,
       "recoveryFrames": 18,
       "cooldownFrames": 24,
-      "animation": { "startupFrames": 2, "activeFrames": 3, "recoveryFrames": 3 },
+      "animation": {
+        "startupFrames": 2,
+        "activeFrames": 3,
+        "recoveryFrames": 3
+      },
       "counter": {
         "counterWindowStart": 5,
         "counterWindowEnd": 17,
         "damageMultiplier": 1.3,
         "minCounterDamage": 8,
         "maxCounterDamage": 22,
-        "counterKnockback": { "x": 4.0, "y": -1.6, "scaling": 0.30 },
-        "counterHitbox": { "offsetX": 70, "offsetY": -7, "width": 90, "height": 42 }
+        "counterKnockback": {
+          "x": 4.0,
+          "y": -1.6,
+          "scaling": 0.3
+        },
+        "counterHitbox": {
+          "offsetX": 70,
+          "offsetY": -7,
+          "width": 90,
+          "height": 42
+        }
       }
     },
     "grab": {
       "id": "wolf.grab",
-      "hitbox": { "offsetX": 26, "offsetY": -2, "width": 24, "height": 30 },
+      "hitbox": {
+        "offsetX": 26,
+        "offsetY": -2,
+        "width": 24,
+        "height": 30
+      },
       "startupFrames": 7,
       "activeFrames": 2,
       "whiffRecoveryFrames": 32,
       "holdFramesMax": 90,
       "throwRecoveryFrames": 24,
-      "pummel": { "damage": 1.5, "cooldownFrames": 14 },
+      "pummel": {
+        "damage": 1.5,
+        "cooldownFrames": 14
+      },
       "throws": {
         "forward": {
           "damage": 8,
-          "knockback": { "x": 2.5, "y": -1.0, "scaling": 0.1 },
+          "knockback": {
+            "x": 2.5,
+            "y": -1.0,
+            "scaling": 0.1
+          },
           "animationFrames": 22
         },
         "back": {
           "damage": 10,
-          "knockback": { "x": 2.8, "y": -1.2, "scaling": 0.12 },
+          "knockback": {
+            "x": 2.8,
+            "y": -1.2,
+            "scaling": 0.12
+          },
           "animationFrames": 26
         },
         "up": {
           "damage": 7,
-          "knockback": { "x": 0.5, "y": -3.0, "scaling": 0.1 },
+          "knockback": {
+            "x": 0.5,
+            "y": -3.0,
+            "scaling": 0.1
+          },
           "animationFrames": 14
         },
         "down": {
           "damage": 6,
-          "knockback": { "x": 0.8, "y": 1.2, "scaling": 0.08 },
+          "knockback": {
+            "x": 0.8,
+            "y": 1.2,
+            "scaling": 0.08
+          },
           "animationFrames": 16
         }
       }

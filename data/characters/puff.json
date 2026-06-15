@@ -1,0 +1,25 @@
+{
+  "$schema": "../../src/characters/characterSerializer.schema.json",
+  "id": "puff",
+  "displayName": "Puff (Jigglypuff)",
+  "role": "floaty (Jigglypuff)",
+  "body": {
+    "width": 56,
+    "height": 56,
+    "chamfer": 14
+  },
+  "movement": {
+    "maxRunSpeed": 5.0,
+    "groundAccel": 0.45,
+    "airAccel": 0.6,
+    "groundDamping": 0.8,
+    "airDamping": 0.98,
+    "jumpImpulse": 10.5,
+    "maxJumps": 5,
+    "mass": 6,
+    "fallAccel": 0.08,
+    "maxFallSpeed": 6.5,
+    "fastFallSpeed": 10.5,
+    "jumpCutFactor": 0.55
+  }
+}

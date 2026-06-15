@@ -9,7 +9,17 @@
  * will import as they come online.
  */
 
-export type CharacterId = 'wolf' | 'cat' | 'owl' | 'bear';
+export type CharacterId =
+  | 'wolf'
+  | 'cat'
+  | 'owl'
+  | 'bear'
+  | 'blaze'
+  | 'puff'
+  | 'aegis'
+  | 'volt'
+  | 'nova'
+  | 'bruno';
 
 export type MoveType =
   | 'jab'
@@ -412,6 +422,21 @@ export interface StageLayout {
    * empty / undefined identically: no items spawn on the stage.
    */
   readonly itemSpawnAnchors?: ReadonlyArray<ItemSpawnAnchor>;
+  /**
+   * Identifier of the themed parallax background this stage renders
+   * with — a key into `STAGE_BACKGROUND_THEMES` in
+   * `src/stages/backgroundThemes.ts` (e.g. `'lava-cavern'`,
+   * `'wind-canyon'`). Kept as a plain `string` (not the literal union)
+   * so the StageLayout schema stays decoupled from the theme registry
+   * module and a layout JSON round-trip never drops an id authored
+   * against a newer theme roster.
+   *
+   * Optional for back-compat with layouts authored before themed
+   * backgrounds landed (M1-era records, M3 builder custom stages).
+   * `StageBackgroundRenderer` resolves a missing / unknown id to the
+   * neutral `'midnight'` theme, so omitting the field is always safe.
+   */
+  readonly backgroundTheme?: string;
 }
 
 export type MatchMode = 'stocks' | 'time';

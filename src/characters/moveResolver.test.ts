@@ -46,7 +46,7 @@ import type { CharacterId } from '../types';
 // Helpers
 // ---------------------------------------------------------------------------
 
-const ALL_CHARACTERS: ReadonlyArray<CharacterId> = ['wolf', 'cat', 'owl', 'bear'];
+const ALL_CHARACTERS: ReadonlyArray<CharacterId> = ['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno'];
 
 function neutralInput(overrides: Partial<MoveResolverInput> = {}): MoveResolverInput {
   return {

@@ -266,9 +266,16 @@ export class LocalInputHandler {
     let moveX = 0;
     if (left) moveX -= 1;
     if (right) moveX += 1;
+    // Digital vertical axis — down-positive (canvas Y) for the
+    // fast-fall latch and item-throw direction.
+    const upHeld = this.isActionDown(player, 'up');
+    let moveY = 0;
+    if (upHeld) moveY -= 1;
+    if (down) moveY += 1;
 
     return {
       moveX,
+      moveY,
       jump,
       attack,
       shield,

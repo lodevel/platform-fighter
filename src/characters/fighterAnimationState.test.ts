@@ -15,7 +15,7 @@ import type { LedgeHangState } from './ledgeHangState';
 import type { ActiveAttack } from './attacks';
 import type { CharacterId } from '../types';
 
-const ALL_CHARACTERS: ReadonlyArray<CharacterId> = ['wolf', 'cat', 'owl', 'bear'];
+const ALL_CHARACTERS: ReadonlyArray<CharacterId> = ['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno'];
 
 const idleShield = (): ShieldState => ({
   name: 'idle',

@@ -447,8 +447,10 @@ export class DeviceInputDispatcher {
     // stun, broken state) is the `Character` layer's call.
     const shield = this.isActionHeld(slot, 'shield');
     const dropThrough = this.detectDoubleTapDown(slot, down);
+    const moveY = this.sampleMoveY(slot);
     return {
       moveX,
+      moveY,
       jump,
       attack,
       shield,

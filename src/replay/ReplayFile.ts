@@ -622,6 +622,17 @@ function canonicaliseInputForWrite(
         `must be a finite number in [-1, 1], got ${String(input.moveX)}`,
     );
   }
+  if (
+    typeof input.moveY !== 'number' ||
+    !Number.isFinite(input.moveY) ||
+    input.moveY < -1 ||
+    input.moveY > 1
+  ) {
+    throw new ReplayFileError(
+      `serializeReplay: capturedFrames[${frameIdx}].inputs[${playerIdx}].moveY ` +
+        `must be a finite number in [-1, 1], got ${String(input.moveY)}`,
+    );
+  }
   if (typeof input.jump !== 'boolean') {
     throw new ReplayFileError(
       `serializeReplay: capturedFrames[${frameIdx}].inputs[${playerIdx}].jump ` +
@@ -642,6 +653,7 @@ function canonicaliseInputForWrite(
   }
   return Object.freeze({
     moveX: input.moveX,
+    moveY: input.moveY,
     jump: input.jump,
     attack: input.attack,
     dropThrough: input.dropThrough,
@@ -1017,6 +1029,18 @@ function parseRecordedInput(
         `must be a finite number in [-1, 1]`,
     );
   }
+  const moveY = i['moveY'];
+  if (
+    typeof moveY !== 'number' ||
+    !Number.isFinite(moveY) ||
+    moveY < -1 ||
+    moveY > 1
+  ) {
+    throw new ReplayFileError(
+      `Replay inputTimeline.entries[${frameIdx}].inputs[${playerIdx}].moveY ` +
+        `must be a finite number in [-1, 1]`,
+    );
+  }
   const jump = i['jump'];
   if (typeof jump !== 'boolean') {
     throw new ReplayFileError(
@@ -1040,6 +1064,7 @@ function parseRecordedInput(
   }
   return Object.freeze({
     moveX,
+    moveY,
     jump,
     attack,
     dropThrough,

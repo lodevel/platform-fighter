@@ -105,7 +105,7 @@ function buildDeterministicTimeline(
     const moveX = (f * 7 + 3) % 5 < 2 ? 1 : -1;
     const inputs: CharacterInput[] = [{ moveX, jump: false, attack: false }];
     for (let p = 1; p < playerCount; p += 1) {
-      inputs.push({ moveX: 0, jump: false, attack: false });
+      inputs.push({ moveX: 0, moveY: 0, jump: false, attack: false });
     }
     buffer.captureFrame(f, inputs);
   }

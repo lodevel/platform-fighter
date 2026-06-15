@@ -26,6 +26,10 @@ const sampleSpec = (): CharacterDataSpec => ({
     jumpImpulse: 12.5,
     maxJumps: 2,
     mass: 16,
+    fallAccel: 0.3,
+    maxFallSpeed: 11.0,
+    fastFallSpeed: 17.5,
+    jumpCutFactor: 0.4,
   },
 });
 
@@ -143,10 +147,10 @@ describe('characterStorage — slot id validation', () => {
 });
 
 describe('characterStorage — record shape', () => {
-  it('persists the schema version', () => {
+  it('persists the current schema version (v2 — optional knockback + fall-shaping fields)', () => {
     saveCharacter('a', sampleSpec(), 1, store);
     const raw = store.getItem(characterStorageKey('a'));
-    expect(raw).toContain('"schemaVersion":1');
+    expect(raw).toContain('"schemaVersion":2');
   });
 
   it('record retains the spec verbatim through save/load', () => {
@@ -156,5 +160,80 @@ describe('characterStorage — record shape', () => {
     expect(loaded).not.toBeNull();
     const rec: CharacterRecord = loaded!;
     expect(rec.spec).toEqual(original);
+  });
+});
+
+describe('characterStorage — schema version compatibility', () => {
+  /** Spec shape as a v1 build would have persisted it — no fall-shaping fields. */
+  const legacyV1Spec = () => ({
+    id: 'wolf',
+    displayName: 'Wolf',
+    role: 'bruiser',
+    body: { width: 45, height: 66, chamfer: 8 },
+    movement: {
+      maxRunSpeed: 7.5,
+      groundAccel: 0.65,
+      airAccel: 0.3,
+      groundDamping: 0.78,
+      airDamping: 0.95,
+      jumpImpulse: 12.5,
+      maxJumps: 2,
+      mass: 16,
+    },
+  });
+
+  it('loads a legacy v1 record and preserves its on-disk version', () => {
+    store.setItem(
+      characterStorageKey('legacy'),
+      JSON.stringify({
+        schemaVersion: 1,
+        slotId: 'legacy',
+        savedAtMs: 5,
+        spec: legacyV1Spec(),
+      }),
+    );
+    const loaded = loadCharacter('legacy', store);
+    expect(loaded).not.toBeNull();
+    expect(loaded?.schemaVersion).toBe(1);
+    // The parser defaults the missing fall-shaping fields from the
+    // registered movement profile, so the v1 record gains the new
+    // mechanics at canonical tuning.
+    expect(loaded?.spec.movement.fallAccel).toBe(0.3);
+  });
+
+  it('loads a current v2 record', () => {
+    saveCharacter('current', sampleSpec(), 9, store);
+    const loaded = loadCharacter('current', store);
+    expect(loaded).not.toBeNull();
+    expect(loaded?.schemaVersion).toBe(2);
+  });
+
+  it('refuses an unknown (future) schema version cleanly', () => {
+    // The mirror-image guarantee: a build that doesn't know a version
+    // returns null instead of loading-and-stripping. This is what an
+    // OLD build does when it meets one of our v2 records.
+    store.setItem(
+      characterStorageKey('future'),
+      JSON.stringify({
+        schemaVersion: 3,
+        slotId: 'future',
+        savedAtMs: 5,
+        spec: legacyV1Spec(),
+      }),
+    );
+    expect(loadCharacter('future', store)).toBeNull();
+  });
+
+  it('refuses a non-numeric schema version', () => {
+    store.setItem(
+      characterStorageKey('bogus'),
+      JSON.stringify({
+        schemaVersion: 'two',
+        slotId: 'bogus',
+        savedAtMs: 5,
+        spec: legacyV1Spec(),
+      }),
+    );
+    expect(loadCharacter('bogus', store)).toBeNull();
   });
 });

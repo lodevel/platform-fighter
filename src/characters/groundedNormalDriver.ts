@@ -116,6 +116,12 @@ import { WOLF_JAB, WOLF_TILT, WOLF_SMASH } from './Wolf';
 import { CAT_JAB, CAT_TILT, CAT_SMASH } from './Cat';
 import { OWL_JAB, OWL_TILT, OWL_SMASH } from './Owl';
 import { BEAR_JAB, BEAR_TILT, BEAR_SMASH } from './Bear';
+import { BLAZE_JAB, BLAZE_TILT, BLAZE_SMASH } from './Blaze';
+import { PUFF_JAB, PUFF_TILT, PUFF_SMASH } from './Puff';
+import { AEGIS_JAB, AEGIS_TILT, AEGIS_SMASH } from './Aegis';
+import { VOLT_JAB, VOLT_TILT, VOLT_SMASH } from './Volt';
+import { NOVA_JAB, NOVA_TILT, NOVA_SMASH } from './Nova';
+import { BRUNO_JAB, BRUNO_TILT, BRUNO_SMASH } from './Bruno';
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -267,19 +273,25 @@ export const GROUNDED_NORMAL_TABLE: Readonly<
   cat: Object.freeze({ jab: CAT_JAB, tilt: CAT_TILT, smash: CAT_SMASH }),
   owl: Object.freeze({ jab: OWL_JAB, tilt: OWL_TILT, smash: OWL_SMASH }),
   bear: Object.freeze({ jab: BEAR_JAB, tilt: BEAR_TILT, smash: BEAR_SMASH }),
+  blaze: Object.freeze({ jab: BLAZE_JAB, tilt: BLAZE_TILT, smash: BLAZE_SMASH }),
+  puff: Object.freeze({ jab: PUFF_JAB, tilt: PUFF_TILT, smash: PUFF_SMASH }),
+  aegis: Object.freeze({ jab: AEGIS_JAB, tilt: AEGIS_TILT, smash: AEGIS_SMASH }),
+  volt: Object.freeze({ jab: VOLT_JAB, tilt: VOLT_TILT, smash: VOLT_SMASH }),
+  nova: Object.freeze({ jab: NOVA_JAB, tilt: NOVA_TILT, smash: NOVA_SMASH }),
+  bruno: Object.freeze({ jab: BRUNO_JAB, tilt: BRUNO_TILT, smash: BRUNO_SMASH }),
 });
 
 /**
- * Flat array of every grounded-normal entry across the roster — 12
- * entries (4 characters × 3 slots). Convenience for tests / debug HUDs
+ * Flat array of every grounded-normal entry across the roster — 21
+ * entries (7 characters × 3 slots). Convenience for tests / debug HUDs
  * that want a single iterable rather than nested-object traversal.
  *
  * Iteration order: roster-order on the outer axis (wolf → cat → owl →
- * bear), slot-order on the inner ({@link GROUNDED_NORMAL_SLOTS}). Pure
- * data — frozen at module load.
+ * bear → blaze → puff → aegis), slot-order on the inner
+ * ({@link GROUNDED_NORMAL_SLOTS}). Pure data — frozen at module load.
  */
 export const GROUNDED_NORMAL_MOVES: ReadonlyArray<GroundedNormalEntry> = Object.freeze(
-  (['wolf', 'cat', 'owl', 'bear'] as const).flatMap((characterId) =>
+  (['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno'] as const).flatMap((characterId) =>
     GROUNDED_NORMAL_SLOTS.map((slot) =>
       Object.freeze({
         characterId,

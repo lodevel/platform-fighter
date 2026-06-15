@@ -1,0 +1,40 @@
+{
+  "meta": {
+    "source": "Adventurer and Slime game Sprites — ADVENTURER",
+    "cellWidth": 128,
+    "cellHeight": 130,
+    "license": "CC0",
+    "attribution": "Adventurer and Slime game Sprites — Segel, https://opengameart.org/content/adventurer-and-slime-game-sprites",
+    "notes": "Upstream ships per-frame 1333×936 PNG canvases. Every frame was cropped to the fixed union bounding rect (x 160..925, y 36..812) across the idle/run/slash/jump sets and box-filter downscaled ÷6 into uniform 128×130 cells, preserving the in-canvas baseline so all strips share one ground line."
+  },
+  "animations": {
+    "idle": {
+      "strip": "animations/idle.png",
+      "frameCount": 12,
+      "frameWidth": 128,
+      "frameHeight": 130,
+      "sourceFrames": ["ADVENTURER/01-Idle/Normal/FR_Adventurer_Idle_000.png .. FR_Adventurer_Idle_011.png"]
+    },
+    "run": {
+      "strip": "animations/run.png",
+      "frameCount": 10,
+      "frameWidth": 128,
+      "frameHeight": 130,
+      "sourceFrames": ["ADVENTURER/02-Run/FR_Adventurer_Run_000.png .. FR_Adventurer_Run_009.png"]
+    },
+    "jump": {
+      "strip": "animations/jump.png",
+      "frameCount": 2,
+      "frameWidth": 128,
+      "frameHeight": 130,
+      "sourceFrames": ["ADVENTURER/04-Jump&Fall/FR_Adventurer_JumpUp_000.png", "ADVENTURER/04-Jump&Fall/FR_Adventurer_JumpFall_000.png"]
+    },
+    "attack": {
+      "strip": "animations/attack.png",
+      "frameCount": 8,
+      "frameWidth": 128,
+      "frameHeight": 130,
+      "sourceFrames": ["ADVENTURER/03-Slash/FR_Adventurer_Slash_000.png .. FR_Adventurer_Slash_007.png"]
+    }
+  }
+}

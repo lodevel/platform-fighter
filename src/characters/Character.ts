@@ -65,6 +65,7 @@ import {
   applyDIToLaunchAngle,
   computeHitlag,
   computeKnockback,
+  STALE_QUEUE_SIZE,
   type HitInfo,
   type KnockbackResult,
 } from './combat';
@@ -83,6 +84,7 @@ import {
 import {
   applyShieldHit,
   createShieldState,
+  isInShieldstun,
   isShieldBroken,
   isShieldRaised,
   resolveShieldTuning,
@@ -107,8 +109,24 @@ import {
   type ResolvedDodgeTuning,
 } from './dodgeState';
 import {
+  createLocomotionState,
+  getLocomotionFacing,
+  getLocomotionTargetVx,
+  isCrouching,
+  isDashing as isLocomotionDashing,
+  isPivoting,
+  resetLocomotionState,
+  resolveLocomotionTuning,
+  tickLocomotion,
+  type LocomotionState,
+  type LocomotionTuning,
+  type ResolvedLocomotionTuning,
+} from './locomotionState';
+import {
   applyGrabConnect,
+  applyGrabBreak,
   createGrabState,
+  isGrabActing,
   resetGrabState,
   tickGrab,
   type GrabInput,
@@ -117,7 +135,13 @@ import {
 import { validateGrabSpec, type GrabSpec } from './grabSchema';
 import { getThrowByDirection, type ThrowDirection } from './throwSchema';
 import {
+  computeChargedDamageFromSpec,
+  computeChargedKnockbackFromSpec,
+  type ChargeSpec,
+} from './chargeSchema';
+import {
   classifyGroundedAttack,
+  DEFAULT_NEUTRAL_THRESHOLD,
   type GroundedAttackSlots,
 } from './groundedAttackInput';
 import {
@@ -153,6 +177,7 @@ import {
 // tick.
 import {
   emitCombatSfx,
+  mapJumpToSfxKey,
   mapMoveTypeToSfxKey,
   type CombatSfxSink,
 } from '../audio/combatAudio';
@@ -209,6 +234,25 @@ export interface CharacterTuning {
    * 2 = single + air-jump (default).
    */
   readonly maxJumps?: number;
+  /**
+   * Extra downward acceleration (px per step²) applied while airborne
+   * and falling, on top of global Matter gravity. The Smash-style
+   * per-fighter "gravity" stat — see {@link FighterMovementProfile}.
+   */
+  readonly fallAccel?: number;
+  /** Terminal velocity (px per step) while falling normally. */
+  readonly maxFallSpeed?: number;
+  /**
+   * Terminal velocity (px per step) while fast-falling — holding the
+   * stick down during a descent snaps vy here until landing.
+   */
+  readonly fastFallSpeed?: number;
+  /**
+   * Variable-jump-height cut factor (0..1): releasing jump while
+   * rising clamps vy to `jumpImpulse * jumpCutFactor` (short hop).
+   * 1 disables the cut.
+   */
+  readonly jumpCutFactor?: number;
   /** Body width in design pixels. */
   readonly width?: number;
   /** Body height in design pixels. */
@@ -237,6 +281,14 @@ export interface CharacterTuning {
    * variant the author cares about.
    */
   readonly dodge?: DodgeTuning;
+  /**
+   * Tier 5 — optional ground-locomotion overrides (walk / dash / run /
+   * pivot / crouch thresholds + speeds). Omitted fields default relative to
+   * the fighter's `maxRunSpeed` (see {@link resolveLocomotionTuning}), so a
+   * fighter that supplies only `maxRunSpeed` gets sensible walk/dash/run
+   * speeds for free.
+   */
+  readonly locomotion?: LocomotionTuning;
   /**
    * AC 60403 Sub-AC 3 — per-character ledge-hang / edge-grab tuning.
    * Optional because every roster slot can fall back to the canonical
@@ -463,6 +515,153 @@ export const CHARACTER_LABEL = 'character.body';
 export const AERIAL_STICK_THRESHOLD = 0.3;
 
 /**
+ * Short-hop decision window, in fixed-step frames. Releasing the jump
+ * button within this many frames of the impulse clips the rise to
+ * `jumpImpulse * jumpCutFactor` (the SHORT HOP); any later release
+ * keeps the full jump height — Smash semantics. 8 frames ≈ 133 ms,
+ * a comfortable tap-vs-press boundary at 60 Hz.
+ */
+export const JUMP_CUT_WINDOW_FRAMES = 8;
+
+/**
+ * Tap-jump buffer, in fixed-step frames. With "tap up to jump" (moveUp + jump
+ * share a key), pressing UP to up-tilt/up-smash also fires a jump — and the
+ * jump would win, making grounded up-attacks almost impossible. When an
+ * up+jump press is AMBIGUOUS (grounded, up-stick held, an up-attack exists),
+ * the jump is held this many frames; if an attack press lands in the window
+ * the grounded dispatch fires the up-attack and the buffered jump is dropped.
+ * Mirrors the Smash feel where up+A wins the window. Plain jumps (no up-stick)
+ * are unaffected and stay instant. 4 frames ≈ 67 ms — permissive enough to
+ * catch a near-simultaneous attack, short enough to not feel like jump lag.
+ */
+export const TAP_JUMP_BUFFER_FRAMES = 4;
+
+/**
+ * Frames a down-special dive LANDING SHOCKWAVE sensor lives in the world.
+ * Long enough for Matter's `collisionstart` to fire against any fighter
+ * overlapping the landing point, then the transient hitbox despawns.
+ */
+export const DIVE_SHOCKWAVE_FRAMES = 3;
+
+/**
+ * Frames a TIMED-BOMB detonation blast sensor lives in the world (the trap
+ * down-special's `fuseDetonateFrames` path — Samus's morph-ball bomb). Long
+ * enough for `collisionstart` to fire against anyone overlapping the blast,
+ * then the transient hitbox despawns. A one-shot explosion, not a lingering
+ * contact mine.
+ */
+export const TRAP_BLAST_FRAMES = 4;
+
+/**
+ * Launch knockback magnitude at/above which a hit sends the victim into
+ * TUMBLE — the launched state that can be TECHED on ground contact. Below
+ * this, a hit is light hitstun that just ends when it drains (no
+ * knockdown). ~7 px/step separates jab-tier pokes from real launches.
+ */
+export const TUMBLE_KNOCKBACK_THRESHOLD = 7;
+/**
+ * Frames a shield/dodge press buffers a TECH. Press within this window of
+ * touching a surface while tumbling and you tech (cancel the knockdown
+ * with brief intangibility); miss it and you hit the floor in a knockdown.
+ */
+export const TECH_WINDOW_FRAMES = 8;
+/** Intangibility frames granted by a successful tech (tech-in-place). */
+export const TECH_IFRAME_FRAMES = 20;
+/** Frames a missed-tech KNOCKDOWN (prone, vulnerable) lasts before auto get-up. */
+export const KNOCKDOWN_FRAMES = 26;
+/** Intangibility frames granted on a get-up from knockdown. */
+export const GETUP_IFRAME_FRAMES = 14;
+/**
+ * Frames a mistimed TECH locks you out of teching. Press shield/dodge while
+ * tumbling but too early (the buffer drains before you touch a surface) and
+ * you're locked out — a re-press won't tech the real landing. The anti-mash
+ * rule that punishes panic-teching, mirroring Smash's tech-lockout.
+ */
+export const TECH_LOCKOUT_FRAMES = 24;
+/** Frames a directional tech-roll / get-up-roll lasts (intangible, moving). */
+export const GETUP_ROLL_FRAMES = 16;
+/** Horizontal speed (px/step) of a tech-roll / get-up-roll. */
+export const GETUP_ROLL_SPEED = 6;
+/** Active frames of a get-up attack's double-sided sweep hitbox. */
+export const GETUP_ATTACK_FRAMES = 6;
+/** Damage of a get-up attack (a weak, low-knockback wake-up swat). */
+export const GETUP_ATTACK_DAMAGE = 6;
+
+/**
+ * Smash Directional Influence (SDI) — each fresh stick flick during the
+ * hitlag freeze nudges the launched fighter's POSITION (not trajectory)
+ * by this many px. Lets a victim drift out of a multi-hit move or toward
+ * safety. Distinct from DI (which rotates the launch ANGLE at freeze-end).
+ */
+export const SDI_NUDGE_PX = 3;
+/** Cap on TOTAL SDI displacement across one hitlag freeze — keeps it a nudge, not a teleport. */
+export const SDI_MAX_TOTAL_PX = 18;
+/** Stick magnitude at/above which a flick counts as an SDI input. */
+export const SDI_STICK_THRESHOLD = 0.5;
+
+/**
+ * Fraction of `maxRunSpeed` above which a fighter counts as "running"
+ * for dash-sensitive inputs: a light attack press becomes a DASH-ATTACK
+ * (not a forward-tilt-from-standstill), and a grab press becomes a
+ * DASH-GRAB. One shared gate so both read the same speed threshold.
+ */
+export const DASH_SPEED_FRACTION = 0.55;
+
+/**
+ * CROUCH-CANCEL — a grounded crouching fighter absorbs part of an
+ * incoming hit's launch, multiplying the knockback (and tumble check) by
+ * this factor. Mirrors the Melee crouch-cancel: crouching is a real
+ * defensive option (survive a finisher longer, break a weak combo). 0.82
+ * ≈ an ~18% launch reduction — meaningful but not a hard counter.
+ */
+export const CROUCH_KNOCKBACK_REDUCTION = 0.82;
+/**
+ * While crouching, the body hurtbox shrinks to this fraction of its
+ * height (bottom-anchored — the fighter ducks their head down). Surfaced
+ * by {@link getActiveHurtboxes} for the damage overlay / AI / future
+ * geometric ducking; the live damage handler reads the modifier set but
+ * does not yet filter by geometry, so this is presentation + data today.
+ */
+export const CROUCH_HURTBOX_HEIGHT_FRACTION = 0.62;
+
+/**
+ * Frames of backward leniency for a directional (up / down) attack input.
+ * The up/down-attack classifier reads the most-extreme vertical stick over
+ * this many frames so a flick that lands a frame or two before the attack
+ * button still fires the directional move — exact frame-perfect
+ * simultaneity is not required of the player. 4 frames ≈ 67 ms at 60 Hz.
+ */
+export const DIRECTIONAL_INPUT_WINDOW = 4;
+
+/**
+ * Frames each rung of a multi-hit ladder (side-special `multiHit`
+ * barrage / up-special `multiHitRising` spin) lives as its own transient
+ * sensor. Each rung is a SEPARATE collision body so it (a) lands its own
+ * connect — driving one hit spark per rung for free — and (b) is deduped
+ * per-body by the HitboxDamageHandler so a lingering rung can't re-hit
+ * the same target. 3 frames connects reliably and despawns before the
+ * next rung (rungs are `hitInterval` ≥ 4 frames apart in the cast).
+ */
+export const MULTIHIT_RUNG_FRAMES = 3;
+
+/**
+ * Frames a counter RETALIATION hitbox lives — the swing a successful
+ * parry (neutral Wolf/Aegis, down Bear) spawns in front of the defender.
+ * A few frames so it reliably connects with the attacker who walked into
+ * the parry, then it despawns.
+ */
+export const COUNTER_RETAL_FRAMES = 4;
+
+/**
+ * Safety cap on how many frames a down-special dive (groundPound /
+ * stallAndFall) may be HELD active past its authored window while still
+ * plunging toward the ground. A fighter who never lands (e.g. dives
+ * straight off-stage) is bounded here instead of holding the meteor
+ * forever — in practice the blast-zone KO ends the dive long before this.
+ */
+export const DIVE_MAX_HOLD_FRAMES = 240;
+
+/**
  * Non-movement defaults for the {@link Character} base class.
  *
  * Sub-AC 2.2 of the T2 refactor — the base class no longer holds the
@@ -489,6 +688,11 @@ export const DEFAULT_CHARACTER_TUNING: Required<
     | 'jumpImpulse'
     | 'maxJumps'
     | 'mass'
+    | 'fallAccel'
+    | 'maxFallSpeed'
+    | 'fastFallSpeed'
+    | 'jumpCutFactor'
+    | 'locomotion'
   >
 > & {
   shield: ResolvedShieldTuning;
@@ -590,11 +794,14 @@ export class Character {
    * slot through its respective `resolve…` helper so partial records
    * merge cleanly over the existing tuning.
    */
-  private tuning: Required<CharacterTuning> & {
+  private tuning: Required<Omit<CharacterTuning, 'locomotion'>> & {
     shield: ResolvedShieldTuning;
     dodge: ResolvedDodgeTuning;
     ledge: ResolvedLedgeHangTuning;
     ledgeDetection: LedgeDetectionTuning;
+    // Resolved separately into `resolvedLocomotionTuning` (it needs
+    // `maxRunSpeed`), so the raw slot stays optional on `tuning`.
+    locomotion?: LocomotionTuning;
   };
 
   /**
@@ -605,6 +812,26 @@ export class Character {
    * {@link setPosition} (respawn).
    */
   private shieldState: ShieldState;
+
+  /**
+   * Frames the shield has been continuously `'active'`. Incremented each
+   * fixed step the shield is up, reset to 0 the moment it drops. Read by
+   * {@link applyHit} to decide a PERFECT SHIELD (a hit caught within
+   * {@link PERFECT_SHIELD_WINDOW_FRAMES} of raising costs no HP / no
+   * shieldstun). Reset on respawn.
+   */
+  private shieldActiveFrames = 0;
+
+  /**
+   * STALE-MOVE queue — the ids of this fighter's most-recently-LANDED
+   * moves (oldest first, newest at the end), capped at
+   * {@link STALE_QUEUE_SIZE}. Drives stale-move negation: a move already
+   * present N times deals less damage / knockback (see
+   * `combat.computeStaleMultiplier`). The MatchScene hit callback reads
+   * the occurrence count via {@link registerLandedMove} the instant a hit
+   * connects. Attacker-side state; reset on respawn.
+   */
+  private staleMoveQueue: string[] = [];
 
   /**
    * AC 60302 Sub-AC 2 — live dodge / roll state machine. Initialised
@@ -618,6 +845,20 @@ export class Character {
    * {@link isInvincible} — see the field's JSDoc for the rationale.
    */
   private dodgeState: DodgeState;
+
+  /**
+   * Tier 5 — live ground-locomotion state machine (standing / walk /
+   * initialDash / run / pivot / crouch). Advanced once per fixed step by
+   * {@link tickLocomotion} inside {@link applyInput}; it owns the grounded
+   * TARGET velocity + facing (the integrator stays in {@link applyInput}).
+   * Reset on respawn. Airborne forces it to `standing` (air drift keeps the
+   * legacy proportional path).
+   */
+  private locomotionState: LocomotionState;
+  /** Resolved locomotion tuning (speeds derived from `maxRunSpeed`). */
+  private readonly resolvedLocomotionTuning: ResolvedLocomotionTuning;
+  /** Previous frame's POST-lockout moveX — feeds the locomotion flick-edge detector. */
+  private prevLocoMoveX = 0;
 
   /**
    * AC 60302 Sub-AC 2 — latch for rising-edge dodge detection. Carried
@@ -661,6 +902,18 @@ export class Character {
    * transition (a connect fired).
    */
   private grabHitboxBody: MatterJS.BodyType | null = null;
+
+  /**
+   * DASH GRAB latch — set when the grab was started while running fast
+   * (`|vx| > maxRunSpeed·{@link DASH_SPEED_FRACTION}`) on a {@link GrabSpec}
+   * that declares a `dashGrab`. While set, the grab slides forward at
+   * `dashGrabEntryVx · momentumRetain` through its whiff (instead of
+   * rooting) and spawns its range hitbox shifted forward by `rangeBonusX`.
+   * Cleared when the grab returns to idle and on respawn.
+   */
+  private dashGrabActive = false;
+  /** Run-entry horizontal velocity snapshot for the dash-grab momentum carry. */
+  private dashGrabEntryVx = 0;
 
   /**
    * If non-null, this character is currently being held by another
@@ -712,6 +965,28 @@ export class Character {
   private groundContacts = 0;
 
   /**
+   * Countdown for an in-flight TAP-JUMP BUFFER (see {@link TAP_JUMP_BUFFER_FRAMES}).
+   * Set when an ambiguous up+jump press is held back to let a follow-up attack
+   * convert it to an up-attack; decremented each frame; fires the jump at 0, or
+   * is dropped to 0 the moment an attack press (or a state change) pre-empts it.
+   */
+  private tapJumpBufferFrames = 0;
+
+  /**
+   * Set by the scene's pass-through-platform driver (via
+   * {@link markPlatformFallSupported}) on a frame it is actively keeping this
+   * fighter resting on / landing onto a thin platform. The fall-shaping pack
+   * reads it as "grounded for fall purposes" so the per-fighter `fallAccel`
+   * spike is suppressed while the driver holds the fighter on the surface —
+   * otherwise the brief contact-sensor flicker during the landing lets
+   * `fallAccel` ramp `vy` back to `maxFallSpeed`, tunnelling the body through
+   * the thin float and ejecting it above again (an endless up/down jitter).
+   * Consumed (reset to false) once per {@link applyInput} so it never leaks a
+   * frame past the driver's support, leaving free-fall feel untouched.
+   */
+  private platformFallSupported = false;
+
+  /**
    * Number of jumps used since the last landing. Reset to 0 on the
    * first frame the character is grounded with non-rising velocity.
    */
@@ -751,6 +1026,17 @@ export class Character {
    * pre-teleport stick state into the next press.
    */
   private prevMoveX = 0;
+
+  /**
+   * Short backward window of the vertical stick (`moveY`) for DIRECTIONAL
+   * INPUT LENIENCY. Players can't time an up/down flick to the exact frame
+   * they press attack, so the up-air / down-air / up-tilt / up-smash
+   * classification reads the most-extreme `moveY` over the last
+   * {@link DIRECTIONAL_INPUT_WINDOW} frames instead of only the press
+   * frame — a flick-up a frame or two before the press still registers.
+   * Deterministic: pure function of the input stream (replay-safe).
+   */
+  private recentMoveY: number[] = [];
 
   /**
    * AC 60301 Sub-AC 1 — latch for rising-edge shield detection. Carried
@@ -875,6 +1161,16 @@ export class Character {
    * ships only a jab keeps firing on every grounded press.
    */
   private tiltAttackId: string | null = null;
+  /** Up-tilt slot — fired on an up-stick light press. Wired explicitly per fighter. */
+  private upTiltId: string | null = null;
+  /** Up-smash slot — fired on an up-stick heavy press. Wired explicitly per fighter. */
+  private upSmashId: string | null = null;
+  /** Down-tilt slot — fired on a down-stick light press. Wired explicitly per fighter. */
+  private downTiltId: string | null = null;
+  /** Down-smash slot — fired on a down-stick heavy press. Wired explicitly per fighter. */
+  private downSmashId: string | null = null;
+  /** Dash-attack slot — fired on a light press while running. Wired explicitly per fighter. */
+  private dashAttackSlotId: string | null = null;
 
   /**
    * AC 60201 Sub-AC 1 — neutral-special dispatch slot. Populated by the
@@ -958,6 +1254,8 @@ export class Character {
   private aerialNeutralId: string | null = null;
   private aerialForwardId: string | null = null;
   private aerialBackId: string | null = null;
+  private aerialUpId: string | null = null;
+  private aerialDownId: string | null = null;
 
   /**
    * AC 60102 Sub-AC 2 — landing-detection bookkeeping. Tracks the
@@ -982,6 +1280,17 @@ export class Character {
     facing: 1 | -1;
     framesElapsed: number;
     hitboxBody: MatterJS.BodyType | null;
+    /**
+     * Charge-special payload — the number of frames the special button
+     * was HELD before this move was released, or `null` for every
+     * non-charge move. When set, the hitbox spawns with damage /
+     * knockback lerped between the move's `charge.min*` and `charge.max*`
+     * via the {@link ChargeSpec} ramp (Samus-style charge cannon: a bare
+     * tap fires the weak shot, a held button fires the KO shot). Latched
+     * once on the release frame so the whole active window deals the
+     * charged values deterministically.
+     */
+    chargeHeldFrames: number | null;
     /**
      * AC 60303 Sub-AC 3 — up-special runtime context. Latched on the
      * press frame for `'upSpecial'`-typed moves; `null` for every other
@@ -1010,6 +1319,153 @@ export class Character {
   } | null = null;
 
   /**
+   * Active hold-to-charge state for a `specialKind: 'charge'` neutral
+   * special (Samus cannon / DK punch). Non-null between the press that
+   * starts charging and the release that fires it: `framesHeld` climbs
+   * one per `applyInput` tick while the special button stays down, up to
+   * `maxFrames` (the move's `charge.maxChargeFrames`), then the release
+   * fires {@link fireNeutralChargeSpecial} with the accumulated frames.
+   * Drives {@link getChargeProgress} so the {@link ChargeIndicator}
+   * shows the real buildup. Cleared on fire, on teleport/respawn, and
+   * whenever the fighter can no longer hold the charge.
+   */
+  private chargingSpecial: {
+    moveId: string;
+    framesHeld: number;
+    maxFrames: number;
+  } | null = null;
+
+  /**
+   * Active hold-to-charge state for a grounded SMASH carrying a `charge`
+   * ramp. Mirrors {@link chargingSpecial} but for smashes: non-null between
+   * the press that starts charging and the release/cap that fires it.
+   * `framesHeld` climbs one per tick while a smash trigger stays held and
+   * the fighter is grounded; at `maxFrames` the smash AUTO-FIRES (unlike a
+   * special, which stores at the cap). `facing` is latched at charge-start
+   * so a mid-charge stick wiggle can't flip the smash. Drives
+   * {@link getChargeProgress}; cleared on fire, mid-charge hit, and respawn.
+   */
+  private chargingSmash: {
+    moveId: string;
+    pattern: 'smash' | 'usmash' | 'dsmash';
+    facing: 1 | -1;
+    framesHeld: number;
+    maxFrames: number;
+  } | null = null;
+
+  /**
+   * Banked neutral-special charge — the Samus "charge-cancel" / store
+   * mechanic. Set when the player shield-cancels an in-progress charge:
+   * the accumulated frames are stashed here and PERSIST across actions
+   * (walking, jumping, other moves) until the next neutral-special press
+   * either fires them (a banked FULL charge fires on press) or resumes
+   * charging from the banked level (a banked PARTIAL charge). Wiped only
+   * by being hit WHILE actively charging (a held bank survives hits, the
+   * Smash idiom) and by respawn. Drives {@link getChargeProgress} so the
+   * charge glow stays lit while the shot is banked — the visible proof
+   * that "the charge is kept". Mutually exclusive with
+   * {@link chargingSpecial}: at most one is non-null at a time.
+   */
+  private storedSpecialCharge: { moveId: string; framesHeld: number } | null =
+    null;
+
+  /**
+   * Transient damage hitboxes NOT tied to the active-attack lifecycle —
+   * currently the down-special dive LANDING SHOCKWAVE. Each is a short-
+   * lived `HITBOX_LABEL` sensor that the scene's HitboxDamageHandler
+   * resolves into an `applyHit` exactly like the active-attack hitbox;
+   * {@link tickTransientHitboxes} counts each down and despawns it.
+   */
+  private transientHitboxes: Array<{
+    body: MatterJS.BodyType;
+    framesRemaining: number;
+  }> = [];
+
+  /**
+   * Placed down-special TRAPS (Cat's mine). Each sits inert for
+   * `armDelay` frames, then spawns an armed `HITBOX_LABEL` sensor at its
+   * fixed placement point that detonates on contact (per-body deduped, so
+   * each foe trips it once) until `lifetime` frames elapse. Independent of
+   * the active attack — the trap outlives Cat's placement animation —
+   * so {@link tickTraps} runs every frame. `maxActive` FIFO-evicts.
+   */
+  private activeTraps: Array<{
+    x: number;
+    y: number;
+    facing: 1 | -1;
+    framesSinceSpawn: number;
+    armDelay: number;
+    lifetime: number;
+    damage: number;
+    knockback: AttackMove['knockback'];
+    width: number;
+    height: number;
+    maxActive: number;
+    moveId: string;
+    body: MatterJS.BodyType | null;
+    // Timed-bomb extension (Samus): self-bounce velocity applied to the placer
+    // on detonation (null = none / contact-mine trap).
+    selfBounceVelocity: number | null;
+    // True once a fused bomb has detonated + applied its self-bounce, so the
+    // bounce is a one-shot even if the blast sensor lingers a few frames.
+    detonated: boolean;
+  }> = [];
+
+  /**
+   * Whether the in-flight down-special dive has already fired its landing
+   * shockwave. Latches the burst to exactly once per dive and, once set,
+   * freezes the dive's per-frame plunge physics (the motion is done).
+   * Reset when a fresh dive enters its active window.
+   */
+  private diveShockwaveSpawned = false;
+
+  /**
+   * Frames the in-flight dive has been HELD active past its authored
+   * window while plunging (see {@link DIVE_MAX_HOLD_FRAMES}). Reset when a
+   * fresh dive enters its active window.
+   */
+  private diveHoldFrames = 0;
+
+  /**
+   * Index of the NEXT rung to fire in an in-flight multi-hit ladder
+   * (side-special `multiHit` / up-special `multiHitRising`). Reset to 0
+   * when a ladder move enters its active window; advanced once per rung
+   * spawned by {@link tickMultiHitLadder}. The rung sensors themselves
+   * live in {@link transientHitboxes}.
+   */
+  private multiHitNextIndex = 0;
+
+  /**
+   * Latched on a successful counter PARRY (an incoming hit absorbed inside
+   * a counter move's window) — carries the absorbed damage so the next
+   * tick can scale the retaliation hitbox. Set in {@link applyHit},
+   * consumed by {@link tickCounterRetaliation}. `null` when no parry is
+   * pending. Serves neutral (Wolf/Aegis) and down (Bear) counters alike.
+   */
+  private pendingCounterRetaliation: { absorbedDamage: number } | null = null;
+
+  /**
+   * HELPLESS / free-fall state. Set when a committal aerial special ends in
+   * the air (Owl's `directionalJump.helplessAfterBurst`, an airborne
+   * `dashStrike.helplessAfterDash` / `commandDash.helplessOnWhiff`, or
+   * `stallAndFall.helplessAfterFall`). While true the fighter cannot
+   * attack / special / jump — only drift — until it touches the ground (or
+   * a ledge), matching the Smash "you're in special-fall, get back to the
+   * stage" lockout. Cleared on ground contact and on respawn.
+   */
+  private helpless = false;
+
+  /**
+   * One-shot RENDER signal: set the frame a down-special dive lands (at
+   * its shockwave) and cleared by {@link consumeDiveLandingEvent}. The
+   * render layer polls it to flash a landing burst even on a whiffed dive
+   * (which fires no collisionstart, so no hit spark would otherwise show).
+   * Render-only — never read by the deterministic sim.
+   */
+  private diveLandingEvent: { x: number; y: number; facing: 1 | -1 } | null =
+    null;
+
+  /**
    * Frames remaining before the next attack can begin. Decremented
    * once per `applyInput` call. While `activeAttack !== null` this is
    * always 0 — the cooldown only starts ticking *after* the move's
@@ -1035,6 +1491,55 @@ export class Character {
   private hitstunRemaining = 0;
 
   /**
+   * TUMBLE: set when a hit launches this fighter hard enough
+   * (≥ {@link TUMBLE_KNOCKBACK_THRESHOLD}). While tumbling, touching a
+   * surface resolves into a TECH or a KNOCKDOWN. Cleared on the resolve
+   * frame and on respawn.
+   */
+  private tumbling = false;
+  /** Frames a buffered tech press is still live (see {@link TECH_WINDOW_FRAMES}). */
+  private techBufferRemaining = 0;
+  /** Frames a mistimed tech locks out further teching (see {@link TECH_LOCKOUT_FRAMES}). */
+  private techLockoutRemaining = 0;
+  /** Frames of a missed-tech KNOCKDOWN (prone lockout) remaining; 0 = not knocked down. */
+  private knockdownRemaining = 0;
+  /** Frames of an active tech-roll / get-up-roll remaining; 0 = not rolling. */
+  private getupRollRemaining = 0;
+  /** Horizontal direction of the active get-up roll. */
+  private getupRollDir: 1 | -1 = 1;
+
+  /**
+   * Smash-style fast-fall latch. Set when the stick is pushed down
+   * during a descent (vy > 0 while airborne); vy snaps to
+   * `tuning.fastFallSpeed` and stays capped there until the latch
+   * clears — on landing, on a fresh jump impulse, or when hitstun
+   * starts (a launched fighter must follow the knockback arc, not a
+   * stale fast-fall).
+   */
+  private fastFallLatched = false;
+
+  /**
+   * Variable-jump-height latch. Armed on a jump impulse; while armed,
+   * releasing the jump button mid-rise clamps vy to
+   * `jumpImpulse * jumpCutFactor` (the SHORT HOP). Cleared once the
+   * rise ends (vy ≥ 0), on landing, or when hitstun starts — so an
+   * upward LAUNCH (knockback, not a jump) can never be jump-cut by an
+   * idle jump button.
+   */
+  private jumpCutArmed = false;
+
+  /**
+   * Frames elapsed since the jump impulse that armed {@link jumpCutArmed}.
+   * The cut only applies while this is within
+   * {@link JUMP_CUT_WINDOW_FRAMES} — Smash-style: a TAP (release inside
+   * the window) short-hops, while releasing later in the rise keeps
+   * the full jump height. Without the window, releasing the button at
+   * ANY point of the rise clipped the jump to 40% height, which made
+   * tap-style jumps unable to clear the floating platforms at all.
+   */
+  private jumpCutFrames = 0;
+
+  /**
    * Hitlag freeze frames remaining on this defender after a confirmed
    * hit (post-M2 hit-feel pass). Drains in `applyInput` BEFORE the
    * normal per-frame logic; while > 0 the fighter's velocity is
@@ -1058,6 +1563,11 @@ export class Character {
     readonly vector: { readonly x: number; readonly y: number };
     readonly hitstunFrames: number;
   } | null = null;
+
+  /** SDI displacement (px) spent this hitlag freeze; capped at {@link SDI_MAX_TOTAL_PX}. Reset per hit. */
+  private sdiSpentPx = 0;
+  /** Whether the stick was beyond the SDI threshold last freeze frame — rising-edge gate so each flick nudges once. */
+  private sdiPrevBeyond = false;
 
   /**
    * Respawn-grace invincibility frames (Sub-AC 4.2 of AC 302).
@@ -1145,6 +1655,16 @@ export class Character {
     // match-start flow drops fighters into the world before any input
     // arrives, mirroring the shield state's spawn contract.
     this.dodgeState = createDodgeState();
+
+    // ---- Ground-locomotion state machine (Tier 5) ----------------------
+    // Walk / dash / run / pivot / crouch. Speeds default relative to this
+    // fighter's `maxRunSpeed` so a slow fighter's initial-dash stays under
+    // its run speed. Starts standing, facing the ctor default.
+    this.resolvedLocomotionTuning = resolveLocomotionTuning(
+      this.tuning.locomotion,
+      this.tuning.maxRunSpeed,
+    );
+    this.locomotionState = createLocomotionState(this.facing);
 
     // ---- Ledge-hang state machine (AC 60403 Sub-AC 3) -------------------
     // Idle at construction — no hang in flight, no re-grab cooldown.
@@ -1297,6 +1817,32 @@ export class Character {
       // (vs. mutating `.velocity`) keeps Matter's previous-position cache
       // coherent so the integrator doesn't blink on freeze-end.
       this.scene.matter.body.setVelocity(this.body, { x: 0, y: 0 });
+      // ---- SDI (Smash Directional Influence) ----------------------------
+      // Only the VICTIM (the fighter with a queued launch) can SDI — the
+      // attacker shares the freeze but has no pendingKnockback. Each FRESH
+      // stick flick beyond the threshold (neutral → beyond, rising edge)
+      // nudges position a few px in the stick direction, capped per freeze.
+      // This is a position drift, NOT a trajectory change (that's DI, at
+      // freeze-end) — it lets a victim wiggle out of a multi-hit.
+      if (this.pendingKnockback) {
+        const sdiX = input.moveX;
+        const sdiY = input.moveY ?? 0;
+        const len = Math.hypot(sdiX, sdiY);
+        const beyond = len >= SDI_STICK_THRESHOLD;
+        if (
+          beyond &&
+          !this.sdiPrevBeyond &&
+          this.sdiSpentPx < SDI_MAX_TOTAL_PX
+        ) {
+          const pos = this.body.position;
+          this.scene.matter.body.setPosition(this.body, {
+            x: pos.x + (sdiX / len) * SDI_NUDGE_PX,
+            y: pos.y + (sdiY / len) * SDI_NUDGE_PX,
+          });
+          this.sdiSpentPx += SDI_NUDGE_PX;
+        }
+        this.sdiPrevBeyond = beyond;
+      }
       if (this.hitlagRemaining === 0 && this.pendingKnockback) {
         // Directional Influence (DI) — sample the stick on the frame
         // hitlag drains to zero. The stick component perpendicular to
@@ -1326,6 +1872,9 @@ export class Character {
           y: releaseVy,
         });
         this.hitstunRemaining = this.pendingKnockback.hitstunFrames;
+        // A hard launch sends the fighter into TUMBLE — the state that can
+        // be teched on ground contact (and otherwise knocks them down).
+        this.tumbling = Math.hypot(releaseVx, releaseVy) >= TUMBLE_KNOCKBACK_THRESHOLD;
         this.pendingKnockback = null;
       }
       this.prevJumpHeld = input.jump;
@@ -1341,6 +1890,76 @@ export class Character {
     // hitstun — but the contract holds either way).
     if (this.invincibilityRemaining > 0) {
       this.invincibilityRemaining -= 1;
+    }
+
+    // ---- Tumble resolution (launch → floor: tech / knockdown) -------------
+    // Runs BEFORE — and independently of — hitstun so a fighter who exits
+    // hitstun mid-flight still resolves on the frame they finally touch a
+    // surface. While TUMBLING:
+    //   • a buffered shield/dodge press TECHES on contact (intangible; a
+    //     held direction makes it a directional tech-roll),
+    //   • a press that drains before contact mistimes into a TECH-LOCKOUT
+    //     (a re-press can't tech the real landing — anti-panic),
+    //   • an un-teched landing is a KNOCKDOWN.
+    // Once hitstun has ended, acting (jump / attack / dodge / special) out
+    // of tumble cancels it — you DI'd / jumped out, mirroring Smash.
+    if (this.tumbling) {
+      const techPress =
+        (input.shield === true && !this.prevShieldHeld) ||
+        (input.dodge === true && !this.prevDodgeHeld);
+      if (this.isGrounded()) {
+        this.tumbling = false;
+        this.hitstunRemaining = 0;
+        const buffered = techPress || this.techBufferRemaining > 0;
+        const teched = buffered && this.techLockoutRemaining === 0;
+        this.techBufferRemaining = 0;
+        const dir = clamp(input.moveX, -1, 1);
+        if (teched) {
+          if (Math.abs(dir) >= 0.5) {
+            this.startGetupRoll(dir >= 0 ? 1 : -1); // directional tech-roll
+          } else {
+            this.scene.matter.body.setVelocity(this.body, { x: 0, y: 0 });
+            this.setInvincibility(TECH_IFRAME_FRAMES); // tech-in-place
+          }
+        } else {
+          this.scene.matter.body.setVelocity(this.body, { x: 0, y: 0 });
+          this.knockdownRemaining = KNOCKDOWN_FRAMES; // missed → knocked down
+        }
+        this.prevJumpHeld = input.jump;
+        this.prevAttackHeld = input.attack === true;
+        this.prevHeavyHeld = input.attackHeavy === true;
+        this.prevSpecialHeld = input.special === true;
+        this.prevShieldHeld = input.shield === true;
+        this.prevDodgeHeld = input.dodge === true;
+        this.prevMoveX = clamp(input.moveX, -1, 1);
+        this.prevGrounded = true;
+        return;
+      }
+      // Airborne: buffer a fresh press; drain an old one into a lockout.
+      if (techPress && this.techLockoutRemaining === 0 && this.techBufferRemaining === 0) {
+        this.techBufferRemaining = TECH_WINDOW_FRAMES;
+      }
+      if (this.techBufferRemaining > 0) {
+        this.techBufferRemaining -= 1;
+        if (this.techBufferRemaining === 0) {
+          this.techLockoutRemaining = TECH_LOCKOUT_FRAMES;
+        }
+      }
+      if (this.techLockoutRemaining > 0) this.techLockoutRemaining -= 1;
+      // Acting out of tumble (only reachable once hitstun has ended) clears
+      // it; we fall through so the action fires this frame in normal flow.
+      if (this.hitstunRemaining === 0) {
+        const actOut =
+          (input.jump === true && !this.prevJumpHeld) ||
+          (input.attack === true && !this.prevAttackHeld) ||
+          (input.attackHeavy === true && !this.prevHeavyHeld) ||
+          (input.special === true && !this.prevSpecialHeld) ||
+          (input.dodge === true && !this.prevDodgeHeld);
+        if (actOut) {
+          this.tumbling = false;
+          this.techBufferRemaining = 0;
+        }
+      }
     }
 
     // ---- Hitstun lockout (Sub-AC 4.1) -------------------------------------
@@ -1362,6 +1981,7 @@ export class Character {
       this.prevAttackHeld = input.attack === true;
       this.prevHeavyHeld = input.attackHeavy === true;
       this.prevSpecialHeld = input.special === true;
+      this.prevShieldHeld = input.shield === true;
       if (this.activeAttack === null && this.cooldownRemaining > 0) {
         this.cooldownRemaining -= 1;
       }
@@ -1402,6 +2022,68 @@ export class Character {
       // Latch grounded state even during hitstun so the moment hitstun
       // releases we don't spuriously fire a "just landed" event from a
       // stale reading.
+      this.prevGrounded = this.isGrounded();
+      return;
+    }
+
+    // ---- Knockdown / prone lockout (a missed tech) -----------------------
+    // The fighter lies prone: input locked, body pinned, and VULNERABLE
+    // (no i-frames) — a real okizeme punish window. A get-up press (jump /
+    // attack / a decisive stick tilt) stands early with brief
+    // intangibility; otherwise it auto-stands when the timer drains.
+    if (this.knockdownRemaining > 0) {
+      this.scene.matter.body.setVelocity(this.body, { x: 0, y: 0 });
+      this.knockdownRemaining -= 1;
+      const dir = clamp(input.moveX, -1, 1);
+      const rollGetup = Math.abs(dir) >= 0.5;
+      const attackGetup = input.attack === true && !this.prevAttackHeld;
+      const getUp =
+        (input.jump === true && !this.prevJumpHeld) ||
+        attackGetup ||
+        rollGetup ||
+        this.knockdownRemaining === 0;
+      if (getUp) {
+        this.knockdownRemaining = 0;
+        // Three flavours of wake-up, mirroring Smash okizeme:
+        //   • hold a direction → roll-get-up (intangible, moves away)
+        //   • press attack     → get-up attack (double-sided sweep)
+        //   • neutral / timeout → stand in place with brief intangibility
+        if (rollGetup) {
+          this.startGetupRoll(dir >= 0 ? 1 : -1);
+        } else if (attackGetup) {
+          this.startGetupAttack();
+        } else {
+          this.setInvincibility(GETUP_IFRAME_FRAMES);
+        }
+      }
+      this.prevJumpHeld = input.jump;
+      this.prevAttackHeld = input.attack === true;
+      this.prevHeavyHeld = input.attackHeavy === true;
+      this.prevSpecialHeld = input.special === true;
+      this.prevShieldHeld = input.shield === true;
+      this.prevDodgeHeld = input.dodge === true;
+      this.prevMoveX = clamp(input.moveX, -1, 1);
+      this.prevGrounded = this.isGrounded();
+      return;
+    }
+
+    // ---- Tech-roll / get-up-roll lockout ---------------------------------
+    // A directional tech or roll-get-up: the fighter slides along the floor
+    // (intangible — i-frames were set when the roll started) with input
+    // otherwise locked until the roll frames drain.
+    if (this.getupRollRemaining > 0) {
+      this.getupRollRemaining -= 1;
+      this.scene.matter.body.setVelocity(this.body, {
+        x: this.getupRollDir * GETUP_ROLL_SPEED,
+        y: 0,
+      });
+      this.prevJumpHeld = input.jump;
+      this.prevAttackHeld = input.attack === true;
+      this.prevHeavyHeld = input.attackHeavy === true;
+      this.prevSpecialHeld = input.special === true;
+      this.prevShieldHeld = input.shield === true;
+      this.prevDodgeHeld = input.dodge === true;
+      this.prevMoveX = clamp(input.moveX, -1, 1);
       this.prevGrounded = this.isGrounded();
       return;
     }
@@ -1483,10 +2165,26 @@ export class Character {
     // and knockback-absorption inside `applyHit` together cover the
     // user's "anchored, can't be pushed around" half of the spec.
     const groundedForShield = this.isGrounded();
+    // ---- Out-of-shield (OoS) options -------------------------------------
+    // From a raised shield (and NOT locked in shieldstun) the defender can
+    // JUMP or GRAB directly, instantly dropping the shield. We detect the
+    // intent BEFORE the tick and force the shield down THIS frame, so the
+    // normal jump / grab paths below fire unobstructed (they're gated on
+    // `!shieldRaised`). Shield-grab is the classic punish; jump-OoS feeds
+    // every aerial / up-special escape. During shieldstun the shield is
+    // locked and these are suppressed.
+    const inShieldstunNow = isInShieldstun(this.shieldState);
+    const canActOutOfShield = shieldRaisedNow && !inShieldstunNow;
+    const oosJump =
+      canActOutOfShield && input.jump === true && !this.prevJumpHeld;
+    const oosGrab =
+      canActOutOfShield && input.grab === true && !this.prevGrabHeld;
+    const wantsOutOfShield = oosJump || oosGrab;
     const effectiveShieldHeld =
       groundedForShield &&
       shieldHeld &&
-      (shieldRaisedNow || !this.prevShieldHeld);
+      (shieldRaisedNow || !this.prevShieldHeld) &&
+      !wantsOutOfShield;
     // AC 10302 Sub-AC 2 — capture the shield state-name BEFORE the tick
     // so the post-tick comparison can detect a non-`'active'` →
     // `'active'` transition (the rising-edge raise) and voice the
@@ -1502,6 +2200,14 @@ export class Character {
       { held: effectiveShieldHeld },
       this.tuning.shield,
     );
+    // Track how long the shield has been continuously raised — the
+    // PERFECT SHIELD window (read in `applyHit`). Resets the instant the
+    // shield isn't active, so a fresh raise next frame starts at 1.
+    if (isShieldRaised(this.shieldState)) {
+      this.shieldActiveFrames += 1;
+    } else {
+      this.shieldActiveFrames = 0;
+    }
     // Fire the shield raise cue on the rising edge. The
     // {@link AudioManager}'s default 100 ms cooldown collapses
     // double-fires from a player who jitters the shield key on /
@@ -1531,6 +2237,17 @@ export class Character {
     }
 
     const grounded = this.isGrounded();
+    // `groundedForFall` is used ONLY by the fall-shaping pack below. It folds
+    // in the scene driver's platform-support signal so that while the driver
+    // is actively keeping this fighter on a thin pass-through platform, the
+    // per-fighter `fallAccel` spike is suppressed — a momentary contact-sensor
+    // flicker during the landing can't re-spike `vy` to `maxFallSpeed` and
+    // tunnel the body back through (the pass-through platform jitter). The
+    // flag is consumed here so it never leaks past the driver's support:
+    // free-fall away from any platform behaves exactly as before. This never
+    // gates jump/attack/grounded logic — only fall accel.
+    const groundedForFall = grounded || this.platformFallSupported;
+    this.platformFallSupported = false;
     // AC 60301 Sub-AC 1 — while the shield is raised, ignore directional
     // motion intent so the fighter roots in place (Smash convention:
     // shield disables walking / running / dashing). The `moveX` value
@@ -1556,6 +2273,35 @@ export class Character {
     // auto-cancelled if the move's frame counter sits in an
     // auto-cancel window).
     const justLanded = !this.prevGrounded && grounded;
+    // Touching the ground clears helpless free-fall — the fighter made it
+    // back to the stage and can act again.
+    if (grounded) this.helpless = false;
+
+    // AC 10304 — voice the landing thud on the airborne → grounded
+    // transition. Three gates keep the cue honest:
+    //
+    //   1. The fighter must have been actually DESCENDING (`velocity.y >
+    //      0`, downward in screen space) at touchdown. A real fall / jump
+    //      arc always lands with downward velocity, so this fires the
+    //      thud on every genuine landing — but a zero-velocity settle
+    //      (a fighter spawned directly onto a respawn platform) makes no
+    //      sound, which is the correct "they didn't fall, they appeared"
+    //      feel.
+    //
+    //   2. Suppressed when the same frame carries a fresh jump press (a
+    //      buffered land-cancel): the jump cue owns that frame, so we
+    //      don't thud + hup together.
+    //
+    // A launched fighter crashing to the floor still thuds — its
+    // knockback arc carries downward velocity. Fired from the
+    // deterministic tick, so the replay re-derives identical timing.
+    if (
+      justLanded &&
+      this.body.velocity.y > 0 &&
+      !(input.jump && !this.prevJumpHeld)
+    ) {
+      emitCombatSfx(this.sfxSink ?? undefined, ASSET_KEYS.sfxLand);
+    }
 
     // ---- Dodge tick (AC 60302 Sub-AC 2) ----------------------------------
     // Tick the dodge state machine BEFORE motion / jump / attack so any
@@ -1606,11 +2352,34 @@ export class Character {
     //     on the holding → throwing → cooldown frame transition.
     if (this.grabSpec !== null) {
       const grabHeldThisFrame = input.grab === true;
-      const grabJustPressed = grabHeldThisFrame && !this.prevGrabHeld;
+      // A grab fires only with the shield DOWN. A shield-grab works
+      // because an OoS grab dropped the shield this very frame (above),
+      // so `shieldRaised` already reads false here; a grab attempt while
+      // LOCKED in shieldstun (shield still up) is correctly suppressed.
+      const grabJustPressed =
+        grabHeldThisFrame && !this.prevGrabHeld && !shieldRaised;
+      // DASH GRAB: a grab started while running fast (and on a spec that
+      // declares a dashGrab) carries forward momentum + reaches further.
+      // Latched here; the momentum carry + range shift read the latch
+      // below. Same speed gate as the dash-attack discriminator. A
+      // shield-grab is from a standstill (shield roots movement) so this
+      // reads false there — the `!shieldRaised` gate above is untouched.
+      if (grabJustPressed && this.grabSpec.dashGrab != null) {
+        const grabMovingFast =
+          Math.abs(this.body.velocity.x) >
+          this.tuning.maxRunSpeed * DASH_SPEED_FRACTION;
+        if (grabMovingFast) {
+          this.dashGrabActive = true;
+          this.dashGrabEntryVx = this.body.velocity.x;
+        }
+      }
       const grabInput: GrabInput = {
         grabPressed: grabJustPressed,
         grounded,
-        pummelPressed: false,
+        // Pummel on a rising-edge attack press while holding a victim
+        // (was hard-coded false, so every fighter's authored pummel never
+        // fired). tickGrab gates it on the holding state + pummel cooldown.
+        pummelPressed: input.attack === true && !this.prevAttackHeld,
         throwDirection: this.readThrowDirectionInput(input),
       };
       const before = this.grabState;
@@ -1628,6 +2397,12 @@ export class Character {
           y: targetY,
         });
         this.scene.matter.body.setVelocity(this.grabTarget.body, { x: 0, y: 0 });
+      }
+      // The dash-grab latch lives only for the duration of one grab; once
+      // the machine is back to idle, the next grab is standing unless it
+      // re-qualifies as a dash on its own press.
+      if (this.grabState.name === 'idle') {
+        this.dashGrabActive = false;
       }
     }
     // Detect a "dodge just started this frame" transition. We look at
@@ -1703,7 +2478,12 @@ export class Character {
       const ledgeDetection = this.computeLedgeDetection();
       const ledgeInput: LedgeHangInput = {
         detection: ledgeDetection,
-        release: input.ledgeRelease ?? null,
+        // Humans never set the explicit `ledgeRelease` field — derive the
+        // release action from the raw stick/buttons while hanging so a
+        // keyboard/gamepad player can get-up / roll / jump / attack / drop
+        // off the ledge (previously only the AI's explicit action worked,
+        // so a human grabbed a ledge and hung there forever).
+        release: input.ledgeRelease ?? this.deriveLedgeReleaseFromInput(input),
         forceRelease: this.pendingLedgeForceRelease,
         airborne: !grounded,
         facing: this.facing,
@@ -1782,6 +2562,10 @@ export class Character {
         // the hang on release without the budget being exhausted by
         // the recovery up-special they used to reach the ledge.
         this.jumpsUsed = 0;
+        // A fresh grab also resets descent shaping — a fast-fall latch
+        // or armed jump-cut must not survive into (or past) the hang.
+        this.fastFallLatched = false;
+        this.jumpCutArmed = false;
         // Lock facing to the ledge's "into the stage" side so the
         // fighter visually faces inward (a left-side ledge grab faces
         // right, a right-side ledge grab faces left).
@@ -1790,7 +2574,44 @@ export class Character {
       }
     }
     const ledgeLocking = isLedgeLockingInput(this.ledgeHangState);
-    const moveX = dodgeLocking || ledgeLocking ? 0 : moveXAfterShield;
+    // Charge ROOT. BOTH a grounded neutral-special charge (the Samus
+    // cannon) and a grounded smash charge PLANT the fighter — you cannot
+    // walk while charging (Samus charges rooted in place; jump is also
+    // suppressed below, and the charge cannot progress in the air, so the
+    // whole charge is a committed, stationary, grounded action). A BANKED
+    // (shield-stored) charge does NOT root — that is the point of storing.
+    const rootedByCharge =
+      (this.chargingSpecial !== null || this.chargingSmash !== null) &&
+      this.isGrounded();
+    // A fighter mid-grab (whiff / holding / throwing a victim) is committed:
+    // it can pummel + throw (handled in the grab block above) but cannot
+    // walk, jump, or swing a normal until the grab resolves.
+    const grabActing = this.grabSpec !== null && isGrabActing(this.grabState);
+    const moveX =
+      dodgeLocking || ledgeLocking || rootedByCharge || grabActing
+        ? 0
+        : moveXAfterShield;
+
+    // ---- Ground-locomotion tick (Tier 5) ---------------------------------
+    // Advance the locomotion machine with the POST-lockout `moveX` (a
+    // raised shield / dodge / charge / grab already zeroed it → resolves to
+    // 'standing', so a lockout neither dashes nor flips facing). The machine
+    // owns the grounded TARGET velocity + facing; the integrator below is
+    // unchanged. Standing/crouch carry the runtime facing, so this can never
+    // clobber a dodge/ledge/charge-owned facing.
+    const locoInput = {
+      moveX,
+      moveY: clamp(input.moveY ?? 0, -1, 1),
+      prevMoveX: this.prevLocoMoveX,
+      grounded,
+      facing: this.facing,
+    };
+    this.locomotionState = tickLocomotion(
+      this.locomotionState,
+      locoInput,
+      this.resolvedLocomotionTuning,
+    );
+    this.prevLocoMoveX = moveX;
 
     // Apply ledge-release physics for actions that resolved this tick.
     if (ledgeReleased !== null) {
@@ -1819,29 +2640,77 @@ export class Character {
         // Spot / air dodge — root the fighter in place.
         vx = 0;
       }
+    } else if (grounded) {
+      // ---- GROUNDED — locomotion-driven (Tier 5) -----------------------
+      // The locomotion machine supplies the TARGET (walk / dash / run) or
+      // `null` (standing / crouch / pivot → damp). The per-step integrator
+      // is byte-identical to the legacy path so the first-frame-`groundAccel`
+      // and terminal-`maxRunSpeed` contracts hold; only the TARGET (and the
+      // facing source) changed.
+      const target = getLocomotionTargetVx(
+        this.locomotionState,
+        locoInput,
+        this.resolvedLocomotionTuning,
+      );
+      if (target !== null) {
+        const delta = target - vx;
+        if (Math.abs(delta) <= accel) {
+          vx = target;
+        } else {
+          vx += accel * Math.sign(delta);
+        }
+        // Knockback can leave us above max speed; ease back toward it.
+        if (Math.abs(vx) > this.tuning.maxRunSpeed) {
+          vx *= damping;
+        }
+      } else {
+        // standing / crouch / pivot → damp toward rest. A pivot skid
+        // decelerates harder (its own damping) so the turnaround stops crisply.
+        const decel = isPivoting(this.locomotionState)
+          ? this.resolvedLocomotionTuning.pivotDamping
+          : damping;
+        vx *= decel;
+        if (Math.abs(vx) < 0.01) vx = 0;
+      }
+      // Facing is locomotion-owned on the ground (standing/crouch carry the
+      // current facing, so a lockout-set facing is never clobbered).
+      this.facing = getLocomotionFacing(this.locomotionState);
     } else if (Math.abs(moveX) > 0.0001) {
-      // Stick deflected — accelerate toward the directional max speed.
+      // ---- AIRBORNE — legacy proportional air-drift (unchanged) --------
       const targetVx = moveX * this.tuning.maxRunSpeed;
       const delta = targetVx - vx;
       if (Math.abs(delta) <= accel) {
-        // Within one step's worth of the target — snap to avoid jitter.
         vx = targetVx;
       } else {
         vx += accel * Math.sign(delta);
       }
-      // Knockback can leave us above max speed; ease back toward it
-      // without yanking. Only relevant once knockback lands; preserved
-      // here so the contract is stable.
       if (Math.abs(vx) > this.tuning.maxRunSpeed) {
         vx *= damping;
       }
-      // Update facing whenever the stick has direction.
       this.facing = moveX > 0 ? 1 : -1;
     } else {
-      // Stick neutral — damp toward rest. Snap to zero once we drop
-      // below a tiny epsilon so the velocity log doesn't drift.
+      // Airborne, stick neutral — damp toward rest.
       vx *= damping;
       if (Math.abs(vx) < 0.01) vx = 0;
+    }
+
+    // DASH GRAB momentum carry — a grab started out of a run slides
+    // forward at the retained run-entry velocity through its WHIFF (the
+    // pre-connect startup/active/recovery), instead of `grabActing`
+    // damping it to rest. Phase-gated to the whiff so it never fights the
+    // target-pin during 'holding' / 'throwing' / 'cooldown'. Clamped to
+    // maxRunSpeed so a knockback-inflated entry can't launch a super-grab.
+    if (
+      this.dashGrabActive &&
+      this.grabSpec?.dashGrab != null &&
+      (this.grabState.name === 'whiffStartup' ||
+        this.grabState.name === 'whiffActive' ||
+        this.grabState.name === 'whiffRecovery')
+    ) {
+      const retained =
+        this.dashGrabEntryVx * this.grabSpec.dashGrab.momentumRetain;
+      const cap = this.tuning.maxRunSpeed;
+      vx = Math.max(-cap, Math.min(cap, retained));
     }
 
     // ---- Jump (rising edge) ------------------------------------------------
@@ -1862,11 +2731,93 @@ export class Character {
       !shieldRaised &&
       !dodgeLocking &&
       !ledgeLocking &&
+      !this.helpless &&
+      !grabActing &&
+      // Charging a grounded SMASH or NEUTRAL-SPECIAL (Samus cannon) fully
+      // roots the fighter — no jump while charging. The charge is a
+      // committed, stationary, grounded action: to act, release it (fire)
+      // or shield-store the charge first.
+      !(
+        (this.chargingSmash !== null || this.chargingSpecial !== null) &&
+        grounded
+      ) &&
       input.jump &&
       !this.prevJumpHeld;
-    if (jumpJustPressed && this.jumpsUsed < this.tuning.maxJumps) {
+    // The jump impulse, extracted so an immediate jump and a buffered
+    // tap-jump (below) drive byte-identical state.
+    const applyJumpImpulse = (): void => {
       vy = -this.tuning.jumpImpulse;
       this.jumpsUsed += 1;
+      // Arm the variable-height cut for THIS rise and clear any
+      // fast-fall latch — a fresh jump always starts a clean arc.
+      this.jumpCutArmed = true;
+      this.jumpCutFrames = 0;
+      this.fastFallLatched = false;
+      // AC 10304 — voice the jump cue on the impulse frame. The first
+      // jump off a platform (`jumpsUsed === 1` after the increment)
+      // gets the full "hup"; every air / multi-jump after it gets the
+      // lighter variant so a triple-jumper doesn't hammer the heavy cue
+      // three times in one rise. Fired from the deterministic tick so
+      // the cadence is a pure function of the input stream (the replay
+      // re-derives identical timing); the AudioManager's wall-clock
+      // cooldown only decides whether a given call produces sound.
+      emitCombatSfx(this.sfxSink ?? undefined, mapJumpToSfxKey(this.jumpsUsed));
+    };
+
+    // Fresh attack rising-edge (light or heavy), read here for the tap-jump
+    // buffer; the same edge drives the grounded up-attack dispatch later, so a
+    // press that cancels the buffer ALSO fires the up-tilt / up-smash.
+    const attackEdgeForJump =
+      (input.attack === true && !this.prevAttackHeld) ||
+      (input.attackHeavy === true && !this.prevHeavyHeld);
+
+    // ---- Tap-jump buffer ---------------------------------------------------
+    // Resolve any in-flight buffer from a prior frame's ambiguous up+jump.
+    if (this.tapJumpBufferFrames > 0) {
+      const preempted =
+        attackEdgeForJump ||
+        !grounded ||
+        shieldRaised ||
+        dodgeLocking ||
+        ledgeLocking ||
+        grabActing ||
+        this.hitstunRemaining > 0;
+      if (preempted) {
+        // An attack converted it to a grounded up-attack, or a state change
+        // pre-empted it — drop the buffered jump.
+        this.tapJumpBufferFrames = 0;
+      } else {
+        this.tapJumpBufferFrames -= 1;
+        if (
+          this.tapJumpBufferFrames === 0 &&
+          this.jumpsUsed < this.tuning.maxJumps
+        ) {
+          applyJumpImpulse();
+        }
+      }
+    }
+
+    if (jumpJustPressed && this.jumpsUsed < this.tuning.maxJumps) {
+      const rawMoveY = input.moveY ?? 0;
+      const rawMoveX = input.moveX ?? 0;
+      // Same up-stick test that gates the grounded up-attack dispatch, so the
+      // buffer engages exactly when an up-attack could follow.
+      const upStickHeld =
+        rawMoveY <= -DEFAULT_NEUTRAL_THRESHOLD &&
+        Math.abs(rawMoveY) >= Math.abs(rawMoveX);
+      const hasUpAttack = this.upTiltId !== null || this.upSmashId !== null;
+      if (grounded && upStickHeld && hasUpAttack) {
+        // Ambiguous up+jump (the up key is also the jump key): hold the jump so
+        // a follow-up attack can convert it to an up-tilt / up-smash. If attack
+        // is pressed the SAME frame, do nothing here — the grounded dispatch
+        // fires the up-attack and the jump is suppressed outright.
+        if (!attackEdgeForJump) {
+          this.tapJumpBufferFrames = TAP_JUMP_BUFFER_FRAMES;
+        }
+      } else {
+        // Unambiguous jump (no up-stick, airborne, or no up-attack): instant.
+        applyJumpImpulse();
+      }
     }
 
     // Reset the jump budget when grounded *and* not in the middle of a
@@ -1874,6 +2825,94 @@ export class Character {
     // happening on the same frame we just kicked off the ground.
     if (grounded && vy >= 0) {
       this.jumpsUsed = 0;
+    }
+
+    // ---- Vertical motion shaping (Smash-feel pack) -------------------------
+    // Three per-fighter descent mechanics, all suspended during hitstun
+    // so a knockback launch follows its ballistic arc untouched (the
+    // "do NOT damp velocity during hitstun" contract extends to fall
+    // shaping):
+    //
+    //   1. SHORT HOP / variable jump height — while `jumpCutArmed`,
+    //      releasing the jump button mid-rise clamps the climb to
+    //      `jumpImpulse * jumpCutFactor`. Tap = short hop, hold = full
+    //      jump. The arm flag (set only by a real jump impulse) is what
+    //      keeps an upward LAUNCH from ever being cut by an idle button.
+    //
+    //   2. FAST-FALL — pushing the stick down during a descent latches
+    //      the fast-fall: vy snaps to `fastFallSpeed` and stays capped
+    //      there until landing / a fresh jump / hitstun. The latch (vs
+    //      a per-frame check) means easing the stick back to neutral
+    //      mid-drop does NOT pop the fighter back to normal fall speed,
+    //      matching the Smash contract.
+    //
+    //   3. PER-FIGHTER GRAVITY + TERMINAL VELOCITY — `fallAccel` adds
+    //      descent-only acceleration on top of global Matter gravity
+    //      (floaty Owl 0.16 vs fast-falling Cat 0.38) and `maxFallSpeed`
+    //      clamps the result, giving every fall a readable terminal
+    //      velocity where raw Matter had none. Rise speed is untouched
+    //      so jump heights keep their pre-pack tuning.
+    if (this.hitstunRemaining === 0) {
+      if (this.jumpCutArmed) {
+        this.jumpCutFrames += 1;
+        if (this.jumpCutFrames > JUMP_CUT_WINDOW_FRAMES) {
+          // Past the short-hop decision window — the jump is committed
+          // to full height regardless of when the button is released
+          // (Smash semantics: only an EARLY release short-hops).
+          this.jumpCutArmed = false;
+        } else {
+          const cutSpeed = this.tuning.jumpImpulse * this.tuning.jumpCutFactor;
+          if (!input.jump && vy < -cutSpeed) {
+            vy = -cutSpeed;
+            // The cut fired — the short hop is decided; disarm so a
+            // re-press during the same rise can't re-clip anything.
+            this.jumpCutArmed = false;
+          }
+        }
+        // Rise ended some other way (apex, landing) — disarm. NOT on
+        // `grounded`, because the support contact lingers through the
+        // jump frame itself (Matter's collisionend lags a frame), and
+        // clearing there would kill the arm before the first airborne
+        // step.
+        if (vy >= 0) {
+          this.jumpCutArmed = false;
+        }
+      }
+      if (!groundedForFall) {
+        const stickY = input.moveY ?? 0;
+        if (!ledgeLocking && !this.fastFallLatched && vy > 0 && stickY > 0.6) {
+          this.fastFallLatched = true;
+        }
+        // Capture the entry velocity BEFORE shaping: the terminal
+        // clamp may cap our own gravity/fallAccel acceleration, but it
+        // must never REDUCE a velocity something external (a downward
+        // wind gust, a hazard shove) already injected above terminal —
+        // that would silently nullify the hazard.
+        const entryVy = vy;
+        if (vy > 0) {
+          vy += this.tuning.fallAccel;
+        }
+        const terminal = this.fastFallLatched
+          ? this.tuning.fastFallSpeed
+          : this.tuning.maxFallSpeed;
+        // Fast-fall snaps DOWN to its terminal velocity the moment the
+        // latch engages (Smash-style instant drop), then both paths
+        // share the same cap.
+        if (this.fastFallLatched && vy > 0 && vy < terminal) {
+          vy = terminal;
+        }
+        const cap = Math.max(terminal, entryVy);
+        if (vy > cap) {
+          vy = cap;
+        }
+      } else {
+        this.fastFallLatched = false;
+      }
+    } else {
+      // Hitstun owns the velocity — drop both latches so the launch
+      // arc can't inherit a stale fast-fall or jump-cut.
+      this.fastFallLatched = false;
+      this.jumpCutArmed = false;
     }
 
     // ---- Ledge-hang freeze (AC 60403 Sub-AC 3) ----------------------------
@@ -1974,12 +3013,19 @@ export class Character {
     // mashed attack key during the dodge does NOT swing. The latch on
     // `prevAttackHeld` still updates so the FIRST attack press after
     // the dodge resolves still reads as a fresh rising edge.
+    // A HELPLESS fighter (free-fall after a committal aerial special —
+    // Owl's burst recovery, an air dashStrike / stallAndFall / commandDash
+    // whiff) cannot attack, special, or jump until it touches the ground;
+    // it only keeps limited air drift. Same suppression shape as shield.
+    const helpless = this.helpless;
     const attackHeldEffective =
-      !shieldRaised && !dodgeLocking && !ledgeLocking && input.attack === true;
+      !shieldRaised && !dodgeLocking && !ledgeLocking && !helpless && !grabActing && input.attack === true;
     const heavyHeldEffective =
       !shieldRaised &&
       !dodgeLocking &&
       !ledgeLocking &&
+      !helpless &&
+      !grabActing &&
       input.attackHeavy === true;
     // T1 (AC 5-9) — special-press dispatch. Same suppression gates as
     // attack/heavy: while a shield is raised, while a dodge is acting,
@@ -1996,7 +3042,22 @@ export class Character {
       !shieldRaised &&
       !dodgeLocking &&
       !ledgeLocking &&
+      !helpless &&
+      !grabActing &&
       input.special === true;
+    // Directional input leniency: classify up/down attacks off the
+    // most-extreme vertical stick over a short backward window, not just
+    // the exact press frame (a flick-up a frame or two early still fires
+    // the up-air / up-tilt). The window includes the current frame.
+    const curMoveY = input.moveY ?? 0;
+    this.recentMoveY.push(curMoveY);
+    if (this.recentMoveY.length > DIRECTIONAL_INPUT_WINDOW) {
+      this.recentMoveY.shift();
+    }
+    let bufferedMoveY = curMoveY;
+    for (const v of this.recentMoveY) {
+      if (Math.abs(v) > Math.abs(bufferedMoveY)) bufferedMoveY = v;
+    }
     this.tickAttack(
       attackHeldEffective,
       heavyHeldEffective,
@@ -2007,6 +3068,8 @@ export class Character {
       specialHeldEffective,
       input.dropThrough === true,
       input.jump === true,
+      shieldHeld,
+      bufferedMoveY,
     );
 
     // Latch the jump / attack / grounded state for next frame's edge
@@ -2231,6 +3294,11 @@ export class Character {
     return this.grabState;
   }
 
+  /** True while the in-flight grab was started out of a run (a dash grab). */
+  isDashGrabbing(): boolean {
+    return this.dashGrabActive;
+  }
+
   /**
    * True iff this character is currently being held by another
    * fighter's grab. While true, all input is ignored and the body's
@@ -2324,6 +3392,20 @@ export class Character {
     const leftWhiffActive =
       before.name === 'whiffActive' && after.name !== 'whiffActive';
     if (enteredWhiffActive) {
+      // A DASH GRAB reaches further: shift the range hitbox forward by
+      // `rangeBonusX` (a shallow spec clone — spawnGrabHitbox still mirrors
+      // offsetX by facing, so the bonus extends the reach in front).
+      const spawnSpec =
+        this.dashGrabActive && this.grabSpec.dashGrab != null
+          ? {
+              ...this.grabSpec,
+              hitbox: {
+                ...this.grabSpec.hitbox,
+                offsetX:
+                  this.grabSpec.hitbox.offsetX + this.grabSpec.dashGrab.rangeBonusX,
+              },
+            }
+          : this.grabSpec;
       this.grabHitboxBody = spawnGrabHitbox(
         this.scene as unknown as HitboxScene,
         {
@@ -2331,7 +3413,7 @@ export class Character {
           position: this.body.position,
           bodyId: this.body.id,
         },
-        this.grabSpec,
+        spawnSpec,
         this.facing,
       );
     }
@@ -2350,10 +3432,15 @@ export class Character {
         // hit pipeline so existing combat math (percent scaling,
         // hitlag, etc.) all fire identically to a regular hit.
         this.grabTarget.releaseFromGrab();
+        // Back throw launches the victim BEHIND the grabber — flip the
+        // facing the knockback's +x mirrors against, so a back-throw's
+        // positive knockback.x sends them the opposite way from a forward
+        // throw (previously every throw used `this.facing`, so back-throw
+        // launched the wrong direction).
         this.grabTarget.applyHit({
           damage: throwSpec.damage,
           knockback: throwSpec.knockback,
-          facing: this.facing,
+          facing: (dir === 'back' ? -this.facing : this.facing) as 1 | -1,
         });
         this.grabTarget = null;
       }
@@ -2432,6 +3519,56 @@ export class Character {
       throw new Error(`Character: cannot set tilt attack to unregistered '${id}'`);
     }
     this.tiltAttackId = id;
+  }
+  /** Wire the up-tilt slot (up-stick light press). The move must be registered. */
+  setUpTilt(id: string | null): void {
+    if (id !== null && !this.attacks.has(id)) {
+      throw new Error(`Character: cannot set up-tilt to unregistered '${id}'`);
+    }
+    this.upTiltId = id;
+  }
+  getUpTiltId(): string | null {
+    return this.upTiltId;
+  }
+  /** Wire the up-smash slot (up-stick heavy press). The move must be registered. */
+  setUpSmash(id: string | null): void {
+    if (id !== null && !this.attacks.has(id)) {
+      throw new Error(`Character: cannot set up-smash to unregistered '${id}'`);
+    }
+    this.upSmashId = id;
+  }
+  getUpSmashId(): string | null {
+    return this.upSmashId;
+  }
+  /** Wire the down-tilt slot (down-stick light press). The move must be registered. */
+  setDownTilt(id: string | null): void {
+    if (id !== null && !this.attacks.has(id)) {
+      throw new Error(`Character: cannot set down-tilt to unregistered '${id}'`);
+    }
+    this.downTiltId = id;
+  }
+  getDownTiltId(): string | null {
+    return this.downTiltId;
+  }
+  /** Wire the down-smash slot (down-stick heavy press). The move must be registered. */
+  setDownSmash(id: string | null): void {
+    if (id !== null && !this.attacks.has(id)) {
+      throw new Error(`Character: cannot set down-smash to unregistered '${id}'`);
+    }
+    this.downSmashId = id;
+  }
+  getDownSmashId(): string | null {
+    return this.downSmashId;
+  }
+  /** Wire the dash-attack slot (light press while running). The move must be registered. */
+  setDashAttack(id: string | null): void {
+    if (id !== null && !this.attacks.has(id)) {
+      throw new Error(`Character: cannot set dash-attack to unregistered '${id}'`);
+    }
+    this.dashAttackSlotId = id;
+  }
+  getDashAttackId(): string | null {
+    return this.dashAttackSlotId;
   }
 
   /**
@@ -2543,6 +3680,20 @@ export class Character {
     }
     this.aerialBackId = id;
   }
+  setAerialUp(id: string | null): void {
+    if (id !== null && !this.attacks.has(id)) {
+      throw new Error(`Character: cannot set aerial-up to unregistered '${id}'`);
+    }
+    this.aerialUpId = id;
+  }
+  setAerialDown(id: string | null): void {
+    if (id !== null && !this.attacks.has(id)) {
+      throw new Error(
+        `Character: cannot set aerial-down to unregistered '${id}'`,
+      );
+    }
+    this.aerialDownId = id;
+  }
 
   /** AC 60102 Sub-AC 2 — read the wired-up directional aerial dispatch slot. */
   getAerialNeutralId(): string | null {
@@ -2553,6 +3704,12 @@ export class Character {
   }
   getAerialBackId(): string | null {
     return this.aerialBackId;
+  }
+  getAerialUpId(): string | null {
+    return this.aerialUpId;
+  }
+  getAerialDownId(): string | null {
+    return this.aerialDownId;
   }
 
   /** Read-only lookup of the registered moveset by id. */
@@ -2655,7 +3812,80 @@ export class Character {
       phase: this.attackPhase(),
       framesElapsed: this.activeAttack.framesElapsed,
       hitboxBody: this.activeAttack.hitboxBody,
+      chargeHeldFrames: this.activeAttack.chargeHeldFrames,
     };
+  }
+
+  /**
+   * Read-only charge / wind-up progress of the active attack, in
+   * `[0, 1]`, or `null` when the fighter is not winding a move up.
+   *
+   * # What "charging" means here
+   *
+   * Charge-type attacks (Falcon-Punch-style neutral specials, smash
+   * finishers, the heavy hammer swing) all share a long **startup**
+   * phase — the visible wind-up before the hitbox spawns. That startup
+   * window IS the charge: the longer a move spends in startup, the more
+   * "powered up" it reads on screen. We expose the fraction of the
+   * startup phase already elapsed so the in-match {@link ChargeIndicator}
+   * overlay can paint a glow / bar that intensifies as the swing winds
+   * up, with no per-move bespoke art.
+   *
+   *   progress = framesElapsed / startupFrames   while phase === 'startup'
+   *   progress = null                            otherwise
+   *
+   * The result is `null` (not `0`) the instant the move leaves startup
+   * — once the hitbox is live (`'active'`) or the fighter is in
+   * `'recovery'`, there is no longer a charge to show, and the overlay
+   * hides rather than freezing at full glow.
+   *
+   * # Determinism
+   *
+   * Pure integer arithmetic over the active attack's `framesElapsed`
+   * (advanced one tick per fixed step) and the move's frozen
+   * `startupFrames`. No `Math.random()`, no `Date.now()`, no Phaser /
+   * Matter reads — identical inputs on identical frames always yield
+   * the same fraction, so replays paint identical wind-ups. The output
+   * is clamped to `[0, 1]` defensively against a malformed
+   * `startupFrames <= 0` (collapses the whole startup window to a
+   * single full-charge frame rather than dividing by zero).
+   */
+  getChargeProgress(): number | null {
+    // Hold-to-charge specials (Samus cannon) report their REAL buildup
+    // — the fraction of the charge window the button has been held —
+    // which is the headline use of this getter. This takes priority
+    // over the active-attack startup window below (the two never overlap:
+    // while `chargingSpecial` is set, no move has fired yet).
+    if (this.chargingSpecial !== null) {
+      const cs = this.chargingSpecial;
+      if (cs.maxFrames <= 0) return 1;
+      return clamp(cs.framesHeld / cs.maxFrames, 0, 1);
+    }
+    // A grounded SMASH wind-up reports its real buildup the same way, so
+    // the ChargeIndicator paints the smash charge too.
+    if (this.chargingSmash !== null) {
+      const cs = this.chargingSmash;
+      if (cs.maxFrames <= 0) return 1;
+      return clamp(cs.framesHeld / cs.maxFrames, 0, 1);
+    }
+    // A BANKED charge (shield-cancelled, kept for later) keeps the glow
+    // lit at its stored level — the on-screen proof that the charge is
+    // kept. Resolve the max-frame window from the move's charge ramp.
+    if (this.storedSpecialCharge !== null) {
+      const cm = this.neutralChargeMove();
+      const max = cm ? Math.max(1, cm.charge.maxChargeFrames) : 1;
+      return clamp(this.storedSpecialCharge.framesHeld / max, 0, 1);
+    }
+    const a = this.activeAttack;
+    if (!a) return null;
+    if (Character.phaseFor(a.framesElapsed, a.move) !== 'startup') return null;
+    const startup = a.move.startupFrames;
+    // A zero / negative startup window can't be "charged" through —
+    // report full charge so a (defensively-impossible) instant-startup
+    // move still reads as a complete wind-up rather than NaN.
+    if (!(startup > 0)) return 1;
+    const t = a.framesElapsed / startup;
+    return t < 0 ? 0 : t > 1 ? 1 : t;
   }
 
   /**
@@ -2675,8 +3905,145 @@ export class Character {
       framesElapsed: 0,
       hitboxBody: null,
       upSpecial: null,
+      chargeHeldFrames: null,
     };
     return true;
+  }
+
+  /**
+   * JAB-COMBO advance — replace the in-flight jab stage with the next
+   * stage of the string (`nextId`), restarting its frame timeline. Unlike
+   * {@link attemptAttack} this deliberately BYPASSES `canAttack()` (which
+   * would reject because a jab is already active) and arms NO cooldown
+   * between stages, so the string flows seamlessly — the FINAL stage's
+   * `cooldownFrames` becomes the post-string lockout when it ends. Facing
+   * is copied from the current stage so a mid-string stick wiggle can't
+   * flip the combo. Returns false (no-op) if the next stage isn't
+   * registered or no jab is active.
+   */
+  private advanceJabChain(nextId: string): boolean {
+    if (this.activeAttack === null) return false;
+    const next = this.attacks.get(nextId);
+    if (next === undefined) return false;
+    // Despawn the current stage's live hitbox so we never leak a sensor.
+    if (this.activeAttack.hitboxBody !== null) {
+      despawnHitbox(this.scene as unknown as HitboxScene, this.activeAttack.hitboxBody);
+    }
+    this.activeAttack = {
+      move: next,
+      facing: this.activeAttack.facing,
+      framesElapsed: 0,
+      hitboxBody: null,
+      upSpecial: null,
+      chargeHeldFrames: null,
+    };
+    return true;
+  }
+
+  /**
+   * Fire a `specialKind: 'charge'` neutral special on RELEASE, latching
+   * the held-charge frame count so the active window deals the lerped
+   * (charged) damage / knockback. Called by the charge state machine in
+   * {@link tickAttack} when the special button is released (or the
+   * charge maxes out). Drops the charge silently if the fighter can no
+   * longer act (mid-attack / cooldown / destroyed) — the player simply
+   * loses the stored charge, same as Smash if you get hit out of it.
+   */
+  private fireNeutralChargeSpecial(moveId: string, heldFrames: number): void {
+    if (!this.canAttack()) return;
+    const move = this.attacks.get(moveId);
+    if (!move) return;
+    this.activeAttack = {
+      move,
+      facing: this.facing,
+      framesElapsed: 0,
+      hitboxBody: null,
+      upSpecial: null,
+      chargeHeldFrames: Math.max(0, Math.round(heldFrames)),
+    };
+  }
+
+  /**
+   * Resolve the neutral-special move IF it is a chargeable
+   * (`specialKind: 'charge'`) move with a `charge` ramp — else `null`.
+   * The charge state machine consults this to decide whether a neutral
+   * special press starts a hold-to-charge instead of firing instantly.
+   */
+  /**
+   * Resolve a grounded smash move id to its {@link ChargeSpec} ramp, or
+   * `null` if the smash carries no `charge` field (fires instantly). The
+   * presence of a `charge` ramp is what turns a smash into a hold-to-charge
+   * move — so existing roster smashes without one keep firing on press.
+   */
+  private smashChargeMove(moveId: string): { id: string; charge: ChargeSpec } | null {
+    const move = this.attacks.get(moveId) as unknown as
+      | { id: string; charge?: ChargeSpec }
+      | undefined;
+    if (!move || move.charge === undefined) return null;
+    return { id: moveId, charge: move.charge };
+  }
+
+  /**
+   * Fire a charged smash on release: latch `facing` (committed at
+   * charge-start), start the move via {@link attemptAttack}, then stamp
+   * `chargeHeldFrames` so {@link chargedSpawnMove} lerps the hitbox's
+   * damage + knockback by how long it was charged. No-op if the fighter
+   * can no longer act (mid-attack / cooldown / destroyed) — the charge is
+   * simply dropped.
+   */
+  private fireSmash(moveId: string, facing: 1 | -1, heldFrames: number): void {
+    if (!this.canAttack()) return;
+    this.facing = facing;
+    if (!this.attemptAttack(moveId)) return;
+    if (this.activeAttack !== null) {
+      this.activeAttack.chargeHeldFrames = Math.max(0, Math.round(heldFrames));
+    }
+  }
+
+  private neutralChargeMove(): { id: string; charge: ChargeSpec } | null {
+    if (this.neutralSpecialId === null) return null;
+    const move = this.attacks.get(this.neutralSpecialId) as unknown as
+      | {
+          id: string;
+          specialKind?: string;
+          charge?: ChargeSpec;
+          chargedProjectile?: { charge: ChargeSpec };
+        }
+      | undefined;
+    if (!move) return null;
+    // The charge ramp lives either at `move.charge` (a `'charge'`-kind
+    // melee/beam) OR at `move.chargedProjectile.charge` (a `'projectile'`
+    // kind carrying the Samus charge-beam overlay). Either makes the
+    // neutral special a hold-to-charge move.
+    const charge = move.charge ?? move.chargedProjectile?.charge;
+    if (
+      charge &&
+      (move.specialKind === 'charge' || move.specialKind === 'projectile')
+    ) {
+      return { id: move.id, charge };
+    }
+    return null;
+  }
+
+  /**
+   * Resolve the move record (possibly a charged clone) to spawn the
+   * active attack's hitbox from. For a charge release, lerps the move's
+   * `damage` + `knockback` between the `charge.min*` / `charge.max*`
+   * endpoints at the held-frame count via the {@link ChargeSpec} ramp;
+   * every other move returns its authored record unchanged.
+   */
+  private chargedSpawnMove(a: {
+    move: AttackMove;
+    chargeHeldFrames: number | null;
+  }): AttackMove {
+    if (a.chargeHeldFrames === null) return a.move;
+    const spec = (a.move as unknown as { charge?: ChargeSpec }).charge;
+    if (!spec) return a.move;
+    return {
+      ...a.move,
+      damage: computeChargedDamageFromSpec(spec, a.chargeHeldFrames),
+      knockback: computeChargedKnockbackFromSpec(spec, a.chargeHeldFrames),
+    };
   }
 
   /**
@@ -2767,6 +4134,12 @@ export class Character {
     // jump. Canonical Smash up-Bs are the dedicated recovery option;
     // they're orthogonal to the multi-jump counter.
     this.jumpsUsed = 0;
+    // The up-special owns the vertical velocity from this frame on —
+    // an armed short-hop cut from a prior jump must not clip the
+    // recovery's rise on button release, and a stale fast-fall latch
+    // must not drag the recovery back down.
+    this.jumpCutArmed = false;
+    this.fastFallLatched = false;
 
     return true;
   }
@@ -2852,8 +4225,14 @@ export class Character {
    * teleport (`setPosition`) happens on the active→recovery transition
    * inside `tickAttack`, where the latched direction is consumed.
    */
-  private applyTeleportPress(_move: TeleportUpSpecialMove): void {
+  private applyTeleportPress(move: TeleportUpSpecialMove): void {
     this.scene.matter.body.setVelocity(this.body, { x: 0, y: 0 });
+    // The defining feature of a teleport recovery: the vanish is
+    // INVULNERABLE (a Sheik/Zelda/Mewtwo-style escape). Grant i-frames for
+    // the authored window from the press frame — the same timer respawn
+    // grace uses, drained per fixed step in applyInput. Without this Cat
+    // was fully hittable throughout the vanish.
+    this.setInvincibility(move.teleport.invincibilityFrames);
   }
 
   /** Owl — set velocity along the chosen direction × burstSpeed. */
@@ -2950,16 +4329,830 @@ export class Character {
         }
         break;
       }
+      case 'tether': {
+        // Hookshot recovery: REEL toward the nearest ledge within the
+        // tether's reach so the line grabs a ledge from beyond normal grab
+        // range. The standard ledge-grab detection (computeLedgeDetection
+        // in applyInput) catches the body once the reel pulls it close, so
+        // we only need to fly it toward the ledge here. A whiffed tether
+        // (no ledge in range) just keeps the press-frame upward pop.
+        const spec = a.move.tether;
+        const pos = this.body.position;
+        const maxR = spec.maxRange;
+        let nearestX = 0;
+        let nearestY = 0;
+        let nearestD2 = maxR * maxR;
+        let found = false;
+        for (const c of this.ledgeCandidates) {
+          const dx = c.x - pos.x;
+          const dy = c.y - pos.y;
+          const d2 = dx * dx + dy * dy;
+          if (d2 <= nearestD2) {
+            nearestD2 = d2;
+            nearestX = c.x;
+            nearestY = c.y;
+            found = true;
+          }
+        }
+        if (found) {
+          const dx = nearestX - pos.x;
+          const dy = nearestY - pos.y;
+          const d = Math.sqrt(dx * dx + dy * dy) || 1;
+          this.scene.matter.body.setVelocity(this.body, {
+            x: (dx / d) * spec.reelSpeed,
+            y: (dy / d) * spec.reelSpeed,
+          });
+        }
+        break;
+      }
       case 'multiHitRising':
-      case 'tether':
         // Press-frame impulse + standard physics integration is the
-        // recovery vector for these kinds. No per-frame override.
+        // recovery vector for this kind. No per-frame override.
         break;
       default: {
         const _exhaustive: never = a.move;
         void _exhaustive;
       }
     }
+  }
+
+  /**
+   * Resolve the down-special DIVE parameters for a move, or `null` when it
+   * is not a `groundPound` / `stallAndFall` down-special. Both kinds share
+   * one runtime shape: a RISE phase (hop / stall) for the first
+   * `riseFrames` of the active window, then a DESCENT phase plunging at
+   * `descentVy` until ground contact, where the shockwave fires. Pure —
+   * reads only frozen authored fields.
+   */
+  private resolveDiveSpec(move: AttackMove): {
+    moveId: string;
+    riseFrames: number;
+    riseVy: number;
+    descentVy: number;
+    shockwaveDamage: number;
+    shockwaveKnockback: AttackMove['knockback'];
+    shockwaveHitbox: {
+      offsetX: number;
+      offsetY: number;
+      width: number;
+      height: number;
+    };
+  } | null {
+    const m = move as unknown as {
+      id: string;
+      type?: string;
+      downSpecialKind?: string;
+      groundPound?: {
+        hopFrames: number;
+        hopImpulse: number;
+        slamVelocity: number;
+        shockwaveDamage: number;
+        shockwaveKnockback: AttackMove['knockback'];
+        shockwaveHitbox: { offsetX: number; offsetY: number; width: number; height: number };
+      };
+      stallAndFall?: {
+        stallFrames: number;
+        stallVelocity: number;
+        fallVelocity: number;
+        shockwaveDamage: number;
+        shockwaveKnockback: AttackMove['knockback'];
+        shockwaveHitbox: { offsetX: number; offsetY: number; width: number; height: number };
+      };
+    };
+    if (m.type !== 'downSpecial') return null;
+    if (m.downSpecialKind === 'groundPound' && m.groundPound) {
+      const g = m.groundPound;
+      return {
+        moveId: m.id,
+        riseFrames: g.hopFrames,
+        riseVy: g.hopImpulse,
+        descentVy: g.slamVelocity,
+        shockwaveDamage: g.shockwaveDamage,
+        shockwaveKnockback: g.shockwaveKnockback,
+        shockwaveHitbox: g.shockwaveHitbox,
+      };
+    }
+    if (m.downSpecialKind === 'stallAndFall' && m.stallAndFall) {
+      const s = m.stallAndFall;
+      return {
+        moveId: m.id,
+        riseFrames: s.stallFrames,
+        riseVy: s.stallVelocity,
+        descentVy: s.fallVelocity,
+        shockwaveDamage: s.shockwaveDamage,
+        shockwaveKnockback: s.shockwaveKnockback,
+        shockwaveHitbox: s.shockwaveHitbox,
+      };
+    }
+    return null;
+  }
+
+  /**
+   * Per-frame physics for a down-special DIVE, mirroring
+   * {@link tickUpSpecialPhysics}. During the active window it OVERRIDES the
+   * fall-shaping/terminal-clamp velocity committed earlier this frame with
+   * the hop/stall RISE velocity (first `riseFrames`) then the slam/fall
+   * DESCENT velocity, and re-anchors the meteor hitbox onto the plunging
+   * body each frame (the standard re-anchor only tracks aerials, so a
+   * grounded-spawned dive hitbox would otherwise freeze at the spawn
+   * point). The landing burst + the hold-active-until-land gate live in
+   * the Step-1 frame-advance block; once the burst has fired
+   * (`diveShockwaveSpawned`) the dive's motion is done and this no-ops so
+   * a post-landing active frame can't re-launch the plunge.
+   */
+  private tickDownSpecialDivePhysics(): void {
+    const a = this.activeAttack;
+    if (a === null) return;
+    if (this.diveShockwaveSpawned) return;
+    const dive = this.resolveDiveSpec(a.move);
+    if (dive === null) return;
+    if (Character.phaseFor(a.framesElapsed, a.move) !== 'active') return;
+    const framesIntoActive = a.framesElapsed - a.move.startupFrames;
+    const descending = framesIntoActive >= dive.riseFrames;
+    const vy = descending ? dive.descentVy : dive.riseVy;
+    // The dive owns the vertical motion this frame; horizontal velocity is
+    // preserved so the player can steer the plunge slightly.
+    this.scene.matter.body.setVelocity(this.body, {
+      x: this.body.velocity.x,
+      y: vy,
+    });
+    if (a.hitboxBody !== null) {
+      updateHitboxPosition(
+        this.scene as unknown as HitboxScene,
+        a.hitboxBody,
+        this.body.position,
+        a.move,
+        a.facing,
+      );
+    }
+  }
+
+  /**
+   * Enter a tech-roll / get-up-roll: a short intangible slide along the
+   * floor away from danger. Grants i-frames for the roll and latches the
+   * roll lockout that {@link tickAttack} drains while pinning vy to 0.
+   */
+  private startGetupRoll(dir: 1 | -1): void {
+    this.getupRollDir = dir;
+    this.getupRollRemaining = GETUP_ROLL_FRAMES;
+    this.facing = dir; // rolls turn you to face the travel direction
+    this.setInvincibility(GETUP_ROLL_FRAMES);
+    this.scene.matter.body.setVelocity(this.body, {
+      x: dir * GETUP_ROLL_SPEED,
+      y: 0,
+    });
+  }
+
+  /**
+   * Get-up attack: stand from a knockdown swinging a weak double-sided
+   * sweep that hits on both flanks. Spawns a transient `HITBOX_LABEL`
+   * sensor the scene resolves to an `applyHit`, and grants the standard
+   * get-up i-frames so the wake-up itself can't be stuffed.
+   */
+  private startGetupAttack(): void {
+    this.setInvincibility(GETUP_IFRAME_FRAMES);
+    this.scene.matter.body.setVelocity(this.body, { x: 0, y: 0 });
+    const getupMove = {
+      id: `${this.id}.getupAttack`,
+      type: 'tilt',
+      damage: GETUP_ATTACK_DAMAGE,
+      knockback: { x: 4, y: -3, scaling: 0.12 },
+      // A wide low sweep centred on the fighter — covers both flanks.
+      hitbox: { offsetX: 0, offsetY: 0, width: 96, height: 40 },
+      startupFrames: 0,
+      activeFrames: GETUP_ATTACK_FRAMES,
+      recoveryFrames: 0,
+      cooldownFrames: 0,
+    } as unknown as AttackMove;
+    const body = spawnHitbox(
+      this.scene as unknown as HitboxScene,
+      { id: this.id, position: this.body.position, bodyId: this.body.id },
+      getupMove,
+      this.facing,
+    );
+    this.transientHitboxes.push({ body, framesRemaining: GETUP_ATTACK_FRAMES });
+  }
+
+  /**
+   * Spawn the landing shockwave hitbox at the fighter's feet on dive
+   * touchdown. A short-lived transient `HITBOX_LABEL` sensor — the scene's
+   * HitboxDamageHandler resolves any such body into an `applyHit`, so the
+   * shockwave deals its damage / knockback without any bespoke wiring.
+   * Tracked in {@link transientHitboxes} and despawned after
+   * {@link DIVE_SHOCKWAVE_FRAMES}.
+   */
+  private spawnDiveShockwave(
+    dive: {
+      moveId: string;
+      shockwaveDamage: number;
+      shockwaveKnockback: AttackMove['knockback'];
+      shockwaveHitbox: { offsetX: number; offsetY: number; width: number; height: number };
+    },
+    facing: 1 | -1,
+  ): void {
+    const shockMove = {
+      id: `${dive.moveId}.shockwave`,
+      type: 'downSpecial',
+      damage: dive.shockwaveDamage,
+      knockback: dive.shockwaveKnockback,
+      hitbox: dive.shockwaveHitbox,
+      startupFrames: 0,
+      activeFrames: 1,
+      recoveryFrames: 0,
+      cooldownFrames: 0,
+    } as unknown as AttackMove;
+    const body = spawnHitbox(
+      this.scene as unknown as HitboxScene,
+      { id: this.id, position: this.body.position, bodyId: this.body.id },
+      shockMove,
+      facing,
+    );
+    this.transientHitboxes.push({ body, framesRemaining: DIVE_SHOCKWAVE_FRAMES });
+  }
+
+  /**
+   * Advance + expire the transient hitboxes (dive landing shockwaves).
+   * Runs once per `tickAttack`, independent of the active-attack
+   * lifecycle. Deterministic: integer frame counters only.
+   */
+  private tickTransientHitboxes(): void {
+    if (this.transientHitboxes.length === 0) return;
+    const survivors: Array<{ body: MatterJS.BodyType; framesRemaining: number }> = [];
+    for (const h of this.transientHitboxes) {
+      h.framesRemaining -= 1;
+      if (h.framesRemaining <= 0) {
+        despawnHitbox(this.scene as unknown as HitboxScene, h.body);
+      } else {
+        survivors.push(h);
+      }
+    }
+    this.transientHitboxes = survivors;
+  }
+
+  /** Despawn + drop every transient hitbox (teardown / respawn). */
+  private clearTransientHitboxes(): void {
+    for (const h of this.transientHitboxes) {
+      despawnHitbox(this.scene as unknown as HitboxScene, h.body);
+    }
+    this.transientHitboxes = [];
+    // Placed traps are world sensors too — sweep them on the same path so
+    // a respawn / teardown can't leak an armed mine into the next stock.
+    for (const t of this.activeTraps) {
+      if (t.body !== null) despawnHitbox(this.scene as unknown as HitboxScene, t.body);
+    }
+    this.activeTraps = [];
+  }
+
+  /**
+   * Resolve a `trap` down-special into its placement spec, or `null`.
+   * Pure.
+   */
+  private resolveTrapSpec(move: AttackMove): {
+    trapWidth: number;
+    trapHeight: number;
+    spawnOffsetX: number;
+    spawnOffsetY: number;
+    armDelayFrames: number;
+    trapLifetimeFrames: number;
+    trapDamage: number;
+    trapKnockback: AttackMove['knockback'];
+    maxActiveTraps: number;
+    fuseDetonateFrames?: number;
+    selfBounceVelocity?: number;
+  } | null {
+    const m = move as unknown as {
+      type?: string;
+      downSpecialKind?: string;
+      trap?: {
+        trapWidth: number;
+        trapHeight: number;
+        spawnOffsetX: number;
+        spawnOffsetY: number;
+        armDelayFrames: number;
+        trapLifetimeFrames: number;
+        trapDamage: number;
+        trapKnockback: AttackMove['knockback'];
+        maxActiveTraps: number;
+        fuseDetonateFrames?: number;
+        selfBounceVelocity?: number;
+      };
+    };
+    if (m.type === 'downSpecial' && m.downSpecialKind === 'trap' && m.trap) {
+      return { ...m.trap };
+    }
+    return null;
+  }
+
+  /**
+   * Place a trap at the fighter's feet (captures a FIXED world point — the
+   * trap does NOT follow the fighter). FIFO-evicts the oldest when over
+   * `maxActiveTraps`. The armed sensor is spawned later by
+   * {@link tickTraps} once the arm delay elapses.
+   */
+  private placeTrap(
+    spec: {
+      trapWidth: number;
+      trapHeight: number;
+      spawnOffsetX: number;
+      spawnOffsetY: number;
+      armDelayFrames: number;
+      trapLifetimeFrames: number;
+      trapDamage: number;
+      trapKnockback: AttackMove['knockback'];
+      maxActiveTraps: number;
+      fuseDetonateFrames?: number;
+      selfBounceVelocity?: number;
+    },
+    facing: 1 | -1,
+    moveId: string,
+  ): void {
+    // FIFO: drop the oldest placed trap when at capacity.
+    while (this.activeTraps.length >= Math.max(1, spec.maxActiveTraps)) {
+      const oldest = this.activeTraps.shift();
+      if (oldest && oldest.body !== null) {
+        despawnHitbox(this.scene as unknown as HitboxScene, oldest.body);
+      }
+    }
+    // Timed bomb (Samus): the blast sensor arms exactly at the fuse and lives
+    // only a few frames (a one-shot explosion), instead of the contact mine's
+    // long armed window. Otherwise use the authored arm-delay / lifetime.
+    const fused =
+      typeof spec.fuseDetonateFrames === 'number' && spec.fuseDetonateFrames >= 0;
+    const armDelay = fused
+      ? (spec.fuseDetonateFrames as number)
+      : spec.armDelayFrames;
+    const lifetime = fused
+      ? (spec.fuseDetonateFrames as number) + TRAP_BLAST_FRAMES
+      : spec.trapLifetimeFrames;
+    this.activeTraps.push({
+      x: this.body.position.x + facing * spec.spawnOffsetX,
+      y: this.body.position.y + spec.spawnOffsetY,
+      facing,
+      framesSinceSpawn: 0,
+      armDelay,
+      lifetime,
+      damage: spec.trapDamage,
+      knockback: spec.trapKnockback,
+      width: spec.trapWidth,
+      height: spec.trapHeight,
+      maxActive: spec.maxActiveTraps,
+      moveId,
+      body: null,
+      selfBounceVelocity:
+        fused && typeof spec.selfBounceVelocity === 'number'
+          ? spec.selfBounceVelocity
+          : null,
+      detonated: false,
+    });
+  }
+
+  /**
+   * Advance every placed trap once per tick (independent of the active
+   * attack): arm it (spawn the detonating sensor at its fixed point) when
+   * the arm delay elapses, and despawn it at its lifetime. Deterministic —
+   * integer frame counters only.
+   */
+  private tickTraps(): void {
+    if (this.activeTraps.length === 0) return;
+    const survivors: typeof this.activeTraps = [];
+    for (const t of this.activeTraps) {
+      t.framesSinceSpawn += 1;
+      // Arm: spawn the live sensor exactly once, at the placement point.
+      if (t.body === null && t.framesSinceSpawn >= t.armDelay) {
+        const trapMove = {
+          id: `${t.moveId}.trap`,
+          type: 'downSpecial',
+          damage: t.damage,
+          knockback: t.knockback,
+          hitbox: { offsetX: 0, offsetY: 0, width: t.width, height: t.height },
+          startupFrames: 0,
+          activeFrames: 1,
+          recoveryFrames: 0,
+          cooldownFrames: 0,
+        } as unknown as AttackMove;
+        t.body = spawnHitbox(
+          this.scene as unknown as HitboxScene,
+          { id: this.id, position: { x: t.x, y: t.y }, bodyId: this.body.id },
+          trapMove,
+          t.facing,
+        );
+        // Timed bomb (Samus): this arming frame IS the detonation. Apply the
+        // bomb-jump self-bounce exactly once if the placer is within the blast.
+        if (!t.detonated && t.selfBounceVelocity !== null) {
+          t.detonated = true;
+          const dx = Math.abs(this.body.position.x - t.x);
+          const dy = Math.abs(this.body.position.y - t.y);
+          if (
+            dx <= t.width / 2 + this.tuning.width / 2 &&
+            dy <= t.height / 2 + this.tuning.height / 2
+          ) {
+            this.scene.matter.body.setVelocity(this.body, {
+              x: this.body.velocity.x,
+              y: t.selfBounceVelocity,
+            });
+          }
+        }
+      }
+      if (t.framesSinceSpawn >= t.lifetime) {
+        if (t.body !== null) despawnHitbox(this.scene as unknown as HitboxScene, t.body);
+      } else {
+        survivors.push(t);
+      }
+    }
+    this.activeTraps = survivors;
+  }
+
+  /**
+   * Resolve a move into a uniform MULTI-HIT LADDER view, or `null` when
+   * the move is not a `multiHit` side-special / `multiHitRising`
+   * up-special. Both schemas are structurally identical (a `hitCount`
+   * ladder, the first hit at active-frame 0, subsequent hits every
+   * `hitInterval` frames, the last index the launcher finisher) — they
+   * only differ in how the launcher is authored: the side-special stores
+   * per-hit arrays, the up-special stores a separate link/launcher pair.
+   * This normalizes both so one scheduler drives them. Pure.
+   */
+  private resolveMultiHitSpec(move: AttackMove): {
+    moveId: string;
+    frames: number[];
+    damagePerHit: number[];
+    knockbackPerHit: Array<AttackMove['knockback']>;
+    hitbox: AttackMove['hitbox'];
+  } | null {
+    const m = move as unknown as {
+      id: string;
+      type?: string;
+      sideSpecialKind?: string;
+      upSpecialKind?: string;
+      hitbox: AttackMove['hitbox'];
+      multiHit?: {
+        hitCount: number;
+        hitInterval: number;
+        damagePerHit: ReadonlyArray<number>;
+        knockbackPerHit: ReadonlyArray<AttackMove['knockback']>;
+      };
+      multiHitRising?: {
+        hitCount: number;
+        hitInterval: number;
+        linkDamage: number;
+        linkKnockback: AttackMove['knockback'];
+        launcherDamage: number;
+        launcherKnockback: AttackMove['knockback'];
+      };
+    };
+    if (m.type === 'sideSpecial' && m.sideSpecialKind === 'multiHit' && m.multiHit) {
+      const s = m.multiHit;
+      const frames: number[] = [];
+      for (let i = 0; i < s.hitCount; i += 1) frames.push(i * s.hitInterval);
+      return {
+        moveId: m.id,
+        frames,
+        damagePerHit: [...s.damagePerHit],
+        knockbackPerHit: [...s.knockbackPerHit],
+        hitbox: m.hitbox,
+      };
+    }
+    if (
+      m.type === 'upSpecial' &&
+      m.upSpecialKind === 'multiHitRising' &&
+      m.multiHitRising
+    ) {
+      const s = m.multiHitRising;
+      const frames: number[] = [];
+      const damagePerHit: number[] = [];
+      const knockbackPerHit: Array<AttackMove['knockback']> = [];
+      for (let i = 0; i < s.hitCount; i += 1) {
+        frames.push(i * s.hitInterval);
+        const isLauncher = i === s.hitCount - 1;
+        damagePerHit.push(isLauncher ? s.launcherDamage : s.linkDamage);
+        knockbackPerHit.push(isLauncher ? s.launcherKnockback : s.linkKnockback);
+      }
+      return { moveId: m.id, frames, damagePerHit, knockbackPerHit, hitbox: m.hitbox };
+    }
+    return null;
+  }
+
+  /**
+   * Per-frame multi-hit ladder driver — mirrors
+   * {@link tickDownSpecialDivePhysics}. While a `multiHit` /
+   * `multiHitRising` move is in its active window, spawns the next ladder
+   * rung on its scheduled frame (`framesIntoActive === frames[idx]`) as
+   * its own short-lived transient sensor carrying that rung's
+   * damage/knockback. All `hitCount` rungs fire automatically across the
+   * active window. No-op for every non-ladder move.
+   */
+  private tickMultiHitLadder(): void {
+    const a = this.activeAttack;
+    if (a === null) return;
+    const view = this.resolveMultiHitSpec(a.move);
+    if (view === null) return;
+    if (Character.phaseFor(a.framesElapsed, a.move) !== 'active') return;
+    const framesIntoActive = a.framesElapsed - a.move.startupFrames;
+    const idx = this.multiHitNextIndex;
+    if (idx >= view.frames.length) return;
+    if (framesIntoActive === view.frames[idx]) {
+      this.spawnMultiHitRung(view, idx, a.facing);
+      this.multiHitNextIndex = idx + 1;
+    }
+  }
+
+  /**
+   * Spawn one ladder rung as a short-lived transient `HITBOX_LABEL`
+   * sensor — the same mechanism as {@link spawnDiveShockwave}. A separate
+   * body per rung means each lands its own connect (one hit spark per
+   * hit) and is per-body deduped by the HitboxDamageHandler. Lives in
+   * {@link transientHitboxes} so respawn/teardown cleanup is automatic.
+   */
+  private spawnMultiHitRung(
+    view: {
+      moveId: string;
+      damagePerHit: number[];
+      knockbackPerHit: Array<AttackMove['knockback']>;
+      hitbox: AttackMove['hitbox'];
+    },
+    idx: number,
+    facing: 1 | -1,
+  ): void {
+    const rungMove = {
+      id: `${view.moveId}.hit${idx}`,
+      type: 'special',
+      damage: view.damagePerHit[idx],
+      knockback: view.knockbackPerHit[idx],
+      hitbox: view.hitbox,
+      startupFrames: 0,
+      activeFrames: 1,
+      recoveryFrames: 0,
+      cooldownFrames: 0,
+    } as unknown as AttackMove;
+    const body = spawnHitbox(
+      this.scene as unknown as HitboxScene,
+      { id: this.id, position: this.body.position, bodyId: this.body.id },
+      rungMove,
+      facing,
+    );
+    this.transientHitboxes.push({ body, framesRemaining: MULTIHIT_RUNG_FRAMES });
+  }
+
+  /**
+   * Resolve a `dashStrike` side-special into its dash parameters, or
+   * `null`. A dashStrike forces the fighter forward at `dashSpeed` for the
+   * first `dashFrames` of the active window with the move's own hitbox
+   * sweeping along (the Falcon-Raptor-Boost / dash-grab archetype). Pure.
+   */
+  private resolveDashStrike(
+    move: AttackMove,
+  ): { dashSpeed: number; dashFrames: number } | null {
+    const m = move as unknown as {
+      type?: string;
+      sideSpecialKind?: string;
+      dashStrike?: { dashSpeed: number; dashFrames: number };
+      commandDash?: { dashSpeed: number; dashFrames: number };
+    };
+    if (m.type !== 'sideSpecial') return null;
+    if (m.sideSpecialKind === 'dashStrike' && m.dashStrike) {
+      return { dashSpeed: m.dashStrike.dashSpeed, dashFrames: m.dashStrike.dashFrames };
+    }
+    // commandDash shares the dash-travel mechanic (the lunge approach); its
+    // throw payoff is handled separately by the command-grab opening hitbox.
+    if (m.sideSpecialKind === 'commandDash' && m.commandDash) {
+      return {
+        dashSpeed: m.commandDash.dashSpeed,
+        dashFrames: m.commandDash.dashFrames,
+      };
+    }
+    return null;
+  }
+
+  /**
+   * Resolve a COMMAND-GRAB move (neutral `commandGrab` Bear, or side
+   * `commandDash` Bear) into its throw payload, or `null`. Both are
+   * `damage: 0` shells whose real effect is the throw on connect; the
+   * opening hitbox is spawned carrying these values + an unblockable tag
+   * so a shielding victim is still thrown (grabs beat shield). Pure.
+   *
+   * NOTE: this is the pragmatic command grab — the opening hitbox throws
+   * on connect rather than entering a true hold-then-throw grab state.
+   */
+  private resolveCommandGrabSpec(move: AttackMove): {
+    throwDamage: number;
+    throwKnockback: AttackMove['knockback'];
+    ignoresShield: boolean;
+  } | null {
+    const m = move as unknown as {
+      type?: string;
+      specialKind?: string;
+      sideSpecialKind?: string;
+      grab?: { throwDamage: number; throwKnockback: AttackMove['knockback']; ignoresShield?: boolean };
+      commandDash?: { throwDamage: number; throwKnockback: AttackMove['knockback']; ignoresShield?: boolean };
+    };
+    if (m.type === 'special' && m.specialKind === 'commandGrab' && m.grab) {
+      return {
+        throwDamage: m.grab.throwDamage,
+        throwKnockback: m.grab.throwKnockback,
+        ignoresShield: m.grab.ignoresShield !== false,
+      };
+    }
+    if (
+      m.type === 'sideSpecial' &&
+      m.sideSpecialKind === 'commandDash' &&
+      m.commandDash
+    ) {
+      return {
+        throwDamage: m.commandDash.throwDamage,
+        throwKnockback: m.commandDash.throwKnockback,
+        ignoresShield: m.commandDash.ignoresShield !== false,
+      };
+    }
+    return null;
+  }
+
+  /**
+   * Resolve a `reflector` side-special (Owl) into its CONTACT-poke spec,
+   * or `null`. The reflector FIELD (the `reflectorBody` geometry) doubles
+   * as a small contact hitbox carrying `contactDamage` / `contactKnockback`
+   * for the rare case a fighter walks into the field — projectile
+   * reflection itself is handled separately by MatchScene. Pure.
+   */
+  private resolveReflectorContact(move: AttackMove): {
+    contactDamage: number;
+    contactKnockback: AttackMove['knockback'];
+    reflectorBody: { offsetX: number; offsetY: number; width: number; height: number };
+  } | null {
+    const m = move as unknown as {
+      type?: string;
+      sideSpecialKind?: string;
+      reflector?: {
+        contactDamage: number;
+        contactKnockback: AttackMove['knockback'];
+        reflectorBody: { offsetX: number; offsetY: number; width: number; height: number };
+      };
+    };
+    if (
+      m.type === 'sideSpecial' &&
+      m.sideSpecialKind === 'reflector' &&
+      m.reflector
+    ) {
+      return {
+        contactDamage: m.reflector.contactDamage,
+        contactKnockback: m.reflector.contactKnockback,
+        reflectorBody: m.reflector.reflectorBody,
+      };
+    }
+    return null;
+  }
+
+  /**
+   * True iff a move declares a "helpless after" flag — the committal
+   * aerial specials that drop the fighter into free-fall when they end in
+   * the air. The runtime sets {@link helpless} on the move's end frame if
+   * the fighter is airborne. Pure.
+   */
+  private movesetEndsHelpless(move: AttackMove): boolean {
+    const m = move as unknown as {
+      type?: string;
+      sideSpecialKind?: string;
+      upSpecialKind?: string;
+      downSpecialKind?: string;
+      dashStrike?: { helplessAfterDash?: boolean };
+      commandDash?: { helplessOnWhiff?: boolean };
+      directionalJump?: { helplessAfterBurst?: boolean };
+      stallAndFall?: { helplessAfterFall?: boolean };
+    };
+    if (m.type === 'sideSpecial') {
+      if (m.sideSpecialKind === 'dashStrike') return m.dashStrike?.helplessAfterDash === true;
+      if (m.sideSpecialKind === 'commandDash') return m.commandDash?.helplessOnWhiff === true;
+    }
+    // EVERY up-special drops the fighter into helpless special-fall when it
+    // ends in the air — the central recovery risk in Smash (you commit to
+    // your recovery; you can't act again until you land or grab a ledge).
+    // Not just the one with an explicit flag.
+    if (m.type === 'upSpecial') return true;
+    if (m.type === 'downSpecial' && m.downSpecialKind === 'stallAndFall') {
+      return m.stallAndFall?.helplessAfterFall === true;
+    }
+    return false;
+  }
+
+  /**
+   * Per-frame physics for a `dashStrike` side-special — mirrors
+   * {@link tickDownSpecialDivePhysics}. For the first `dashFrames` of the
+   * active window it OVERRIDES velocity to a flat forward dash
+   * (`facing * dashSpeed`, vy 0); every active frame it re-anchors the
+   * move's hitbox onto the dashing body so the strike sweeps the ground
+   * it covers (grounded-move hitboxes don't track by default). The base
+   * hitbox is NOT suppressed — it IS the dash hitbox. No-op for non-dash
+   * moves.
+   */
+  private tickSideSpecialDash(): void {
+    const a = this.activeAttack;
+    if (a === null) return;
+    const dash = this.resolveDashStrike(a.move);
+    if (dash === null) return;
+    if (Character.phaseFor(a.framesElapsed, a.move) !== 'active') return;
+    const framesIntoActive = a.framesElapsed - a.move.startupFrames;
+    if (framesIntoActive < dash.dashFrames) {
+      this.scene.matter.body.setVelocity(this.body, {
+        x: a.facing * dash.dashSpeed,
+        y: 0,
+      });
+    }
+    if (a.hitboxBody !== null) {
+      updateHitboxPosition(
+        this.scene as unknown as HitboxScene,
+        a.hitboxBody,
+        this.body.position,
+        a.move,
+        a.facing,
+      );
+    }
+  }
+
+  /**
+   * Resolve a move into a uniform COUNTER spec, or `null`. The neutral
+   * counter (`specialKind: 'counter'`, Wolf/Aegis) and the down counter
+   * (`downSpecialKind: 'counter'`, Bear) carry a field-identical `counter`
+   * block, so one structural resolver — and one parry/retaliate handler —
+   * lights up all three moves. Pure.
+   */
+  private resolveCounterSpec(move: AttackMove): {
+    counterWindowStart: number;
+    counterWindowEnd: number;
+    damageMultiplier: number;
+    minCounterDamage: number;
+    maxCounterDamage: number;
+    counterKnockback: AttackMove['knockback'];
+    counterHitbox: { offsetX: number; offsetY: number; width: number; height: number };
+  } | null {
+    const m = move as unknown as {
+      type?: string;
+      specialKind?: string;
+      downSpecialKind?: string;
+      counter?: {
+        counterWindowStart: number;
+        counterWindowEnd: number;
+        damageMultiplier: number;
+        minCounterDamage: number;
+        maxCounterDamage: number;
+        counterKnockback: AttackMove['knockback'];
+        counterHitbox: { offsetX: number; offsetY: number; width: number; height: number };
+      };
+    };
+    const isCounter =
+      (m.type === 'special' && m.specialKind === 'counter') ||
+      (m.type === 'downSpecial' && m.downSpecialKind === 'counter');
+    if (isCounter && m.counter) {
+      return {
+        counterWindowStart: m.counter.counterWindowStart,
+        counterWindowEnd: m.counter.counterWindowEnd,
+        damageMultiplier: m.counter.damageMultiplier,
+        minCounterDamage: m.counter.minCounterDamage,
+        maxCounterDamage: m.counter.maxCounterDamage,
+        counterKnockback: m.counter.counterKnockback,
+        counterHitbox: m.counter.counterHitbox,
+      };
+    }
+    return null;
+  }
+
+  /**
+   * Spawn the counter RETALIATION hitbox the tick after a successful parry
+   * (see {@link pendingCounterRetaliation}, latched in {@link applyHit}).
+   * Damage = absorbed × `damageMultiplier`, clamped to
+   * `[minCounterDamage, maxCounterDamage]`; geometry from `counterHitbox`
+   * (facing-mirrored); a short-lived transient sensor like the dive
+   * shockwave. No-op when no parry is pending.
+   */
+  private tickCounterRetaliation(): void {
+    if (this.pendingCounterRetaliation === null) return;
+    const a = this.activeAttack;
+    const absorbed = this.pendingCounterRetaliation.absorbedDamage;
+    this.pendingCounterRetaliation = null;
+    if (a === null) return;
+    const counter = this.resolveCounterSpec(a.move);
+    if (counter === null) return;
+    const damage = clamp(
+      absorbed * counter.damageMultiplier,
+      counter.minCounterDamage,
+      counter.maxCounterDamage,
+    );
+    const retalMove = {
+      id: `${a.move.id}.counter`,
+      type: 'special',
+      damage,
+      knockback: counter.counterKnockback,
+      hitbox: counter.counterHitbox,
+      startupFrames: 0,
+      activeFrames: 1,
+      recoveryFrames: 0,
+      cooldownFrames: 0,
+    } as unknown as AttackMove;
+    const body = spawnHitbox(
+      this.scene as unknown as HitboxScene,
+      { id: this.id, position: this.body.position, bodyId: this.body.id },
+      retalMove,
+      a.facing,
+    );
+    this.transientHitboxes.push({ body, framesRemaining: COUNTER_RETAL_FRAMES });
   }
 
   // -------------------------------------------------------------------------
@@ -3174,6 +5367,8 @@ export class Character {
     specialHeld: boolean = false,
     downHeld: boolean = false,
     upHeld: boolean = false,
+    shieldHeld: boolean = false,
+    attackMoveY: number = 0,
   ): void {
     // The call where a move ends *arms* the cooldown but does not also
     // drain it — otherwise the cooldown would read `cooldownFrames - 1`
@@ -3181,6 +5376,13 @@ export class Character {
     // reason about and makes "after totalBusy frames, cooldown reads
     // cooldownFrames" a non-truth.
     let attackJustEnded = false;
+
+    // Expire any transient hitboxes (dive landing shockwaves) — lifecycle
+    // is independent of the active attack, so it ticks every frame.
+    this.tickTransientHitboxes();
+    // Advance placed traps (arm / detonate-window / expire) — they outlive
+    // the placement attack, so they also tick every frame.
+    this.tickTraps();
 
     // ---- Step 0: landing interrupt for in-flight aerials (AC 60102 -------
     // Sub-AC 2 "lock attack until completion or landing") ------------------
@@ -3225,18 +5427,134 @@ export class Character {
     if (this.activeAttack) {
       const a = this.activeAttack;
       const prevPhase = Character.phaseFor(a.framesElapsed, a.move);
-      a.framesElapsed += 1;
+
+      // Down-special DIVE (groundPound / stallAndFall) landing + hold-active
+      // gate, resolved on the PRE-increment frame so the meteor hitbox is
+      // still 'active' when we read it:
+      //   • Touchdown while plunging → despawn the meteor, fire the landing
+      //     shockwave, kill the descent velocity, and let the move advance
+      //     into recovery this frame.
+      //   • Still plunging past the end of the active window → FREEZE the
+      //     frame counter so the meteor stays alive (and keeps re-anchoring
+      //     to the falling body) until it lands — "falls until ground
+      //     contact", bounded by DIVE_MAX_HOLD_FRAMES.
+      const dive = this.resolveDiveSpec(a.move);
+      let holdDiveActive = false;
+      if (dive !== null && prevPhase === 'active') {
+        const framesIntoActive = a.framesElapsed - a.move.startupFrames;
+        const descending = framesIntoActive >= dive.riseFrames;
+        const lastActiveFrame =
+          a.move.startupFrames + a.move.activeFrames - 1;
+        if (descending && grounded && !this.diveShockwaveSpawned) {
+          this.diveShockwaveSpawned = true;
+          if (a.hitboxBody !== null) {
+            despawnHitbox(
+              this.scene as unknown as HitboxScene,
+              a.hitboxBody,
+            );
+            a.hitboxBody = null;
+          }
+          this.spawnDiveShockwave(dive, a.facing);
+          // One-shot render signal: a dive just landed here. The render
+          // layer polls consumeDiveLandingEvent() to flash a burst even
+          // when the shockwave hits empty ground (no collisionstart). This
+          // is render-only — it never feeds back into the deterministic
+          // sim (the shockwave DAMAGE above is the sim-side effect).
+          this.diveLandingEvent = {
+            x: this.body.position.x,
+            y: this.body.position.y,
+            facing: a.facing,
+          };
+          this.scene.matter.body.setVelocity(this.body, {
+            x: this.body.velocity.x,
+            y: 0,
+          });
+        } else if (
+          descending &&
+          !grounded &&
+          a.framesElapsed >= lastActiveFrame &&
+          this.diveHoldFrames < DIVE_MAX_HOLD_FRAMES
+        ) {
+          holdDiveActive = true;
+          this.diveHoldFrames += 1;
+        }
+      }
+
+      if (!holdDiveActive) {
+        a.framesElapsed += 1;
+      }
       const newPhase = Character.phaseFor(a.framesElapsed, a.move);
 
       // Spawn on startup → active transition. The hitbox is spawned at
       // the body's *current* centre (post-velocity-commit) so a fighter
       // dashing into the swing extends his hitbox's effective reach by
       // a small physically-honest amount.
-      if (prevPhase === 'startup' && newPhase === 'active' && a.hitboxBody === null) {
+      // A charge-beam projectile (Samus cannon) carries ALL of its damage
+      // on the travelling projectile spawned by MatchScene — it must NOT
+      // also spawn a body-attached melee hitbox, or the shot would
+      // double-hit at point blank. Every other move spawns its hitbox.
+      const releasesChargeBeam =
+        (a.move as { chargedProjectile?: unknown }).chargedProjectile !==
+        undefined;
+      // A multi-hit LADDER move (side `multiHit` / up `multiHitRising`)
+      // spawns its damage as per-rung transient sensors via
+      // tickMultiHitLadder — NOT as the single base hitbox here, or rung 0
+      // and the base hitbox would double-hit on the first active frame.
+      const isMultiHitLadder = this.resolveMultiHitSpec(a.move) !== null;
+      // Reset the ladder rung counter the moment a ladder move goes active.
+      if (prevPhase === 'startup' && newPhase === 'active' && isMultiHitLadder) {
+        this.multiHitNextIndex = 0;
+      }
+      // A `trap` down-special places its mine on going active and suppresses
+      // the degenerate 1x1 base hitbox (all the payoff is the placed trap).
+      const trapSpec = this.resolveTrapSpec(a.move);
+      if (prevPhase === 'startup' && newPhase === 'active' && trapSpec !== null) {
+        this.placeTrap(trapSpec, a.facing, a.move.id);
+      }
+      if (
+        prevPhase === 'startup' &&
+        newPhase === 'active' &&
+        a.hitboxBody === null &&
+        !releasesChargeBeam &&
+        !isMultiHitLadder &&
+        trapSpec === null
+      ) {
+        // A charge release spawns its hitbox with damage / knockback
+        // lerped along the move's `charge` ramp at the held-frame count.
+        // A command grab (Bear neutral/side) spawns its opening hitbox
+        // carrying the THROW values + an unblockable tag so it throws a
+        // shielding victim. Every other move spawns its authored record.
+        const cmdGrab = this.resolveCommandGrabSpec(a.move);
+        const reflector = this.resolveReflectorContact(a.move);
+        const spawnMove =
+          cmdGrab !== null
+            ? ({
+                ...a.move,
+                damage: cmdGrab.throwDamage,
+                knockback: cmdGrab.throwKnockback,
+                unblockable: cmdGrab.ignoresShield,
+              } as unknown as AttackMove)
+            : reflector !== null
+              ? // The reflector's FIELD (the reflectorBody geometry) is the
+                // contact hitbox — a fighter who walks into it eats the
+                // small contact poke. (Projectiles crossing it are bounced
+                // by MatchScene's projectile loop, separately.)
+                ({
+                  ...a.move,
+                  damage: reflector.contactDamage,
+                  knockback: reflector.contactKnockback,
+                  hitbox: {
+                    offsetX: reflector.reflectorBody.offsetX,
+                    offsetY: reflector.reflectorBody.offsetY,
+                    width: reflector.reflectorBody.width,
+                    height: reflector.reflectorBody.height,
+                  },
+                } as unknown as AttackMove)
+              : this.chargedSpawnMove(a);
         a.hitboxBody = spawnHitbox(
           this.scene as unknown as HitboxScene,
           { id: this.id, position: this.body.position, bodyId: this.body.id },
-          a.move,
+          spawnMove,
           a.facing,
         );
 
@@ -3259,6 +5577,14 @@ export class Character {
         const attackSfxKey = mapMoveTypeToSfxKey(a.move.type);
         if (attackSfxKey !== null) {
           emitCombatSfx(this.sfxSink ?? undefined, attackSfxKey);
+        }
+
+        // A fresh down-special dive just entered its active window (the
+        // meteor is live) — reset the per-dive landing / hold latches so
+        // the burst fires once and the hold-cap starts from zero.
+        if (dive !== null) {
+          this.diveShockwaveSpawned = false;
+          this.diveHoldFrames = 0;
         }
       }
 
@@ -3314,6 +5640,21 @@ export class Character {
       // burst window — only the `directionalJump` burst clamp and the
       // `teleport` reappear translation actually mutate body state here.
       this.tickUpSpecialPhysics();
+      // Drive the down-special dive plunge (hop/stall → slam/fall velocity)
+      // and re-anchor the meteor onto the falling body. No-op for every
+      // non-dive move. Placed alongside the up-special physics so both
+      // recovery / committal specials share the same lifecycle slot.
+      this.tickDownSpecialDivePhysics();
+      // Drive the multi-hit ladder (side `multiHit` barrage / up
+      // `multiHitRising` spin): spawn each scheduled rung as its own
+      // transient sensor. No-op for every non-ladder move.
+      this.tickMultiHitLadder();
+      // Drive the `dashStrike` side-special forward dash + sweeping hitbox.
+      // No-op for every non-dash move.
+      this.tickSideSpecialDash();
+      // Spawn the counter retaliation hitbox the tick after a successful
+      // parry (neutral / down counter). No-op when no parry is pending.
+      this.tickCounterRetaliation();
 
       // Despawn whenever we leave the 'active' phase — handles the
       // standard active→recovery transition and the rare active→done
@@ -3333,6 +5674,12 @@ export class Character {
           a.hitboxBody = null;
         }
         this.cooldownRemaining = a.move.cooldownFrames;
+        // A committal aerial special that ends in the AIR drops the fighter
+        // into helpless free-fall (Owl's burst, an air dashStrike /
+        // stallAndFall / commandDash). On the ground it just ends normally.
+        if (this.movesetEndsHelpless(a.move) && !this.isGrounded()) {
+          this.helpless = true;
+        }
         this.activeAttack = null;
         attackJustEnded = true;
       }
@@ -3357,6 +5704,38 @@ export class Character {
     // through to `aerialAttackId`.
     const attackJustPressed = attackHeld && !this.prevAttackHeld;
     const heavyJustPressed = heavyHeld && !this.prevHeavyHeld;
+    // ---- Smash-charge state machine (hold to charge, release/cap to fire) ---
+    // Mirrors the special-charge machine but for grounded smashes. While
+    // charging it consumes the frame so every press path below is skipped;
+    // on release (or hitting the cap, or leaving the ground) it fires the
+    // smash scaled by the held frames. Smashes AUTO-FIRE at max charge
+    // (a special instead STORES at the cap) — the canonical Smash difference.
+    let smashConsumedThisFrame = false;
+    if (this.chargingSmash !== null) {
+      const cs = this.chargingSmash;
+      const triggerHeld = heavyHeld || attackHeld;
+      if (!grounded) {
+        // Left the ground mid-charge (e.g. a platform dropped out). A
+        // grounded smash must NOT spawn in the air — drop the charge
+        // silently rather than firing a ground move airborne. (A jump
+        // press can't reach here: it's suppressed while charging below.)
+        this.chargingSmash = null;
+        smashConsumedThisFrame = true;
+      } else if (
+        triggerHeld &&
+        this.activeAttack === null &&
+        cs.framesHeld < cs.maxFrames
+      ) {
+        cs.framesHeld += 1;
+        smashConsumedThisFrame = true;
+      } else {
+        // Released, or hit the cap — fire the smash (we are grounded here).
+        const { moveId, facing, framesHeld } = cs;
+        this.chargingSmash = null;
+        this.fireSmash(moveId, facing, framesHeld);
+        smashConsumedThisFrame = true;
+      }
+    }
     // When holding an item, route the LIGHT-attack press to the item's
     // slot override regardless of grounded / airborne / stick direction.
     // Per the user's spec: "while having an object, light attack isn't
@@ -3369,6 +5748,7 @@ export class Character {
     let attackPressConsumedByItem = false;
     if (
       attackJustPressed &&
+      !smashConsumedThisFrame &&
       this.slotOverrides.size > 0 &&
       this.activeAttack === null &&
       this.cooldownRemaining === 0
@@ -3379,10 +5759,36 @@ export class Character {
         this.runSlotOverride('smash') ||
         this.runSlotOverride('fair');
     }
+    // ---- Jab-combo advance ------------------------------------------------
+    // A re-press of attack DURING a chainable jab stage — once that stage's
+    // hitbox has come out (framesElapsed past the advance window) — steps
+    // the string to its next stage instead of being swallowed. Because the
+    // advance leaves `activeAttack` non-null, the fresh-dispatch gate below
+    // naturally skips a brand-new move this same frame. Single-jab rosters
+    // (no `jabChain`) and every non-jab move short-circuit on `chain == null`.
+    if (
+      attackJustPressed &&
+      grounded &&
+      !attackPressConsumedByItem &&
+      !smashConsumedThisFrame &&
+      this.activeAttack !== null
+    ) {
+      const curMove = this.activeAttack.move as AttackMoveWithAnimation;
+      const chain = curMove.jabChain;
+      if (
+        chain != null &&
+        this.attacks.has(chain.nextId) &&
+        this.activeAttack.framesElapsed >=
+          (chain.advanceWindowStart ?? curMove.startupFrames)
+      ) {
+        this.advanceJabChain(chain.nextId);
+      }
+    }
     if (
       this.activeAttack === null &&
       this.cooldownRemaining === 0 &&
-      !attackPressConsumedByItem
+      !attackPressConsumedByItem &&
+      !smashConsumedThisFrame
     ) {
       let pickedId: string | null = null;
       let aerialDirection: AerialDirection | null = null;
@@ -3393,7 +5799,16 @@ export class Character {
       // calling `attemptAttack(pickedId)` directly. The base class no
       // longer holds the per-fighter "fire WHICH move when slot X is
       // pressed" decision — that lives on each fighter subclass now.
-      let groundedPattern: 'jab' | 'tilt' | 'smash' | null = null;
+      let groundedPattern:
+        | 'jab'
+        | 'tilt'
+        | 'smash'
+        | 'utilt'
+        | 'usmash'
+        | 'dtilt'
+        | 'dsmash'
+        | 'dashAttack'
+        | null = null;
       if (grounded && (attackJustPressed || heavyJustPressed)) {
         // AC 60101 Sub-AC 1 — grounded normal-move dispatch.
         //
@@ -3425,14 +5840,27 @@ export class Character {
           jabId: this.lightAttackId,
           tiltId: this.tiltAttackId,
           smashId: this.heavyAttackId,
+          utiltId: this.upTiltId,
+          usmashId: this.upSmashId,
+          dtiltId: this.downTiltId,
+          dsmashId: this.downSmashId,
+          dashAttackId: this.dashAttackSlotId,
           defaultId: this.defaultAttackId,
         };
+        // "Running" = horizontal speed past ~55% of max run, used to tell a
+        // dash attack (running + attack) from a forward tilt (tilt from a
+        // near-standstill). Read off the live Matter velocity.
+        const movingFast =
+          Math.abs(this.body.velocity.x) >
+          this.tuning.maxRunSpeed * DASH_SPEED_FRACTION;
         const dispatch = classifyGroundedAttack(
           {
             attackJustPressed,
             heavyJustPressed,
             moveX,
             prevMoveX: this.prevMoveX,
+            moveY: attackMoveY,
+            movingFast,
           },
           slots,
         );
@@ -3460,6 +5888,8 @@ export class Character {
           aerialNeutralId: this.aerialNeutralId,
           aerialForwardId: this.aerialForwardId,
           aerialBackId: this.aerialBackId,
+          aerialUpId: this.aerialUpId,
+          aerialDownId: this.aerialDownId,
           aerialAttackId: this.aerialAttackId,
           lightAttackId: this.lightAttackId,
           defaultId: this.defaultAttackId,
@@ -3470,6 +5900,7 @@ export class Character {
             attackJustPressed,
             heavyJustPressed,
             moveX,
+            moveY: attackMoveY,
             prevFacing,
           },
           aerialSlots,
@@ -3516,8 +5947,47 @@ export class Character {
         //     `attemptAttack(pickedId)` (nair / bair sit OUTSIDE the
         //     canonical 10-slot uniform contract; their migration is
         //     scope for a follow-up sub-AC, not Sub-AC 2.1).
+        // SMASH-CHARGE START — a smash press whose resolved move carries a
+        // `charge` ramp ENTERS a hold-to-charge stance instead of firing
+        // instantly; the charge machine (top of this dispatch) fires it on
+        // release. Facing commits NOW (forward smash locks to the stick) so
+        // a mid-charge wiggle can't flip it. A smash with no ramp falls
+        // through to the instant-fire switch below (backward-compatible).
+        let smashChargeStarted = false;
+        if (
+          grounded &&
+          pickedId !== null &&
+          (groundedPattern === 'smash' ||
+            groundedPattern === 'usmash' ||
+            groundedPattern === 'dsmash') &&
+          // Don't hijack a held item's smash override: the forward-smash
+          // instant path runs `executeSmash` → `runSlotOverride('smash')`,
+          // so if an item override is installed, let it fire the item move
+          // instead of entering a NATIVE charge stance.
+          !(groundedPattern === 'smash' && this.getSlotOverride('smash') !== null)
+        ) {
+          const sc = this.smashChargeMove(pickedId);
+          if (sc !== null) {
+            let chargeFacing = this.facing;
+            if (groundedPattern === 'smash' && Math.abs(moveX) >= 0.3) {
+              chargeFacing = (Math.sign(moveX) as 1 | -1) || prevFacing;
+              this.facing = chargeFacing;
+            }
+            this.chargingSmash = {
+              moveId: pickedId,
+              pattern: groundedPattern,
+              facing: chargeFacing,
+              framesHeld: 0,
+              maxFrames: Math.max(1, sc.charge.maxChargeFrames),
+            };
+            smashChargeStarted = true;
+          }
+        }
         let started: boolean;
-        if (grounded && groundedPattern !== null) {
+        if (smashChargeStarted) {
+          // Charging — no move has fired yet this frame.
+          started = false;
+        } else if (grounded && groundedPattern !== null) {
           switch (groundedPattern) {
             case 'jab':
               started = this.executeJab(pickedId);
@@ -3527,6 +5997,17 @@ export class Character {
               break;
             case 'smash':
               started = this.executeSmash(pickedId);
+              break;
+            case 'utilt':
+            case 'usmash':
+            case 'dtilt':
+            case 'dsmash':
+            case 'dashAttack':
+              // Directional grounded normals (up/down tilt + smash, dash
+              // attack) route straight to the resolved move id — the
+              // subclass execute hooks fire the FORWARD tilt/smash, so we
+              // bypass them like the directional aerials do.
+              started = this.attemptAttack(pickedId);
               break;
           }
         } else if (!grounded && aerialDirection === 'forward') {
@@ -3586,8 +6067,56 @@ export class Character {
     // === 0` gate is the same one the attack/heavy press observes, so
     // an in-flight attack swallows the press exactly like an attack
     // press would.
+    // ---- Charge-special state machine (hold to charge, release to fire) ---
+    // Runs every tick BEFORE the rising-edge dispatch. While charging,
+    // it consumes the special button so the normal dispatch below is
+    // skipped. A neutral-special press on a `specialKind: 'charge'` move
+    // STARTS charging (in the neutral branch) instead of firing.
+    let specialConsumedByCharge = false;
+    if (this.chargingSpecial !== null) {
+      const cs = this.chargingSpecial;
+      // Samus charge-cancel: a rising-edge SHIELD press while charging
+      // BANKS the accumulated charge and exits the charge WITHOUT firing.
+      // The bank persists across actions until fired or wiped (mid-charge
+      // hit / respawn). This is what makes the charge feel "kept".
+      const shieldStore = shieldHeld && !this.prevShieldHeld;
+      if (shieldStore) {
+        this.storedSpecialCharge = {
+          moveId: cs.moveId,
+          framesHeld: cs.framesHeld,
+        };
+        this.chargingSpecial = null;
+        // Do NOT consume the special button — the player may still be
+        // holding it; the rising-edge dispatch below won't refire (the
+        // press already happened) and the shield raises normally.
+      } else if (
+        specialHeld &&
+        this.activeAttack === null &&
+        this.isGrounded()
+      ) {
+        // Still holding ON THE GROUND — keep charging, CAPPED at max. The
+        // charge is GROUNDED-ONLY: it cannot progress while jumping/falling
+        // (jump is suppressed while charging, so the only way to be airborne
+        // here is an external launch / platform drop — which falls to the
+        // else and fires the shot). A full charge is STORED at the cap until
+        // released or hit; it does NOT auto-fire at the top.
+        if (cs.framesHeld < cs.maxFrames) cs.framesHeld += 1;
+        specialConsumedByCharge = true;
+      } else {
+        // Released — OR left the ground (cannot charge in the air) — fire
+        // the shot scaled by how long it was held.
+        const held = cs.framesHeld;
+        const moveId = cs.moveId;
+        this.chargingSpecial = null;
+        this.storedSpecialCharge = null;
+        this.fireNeutralChargeSpecial(moveId, held);
+        specialConsumedByCharge = true;
+      }
+    }
+
     const specialJustPressed = specialHeld && !this.prevSpecialHeld;
     if (
+      !specialConsumedByCharge &&
       specialJustPressed &&
       this.activeAttack === null &&
       this.cooldownRemaining === 0
@@ -3613,7 +6142,45 @@ export class Character {
         this.facing = sideFacing;
         this.executeSideSpecial();
       } else {
-        this.executeNeutralSpecial();
+        // Neutral special. A chargeable move (a `'charge'` kind, or a
+        // `'projectile'` carrying the Samus charge-beam overlay) begins a
+        // hold-to-charge instead of firing immediately; every other
+        // neutral special fires on the press as before.
+        const chargeMove = this.neutralChargeMove();
+        if (chargeMove !== null) {
+          const maxFrames = Math.max(1, chargeMove.charge.maxChargeFrames);
+          // A banked charge for THIS move resumes / fires instead of
+          // starting from zero.
+          const banked =
+            this.storedSpecialCharge !== null &&
+            this.storedSpecialCharge.moveId === chargeMove.id
+              ? this.storedSpecialCharge
+              : null;
+          if (banked !== null && banked.framesHeld >= maxFrames) {
+            // Banked FULL charge — pressing special fires it immediately,
+            // on the ground OR in the air (a stored full Charge Shot
+            // releases on press, like Samus).
+            this.storedSpecialCharge = null;
+            this.fireNeutralChargeSpecial(chargeMove.id, banked.framesHeld);
+          } else if (this.isGrounded()) {
+            // Start, or RESUME from a banked partial, charging — GROUNDED
+            // ONLY: Samus charges rooted on the ground (no air-charging).
+            this.chargingSpecial = {
+              moveId: chargeMove.id,
+              framesHeld: banked?.framesHeld ?? 0,
+              maxFrames,
+            };
+            this.storedSpecialCharge = null; // now live in chargingSpecial
+          } else {
+            // Airborne press — you cannot START a charge in the air. Fire
+            // whatever's banked (a partial) or an uncharged shot.
+            const held = banked?.framesHeld ?? 0;
+            this.storedSpecialCharge = null;
+            this.fireNeutralChargeSpecial(chargeMove.id, held);
+          }
+        } else {
+          this.executeNeutralSpecial();
+        }
       }
     }
 
@@ -3637,6 +6204,35 @@ export class Character {
   /** Current accumulated damage percent. 0..MAX_DAMAGE_PERCENT. */
   getDamagePercent(): number {
     return this.damagePercent;
+  }
+
+  /**
+   * Register a move this fighter just LANDED for stale-move negation, and
+   * return how many times it was ALREADY in the recent-move queue BEFORE
+   * this landing (0 = fresh). The caller stales the connecting hit by that
+   * count (`combat.computeStaleMultiplier`), then this pushes the move and
+   * trims the queue to {@link STALE_QUEUE_SIZE}. Attacker-side; the queue
+   * naturally "freshens" a move as it rotates out.
+   */
+  registerLandedMove(moveId: string): number {
+    let occurrences = 0;
+    for (const id of this.staleMoveQueue) {
+      if (id === moveId) occurrences += 1;
+    }
+    this.staleMoveQueue.push(moveId);
+    if (this.staleMoveQueue.length > STALE_QUEUE_SIZE) {
+      this.staleMoveQueue.shift();
+    }
+    return occurrences;
+  }
+
+  /** Occurrences of `moveId` in the stale queue WITHOUT mutating it (HUD / tests / AI). */
+  getStaleOccurrences(moveId: string): number {
+    let occurrences = 0;
+    for (const id of this.staleMoveQueue) {
+      if (id === moveId) occurrences += 1;
+    }
+    return occurrences;
   }
 
   /**
@@ -3763,6 +6359,48 @@ export class Character {
   }
 
   /**
+   * True while the fighter is in HELPLESS free-fall after a committal
+   * aerial special — cannot attack / special / jump until it lands.
+   */
+  isHelpless(): boolean {
+    return this.helpless;
+  }
+
+  /** True while the fighter is in TUMBLE (hard-launched; can tech on contact). */
+  isTumbling(): boolean {
+    return this.tumbling;
+  }
+
+  /** True while the fighter is in a KNOCKDOWN (prone, vulnerable, input-locked). */
+  isKnockedDown(): boolean {
+    return this.knockdownRemaining > 0;
+  }
+
+  /** True while a directional tech-roll / get-up-roll is sliding (intangible). */
+  isGetupRolling(): boolean {
+    return this.getupRollRemaining > 0;
+  }
+
+  /** True while a mistimed tech is locked out (a re-press can't tech). */
+  isTechLockedOut(): boolean {
+    return this.techLockoutRemaining > 0;
+  }
+
+  /**
+   * Consume the one-shot down-special dive LANDING event (render-only).
+   * Returns the world-space landing point + facing exactly once per dive
+   * touchdown, then `null` until the next landing. The render layer polls
+   * this each frame to flash a landing shockwave burst (the sim-side
+   * damage hitbox already fired separately). Returning it here and
+   * clearing keeps the signal one-shot without the sim ever reading it.
+   */
+  consumeDiveLandingEvent(): { x: number; y: number; facing: 1 | -1 } | null {
+    const e = this.diveLandingEvent;
+    this.diveLandingEvent = null;
+    return e;
+  }
+
+  /**
    * True iff the fighter is currently immune to incoming hits. The
    * runtime composes the two independent i-frame sources via OR:
    *
@@ -3842,6 +6480,22 @@ export class Character {
       };
     }
 
+    // Counter PARRY (neutral Wolf/Aegis, down Bear): while a counter
+    // move's parry window is open, the incoming hit is ABSORBED — no
+    // damage, knockback, or hitstun — and its damage is latched so the
+    // next tick spawns a retaliation hitbox scaled by what was caught.
+    // Checked FIRST so the parry beats the i-frame / shield paths below.
+    if (this.activeAttack !== null) {
+      const counter = this.resolveCounterSpec(this.activeAttack.move);
+      if (counter !== null) {
+        const f = this.activeAttack.framesElapsed;
+        if (f >= counter.counterWindowStart && f < counter.counterWindowEnd) {
+          this.pendingCounterRetaliation = { absorbedDamage: hit.damage };
+          return { vector: { x: 0, y: 0 }, magnitude: 0, angle: 0, hitstunFrames: 0 };
+        }
+      }
+    }
+
     // Sub-AC 4.2: respawn invincibility absorbs every hit. The fighter
     // takes no damage, no knockback, no hitstun. We deliberately do NOT
     // shorten the invincibility timer per absorbed hit — the grace
@@ -3910,9 +6564,29 @@ export class Character {
     // The break-stun lockout is enforced by the `applyInput` early-
     // return path that fires while `isShieldBroken(this.shieldState)`
     // is true.
-    if (isShieldRaised(this.shieldState)) {
-      const r = applyShieldHit(this.shieldState, hit.damage, this.tuning.shield);
+    if (isShieldRaised(this.shieldState) && !hit.unblockable) {
+      // Pass how long the shield has been up so a hit caught in the raise
+      // window powershields — no HP cost, no shieldstun, instant punish.
+      const r = applyShieldHit(
+        this.shieldState,
+        hit.damage,
+        this.tuning.shield,
+        this.shieldActiveFrames,
+      );
       this.shieldState = r.state;
+      // AC 10304 — voice the shatter cue when this hit is the one that
+      // BROKE the shield (raised → broken edge), distinct from the
+      // shield-raise hum. The `applyShieldHit` result carries the new
+      // state; comparing against the pre-hit "raised" guard above means
+      // we only fire on the breaking hit, not on every chip that drains
+      // a bit of shield health. Audio-only side effect — the break-stun
+      // lockout itself is driven by the state machine, untouched here.
+      if (isShieldBroken(r.state)) {
+        emitCombatSfx(this.sfxSink ?? undefined, ASSET_KEYS.sfxShieldBreak);
+      } else if (r.perfect) {
+        // A perfect shield rings the raise cue again as its "ting".
+        emitCombatSfx(this.sfxSink ?? undefined, ASSET_KEYS.sfxShield);
+      }
       return {
         vector: { x: 0, y: 0 },
         magnitude: 0,
@@ -3920,6 +6594,24 @@ export class Character {
         hitstunFrames: 0,
       };
     }
+
+    // Getting hit while GRABBING a victim BREAKS the grab (Smash: interrupt
+    // the grabber and the held opponent goes free). Fires only on a hit
+    // that actually lands — the i-frame / shield absorbs above already
+    // returned, and a fighter can't be grabbing while shielding.
+    if (this.grabTarget !== null && this.grabSpec !== null) {
+      this.grabTarget.releaseFromGrab();
+      this.grabTarget = null;
+      this.grabState = applyGrabBreak(this.grabState, this.grabSpec);
+    }
+    // A fresh hit re-launches a prone / tumbling / rolling fighter — clear
+    // the floor-loop lockouts so the new knockback takes over (tumble is
+    // re-set when this hit's launch is applied).
+    this.knockdownRemaining = 0;
+    this.tumbling = false;
+    this.getupRollRemaining = 0;
+    this.techBufferRemaining = 0;
+    this.techLockoutRemaining = 0;
 
     // 1. Damage accumulation. Capture pre-hit percent for the
     //    high-% hitlag bonus so a 149% target hit by a heavy crosses
@@ -3929,7 +6621,26 @@ export class Character {
 
     // 2. Knockback math — at the *new* percent, scaled by the
     //    fighter's current mass so heavy targets resist.
-    const result = computeKnockback(hit, this.damagePercent, this.tuning.mass);
+    const rawResult = computeKnockback(hit, this.damagePercent, this.tuning.mass);
+    // CROUCH-CANCEL — a grounded crouching victim eats a softened launch.
+    // Gated on grounded too so a (defensively) stale crouch can never hand
+    // an airborne / juggled fighter the reduction.
+    const crouchCancel =
+      this.isGrounded() && isCrouching(this.locomotionState)
+        ? CROUCH_KNOCKBACK_REDUCTION
+        : 1;
+    const result: KnockbackResult =
+      crouchCancel === 1
+        ? rawResult
+        : {
+            vector: {
+              x: rawResult.vector.x * crouchCancel,
+              y: rawResult.vector.y * crouchCancel,
+            },
+            magnitude: rawResult.magnitude * crouchCancel,
+            angle: rawResult.angle,
+            hitstunFrames: rawResult.hitstunFrames,
+          };
 
     // 3. Hitlag freeze frames (post-M2 hit-feel pass). Both fighters
     //    visually pause at the moment of impact for `hitlagFrames` —
@@ -3960,6 +6671,37 @@ export class Character {
       vector: { x: result.vector.x, y: result.vector.y },
       hitstunFrames: result.hitstunFrames,
     };
+    // Fresh SDI budget for this freeze (no carry-over from a prior hit).
+    this.sdiSpentPx = 0;
+    this.sdiPrevBeyond = false;
+    // Fall-shaping latches die the moment a hit lands: the queued
+    // launch owns the velocity, and a surviving fast-fall latch (or
+    // armed jump-cut) would corrupt the knockback arc when hitstun
+    // ends. Cleared HERE (the single entry point every knockback path
+    // funnels through) rather than in the per-frame shaping block,
+    // whose hitstun branch never runs during the hitlag freeze.
+    this.fastFallLatched = false;
+    this.jumpCutArmed = false;
+    // Getting hit MID-CHARGE drops the charge — including any bank it was
+    // resumed from (Smash idiom: an interrupted active charge is lost).
+    // A merely-HELD bank (not actively charging) SURVIVES the hit, which
+    // is the authentic Samus behaviour. The two states are mutually
+    // exclusive, so wiping the bank only when actively charging is exact.
+    if (this.chargingSpecial !== null) {
+      this.storedSpecialCharge = null;
+    }
+    this.chargingSpecial = null;
+    // Getting hit mid-smash-charge drops it too (no banking for smashes).
+    this.chargingSmash = null;
+    // A launched fighter is no longer doing GROUND locomotion: park the
+    // machine at standing (the crouch-cancel above already consumed the
+    // pre-hit posture). Without this the stale state survives the hitstun
+    // early-returns (which skip the loco tick) and the first free frame
+    // out of hitstun mis-reads a held direction as a PIVOT skid — and a
+    // stale `crouch` would even grant airborne crouch-cancel + a shrunk
+    // hurtbox to a juggled fighter.
+    this.locomotionState = resetLocomotionState(this.facing);
+    this.prevLocoMoveX = 0;
 
     return result;
   }
@@ -4004,7 +6746,10 @@ export class Character {
 
   /** Read-only view of the active tuning record. */
   getTuning(): Required<CharacterTuning> {
-    return { ...this.tuning };
+    // `locomotion` is resolved into `resolvedLocomotionTuning` (it needs
+    // `maxRunSpeed`) and stays optional on `tuning`; the public view fills
+    // every other field, and no caller reads `.locomotion` from here.
+    return { ...this.tuning } as Required<CharacterTuning>;
   }
 
   // -------------------------------------------------------------------------
@@ -4062,8 +6807,31 @@ export class Character {
    * set — the property the replay system requires to keep hurtbox
    * decisions byte-stable across snapshot resyncs.
    */
-  getActiveHurtboxes(): ReadonlyArray<Hurtbox> {
+  /**
+   * The base body hurtbox for the fighter's current POSTURE — the
+   * crouch-lowered (shorter, bottom-anchored) box while crouching, else the
+   * full body. Applied whether idle OR mid-attack, so a crouch attack
+   * (down-tilt / down-smash) keeps the ducked profile instead of popping
+   * the hurtbox back to full height the instant you poke.
+   */
+  private postureBodyHurtbox(): Hurtbox {
     const body = this.getBodyHurtbox();
+    // Grounded too — a stale crouch must never duck an airborne fighter.
+    if (!this.isGrounded() || !isCrouching(this.locomotionState)) return body;
+    const h = body.height * CROUCH_HURTBOX_HEIGHT_FRACTION;
+    return Object.freeze({
+      id: 'body.crouch',
+      offsetX: 0,
+      // Keep the feet planted: shift the centre down by half the height
+      // removed, so the bottom edge stays put and the top (head) drops.
+      offsetY: (body.height - h) / 2,
+      width: body.width,
+      height: h,
+    });
+  }
+
+  getActiveHurtboxes(): ReadonlyArray<Hurtbox> {
+    const body = this.postureBodyHurtbox();
     if (!this.activeAttack) return [body];
     // The attack's `move` is typed `AttackMove`; per-move hurtbox
     // modifiers live on the `AttackMoveWithAnimation` extension. We
@@ -4072,6 +6840,7 @@ export class Character {
     // optional). A move authored as a bare `AttackMove` (legacy /
     // test fixture) carries no `hurtboxModifiers` field and resolves
     // to the body default by the helper's empty-modifier short-circuit.
+    // The base it layers over already reflects the crouch posture.
     const move = this.activeAttack.move as AttackMoveWithAnimation;
     return selectActiveHurtboxes(body, move, this.activeAttack.framesElapsed);
   }
@@ -4136,6 +6905,26 @@ export class Character {
    */
   getDodgeState(): DodgeState {
     return this.dodgeState;
+  }
+
+  /** Read-only snapshot of the live ground-locomotion state (Tier 5). */
+  getLocomotionState(): LocomotionState {
+    return this.locomotionState;
+  }
+
+  /** Current locomotion phase name (standing / walk / initialDash / run / pivot / crouch). */
+  getLocomotionStateName(): LocomotionState['name'] {
+    return this.locomotionState.name;
+  }
+
+  /** True iff the fighter is crouching (stick held down, grounded, no lateral intent). */
+  isCrouching(): boolean {
+    return isCrouching(this.locomotionState);
+  }
+
+  /** True iff the fighter is dashing on the ground (initial-dash burst OR sustained run). */
+  isDashing(): boolean {
+    return isLocomotionDashing(this.locomotionState);
   }
 
   /**
@@ -4252,6 +7041,33 @@ export class Character {
    */
   getLedgeTetherCooldownRemaining(): number {
     return this.ledgeHangState.cooldownRemaining;
+  }
+
+  /**
+   * Derive a ledge-release action from the raw input while hanging — the
+   * human-input path (AI sets `input.ledgeRelease` explicitly; a human
+   * holds a stick / taps a button). A hanging fighter faces the stage, so
+   * the stick toward `facing` rolls up and away drops off.
+   *   • jump press → jump off the ledge
+   *   • attack press → ledge-attack
+   *   • up-stick → climb (getUp)
+   *   • down-stick / stick away from the stage → drop off
+   *   • stick toward the stage → roll up
+   */
+  private deriveLedgeReleaseFromInput(
+    input: CharacterInput,
+  ): LedgeReleaseAction | null {
+    if (this.ledgeHangState.name !== 'hanging') return null;
+    if (input.jump === true && !this.prevJumpHeld) return 'jump';
+    if (input.attack === true && !this.prevAttackHeld) return 'attack';
+    const moveY = input.moveY ?? 0;
+    const moveX = input.moveX ?? 0;
+    if (moveY <= -0.5) return 'getUp';
+    if (moveY >= 0.5) return 'dropDown';
+    if (Math.abs(moveX) >= 0.5) {
+      return Math.sign(moveX) === this.facing ? 'roll' : 'dropDown';
+    }
+    return null;
   }
 
   /**
@@ -4374,7 +7190,10 @@ export class Character {
     // respawn / replay seek doesn't leak the pre-teleport stick state
     // into the next press's smash-flick classification.
     this.prevMoveX = 0;
+    this.recentMoveY = [];
     this.groundContacts = 0;
+    this.platformFallSupported = false;
+    this.tapJumpBufferFrames = 0;
     // AC 60102 Sub-AC 2 — clear the prev-grounded latch on teleport.
     // A respawn drops the fighter into the air; the next applyInput
     // must NOT mistake the spawn frame for "just landed" and trigger a
@@ -4397,14 +7216,41 @@ export class Character {
     // freeze doesn't respawn with a queued launch about to fire.
     this.hitlagRemaining = 0;
     this.pendingKnockback = null;
+    // Fall-shaping latches are transient too — a respawn must not
+    // inherit a fast-fall or an armed jump-cut from the previous stock.
+    this.fastFallLatched = false;
+    this.jumpCutArmed = false;
+    // A stored special charge is transient combat state — drop it on
+    // teleport/respawn so a fighter KO'd mid-charge doesn't reappear
+    // holding the cannon. Both the live charge and any bank reset to zero
+    // on a fresh stock (Samus: charge does not carry across stocks).
+    this.chargingSpecial = null;
+    this.storedSpecialCharge = null;
+    this.chargingSmash = null;
+    // A respawn drops a clean fighter — never inherit helpless free-fall,
+    // tumble, or a knockdown lockout from the stock that just ended.
+    this.helpless = false;
+    this.tumbling = false;
+    this.techBufferRemaining = 0;
+    this.techLockoutRemaining = 0;
+    this.knockdownRemaining = 0;
+    this.getupRollRemaining = 0;
     // AC 60301 Sub-AC 1 — shield state is transient too. Reset to a
     // fresh idle / full-HP shield on respawn so a fighter who lost a
     // stock mid-shatter doesn't reappear pre-broken.
     this.shieldState = resetShieldState(this.tuning.shield);
+    this.shieldActiveFrames = 0;
+    // Stale-move history is per-life — a fresh stock fights with every
+    // move fully un-staled.
+    this.staleMoveQueue = [];
     // AC 60302 Sub-AC 2 — dodge state is transient as well. A fighter
     // who lost a stock mid-roll shouldn't respawn carrying the rest of
     // the slide / recovery / cooldown. Reset to a fresh idle.
     this.dodgeState = resetDodgeState();
+    // Tier 5 — locomotion is transient too: a respawned fighter starts
+    // standing (not mid-run / mid-pivot), facing the freshly-set facing.
+    this.locomotionState = resetLocomotionState(this.facing);
+    this.prevLocoMoveX = 0;
     // AC 60403 Sub-AC 3 — ledge-hang state is transient too. A fighter
     // who lost a stock mid-hang (a hit through the i-frame window
     // launched them off the ledge to KO) shouldn't respawn still
@@ -4426,6 +7272,8 @@ export class Character {
     }
     this.grabState = resetGrabState();
     this.prevGrabHeld = false;
+    this.dashGrabActive = false;
+    this.dashGrabEntryVx = 0;
   }
 
   /**
@@ -4507,6 +7355,8 @@ export class Character {
       despawnHitbox(this.scene as unknown as HitboxScene, this.activeAttack.hitboxBody);
     }
     this.activeAttack = null;
+    // Transient hitboxes (dive shockwaves) are sensors in the world too.
+    this.clearTransientHitboxes();
     // Guard every matter.world access — by SHUTDOWN time the scene's
     // Matter plugin may already be torn down (the Phaser scene-stop
     // sequence destroys plugins before scene.destroy hooks fire). The
@@ -4530,6 +7380,14 @@ export class Character {
    * (respawn) and tests; gameplay code should not need to call it.
    */
   private cancelAttack(): void {
+    // Transient hitboxes (dive shockwaves) outlive the active attack, so
+    // clear them here too — a respawn / teleport must not leave a stale
+    // sensor in the world or a half-finished dive's latches set.
+    this.clearTransientHitboxes();
+    this.diveShockwaveSpawned = false;
+    this.diveHoldFrames = 0;
+    this.multiHitNextIndex = 0;
+    this.pendingCounterRetaliation = null;
     if (!this.activeAttack) return;
     if (this.activeAttack.hitboxBody) {
       despawnHitbox(this.scene as unknown as HitboxScene, this.activeAttack.hitboxBody);
@@ -4606,6 +7464,19 @@ export class Character {
    */
   getBodyBottomY(): number {
     return this.body.bounds?.max?.y ?? this.body.position.y;
+  }
+
+  /**
+   * Called by the scene's pass-through-platform driver on a frame it is
+   * actively keeping this fighter resting on / landing onto a thin platform.
+   * Suppresses the per-fighter `fallAccel` spike for the next `applyInput`
+   * (see {@link platformFallSupported}) so a landing-contact flicker can't
+   * ramp the fall speed back up and tunnel the body through the float. Pure
+   * intent-signal: the flag is consumed each `applyInput`, so calling it has
+   * no effect once the fighter leaves the platform's support.
+   */
+  markPlatformFallSupported(): void {
+    this.platformFallSupported = true;
   }
 
   /** Left edge of the body's AABB in world coords. */

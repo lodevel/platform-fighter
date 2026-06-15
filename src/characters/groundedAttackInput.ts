@@ -131,7 +131,15 @@ export const DEFAULT_FLICK_REST_THRESHOLD = 0.3;
  * Stable string literals so AI / replay logs can carry them directly
  * without a numeric enum mapping.
  */
-export type GroundedAttackPattern = 'jab' | 'tilt' | 'smash';
+export type GroundedAttackPattern =
+  | 'jab'
+  | 'tilt'
+  | 'smash'
+  | 'utilt'
+  | 'usmash'
+  | 'dtilt'
+  | 'dsmash'
+  | 'dashAttack';
 
 /**
  * Per-frame input snapshot consumed by {@link classifyGroundedAttack}.
@@ -159,6 +167,10 @@ export interface GroundedAttackInputSnapshot {
   readonly heavyJustPressed: boolean;
   readonly moveX: number;
   readonly prevMoveX: number;
+  /** Vertical stick (-1 up … +1 down). Drives up/down-tilt + up/down-smash dispatch. Optional → 0. */
+  readonly moveY?: number;
+  /** True when the fighter is running (horizontal speed past the dash threshold). Drives dash-attack. Optional → false. */
+  readonly movingFast?: boolean;
 }
 
 /**
@@ -189,6 +201,16 @@ export interface GroundedAttackSlots {
   readonly jabId: string | null;
   readonly tiltId: string | null;
   readonly smashId: string | null;
+  /** Up-tilt slot — fired on an up-stick light press. Optional. */
+  readonly utiltId?: string | null;
+  /** Up-smash slot — fired on an up-stick heavy press. Optional. */
+  readonly usmashId?: string | null;
+  /** Down-tilt slot — fired on a down-stick light press. Optional. */
+  readonly dtiltId?: string | null;
+  /** Down-smash slot — fired on a down-stick heavy press. Optional. */
+  readonly dsmashId?: string | null;
+  /** Dash-attack slot — fired on a light press while running forward. Optional. */
+  readonly dashAttackId?: string | null;
   readonly defaultId: string | null;
 }
 
@@ -288,10 +310,24 @@ export function classifyGroundedAttack(
   const flickThreshold = tuning.smashFlickThreshold ?? DEFAULT_SMASH_FLICK_THRESHOLD;
   const restThreshold = tuning.flickRestThreshold ?? DEFAULT_FLICK_REST_THRESHOLD;
 
+  // Vertical stick channels: pushed UP / DOWN past the deadzone and
+  // dominating the horizontal axis → the up/down-tilt + up/down-smash
+  // channels (moveY follows screen-space: -1 up, +1 down).
+  const moveY = input.moveY ?? 0;
+  const vertDominant = Math.abs(moveY) >= Math.abs(input.moveX);
+  const upStick = moveY <= -neutralThreshold && vertDominant;
+  const downStick = moveY >= neutralThreshold && vertDominant;
+
   // -------------------------------------------------------------------
-  // 1. Dedicated heavy press → smash slot only (no fallback).
+  // 1. Dedicated heavy press → smash slot (up/down-stick → up/down-smash).
   // -------------------------------------------------------------------
   if (input.heavyJustPressed) {
+    if (upStick && (slots.usmashId ?? null) !== null) {
+      return { moveId: slots.usmashId as string, pattern: 'usmash' };
+    }
+    if (downStick && (slots.dsmashId ?? null) !== null) {
+      return { moveId: slots.dsmashId as string, pattern: 'dsmash' };
+    }
     if (slots.smashId !== null) {
       return { moveId: slots.smashId, pattern: 'smash' };
     }
@@ -303,6 +339,15 @@ export function classifyGroundedAttack(
   // -------------------------------------------------------------------
   if (!input.attackJustPressed) {
     return null;
+  }
+
+  // 1b. Up / down-stick light press → up-tilt / down-tilt (before the
+  // horizontal cascade so a vertical press never reads as a side-tilt).
+  if (upStick && (slots.utiltId ?? null) !== null) {
+    return { moveId: slots.utiltId as string, pattern: 'utilt' };
+  }
+  if (downStick && (slots.dtiltId ?? null) !== null) {
+    return { moveId: slots.dtiltId as string, pattern: 'dtilt' };
   }
 
   // 2. Smash flick on a light press → smash slot, with cascading
@@ -320,6 +365,18 @@ export function classifyGroundedAttack(
       return { moveId: tiltCascade, pattern: 'tilt' };
     }
     return null;
+  }
+
+  // 2b. Dash attack — a light press while RUNNING forward (the fighter is
+  //     actually moving fast, not tilting from a standstill) → dash attack.
+  //     Sits after the smash-flick (a fresh flick still smashes) and before
+  //     the side-tilt so a running attack isn't mis-read as a forward tilt.
+  if (
+    (input.movingFast ?? false) &&
+    (slots.dashAttackId ?? null) !== null &&
+    isStickHeld(input.moveX, neutralThreshold)
+  ) {
+    return { moveId: slots.dashAttackId as string, pattern: 'dashAttack' };
   }
 
   // 3. Light press + stick held past the neutral deadzone → tilt.
