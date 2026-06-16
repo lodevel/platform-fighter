@@ -48,6 +48,7 @@ import {
   type SpriteAnimationSnapshot,
   type SpriteAnimationStateMachine,
 } from '../characters';
+import { resolveLedgeTrumps } from '../characters/ledgeHangState';
 // Truthful hitbox-centre math — shared with `spawnHitbox` so the hit
 // spark / debug overlay land exactly where the real Matter sensor does.
 import { computeHitboxCenter } from '../characters/attacks';
@@ -349,6 +350,14 @@ export class MatchScene extends Phaser.Scene {
    * ledge-occupancy conflict pass (trump / edge-hog).
    */
   private ledgeCandidatesByStage: ReadonlyArray<LedgeCandidate> = [];
+
+  /**
+   * Per-player ledge key (`platformId:side`) at the END of the previous step,
+   * used to detect ledge-TRUMP: a fighter that just grabbed a ledge another
+   * was already hanging on steals it (see {@link resolveLedgeTrumps}). Cleared
+   * in `create()` since Phaser reuses the scene instance across matches.
+   */
+  private prevLedgeKeys = new Map<number, string | null>();
   /*
    * The four hazard-related fields previously held here
    * (`lavaHazards`, `lavaCollisionWatcher`, `windHazards`,
@@ -1695,6 +1704,7 @@ export class MatchScene extends Phaser.Scene {
     // guard in update() never advances the loop) and the player can't move.
     this.pausedForMenu = false;
     this.prevStartHeld = false;
+    this.prevLedgeKeys.clear();
 
     // ---- AC 30001 Sub-AC 1: capture the match seed FIRST -----------------
     // Done before *any* other subsystem is constructed so a future
@@ -3954,6 +3964,35 @@ export class MatchScene extends Phaser.Scene {
             }
           }
           this.inputCaptureBuffer.captureFrame(frame, frameInputs);
+
+          // ---- Ledge-TRUMP (Ultimate ledge-occupancy) -------------------
+          // A fighter that JUST grabbed a ledge another was already hanging on
+          // steals it and knocks the prior occupant off. Resolved here, after
+          // every fighter's applyInput, against the previous step's keys.
+          {
+            const trumpSnaps = this.playerSlots.map((s) => {
+              const nowKey = s.character.getHangingLedgeKey();
+              const wasKey = this.prevLedgeKeys.get(s.playerIndex) ?? null;
+              return {
+                id: s.playerIndex,
+                wasHanging: wasKey !== null,
+                wasKey,
+                nowHanging: nowKey !== null,
+                nowKey,
+              };
+            });
+            for (const victimId of resolveLedgeTrumps(trumpSnaps)) {
+              this.playerSlots
+                .find((s) => s.playerIndex === victimId)
+                ?.character.trumpOffLedge();
+            }
+            for (const s of this.playerSlots) {
+              this.prevLedgeKeys.set(
+                s.playerIndex,
+                s.character.getHangingLedgeKey(),
+              );
+            }
+          }
 
           // ---- Hazard pre-step tick (AC 20101 Sub-AC 1 — BaseStage) ----
           // Tick every hazard entity (lava + wind, plus any future

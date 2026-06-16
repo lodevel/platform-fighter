@@ -4129,6 +4129,16 @@ describe('Character — edge-grab + ledge-hang state (AC 60403 Sub-AC 3)', () =>
     expect(hb).toBeDefined();
   });
 
+  it('trumpOffLedge shoves the fighter off-stage + force-releases the hang next tick', () => {
+    const { ch } = hangChar();
+    expect(ch.isHangingOnLedge()).toBe(true);
+    ch.trumpOffLedge();
+    expect(Math.abs(ch.getVelocity().x)).toBeGreaterThan(2); // shoved off-stage
+    expect(ch.getVelocity().y).toBeGreaterThan(0); // and downward
+    ch.applyInput({ moveX: 0, jump: false }); // process the force-release
+    expect(ch.isHangingOnLedge()).toBe(false);
+  });
+
   it("rejects facing-mismatch ledge: right-facing fighter ignores left ledge", () => {
     const m = createMockScene();
     const ch = new Character(m.scene, { id: 'wolf', spawnX: 100, spawnY: 100 });

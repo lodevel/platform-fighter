@@ -10,6 +10,7 @@ import {
   isLedgeTetherCooldown,
   resetLedgeHangState,
   resolveLedgeHangTuning,
+  resolveLedgeTrumps,
   tickLedgeHang,
   type LedgeHangInput,
   type LedgeHangState,
@@ -828,5 +829,43 @@ describe('AC 60404 Sub-AC 4 — determinism across all options', () => {
       seen.add(action);
     }
     expect(seen.size).toBe(4);
+  });
+});
+
+describe('resolveLedgeTrumps — Ultimate ledge-occupancy (trump)', () => {
+  it('a FRESH grab on an occupied ledge trumps the prior occupant', () => {
+    expect(
+      resolveLedgeTrumps([
+        { id: 0, wasHanging: true, wasKey: 'p1:right', nowHanging: true, nowKey: 'p1:right' },
+        { id: 1, wasHanging: false, wasKey: null, nowHanging: true, nowKey: 'p1:right' },
+      ]),
+    ).toEqual([0]);
+  });
+
+  it('no trump when nobody just grabbed (both already hanging)', () => {
+    expect(
+      resolveLedgeTrumps([
+        { id: 0, wasHanging: true, wasKey: 'p1:right', nowHanging: true, nowKey: 'p1:right' },
+        { id: 1, wasHanging: true, wasKey: 'p1:left', nowHanging: true, nowKey: 'p1:left' },
+      ]),
+    ).toEqual([]);
+  });
+
+  it('no trump when the fresh grab is on a DIFFERENT ledge', () => {
+    expect(
+      resolveLedgeTrumps([
+        { id: 0, wasHanging: true, wasKey: 'p1:right', nowHanging: true, nowKey: 'p1:right' },
+        { id: 1, wasHanging: false, wasKey: null, nowHanging: true, nowKey: 'p1:left' },
+      ]),
+    ).toEqual([]);
+  });
+
+  it('a simultaneous double-grab trumps no-one', () => {
+    expect(
+      resolveLedgeTrumps([
+        { id: 0, wasHanging: false, wasKey: null, nowHanging: true, nowKey: 'p1:right' },
+        { id: 1, wasHanging: false, wasKey: null, nowHanging: true, nowKey: 'p1:right' },
+      ]),
+    ).toEqual([]);
   });
 });

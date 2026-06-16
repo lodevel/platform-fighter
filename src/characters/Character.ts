@@ -610,6 +610,11 @@ export const LEDGE_ATTACK_FRAMES = 8;
  */
 export const LEDGE_ATTACK_DAMAGE = 8;
 
+/** Horizontal off-stage shove (px/step) applied to a fighter TRUMPED off a ledge. PLACEHOLDER tuning. */
+export const LEDGE_TRUMP_KNOCKOFF_VX = 3;
+/** Downward shove (px/step, +y = down) applied to a trumped fighter. PLACEHOLDER tuning. */
+export const LEDGE_TRUMP_KNOCKOFF_VY = 1.5;
+
 /**
  * Smash Directional Influence (SDI) — each fresh stick flick during the
  * hitlag freeze nudges the launched fighter's POSITION (not trajectory)
@@ -7162,6 +7167,36 @@ export class Character {
   /** True iff the fighter is currently hanging on a ledge corner. */
   isHangingOnLedge(): boolean {
     return this.ledgeHangState.name === 'hanging';
+  }
+
+  /**
+   * Stable key of the ledge this fighter is currently hanging on, or null if
+   * not hanging. The scene uses it to detect ledge-occupancy conflicts (trump).
+   */
+  getHangingLedgeKey(): string | null {
+    const c = this.ledgeHangState.active?.candidate;
+    return this.ledgeHangState.name === 'hanging' && c
+      ? `${c.platformId}:${c.side}`
+      : null;
+  }
+
+  /**
+   * Ledge-TRUMP: this fighter was bumped off the ledge by an opponent who just
+   * grabbed it. Force-release the hang next tick (the built-in `forceRelease`
+   * path, same as a hit-while-hanging) and shove the fighter slightly off-stage
+   * + down, so the trump steals the ledge and leaves the prior occupant having
+   * to recover again — the Ultimate ledge-occupancy rule. No-op if not hanging.
+   * Knock-off magnitudes are PLACEHOLDER tuning.
+   */
+  trumpOffLedge(): void {
+    if (this.ledgeHangState.name !== 'hanging') return;
+    this.pendingLedgeForceRelease = true;
+    // A hanging fighter faces INTO the stage, so off-stage = -facing.
+    const away = -this.facing;
+    this.scene.matter.body.setVelocity(this.body, {
+      x: away * LEDGE_TRUMP_KNOCKOFF_VX,
+      y: LEDGE_TRUMP_KNOCKOFF_VY,
+    });
   }
 
   /**

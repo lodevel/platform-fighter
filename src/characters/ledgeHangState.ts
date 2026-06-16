@@ -456,6 +456,48 @@ export function isClimbingFromLedge(state: LedgeHangState): boolean {
   return state.name === 'climbing';
 }
 
+/** Per-fighter ledge-occupancy snapshot fed to {@link resolveLedgeTrumps}. */
+export interface LedgeTrumpSnapshot {
+  /** Stable fighter id (e.g. player index). */
+  readonly id: number;
+  /** Was this fighter hanging on a ledge LAST frame? */
+  readonly wasHanging: boolean;
+  /** The ledge key (`platformId:side`) it was on last frame, or null. */
+  readonly wasKey: string | null;
+  /** Is it hanging NOW? */
+  readonly nowHanging: boolean;
+  /** The ledge key it is on now, or null. */
+  readonly nowKey: string | null;
+}
+
+/**
+ * Pure ledge-TRUMP resolver (Ultimate ledge-occupancy rule). A fighter that
+ * JUST grabbed a ledge this frame (was not hanging, now is) TRUMPS any OTHER
+ * fighter who was already hanging on that same ledge last frame and still is —
+ * stealing the ledge and knocking the prior occupant off. Returns the ids of
+ * the fighters to trump. Deterministic, no side effects. A simultaneous
+ * double-grab (neither was the prior occupant) trumps no-one.
+ */
+export function resolveLedgeTrumps(
+  snaps: ReadonlyArray<LedgeTrumpSnapshot>,
+): number[] {
+  const victims: number[] = [];
+  for (const grabber of snaps) {
+    // A FRESH grab this frame.
+    if (!grabber.nowHanging || grabber.wasHanging || grabber.nowKey === null) {
+      continue;
+    }
+    for (const occ of snaps) {
+      if (occ.id === grabber.id) continue;
+      // A prior occupant of the SAME ledge, still hanging.
+      if (occ.wasHanging && occ.nowHanging && occ.wasKey === grabber.nowKey) {
+        victims.push(occ.id);
+      }
+    }
+  }
+  return victims;
+}
+
 /**
  * AC 60404 Sub-AC 4 — true iff the fighter's ledge-roll recovery is
  * playing. The runtime composes this with `isClimbingFromLedge` to
