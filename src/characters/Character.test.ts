@@ -4113,6 +4113,21 @@ describe('Character — edge-grab + ledge-hang state (AC 60403 Sub-AC 3)', () =>
     expect(ch.isHangingOnLedge()).toBe(false);
   });
 
+  it('HUMAN release: a ledge-attack swings a real edge-clearing hitbox (not just a nudge)', () => {
+    const { ch, m } = hangChar();
+    ch.applyInput({ moveX: 0, jump: false, ledgeRelease: 'attack' });
+    expect(ch.isHangingOnLedge()).toBe(false);
+    // A transient ledge-attack hitbox is now spawned (was a placeholder nudge).
+    const hb = m.bodies.find(
+      (b) =>
+        b.label === HITBOX_LABEL &&
+        !b.removed &&
+        (b.options?.['plugin'] as { moveId?: string } | undefined)?.moveId ===
+          'wolf.ledgeAttack',
+    );
+    expect(hb).toBeDefined();
+  });
+
   it("rejects facing-mismatch ledge: right-facing fighter ignores left ledge", () => {
     const m = createMockScene();
     const ch = new Character(m.scene, { id: 'wolf', spawnX: 100, spawnY: 100 });

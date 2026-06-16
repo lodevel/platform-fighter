@@ -587,6 +587,16 @@ export const GETUP_ATTACK_FRAMES = 6;
 /** Damage of a get-up attack (a weak, low-knockback wake-up swat). */
 export const GETUP_ATTACK_DAMAGE = 6;
 
+/** Active frames of a ledge-attack's edge-clearing swing hitbox. */
+export const LEDGE_ATTACK_FRAMES = 8;
+/**
+ * Damage of a ledge-attack (a weak swing that clears an edge-guarder as the
+ * fighter climbs back on). PLACEHOLDER tuning — per-character authoring +
+ * exact frame/knockback values vs an Ultimate frame-data reference is a
+ * follow-up (see docs/SMASH-PARITY-PLAN.md, Tier 2/5).
+ */
+export const LEDGE_ATTACK_DAMAGE = 8;
+
 /**
  * Smash Directional Influence (SDI) — each fresh stick flick during the
  * hitlag freeze nudges the launched fighter's POSITION (not trajectory)
@@ -7184,13 +7194,35 @@ export class Character {
       });
       this.scene.matter.body.setVelocity(this.body, { x: 0, y: 0 });
     } else if (action === 'attack') {
-      // Ledge-attack is a placeholder for a future move-driven release —
-      // for this sub-AC we simply restore normal physics with a small
-      // horizontal nudge into the stage so the attack animation has
-      // somewhere to swing.
+      // Ledge-attack: climb back on with a small inward nudge AND a real
+      // edge-clearing hitbox covering the ledge corner up onto the stage —
+      // an opponent edge-guarding the spot gets swatted away. The ledge state
+      // machine grants the attack-release intangibility (`attackIframes`); we
+      // own the move here. Mirrors `startGetupAttack`. (Placeholder tuning —
+      // see LEDGE_ATTACK_*; per-character authoring is a follow-up.)
       const inward =
         this.facing === 1 ? this.tuning.maxRunSpeed * 0.5 : -this.tuning.maxRunSpeed * 0.5;
       this.scene.matter.body.setVelocity(this.body, { x: inward, y: 0 });
+      const ledgeAttackMove = {
+        id: `${this.id}.ledgeAttack`,
+        type: 'tilt',
+        damage: LEDGE_ATTACK_DAMAGE,
+        knockback: { x: 4, y: -2.4, scaling: 0.14 },
+        // Forward swing (offsetX mirrored by facing → into the stage) covering
+        // the ledge corner and a bit onstage.
+        hitbox: { offsetX: 12, offsetY: -2, width: 84, height: 60 },
+        startupFrames: 0,
+        activeFrames: LEDGE_ATTACK_FRAMES,
+        recoveryFrames: 0,
+        cooldownFrames: 0,
+      } as unknown as AttackMove;
+      const body = spawnHitbox(
+        this.scene as unknown as HitboxScene,
+        { id: this.id, position: this.body.position, bodyId: this.body.id },
+        ledgeAttackMove,
+        this.facing,
+      );
+      this.transientHitboxes.push({ body, framesRemaining: LEDGE_ATTACK_FRAMES });
     }
     // 'getUp' — handled by the climb animation; no impulse here.
     // 'roll'  — handled by the rolling state's freeze + post-recovery
