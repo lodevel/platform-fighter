@@ -169,6 +169,8 @@ export interface GroundedAttackInputSnapshot {
   readonly prevMoveX: number;
   /** Vertical stick (-1 up … +1 down). Drives up/down-tilt + up/down-smash dispatch. Optional → 0. */
   readonly moveY?: number;
+  /** Previous-frame stick Y — detects a VERTICAL smash flick (rest→deflected) for up/down-smash. Optional → 0. */
+  readonly prevMoveY?: number;
   /** True when the fighter is running (horizontal speed past the dash threshold). Drives dash-attack. Optional → false. */
   readonly movingFast?: boolean;
 }
@@ -339,6 +341,24 @@ export function classifyGroundedAttack(
   // -------------------------------------------------------------------
   if (!input.attackJustPressed) {
     return null;
+  }
+
+  // 1a. Up / down-SMASH via a VERTICAL flick on a light press (stick at rest
+  // last frame → past the flick threshold this frame), mirroring the
+  // horizontal flick → forward-smash. Checked BEFORE the up/down-TILT below so
+  // a sharp flick reads as a smash and a steady lean reads as a tilt. Without
+  // this, up/down-smash are UNREACHABLE — they otherwise need a dedicated
+  // heavy button, which the input layer does not wire.
+  if (
+    vertDominant &&
+    isSmashFlick(input.prevMoveY ?? 0, moveY, flickThreshold, restThreshold)
+  ) {
+    if (upStick && (slots.usmashId ?? null) !== null) {
+      return { moveId: slots.usmashId as string, pattern: 'usmash' };
+    }
+    if (downStick && (slots.dsmashId ?? null) !== null) {
+      return { moveId: slots.dsmashId as string, pattern: 'dsmash' };
+    }
   }
 
   // 1b. Up / down-stick light press → up-tilt / down-tilt (before the

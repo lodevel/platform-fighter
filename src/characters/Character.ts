@@ -1026,6 +1026,13 @@ export class Character {
    * pre-teleport stick state into the next press.
    */
   private prevMoveX = 0;
+  /**
+   * Previous-frame raw clamped stick Y, latched alongside {@link prevMoveX} so
+   * the grounded classifier can detect a VERTICAL smash flick (rest→deflected)
+   * for up/down-smash. Latched in defensive-state branches too so a held
+   * up/down-stick masked during shield/hitstun can't phantom-flick on exit.
+   */
+  private prevMoveY = 0;
 
   /**
    * Short backward window of the vertical stick (`moveY`) for DIRECTIONAL
@@ -1932,6 +1939,7 @@ export class Character {
         this.prevShieldHeld = input.shield === true;
         this.prevDodgeHeld = input.dodge === true;
         this.prevMoveX = clamp(input.moveX, -1, 1);
+        this.prevMoveY = clamp(input.moveY ?? 0, -1, 1);
         this.prevGrounded = true;
         return;
       }
@@ -2019,6 +2027,7 @@ export class Character {
       // motion through the lockout (no phantom flicks on the recovery
       // frame). Mirrors `prevAttackHeld` etc.
       this.prevMoveX = clamp(input.moveX, -1, 1);
+      this.prevMoveY = clamp(input.moveY ?? 0, -1, 1);
       // Latch grounded state even during hitstun so the moment hitstun
       // releases we don't spuriously fire a "just landed" event from a
       // stale reading.
@@ -2063,6 +2072,7 @@ export class Character {
       this.prevShieldHeld = input.shield === true;
       this.prevDodgeHeld = input.dodge === true;
       this.prevMoveX = clamp(input.moveX, -1, 1);
+      this.prevMoveY = clamp(input.moveY ?? 0, -1, 1);
       this.prevGrounded = this.isGrounded();
       return;
     }
@@ -2084,6 +2094,7 @@ export class Character {
       this.prevShieldHeld = input.shield === true;
       this.prevDodgeHeld = input.dodge === true;
       this.prevMoveX = clamp(input.moveX, -1, 1);
+      this.prevMoveY = clamp(input.moveY ?? 0, -1, 1);
       this.prevGrounded = this.isGrounded();
       return;
     }
@@ -2128,6 +2139,7 @@ export class Character {
       // actual stick motion through the lockout. Mirrors the hitstun
       // branch above.
       this.prevMoveX = clamp(input.moveX, -1, 1);
+      this.prevMoveY = clamp(input.moveY ?? 0, -1, 1);
       if (this.activeAttack === null && this.cooldownRemaining > 0) {
         this.cooldownRemaining -= 1;
       }
@@ -3074,7 +3086,11 @@ export class Character {
       justLanded,
       specialHeldEffective,
       downSpecialHeld,
-      input.jump === true,
+      // Up-special is reachable via the up-stick too, not only the jump
+      // button — on a gamepad, jump (button 0) and the up-stick are separate
+      // inputs, so a stick-only up+special would otherwise fall through to the
+      // NEUTRAL special. Mirrors the down-special stick read above.
+      input.jump === true || bufferedMoveY <= -DEFAULT_NEUTRAL_THRESHOLD,
       shieldHeld,
       bufferedMoveY,
     );
@@ -3098,6 +3114,7 @@ export class Character {
     // A held stick that was masked off by a shield-raise frame must
     // not trigger a phantom flick when the shield drops.
     this.prevMoveX = rawMoveX;
+    this.prevMoveY = curMoveY;
     // AC 60302 Sub-AC 2 — latch the dodge button state so next frame's
     // press detection only fires on a fresh rising edge. Latch the
     // RAW `input.dodge`, not the shield-gated `dodgeHeldThisFrame` —
@@ -5866,6 +5883,7 @@ export class Character {
             heavyJustPressed,
             moveX,
             prevMoveX: this.prevMoveX,
+            prevMoveY: this.prevMoveY,
             moveY: attackMoveY,
             movingFast,
           },
@@ -7070,6 +7088,10 @@ export class Character {
     const moveY = input.moveY ?? 0;
     const moveX = input.moveX ?? 0;
     if (moveY <= -0.5) return 'getUp';
+    // NOTE: ledge release uses a HIGHER threshold (0.5) than the 0.3 used for
+    // attacks/dodges — a DELIBERATE deadzone so a small stick tilt can't
+    // accidentally release you off the ledge (that = death). Do not lower to
+    // 0.3 "for consistency"; a regression test locks this intent.
     if (moveY >= 0.5) return 'dropDown';
     if (Math.abs(moveX) >= 0.5) {
       return Math.sign(moveX) === this.facing ? 'roll' : 'dropDown';
@@ -7197,6 +7219,7 @@ export class Character {
     // respawn / replay seek doesn't leak the pre-teleport stick state
     // into the next press's smash-flick classification.
     this.prevMoveX = 0;
+    this.prevMoveY = 0;
     this.recentMoveY = [];
     this.groundContacts = 0;
     this.platformFallSupported = false;

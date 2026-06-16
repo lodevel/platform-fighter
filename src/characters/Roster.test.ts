@@ -1546,3 +1546,58 @@ describe('Tap-jump buffer — up+attack beats the jump', () => {
     expect(ch.getActiveAttack()).toBeNull(); // jumped, no attack fired
   });
 });
+
+// ---------------------------------------------------------------------------
+// Vertical smash flick — up/down-smash must be reachable by FLICKING the stick
+// up/down + attack (the only way without a dedicated heavy button, which the
+// input layer never wires). A steadily HELD stick + attack stays a tilt.
+// REGRESSION: these moves were authored but UNREACHABLE by a real player.
+// ---------------------------------------------------------------------------
+
+describe('Vertical smash flick — up/down-smash reachable via flick + attack', () => {
+  const groundedWolf = (): Character => {
+    const m = createMockScene();
+    const ch = createCharacterById(m.scene, 'wolf', { spawnX: 0, spawnY: 0 });
+    ground(ch, m);
+    return ch;
+  };
+
+  it('an UP-flick (rest → up) + attack fires up-smash (charge, release to fire)', () => {
+    const ch = groundedWolf();
+    ch.applyInput({ moveX: 0, jump: false }); // stick at rest → prevMoveY latches 0
+    ch.applyInput({ moveX: 0, moveY: -1, jump: false, attack: true }); // flick up → up-smash charge
+    ch.applyInput({ moveX: 0, moveY: -1, jump: false, attack: false }); // release → fires
+    expect(ch.getActiveAttack()?.move.id).toBe(ch.getUpSmashId());
+  });
+
+  it('a DOWN-flick (rest → down) + attack fires down-smash (charge, release to fire)', () => {
+    const ch = groundedWolf();
+    ch.applyInput({ moveX: 0, jump: false });
+    ch.applyInput({ moveX: 0, moveY: 1, jump: false, attack: true }); // flick down → down-smash charge
+    ch.applyInput({ moveX: 0, moveY: 1, jump: false, attack: false }); // release → fires
+    expect(ch.getActiveAttack()?.move.id).toBe(ch.getDownSmashId());
+  });
+
+  it('a HELD up-stick + attack stays an up-TILT (a lean is not a flick)', () => {
+    const ch = groundedWolf();
+    ch.applyInput({ moveX: 0, moveY: -1, jump: false }); // hold up → prevMoveY latches -1
+    ch.applyInput({ moveX: 0, moveY: -1, jump: false, attack: true }); // still up + attack
+    expect(ch.getActiveAttack()?.move.id).toBe(ch.getUpTiltId());
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Up-special via the up-stick (not only the jump button) — on a gamepad, jump
+// and the up-stick are separate inputs, so a stick-only up+special must still
+// reach the recovery rather than falling through to the neutral special.
+// ---------------------------------------------------------------------------
+
+describe('Up-special via up-stick (jump button not pressed)', () => {
+  it('special + up-stick with NO jump fires the up-special', () => {
+    const m = createMockScene();
+    const ch = createCharacterById(m.scene, 'wolf', { spawnX: 0, spawnY: 0 });
+    ground(ch, m);
+    ch.applyInput({ moveX: 0, moveY: -1, jump: false, special: true });
+    expect(ch.getActiveAttack()?.move.id).toBe(ch.getUpSpecialId());
+  });
+});
