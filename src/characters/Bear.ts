@@ -149,6 +149,7 @@ import type Phaser from 'phaser';
 import { ContractFighter } from './contractFighter';
 import { Character, type CharacterTuning } from './Character';
 import { registerFighterAttack } from './attackRegistration';
+import type { AttackMove } from './attacks';
 import type { AttackMoveWithAnimation } from './moveSchema';
 import type { AerialMove } from './aerialSchema';
 import type { CommandGrabSpecialMove } from './specialSchema';
@@ -1365,6 +1366,65 @@ export class Bear extends ContractFighter {
     // a higher damage multiplier (1.5×) and a vertical-KO trajectory
     // — different flavour from Wolf's neutral counter.
     registerFighterAttack(this, BEAR_DOWN_SPECIAL);
+  }
+
+  /**
+   * Bear's GET-UP ATTACK — a wide, heavy two-sided wake-up swat. Tuned to
+   * the grappler archetype: the cast's heaviest/widest body (width 55) gets
+   * the widest, slightly stronger get-up sweep, paid for with a marginally
+   * slower active window. Still a weak utility pop-away, NOT a KO move.
+   *
+   *   • Damage    : 8 — toward the top of the utility band (base 6), the
+   *                 heavyweight "every swing hits hard" lean.
+   *   • Knockback : x 4.4 / y -3.0, scaling 0.13 — pops the opponent away a
+   *                 touch harder than base (4 / -3 / 0.12); still low-mag.
+   *   • Hitbox    : offsetX 0 (two-sided), width 110 ≈ 2.0× body width (55),
+   *                 the widest get-up sweep in the cast; height 44 to cover
+   *                 his tall brick body. offsetY 0 — centred low sweep.
+   *   • Active    : 7 frames — one above base (6); the big swing lingers a
+   *                 hair longer, matching Bear's committal feel.
+   */
+  protected getUpAttackParams(): {
+    damage: number;
+    knockback: AttackMove['knockback'];
+    hitbox: AttackMove['hitbox'];
+    activeFrames: number;
+  } {
+    return {
+      damage: 8,
+      knockback: { x: 4.4, y: -3, scaling: 0.13 },
+      hitbox: { offsetX: 0, offsetY: 0, width: 110, height: 44 },
+      activeFrames: 7,
+    };
+  }
+
+  /**
+   * Bear's LEDGE ATTACK — a forward edge-clearing paw swing climbing back
+   * onto the stage. Scaled to the heavyweight: wider/slightly harder than
+   * base, reaching forward over the ledge corner up onto the stage. Still a
+   * weak utility pop-away, NOT a KO move.
+   *
+   *   • Damage    : 9 — top of the utility band (base 8), the grappler
+   *                 damage premium without crossing into KO strength.
+   *   • Knockback : x 4.2 / y -2.4, scaling 0.15 — a hair above base
+   *                 (4 / -2.4 / 0.14); pushes the edge-camper away, low-mag.
+   *   • Hitbox    : offsetX 14 (forward, over the ledge corner onto stage),
+   *                 offsetY -2, width 92 (wider than base 84 for his big
+   *                 swing), height 64 to cover the climb arc.
+   *   • Active    : 8 frames — same as base; a deliberate forward swing.
+   */
+  protected ledgeAttackParams(): {
+    damage: number;
+    knockback: AttackMove['knockback'];
+    hitbox: AttackMove['hitbox'];
+    activeFrames: number;
+  } {
+    return {
+      damage: 9,
+      knockback: { x: 4.2, y: -2.4, scaling: 0.15 },
+      hitbox: { offsetX: 14, offsetY: -2, width: 92, height: 64 },
+      activeFrames: 8,
+    };
   }
 
 

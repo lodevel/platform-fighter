@@ -1333,6 +1333,52 @@ export class Cat extends ContractFighter {
     registerFighterAttack(this, CAT_DOWN_SPECIAL);
   }
 
+  /**
+   * Cat's GET-UP ATTACK — the wake-up swat from knockdown. Ninja-tuned:
+   * quick, small, and weak. Cat is the smallest body in the cast (40 px
+   * wide), so the two-sided sweep is narrow — width 68 (~1.7× body width,
+   * the low end of the 1.6-2.2× band per the archetype guidance) with a
+   * short active window (5 frames, fastest in the band) and the lightest
+   * damage (5). Knockback pops the opponent away without threatening a KO.
+   */
+  protected getUpAttackParams(): {
+    damage: number;
+    knockback: AttackMove['knockback'];
+    hitbox: AttackMove['hitbox'];
+    activeFrames: number;
+  } {
+    return {
+      damage: 5,
+      knockback: { x: 3.4, y: -2.6, scaling: 0.1 },
+      // Narrow two-sided sweep centred on Cat's slim 40-wide body
+      // (width 68 ≈ 1.7× body; height 32 fits within the 65-tall body).
+      hitbox: { offsetX: 0, offsetY: 0, width: 68, height: 32 },
+      activeFrames: 5,
+    };
+  }
+
+  /**
+   * Cat's LEDGE ATTACK — the edge-clearing forward swing climbing back up.
+   * Ninja-tuned: a quick, compact paw swipe over the ledge corner. Modest
+   * damage (6), short active window (6 frames), and a forward hitbox scaled
+   * to Cat's small body — narrower/shorter than the base default. Knockback
+   * clears the edge-guard without killing.
+   */
+  protected ledgeAttackParams(): {
+    damage: number;
+    knockback: AttackMove['knockback'];
+    hitbox: AttackMove['hitbox'];
+    activeFrames: number;
+  } {
+    return {
+      damage: 6,
+      knockback: { x: 3.4, y: -2.2, scaling: 0.12 },
+      // Forward swing covering the ledge corner up onto the stage.
+      hitbox: { offsetX: 10, offsetY: -2, width: 62, height: 48 },
+      activeFrames: 6,
+    };
+  }
+
 
   // Per-slot execute hooks (executeJab … executeDodge) are inherited
   // from ContractFighter, which fires each slot via the frozen

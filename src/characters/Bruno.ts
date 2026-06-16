@@ -34,6 +34,7 @@ import type Phaser from 'phaser';
 import { ContractFighter } from './contractFighter';
 import { type CharacterTuning } from './Character';
 import { registerFighterAttack } from './attackRegistration';
+import type { AttackMove } from './attacks';
 import type { AttackMoveWithAnimation } from './moveSchema';
 import type { AerialMove } from './aerialSchema';
 import type { ProjectileSpecialMove } from './specialSchema';
@@ -661,4 +662,51 @@ export class Bruno extends ContractFighter {
 
   // Per-slot execute hooks are inherited from ContractFighter, which
   // fires each slot off the frozen `moveset` declaration above.
+
+  /**
+   * Bruno's GET-UP ATTACK (wake-up swat from knockdown) — a wide
+   * two-sided sweep of his arms as he rolls to his feet. Bruno is the
+   * cast-baseline "everyman" all-rounder, so this sits right at the
+   * reference numbers: cast-average damage 6 and a modest pop-away. The
+   * hitbox is scaled to his compact 46×68 silhouette — width 88 ≈ 1.9×
+   * body width so it clears both flanks without the reach of a bruiser's
+   * sweep. Six active frames is the dependable middle-of-the-road window.
+   */
+  protected getUpAttackParams(): {
+    damage: number;
+    knockback: AttackMove['knockback'];
+    hitbox: AttackMove['hitbox'];
+    activeFrames: number;
+  } {
+    return {
+      damage: 6,
+      knockback: { x: 4, y: -3, scaling: 0.12 },
+      // Two-sided low sweep centred on Bruno — ~1.9× his 46-wide body.
+      hitbox: { offsetX: 0, offsetY: 0, width: 88, height: 40 },
+      activeFrames: 6,
+    };
+  }
+
+  /**
+   * Bruno's LEDGE ATTACK (edge-clearing swing climbing back onstage) — a
+   * forward punch that sweeps the ledge corner up onto the stage. Stays
+   * on the cast baseline: damage 8 and a moderate forward-and-up pop that
+   * shoves a ledge-camper away rather than killing. The forward hitbox
+   * (positive offsetX) is sized to his compact body — width 80, covering
+   * the corner and a touch onstage — with the standard 8-frame window.
+   */
+  protected ledgeAttackParams(): {
+    damage: number;
+    knockback: AttackMove['knockback'];
+    hitbox: AttackMove['hitbox'];
+    activeFrames: number;
+  } {
+    return {
+      damage: 8,
+      knockback: { x: 4, y: -2.4, scaling: 0.14 },
+      // Forward swing over the ledge corner, scaled to Bruno's footprint.
+      hitbox: { offsetX: 12, offsetY: -2, width: 80, height: 58 },
+      activeFrames: 8,
+    };
+  }
 }

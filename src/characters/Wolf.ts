@@ -1448,6 +1448,68 @@ export class Wolf extends ContractFighter {
     this.setGrabSpec(WOLF_GRAB);
   }
 
+  /**
+   * Wolf's GET-UP ATTACK — the wake-up swat from knockdown (overrides
+   * {@link Character.getUpAttackParams}). Bruiser flavour: a wide,
+   * two-sided body-centred sweep that hits a bit harder and reaches a
+   * bit further than the base default. NOT a KO move — it pops an
+   * opponent away to reclaim space on wake-up.
+   *
+   *   • Damage 8 — toward the upper end of the 5-10 utility band; Wolf
+   *     hits heavier than a small fast fighter would.
+   *   • Knockback { 4.5, -3.2, 0.13 } — low-to-moderate; a touch above
+   *     the base so the heavy swat shoves the opponent clear, but the
+   *     scaling stays low so it never kills.
+   *   • Hitbox 100×44, offsetX 0 — a two-sided sweep ~2.2× Wolf's
+   *     45 px body width (the wide end of the 1.6-2.2× guidance, fitting
+   *     the broad-shouldered bruiser); covers both flanks on wake-up.
+   *   • Active 7 frames — middle of the 5-9 band; the heavy swing isn't
+   *     as snappy as a featherweight's.
+   */
+  protected getUpAttackParams(): {
+    damage: number;
+    knockback: AttackMove['knockback'];
+    hitbox: AttackMove['hitbox'];
+    activeFrames: number;
+  } {
+    return {
+      damage: 8,
+      knockback: { x: 4.5, y: -3.2, scaling: 0.13 },
+      hitbox: { offsetX: 0, offsetY: 0, width: 100, height: 44 },
+      activeFrames: 7,
+    };
+  }
+
+  /**
+   * Wolf's LEDGE ATTACK — the edge-clearing swing on climbing back from a
+   * ledge (overrides {@link Character.ledgeAttackParams}). Bruiser
+   * flavour: a forward swing covering the ledge corner up onto the stage,
+   * slightly wider and stronger than the base default. NOT a KO move.
+   *
+   *   • Damage 9 — upper end of the 5-10 band; the heavy fighter's swing.
+   *   • Knockback { 4.2, -2.6, 0.15 } — low-to-moderate; pops the edge-
+   *     guarder away so Wolf can reclaim the stage, scaling kept low so
+   *     it stays a utility clear rather than a kill.
+   *   • Hitbox 88×62, offsetX +14 — a forward swing reaching out over the
+   *     ledge corner and a bit onto the stage; wider than the base to
+   *     match the bruiser's broad reach.
+   *   • Active 8 frames — toward the slower end of the 5-9 band, fitting
+   *     the committal heavy archetype.
+   */
+  protected ledgeAttackParams(): {
+    damage: number;
+    knockback: AttackMove['knockback'];
+    hitbox: AttackMove['hitbox'];
+    activeFrames: number;
+  } {
+    return {
+      damage: 9,
+      knockback: { x: 4.2, y: -2.6, scaling: 0.15 },
+      hitbox: { offsetX: 14, offsetY: -2, width: 88, height: 62 },
+      activeFrames: 8,
+    };
+  }
+
 
   // Per-slot execute hooks (executeJab … executeDodge) are inherited
   // from ContractFighter, which fires each slot via the frozen

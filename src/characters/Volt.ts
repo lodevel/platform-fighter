@@ -37,6 +37,7 @@ import type Phaser from 'phaser';
 import { ContractFighter } from './contractFighter';
 import { type CharacterTuning } from './Character';
 import { registerFighterAttack } from './attackRegistration';
+import type { AttackMove } from './attacks';
 import type { AttackMoveWithAnimation } from './moveSchema';
 import type { AerialMove } from './aerialSchema';
 import type { ProjectileSpecialMove } from './specialSchema';

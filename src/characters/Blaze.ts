@@ -40,7 +40,7 @@ import type Phaser from 'phaser';
 import { ContractFighter } from './contractFighter';
 import { type CharacterTuning } from './Character';
 import { registerFighterAttack } from './attackRegistration';
-import type { AttackMoveWithAnimation } from './moveSchema';
+import type { AttackMove, AttackMoveWithAnimation } from './moveSchema';
 import type { AerialMove } from './aerialSchema';
 import type { ChargeSpecialMove } from './specialSchema';
 import type { DashStrikeSideSpecialMove } from './sideSpecialSchema';

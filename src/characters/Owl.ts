@@ -132,7 +132,7 @@ import type Phaser from 'phaser';
 import { ContractFighter } from './contractFighter';
 import { Character, type CharacterTuning } from './Character';
 import { registerFighterAttack } from './attackRegistration';
-import type { AttackMoveWithAnimation } from './moveSchema';
+import type { AttackMove, AttackMoveWithAnimation } from './moveSchema';
 import type { AerialMove } from './aerialSchema';
 import type { ProjectileSpecialMove } from './specialSchema';
 import type { ReflectorSideSpecialMove } from './sideSpecialSchema';
@@ -1341,6 +1341,70 @@ export class Owl extends ContractFighter {
     // slot wiring. Owl's vertical-commitment tool: brief upward stall
     // followed by a fast meteor plunge with a landing shockwave.
     registerFighterAttack(this, OWL_DOWN_SPECIAL);
+  }
+
+  /**
+   * Owl's GET-UP ATTACK — a wake-up wing-fan, the wide two-sided sweep that
+   * clears space on both flanks as he rises from a knockdown.
+   *
+   * Owl is the floaty mage / zoner: a thin (42 px) but tall (80 px) tower with
+   * light mass (10). The guidance pegs a zoner/floaty at "modest", so this sits
+   * just below the base default — a fan of wing-feathers, not a bruiser swat.
+   *
+   *   • Damage    : 6 — base default; a utility pop, not a KO.
+   *   • Knockback : x 3.6 / y -2.8, scaling 0.11 — a hair under the base
+   *                 (4 / -3 / 0.12). Pops the opponent away to re-establish
+   *                 zoning space; doesn't kill.
+   *   • Hitbox    : offsetX 0 (body-centred two-sided sweep), width 76
+   *                 (≈ 1.8× Owl's 42 px body — within the 1.6–2.2× band),
+   *                 height 44 — a touch taller than base to match his tall
+   *                 silhouette so the fan reads up his body.
+   *   • Active    : 6 frames — base default; quick, no commitment.
+   */
+  protected getUpAttackParams(): {
+    damage: number;
+    knockback: AttackMove['knockback'];
+    hitbox: AttackMove['hitbox'];
+    activeFrames: number;
+  } {
+    return {
+      damage: 6,
+      knockback: { x: 3.6, y: -2.8, scaling: 0.11 },
+      hitbox: { offsetX: 0, offsetY: 0, width: 76, height: 44 },
+      activeFrames: 6,
+    };
+  }
+
+  /**
+   * Owl's LEDGE ATTACK — a forward staff-poke climbing back onto the stage,
+   * clearing the ledge corner up onto the platform.
+   *
+   * Leans into Owl's signature identity (the longest grounded reach in the
+   * cast) by extending a touch further forward than the base default, while
+   * staying firmly in utility territory — modest damage, a pop-away knockback,
+   * a short active window. Not a KO move.
+   *
+   *   • Damage    : 7 — modest, between the get-up's 6 and a real poke.
+   *   • Knockback : x 3.8 / y -2.2, scaling 0.13 — a hair under the base
+   *                 (4 / -2.4 / 0.14); shoves the edge-guarder off, no kill.
+   *   • Hitbox    : offsetX 16 (forward, past the ledge corner — a touch
+   *                 further than the base 12, reflecting Owl's long reach),
+   *                 offsetY -2, width 78, height 64 — tall coverage matching
+   *                 his silhouette so the swing sweeps the climb-up arc.
+   *   • Active    : 7 frames — short, within the 5–9 band.
+   */
+  protected ledgeAttackParams(): {
+    damage: number;
+    knockback: AttackMove['knockback'];
+    hitbox: AttackMove['hitbox'];
+    activeFrames: number;
+  } {
+    return {
+      damage: 7,
+      knockback: { x: 3.8, y: -2.2, scaling: 0.13 },
+      hitbox: { offsetX: 16, offsetY: -2, width: 78, height: 64 },
+      activeFrames: 7,
+    };
   }
 
 
