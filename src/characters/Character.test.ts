@@ -4139,9 +4139,29 @@ describe('Character — edge-grab + ledge-hang state (AC 60403 Sub-AC 3)', () =>
     expect(ch.isHangingOnLedge()).toBe(false);
   });
 
-  it("rejects facing-mismatch ledge: right-facing fighter ignores left ledge", () => {
+  it("grabs a ledge regardless of facing (Smash-faithful): right-facing fighter descending onto a left ledge still hangs", () => {
+    // A recovering fighter faces the stage (inward), i.e. away from the
+    // ledge's outer side. Smash still lets them snap onto the lip — the
+    // grab is facing-agnostic by default.
     const m = createMockScene();
     const ch = new Character(m.scene, { id: 'wolf', spawnX: 100, spawnY: 100 });
+    ch.setLedgeCandidates([
+      { platformId: 'p1', side: 'left', x: 100, y: 100 },
+    ]);
+    ch.setFacing(1);
+    m.scene.matter.body.setVelocity(ch.body, { x: 0, y: 5 });
+    ch.applyInput({ moveX: 0, jump: false });
+    expect(ch.isHangingOnLedge()).toBe(true);
+  });
+
+  it("honours requireFacing tuning: opting in restores the directional facing gate", () => {
+    const m = createMockScene();
+    const ch = new Character(m.scene, {
+      id: 'wolf',
+      spawnX: 100,
+      spawnY: 100,
+      ledgeDetection: { requireFacing: true },
+    });
     ch.setLedgeCandidates([
       { platformId: 'p1', side: 'left', x: 100, y: 100 },
     ]);

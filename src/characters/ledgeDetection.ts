@@ -215,7 +215,12 @@ export const LEDGE_DETECTION_DEFAULTS: LedgeDetectionTuning = Object.freeze({
   // override only when a custom stage's narrow ledge geometry needs
   // tighter clamps.
   minDescendVelocity: 0,
-  requireFacing: true,
+  // Smash grabs a ledge regardless of which way the fighter faces — you snap
+  // onto the lip facing the stage. A recovering fighter is moving *inward*
+  // (facing the stage), i.e. AWAY from the ledge's outer side, so a facing
+  // gate would reject exactly the normal recovery case. Default off; left as
+  // an opt-in for narrow custom-stage geometry that wants directional grabs.
+  requireFacing: false,
 });
 
 // ---------------------------------------------------------------------------
@@ -271,9 +276,9 @@ function resolveVerticalRadiusDown(
 
 /**
  * True iff the fighter's velocity / facing satisfies the *non-geometric*
- * preconditions for an edge grab. A rising fighter, a fighter whose
- * facing rules out the candidate's side, or a fighter still in airborne
- * tether cooldown all fail this gate.
+ * preconditions for an edge grab. A rising fighter fails this gate. The
+ * facing check is opt-in (`requireFacing`, default off) — when enabled a
+ * fighter whose facing rules out the candidate's side also fails.
  *
  * Pure — no side effects, no time / random reads.
  */
@@ -284,7 +289,7 @@ export function isEligibleForLedgeGrab(
 ): boolean {
   const minVy = tuning.minDescendVelocity ?? 0;
   if (bounds.velocityY < minVy) return false;
-  const requireFacing = tuning.requireFacing ?? true;
+  const requireFacing = tuning.requireFacing ?? false;
   if (requireFacing) {
     if (candidate.side === 'right' && bounds.facing !== 1) return false;
     if (candidate.side === 'left' && bounds.facing !== -1) return false;

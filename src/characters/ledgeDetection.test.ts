@@ -66,7 +66,9 @@ function makeCandidate(overrides: Partial<LedgeCandidate> = {}): LedgeCandidate 
 describe('LEDGE_DETECTION_DEFAULTS', () => {
   it('has sane non-derived defaults', () => {
     expect(LEDGE_DETECTION_DEFAULTS.minDescendVelocity).toBe(0);
-    expect(LEDGE_DETECTION_DEFAULTS.requireFacing).toBe(true);
+    // Smash-faithful: ledge grab is facing-agnostic by default (recovering
+    // fighters face the stage, i.e. away from the ledge's outer side).
+    expect(LEDGE_DETECTION_DEFAULTS.requireFacing).toBe(false);
   });
 
   it('does not pin per-call radii (derived from fighter body)', () => {
@@ -99,24 +101,29 @@ describe('isEligibleForLedgeGrab', () => {
     expect(isEligibleForLedgeGrab(bounds, candidate)).toBe(true);
   });
 
-  it('rejects a right-facing fighter approaching a left ledge', () => {
-    const bounds = makeBounds({ facing: 1 });
-    const candidate = makeCandidate({ side: 'left' });
-    expect(isEligibleForLedgeGrab(bounds, candidate)).toBe(false);
+  it('accepts either facing by default (Smash-faithful, facing-agnostic)', () => {
+    const left = makeCandidate({ side: 'left' });
+    const right = makeCandidate({ side: 'right' });
+    // A fighter recovering inward faces away from the ledge's outer side;
+    // the default must still let them grab it.
+    expect(isEligibleForLedgeGrab(makeBounds({ facing: 1 }), left)).toBe(true);
+    expect(isEligibleForLedgeGrab(makeBounds({ facing: -1 }), right)).toBe(true);
   });
 
-  it('rejects a left-facing fighter approaching a right ledge', () => {
-    const bounds = makeBounds({ facing: -1 });
-    const candidate = makeCandidate({ side: 'right' });
-    expect(isEligibleForLedgeGrab(bounds, candidate)).toBe(false);
-  });
-
-  it('honours requireFacing=false to disable the facing gate', () => {
+  it('honours requireFacing=true to reject a right-facing fighter at a left ledge', () => {
     const bounds = makeBounds({ facing: 1 });
     const candidate = makeCandidate({ side: 'left' });
     expect(
-      isEligibleForLedgeGrab(bounds, candidate, { requireFacing: false }),
-    ).toBe(true);
+      isEligibleForLedgeGrab(bounds, candidate, { requireFacing: true }),
+    ).toBe(false);
+  });
+
+  it('honours requireFacing=true to reject a left-facing fighter at a right ledge', () => {
+    const bounds = makeBounds({ facing: -1 });
+    const candidate = makeCandidate({ side: 'right' });
+    expect(
+      isEligibleForLedgeGrab(bounds, candidate, { requireFacing: true }),
+    ).toBe(false);
   });
 
   it('honours minDescendVelocity threshold', () => {
@@ -209,11 +216,13 @@ describe('detectLedgeGrab', () => {
     expect(result?.candidate.platformId).toBe('a');
   });
 
-  it('skips ineligible candidates (facing mismatch)', () => {
+  it('skips ineligible candidates (facing mismatch) when requireFacing opted in', () => {
     const bounds = makeBounds({ facing: 1 });
     const wrongSide = makeCandidate({ side: 'left' });
     const rightSide = makeCandidate({ side: 'right' });
-    const result = detectLedgeGrab(bounds, [wrongSide, rightSide]);
+    const result = detectLedgeGrab(bounds, [wrongSide, rightSide], {
+      requireFacing: true,
+    });
     expect(result?.candidate).toBe(rightSide);
   });
 
