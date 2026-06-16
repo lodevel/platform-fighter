@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   Character,
+  AIRDODGE_BURST_SPEED,
   CHARACTER_LABEL,
   CROUCH_KNOCKBACK_REDUCTION,
   SDI_NUDGE_PX,
@@ -6316,6 +6317,44 @@ describe('Character — special direction: held down-stick fires the down-specia
     const active = ch.getActiveAttack();
     expect(active).not.toBeNull();
     expect(active!.move.id).toBe('test.neutral_sp');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Directional air-dodge (T2.9): air-dodging with a stick direction bursts in
+// that direction (Ultimate-style) instead of the old in-place root; capped to
+// ONE per airtime so it can't be chained into infinite recovery.
+// ---------------------------------------------------------------------------
+
+describe('Character — directional air-dodge (T2.9)', () => {
+  it('an air-dodge with a stick direction bursts in that direction (was a vx=0 root)', () => {
+    const m = createMockScene();
+    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    // Airborne (no ground contact). Air-dodge to the RIGHT.
+    ch.applyInput({ moveX: 1, jump: false, dodge: true });
+    expect(ch.getVelocity().x).toBeCloseTo(AIRDODGE_BURST_SPEED, 0);
+  });
+
+  it('a NEUTRAL air-dodge still roots in place (vx = 0)', () => {
+    const m = createMockScene();
+    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    ch.applyInput({ moveX: 0, jump: false, dodge: true }); // no direction held
+    expect(ch.getVelocity().x).toBe(0);
+  });
+
+  it('only ONE directional air-dodge per airtime — the second is blocked', () => {
+    const m = createMockScene();
+    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    ch.applyInput({ moveX: 1, jump: false, dodge: true }); // air-dodge #1 → burst
+    expect(ch.getVelocity().x).toBeCloseTo(AIRDODGE_BURST_SPEED, 0);
+    // Let the dodge finish (well past its duration), button released.
+    for (let i = 0; i < 60; i += 1) {
+      ch.applyInput({ moveX: 0, jump: false, dodge: false });
+    }
+    // Re-press while STILL airborne → blocked (air-dodge already spent).
+    (ch.body as { velocity: { x: number; y: number } }).velocity.x = 0;
+    ch.applyInput({ moveX: 1, jump: false, dodge: true });
+    expect(ch.getVelocity().x).toBeLessThan(2); // normal air drift, NOT a 9px burst
   });
 });
 

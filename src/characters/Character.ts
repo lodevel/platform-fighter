@@ -515,6 +515,19 @@ export const CHARACTER_LABEL = 'character.body';
 export const AERIAL_STICK_THRESHOLD = 0.3;
 
 /**
+ * Initial directional AIR-DODGE burst speed (px/step). When the player air-
+ * dodges with a stick direction held, the fighter gets this much velocity in
+ * that direction on the dodge-start frame, fading each active frame by
+ * {@link AIRDODGE_BURST_DECAY}. A neutral-stick air-dodge keeps the in-place
+ * stall. One directional air-dodge per airtime (reset on land) so it can't be
+ * chained into infinite recovery. PLACEHOLDER tuning — tune by feel/playtest;
+ * see docs/SMASH-PARITY-PLAN.md (T2.9).
+ */
+export const AIRDODGE_BURST_SPEED = 9;
+/** Per-active-frame multiplicative decay of the air-dodge burst. */
+export const AIRDODGE_BURST_DECAY = 0.85;
+
+/**
  * Short-hop decision window, in fixed-step frames. Releasing the jump
  * button within this many frames of the impulse clips the rise to
  * `jumpImpulse * jumpCutFactor` (the SHORT HOP); any later release
@@ -973,6 +986,16 @@ export class Character {
    * `collisionend`. `isGrounded()` returns `count > 0`.
    */
   private groundContacts = 0;
+
+  /**
+   * Directional AIR-DODGE state. `airDodgeBurst` is the (decaying) velocity
+   * applied during an air-dodge's active phase when a stick direction was held
+   * at the press (null = neutral / in-place stall). `airDodgeUsed` enforces ONE
+   * directional air-dodge per airtime (reset on land / respawn) so it can't be
+   * chained into infinite recovery. See {@link AIRDODGE_BURST_SPEED}.
+   */
+  private airDodgeBurst: { x: number; y: number } | null = null;
+  private airDodgeUsed = false;
 
   /**
    * Countdown for an in-flight TAP-JUMP BUFFER (see {@link TAP_JUMP_BUFFER_FRAMES}).
@@ -2298,6 +2321,11 @@ export class Character {
     // Touching the ground clears helpless free-fall — the fighter made it
     // back to the stage and can act again.
     if (grounded) this.helpless = false;
+    // Landing refreshes the directional air-dodge.
+    if (grounded) {
+      this.airDodgeUsed = false;
+      this.airDodgeBurst = null;
+    }
 
     // AC 10304 — voice the landing thud on the airborne → grounded
     // transition. Three gates keep the cue honest:
@@ -2344,7 +2372,11 @@ export class Character {
     // doesn't fire (was being read as an unexpected "dash"). The
     // player has to release shield first, then dodge.
     const dodgeHeldThisFrame = input.dodge === true && !shieldRaised;
-    const dodgeJustPressed = dodgeHeldThisFrame && !this.prevDodgeHeld;
+    const dodgeJustPressedRaw = dodgeHeldThisFrame && !this.prevDodgeHeld;
+    // Air-dodge limit: only ONE directional air-dodge per airtime (reset on
+    // land) so a directional burst can't be spammed into infinite recovery.
+    const dodgeJustPressed =
+      dodgeJustPressedRaw && !(!grounded && this.airDodgeUsed);
     const dodgeFacingForPress: 1 | -1 =
       dodgeJustPressed && rawMoveX !== 0
         ? rawMoveX > 0
@@ -2363,6 +2395,24 @@ export class Character {
       },
       this.tuning.dodge,
     );
+
+    // Directional air-dodge: on the air-dodge START frame, capture a velocity
+    // burst from the stick (null = neutral → keep the in-place stall) and spend
+    // this airtime's air-dodge. The burst is applied + decayed during the
+    // active phase just before the velocity commit below.
+    if (dodgeJustPressed && !grounded && this.dodgeState.active?.kind === 'air') {
+      this.airDodgeUsed = true;
+      const sx = rawMoveX;
+      const sy = clamp(input.moveY ?? 0, -1, 1);
+      const mag = Math.hypot(sx, sy);
+      this.airDodgeBurst =
+        mag >= AERIAL_STICK_THRESHOLD
+          ? {
+              x: (sx / mag) * AIRDODGE_BURST_SPEED,
+              y: (sy / mag) * AIRDODGE_BURST_SPEED,
+            }
+          : null;
+    }
 
     // Grab state machine (post-M2 grab/throw subsystem). Drives the
     // grabber-side state progression AND the runtime side effects:
@@ -2958,6 +3008,24 @@ export class Character {
         x: this.ledgeHangState.active.latchX,
         y: this.ledgeHangState.active.latchY,
       });
+    }
+
+    // ---- Directional air-dodge burst ---------------------------------------
+    // During an air-dodge's active phase, override velocity with the captured
+    // directional burst, fading it each frame so it reads as a burst that
+    // decays (not a constant slide). Neutral air-dodges (no burst) keep the
+    // in-place stall set in the horizontal block above.
+    if (
+      this.dodgeState.name === 'active' &&
+      this.dodgeState.active?.kind === 'air' &&
+      this.airDodgeBurst !== null
+    ) {
+      vx = this.airDodgeBurst.x;
+      vy = this.airDodgeBurst.y;
+      this.airDodgeBurst = {
+        x: this.airDodgeBurst.x * AIRDODGE_BURST_DECAY,
+        y: this.airDodgeBurst.y * AIRDODGE_BURST_DECAY,
+      };
     }
 
     // ---- Commit velocity ---------------------------------------------------
@@ -7298,6 +7366,8 @@ export class Character {
     this.groundContacts = 0;
     this.platformFallSupported = false;
     this.tapJumpBufferFrames = 0;
+    this.airDodgeUsed = false;
+    this.airDodgeBurst = null;
     // AC 60102 Sub-AC 2 — clear the prev-grounded latch on teleport.
     // A respawn drops the fighter into the air; the next applyInput
     // must NOT mistake the spawn frame for "just landed" and trigger a
