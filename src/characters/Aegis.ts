@@ -782,6 +782,51 @@ export class Aegis extends ContractFighter {
     this.setGrabSpec(AEGIS_GRAB);
   }
 
+  /**
+   * Aegis's get-up attack — a wake-up two-sided blade sweep from
+   * knockdown. The duelist's identity is disjoint reach, not power, so
+   * this leans on the WIDTH of the sweep rather than the damage: an
+   * 84 px arc (≈ 1.8× his slim 46-wide body) that clears space on both
+   * flanks, but only a modest 6 % pop with low-moderate knockback. It is
+   * a spacing-reset utility, NOT a KO — short 6-frame active window keeps
+   * it honest. (Base default get-up shape, tilted toward reach.)
+   */
+  protected getUpAttackParams(): {
+    damage: number;
+    knockback: AttackMove['knockback'];
+    hitbox: AttackMove['hitbox'];
+    activeFrames: number;
+  } {
+    return {
+      damage: 6,
+      knockback: { x: 4, y: -3, scaling: 0.12 },
+      hitbox: { offsetX: 0, offsetY: 0, width: 84, height: 38 },
+      activeFrames: 6,
+    };
+  }
+
+  /**
+   * Aegis's ledge attack — a forward edge-clearing blade swing as he
+   * climbs back onto the stage. The blade buys extra forward coverage
+   * over the cast baseline (wider 92 px arc reaching out across the ledge
+   * corner up onto the platform), but stays a weak utility swat: 8 %,
+   * low-moderate outward-and-up knockback that pops a ledge-camper AWAY,
+   * never KO-strength. Short 7-frame active window.
+   */
+  protected ledgeAttackParams(): {
+    damage: number;
+    knockback: AttackMove['knockback'];
+    hitbox: AttackMove['hitbox'];
+    activeFrames: number;
+  } {
+    return {
+      damage: 8,
+      knockback: { x: 4, y: -2.4, scaling: 0.14 },
+      hitbox: { offsetX: 14, offsetY: -2, width: 92, height: 58 },
+      activeFrames: 7,
+    };
+  }
+
   // Per-slot execute hooks are inherited from ContractFighter, which
   // fires each slot off the frozen `moveset` declaration above.
 }

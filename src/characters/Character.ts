@@ -4543,18 +4543,59 @@ export class Character {
    * sensor the scene resolves to an `applyHit`, and grants the standard
    * get-up i-frames so the wake-up itself can't be stuffed.
    */
-  private startGetupAttack(): void {
-    this.setInvincibility(GETUP_IFRAME_FRAMES);
-    this.scene.matter.body.setVelocity(this.body, { x: 0, y: 0 });
-    const getupMove = {
-      id: `${this.id}.getupAttack`,
-      type: 'tilt',
+  /**
+   * Per-character GET-UP ATTACK parameters (the wake-up swat from knockdown).
+   * Base = a weak, wide, two-sided default; a fighter subclass MAY override to
+   * give it character-appropriate range/damage/knockback (Smash fighters' get-up
+   * attacks differ). Pure — same fighter always returns the same params.
+   * See docs/SMASH-PARITY-PLAN.md (per-character authoring).
+   */
+  protected getUpAttackParams(): {
+    damage: number;
+    knockback: AttackMove['knockback'];
+    hitbox: AttackMove['hitbox'];
+    activeFrames: number;
+  } {
+    return {
       damage: GETUP_ATTACK_DAMAGE,
       knockback: { x: 4, y: -3, scaling: 0.12 },
       // A wide low sweep centred on the fighter — covers both flanks.
       hitbox: { offsetX: 0, offsetY: 0, width: 96, height: 40 },
-      startupFrames: 0,
       activeFrames: GETUP_ATTACK_FRAMES,
+    };
+  }
+
+  /**
+   * Per-character LEDGE-ATTACK parameters (the edge-clearing swing on the
+   * `'attack'` ledge release). Base = a forward swing covering the ledge
+   * corner + a bit onstage; a fighter subclass MAY override. Pure.
+   */
+  protected ledgeAttackParams(): {
+    damage: number;
+    knockback: AttackMove['knockback'];
+    hitbox: AttackMove['hitbox'];
+    activeFrames: number;
+  } {
+    return {
+      damage: LEDGE_ATTACK_DAMAGE,
+      knockback: { x: 4, y: -2.4, scaling: 0.14 },
+      hitbox: { offsetX: 12, offsetY: -2, width: 84, height: 60 },
+      activeFrames: LEDGE_ATTACK_FRAMES,
+    };
+  }
+
+  private startGetupAttack(): void {
+    this.setInvincibility(GETUP_IFRAME_FRAMES);
+    this.scene.matter.body.setVelocity(this.body, { x: 0, y: 0 });
+    const p = this.getUpAttackParams();
+    const getupMove = {
+      id: `${this.id}.getupAttack`,
+      type: 'tilt',
+      damage: p.damage,
+      knockback: p.knockback,
+      hitbox: p.hitbox,
+      startupFrames: 0,
+      activeFrames: p.activeFrames,
       recoveryFrames: 0,
       cooldownFrames: 0,
     } as unknown as AttackMove;
@@ -4564,7 +4605,7 @@ export class Character {
       getupMove,
       this.facing,
     );
-    this.transientHitboxes.push({ body, framesRemaining: GETUP_ATTACK_FRAMES });
+    this.transientHitboxes.push({ body, framesRemaining: p.activeFrames });
   }
 
   /**
@@ -7203,16 +7244,17 @@ export class Character {
       const inward =
         this.facing === 1 ? this.tuning.maxRunSpeed * 0.5 : -this.tuning.maxRunSpeed * 0.5;
       this.scene.matter.body.setVelocity(this.body, { x: inward, y: 0 });
+      const p = this.ledgeAttackParams();
       const ledgeAttackMove = {
         id: `${this.id}.ledgeAttack`,
         type: 'tilt',
-        damage: LEDGE_ATTACK_DAMAGE,
-        knockback: { x: 4, y: -2.4, scaling: 0.14 },
+        damage: p.damage,
+        knockback: p.knockback,
         // Forward swing (offsetX mirrored by facing → into the stage) covering
         // the ledge corner and a bit onstage.
-        hitbox: { offsetX: 12, offsetY: -2, width: 84, height: 60 },
+        hitbox: p.hitbox,
         startupFrames: 0,
-        activeFrames: LEDGE_ATTACK_FRAMES,
+        activeFrames: p.activeFrames,
         recoveryFrames: 0,
         cooldownFrames: 0,
       } as unknown as AttackMove;
@@ -7222,7 +7264,7 @@ export class Character {
         ledgeAttackMove,
         this.facing,
       );
-      this.transientHitboxes.push({ body, framesRemaining: LEDGE_ATTACK_FRAMES });
+      this.transientHitboxes.push({ body, framesRemaining: p.activeFrames });
     }
     // 'getUp' — handled by the climb animation; no impulse here.
     // 'roll'  — handled by the rolling state's freeze + post-recovery

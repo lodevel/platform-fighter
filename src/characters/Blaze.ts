@@ -777,4 +777,51 @@ export class Blaze extends ContractFighter {
 
   // Per-slot execute hooks are inherited from ContractFighter, which
   // fires each slot off the frozen `moveset` declaration above.
+
+  /**
+   * Blaze's wake-up attack — a low two-leg sweep on both sides as he
+   * kips up from knockdown (his down-smash is a double-leg sweep, so the
+   * get-up reads as the same motion). A fast-heavy bruiser: the sweep is
+   * WIDE (98 px ≈ 2.0× his 50 px body) and a hair stronger than the base
+   * default, but it stays a utility pop-away, NOT a KO — short 6-frame
+   * active window mirroring his "first to move" rushdown identity.
+   */
+  protected getUpAttackParams(): {
+    damage: number;
+    knockback: AttackMove['knockback'];
+    hitbox: AttackMove['hitbox'];
+    activeFrames: number;
+  } {
+    return {
+      damage: 7,
+      knockback: { x: 4.2, y: -3, scaling: 0.12 },
+      // Two-sided sweep centred on the body (offsetX 0), 98 px wide
+      // (≈ 2.0× his 50 px footprint) — sweeps both flanks as he rises.
+      hitbox: { offsetX: 0, offsetY: 8, width: 98, height: 40 },
+      activeFrames: 6,
+    };
+  }
+
+  /**
+   * Blaze's ledge attack — a forward climbing elbow/kick that clears the
+   * edge corner up onto the stage as he pulls himself back from the
+   * ledge. Scaled to his tall 50×78 silhouette: a touch stronger and
+   * taller than the base default to match the bruiser archetype, but a
+   * SHORT (7-frame) active window keeps it a utility edge-clear that pops
+   * the opponent away — never a KO swing.
+   */
+  protected ledgeAttackParams(): {
+    damage: number;
+    knockback: AttackMove['knockback'];
+    hitbox: AttackMove['hitbox'];
+    activeFrames: number;
+  } {
+    return {
+      damage: 9,
+      knockback: { x: 4.2, y: -2.4, scaling: 0.14 },
+      // Forward swing over the ledge corner up onto the stage.
+      hitbox: { offsetX: 14, offsetY: -2, width: 86, height: 64 },
+      activeFrames: 7,
+    };
+  }
 }

@@ -666,4 +666,51 @@ export class Volt extends ContractFighter {
 
   // Per-slot execute hooks are inherited from ContractFighter, which
   // fires each slot off the frozen `moveset` declaration above.
+
+  /**
+   * Volt's wake-up get-up attack — a quick two-sided spark flick as the
+   * featherweight pops off the deck. Scaled to the archetype: the
+   * smallest, fastest, weakest get-up in the cast. Lower damage (5) and
+   * softer knockback than the base default, and a short 5-frame active
+   * window befitting the cast's quickest fighter. The hitbox is a wide
+   * two-sided sweep (offsetX 0) but narrow in absolute terms — ~1.85x the
+   * tiny 40-wide body (74) — so it clears both sides without the reach a
+   * heavyweight's sweep would carry. A pop-away utility move, never a KO.
+   */
+  protected getUpAttackParams(): {
+    damage: number;
+    knockback: AttackMove['knockback'];
+    hitbox: AttackMove['hitbox'];
+    activeFrames: number;
+  } {
+    return {
+      damage: 5,
+      knockback: { x: 3.4, y: -2.8, scaling: 0.1 },
+      hitbox: { offsetX: 0, offsetY: 0, width: 74, height: 34 },
+      activeFrames: 5,
+    };
+  }
+
+  /**
+   * Volt's ledge attack — a fast forward spark swing as he scrambles back
+   * onto the stage. Quick (5-frame active) and light, in keeping with the
+   * featherweight's quick-hit identity: modest damage (6) and softer
+   * knockback than the base default. The forward hitbox (positive
+   * offsetX) covers the ledge corner up onto the lip, sized down to the
+   * tiny body — shorter reach and a slimmer height than the base. A
+   * pop-away edge-clear, never a KO.
+   */
+  protected ledgeAttackParams(): {
+    damage: number;
+    knockback: AttackMove['knockback'];
+    hitbox: AttackMove['hitbox'];
+    activeFrames: number;
+  } {
+    return {
+      damage: 6,
+      knockback: { x: 3.6, y: -2.2, scaling: 0.12 },
+      hitbox: { offsetX: 10, offsetY: -2, width: 68, height: 50 },
+      activeFrames: 5,
+    };
+  }
 }

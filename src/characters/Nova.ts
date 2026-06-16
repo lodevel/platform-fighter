@@ -761,4 +761,51 @@ export class Nova extends ContractFighter {
 
   // Per-slot execute hooks are inherited from ContractFighter, which
   // fires each slot off the frozen `moveset` declaration above.
+
+  /**
+   * Nova's wake-up attack — a two-sided arm-cannon sweep clearing both
+   * flanks as the armoured zoner climbs back to her feet. Tuned to her
+   * mid-heavy silhouette (48×74): a solid-but-not-huge sweep (~2.0× body
+   * width) at the cast-baseline 6 % with a slightly firmer pop than the
+   * default, fitting the heavier mass. Deliberate, not a KO — it buys
+   * space to re-establish the zone.
+   */
+  protected getUpAttackParams(): {
+    damage: number;
+    knockback: AttackMove['knockback'];
+    hitbox: AttackMove['hitbox'];
+    activeFrames: number;
+  } {
+    return {
+      damage: 6,
+      knockback: { x: 4.2, y: -2.8, scaling: 0.13 },
+      // Wide two-sided sweep — width ≈ 2.0× the 48 px body; tall (42) to
+      // cover the armoured silhouette as she rises.
+      hitbox: { offsetX: 0, offsetY: 0, width: 96, height: 42 },
+      activeFrames: 6,
+    };
+  }
+
+  /**
+   * Nova's ledge attack — a forward cannon-swing clearing the edge corner
+   * as she climbs back onto the stage. Tall (64) to match her armoured
+   * body, modest forward reach for the deliberate zoner. Cast-baseline
+   * 8 % with a touch more knockback than the default for her heavier mass
+   * — a space-clearing pop, not a kill.
+   */
+  protected ledgeAttackParams(): {
+    damage: number;
+    knockback: AttackMove['knockback'];
+    hitbox: AttackMove['hitbox'];
+    activeFrames: number;
+  } {
+    return {
+      damage: 8,
+      knockback: { x: 4.2, y: -2.4, scaling: 0.15 },
+      // Forward swing over the ledge corner — positive offsetX, tall (64)
+      // for the 74 px armoured body.
+      hitbox: { offsetX: 14, offsetY: -2, width: 88, height: 64 },
+      activeFrames: 8,
+    };
+  }
 }

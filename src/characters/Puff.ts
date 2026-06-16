@@ -690,6 +690,53 @@ export class Puff extends ContractFighter {
     this.setGrabSpec(PUFF_GRAB);
   }
 
+  /**
+   * Puff's GET-UP ATTACK — the wake-up balloon spin from knockdown.
+   * Floaty-lightweight tuning: weakest, fastest get-up in the cast in
+   * keeping with her soft-pokes kit. Damage 5 (her jab/utilt tier),
+   * gentle pop, and a quick 5-frame active window. The two-sided sweep
+   * is sized just under the base default — ~1.7x her 56px body width
+   * (≈96px) — round and tight rather than the wide bruiser arc, and a
+   * low 36px height that hugs her short round silhouette. Pops an
+   * opponent away to make space, never KOs.
+   */
+  protected getUpAttackParams(): {
+    damage: number;
+    knockback: AttackMove['knockback'];
+    hitbox: AttackMove['hitbox'];
+    activeFrames: number;
+  } {
+    return {
+      damage: 5,
+      knockback: { x: 3.4, y: -2.6, scaling: 0.1 },
+      // Two-sided round sweep — ~1.7x the 56px body, low and tight.
+      hitbox: { offsetX: 0, offsetY: 0, width: 96, height: 36 },
+      activeFrames: 5,
+    };
+  }
+
+  /**
+   * Puff's LEDGE ATTACK — a small forward balloon bump climbing back on.
+   * Floaty-lightweight tuning: weak (6 %) and quick (6-frame active),
+   * a forward swing (positive offsetX) covering the ledge corner up onto
+   * the stage. Reach trimmed below the base default (width 72, height 50)
+   * to match her tiny 56px round body — enough to clear an edgeguarder
+   * off the corner, not a KO swing. Soft outward-and-up pop.
+   */
+  protected ledgeAttackParams(): {
+    damage: number;
+    knockback: AttackMove['knockback'];
+    hitbox: AttackMove['hitbox'];
+    activeFrames: number;
+  } {
+    return {
+      damage: 6,
+      knockback: { x: 3.4, y: -2.2, scaling: 0.12 },
+      hitbox: { offsetX: 10, offsetY: -2, width: 72, height: 50 },
+      activeFrames: 6,
+    };
+  }
+
   // Per-slot execute hooks are inherited from ContractFighter, which
   // fires each slot off the frozen `moveset` declaration above.
 }
