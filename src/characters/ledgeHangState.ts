@@ -526,6 +526,52 @@ export function isLedgeLockingInput(state: LedgeHangState): boolean {
 }
 
 /**
+ * Pure cubic smoothstep on the integer-frame recovery ratio. Drives the
+ * smooth ledge climb-up / roll-up interpolation that replaces the old
+ * freeze-then-teleport. Deterministic: no wall-clock, no randomness, no
+ * delta-time — only integer frame counts from the fixed 60Hz step.
+ * Clamped to [0,1]; divide-by-zero guarded.
+ *
+ *   ledgeRecoverySmoothstep(0, 28)  === 0
+ *   ledgeRecoverySmoothstep(14, 28) === 0.5
+ *   ledgeRecoverySmoothstep(28, 28) === 1
+ */
+export function ledgeRecoverySmoothstep(
+  framesElapsed: number,
+  durationFrames: number,
+): number {
+  if (durationFrames <= 0) {
+    return 1;
+  }
+  const raw = framesElapsed / durationFrames;
+  const t = raw < 0 ? 0 : raw > 1 ? 1 : raw;
+  return t * t * (3 - 2 * t);
+}
+
+/**
+ * Single source of truth for the on-platform standing centre a ledge
+ * recovery eases toward (and snaps to on completion). `mode` `'climb'`
+ * lands inward by half-width; `'roll'` lands further inward by an extra
+ * `rollDistance`. `y` seats the body centre half-a-height above the
+ * platform-top corner so the feet rest on the stage. Pure arithmetic —
+ * replay-safe, no clock/random.
+ */
+export function computeLedgeStandingTarget(
+  cornerX: number,
+  cornerY: number,
+  side: 'left' | 'right',
+  mode: 'climb' | 'roll',
+  width: number,
+  height: number,
+  rollDistance: number,
+): { x: number; y: number } {
+  const inward = mode === 'roll' ? width / 2 + rollDistance : width / 2;
+  const x = side === 'left' ? cornerX + inward : cornerX - inward;
+  const y = cornerY - height / 2;
+  return { x, y };
+}
+
+/**
  * True iff the hang grants i-frame protection this frame. Composed with
  * respawn-grace / dodge i-frames via OR for the single "is this fighter
  * immune?" check. Drains over the hang's `hangIframeFrames` window.

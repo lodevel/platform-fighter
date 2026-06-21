@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   LEDGE_HANG_DEFAULTS,
+  computeLedgeStandingTarget,
   createLedgeHangState,
   isClimbingFromLedge,
   isHangingOnLedge,
@@ -8,6 +9,7 @@ import {
   isLedgeLockingInput,
   isLedgeRolling,
   isLedgeTetherCooldown,
+  ledgeRecoverySmoothstep,
   resetLedgeHangState,
   resolveLedgeHangTuning,
   resolveLedgeTrumps,
@@ -867,5 +869,76 @@ describe('resolveLedgeTrumps — Ultimate ledge-occupancy (trump)', () => {
         { id: 1, wasHanging: false, wasKey: null, nowHanging: true, nowKey: 'p1:right' },
       ]),
     ).toEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Ledge climb-up / roll-up interpolation helpers
+// ---------------------------------------------------------------------------
+
+describe('ledgeRecoverySmoothstep', () => {
+  it('anchors at 0 and 1 across the recovery window', () => {
+    expect(ledgeRecoverySmoothstep(0, 28)).toBe(0);
+    expect(ledgeRecoverySmoothstep(28, 28)).toBe(1);
+  });
+
+  it('eases through 0.5 at the midpoint', () => {
+    expect(ledgeRecoverySmoothstep(14, 28)).toBeCloseTo(0.5, 10);
+  });
+
+  it('is strictly monotonically non-decreasing across the window', () => {
+    let prev = -1;
+    for (let f = 0; f <= 28; f += 1) {
+      const e = ledgeRecoverySmoothstep(f, 28);
+      expect(e).toBeGreaterThanOrEqual(prev);
+      prev = e;
+    }
+  });
+
+  it('clamps out-of-range frame counts to [0,1]', () => {
+    expect(ledgeRecoverySmoothstep(-5, 28)).toBe(0);
+    expect(ledgeRecoverySmoothstep(40, 28)).toBe(1);
+  });
+
+  it('guards divide-by-zero (durationFrames <= 0 → 1, never NaN)', () => {
+    expect(ledgeRecoverySmoothstep(0, 0)).toBe(1);
+    expect(ledgeRecoverySmoothstep(3, -2)).toBe(1);
+    expect(Number.isNaN(ledgeRecoverySmoothstep(0, 0))).toBe(false);
+  });
+
+  it('is deterministic — identical inputs give identical output', () => {
+    expect(ledgeRecoverySmoothstep(9, 28)).toBe(ledgeRecoverySmoothstep(9, 28));
+  });
+});
+
+describe('computeLedgeStandingTarget', () => {
+  const W = 80;
+  const H = 120;
+  const ROLL = 96;
+
+  it('climb lands inward by half-width and on top of the platform', () => {
+    // Right ledge: inward is to the LEFT (x decreases).
+    expect(
+      computeLedgeStandingTarget(100, 100, 'right', 'climb', W, H, ROLL),
+    ).toEqual({ x: 100 - W / 2, y: 100 - H / 2 });
+    // Left ledge: inward is to the RIGHT (x increases).
+    expect(
+      computeLedgeStandingTarget(100, 100, 'left', 'climb', W, H, ROLL),
+    ).toEqual({ x: 100 + W / 2, y: 100 - H / 2 });
+  });
+
+  it('roll lands further inward by rollDistance, same vertical seat', () => {
+    expect(
+      computeLedgeStandingTarget(100, 100, 'right', 'roll', W, H, ROLL),
+    ).toEqual({ x: 100 - W / 2 - ROLL, y: 100 - H / 2 });
+    expect(
+      computeLedgeStandingTarget(100, 100, 'left', 'roll', W, H, ROLL),
+    ).toEqual({ x: 100 + W / 2 + ROLL, y: 100 - H / 2 });
+  });
+
+  it('is pure — identical inputs give identical output', () => {
+    expect(
+      computeLedgeStandingTarget(5, 7, 'left', 'roll', W, H, ROLL),
+    ).toEqual(computeLedgeStandingTarget(5, 7, 'left', 'roll', W, H, ROLL));
   });
 });

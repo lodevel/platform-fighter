@@ -4188,7 +4188,7 @@ describe('Character — edge-grab + ledge-hang state (AC 60403 Sub-AC 3)', () =>
     expect(ch.getVelocity().y).toBeLessThan(0); // upward
   });
 
-  it('getUp release plays the climb animation then translates onto the platform', () => {
+  it('getUp release climbs onto the platform as a smooth interpolated path (not a teleport)', () => {
     const m = createMockScene();
     const ch = new Character(m.scene, { id: 'wolf', spawnX: 100, spawnY: 100 });
     ch.setLedgeCandidates([
@@ -4199,18 +4199,210 @@ describe('Character — edge-grab + ledge-hang state (AC 60403 Sub-AC 3)', () =>
     ch.applyInput({ moveX: 0, jump: false });
     ch.applyInput({ moveX: 0, jump: false, ledgeRelease: 'getUp' });
     expect(ch.isClimbingFromLedge()).toBe(true);
-    // Tick through the climb. Use the canonical default climbFrames so
-    // we don't have to depend on the partial tuning view exposed by
-    // `getTuning()` (which strips the resolved-ledge fields).
+
+    const tuning = ch.getTuning();
+    // Use the canonical default climbFrames so we don't depend on the
+    // partial tuning view from getTuning() (which strips resolved-ledge
+    // fields). Right-side ledge → climb lands inward (x decreases) and on
+    // top of the platform (y decreases) from the latch corner.
     const climbFrames = 28;
-    for (let i = 0; i < climbFrames + 1; i += 1) {
+    const startX = 100; // latchX = corner.x
+    const startY = 100 + tuning.height / 2; // latchY = corner.y + halfHeight
+    const targetX = 100 - tuning.width / 2; // corner.x - halfWidth (inward)
+    const targetY = 100 - tuning.height / 2; // corner.y - halfHeight (on stage)
+
+    // Sample the body position every frame: the release frame (progress 0,
+    // still at the latch) plus every climbing frame through completion.
+    const xs: number[] = [ch.getPosition().x];
+    const ys: number[] = [ch.getPosition().y];
+    for (let i = 0; i < climbFrames; i += 1) {
       ch.applyInput({ moveX: 0, jump: false });
+      xs.push(ch.getPosition().x);
+      ys.push(ch.getPosition().y);
     }
+
+    // Climb has resolved into the post-release cooldown.
     expect(ch.isClimbingFromLedge()).toBe(false);
     expect(ch.getLedgeTetherCooldownRemaining()).toBeGreaterThan(0);
-    // Body has been translated onto the platform top (y above the latch
-    // corner since y = corner.y - halfHeight).
-    expect(ch.getPosition().y).toBeLessThan(100);
+
+    // The path STARTS at the latch corner (no teleport on frame 0)…
+    expect(xs[0]!).toBeCloseTo(startX, 5);
+    expect(ys[0]!).toBeCloseTo(startY, 5);
+    // …and ENDS exactly on the platform-top standing target.
+    expect(xs[xs.length - 1]!).toBeCloseTo(targetX, 5);
+    expect(ys[ys.length - 1]!).toBeCloseTo(targetY, 5);
+
+    // Strictly monotonic both axes — proves continuous motion, never a
+    // freeze-then-snap. (Right ledge: x and y both decrease toward target.)
+    for (let i = 1; i < xs.length; i += 1) {
+      expect(xs[i]!).toBeLessThan(xs[i - 1]!);
+      expect(ys[i]!).toBeLessThan(ys[i - 1]!);
+    }
+    // Every mid-climb sample is strictly between latch and target on both
+    // axes — never frozen at the corner, never overshooting the stage.
+    for (let i = 1; i < xs.length - 1; i += 1) {
+      expect(xs[i]!).toBeLessThan(startX);
+      expect(xs[i]!).toBeGreaterThan(targetX);
+      expect(ys[i]!).toBeLessThan(startY);
+      expect(ys[i]!).toBeGreaterThan(targetY);
+    }
+  });
+
+  it('roll release scrambles inward past the corner as a smooth interpolated path', () => {
+    const m = createMockScene();
+    const ch = new Character(m.scene, { id: 'wolf', spawnX: 100, spawnY: 100 });
+    ch.setLedgeCandidates([
+      { platformId: 'p1', side: 'right', x: 100, y: 100 },
+    ]);
+    ch.setFacing(1);
+    m.scene.matter.body.setVelocity(ch.body, { x: 0, y: 5 });
+    ch.applyInput({ moveX: 0, jump: false });
+    ch.applyInput({ moveX: 0, jump: false, ledgeRelease: 'roll' });
+    expect(ch.isRollingFromLedge()).toBe(true);
+
+    const tuning = ch.getTuning();
+    // Canonical defaults (getTuning() strips resolved-ledge fields).
+    const rollFrames = 36;
+    const rollDistance = 96;
+    const startX = 100; // latchX = corner.x
+    const startY = 100 + tuning.height / 2; // latchY = corner.y + halfHeight
+    // Roll lands further inward than the climb by `rollDistance`.
+    const targetX = 100 - tuning.width / 2 - rollDistance;
+    const targetY = 100 - tuning.height / 2;
+
+    const xs: number[] = [ch.getPosition().x];
+    const ys: number[] = [ch.getPosition().y];
+    for (let i = 0; i < rollFrames; i += 1) {
+      ch.applyInput({ moveX: 0, jump: false });
+      xs.push(ch.getPosition().x);
+      ys.push(ch.getPosition().y);
+    }
+
+    expect(ch.isRollingFromLedge()).toBe(false);
+    expect(ch.getLedgeTetherCooldownRemaining()).toBeGreaterThan(0);
+
+    expect(xs[0]!).toBeCloseTo(startX, 5);
+    expect(ys[0]!).toBeCloseTo(startY, 5);
+    expect(xs[xs.length - 1]!).toBeCloseTo(targetX, 5);
+    expect(ys[ys.length - 1]!).toBeCloseTo(targetY, 5);
+
+    // Both axes translate smoothly and monotonically over the roll.
+    for (let i = 1; i < xs.length; i += 1) {
+      expect(xs[i]!).toBeLessThan(xs[i - 1]!);
+      expect(ys[i]!).toBeLessThan(ys[i - 1]!);
+    }
+    for (let i = 1; i < xs.length - 1; i += 1) {
+      expect(xs[i]!).toBeLessThan(startX);
+      expect(xs[i]!).toBeGreaterThan(targetX);
+      expect(ys[i]!).toBeLessThan(startY);
+      expect(ys[i]!).toBeGreaterThan(targetY);
+    }
+  });
+
+  it('getUp climb off a LEFT ledge interpolates inward to the right (mirror of the right-ledge path)', () => {
+    // Both interpolated path tests above use a right ledge (x decreases).
+    // A left ledge must drive candidate.side through end-to-end so the
+    // body translates inward to the RIGHT (x increases) toward the stage.
+    const m = createMockScene();
+    const ch = new Character(m.scene, { id: 'wolf', spawnX: 100, spawnY: 100 });
+    ch.setLedgeCandidates([
+      { platformId: 'p1', side: 'left', x: 100, y: 100 },
+    ]);
+    ch.setFacing(-1);
+    m.scene.matter.body.setVelocity(ch.body, { x: 0, y: 5 });
+    ch.applyInput({ moveX: 0, jump: false });
+    ch.applyInput({ moveX: 0, jump: false, ledgeRelease: 'getUp' });
+    expect(ch.isClimbingFromLedge()).toBe(true);
+
+    const tuning = ch.getTuning();
+    const climbFrames = 28;
+    const startX = 100;
+    const startY = 100 + tuning.height / 2;
+    const targetX = 100 + tuning.width / 2; // LEFT ledge → inward is to the right
+    const targetY = 100 - tuning.height / 2;
+
+    const xs: number[] = [ch.getPosition().x];
+    const ys: number[] = [ch.getPosition().y];
+    for (let i = 0; i < climbFrames; i += 1) {
+      ch.applyInput({ moveX: 0, jump: false });
+      xs.push(ch.getPosition().x);
+      ys.push(ch.getPosition().y);
+    }
+
+    expect(ch.isClimbingFromLedge()).toBe(false);
+    expect(xs[0]!).toBeCloseTo(startX, 5);
+    expect(ys[0]!).toBeCloseTo(startY, 5);
+    expect(xs[xs.length - 1]!).toBeCloseTo(targetX, 5);
+    expect(ys[ys.length - 1]!).toBeCloseTo(targetY, 5);
+    // x rises (inward to the right); y falls (onto the stage); both strict.
+    for (let i = 1; i < xs.length; i += 1) {
+      expect(xs[i]!).toBeGreaterThan(xs[i - 1]!);
+      expect(ys[i]!).toBeLessThan(ys[i - 1]!);
+    }
+    for (let i = 1; i < xs.length - 1; i += 1) {
+      expect(xs[i]!).toBeGreaterThan(startX);
+      expect(xs[i]!).toBeLessThan(targetX);
+    }
+  });
+
+  it('roll off a LEFT ledge scrambles inward to the right past the corner', () => {
+    const m = createMockScene();
+    const ch = new Character(m.scene, { id: 'wolf', spawnX: 100, spawnY: 100 });
+    ch.setLedgeCandidates([
+      { platformId: 'p1', side: 'left', x: 100, y: 100 },
+    ]);
+    ch.setFacing(-1);
+    m.scene.matter.body.setVelocity(ch.body, { x: 0, y: 5 });
+    ch.applyInput({ moveX: 0, jump: false });
+    ch.applyInput({ moveX: 0, jump: false, ledgeRelease: 'roll' });
+    expect(ch.isRollingFromLedge()).toBe(true);
+
+    const tuning = ch.getTuning();
+    const rollFrames = 36;
+    const rollDistance = 96;
+    const startX = 100;
+    const targetX = 100 + tuning.width / 2 + rollDistance; // further inward right
+
+    const xs: number[] = [ch.getPosition().x];
+    for (let i = 0; i < rollFrames; i += 1) {
+      ch.applyInput({ moveX: 0, jump: false });
+      xs.push(ch.getPosition().x);
+    }
+
+    expect(ch.isRollingFromLedge()).toBe(false);
+    expect(xs[0]!).toBeCloseTo(startX, 5);
+    expect(xs[xs.length - 1]!).toBeCloseTo(targetX, 5);
+    for (let i = 1; i < xs.length; i += 1) {
+      expect(xs[i]!).toBeGreaterThan(xs[i - 1]!);
+    }
+  });
+
+  it('plain hang stays frozen at the latch corner across many frames (no drift through the climb lerp)', () => {
+    // Guards against a future regression that routes the 'hanging' state
+    // through the climb/roll interpolation branch — where an early ease
+    // value near 0 would mask drift for several frames before diverging.
+    const m = createMockScene();
+    const ch = new Character(m.scene, { id: 'wolf', spawnX: 100, spawnY: 100 });
+    ch.setLedgeCandidates([
+      { platformId: 'p1', side: 'right', x: 100, y: 100 },
+    ]);
+    ch.setFacing(1);
+    m.scene.matter.body.setVelocity(ch.body, { x: 0, y: 5 });
+    ch.applyInput({ moveX: 0, jump: false });
+    expect(ch.isHangingOnLedge()).toBe(true);
+
+    const tuning = ch.getTuning();
+    const latchX = 100;
+    const latchY = 100 + tuning.height / 2;
+    // Neutral input keeps the hang (a full tilt would trigger a roll-up).
+    for (let i = 0; i < 12; i += 1) {
+      ch.applyInput({ moveX: 0, jump: false });
+      expect(ch.isHangingOnLedge()).toBe(true);
+      expect(ch.getPosition().x).toBe(latchX);
+      expect(ch.getPosition().y).toBe(latchY);
+      expect(ch.getVelocity().x).toBe(0);
+      expect(ch.getVelocity().y).toBe(0);
+    }
   });
 
   it('tether re-grab cooldown blocks re-latching the same ledge', () => {

@@ -183,9 +183,11 @@ import {
 } from '../audio/combatAudio';
 import { ASSET_KEYS } from '../assets/manifest';
 import {
+  computeLedgeStandingTarget,
   createLedgeHangState,
   isLedgeHangInvincible,
   isLedgeLockingInput,
+  ledgeRecoverySmoothstep,
   resetLedgeHangState,
   resolveLedgeHangTuning,
   tickLedgeHang,
@@ -2992,12 +2994,18 @@ export class Character {
       this.jumpCutArmed = false;
     }
 
-    // ---- Ledge-hang freeze (AC 60403 Sub-AC 3) ----------------------------
-    // While `'hanging'` or `'climbing'`, the body is locked to the ledge
-    // latch point. Velocity is forced to zero each step so gravity (or
-    // residual knockback) doesn't drift the fighter off the corner. The
-    // body position is re-snapped to `(latchX, latchY)` every step so a
-    // moving-platform ledge that drifts under us keeps us pinned.
+    // ---- Ledge-hang freeze / climb-up drive (AC 60403 Sub-AC 3) -----------
+    // Velocity is forced to zero each step (position-driven) so gravity or
+    // residual knockback can't drift the fighter off the corner.
+    //   • `'hanging'` — hard freeze at the latch corner.
+    //   • `'climbing'`/`'rolling'` — interpolate the body from the latch
+    //     corner up to the on-platform standing target across
+    //     `climbFrames`/`rollFrames` via a pure smoothstep, so the get-up
+    //     reads as a continuous climb instead of a one-frame teleport. The
+    //     completion-frame snap below supplies the exact final pixel.
+    // Both endpoints are re-read from the live `active` snapshot each step
+    // (moving-platform-ready) and the standing target shares one formula
+    // with the completion snap so they can never drift apart.
     //
     // We deliberately apply this AFTER the jump section above so a
     // `'jump'`-release ledgeReleased that fired this same tick wins (the
@@ -3009,10 +3017,35 @@ export class Character {
     ) {
       vx = 0;
       vy = 0;
-      this.scene.matter.body.setPosition(this.body, {
-        x: this.ledgeHangState.active.latchX,
-        y: this.ledgeHangState.active.latchY,
-      });
+      const a = this.ledgeHangState.active;
+      const name = this.ledgeHangState.name;
+      if (name === 'climbing' || name === 'rolling') {
+        const mode = name === 'rolling' ? 'roll' : 'climb';
+        const denom =
+          mode === 'roll'
+            ? this.tuning.ledge.rollFrames
+            : this.tuning.ledge.climbFrames;
+        const target = computeLedgeStandingTarget(
+          a.candidate.x,
+          a.candidate.y,
+          a.candidate.side,
+          mode,
+          this.tuning.width,
+          this.tuning.height,
+          this.tuning.ledge.rollDistance,
+        );
+        const e = ledgeRecoverySmoothstep(a.framesElapsed, denom);
+        this.scene.matter.body.setPosition(this.body, {
+          x: a.latchX + (target.x - a.latchX) * e,
+          y: a.latchY + (target.y - a.latchY) * e,
+        });
+      } else {
+        // `'hanging'` — hard freeze at the corner (identical to before).
+        this.scene.matter.body.setPosition(this.body, {
+          x: a.latchX,
+          y: a.latchY,
+        });
+      }
     }
 
     // ---- Directional air-dodge burst ---------------------------------------
@@ -3048,16 +3081,19 @@ export class Character {
     // at this point so the lock-in-place loop above does NOT fight
     // this translation.
     if (climbingTransitionCompleted !== null) {
-      const inwardOffset = this.tuning.width;
-      const climbX =
-        climbingTransitionCompleted.side === 'left'
-          ? climbingTransitionCompleted.x + inwardOffset / 2
-          : climbingTransitionCompleted.x - inwardOffset / 2;
-      // Place the fighter's body centre so its bottom sits on the
-      // platform top: (latchY at platform top) - halfHeight.
-      const climbY =
-        climbingTransitionCompleted.y - this.tuning.height / 2;
-      this.scene.matter.body.setPosition(this.body, { x: climbX, y: climbY });
+      // Authoritative final placement — the exact pixel the per-frame
+      // climb lerp eases toward (shares `computeLedgeStandingTarget` so
+      // the interpolation endpoint and this snap can never drift apart).
+      const target = computeLedgeStandingTarget(
+        climbingTransitionCompleted.x,
+        climbingTransitionCompleted.y,
+        climbingTransitionCompleted.side,
+        'climb',
+        this.tuning.width,
+        this.tuning.height,
+        this.tuning.ledge.rollDistance,
+      );
+      this.scene.matter.body.setPosition(this.body, { x: target.x, y: target.y });
       this.scene.matter.body.setVelocity(this.body, { x: 0, y: 0 });
     }
 
@@ -3066,15 +3102,18 @@ export class Character {
     // by the ledge tuning's `rollDistance`. The fighter lands past the
     // corner — the visible payoff of the "evasive roll" recovery option.
     if (rollingTransitionCompleted !== null) {
-      const inwardOffset = this.tuning.width;
-      const rollOffset = this.tuning.ledge.rollDistance;
-      const rollX =
-        rollingTransitionCompleted.side === 'left'
-          ? rollingTransitionCompleted.x + inwardOffset / 2 + rollOffset
-          : rollingTransitionCompleted.x - inwardOffset / 2 - rollOffset;
-      const rollY =
-        rollingTransitionCompleted.y - this.tuning.height / 2;
-      this.scene.matter.body.setPosition(this.body, { x: rollX, y: rollY });
+      // Authoritative final placement (further inward by `rollDistance`),
+      // sharing the same target formula as the per-frame roll lerp.
+      const target = computeLedgeStandingTarget(
+        rollingTransitionCompleted.x,
+        rollingTransitionCompleted.y,
+        rollingTransitionCompleted.side,
+        'roll',
+        this.tuning.width,
+        this.tuning.height,
+        this.tuning.ledge.rollDistance,
+      );
+      this.scene.matter.body.setPosition(this.body, { x: target.x, y: target.y });
       this.scene.matter.body.setVelocity(this.body, { x: 0, y: 0 });
     }
 
@@ -7206,6 +7245,15 @@ export class Character {
    */
   isClimbingFromLedge(): boolean {
     return this.ledgeHangState.name === 'climbing';
+  }
+
+  /**
+   * True iff the fighter's ledge-roll get-up is currently playing. Like
+   * the climb it locks out input, but the roll carries i-frames and lands
+   * further inward (past the corner by `rollDistance`).
+   */
+  isRollingFromLedge(): boolean {
+    return this.ledgeHangState.name === 'rolling';
   }
 
   /** Frames of ledge-hang i-frames remaining. 0 outside the hang's grace window. */
