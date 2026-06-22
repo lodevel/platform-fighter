@@ -9,20 +9,31 @@
  * will import as they come online.
  */
 
-export type CharacterId =
-  | 'wolf'
-  | 'cat'
-  | 'owl'
-  | 'bear'
-  | 'blaze'
-  | 'puff'
-  | 'aegis'
-  | 'volt'
-  | 'nova'
-  | 'bruno'
-  | 'link'
-  | 'kirby'
-  | 'donkeykong';
+/**
+ * Canonical runtime list of every playable fighter id — the SINGLE SOURCE OF
+ * TRUTH. `CharacterId` is derived from it (so the type can never drift from the
+ * list), and any code that needs to iterate "every fighter" — e.g. registering
+ * sprite animations in `spriteAnimationDriver.ts` — should map over this array
+ * rather than hand-maintaining a parallel list. That way adding a new fighter is
+ * one edit here and it can never be silently omitted from a downstream loop.
+ */
+export const CHARACTER_IDS = [
+  'wolf',
+  'cat',
+  'owl',
+  'bear',
+  'blaze',
+  'puff',
+  'aegis',
+  'volt',
+  'nova',
+  'bruno',
+  'link',
+  'kirby',
+  'donkeykong',
+] as const;
+
+export type CharacterId = (typeof CHARACTER_IDS)[number];
 
 export type MoveType =
   | 'jab'

@@ -127,9 +127,14 @@ export const CHARACTER_SPRITE_FACES_LEFT: Readonly<Record<CharacterId, boolean>>
     volt: true,
     nova: false,
     bruno: false,
-    // Procedural-only fighters — no source art, so the engine default
-    // (right-facing) is correct; flip when moving left.
+    // Link — first AI-generated pack. NOTE: the current v1 frames have
+    // INCONSISTENT per-frame facing (some run frames face right, others left),
+    // which no single flag can fix — it reads as "spinning" in motion. The
+    // frames must be REGENERATED with an enforced single facing (canonical
+    // right, like wolf/cat) before this flag is meaningful; until then `false`
+    // is the intended end-state (flip only when moving left).
     link: false,
+    // Kirby / Donkey Kong — still procedural (no source art), engine default.
     kirby: false,
     donkeykong: false,
   });

@@ -130,11 +130,13 @@ describe('Link — moveset contract + roster spec', () => {
     expect(LINK_FIGHTER_CONTRACT.movementProfile).toBe(LINK_MOVEMENT_PROFILE);
   });
 
-  it('roster spec displays the inspiration in parentheses + is procedural (null sprite key)', () => {
+  it('roster spec displays the inspiration in parentheses + is sprite-wired (AI sprite pack)', () => {
     expect(LINK_SPEC.displayName).toBe('Link (Zelda)');
     expect(LINK_SPEC.role).toBe('projectile swordsman (Link)');
     expect(LINK_SPEC.playable).toBe(true);
-    expect(LINK_SPEC.placeholder.spriteKey).toBeNull();
+    // Link is the first AI-generated sprite pack — spriteKey now points at the
+    // loaded idle spritesheet (see manifest.ts charLinkIdle), not null.
+    expect(LINK_SPEC.placeholder.spriteKey).not.toBeNull();
   });
 
   it('ships the full 10-move table with namespaced ids', () => {

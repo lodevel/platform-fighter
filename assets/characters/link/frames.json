@@ -1,0 +1,129 @@
+{
+  "meta": {
+    "source": "AI: Z-Image ControlNet pose-source pipeline (tools/gen-frames.ts + pack-clips.cjs)",
+    "cellWidth": 64,
+    "cellHeight": 64
+  },
+  "animations": {
+    "idle": {
+      "strip": "animations/idle.png",
+      "frameCount": 4,
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ]
+      ]
+    },
+    "run": {
+      "strip": "animations/run.png",
+      "frameCount": 8,
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          6,
+          0
+        ],
+        [
+          7,
+          0
+        ]
+      ]
+    },
+    "jump": {
+      "strip": "animations/jump.png",
+      "frameCount": 5,
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ]
+      ]
+    },
+    "attack": {
+      "strip": "animations/attack.png",
+      "frameCount": 5,
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ]
+      ]
+    }
+  }
+}

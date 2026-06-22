@@ -888,7 +888,10 @@ export const LINK_PLACEHOLDER: CharacterPlaceholderVisual = Object.freeze({
   labelColor: 0xf0e8c0,
   width: LINK_TUNING.width,
   height: LINK_TUNING.height,
-  spriteKey: null,
+  // First AI-generated sprite pack (Z-Image ControlNet pose-source pipeline).
+  // Non-null spriteKey → MatchScene draws the real idle/run/jump/attack sheets
+  // (the primary/accent colours remain the char-select identity).
+  spriteKey: ASSET_KEYS.charLinkIdle,
 });
 
 /**

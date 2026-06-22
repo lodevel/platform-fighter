@@ -2671,15 +2671,35 @@ export class Character {
         ? 0
         : moveXAfterShield;
 
+    // An in-flight GROUNDED attack roots the fighter's locomotion. A
+    // grounded swing (jab / tilt / smash) or special is a committed action:
+    // the held stick that SELECTED it (a forward-tilt's lean, a
+    // side-special's direction) must NOT also free-walk/dash the body
+    // through the move's startup / active / recovery. This mirrors the
+    // tap-jump decouple below (an up-attack's up-stick doesn't also jump):
+    // the directional input chose the attack, so it can't double as
+    // locomotion. The move's OWN built-in travel is unaffected — a
+    // `dashStrike` / `commandDash` side-special drives its lunge through
+    // {@link tickSideSpecialDash}, which overrides velocity AFTER the
+    // commit below, so this gate only suppresses the UNINTENDED raw-stick
+    // walk that bled around (before / after) the authored dash. Gated on
+    // `grounded` so an airborne attack keeps its air-drift (the legacy
+    // proportional path below); the dispatch-side `moveX` fed to
+    // `tickAttack` is left RAW so the directional-aerial classifier and the
+    // dashStrike facing still read the player's true stick.
+    const attackRootsLocomotion = this.activeAttack !== null && grounded;
+    const locoMoveX = attackRootsLocomotion ? 0 : moveX;
+
     // ---- Ground-locomotion tick (Tier 5) ---------------------------------
     // Advance the locomotion machine with the POST-lockout `moveX` (a
-    // raised shield / dodge / charge / grab already zeroed it → resolves to
-    // 'standing', so a lockout neither dashes nor flips facing). The machine
-    // owns the grounded TARGET velocity + facing; the integrator below is
-    // unchanged. Standing/crouch carry the runtime facing, so this can never
-    // clobber a dodge/ledge/charge-owned facing.
+    // raised shield / dodge / charge / grab / in-flight grounded attack
+    // already zeroed it → resolves to 'standing', so a lockout neither
+    // dashes nor flips facing). The machine owns the grounded TARGET
+    // velocity + facing; the integrator below is unchanged. Standing/crouch
+    // carry the runtime facing, so this can never clobber a
+    // dodge/ledge/charge/attack-owned facing.
     const locoInput = {
-      moveX,
+      moveX: locoMoveX,
       moveY: clamp(input.moveY ?? 0, -1, 1),
       prevMoveX: this.prevLocoMoveX,
       grounded,
@@ -2690,7 +2710,13 @@ export class Character {
       locoInput,
       this.resolvedLocomotionTuning,
     );
-    this.prevLocoMoveX = moveX;
+    // Latch the value ACTUALLY fed to the machine (post attack-root gate),
+    // not the raw stick — the flick-edge detector compares against the prior
+    // machine input, so latching the gated value keeps the edge math
+    // consistent (a direction held through a grounded attack reads as a
+    // rest→tilt flick the frame the fighter is free again, the natural
+    // "dash out of an attack" gesture, rather than mid-attack noise).
+    this.prevLocoMoveX = locoMoveX;
 
     // Apply ledge-release physics for actions that resolved this tick.
     if (ledgeReleased !== null) {

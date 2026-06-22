@@ -404,16 +404,17 @@ describe('registerAllCharacterSpriteAnimations', () => {
       ASSET_KEYS.charWolfAttack,
     ]);
     const keys = registerAllCharacterSpriteAnimations(scene);
-    // Order: cat sheets, then wolf sheets.
+    // Order follows the canonical CHARACTER_IDS roster order (wolf before cat);
+    // unloaded fighters are skipped, so only wolf + cat appear here.
     expect(keys).toEqual([
-      'cat.idle.anim',
-      'cat.run.anim',
-      'cat.jump.anim',
-      'cat.attack.anim',
       'wolf.idle.anim',
       'wolf.run.anim',
       'wolf.jump.anim',
       'wolf.attack.anim',
+      'cat.idle.anim',
+      'cat.run.anim',
+      'cat.jump.anim',
+      'cat.attack.anim',
     ]);
   });
   it('honours a custom character allow-list', () => {

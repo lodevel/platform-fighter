@@ -6120,6 +6120,31 @@ describe('Character — multi-hit ladder (side-special multiHit barrage)', () =>
     expect(anyHitbox(m, 'test.barrage.hit1')).toBeDefined();
     expect(anyHitbox(m, 'test.barrage.hit2')).toBeUndefined();
   });
+
+  it('does NOT free-walk while the side-special is in flight (held direction does not bleed into locomotion)', () => {
+    // The bug this locks down: holding a side direction THROUGH the move —
+    // the same stick that selected the side-special — must not also drive
+    // the ground-locomotion walk/dash. A `multiHit` side-special carries NO
+    // built-in travel, so the fighter should stay put: vx damps toward rest
+    // across the startup / active / recovery, never ramping up to run speed.
+    const { ch } = barrageChar();
+    const runSpeed = ch.getTuning().maxRunSpeed;
+    // Press with the direction held, then KEEP holding it through the move
+    // (total busy = 2 + 14 + 6 = 22 frames). Sample vx ONLY while the attack
+    // is in flight — the gate is scoped to the active swing, so a still-held
+    // stick correctly resumes walking the moment the fighter is free again.
+    ch.applyInput(SIDE_SPECIAL); // press frame (facing locks to the stick)
+    let peak = 0;
+    for (let i = 0; i < 21; i += 1) {
+      ch.applyInput(SIDE_SPECIAL); // hold direction + (re-)press is swallowed
+      expect(ch.isAttacking()).toBe(true); // still mid-special
+      peak = Math.max(peak, Math.abs(ch.getVelocity().x));
+    }
+    // Without the gate vx ramps to maxRunSpeed (~8) and holds; with it the
+    // only motion is the small press-frame residual that damps toward rest.
+    expect(peak).toBeLessThan(runSpeed * 0.5);
+    expect(Math.abs(ch.getVelocity().x)).toBeCloseTo(0, 1);
+  });
 });
 
 describe('Character — dashStrike side-special (forward lunge)', () => {
@@ -6162,6 +6187,26 @@ describe('Character — dashStrike side-special (forward lunge)', () => {
     ch.applyInput(SIDE_SPECIAL);
     for (let i = 0; i < 8; i += 1) ch.applyInput(NEUTRAL); // past the 5-frame dash
     expect(ch.getVelocity().x).toBeLessThan(18);
+  });
+
+  it('the authored dash survives a HELD direction, and the held stick adds no free-walk around it', () => {
+    // Regression: the locomotion gate must NOT clobber the built-in dash.
+    // Holding the direction the whole move (the bug repro) used to (a)
+    // free-walk during startup and (b) settle at run speed during recovery,
+    // riding on top of the authored lunge. With the gate, the dash window
+    // still forces exactly `dashSpeed`, and outside it the body damps to
+    // rest instead of free-running.
+    const { ch } = dashChar();
+    const runSpeed = ch.getTuning().maxRunSpeed;
+    ch.applyInput(SIDE_SPECIAL); // press (facing locks right)
+    ch.applyInput(SIDE_SPECIAL); // startup, direction held — no free-walk
+    ch.applyInput(SIDE_SPECIAL); // active frame 0 → dash forced
+    // The authored dash is untouched by the held stick.
+    expect(ch.getVelocity().x).toBe(18);
+    // Hold the direction through the rest of the move; once the dash window
+    // closes the body must damp, NOT settle at maxRunSpeed.
+    for (let i = 0; i < 20; i += 1) ch.applyInput(SIDE_SPECIAL);
+    expect(Math.abs(ch.getVelocity().x)).toBeLessThan(runSpeed * 0.5);
   });
 });
 

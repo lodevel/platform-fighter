@@ -74,7 +74,7 @@
  */
 
 import type Phaser from 'phaser';
-import type { CharacterId } from '../types';
+import { CHARACTER_IDS, type CharacterId } from '../types';
 import { ASSET_KEYS } from '../assets/manifest';
 
 // ---------------------------------------------------------------------------
@@ -156,6 +156,18 @@ export function getCharacterSpritesheetKey(
   sheet: 'idle' | 'run' | 'jump' | 'attack',
 ): string | null {
   switch (characterId) {
+    case 'link':
+      switch (sheet) {
+        case 'idle':
+          return ASSET_KEYS.charLinkIdle;
+        case 'run':
+          return ASSET_KEYS.charLinkRun;
+        case 'jump':
+          return ASSET_KEYS.charLinkJump;
+        case 'attack':
+          return ASSET_KEYS.charLinkAttack;
+      }
+      break;
     case 'cat':
       switch (sheet) {
         case 'idle':
@@ -510,18 +522,11 @@ export function registerCharacterSpriteAnimations(
  */
 export function registerAllCharacterSpriteAnimations(
   scene: SceneAnimSurface,
-  characters: ReadonlyArray<CharacterId> = [
-    'cat',
-    'wolf',
-    'owl',
-    'bear',
-    'blaze',
-    'puff',
-    'aegis',
-    'volt',
-    'nova',
-    'bruno',
-  ],
+  // Defaults to EVERY fighter (the canonical `CHARACTER_IDS` source of truth) so
+  // a newly-added fighter is animated automatically — `registerCharacterSprite-
+  // Animations` already skips any whose sheets aren't loaded, so iterating the
+  // full roster is safe and removes the "forgot to add it to the list" footgun.
+  characters: ReadonlyArray<CharacterId> = CHARACTER_IDS,
 ): ReadonlyArray<string> {
   const all: string[] = [];
   for (const id of characters) {
