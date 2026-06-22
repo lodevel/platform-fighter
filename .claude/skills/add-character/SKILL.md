@@ -70,6 +70,12 @@ unfinished). For real art, add the 4 sprite strips
 keys + `<id>Spritesheets[]` + **spread into `ASSET_MANIFEST.spritesheets`**, and
 a `case '<id>':` in `spriteAnimationDriver.ts`. See checklist §3.
 
+**Full animation set (~50 clips a fighter eventually needs) + how to handle
+grabs/throws that MOVE the grabbed character (DK-slam etc.) → `docs/SPRITE-PLAN.md`.**
+Key idea: the grabber owns the move animation + a per-frame grab-anchor; the
+victim reuses ONE shared `grabbed` pose pinned to that anchor (the engine
+already pins via `setPosition`), so victim art cost is constant, not per-grabber.
+
 ## 4 — Update roster-cardinality tests
 
 `fighterRegistry.test.ts`, `characterSpec.test.ts`, `palettes.test.ts`, and the
