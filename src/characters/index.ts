@@ -671,6 +671,28 @@ export {
   KIRBY_FIGHTER_CONTRACT,
 } from './Kirby';
 export type { KirbyOptions } from './Kirby';
+// Donkeykong (id 'donkeykong') — the class is `DonkeyKong` (camel-cased
+// for readability); the id-derived display name is "Donkeykong".
+export {
+  DonkeyKong,
+  DONKEYKONG_TUNING,
+  DONKEYKONG_JAB,
+  DONKEYKONG_TILT,
+  DONKEYKONG_SMASH,
+  DONKEYKONG_NAIR,
+  DONKEYKONG_FAIR,
+  DONKEYKONG_BAIR,
+  DONKEYKONG_NEUTRAL_SPECIAL,
+  DONKEYKONG_SIDE_SPECIAL,
+  DONKEYKONG_UP_SPECIAL,
+  DONKEYKONG_DOWN_SPECIAL,
+  DONKEYKONG_GRAB,
+  // Frozen per-fighter declarations.
+  DONKEYKONG_MOVESET,
+  DONKEYKONG_MOVEMENT_PROFILE,
+  DONKEYKONG_FIGHTER_CONTRACT,
+} from './DonkeyKong';
+export type { DonkeyKongOptions } from './DonkeyKong';
 
 // Roster — Sub-AC 3.5 of AC 205. Aggregates stats + moves + placeholder
 // per character so the Fighter entity (and HUD / menu / replay layers)
@@ -691,6 +713,7 @@ export {
   BRUNO_SPEC,
   LINK_SPEC,
   KIRBY_SPEC,
+  DONKEYKONG_SPEC,
   WOLF_MOVES,
   CAT_MOVES,
   OWL_MOVES,
@@ -703,6 +726,7 @@ export {
   BRUNO_MOVES,
   LINK_MOVES,
   KIRBY_MOVES,
+  DONKEYKONG_MOVES,
   WOLF_PLACEHOLDER,
   CAT_PLACEHOLDER,
   OWL_PLACEHOLDER,
@@ -715,6 +739,7 @@ export {
   BRUNO_PLACEHOLDER,
   LINK_PLACEHOLDER,
   KIRBY_PLACEHOLDER,
+  DONKEYKONG_PLACEHOLDER,
   getCharacterSpec,
   findMoveByType,
 } from './roster';
@@ -738,6 +763,7 @@ export {
   BRUNO_PALETTES,
   LINK_PALETTES,
   KIRBY_PALETTES,
+  DONKEYKONG_PALETTES,
   applyPaletteToPlaceholder,
   getCharacterPalette,
   getCharacterPalettes,

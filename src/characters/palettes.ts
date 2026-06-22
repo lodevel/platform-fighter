@@ -459,6 +459,31 @@ export const KIRBY_PALETTES: ReadonlyArray<CharacterPalette> = Object.freeze([
   palette(7, 'Shadow', 0x303038, 0xd64a6a),
 ]);
 
+/**
+ * Donkey Kong palette ladder — ape brown is canonical (palette 0,
+ * mirrors {@link DONKEYKONG_PLACEHOLDER}); the variants run the canonical
+ * tie/fur colourways (brown / red-tie / blue / black) so a four-DK lineup
+ * reads cleanly on his large procedural rectangle.
+ */
+export const DONKEYKONG_PALETTES: ReadonlyArray<CharacterPalette> = Object.freeze([
+  // 0 — canonical ape brown (matches DONKEYKONG_PLACEHOLDER)
+  palette(0, 'Kong', 0x6b4a2b, 0xe8b86a),
+  // 1 — red-tie classic
+  palette(1, 'Necktie', 0xc23a3a, 0xffc8c8),
+  // 2 — cool blue
+  palette(2, 'Cobalt', 0x2b62d9, 0xc0d8ff),
+  // 3 — racing green
+  palette(3, 'Jungle', 0x2ba84a, 0xc8ffd0),
+  // 4 — gold / banana
+  palette(4, 'Banana', 0xd9a82b, 0xfff0b0),
+  // 5 — royal purple
+  palette(5, 'Royal', 0x7a3ad9, 0xd8c0ff),
+  // 6 — teal
+  palette(6, 'Lagoon', 0x2bc4b8, 0xc0fff4),
+  // 7 — black fur with gold accent (the "dark Kong" outlier)
+  palette(7, 'Midnight', 0x2a2a30, 0xe8b86a),
+]);
+
 // ---------------------------------------------------------------------------
 // Registry
 // ---------------------------------------------------------------------------
@@ -487,6 +512,7 @@ export const CHARACTER_PALETTES: Readonly<
   bruno: BRUNO_PALETTES,
   link: LINK_PALETTES,
   kirby: KIRBY_PALETTES,
+  donkeykong: DONKEYKONG_PALETTES,
 });
 
 // ---------------------------------------------------------------------------

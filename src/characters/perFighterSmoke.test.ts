@@ -59,6 +59,7 @@ import { Nova, NOVA_FIGHTER_CONTRACT } from './Nova';
 import { Bruno, BRUNO_FIGHTER_CONTRACT } from './Bruno';
 import { Link, LINK_FIGHTER_CONTRACT } from './Link';
 import { Kirby, KIRBY_FIGHTER_CONTRACT } from './Kirby';
+import { DonkeyKong, DONKEYKONG_FIGHTER_CONTRACT } from './DonkeyKong';
 import {
   ATTACK_MOVESET_SLOT_NAMES,
   MOVESET_SLOT_NAMES,
@@ -216,6 +217,7 @@ const FIGHTERS: ReadonlyArray<FighterUnderTest> = [
   { id: 'bruno', displayName: 'Bruno (Mario)', Ctor: Bruno, contract: BRUNO_FIGHTER_CONTRACT },
   { id: 'link', displayName: 'Link (Zelda)', Ctor: Link, contract: LINK_FIGHTER_CONTRACT },
   { id: 'kirby', displayName: 'Kirby', Ctor: Kirby, contract: KIRBY_FIGHTER_CONTRACT },
+  { id: 'donkeykong', displayName: 'Donkey Kong', Ctor: DonkeyKong, contract: DONKEYKONG_FIGHTER_CONTRACT },
 ];
 
 // ---------------------------------------------------------------------------

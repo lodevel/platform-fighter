@@ -226,6 +226,19 @@ import {
   KIRBY_UP_SPECIAL,
   KIRBY_DOWN_SPECIAL,
 } from './Kirby';
+import {
+  DONKEYKONG_TUNING,
+  DONKEYKONG_JAB,
+  DONKEYKONG_TILT,
+  DONKEYKONG_SMASH,
+  DONKEYKONG_NAIR,
+  DONKEYKONG_FAIR,
+  DONKEYKONG_BAIR,
+  DONKEYKONG_NEUTRAL_SPECIAL,
+  DONKEYKONG_SIDE_SPECIAL,
+  DONKEYKONG_UP_SPECIAL,
+  DONKEYKONG_DOWN_SPECIAL,
+} from './DonkeyKong';
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -614,6 +627,24 @@ export const KIRBY_MOVES: ReadonlyArray<AttackMove> = Object.freeze([
   KIRBY_DOWN_SPECIAL,
 ]);
 
+/**
+ * Donkey Kong's full moveset — same 10-entry shape as the rest of the
+ * cast, mirroring the registration call sequence in {@link DonkeyKong}.
+ * Thirteenth roster slot: the mobile heavyweight bruiser (DK archetype).
+ */
+export const DONKEYKONG_MOVES: ReadonlyArray<AttackMove> = Object.freeze([
+  DONKEYKONG_JAB,
+  DONKEYKONG_TILT,
+  DONKEYKONG_SMASH,
+  DONKEYKONG_NAIR,
+  DONKEYKONG_FAIR,
+  DONKEYKONG_BAIR,
+  DONKEYKONG_NEUTRAL_SPECIAL,
+  DONKEYKONG_SIDE_SPECIAL,
+  DONKEYKONG_UP_SPECIAL,
+  DONKEYKONG_DOWN_SPECIAL,
+]);
+
 // ---------------------------------------------------------------------------
 // Placeholder visual constants
 // ---------------------------------------------------------------------------
@@ -875,6 +906,21 @@ export const KIRBY_PLACEHOLDER: CharacterPlaceholderVisual = Object.freeze({
   spriteKey: null,
 });
 
+/**
+ * Donkey Kong placeholder — ape brown with a tan accent (the mobile
+ * heavyweight bruiser). Procedural pipeline (`spriteKey: null`) until a
+ * sprite pack lands. Largest body in the cast (60×84); distinct hue from
+ * Bear's umber keeps the two heavyweights readable on the grid.
+ */
+export const DONKEYKONG_PLACEHOLDER: CharacterPlaceholderVisual = Object.freeze({
+  primaryColor: 0x6b4a2b, // ape brown
+  accentColor: 0xe8b86a,
+  labelColor: 0xe8b86a,
+  width: DONKEYKONG_TUNING.width,
+  height: DONKEYKONG_TUNING.height,
+  spriteKey: null,
+});
+
 // ---------------------------------------------------------------------------
 // Specs
 // ---------------------------------------------------------------------------
@@ -1073,6 +1119,23 @@ export const KIRBY_SPEC: CharacterSpec = Object.freeze({
   playable: true,
 });
 
+/**
+ * Donkey Kong spec — the mobile heavyweight bruiser (DK archetype).
+ * Thirteenth roster slot: heavy mass with real run speed (the heavy who
+ * keeps up — distinct from Bear's immovable wall), built around a
+ * chargeable giant punch, a shoulder-charge approach, a spinning-kong
+ * recovery, and a ground-pound. Procedural placeholder pipeline.
+ */
+export const DONKEYKONG_SPEC: CharacterSpec = Object.freeze({
+  id: 'donkeykong',
+  displayName: 'Donkey Kong',
+  role: 'mobile heavyweight (Donkey Kong)',
+  tuning: DONKEYKONG_TUNING,
+  moves: DONKEYKONG_MOVES,
+  placeholder: DONKEYKONG_PLACEHOLDER,
+  playable: true,
+});
+
 // ---------------------------------------------------------------------------
 // Registry
 // ---------------------------------------------------------------------------
@@ -1097,6 +1160,7 @@ export const CHARACTER_ROSTER: Readonly<Record<CharacterId, CharacterSpec>> =
     bruno: BRUNO_SPEC,
     link: LINK_SPEC,
     kirby: KIRBY_SPEC,
+    donkeykong: DONKEYKONG_SPEC,
   });
 
 /**
@@ -1119,6 +1183,7 @@ export const CHARACTER_SPECS_IN_ROSTER_ORDER: ReadonlyArray<CharacterSpec> =
     BRUNO_SPEC,
     LINK_SPEC,
     KIRBY_SPEC,
+    DONKEYKONG_SPEC,
   ]);
 
 /**

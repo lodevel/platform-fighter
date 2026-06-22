@@ -67,6 +67,7 @@ export const FIGHTER_HAND_ANCHORS: Readonly<Record<CharacterId, HandAnchor>> =
     // his equator, Donkey Kong 60×84 heavyweight — grip further out).
     link: Object.freeze({ x: 25, y: -6 }),
     kirby: Object.freeze({ x: 24, y: 0 }),
+    donkeykong: Object.freeze({ x: 32, y: -4 }),
   });
 
 /** Fallback grip for ids missing from the table (defensive only). */

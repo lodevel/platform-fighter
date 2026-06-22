@@ -198,6 +198,15 @@ import {
   KIRBY_UP_SPECIAL,
   KIRBY_DOWN_SPECIAL,
 } from './Kirby';
+import {
+  DONKEYKONG_NAIR,
+  DONKEYKONG_FAIR,
+  DONKEYKONG_BAIR,
+  DONKEYKONG_NEUTRAL_SPECIAL,
+  DONKEYKONG_SIDE_SPECIAL,
+  DONKEYKONG_UP_SPECIAL,
+  DONKEYKONG_DOWN_SPECIAL,
+} from './DonkeyKong';
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -444,6 +453,18 @@ export const MOVESET_TABLE: Readonly<Record<CharacterId, CharacterMoveset>> = Ob
     upSpecial: KIRBY_UP_SPECIAL,
     downSpecial: KIRBY_DOWN_SPECIAL,
   }),
+  donkeykong: Object.freeze({
+    jab: GROUNDED_NORMAL_TABLE.donkeykong.jab,
+    tilt: GROUNDED_NORMAL_TABLE.donkeykong.tilt,
+    smash: GROUNDED_NORMAL_TABLE.donkeykong.smash,
+    nair: DONKEYKONG_NAIR,
+    fair: DONKEYKONG_FAIR,
+    bair: DONKEYKONG_BAIR,
+    neutralSpecial: DONKEYKONG_NEUTRAL_SPECIAL,
+    sideSpecial: DONKEYKONG_SIDE_SPECIAL,
+    upSpecial: DONKEYKONG_UP_SPECIAL,
+    downSpecial: DONKEYKONG_DOWN_SPECIAL,
+  }),
 });
 
 /**
@@ -453,7 +474,7 @@ export const MOVESET_TABLE: Readonly<Record<CharacterId, CharacterMoveset>> = Ob
  * bruno), slot on the inner ({@link MOVESET_SLOTS}).
  */
 export const MOVESET_ENTRIES: ReadonlyArray<MovesetEntry> = Object.freeze(
-  (['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno', 'link', 'kirby'] as const).flatMap((characterId) =>
+  (['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno', 'link', 'kirby', 'donkeykong'] as const).flatMap((characterId) =>
     MOVESET_SLOTS.map((slot) =>
       Object.freeze({
         characterId,
@@ -550,7 +571,7 @@ export function enumerateMovesetSlotAnimationKeys(
  */
 export function enumerateAllMovesetAnimationKeys(): ReadonlyArray<string> {
   const out: string[] = [];
-  for (const id of ['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno', 'link', 'kirby'] as const) {
+  for (const id of ['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno', 'link', 'kirby', 'donkeykong'] as const) {
     out.push(getIdleAnimationKey(id));
     for (const slot of MOVESET_SLOTS) {
       const move = MOVESET_TABLE[id][slot];

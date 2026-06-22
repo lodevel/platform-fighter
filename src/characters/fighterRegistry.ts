@@ -64,6 +64,7 @@ import { Nova, NOVA_FIGHTER_CONTRACT } from './Nova';
 import { Bruno, BRUNO_FIGHTER_CONTRACT } from './Bruno';
 import { Link, LINK_FIGHTER_CONTRACT } from './Link';
 import { Kirby, KIRBY_FIGHTER_CONTRACT } from './Kirby';
+import { DonkeyKong, DONKEYKONG_FIGHTER_CONTRACT } from './DonkeyKong';
 
 /**
  * Spawn-point + optional-tuning options forwarded to a registered
@@ -209,6 +210,11 @@ export const FIGHTER_REGISTRY: Readonly<Record<CharacterId, FighterRegistryEntry
       ctor: Kirby as unknown as FighterConstructor,
       contract: KIRBY_FIGHTER_CONTRACT,
     }),
+    donkeykong: Object.freeze({
+      id: 'donkeykong',
+      ctor: DonkeyKong as unknown as FighterConstructor,
+      contract: DONKEYKONG_FIGHTER_CONTRACT,
+    }),
   });
 
 /**
@@ -232,6 +238,7 @@ export const FIGHTER_REGISTRY_IDS: ReadonlyArray<CharacterId> = Object.freeze([
   'bruno',
   'link',
   'kirby',
+  'donkeykong',
 ]);
 
 /**

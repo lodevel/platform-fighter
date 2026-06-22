@@ -77,6 +77,7 @@ export const CHARACTER_SPRITE_DISPLAY_SIZE: Readonly<Record<CharacterId, number>
   // the body height so the rendered rectangle matches the hurtbox 1:1.
   link: 72, // body height 72
   kirby: 52, // body height 52 (round puffball)
+  donkeykong: 84, // body height 84 (largest silhouette in the cast)
 });
 
 /**
@@ -130,6 +131,7 @@ export const CHARACTER_SPRITE_FACES_LEFT: Readonly<Record<CharacterId, boolean>>
     // (right-facing) is correct; flip when moving left.
     link: false,
     kirby: false,
+    donkeykong: false,
   });
 
 /**
@@ -165,6 +167,7 @@ export const CHARACTER_SPRITE_ART_OFFSET_X: Readonly<Record<CharacterId, number>
     bruno: 0,
     link: 0, // procedural rectangle — centred by construction
     kirby: 0,
+    donkeykong: 0,
   });
 
 /** Lookup the horizontal art-centring offset fraction; 0 (centred) default. */
@@ -201,6 +204,7 @@ export const CHARACTER_SPRITE_ART_OFFSET_Y: Readonly<Record<CharacterId, number>
     bruno: 0,
     link: 0, // procedural rectangle — feet on the bottom edge by construction
     kirby: 0,
+    donkeykong: 0,
   });
 
 /** Lookup the foot-padding offset fraction; 0 (feet on the bottom edge) default. */

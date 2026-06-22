@@ -128,6 +128,7 @@ describe('Character roster — shape', () => {
       'bruno',
       'link',
       'kirby',
+      'donkeykong',
     ]);
   });
 
@@ -173,6 +174,7 @@ describe('Character roster — playable characters (Sub-AC 3.5 + AC 60004 Sub-AC
       'bruno',
       'link',
       'kirby',
+      'donkeykong',
     ]);
   });
 

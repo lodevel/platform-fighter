@@ -576,7 +576,7 @@ export function enumerateDefensiveAnimationKeys(
  */
 export function enumerateAllDefensiveAnimationKeys(): ReadonlyArray<string> {
   const out: string[] = [];
-  for (const id of ['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno', 'link', 'kirby'] as const) {
+  for (const id of ['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno', 'link', 'kirby', 'donkeykong'] as const) {
     for (const k of enumerateDefensiveAnimationKeys(id)) out.push(k);
   }
   return Object.freeze(out);

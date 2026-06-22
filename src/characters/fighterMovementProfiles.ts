@@ -307,6 +307,31 @@ export const KIRBY_MOVEMENT_PROFILE: FighterMovementProfile = Object.freeze({
   jumpCutFactor: 0.5,
 });
 
+/**
+ * Donkey Kong — mobile heavyweight bruiser archetype. Heavy mass (18 —
+ * between Wolf's 16 and Bear's 20) but, unlike Bear (the slow immovable
+ * grappler wall, run 6.0 / air-control 0.25), DK is MOBILE: a real run
+ * speed (8.0, the cast baseline) and usable air control (0.34) let the
+ * big ape chase and approach. The identity is heavyweight HITS delivered
+ * WITH mobility — the heavy who keeps up — so the profile pairs Bear-
+ * adjacent mass with mid-cast tempo, deliberately the opposite trade
+ * from Bear's slow-but-unmovable line.
+ */
+export const DONKEYKONG_MOVEMENT_PROFILE: FighterMovementProfile = Object.freeze({
+  maxRunSpeed: 8.0, // ≈ 480 px/s — cast baseline; fast for a heavyweight
+  groundAccel: 0.68,
+  airAccel: 0.34, // usable air-control — well above Bear's 0.25
+  groundDamping: 0.79,
+  airDamping: 0.95,
+  jumpImpulse: 12.5, // ≈ 750 px/s upward
+  maxJumps: 2,
+  mass: 18, // heavy — between Wolf (16) and Bear (20)
+  fallAccel: 0.32, // drops with weight, but not a lead-footed plummet
+  maxFallSpeed: 12.0,
+  fastFallSpeed: 18.0, // ~1.55× — heavyweights chase landings
+  jumpCutFactor: 0.44,
+});
+
 // ---------------------------------------------------------------------------
 // Per-id lookup
 // ---------------------------------------------------------------------------
@@ -333,6 +358,7 @@ export const FIGHTER_MOVEMENT_PROFILES: Readonly<
   bruno: BRUNO_MOVEMENT_PROFILE,
   link: LINK_MOVEMENT_PROFILE,
   kirby: KIRBY_MOVEMENT_PROFILE,
+  donkeykong: DONKEYKONG_MOVEMENT_PROFILE,
 });
 
 /**

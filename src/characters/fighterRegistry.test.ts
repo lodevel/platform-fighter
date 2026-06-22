@@ -117,12 +117,12 @@ function createMockScene(): { scene: any; bodies: MockBody[] } {
 describe('FIGHTER_REGISTRY — completeness and structure', () => {
   it('has one entry per CharacterId union member (wolf / cat / owl / bear / blaze / puff / aegis / volt / nova / bruno)', () => {
     expect(Object.keys(FIGHTER_REGISTRY).sort()).toEqual(
-      ['aegis', 'bear', 'blaze', 'bruno', 'cat', 'kirby', 'link', 'nova', 'owl', 'puff', 'volt', 'wolf'],
+      ['aegis', 'bear', 'blaze', 'bruno', 'cat', 'donkeykong', 'kirby', 'link', 'nova', 'owl', 'puff', 'volt', 'wolf'],
     );
   });
 
   it('FIGHTER_REGISTRY_IDS is the canonical roster authoring order', () => {
-    expect(FIGHTER_REGISTRY_IDS).toEqual(['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno', 'link', 'kirby']);
+    expect(FIGHTER_REGISTRY_IDS).toEqual(['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno', 'link', 'kirby', 'donkeykong']);
   });
 
   it('FIGHTER_REGISTRY_ENTRIES is the same order as FIGHTER_REGISTRY_IDS', () => {
