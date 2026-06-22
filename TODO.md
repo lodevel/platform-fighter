@@ -17,6 +17,19 @@ Matter.js + TS), deterministic 60 Hz fixed-step sim.
 - `e8661f5` — **smooth ledge climb-up / roll-up** (was a freeze-then-teleport). Pure smoothstep interp; `ledgeRecoverySmoothstep` + `computeLedgeStandingTarget` in `ledgeHangState.ts`.
 - `ffb4dec` — **`add-character` skill + `docs/CHARACTER-CHECKLIST.md` + verifier** (`.claude/skills/add-character/`).
 
+## IN PROGRESS (background) — ComfyUI model download
+**Status: ⏳ DOWNLOADING** (started this session). The Z-Image-Turbo install
+stalled at ~2.5 GB of ~19 GB; a background `curl -C -` resume is finishing the
+two truncated model files into the Windows ComfyUI folder
+(`…/AppData/Local/Comfy-Desktop/ComfyUI-Shared/models/`). **Do NOT restart it.**
+- diffusion `diffusion_models/z_image_turbo_bf16.safetensors` — need **12,309,866,400** bytes
+- text encoder `text_encoders/qwen_3_4b.safetensors` — need **8,044,982,048** bytes
+- VAE `ae.safetensors` + pixel LoRA `loras/pixel_art_style_z_image_turbo.safetensors` already ✓ valid.
+- **Verify done:** each file size == the bytes above (safetensors header end == file size).
+- **When complete:** ComfyUI is ready — reopen it, load a "pixel" template, prompt starts with
+  `Pixel art style.` (8 steps, CFG ~4.5, 1024², LoRA strength 0.6–1.0). Output lands in
+  `ComfyUI-Shared/output/` (readable via `/mnt/c` for the filesystem-handoff pipeline).
+
 ## NEXT UP (priority order)
 
 ### 1. Build 3 new fighters — Link, Kirby, Donkey Kong (user-approved)
