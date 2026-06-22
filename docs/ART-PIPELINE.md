@@ -104,22 +104,43 @@ Asset order (per `docs/SPRITE-PLAN.md` / `docs/ART-STYLE.md`, cheapest-win first
 - Z-Image text2img workflow builder with the locked cartoon recipe.
 - Typed ComfyUI client (queue → poll → fetch → save).
 - `gen-sprite.ts` CLI with character/background/item modes + a working test render.
+- **Batch driver** (`tools/batch-gen.ts`) — manifest of `{kind,prompt,seed,out}` → loop.
+- **Background removal** (`tools/bg-remove.ts`) — flat chroma-key (#FF00FF) + `--despill`.
+- **Downscale** (`tools/downscale.ts`) — area-average, aspect-preserving (`--max`).
+- Stages/items/portraits batch rendered (see `docs/ART-ASSETS.md`, `assets/concept-art/`).
 
-### TODO (integration boundaries, in pipeline order)
-1. **Batch driver** — a manifest of `{kind, prompt, seed, out}` entries → loop
-   `gen-sprite` over a stage/item set (trivial wrapper over `comfy-style` +
-   `comfy-client`; no new systems).
-2. **Background removal** — characters/items need transparent BG. Z-Image emits
-   RGB (no alpha). Add `tools/bg-remove.ts` (e.g. rembg/onnx, or a ComfyUI
-   bg-removal node added to the workflow). The repo already has `pngjs` for PNG I/O.
-3. **Sprite slicing** — for multi-frame clips, slice a strip/grid into frames +
-   emit `frames.json` (the runtime already reads per-fighter `frames.json`).
-   Reuse `scripts/`/`pngjs` patterns.
-4. **Manifest wiring** — map generated sheets to the engine's per-move/per-phase
-   symbolic keys (`{char}.{move}.{phase}.{idx}`, see `docs/SPRITE-PLAN.md §C`) and
-   the 8-palette swap (`scripts/palette-swap/`). Palette-0 canonical first.
-5. **img2img / frame consistency** (the hard part, `docs/SPRITE-PLAN.md §E`):
-   add an img2img variant (load reference → VAEEncode → KSampler `denoise<1`,
-   fixed seed) so a fighter is identical across the frames of a clip. The
-   `TextEncodeZImageOmni` node (image-reference conditioning) is the Z-Image path.
-   `buildZImageWorkflow` is structured so this is an additive variant.
+### Frame-consistency: VALIDATED approach (2026-06-22)
+The "img2img / frame consistency" hard part (`docs/SPRITE-PLAN.md §E`) was spiked two ways:
+- **Image-reference (`TextEncodeZImageOmni`)** — holds character identity across poses,
+  BUT output is grainy + the magenta bg comes back speckled (won't chroma-key). ✗
+- **ControlNet (`ZImageFunControlnet` + `Canny`)** — clean bold-outline on-style linework,
+  FLAT keyable bg, identity held. ✓ **This is the chosen path.**
+
+Graph: `UNETLoader + CLIPLoader(lumina2) + VAELoader` + `ModelPatchLoader(union)` +
+`LoadImage(ref)` → `Canny` → `ZImageFunControlnet(model, model_patch, vae, image=canny,
+strength≈0.6)` → `KSampler(model=patched)` → `VAEDecode` → `SaveImage`.
+
+Setup required:
+- Model `Z-Image-Turbo-Fun-Controlnet-Union.safetensors` (3.1 GB) in shared
+  `models/model_patches/`.
+- `~/ComfyUI/extra_model_paths.yaml` MUST map `model_patches` (and `controlnet`,
+  `clip_vision`, `style_models`, `background_removal`) — the original only mapped
+  checkpoints/diffusion_models/text_encoders/clip/loras/vae, so `ModelPatchLoader`
+  showed an empty list until those were added + ComfyUI restarted.
+- Run ComfyUI with `--lowvram` (base model + 3 GB ControlNet patch); avoids the
+  `0x116 VIDEO_TDR_FAILURE` GPU BSOD seen at the 12 GB VRAM ceiling.
+
+### TODO (remaining, in pipeline order)
+1. **Pose-source per frame** — distinct control map per frame: `Canny` of pose drafts,
+   or `SDPoseKeypointExtractor`/`SDPoseDrawKeypoints` skeletons.
+2. **`gen-clip` pipeline** — generate N frames → bg-remove → union-bbox crop (one rect
+   across the clip, see `tools/build-newchar-sprites.cjs`) → downscale → pack horizontal
+   strip → emit `frames.json` (runtime already reads per-fighter `frames.json`).
+3. **Wiring** — register the per-fighter `spriteKey` (link/kirby/donkeykong are
+   `placeholder.spriteKey: null`) + the 8-palette swap (`scripts/palette-swap/`).
+4. **Scale** — all 13 fighters need rework (the 10 "done" use ancient OpenGameArt CC-BY
+   sheets, to be replaced); long-term ~45-55 clips each (`docs/SPRITE-PLAN.md §A`).
+
+Note: clean LOCAL bg-removal has no installed model (`RemoveBackground` weightless;
+Bria/Recraft are cloud-API), so chroma-key remains the cutout path — fine now that the
+ControlNet output has a flat magenta bg.
