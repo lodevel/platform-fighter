@@ -4044,8 +4044,12 @@ describe('Character — edge-grab + ledge-hang state (AC 60403 Sub-AC 3)', () =>
     m.scene.matter.body.setVelocity(ch.body, { x: 0, y: 5 });
     ch.applyInput({ moveX: 0, jump: false });
     expect(ch.isHangingOnLedge()).toBe(true);
-    // Hang i-frame window opens.
+    // Hang i-frame window opens (budget seeded on the grab frame).
     expect(ch.getLedgeHangIframesRemaining()).toBeGreaterThan(0);
+    // SMASH-PARITY (2-frame punish): the grab is vulnerable for 2 frames;
+    // invincibility kicks in once that window drains.
+    ch.applyInput({ moveX: 0, jump: false });
+    ch.applyInput({ moveX: 0, jump: false });
     expect(ch.isInvincible()).toBe(true);
   });
 
@@ -4434,6 +4438,10 @@ describe('Character — edge-grab + ledge-hang state (AC 60403 Sub-AC 3)', () =>
     m.scene.matter.body.setVelocity(ch.body, { x: 0, y: 5 });
     ch.applyInput({ moveX: 0, jump: false });
     expect(ch.getLedgeHangIframesRemaining()).toBeGreaterThan(0);
+    // SMASH-PARITY (2-frame punish): a fresh grab is vulnerable for the
+    // first 2 frames. Tick past the window so the hang i-frames are armed.
+    ch.applyInput({ moveX: 0, jump: false });
+    ch.applyInput({ moveX: 0, jump: false });
     expect(ch.isInvincible()).toBe(true);
     const initialPercent = ch.getDamagePercent();
     const hit: HitInfo = {
@@ -4444,6 +4452,30 @@ describe('Character — edge-grab + ledge-hang state (AC 60403 Sub-AC 3)', () =>
     const result = ch.applyHit(hit);
     expect(result.magnitude).toBe(0);
     expect(ch.getDamagePercent()).toBe(initialPercent);
+  });
+
+  it('SMASH-PARITY: a fresh ledge grab is punishable on the 2-frame window', () => {
+    const m = createMockScene();
+    const ch = new Character(m.scene, { id: 'wolf', spawnX: 100, spawnY: 100 });
+    ch.setLedgeCandidates([
+      { platformId: 'p1', side: 'right', x: 100, y: 100 },
+    ]);
+    ch.setFacing(1);
+    m.scene.matter.body.setVelocity(ch.body, { x: 0, y: 5 });
+    ch.applyInput({ moveX: 0, jump: false });
+    expect(ch.isHangingOnLedge()).toBe(true);
+    // Frame 0 of the grab: i-frames seeded but suppressed — NOT invincible.
+    expect(ch.getLedgeHangIframesRemaining()).toBeGreaterThan(0);
+    expect(ch.isInvincible()).toBe(false);
+    // A hit inside the window lands cleanly (the classic ledge-grab punish).
+    const initialPercent = ch.getDamagePercent();
+    const result = ch.applyHit({
+      damage: 10,
+      knockback: { x: 5, y: -5, scaling: 0.05 },
+      facing: 1,
+    });
+    expect(result.magnitude).toBeGreaterThan(0);
+    expect(ch.getDamagePercent()).toBeGreaterThan(initialPercent);
   });
 
   it('setPosition resets the ledge state to idle', () => {
