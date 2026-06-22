@@ -41,7 +41,21 @@ use Z-Image base + cartoon prompting. Full recipe + canonical prompts in
 grab-interaction (grab-anchor) model in **`docs/SPRITE-PLAN.md`**. Asset order:
 stage backgrounds → item sprites → character portraits → animation clips.
 
+## ✅ SHIPPED 2026-06-22 (4-stream parallel session — all merged to `main`)
+Built via 4 parallel sub-agents in isolated worktrees, merged sequentially; full
+ritual green on combined `main` (`tsc` ✓, `vitest` ✓, `npm run build` ✓).
+- **Roster 10 → 13:** added **Link** (projectile-swordsman zoner: bow/boomerang/hookshot-tether/bomb-trap), **Kirby** (inhale commandGrab/hammer dashStrike/final-cutter multiHitRising/stone stallAndFall; 4 jumps, mass 7 — one notch below Puff on every float axis, a hard cross-cast invariant), **Donkey Kong** (giant-punch charge/shoulder dashStrike/spinning-kong multiHitRising/groundPound). Procedural art (`spriteKey:null`). `perFighterSmoke` refreshed to full 13.
+- **Ledge Smash-parity fixes** in `ledgeHangState.ts`: climb startup i-frames (`getupIframes 0→12`), regrab intangibility depletion (`ledgeGrabsSinceGround`: full→16→8→0), 2-frame ledge-grab punish window (`grabVulnerableFrames:2`). + `docs/SMASH-PARITY-GAPS.md` (37 code-verified gaps / 9 domains).
+- **Art pipeline tooling** (`tools/comfy-style.ts`, `comfy-client.ts`, `gen-sprite.ts`, `tools/tsconfig.json`, `docs/ART-PIPELINE.md`): WSL ComfyUI + Z-Image round-trip **proven** with a test render (`assets/gen/test-stage.png`). NOTE: `tools/` is NOT in the root `tsc`/build include — type-check with `npx tsc --noEmit -p tools/tsconfig.json`.
+- **Cat/Owl/Bear uair+dair:** premise was STALE — they already exist in `extendedMoves.ts` (no change). The CHARACTER-CHECKLIST "missing uair+dair" note is outdated.
+
+### Remaining follow-ups from this session
+- **Generate real game art** (pipeline proven but no game sprites generated yet): batch in `SPRITE-PLAN.md` order — stage backgrounds → items → portraits → ~50 anim clips/fighter. Build the batch driver + bg-removal + slicing + manifest wiring (TODO in `docs/ART-PIPELINE.md`).
+- **owl/bear `frames.json`** still missing (only placeholder source sheets) — generate real source sheets + frames.json once art lands. Do NOT fabricate (breaks loading).
+- New fighters use procedural rectangles until the art pipeline produces their sheets.
+
 ## NEXT UP (priority order)
+> ⚠️ Items 1 & 2 below are DONE (see SHIPPED above). Item 3 = tooling DONE, art-gen batch remains. Item 4 = uair/dair already existed; owl/bear frames.json remains.
 
 ### 1. Build 3 new fighters — Link, Kirby, Donkey Kong (user-approved)
 Use `.claude/skills/add-character/SKILL.md` + run `bash .claude/skills/add-character/verify-character.sh <id>`.
