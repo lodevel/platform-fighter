@@ -89,6 +89,8 @@ function hanging(c: LedgeCandidate): LedgeHangState {
     active,
     hangIframesRemaining: 10,
     cooldownRemaining: 0,
+    grabVulnerableRemaining: 0,
+    ledgeGrabsSinceGround: 1,
   });
 }
 
@@ -105,6 +107,8 @@ function climbing(c: LedgeCandidate): LedgeHangState {
     active,
     hangIframesRemaining: 0,
     cooldownRemaining: 0,
+    grabVulnerableRemaining: 0,
+    ledgeGrabsSinceGround: 1,
   });
 }
 
@@ -177,6 +181,8 @@ describe('ledgeConflictResolver — occupant translation', () => {
       active: null,
       hangIframesRemaining: 0,
       cooldownRemaining: 12,
+      grabVulnerableRemaining: 0,
+      ledgeGrabsSinceGround: 0,
     });
     expect(ledgeOccupantFromHangState(0, cooling)).toEqual({
       playerIndex: 0,

@@ -5,6 +5,7 @@ import {
   createLedgeHangState,
   isClimbingFromLedge,
   isHangingOnLedge,
+  isLedgeGrabVulnerable,
   isLedgeHangInvincible,
   isLedgeLockingInput,
   isLedgeRolling,
@@ -195,7 +196,12 @@ describe('hanging tick', () => {
   });
 
   it('drains hangIframesRemaining over the i-frame window', () => {
-    const tuning = resolveLedgeHangTuning({ hangIframeFrames: 5 });
+    // SMASH-PARITY (2-frame punish): disable the vulnerability window so
+    // this test focuses purely on the hang i-frame budget draining.
+    const tuning = resolveLedgeHangTuning({
+      hangIframeFrames: 5,
+      grabVulnerableFrames: 0,
+    });
     let s = tickLedgeHang(
       createLedgeHangState(),
       makeInput({ detection: makeDetection() }),
@@ -209,11 +215,18 @@ describe('hanging tick', () => {
     expect(s.name).toBe('hanging');
   });
 
-  it('isLedgeHangInvincible reads `hangIframesRemaining > 0`', () => {
-    const s = tickLedgeHang(
+  it('isLedgeHangInvincible reads `hangIframesRemaining > 0` once the 2-frame window closes', () => {
+    // SMASH-PARITY (2-frame punish): the fresh grab is NOT invincible on
+    // the punishable frames 1-2 even though i-frames are already seeded.
+    let s = tickLedgeHang(
       createLedgeHangState(),
       makeInput({ detection: makeDetection() }),
     ).state;
+    expect(s.hangIframesRemaining).toBeGreaterThan(0);
+    expect(isLedgeHangInvincible(s)).toBe(false);
+    // Drain the 2-frame vulnerability window; then i-frames protect.
+    s = tickLedgeHang(s, makeInput()).state;
+    s = tickLedgeHang(s, makeInput()).state;
     expect(isLedgeHangInvincible(s)).toBe(true);
   });
 
@@ -308,14 +321,27 @@ describe('climbing tick', () => {
     expect(isLedgeLockingInput(s)).toBe(true);
   });
 
-  it('does NOT have i-frames during the climb', () => {
+  it('protects the climb STARTUP with getup i-frames, then leaves the tail vulnerable', () => {
+    // SMASH-PARITY (ledge-getup intangibility): the default kit now grants
+    // a short startup-intangibility window on the climb, then exposes the
+    // back half (the canonical "punish a slow getup").
+    const tuning = resolveLedgeHangTuning({ climbFrames: 20, getupIframes: 4 });
     let s = tickLedgeHang(
       createLedgeHangState(),
       makeInput({ detection: makeDetection() }),
+      tuning,
     ).state;
-    s = tickLedgeHang(s, makeInput({ release: 'getUp' })).state;
+    s = tickLedgeHang(s, makeInput({ release: 'getUp' }), tuning).state;
+    expect(s.name).toBe('climbing');
+    expect(s.hangIframesRemaining).toBe(4);
+    expect(isLedgeHangInvincible(s)).toBe(true);
+    // Drain the startup window — the climb tail is then vulnerable.
+    for (let i = 0; i < 4; i += 1) {
+      s = tickLedgeHang(s, makeInput(), tuning).state;
+    }
     expect(s.hangIframesRemaining).toBe(0);
     expect(isLedgeHangInvincible(s)).toBe(false);
+    expect(s.name).toBe('climbing');
   });
 });
 
@@ -541,8 +567,9 @@ describe('AC 60404 Sub-AC 4 — ledge option i-frame defaults', () => {
     expect(LEDGE_HANG_DEFAULTS.rollIframes).toBe(24);
     expect(LEDGE_HANG_DEFAULTS.attackIframes).toBe(16);
     expect(LEDGE_HANG_DEFAULTS.jumpIframes).toBe(8);
-    // canonical Smash: getup recovery is NOT invulnerable.
-    expect(LEDGE_HANG_DEFAULTS.getupIframes).toBe(0);
+    // SMASH-PARITY (ledge-getup intangibility): the climb startup is now
+    // protected by a short i-frame window (the tail stays vulnerable).
+    expect(LEDGE_HANG_DEFAULTS.getupIframes).toBe(12);
     expect(LEDGE_HANG_DEFAULTS.rollDistance).toBe(96);
   });
 
@@ -718,9 +745,18 @@ describe('AC 60404 Sub-AC 4 — ledge-getup recovery + i-frames', () => {
     ).state;
   }
 
-  it('default getupIframes=0 keeps the climb canonically vulnerable', () => {
+  it('default getupIframes protects the climb startup (Smash parity)', () => {
     const s0 = spinUpHang();
     const s1 = tickLedgeHang(s0, makeInput({ release: 'getUp' })).state;
+    expect(s1.name).toBe('climbing');
+    expect(s1.hangIframesRemaining).toBe(LEDGE_HANG_DEFAULTS.getupIframes);
+    expect(isLedgeHangInvincible(s1)).toBe(true);
+  });
+
+  it('getupIframes=0 override restores the fully-vulnerable getup', () => {
+    const tuning = resolveLedgeHangTuning({ getupIframes: 0 });
+    const s0 = spinUpHang(tuning);
+    const s1 = tickLedgeHang(s0, makeInput({ release: 'getUp' }), tuning).state;
     expect(s1.name).toBe('climbing');
     expect(s1.hangIframesRemaining).toBe(0);
     expect(isLedgeHangInvincible(s1)).toBe(false);
@@ -831,6 +867,187 @@ describe('AC 60404 Sub-AC 4 — determinism across all options', () => {
       seen.add(action);
     }
     expect(seen.size).toBe(4);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// SMASH-PARITY — 2-frame punish window
+// ---------------------------------------------------------------------------
+
+describe('SMASH-PARITY — 2-frame ledge-grab punish window', () => {
+  it('exposes the grabVulnerableFrames default (2)', () => {
+    expect(LEDGE_HANG_DEFAULTS.grabVulnerableFrames).toBe(2);
+  });
+
+  it('a fresh grab is NOT invincible during the vulnerability window', () => {
+    const s = tickLedgeHang(
+      createLedgeHangState(),
+      makeInput({ detection: makeDetection() }),
+    ).state;
+    // i-frames are seeded but the punish window suppresses protection.
+    expect(s.hangIframesRemaining).toBeGreaterThan(0);
+    expect(s.grabVulnerableRemaining).toBe(2);
+    expect(isLedgeGrabVulnerable(s)).toBe(true);
+    expect(isLedgeHangInvincible(s)).toBe(false);
+  });
+
+  it('becomes invincible exactly after the window drains', () => {
+    const tuning = resolveLedgeHangTuning({ grabVulnerableFrames: 2 });
+    let s = tickLedgeHang(
+      createLedgeHangState(),
+      makeInput({ detection: makeDetection() }),
+      tuning,
+    ).state;
+    // Frame 0 (grab) + frame 1: still vulnerable.
+    expect(isLedgeHangInvincible(s)).toBe(false);
+    s = tickLedgeHang(s, makeInput(), tuning).state; // window: 2 -> 1
+    expect(isLedgeHangInvincible(s)).toBe(false);
+    s = tickLedgeHang(s, makeInput(), tuning).state; // window: 1 -> 0
+    expect(s.grabVulnerableRemaining).toBe(0);
+    expect(isLedgeHangInvincible(s)).toBe(true);
+  });
+
+  it('does not burn hang i-frames during the vulnerability window', () => {
+    const tuning = resolveLedgeHangTuning({
+      grabVulnerableFrames: 2,
+      hangIframeFrames: 10,
+    });
+    let s = tickLedgeHang(
+      createLedgeHangState(),
+      makeInput({ detection: makeDetection() }),
+      tuning,
+    ).state;
+    expect(s.hangIframesRemaining).toBe(10);
+    s = tickLedgeHang(s, makeInput(), tuning).state;
+    s = tickLedgeHang(s, makeInput(), tuning).state;
+    // Window closed; i-frame budget still full (none spent while vulnerable).
+    expect(s.grabVulnerableRemaining).toBe(0);
+    expect(s.hangIframesRemaining).toBe(10);
+    // Now the budget starts draining.
+    s = tickLedgeHang(s, makeInput(), tuning).state;
+    expect(s.hangIframesRemaining).toBe(9);
+  });
+
+  it('grabVulnerableFrames=0 grants i-frames from frame 0 (old behaviour)', () => {
+    const tuning = resolveLedgeHangTuning({ grabVulnerableFrames: 0 });
+    const s = tickLedgeHang(
+      createLedgeHangState(),
+      makeInput({ detection: makeDetection() }),
+      tuning,
+    ).state;
+    expect(s.grabVulnerableRemaining).toBe(0);
+    expect(isLedgeHangInvincible(s)).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// SMASH-PARITY — ledge intangibility depletes on repeated regrabs
+// ---------------------------------------------------------------------------
+
+describe('SMASH-PARITY — regrab i-frame depletion (ledge-stall fix)', () => {
+  it('exposes the depletion tuning defaults', () => {
+    expect(LEDGE_HANG_DEFAULTS.regrabIframeThreshold).toBe(2);
+    expect(LEDGE_HANG_DEFAULTS.regrabIframePenalty).toBe(8);
+  });
+
+  /**
+   * Drive a full grab→drop→regrab loop WITHOUT ever touching the ground,
+   * returning the hang i-frame budget seeded on each successive grab.
+   */
+  function regrabIframeBudgets(count: number, tuning = LEDGE_HANG_DEFAULTS): number[] {
+    const budgets: number[] = [];
+    let s = createLedgeHangState();
+    for (let i = 0; i < count; i += 1) {
+      // Fresh grab (airborne so no ground-reset).
+      s = tickLedgeHang(
+        s,
+        makeInput({ detection: makeDetection(), airborne: true }),
+        tuning,
+      ).state;
+      budgets.push(s.hangIframesRemaining);
+      // Drop down, then fully drain the re-grab cooldown (airborne the
+      // whole time — never touches the stage).
+      s = tickLedgeHang(s, makeInput({ release: 'dropDown' }), tuning).state;
+      while (s.name !== 'idle') {
+        s = tickLedgeHang(s, makeInput({ airborne: true }), tuning).state;
+      }
+    }
+    return budgets;
+  }
+
+  it('the first `threshold` grabs latch with the full budget', () => {
+    const budgets = regrabIframeBudgets(2);
+    expect(budgets[0]).toBe(LEDGE_HANG_DEFAULTS.hangIframeFrames); // 24
+    expect(budgets[1]).toBe(LEDGE_HANG_DEFAULTS.hangIframeFrames); // 24
+  });
+
+  it('grabs beyond the threshold deplete by `penalty` each, flooring at 0', () => {
+    const budgets = regrabIframeBudgets(6);
+    // threshold 2, penalty 8, full 24:
+    //   #1,#2 = 24, #3 = 16, #4 = 8, #5 = 0, #6 = 0.
+    expect(budgets).toEqual([24, 24, 16, 8, 0, 0]);
+  });
+
+  it('the counter increments on each consecutive airborne regrab', () => {
+    const tuning = resolveLedgeHangTuning({ tetherCooldownFrames: 1 });
+    let s = createLedgeHangState();
+    s = tickLedgeHang(s, makeInput({ detection: makeDetection() }), tuning).state;
+    expect(s.ledgeGrabsSinceGround).toBe(1);
+    s = tickLedgeHang(s, makeInput({ release: 'dropDown' }), tuning).state;
+    s = tickLedgeHang(s, makeInput({ airborne: true }), tuning).state; // cooldown -> idle
+    expect(s.name).toBe('idle');
+    s = tickLedgeHang(s, makeInput({ detection: makeDetection() }), tuning).state;
+    expect(s.ledgeGrabsSinceGround).toBe(2);
+  });
+
+  it('touching the ground resets the regrab counter, restoring full i-frames', () => {
+    const tuning = resolveLedgeHangTuning({ tetherCooldownFrames: 1 });
+    let s = createLedgeHangState();
+    // Burn through several grabs to deplete the budget.
+    for (let i = 0; i < 4; i += 1) {
+      s = tickLedgeHang(
+        s,
+        makeInput({ detection: makeDetection(), airborne: true }),
+        tuning,
+      ).state;
+      s = tickLedgeHang(s, makeInput({ release: 'dropDown' }), tuning).state;
+      while (s.name !== 'idle') {
+        s = tickLedgeHang(s, makeInput({ airborne: true }), tuning).state;
+      }
+    }
+    expect(s.ledgeGrabsSinceGround).toBe(4);
+    // Land — a grounded idle tick resets the counter.
+    s = tickLedgeHang(s, makeInput({ airborne: false }), tuning).state;
+    expect(s.ledgeGrabsSinceGround).toBe(0);
+    // The next grab is fresh again — full i-frames.
+    s = tickLedgeHang(
+      s,
+      makeInput({ detection: makeDetection(), airborne: true }),
+      tuning,
+    ).state;
+    expect(s.hangIframesRemaining).toBe(LEDGE_HANG_DEFAULTS.hangIframeFrames);
+  });
+
+  it('a landing DURING cooldown also resets the counter', () => {
+    const tuning = resolveLedgeHangTuning({ tetherCooldownFrames: 4 });
+    let s = createLedgeHangState();
+    s = tickLedgeHang(s, makeInput({ detection: makeDetection() }), tuning).state;
+    s = tickLedgeHang(s, makeInput({ release: 'dropDown' }), tuning).state;
+    expect(s.name).toBe('cooldown');
+    expect(s.ledgeGrabsSinceGround).toBe(1);
+    // Land mid-cooldown.
+    s = tickLedgeHang(s, makeInput({ airborne: false }), tuning).state;
+    expect(s.ledgeGrabsSinceGround).toBe(0);
+  });
+
+  it('regrabIframePenalty=0 disables depletion entirely', () => {
+    const budgets = regrabIframeBudgets(
+      5,
+      resolveLedgeHangTuning({ regrabIframePenalty: 0 }),
+    );
+    expect(budgets.every((b) => b === LEDGE_HANG_DEFAULTS.hangIframeFrames)).toBe(
+      true,
+    );
   });
 });
 

@@ -72,8 +72,10 @@ import type { LedgeCandidate } from './ledgeDetection';
  *   • `'climbing'` — ledge-getup animation playing. Brief lockout where
  *                    the fighter is being lifted onto the platform;
  *                    movement / attacks remain suppressed. Per canonical
- *                    Smash, the climb does NOT grant i-frames — the
- *                    fighter is hit-able during the get-up animation
+ *                    Smash, the climb startup is intangible
+ *                    (`getupIframes` frames from frame 0) but the tail of
+ *                    the animation is vulnerable — an opponent who reads a
+ *                    late get-up can still punish the recovery's back half
  *                    (the canonical "punish a slow getup" outcome).
  *   • `'rolling'`  — ledge-roll animation playing (AC 60404 Sub-AC 4).
  *                    The fighter rolls onto the platform with i-frames
@@ -107,8 +109,10 @@ export type LedgeHangStateName =
  *   • `'getUp'`     — climb onto the platform. Transitions
  *                     `'hanging' → 'climbing'`. The runtime translates
  *                     the body up onto the platform top once `'climbing'`
- *                     resolves. Recovery: `climbFrames`. I-frames: 0
- *                     (canonical "slow getup is punishable").
+ *                     resolves. Recovery: `climbFrames`. I-frames:
+ *                     `getupIframes` (default 12) protect the climb
+ *                     STARTUP; the tail is vulnerable (canonical "slow
+ *                     getup is punishable").
  *   • `'roll'`      — roll onto the platform (AC 60404 Sub-AC 4).
  *                     Transitions `'hanging' → 'rolling'`. Recovery:
  *                     `rollFrames`. I-frames: `rollIframes` (the
@@ -175,6 +179,27 @@ export interface LedgeHangState {
   readonly active: ActiveLedgeHang | null;
   readonly hangIframesRemaining: number;
   readonly cooldownRemaining: number;
+  /**
+   * SMASH-PARITY (2-frame punish) — frames of *vulnerability* remaining
+   * at the START of a fresh hang. While `> 0` the fighter is NOT
+   * invincible even though `hangIframesRemaining` is already seeded — the
+   * canonical Smash "ledge grab is punishable on frames 1-2" window. The
+   * hang's i-frame budget only begins protecting (and draining) once this
+   * counter reaches 0. Carried only during `'hanging'`.
+   */
+  readonly grabVulnerableRemaining: number;
+  /**
+   * SMASH-PARITY (ledge-stall fix) — number of ledge grabs this fighter
+   * has made WITHOUT touching the ground in between. Incremented on every
+   * fresh latch; reset to 0 the moment the runtime reports the fighter is
+   * grounded (see {@link LedgeHangInput.airborne}). Past
+   * `regrabIframeThreshold` the fresh-grab i-frame budget is shortened by
+   * `regrabIframePenalty` per extra grab (clamped to 0), so a recovering
+   * fighter who repeatedly regrabs the same ledge to stall eventually
+   * latches with NO intangibility — closing the classic infinite
+   * ledge-stall loop.
+   */
+  readonly ledgeGrabsSinceGround: number;
 }
 
 /**
@@ -254,12 +279,14 @@ export interface LedgeHangTuning {
    */
   readonly jumpIframes?: number;
   /**
-   * AC 60404 Sub-AC 4 — i-frame budget granted during the ledge-getup
-   * recovery. Default 0 — canonical Smash semantics: the slow get-up
-   * animation does NOT grant i-frames (an opponent can intercept the
-   * climb-up; this is the deliberate "punish a slow getup" outcome).
-   * A roster override may bump this for specific characters who get a
-   * faster / safer getup as part of their kit.
+   * SMASH-PARITY (ledge-getup intangibility) — i-frame budget granted at
+   * the START of the ledge-getup climb. Default 12 (≈ 0.2 s at 60 Hz):
+   * canonical Smash protects the *startup* of the get-up climb with a
+   * short intangibility window, then leaves the tail vulnerable (an
+   * opponent who reads a late climb can still punish the recovery's back
+   * half). The climbing tick drains this from frame 0, so the protection
+   * covers the climb's opening and ends well before `climbFrames`
+   * completes. Set to 0 to restore the old "fully vulnerable getup".
    */
   readonly getupIframes?: number;
   /**
@@ -269,6 +296,31 @@ export interface LedgeHangTuning {
    * (~1.5 body widths — far enough to clearly leave the ledge corner).
    */
   readonly rollDistance?: number;
+  /**
+   * SMASH-PARITY (2-frame punish) — frames of vulnerability at the start
+   * of a fresh hang during which the fighter is NOT yet protected by the
+   * hang i-frame window. Default 2 — the canonical Smash "ledge grab can
+   * be hit on frames 1-2" rule. Set to 0 to grant i-frames from frame 0
+   * (the old behaviour).
+   */
+  readonly grabVulnerableFrames?: number;
+  /**
+   * SMASH-PARITY (ledge-stall fix) — number of consecutive ledge grabs
+   * (without touching the ground in between) the fighter may make at FULL
+   * fresh-grab intangibility. Default 2. The first
+   * `regrabIframeThreshold` grabs latch with the full `hangIframeFrames`
+   * budget; each grab beyond it loses `regrabIframePenalty` i-frames.
+   */
+  readonly regrabIframeThreshold?: number;
+  /**
+   * SMASH-PARITY (ledge-stall fix) — i-frames removed from the fresh-grab
+   * budget for each regrab beyond `regrabIframeThreshold`, clamped so the
+   * budget never goes negative. Default 8 — with the default 24-frame
+   * window and threshold 2, grab #3 latches with 16 i-frames, #4 with 8,
+   * and #5+ with 0 (no intangibility at all), closing the infinite
+   * ledge-stall loop. Set to 0 to disable depletion entirely.
+   */
+  readonly regrabIframePenalty?: number;
 }
 
 /**
@@ -287,6 +339,9 @@ export interface ResolvedLedgeHangTuning {
   readonly jumpIframes: number;
   readonly getupIframes: number;
   readonly rollDistance: number;
+  readonly grabVulnerableFrames: number;
+  readonly regrabIframeThreshold: number;
+  readonly regrabIframePenalty: number;
 }
 
 /**
@@ -349,8 +404,13 @@ export const LEDGE_HANG_DEFAULTS: ResolvedLedgeHangTuning = Object.freeze({
   rollIframes: 24,
   attackIframes: 16,
   jumpIframes: 8,
-  getupIframes: 0,
+  // SMASH-PARITY (ledge-getup intangibility) — protect the climb startup.
+  getupIframes: 12,
   rollDistance: 96,
+  // SMASH-PARITY (2-frame punish + ledge-stall fix).
+  grabVulnerableFrames: 2,
+  regrabIframeThreshold: 2,
+  regrabIframePenalty: 8,
 });
 
 // ---------------------------------------------------------------------------
@@ -364,6 +424,8 @@ export function createLedgeHangState(): LedgeHangState {
     active: null,
     hangIframesRemaining: 0,
     cooldownRemaining: 0,
+    grabVulnerableRemaining: 0,
+    ledgeGrabsSinceGround: 0,
   });
 }
 
@@ -430,6 +492,19 @@ export function resolveLedgeHangTuning(
     rollDistance: nonNegativeFinite(
       overrides.rollDistance,
       LEDGE_HANG_DEFAULTS.rollDistance,
+    ),
+    // SMASH-PARITY (2-frame punish + ledge-stall fix).
+    grabVulnerableFrames: nonNegativeInt(
+      overrides.grabVulnerableFrames,
+      LEDGE_HANG_DEFAULTS.grabVulnerableFrames,
+    ),
+    regrabIframeThreshold: nonNegativeInt(
+      overrides.regrabIframeThreshold,
+      LEDGE_HANG_DEFAULTS.regrabIframeThreshold,
+    ),
+    regrabIframePenalty: nonNegativeInt(
+      overrides.regrabIframePenalty,
+      LEDGE_HANG_DEFAULTS.regrabIframePenalty,
     ),
   });
 }
@@ -575,9 +650,27 @@ export function computeLedgeStandingTarget(
  * True iff the hang grants i-frame protection this frame. Composed with
  * respawn-grace / dodge i-frames via OR for the single "is this fighter
  * immune?" check. Drains over the hang's `hangIframeFrames` window.
+ *
+ * SMASH-PARITY (2-frame punish) — the fighter is NOT invincible while the
+ * fresh-grab vulnerability window (`grabVulnerableRemaining > 0`) is
+ * still open, even though the hang i-frame budget has already been
+ * seeded. This is the canonical "ledge grab is punishable on frames 1-2"
+ * rule: an opponent who hits inside the window lands a clean hit (the
+ * runtime's `applyHit` falls through to the normal-hit / force-release
+ * path because this query reads false).
  */
 export function isLedgeHangInvincible(state: LedgeHangState): boolean {
-  return state.hangIframesRemaining > 0;
+  return state.hangIframesRemaining > 0 && state.grabVulnerableRemaining <= 0;
+}
+
+/**
+ * SMASH-PARITY (2-frame punish) — true iff the fighter is inside the
+ * fresh-grab vulnerability window. Exposed so the runtime / tests can
+ * assert the "punishable on frames 1-2" window directly. Distinct from
+ * {@link isLedgeHangInvincible}, which already factors this in.
+ */
+export function isLedgeGrabVulnerable(state: LedgeHangState): boolean {
+  return state.name === 'hanging' && state.grabVulnerableRemaining > 0;
 }
 
 /**
@@ -647,6 +740,11 @@ export function tickLedgeHang(
           hangIframesRemaining: 0,
           cooldownRemaining:
             tuning.tetherCooldownFrames > 0 ? tuning.tetherCooldownFrames : 0,
+          grabVulnerableRemaining: 0,
+          // Preserve the regrab counter: a force-release (hit / trump /
+          // max-hang) is NOT a clean ground-touch, so it must not refresh
+          // the depletion. Only landing resets it.
+          ledgeGrabsSinceGround: state.ledgeGrabsSinceGround,
         }),
         released: null,
       };
@@ -656,9 +754,31 @@ export function tickLedgeHang(
 
   // ---- 2. Idle / cooldown branch ----------------------------------------
   if (state.name === 'idle') {
+    // SMASH-PARITY (ledge-stall fix) — touching the ground resets the
+    // consecutive-regrab counter. The runtime ticks this machine every
+    // frame with `airborne: !grounded`, so a grounded idle frame is the
+    // canonical "they made it back to the stage" signal that refreshes
+    // full fresh-grab intangibility for the next recovery.
+    const groundedReset =
+      !input.airborne && state.ledgeGrabsSinceGround > 0
+        ? 0
+        : state.ledgeGrabsSinceGround;
+
     // Detection produces a fresh grab only if the fighter is airborne
     // (the canonical "you must be in the air to ledge-grab" rule).
     if (input.detection !== null && input.airborne) {
+      // SMASH-PARITY (ledge-stall fix) — the first `regrabIframeThreshold`
+      // grabs latch with the FULL i-frame budget; each grab beyond it
+      // loses `regrabIframePenalty` i-frames (clamped to 0). The counter
+      // is `groundedReset` (which is the live count since `airborne` is
+      // true here, so no reset happened) so the new grab is grab number
+      // `groundedReset + 1`.
+      const grabIndex = groundedReset + 1;
+      const excessGrabs = Math.max(0, grabIndex - tuning.regrabIframeThreshold);
+      const depletedIframes = Math.max(
+        0,
+        tuning.hangIframeFrames - excessGrabs * tuning.regrabIframePenalty,
+      );
       const armed = Object.freeze({
         name: 'hanging' as const,
         active: Object.freeze({
@@ -668,10 +788,27 @@ export function tickLedgeHang(
           framesElapsed: 0,
           facing: input.facing,
         }),
-        hangIframesRemaining: tuning.hangIframeFrames,
+        hangIframesRemaining: depletedIframes,
         cooldownRemaining: 0,
+        // SMASH-PARITY (2-frame punish) — open the vulnerability window
+        // so the hang's i-frames don't protect frames 1-2 of the grab.
+        grabVulnerableRemaining: tuning.grabVulnerableFrames,
+        ledgeGrabsSinceGround: grabIndex,
       });
       return { state: armed, released: null };
+    }
+    if (groundedReset !== state.ledgeGrabsSinceGround) {
+      return {
+        state: Object.freeze({
+          name: 'idle',
+          active: null,
+          hangIframesRemaining: 0,
+          cooldownRemaining: 0,
+          grabVulnerableRemaining: 0,
+          ledgeGrabsSinceGround: groundedReset,
+        }),
+        released: null,
+      };
     }
     return { state, released: null };
   }
@@ -685,6 +822,10 @@ export function tickLedgeHang(
     // i-frame window without a separate state machine branch.
     const nextIframes =
       state.hangIframesRemaining > 0 ? state.hangIframesRemaining - 1 : 0;
+    // SMASH-PARITY (ledge-stall fix) — a landing during the cooldown
+    // window resets the consecutive-regrab counter (the fighter touched
+    // the stage, so the next grab is "fresh" again).
+    const grabsSinceGround = input.airborne ? state.ledgeGrabsSinceGround : 0;
     if (next <= 0) {
       // Cooldown ended — return to idle. Any leftover i-frame budget is
       // also cleared (per-option i-frames are capped to fit within the
@@ -695,6 +836,8 @@ export function tickLedgeHang(
           active: null,
           hangIframesRemaining: 0,
           cooldownRemaining: 0,
+          grabVulnerableRemaining: 0,
+          ledgeGrabsSinceGround: grabsSinceGround,
         }),
         released: null,
       };
@@ -705,6 +848,8 @@ export function tickLedgeHang(
         active: null,
         hangIframesRemaining: nextIframes,
         cooldownRemaining: next,
+        grabVulnerableRemaining: 0,
+        ledgeGrabsSinceGround: grabsSinceGround,
       }),
       released: null,
     };
@@ -714,11 +859,23 @@ export function tickLedgeHang(
   if (state.name === 'hanging' && state.active !== null) {
     // Player-initiated release.
     if (input.release !== null) {
-      return resolveRelease(state.active, input.release, tuning);
+      return resolveRelease(state.active, input.release, tuning, state);
     }
     const nextFrames = state.active.framesElapsed + 1;
-    const nextIframes =
-      state.hangIframesRemaining > 0 ? state.hangIframesRemaining - 1 : 0;
+    // SMASH-PARITY (2-frame punish) — drain the vulnerability window
+    // FIRST. The hang's i-frame budget only begins protecting (and
+    // draining) once the window has fully closed, so the seeded i-frames
+    // are spent on the protected phase rather than burned during the
+    // punishable frames 1-2.
+    const stillVulnerable = state.grabVulnerableRemaining > 0;
+    const nextVulnerable = stillVulnerable
+      ? state.grabVulnerableRemaining - 1
+      : 0;
+    const nextIframes = stillVulnerable
+      ? state.hangIframesRemaining
+      : state.hangIframesRemaining > 0
+        ? state.hangIframesRemaining - 1
+        : 0;
     // Auto-drop on max-hang clock expiry — protect against ledge-stall
     // strategies. The runtime treats this exactly like a forceRelease.
     if (tuning.maxHangFrames > 0 && nextFrames >= tuning.maxHangFrames) {
@@ -729,6 +886,8 @@ export function tickLedgeHang(
           hangIframesRemaining: 0,
           cooldownRemaining:
             tuning.tetherCooldownFrames > 0 ? tuning.tetherCooldownFrames : 0,
+          grabVulnerableRemaining: 0,
+          ledgeGrabsSinceGround: state.ledgeGrabsSinceGround,
         }),
         released: null,
       };
@@ -745,6 +904,8 @@ export function tickLedgeHang(
         }),
         hangIframesRemaining: nextIframes,
         cooldownRemaining: 0,
+        grabVulnerableRemaining: nextVulnerable,
+        ledgeGrabsSinceGround: state.ledgeGrabsSinceGround,
       }),
       released: null,
     };
@@ -766,6 +927,8 @@ export function tickLedgeHang(
           hangIframesRemaining: 0,
           cooldownRemaining:
             tuning.tetherCooldownFrames > 0 ? tuning.tetherCooldownFrames : 0,
+          grabVulnerableRemaining: 0,
+          ledgeGrabsSinceGround: state.ledgeGrabsSinceGround,
         }),
         released: null,
       };
@@ -782,6 +945,8 @@ export function tickLedgeHang(
         }),
         hangIframesRemaining: nextIframes,
         cooldownRemaining: 0,
+        grabVulnerableRemaining: 0,
+        ledgeGrabsSinceGround: state.ledgeGrabsSinceGround,
       }),
       released: null,
     };
@@ -805,6 +970,8 @@ export function tickLedgeHang(
           hangIframesRemaining: 0,
           cooldownRemaining:
             tuning.tetherCooldownFrames > 0 ? tuning.tetherCooldownFrames : 0,
+          grabVulnerableRemaining: 0,
+          ledgeGrabsSinceGround: state.ledgeGrabsSinceGround,
         }),
         released: null,
       };
@@ -821,6 +988,8 @@ export function tickLedgeHang(
         }),
         hangIframesRemaining: nextIframes,
         cooldownRemaining: 0,
+        grabVulnerableRemaining: 0,
+        ledgeGrabsSinceGround: state.ledgeGrabsSinceGround,
       }),
       released: null,
     };
@@ -849,7 +1018,13 @@ function resolveRelease(
   active: ActiveLedgeHang,
   action: LedgeReleaseAction,
   tuning: ResolvedLedgeHangTuning,
+  prev: LedgeHangState,
 ): LedgeHangTickResult {
+  // SMASH-PARITY (ledge-stall fix) — carry the consecutive-regrab counter
+  // through the release: leaving the hang via a player option is NOT a
+  // ground touch, so the depletion persists until the fighter actually
+  // lands (handled in the idle / cooldown branches).
+  const grabsSinceGround = prev.ledgeGrabsSinceGround;
   if (action === 'getUp') {
     // Climb begins on the next tick; we transition the state but do
     // NOT count the current frame against `climbFrames` (the player
@@ -868,6 +1043,8 @@ function resolveRelease(
         }),
         hangIframesRemaining: tuning.getupIframes,
         cooldownRemaining: 0,
+        grabVulnerableRemaining: 0,
+        ledgeGrabsSinceGround: grabsSinceGround,
       }),
       released: action,
     };
@@ -887,6 +1064,8 @@ function resolveRelease(
         }),
         hangIframesRemaining: tuning.rollIframes,
         cooldownRemaining: 0,
+        grabVulnerableRemaining: 0,
+        ledgeGrabsSinceGround: grabsSinceGround,
       }),
       released: action,
     };
@@ -908,6 +1087,8 @@ function resolveRelease(
       hangIframesRemaining: releaseIframes,
       cooldownRemaining:
         tuning.tetherCooldownFrames > 0 ? tuning.tetherCooldownFrames : 0,
+      grabVulnerableRemaining: 0,
+      ledgeGrabsSinceGround: grabsSinceGround,
     }),
     released: action,
   };
