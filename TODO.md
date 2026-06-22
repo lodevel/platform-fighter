@@ -27,13 +27,19 @@ download was resumed and all 4 model files are downloaded + validated
 - VAE `vae/ae.safetensors` — **0.34 GB** ✓
 - pixel LoRA `loras/pixel_art_style_z_image_turbo.safetensors` — **0.17 GB** ✓ (trigger: `Pixel art style.`)
 
-ComfyUI Desktop is ready to generate. Reopen it, load a "pixel" template, prompt
-starts with `Pixel art style.` (8 steps, CFG ~4.5, 1024², LoRA strength 0.6–1.0).
-Output lands in `ComfyUI-Shared/output/` — **readable via `/mnt/c`**, so the
-filesystem-handoff pipeline is unblocked (next: build `tools/gen-sprite.ts`,
-start with roster portraits / a stage background). Serves on `127.0.0.1:8188`
-(localhost-bound; for live API access set listen `0.0.0.0` + firewall → reach at
-`172.21.208.1:8188`, else use the filesystem handoff).
+**Generation engine:** the Windows Comfy *Desktop* app is flaky (server wouldn't
+stay up), so a **native ComfyUI is installed in WSL at `~/ComfyUI`** (venv +
+torch 2.12+cu130, GPU verified RTX 5070 Ti) — I drive it directly (server on WSL
+`127.0.0.1:8188`), with `~/ComfyUI/extra_model_paths.yaml` pointing at the Windows
+`ComfyUI-Shared/models` (reuses the downloaded models, no re-download). Next:
+launch server → build `tools/gen-*.ts` client → test render → batch.
+
+**🎨 ART STYLE LOCKED → Brawlhalla-style clean 2D cartoon** (heroic athletic
+proportions, vibrant saturated). **NOT pixel art** → the pixel LoRA is set aside;
+use Z-Image base + cartoon prompting. Full recipe + canonical prompts in
+**`docs/ART-STYLE.md`**; the ~50-clip per-fighter animation list + the
+grab-interaction (grab-anchor) model in **`docs/SPRITE-PLAN.md`**. Asset order:
+stage backgrounds → item sprites → character portraits → animation clips.
 
 ## NEXT UP (priority order)
 
