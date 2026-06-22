@@ -17,18 +17,23 @@ Matter.js + TS), deterministic 60 Hz fixed-step sim.
 - `e8661f5` — **smooth ledge climb-up / roll-up** (was a freeze-then-teleport). Pure smoothstep interp; `ledgeRecoverySmoothstep` + `computeLedgeStandingTarget` in `ledgeHangState.ts`.
 - `ffb4dec` — **`add-character` skill + `docs/CHARACTER-CHECKLIST.md` + verifier** (`.claude/skills/add-character/`).
 
-## IN PROGRESS (background) — ComfyUI model download
-**Status: ⏳ DOWNLOADING** (started this session). The Z-Image-Turbo install
-stalled at ~2.5 GB of ~19 GB; a background `curl -C -` resume is finishing the
-two truncated model files into the Windows ComfyUI folder
-(`…/AppData/Local/Comfy-Desktop/ComfyUI-Shared/models/`). **Do NOT restart it.**
-- diffusion `diffusion_models/z_image_turbo_bf16.safetensors` — need **12,309,866,400** bytes
-- text encoder `text_encoders/qwen_3_4b.safetensors` — need **8,044,982,048** bytes
-- VAE `ae.safetensors` + pixel LoRA `loras/pixel_art_style_z_image_turbo.safetensors` already ✓ valid.
-- **Verify done:** each file size == the bytes above (safetensors header end == file size).
-- **When complete:** ComfyUI is ready — reopen it, load a "pixel" template, prompt starts with
-  `Pixel art style.` (8 steps, CFG ~4.5, 1024², LoRA strength 0.6–1.0). Output lands in
-  `ComfyUI-Shared/output/` (readable via `/mnt/c` for the filesystem-handoff pipeline).
+## ComfyUI model install — ✅ DONE / READY
+**Status: ✅ COMPLETE** (finished this session). The interrupted Z-Image-Turbo
+download was resumed and all 4 model files are downloaded + validated
+(safetensors header-end == file size), in
+`…/AppData/Local/Comfy-Desktop/ComfyUI-Shared/models/`:
+- diffusion `diffusion_models/z_image_turbo_bf16.safetensors` — **12.31 GB** ✓
+- text encoder `text_encoders/qwen_3_4b.safetensors` — **8.04 GB** ✓
+- VAE `vae/ae.safetensors` — **0.34 GB** ✓
+- pixel LoRA `loras/pixel_art_style_z_image_turbo.safetensors` — **0.17 GB** ✓ (trigger: `Pixel art style.`)
+
+ComfyUI Desktop is ready to generate. Reopen it, load a "pixel" template, prompt
+starts with `Pixel art style.` (8 steps, CFG ~4.5, 1024², LoRA strength 0.6–1.0).
+Output lands in `ComfyUI-Shared/output/` — **readable via `/mnt/c`**, so the
+filesystem-handoff pipeline is unblocked (next: build `tools/gen-sprite.ts`,
+start with roster portraits / a stage background). Serves on `127.0.0.1:8188`
+(localhost-bound; for live API access set listen `0.0.0.0` + firewall → reach at
+`172.21.208.1:8188`, else use the filesystem handoff).
 
 ## NEXT UP (priority order)
 
