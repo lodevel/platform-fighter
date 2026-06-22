@@ -37,3 +37,7 @@ cancel-repro-seed.yaml
 test-resumability-seed.yaml
 completed.yaml
 hello.txt
+
+# Generated art (large, reproducible). Keep one small sample render committed.
+assets/gen/*
+!assets/gen/test-stage.png
