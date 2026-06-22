@@ -78,7 +78,14 @@ function main() {
   // gather all source frames (keyed)
   const idleSrc = keyMagenta(readPng(IDLE_KEYFRAME));
   const anims = {};
-  for (const anim of ['run', 'jump', 'attack']) anims[anim] = listAnim(anim).map((f) => keyMagenta(readPng(f)));
+  // Discover EVERY <anim>-<N>.png group in the frames dir (run/jump/attack/crouch +
+  // per-move attacks/specials) — no hardcoded list, so new clips pack automatically.
+  const groupNames = [...new Set(
+    fs.readdirSync(FRAMES_DIR)
+      .filter((f) => /^[a-z_]+-\d+\.png$/.test(f))
+      .map((f) => f.replace(/-\d+\.png$/, '')),
+  )].sort();
+  for (const anim of groupNames) anims[anim] = listAnim(anim).map((f) => keyMagenta(readPng(f)));
   // global bbox across EVERYTHING
   const acc = { minX: 1e9, minY: 1e9, maxX: -1, maxY: -1 };
   accumBbox(idleSrc, acc);
@@ -93,11 +100,11 @@ function main() {
   fs.mkdirSync(ANIM_DIR, { recursive: true });
   const framesJson = { meta: { source: 'AI: Z-Image ControlNet pose-source pipeline (tools/gen-frames.ts + pack-clips.cjs)', cellWidth: cellW, cellHeight: cellH }, animations: {} };
 
-  // idle: 4 breathing frames from the keyframe
+  // idle: 4 breathing frames synthesized from the keyframe (no generated idle poses)
   const idleCells = BREATH.map((b) => makeCell(idleSrc, acc, cellW, cellH, b));
   writeStrip('idle', idleCells, cellW, cellH, framesJson);
-  // others: one cell per generated frame
-  for (const anim of ['run', 'jump', 'attack']) {
+  // every discovered group: one cell per generated frame
+  for (const anim of groupNames) {
     const cells = anims[anim].map((p) => makeCell(p, acc, cellW, cellH, 1.0));
     if (cells.length) writeStrip(anim, cells, cellW, cellH, framesJson);
   }

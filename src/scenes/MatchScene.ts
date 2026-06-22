@@ -41,6 +41,10 @@ import {
   type LedgeCandidate,
   paletteSwapForCharacter,
   registerAllCharacterSpriteAnimations,
+  attackMoveToSheet,
+  getMoveAnimKey,
+  getSpriteAnimationKey,
+  MOVE_SHEET_NAMES,
   resolveSlotCharacterId,
   RuntimePaletteRenderer,
   SHIELD_DEFAULTS,
@@ -5153,6 +5157,36 @@ export class MatchScene extends Phaser.Scene {
           );
           sprite.setFlipX(flipped);
           slot.spriteAnimSm?.tick();
+          // Per-move / crouch override: every attack plays its OWN clip
+          // (`<char>.<move>.anim`) and a held crouch plays a real duck clip
+          // instead of the procedural squash — for fighters that ship those
+          // sheets. Change-guarded against the sprite's live anim so a clip is
+          // never restarted mid-play. Fighters without per-move sheets fall
+          // through to the SM's collapsed `attack` / the squash below.
+          const charId = slot.character.id;
+          const activeAtk = slot.character.getActiveAttack();
+          const overrideSheet = activeAtk
+            ? attackMoveToSheet(activeAtk.move)
+            : slot.character.isCrouching()
+              ? 'crouch'
+              : null;
+          const overrideKey = getMoveAnimKey(charId, overrideSheet);
+          const curAnimKey =
+            (sprite.anims && sprite.anims.currentAnim && sprite.anims.currentAnim.key) || null;
+          let crouchAnimActive = false;
+          if (overrideKey && this.anims.exists(overrideKey)) {
+            if (curAnimKey !== overrideKey) sprite.play(overrideKey, true);
+            crouchAnimActive = overrideSheet === 'crouch';
+          } else if (
+            curAnimKey !== null &&
+            MOVE_SHEET_NAMES.some((s) => curAnimKey === `${charId}.${s}.anim`)
+          ) {
+            // A per-move/crouch clip is still showing but no override applies now
+            // (e.g. the duck just ended). The SM only re-dispatches on its OWN
+            // state change, so restore its base clip explicitly.
+            const baseKey = getSpriteAnimationKey(charId, slot.spriteAnimSm?.current() ?? 'idle');
+            if (baseKey && curAnimKey !== baseKey) sprite.play(baseKey, true);
+          }
           // Phaser's `play(animKey)` resets displaySize and origin
           // back to the native frame defaults — re-apply each frame
           // from the shared visual-scale table so the visible sprite
@@ -5164,7 +5198,9 @@ export class MatchScene extends Phaser.Scene {
           // vertically (the bottom-anchored origin keeps the feet planted
           // and drops the head) and widen it a touch, matching the lowered
           // crouch hurtbox so the on-screen body reads as a crouch.
-          if (slot.character.isCrouching()) {
+          if (slot.character.isCrouching() && !crouchAnimActive) {
+            // Fallback duck for fighters WITHOUT a dedicated crouch clip: squash
+            // the sprite vertically (bottom-anchored origin keeps the feet planted).
             const CROUCH_SQUASH_Y = 0.62;
             const CROUCH_WIDEN_X = 1.12;
             sprite.setScale(

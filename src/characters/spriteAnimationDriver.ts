@@ -438,6 +438,99 @@ export const SPRITE_ANIM_SPECS: ReadonlyArray<SheetAnimSpec> = Object.freeze([
   Object.freeze({ sheet: 'attack', frameRate: 18, repeat: 0, hold: true }),
 ]);
 
+// ---------------------------------------------------------------------------
+// Per-move animation sheets (the "every attack has its OWN clip" layer)
+// ---------------------------------------------------------------------------
+
+/**
+ * Per-move sheets a fighter can ship beyond the collapsed `attack`. Each is a
+ * one-shot clip (hold the last frame), except `crouch` which loops/holds while
+ * the duck is held. Frame counts come from the manifest, like SPRITE_ANIM_SPECS.
+ */
+export const MOVE_SHEET_SPECS: ReadonlyArray<{
+  readonly sheet: string;
+  readonly frameRate: number;
+  readonly repeat: number;
+  readonly hold: boolean;
+}> = Object.freeze([
+  Object.freeze({ sheet: 'crouch', frameRate: 8, repeat: -1, hold: true }),
+  Object.freeze({ sheet: 'jab', frameRate: 18, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'tilt', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'smash', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'nair', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'fair', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'bair', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'neutral_special', frameRate: 14, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'side_special', frameRate: 14, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'up_special', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'down_special', frameRate: 14, repeat: 0, hold: true }),
+]);
+
+/** All per-move sheet names (incl. crouch) — used to detect a leftover override clip. */
+export const MOVE_SHEET_NAMES: ReadonlyArray<string> = Object.freeze(
+  MOVE_SHEET_SPECS.map((s) => s.sheet),
+);
+
+/**
+ * Per-character per-move texture keys. A fighter only appears here once it ships
+ * a per-move pack; everyone else falls back to the collapsed `attack` sheet. Keyed
+ * by the same sheet names as MOVE_SHEET_SPECS.
+ */
+const MOVE_SHEET_KEYS: Partial<Record<CharacterId, Readonly<Record<string, string>>>> = {
+  link: Object.freeze({
+    crouch: ASSET_KEYS.charLinkCrouch,
+    jab: ASSET_KEYS.charLinkJab,
+    tilt: ASSET_KEYS.charLinkTilt,
+    smash: ASSET_KEYS.charLinkSmash,
+    nair: ASSET_KEYS.charLinkNair,
+    fair: ASSET_KEYS.charLinkFair,
+    bair: ASSET_KEYS.charLinkBair,
+    neutral_special: ASSET_KEYS.charLinkNeutralSpecial,
+    side_special: ASSET_KEYS.charLinkSideSpecial,
+    up_special: ASSET_KEYS.charLinkUpSpecial,
+    down_special: ASSET_KEYS.charLinkDownSpecial,
+  }),
+};
+
+/** Per-move texture key for a fighter+sheet, or null if it has no such per-move sheet. */
+export function getCharacterMoveSheetKey(id: CharacterId, sheet: string): string | null {
+  return MOVE_SHEET_KEYS[id]?.[sheet] ?? null;
+}
+
+/**
+ * Map a live active-attack move to its per-move sheet name (the slot-level clip),
+ * or null if it has no dedicated sheet. Mirrors the engine's 10-move model:
+ * jab / tilt / smash / nair / fair / bair / 4 specials.
+ */
+export function attackMoveToSheet(
+  move: { readonly type?: string; readonly aerialDirection?: string } | null | undefined,
+): string | null {
+  if (!move?.type) return null;
+  switch (move.type) {
+    case 'jab': return 'jab';
+    case 'tilt': return 'tilt';
+    case 'smash': return 'smash';
+    case 'special': // neutral special
+    case 'neutralSpecial': return 'neutral_special';
+    case 'sideSpecial': return 'side_special';
+    case 'upSpecial': return 'up_special';
+    case 'downSpecial': return 'down_special';
+    case 'aerial':
+      switch (move.aerialDirection) {
+        case 'forward': return 'fair';
+        case 'back': return 'bair';
+        default: return 'nair';
+      }
+    default: return null;
+  }
+}
+
+/** Phaser anim key for a fighter+sheet IF the per-move sheet exists, else null. */
+export function getMoveAnimKey(id: CharacterId, sheet: string | null): string | null {
+  if (!sheet) return null;
+  return getCharacterMoveSheetKey(id, sheet) ? `${id}.${sheet}.anim` : null;
+}
+
 /**
  * Minimal Phaser anim-manager surface this module touches. Declared
  * narrowly so tests can satisfy it with a fake without faking the
@@ -508,6 +601,31 @@ export function registerCharacterSpriteAnimations(
       hideOnComplete: false,
     });
     if (result !== false) {
+      created.push(animKey);
+    }
+  }
+  // Per-move clips (every attack its own animation + crouch). Only fighters that
+  // ship a per-move pack have these keys; others fall through to collapsed `attack`.
+  // Same skip-if-not-loaded guard so a partial pack never blows up scene-create.
+  for (const spec of MOVE_SHEET_SPECS) {
+    const textureKey = getCharacterMoveSheetKey(characterId, spec.sheet);
+    if (textureKey === null) continue;
+    if (!scene.textures.exists(textureKey)) continue;
+    const animKey = `${characterId}.${spec.sheet}.anim`;
+    if (scene.anims.exists(animKey)) {
+      created.push(animKey);
+      continue;
+    }
+    const moveFrames = scene.anims.generateFrameNumbers(textureKey, {});
+    const moveResult = scene.anims.create({
+      key: animKey,
+      frames: moveFrames,
+      frameRate: spec.frameRate,
+      repeat: spec.repeat,
+      showOnStart: true,
+      hideOnComplete: false,
+    });
+    if (moveResult !== false) {
       created.push(animKey);
     }
   }

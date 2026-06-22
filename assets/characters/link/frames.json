@@ -29,6 +29,198 @@
         ]
       ]
     },
+    "attack": {
+      "strip": "animations/attack.png",
+      "frameCount": 5,
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ]
+      ]
+    },
+    "bair": {
+      "strip": "animations/bair.png",
+      "frameCount": 3,
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ]
+    },
+    "crouch": {
+      "strip": "animations/crouch.png",
+      "frameCount": 2,
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    "down_special": {
+      "strip": "animations/down_special.png",
+      "frameCount": 3,
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ]
+    },
+    "fair": {
+      "strip": "animations/fair.png",
+      "frameCount": 3,
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ]
+    },
+    "jab": {
+      "strip": "animations/jab.png",
+      "frameCount": 3,
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ]
+    },
+    "jump": {
+      "strip": "animations/jump.png",
+      "frameCount": 5,
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ]
+      ]
+    },
+    "nair": {
+      "strip": "animations/nair.png",
+      "frameCount": 3,
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ]
+    },
+    "neutral_special": {
+      "strip": "animations/neutral_special.png",
+      "frameCount": 3,
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ]
+    },
     "run": {
       "strip": "animations/run.png",
       "frameCount": 8,
@@ -69,9 +261,9 @@
         ]
       ]
     },
-    "jump": {
-      "strip": "animations/jump.png",
-      "frameCount": 5,
+    "side_special": {
+      "strip": "animations/side_special.png",
+      "frameCount": 3,
       "frameWidth": 64,
       "frameHeight": 64,
       "sourceCells": [
@@ -85,21 +277,13 @@
         ],
         [
           2,
-          0
-        ],
-        [
-          3,
-          0
-        ],
-        [
-          4,
           0
         ]
       ]
     },
-    "attack": {
-      "strip": "animations/attack.png",
-      "frameCount": 5,
+    "smash": {
+      "strip": "animations/smash.png",
+      "frameCount": 4,
       "frameWidth": 64,
       "frameHeight": 64,
       "sourceCells": [
@@ -118,9 +302,45 @@
         [
           3,
           0
+        ]
+      ]
+    },
+    "tilt": {
+      "strip": "animations/tilt.png",
+      "frameCount": 3,
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "sourceCells": [
+        [
+          0,
+          0
         ],
         [
-          4,
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ]
+    },
+    "up_special": {
+      "strip": "animations/up_special.png",
+      "frameCount": 3,
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
           0
         ]
       ]
