@@ -21,14 +21,13 @@
  * The pipeline beyond this single render (bg-removal -> slice -> manifest) is
  * documented in docs/ART-PIPELINE.md and is TODO at the integration boundary.
  */
-import { mkdir, writeFile } from 'node:fs/promises';
-import { dirname, resolve } from 'node:path';
 import { ComfyClient } from './comfy-client.ts';
 import {
   buildPositivePrompt,
   buildZImageWorkflow,
   type AssetKind,
 } from './comfy-style.ts';
+import { baseName, renderAsset } from './render-asset.ts';
 
 interface Args {
   prompt?: string;
@@ -99,18 +98,18 @@ async function main(): Promise<void> {
     ? args.prompt
     : buildPositivePrompt({ kind: args.kind, subject: args.prompt });
 
-  const filenamePrefix = args.out ? baseName(args.out) : 'pf-gen';
-  const workflow = buildZImageWorkflow({
-    positive,
-    seed: args.seed,
-    steps: args.steps,
-    cfg: args.cfg,
-    width: args.width,
-    height: args.height,
-    filenamePrefix,
-  });
-
   if (args.dumpWorkflow) {
+    // Offline path: build the graph directly so --dump-workflow works without
+    // a server (renderAsset would try to connect).
+    const workflow = buildZImageWorkflow({
+      positive,
+      seed: args.seed,
+      steps: args.steps,
+      cfg: args.cfg,
+      width: args.width,
+      height: args.height,
+      filenamePrefix: args.out ? baseName(args.out) : 'pf-gen',
+    });
     process.stdout.write(JSON.stringify(workflow, null, 2) + '\n');
     return;
   }
@@ -118,7 +117,6 @@ async function main(): Promise<void> {
   if (!args.out) throw new Error('--out is required (use --help)');
 
   const client = new ComfyClient({ baseUrl: args.url });
-
   if (!(await client.isUp())) {
     throw new Error(
       `ComfyUI not reachable at ${client.baseUrl}. Launch it first:\n` +
@@ -127,23 +125,20 @@ async function main(): Promise<void> {
     );
   }
 
-  console.log(`[gen-sprite] kind=${args.kind} seed=${args.seed}`);
-  console.log(`[gen-sprite] prompt: ${positive}`);
-  const t0 = Date.now();
-  const { promptId, bytes, ref } = await client.render(workflow);
-  const outPath = resolve(args.out);
-  await mkdir(dirname(outPath), { recursive: true });
-  await writeFile(outPath, bytes);
-  console.log(
-    `[gen-sprite] done in ${((Date.now() - t0) / 1000).toFixed(1)}s ` +
-      `(prompt_id=${promptId}, comfy=${ref.filename}) -> ${outPath} (${bytes.length} bytes)`,
-  );
-}
-
-/** Strip dir + extension to get a SaveImage filename_prefix from an --out path. */
-function baseName(p: string): string {
-  const file = p.split(/[\\/]/).pop() ?? p;
-  return file.replace(/\.[^.]+$/, '') || 'pf-gen';
+  // Shared render+write path (also used by tools/batch-gen.ts).
+  await renderAsset({
+    kind: args.kind,
+    prompt: positive,
+    rawPrompt: true, // `positive` is already composed above.
+    out: args.out,
+    seed: args.seed,
+    steps: args.steps,
+    cfg: args.cfg,
+    width: args.width,
+    height: args.height,
+    client,
+    log: (line) => console.log(line.replace('[render]', '[gen-sprite]')),
+  });
 }
 
 main().catch((err: unknown) => {
