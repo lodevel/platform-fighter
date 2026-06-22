@@ -28,7 +28,9 @@ export interface ComfyImageRef {
 const DEFAULTS = {
   baseUrl: 'http://127.0.0.1:8188',
   pollIntervalMs: 1500,
-  timeoutMs: 5 * 60_000,
+  // 15 min: a cold render under ComfyUI `--disable-smart-memory` reloads the full
+  // ~19 GB Z-Image model from disk each time (~280-400s), so 5 min was too tight.
+  timeoutMs: 15 * 60_000,
 };
 
 export class ComfyClient {
