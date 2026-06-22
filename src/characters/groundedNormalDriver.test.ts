@@ -21,6 +21,7 @@ import {
   Blaze,
   Bruno,
   Cat,
+  Kirby,
   Link,
   Nova,
   Owl,
@@ -204,6 +205,9 @@ function spawnFighter(
   if (characterId === 'link') {
     return new Link(m.scene as any, { spawnX, spawnY });
   }
+  if (characterId === 'kirby') {
+    return new Kirby(m.scene as any, { spawnX, spawnY });
+  }
   return new Bear(m.scene as any, { spawnX, spawnY });
 }
 
@@ -213,7 +217,7 @@ function spawnFighter(
 
 describe('GROUNDED_NORMAL_TABLE — move-table catalog (AC 60102 Sub-AC 2)', () => {
   it('exposes every roster slot × grounded-normal slot pair', () => {
-    const ids: CharacterId[] = ['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno', 'link'];
+    const ids: CharacterId[] = ['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno', 'link', 'kirby'];
     for (const id of ids) {
       for (const slot of GROUNDED_NORMAL_SLOTS) {
         const move = GROUNDED_NORMAL_TABLE[id][slot];
@@ -223,8 +227,8 @@ describe('GROUNDED_NORMAL_TABLE — move-table catalog (AC 60102 Sub-AC 2)', () 
     }
   });
 
-  it('flat catalog enumerates exactly 33 entries (11 chars × 3 slots)', () => {
-    expect(GROUNDED_NORMAL_MOVES.length).toBe(33);
+  it('flat catalog enumerates exactly 36 entries (12 chars × 3 slots)', () => {
+    expect(GROUNDED_NORMAL_MOVES.length).toBe(36);
     // Ensure no duplicates and the (id, slot) pairs cover the full grid.
     const seen = new Set<string>();
     for (const e of GROUNDED_NORMAL_MOVES) {
@@ -233,7 +237,7 @@ describe('GROUNDED_NORMAL_TABLE — move-table catalog (AC 60102 Sub-AC 2)', () 
       seen.add(key);
       expect(e.move.id).toBe(key);
     }
-    expect(seen.size).toBe(33);
+    expect(seen.size).toBe(36);
   });
 
   it('every grounded normal carries the schema fields the Sub-AC requires', () => {

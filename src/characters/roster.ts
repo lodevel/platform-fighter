@@ -213,6 +213,19 @@ import {
   LINK_UP_SPECIAL,
   LINK_DOWN_SPECIAL,
 } from './Link';
+import {
+  KIRBY_TUNING,
+  KIRBY_JAB,
+  KIRBY_TILT,
+  KIRBY_SMASH,
+  KIRBY_NAIR,
+  KIRBY_FAIR,
+  KIRBY_BAIR,
+  KIRBY_NEUTRAL_SPECIAL,
+  KIRBY_SIDE_SPECIAL,
+  KIRBY_UP_SPECIAL,
+  KIRBY_DOWN_SPECIAL,
+} from './Kirby';
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -583,6 +596,24 @@ export const LINK_MOVES: ReadonlyArray<AttackMove> = Object.freeze([
   LINK_DOWN_SPECIAL,
 ]);
 
+/**
+ * Kirby's full moveset — same 10-entry shape as the rest of the cast,
+ * mirroring the registration call sequence in {@link Kirby}. Twelfth
+ * roster slot: the multi-jump inhale puffball (Kirby archetype).
+ */
+export const KIRBY_MOVES: ReadonlyArray<AttackMove> = Object.freeze([
+  KIRBY_JAB,
+  KIRBY_TILT,
+  KIRBY_SMASH,
+  KIRBY_NAIR,
+  KIRBY_FAIR,
+  KIRBY_BAIR,
+  KIRBY_NEUTRAL_SPECIAL,
+  KIRBY_SIDE_SPECIAL,
+  KIRBY_UP_SPECIAL,
+  KIRBY_DOWN_SPECIAL,
+]);
+
 // ---------------------------------------------------------------------------
 // Placeholder visual constants
 // ---------------------------------------------------------------------------
@@ -829,6 +860,21 @@ export const LINK_PLACEHOLDER: CharacterPlaceholderVisual = Object.freeze({
   spriteKey: null,
 });
 
+/**
+ * Kirby placeholder — bubble pink with a pale accent (the multi-jump
+ * inhale puffball). Procedural pipeline (`spriteKey: null`) until a sprite
+ * pack lands. Distinct hue from the existing cast keeps the char-select
+ * grid readable.
+ */
+export const KIRBY_PLACEHOLDER: CharacterPlaceholderVisual = Object.freeze({
+  primaryColor: 0xe87aa8, // bubble pink
+  accentColor: 0xfff0f6,
+  labelColor: 0xfff0f6,
+  width: KIRBY_TUNING.width,
+  height: KIRBY_TUNING.height,
+  spriteKey: null,
+});
+
 // ---------------------------------------------------------------------------
 // Specs
 // ---------------------------------------------------------------------------
@@ -1011,6 +1057,22 @@ export const LINK_SPEC: CharacterSpec = Object.freeze({
   playable: true,
 });
 
+/**
+ * Kirby spec — the multi-jump inhale puffball (Kirby archetype). Twelfth
+ * roster slot: light, floaty, five jumps, built around an inhale command
+ * grab, a final-cutter rising recovery, and a heavy stone plummet.
+ * Renders through the procedural placeholder pipeline (no sprite pack).
+ */
+export const KIRBY_SPEC: CharacterSpec = Object.freeze({
+  id: 'kirby',
+  displayName: 'Kirby',
+  role: 'multi-jump puffball (Kirby)',
+  tuning: KIRBY_TUNING,
+  moves: KIRBY_MOVES,
+  placeholder: KIRBY_PLACEHOLDER,
+  playable: true,
+});
+
 // ---------------------------------------------------------------------------
 // Registry
 // ---------------------------------------------------------------------------
@@ -1034,6 +1096,7 @@ export const CHARACTER_ROSTER: Readonly<Record<CharacterId, CharacterSpec>> =
     nova: NOVA_SPEC,
     bruno: BRUNO_SPEC,
     link: LINK_SPEC,
+    kirby: KIRBY_SPEC,
   });
 
 /**
@@ -1055,6 +1118,7 @@ export const CHARACTER_SPECS_IN_ROSTER_ORDER: ReadonlyArray<CharacterSpec> =
     NOVA_SPEC,
     BRUNO_SPEC,
     LINK_SPEC,
+    KIRBY_SPEC,
   ]);
 
 /**

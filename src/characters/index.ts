@@ -651,6 +651,26 @@ export {
   LINK_FIGHTER_CONTRACT,
 } from './Link';
 export type { LinkOptions } from './Link';
+export {
+  Kirby,
+  KIRBY_TUNING,
+  KIRBY_JAB,
+  KIRBY_TILT,
+  KIRBY_SMASH,
+  KIRBY_NAIR,
+  KIRBY_FAIR,
+  KIRBY_BAIR,
+  KIRBY_NEUTRAL_SPECIAL,
+  KIRBY_SIDE_SPECIAL,
+  KIRBY_UP_SPECIAL,
+  KIRBY_DOWN_SPECIAL,
+  KIRBY_GRAB,
+  // Frozen per-fighter declarations.
+  KIRBY_MOVESET,
+  KIRBY_MOVEMENT_PROFILE,
+  KIRBY_FIGHTER_CONTRACT,
+} from './Kirby';
+export type { KirbyOptions } from './Kirby';
 
 // Roster — Sub-AC 3.5 of AC 205. Aggregates stats + moves + placeholder
 // per character so the Fighter entity (and HUD / menu / replay layers)
@@ -670,6 +690,7 @@ export {
   NOVA_SPEC,
   BRUNO_SPEC,
   LINK_SPEC,
+  KIRBY_SPEC,
   WOLF_MOVES,
   CAT_MOVES,
   OWL_MOVES,
@@ -681,6 +702,7 @@ export {
   NOVA_MOVES,
   BRUNO_MOVES,
   LINK_MOVES,
+  KIRBY_MOVES,
   WOLF_PLACEHOLDER,
   CAT_PLACEHOLDER,
   OWL_PLACEHOLDER,
@@ -692,6 +714,7 @@ export {
   NOVA_PLACEHOLDER,
   BRUNO_PLACEHOLDER,
   LINK_PLACEHOLDER,
+  KIRBY_PLACEHOLDER,
   getCharacterSpec,
   findMoveByType,
 } from './roster';
@@ -714,6 +737,7 @@ export {
   NOVA_PALETTES,
   BRUNO_PALETTES,
   LINK_PALETTES,
+  KIRBY_PALETTES,
   applyPaletteToPlaceholder,
   getCharacterPalette,
   getCharacterPalettes,

@@ -20,7 +20,8 @@ export type CharacterId =
   | 'volt'
   | 'nova'
   | 'bruno'
-  | 'link';
+  | 'link'
+  | 'kirby';
 
 export type MoveType =
   | 'jab'

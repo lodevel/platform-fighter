@@ -282,6 +282,31 @@ export const LINK_MOVEMENT_PROFILE: FighterMovementProfile = Object.freeze({
   jumpCutFactor: 0.42,
 });
 
+/**
+ * Kirby — multi-jump inhale puffball archetype. Light mass (7 — second-
+ * lightest, just above Puff's 6) and a slow run (5.5) but a FOUR-jump
+ * multi-jump and a near-floaty fall (0.10 — second only to Puff's 0.08),
+ * so the air is his stage. Deliberately one notch below Puff on every
+ * float axis (4 jumps vs 5, mass 7 vs 6, fall 0.10 vs 0.08): Puff keeps
+ * the cast's float SUPERLATIVES, while Kirby's identity lives in the kit
+ * — a close-range INHALE grappler with a heavy STONE plummet — not in
+ * out-floating the balloon.
+ */
+export const KIRBY_MOVEMENT_PROFILE: FighterMovementProfile = Object.freeze({
+  maxRunSpeed: 5.5, // ≈ 330 px/s — slow; the puffball commits in the air
+  groundAccel: 0.5,
+  airAccel: 0.5, // strong air-control — the multi-jump wants directional reach
+  groundDamping: 0.8,
+  airDamping: 0.97,
+  jumpImpulse: 11.0, // short hops — height comes from jump COUNT
+  maxJumps: 4, // multi-jump — above the cast's standard 2, below Puff's 5
+  mass: 7, // second-lightest — just above Puff (6), ties Volt
+  fallAccel: 0.1, // floaty — second only to Puff (0.08)
+  maxFallSpeed: 7.0,
+  fastFallSpeed: 11.5, // ~1.6× — fast-fall opt-in keeps landings honest
+  jumpCutFactor: 0.5,
+});
+
 // ---------------------------------------------------------------------------
 // Per-id lookup
 // ---------------------------------------------------------------------------
@@ -307,6 +332,7 @@ export const FIGHTER_MOVEMENT_PROFILES: Readonly<
   nova: NOVA_MOVEMENT_PROFILE,
   bruno: BRUNO_MOVEMENT_PROFILE,
   link: LINK_MOVEMENT_PROFILE,
+  kirby: KIRBY_MOVEMENT_PROFILE,
 });
 
 /**

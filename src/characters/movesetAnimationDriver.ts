@@ -189,6 +189,15 @@ import {
   LINK_UP_SPECIAL,
   LINK_DOWN_SPECIAL,
 } from './Link';
+import {
+  KIRBY_NAIR,
+  KIRBY_FAIR,
+  KIRBY_BAIR,
+  KIRBY_NEUTRAL_SPECIAL,
+  KIRBY_SIDE_SPECIAL,
+  KIRBY_UP_SPECIAL,
+  KIRBY_DOWN_SPECIAL,
+} from './Kirby';
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -423,6 +432,18 @@ export const MOVESET_TABLE: Readonly<Record<CharacterId, CharacterMoveset>> = Ob
     upSpecial: LINK_UP_SPECIAL,
     downSpecial: LINK_DOWN_SPECIAL,
   }),
+  kirby: Object.freeze({
+    jab: GROUNDED_NORMAL_TABLE.kirby.jab,
+    tilt: GROUNDED_NORMAL_TABLE.kirby.tilt,
+    smash: GROUNDED_NORMAL_TABLE.kirby.smash,
+    nair: KIRBY_NAIR,
+    fair: KIRBY_FAIR,
+    bair: KIRBY_BAIR,
+    neutralSpecial: KIRBY_NEUTRAL_SPECIAL,
+    sideSpecial: KIRBY_SIDE_SPECIAL,
+    upSpecial: KIRBY_UP_SPECIAL,
+    downSpecial: KIRBY_DOWN_SPECIAL,
+  }),
 });
 
 /**
@@ -432,7 +453,7 @@ export const MOVESET_TABLE: Readonly<Record<CharacterId, CharacterMoveset>> = Ob
  * bruno), slot on the inner ({@link MOVESET_SLOTS}).
  */
 export const MOVESET_ENTRIES: ReadonlyArray<MovesetEntry> = Object.freeze(
-  (['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno', 'link'] as const).flatMap((characterId) =>
+  (['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno', 'link', 'kirby'] as const).flatMap((characterId) =>
     MOVESET_SLOTS.map((slot) =>
       Object.freeze({
         characterId,
@@ -529,7 +550,7 @@ export function enumerateMovesetSlotAnimationKeys(
  */
 export function enumerateAllMovesetAnimationKeys(): ReadonlyArray<string> {
   const out: string[] = [];
-  for (const id of ['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno', 'link'] as const) {
+  for (const id of ['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno', 'link', 'kirby'] as const) {
     out.push(getIdleAnimationKey(id));
     for (const slot of MOVESET_SLOTS) {
       const move = MOVESET_TABLE[id][slot];

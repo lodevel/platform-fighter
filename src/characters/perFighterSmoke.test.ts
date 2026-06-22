@@ -58,6 +58,7 @@ import { Volt, VOLT_FIGHTER_CONTRACT } from './Volt';
 import { Nova, NOVA_FIGHTER_CONTRACT } from './Nova';
 import { Bruno, BRUNO_FIGHTER_CONTRACT } from './Bruno';
 import { Link, LINK_FIGHTER_CONTRACT } from './Link';
+import { Kirby, KIRBY_FIGHTER_CONTRACT } from './Kirby';
 import {
   ATTACK_MOVESET_SLOT_NAMES,
   MOVESET_SLOT_NAMES,
@@ -214,6 +215,7 @@ const FIGHTERS: ReadonlyArray<FighterUnderTest> = [
   { id: 'nova', displayName: 'Nova (Samus)', Ctor: Nova, contract: NOVA_FIGHTER_CONTRACT },
   { id: 'bruno', displayName: 'Bruno (Mario)', Ctor: Bruno, contract: BRUNO_FIGHTER_CONTRACT },
   { id: 'link', displayName: 'Link (Zelda)', Ctor: Link, contract: LINK_FIGHTER_CONTRACT },
+  { id: 'kirby', displayName: 'Kirby', Ctor: Kirby, contract: KIRBY_FIGHTER_CONTRACT },
 ];
 
 // ---------------------------------------------------------------------------

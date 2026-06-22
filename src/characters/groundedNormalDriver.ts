@@ -123,6 +123,7 @@ import { VOLT_JAB, VOLT_TILT, VOLT_SMASH } from './Volt';
 import { NOVA_JAB, NOVA_TILT, NOVA_SMASH } from './Nova';
 import { BRUNO_JAB, BRUNO_TILT, BRUNO_SMASH } from './Bruno';
 import { LINK_JAB, LINK_TILT, LINK_SMASH } from './Link';
+import { KIRBY_JAB, KIRBY_TILT, KIRBY_SMASH } from './Kirby';
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -281,6 +282,7 @@ export const GROUNDED_NORMAL_TABLE: Readonly<
   nova: Object.freeze({ jab: NOVA_JAB, tilt: NOVA_TILT, smash: NOVA_SMASH }),
   bruno: Object.freeze({ jab: BRUNO_JAB, tilt: BRUNO_TILT, smash: BRUNO_SMASH }),
   link: Object.freeze({ jab: LINK_JAB, tilt: LINK_TILT, smash: LINK_SMASH }),
+  kirby: Object.freeze({ jab: KIRBY_JAB, tilt: KIRBY_TILT, smash: KIRBY_SMASH }),
 });
 
 /**
@@ -293,7 +295,7 @@ export const GROUNDED_NORMAL_TABLE: Readonly<
  * ({@link GROUNDED_NORMAL_SLOTS}). Pure data — frozen at module load.
  */
 export const GROUNDED_NORMAL_MOVES: ReadonlyArray<GroundedNormalEntry> = Object.freeze(
-  (['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno', 'link'] as const).flatMap((characterId) =>
+  (['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno', 'link', 'kirby'] as const).flatMap((characterId) =>
     GROUNDED_NORMAL_SLOTS.map((slot) =>
       Object.freeze({
         characterId,

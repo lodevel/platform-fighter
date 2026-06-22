@@ -434,6 +434,31 @@ export const LINK_PALETTES: ReadonlyArray<CharacterPalette> = Object.freeze([
   palette(7, 'Fierce', 0x303038, 0xc0c0d0),
 ]);
 
+/**
+ * Kirby palette ladder — bubble pink is canonical (palette 0, mirrors
+ * {@link KIRBY_PLACEHOLDER}); the variants run the canonical copy-ability
+ * colourways (pink / yellow / blue / green) so a four-Kirby lineup reads
+ * cleanly on his round procedural rectangle.
+ */
+export const KIRBY_PALETTES: ReadonlyArray<CharacterPalette> = Object.freeze([
+  // 0 — canonical bubble pink (matches KIRBY_PLACEHOLDER)
+  palette(0, 'Bubble', 0xe87aa8, 0xfff0f6),
+  // 1 — sunshine yellow (the classic alt)
+  palette(1, 'Keeby', 0xe8c22b, 0xfff4c0),
+  // 2 — cool blue
+  palette(2, 'Cobalt', 0x2b7ad9, 0xc0e4ff),
+  // 3 — spring green
+  palette(3, 'Sprout', 0x4ac26a, 0xc8ffd0),
+  // 4 — royal purple
+  palette(4, 'Royal', 0x8b4ac2, 0xe0c8ff),
+  // 5 — coral / salmon
+  palette(5, 'Coral', 0xe8a04a, 0xffe0c0),
+  // 6 — teal
+  palette(6, 'Maxim', 0x2bc4b8, 0xc0fff4),
+  // 7 — shadow grey with red accent (the "dark matter" outlier)
+  palette(7, 'Shadow', 0x303038, 0xd64a6a),
+]);
+
 // ---------------------------------------------------------------------------
 // Registry
 // ---------------------------------------------------------------------------
@@ -461,6 +486,7 @@ export const CHARACTER_PALETTES: Readonly<
   nova: NOVA_PALETTES,
   bruno: BRUNO_PALETTES,
   link: LINK_PALETTES,
+  kirby: KIRBY_PALETTES,
 });
 
 // ---------------------------------------------------------------------------

@@ -127,6 +127,7 @@ describe('Character roster — shape', () => {
       'nova',
       'bruno',
       'link',
+      'kirby',
     ]);
   });
 
@@ -171,6 +172,7 @@ describe('Character roster — playable characters (Sub-AC 3.5 + AC 60004 Sub-AC
       'nova',
       'bruno',
       'link',
+      'kirby',
     ]);
   });
 
