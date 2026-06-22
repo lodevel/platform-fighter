@@ -200,6 +200,19 @@ import {
   BRUNO_UP_SPECIAL,
   BRUNO_DOWN_SPECIAL,
 } from './Bruno';
+import {
+  LINK_TUNING,
+  LINK_JAB,
+  LINK_TILT,
+  LINK_SMASH,
+  LINK_NAIR,
+  LINK_FAIR,
+  LINK_BAIR,
+  LINK_NEUTRAL_SPECIAL,
+  LINK_SIDE_SPECIAL,
+  LINK_UP_SPECIAL,
+  LINK_DOWN_SPECIAL,
+} from './Link';
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -552,6 +565,24 @@ export const BRUNO_MOVES: ReadonlyArray<AttackMove> = Object.freeze([
   BRUNO_DOWN_SPECIAL,
 ]);
 
+/**
+ * Link's full moveset — same 10-entry shape as the rest of the cast,
+ * mirroring the registration call sequence in {@link Link}. Eleventh
+ * roster slot: the projectile-swordsman zoner (Zelda's Link archetype).
+ */
+export const LINK_MOVES: ReadonlyArray<AttackMove> = Object.freeze([
+  LINK_JAB,
+  LINK_TILT,
+  LINK_SMASH,
+  LINK_NAIR,
+  LINK_FAIR,
+  LINK_BAIR,
+  LINK_NEUTRAL_SPECIAL,
+  LINK_SIDE_SPECIAL,
+  LINK_UP_SPECIAL,
+  LINK_DOWN_SPECIAL,
+]);
+
 // ---------------------------------------------------------------------------
 // Placeholder visual constants
 // ---------------------------------------------------------------------------
@@ -779,6 +810,25 @@ export const BRUNO_PLACEHOLDER: CharacterPlaceholderVisual = Object.freeze({
   spriteKey: ASSET_KEYS.charBrunoIdle,
 });
 
+/**
+ * Link placeholder — hero green with a cream accent (the Zelda-inspired
+ * projectile swordsman). Distinct hue from the existing cast keeps the
+ * char-select grid readable.
+ *
+ * Post-batch-3 — Link ships through the PROCEDURAL placeholder pipeline:
+ * `spriteKey: null` so MatchScene paints a flat-colour rectangle (playable
+ * but visually unfinished) until a sprite pack lands. The colours here are
+ * the fighter's whole on-screen identity meanwhile.
+ */
+export const LINK_PLACEHOLDER: CharacterPlaceholderVisual = Object.freeze({
+  primaryColor: 0x4a9e3a, // hero green
+  accentColor: 0xf0e8c0,
+  labelColor: 0xf0e8c0,
+  width: LINK_TUNING.width,
+  height: LINK_TUNING.height,
+  spriteKey: null,
+});
+
 // ---------------------------------------------------------------------------
 // Specs
 // ---------------------------------------------------------------------------
@@ -944,6 +994,23 @@ export const BRUNO_SPEC: CharacterSpec = Object.freeze({
   playable: true,
 });
 
+/**
+ * Link spec — the projectile-swordsman zoner (Zelda's Link archetype).
+ * Eleventh roster slot: medium stats built around a projectile wall
+ * (arrow / boomerang / bomb), a hookshot tether recovery, and disjointed
+ * sword normals. Renders through the procedural placeholder pipeline
+ * (no sprite pack yet).
+ */
+export const LINK_SPEC: CharacterSpec = Object.freeze({
+  id: 'link',
+  displayName: 'Link (Zelda)',
+  role: 'projectile swordsman (Link)',
+  tuning: LINK_TUNING,
+  moves: LINK_MOVES,
+  placeholder: LINK_PLACEHOLDER,
+  playable: true,
+});
+
 // ---------------------------------------------------------------------------
 // Registry
 // ---------------------------------------------------------------------------
@@ -966,6 +1033,7 @@ export const CHARACTER_ROSTER: Readonly<Record<CharacterId, CharacterSpec>> =
     volt: VOLT_SPEC,
     nova: NOVA_SPEC,
     bruno: BRUNO_SPEC,
+    link: LINK_SPEC,
   });
 
 /**
@@ -986,6 +1054,7 @@ export const CHARACTER_SPECS_IN_ROSTER_ORDER: ReadonlyArray<CharacterSpec> =
     VOLT_SPEC,
     NOVA_SPEC,
     BRUNO_SPEC,
+    LINK_SPEC,
   ]);
 
 /**

@@ -73,6 +73,9 @@ export const CHARACTER_SPRITE_DISPLAY_SIZE: Readonly<Record<CharacterId, number>
   volt: 58,
   nova: 100,
   bruno: 80,
+  // Procedural-only fighters (no sprite sheet) — the display size equals
+  // the body height so the rendered rectangle matches the hurtbox 1:1.
+  link: 72, // body height 72
 });
 
 /**
@@ -122,6 +125,9 @@ export const CHARACTER_SPRITE_FACES_LEFT: Readonly<Record<CharacterId, boolean>>
     volt: true,
     nova: false,
     bruno: false,
+    // Procedural-only fighter — no source art, so the engine default
+    // (right-facing) is correct; flip when moving left.
+    link: false,
   });
 
 /**
@@ -155,6 +161,7 @@ export const CHARACTER_SPRITE_ART_OFFSET_X: Readonly<Record<CharacterId, number>
     volt: 0,
     nova: 0,
     bruno: 0,
+    link: 0, // procedural rectangle — centred by construction
   });
 
 /** Lookup the horizontal art-centring offset fraction; 0 (centred) default. */
@@ -189,6 +196,7 @@ export const CHARACTER_SPRITE_ART_OFFSET_Y: Readonly<Record<CharacterId, number>
     // she floated ~15 px above the ground. 14 / 96 ≈ 0.146 seats her feet.
     nova: 14 / 96,
     bruno: 0,
+    link: 0, // procedural rectangle — feet on the bottom edge by construction
   });
 
 /** Lookup the foot-padding offset fraction; 0 (feet on the bottom edge) default. */

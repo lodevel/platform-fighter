@@ -62,6 +62,9 @@ export const FIGHTER_HAND_ANCHORS: Readonly<Record<CharacterId, HandAnchor>> =
     volt: Object.freeze({ x: 20, y: -2 }),
     nova: Object.freeze({ x: 26, y: -6 }),
     bruno: Object.freeze({ x: 25, y: -5 }),
+    // Post-batch-3 roster expansion — grip at body half-width, chest
+    // height (Link 46×72 swordsman).
+    link: Object.freeze({ x: 25, y: -6 }),
   });
 
 /** Fallback grip for ids missing from the table (defensive only). */

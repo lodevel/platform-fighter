@@ -626,6 +626,31 @@ export {
   BRUNO_FIGHTER_CONTRACT,
 } from './Bruno';
 export type { BrunoOptions } from './Bruno';
+// Post-batch-3 roster expansion — three more Smash-inspired fighters
+// join the cast with full kits, rendered through the procedural
+// placeholder pipeline (no sprite packs): Link (Zelda projectile
+// swordsman), Kirby (multi-jump puffball), Donkey Kong (mobile
+// heavyweight bruiser).
+export {
+  Link,
+  LINK_TUNING,
+  LINK_JAB,
+  LINK_TILT,
+  LINK_SMASH,
+  LINK_NAIR,
+  LINK_FAIR,
+  LINK_BAIR,
+  LINK_NEUTRAL_SPECIAL,
+  LINK_SIDE_SPECIAL,
+  LINK_UP_SPECIAL,
+  LINK_DOWN_SPECIAL,
+  LINK_GRAB,
+  // Frozen per-fighter declarations.
+  LINK_MOVESET,
+  LINK_MOVEMENT_PROFILE,
+  LINK_FIGHTER_CONTRACT,
+} from './Link';
+export type { LinkOptions } from './Link';
 
 // Roster — Sub-AC 3.5 of AC 205. Aggregates stats + moves + placeholder
 // per character so the Fighter entity (and HUD / menu / replay layers)
@@ -644,6 +669,7 @@ export {
   VOLT_SPEC,
   NOVA_SPEC,
   BRUNO_SPEC,
+  LINK_SPEC,
   WOLF_MOVES,
   CAT_MOVES,
   OWL_MOVES,
@@ -654,6 +680,7 @@ export {
   VOLT_MOVES,
   NOVA_MOVES,
   BRUNO_MOVES,
+  LINK_MOVES,
   WOLF_PLACEHOLDER,
   CAT_PLACEHOLDER,
   OWL_PLACEHOLDER,
@@ -664,6 +691,7 @@ export {
   VOLT_PLACEHOLDER,
   NOVA_PLACEHOLDER,
   BRUNO_PLACEHOLDER,
+  LINK_PLACEHOLDER,
   getCharacterSpec,
   findMoveByType,
 } from './roster';
@@ -685,6 +713,7 @@ export {
   VOLT_PALETTES,
   NOVA_PALETTES,
   BRUNO_PALETTES,
+  LINK_PALETTES,
   applyPaletteToPlaceholder,
   getCharacterPalette,
   getCharacterPalettes,

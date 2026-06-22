@@ -259,6 +259,29 @@ export const BRUNO_MOVEMENT_PROFILE: FighterMovementProfile = Object.freeze({
   jumpCutFactor: 0.42,
 });
 
+/**
+ * Link — projectile-swordsman zoner archetype (Zelda-inspired). Medium
+ * across the board: run 7.8 (between Wolf 7.5 and Aegis 8.0), mass 12
+ * (squarely middleweight), mid fall shaping. The identity lives in the
+ * projectile-wall kit (arrow / boomerang / bomb) + sword normals, not
+ * the movement profile, so the profile stays deliberately unexceptional
+ * — distinct from Nova (the slower, heavier pure-cannon zoner).
+ */
+export const LINK_MOVEMENT_PROFILE: FighterMovementProfile = Object.freeze({
+  maxRunSpeed: 7.8, // ≈ 468 px/s — medium, between Wolf (7.5) and Aegis (8.0)
+  groundAccel: 0.66,
+  airAccel: 0.4,
+  groundDamping: 0.8,
+  airDamping: 0.96,
+  jumpImpulse: 13.0, // ≈ 780 px/s upward
+  maxJumps: 2,
+  mass: 12, // middleweight — between Aegis (11) and Nova (13)
+  fallAccel: 0.3, // mid descent — committed but not a fast-faller
+  maxFallSpeed: 11.0,
+  fastFallSpeed: 17.5, // ~1.6× — Smash-standard fast-fall ratio
+  jumpCutFactor: 0.42,
+});
+
 // ---------------------------------------------------------------------------
 // Per-id lookup
 // ---------------------------------------------------------------------------
@@ -283,6 +306,7 @@ export const FIGHTER_MOVEMENT_PROFILES: Readonly<
   volt: VOLT_MOVEMENT_PROFILE,
   nova: NOVA_MOVEMENT_PROFILE,
   bruno: BRUNO_MOVEMENT_PROFILE,
+  link: LINK_MOVEMENT_PROFILE,
 });
 
 /**

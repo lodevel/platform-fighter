@@ -180,6 +180,15 @@ import {
   BRUNO_UP_SPECIAL,
   BRUNO_DOWN_SPECIAL,
 } from './Bruno';
+import {
+  LINK_NAIR,
+  LINK_FAIR,
+  LINK_BAIR,
+  LINK_NEUTRAL_SPECIAL,
+  LINK_SIDE_SPECIAL,
+  LINK_UP_SPECIAL,
+  LINK_DOWN_SPECIAL,
+} from './Link';
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -402,6 +411,18 @@ export const MOVESET_TABLE: Readonly<Record<CharacterId, CharacterMoveset>> = Ob
     upSpecial: BRUNO_UP_SPECIAL,
     downSpecial: BRUNO_DOWN_SPECIAL,
   }),
+  link: Object.freeze({
+    jab: GROUNDED_NORMAL_TABLE.link.jab,
+    tilt: GROUNDED_NORMAL_TABLE.link.tilt,
+    smash: GROUNDED_NORMAL_TABLE.link.smash,
+    nair: LINK_NAIR,
+    fair: LINK_FAIR,
+    bair: LINK_BAIR,
+    neutralSpecial: LINK_NEUTRAL_SPECIAL,
+    sideSpecial: LINK_SIDE_SPECIAL,
+    upSpecial: LINK_UP_SPECIAL,
+    downSpecial: LINK_DOWN_SPECIAL,
+  }),
 });
 
 /**
@@ -411,7 +432,7 @@ export const MOVESET_TABLE: Readonly<Record<CharacterId, CharacterMoveset>> = Ob
  * bruno), slot on the inner ({@link MOVESET_SLOTS}).
  */
 export const MOVESET_ENTRIES: ReadonlyArray<MovesetEntry> = Object.freeze(
-  (['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno'] as const).flatMap((characterId) =>
+  (['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno', 'link'] as const).flatMap((characterId) =>
     MOVESET_SLOTS.map((slot) =>
       Object.freeze({
         characterId,
@@ -508,7 +529,7 @@ export function enumerateMovesetSlotAnimationKeys(
  */
 export function enumerateAllMovesetAnimationKeys(): ReadonlyArray<string> {
   const out: string[] = [];
-  for (const id of ['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno'] as const) {
+  for (const id of ['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno', 'link'] as const) {
     out.push(getIdleAnimationKey(id));
     for (const slot of MOVESET_SLOTS) {
       const move = MOVESET_TABLE[id][slot];

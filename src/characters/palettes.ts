@@ -409,6 +409,31 @@ export const BRUNO_PALETTES: ReadonlyArray<CharacterPalette> = Object.freeze([
   palette(7, 'Shadow', 0x2a2a30, 0xd6342b),
 ]);
 
+/**
+ * Link palette ladder — hero green is canonical (palette 0, mirrors
+ * {@link LINK_PLACEHOLDER}); the variants run the canonical tunic
+ * colourways (green / blue / red / dark) so a four-Link lineup reads
+ * cleanly on his procedural rectangle.
+ */
+export const LINK_PALETTES: ReadonlyArray<CharacterPalette> = Object.freeze([
+  // 0 — canonical hero green (matches LINK_PLACEHOLDER)
+  palette(0, 'Hero', 0x4a9e3a, 0xf0e8c0),
+  // 1 — cool blue (Zora tunic)
+  palette(1, 'Zora', 0x2b7ad9, 0xc0e4ff),
+  // 2 — crimson (Goron tunic)
+  palette(2, 'Goron', 0xc23a3a, 0xffc8c8),
+  // 3 — royal purple
+  palette(3, 'Twilight', 0x7a3ad9, 0xd8c0ff),
+  // 4 — gilded gold
+  palette(4, 'Triforce', 0xd9a82b, 0xfff0b0),
+  // 5 — teal
+  palette(5, 'Lagoon', 0x2bc4b8, 0xc0fff4),
+  // 6 — rose / pink
+  palette(6, 'Fairy', 0xd64a8a, 0xffc0e0),
+  // 7 — dark tunic with silver accent (the "Fierce Deity" outlier)
+  palette(7, 'Fierce', 0x303038, 0xc0c0d0),
+]);
+
 // ---------------------------------------------------------------------------
 // Registry
 // ---------------------------------------------------------------------------
@@ -435,6 +460,7 @@ export const CHARACTER_PALETTES: Readonly<
   volt: VOLT_PALETTES,
   nova: NOVA_PALETTES,
   bruno: BRUNO_PALETTES,
+  link: LINK_PALETTES,
 });
 
 // ---------------------------------------------------------------------------

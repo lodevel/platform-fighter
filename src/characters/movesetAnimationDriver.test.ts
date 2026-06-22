@@ -37,7 +37,7 @@ import type { CharacterId } from '../types';
  *      its move id and returns null on misses.
  */
 
-const ALL_CHARACTERS: ReadonlyArray<CharacterId> = ['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno'];
+const ALL_CHARACTERS: ReadonlyArray<CharacterId> = ['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno', 'link'];
 
 describe('AC 10003 Sub-AC 3 — full-moveset animation driver', () => {
   describe('Slot taxonomy', () => {
@@ -88,8 +88,8 @@ describe('AC 10003 Sub-AC 3 — full-moveset animation driver', () => {
       }
     });
 
-    it('flat MOVESET_ENTRIES has 100 entries (10 chars × 10 slots)', () => {
-      expect(MOVESET_ENTRIES).toHaveLength(100);
+    it('flat MOVESET_ENTRIES has 110 entries (11 chars × 10 slots)', () => {
+      expect(MOVESET_ENTRIES).toHaveLength(110);
     });
 
     it('every entry carries a non-empty move id with the right character prefix', () => {

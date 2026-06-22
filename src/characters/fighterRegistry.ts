@@ -62,6 +62,7 @@ import { Aegis, AEGIS_FIGHTER_CONTRACT } from './Aegis';
 import { Volt, VOLT_FIGHTER_CONTRACT } from './Volt';
 import { Nova, NOVA_FIGHTER_CONTRACT } from './Nova';
 import { Bruno, BRUNO_FIGHTER_CONTRACT } from './Bruno';
+import { Link, LINK_FIGHTER_CONTRACT } from './Link';
 
 /**
  * Spawn-point + optional-tuning options forwarded to a registered
@@ -197,6 +198,11 @@ export const FIGHTER_REGISTRY: Readonly<Record<CharacterId, FighterRegistryEntry
       ctor: Bruno as unknown as FighterConstructor,
       contract: BRUNO_FIGHTER_CONTRACT,
     }),
+    link: Object.freeze({
+      id: 'link',
+      ctor: Link as unknown as FighterConstructor,
+      contract: LINK_FIGHTER_CONTRACT,
+    }),
   });
 
 /**
@@ -218,6 +224,7 @@ export const FIGHTER_REGISTRY_IDS: ReadonlyArray<CharacterId> = Object.freeze([
   'volt',
   'nova',
   'bruno',
+  'link',
 ]);
 
 /**

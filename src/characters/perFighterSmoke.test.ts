@@ -54,6 +54,10 @@ import { Bear, BEAR_FIGHTER_CONTRACT } from './Bear';
 import { Blaze, BLAZE_FIGHTER_CONTRACT } from './Blaze';
 import { Puff, PUFF_FIGHTER_CONTRACT } from './Puff';
 import { Aegis, AEGIS_FIGHTER_CONTRACT } from './Aegis';
+import { Volt, VOLT_FIGHTER_CONTRACT } from './Volt';
+import { Nova, NOVA_FIGHTER_CONTRACT } from './Nova';
+import { Bruno, BRUNO_FIGHTER_CONTRACT } from './Bruno';
+import { Link, LINK_FIGHTER_CONTRACT } from './Link';
 import {
   ATTACK_MOVESET_SLOT_NAMES,
   MOVESET_SLOT_NAMES,
@@ -204,6 +208,12 @@ const FIGHTERS: ReadonlyArray<FighterUnderTest> = [
   { id: 'blaze', displayName: 'Blaze (Captain Falcon)', Ctor: Blaze, contract: BLAZE_FIGHTER_CONTRACT },
   { id: 'puff', displayName: 'Puff (Jigglypuff)', Ctor: Puff, contract: PUFF_FIGHTER_CONTRACT },
   { id: 'aegis', displayName: 'Aegis (Marth)', Ctor: Aegis, contract: AEGIS_FIGHTER_CONTRACT },
+  // Post-batch-2 + batch-3 roster expansion — the remaining cast runs the
+  // identical smoke gauntlet so coverage stays exhaustive over the roster.
+  { id: 'volt', displayName: 'Volt (Pikachu)', Ctor: Volt, contract: VOLT_FIGHTER_CONTRACT },
+  { id: 'nova', displayName: 'Nova (Samus)', Ctor: Nova, contract: NOVA_FIGHTER_CONTRACT },
+  { id: 'bruno', displayName: 'Bruno (Mario)', Ctor: Bruno, contract: BRUNO_FIGHTER_CONTRACT },
+  { id: 'link', displayName: 'Link (Zelda)', Ctor: Link, contract: LINK_FIGHTER_CONTRACT },
 ];
 
 // ---------------------------------------------------------------------------
