@@ -126,6 +126,9 @@ describe('Character roster — shape', () => {
       'volt',
       'nova',
       'bruno',
+      'link',
+      'kirby',
+      'donkeykong',
     ]);
   });
 
@@ -169,6 +172,9 @@ describe('Character roster — playable characters (Sub-AC 3.5 + AC 60004 Sub-AC
       'volt',
       'nova',
       'bruno',
+      'link',
+      'kirby',
+      'donkeykong',
     ]);
   });
 
@@ -199,7 +205,7 @@ describe('Character roster — playable characters (Sub-AC 3.5 + AC 60004 Sub-AC
         // the post-M5 expansion fighters (Blaze / Puff / Aegis), which
         // ship on the procedural placeholder pipeline until sprite
         // packs land.
-        expect(['owl', 'bear', 'blaze', 'puff', 'aegis']).toContain(spec.id);
+        expect(['owl', 'bear', 'blaze', 'puff', 'aegis', 'link', 'kirby', 'donkeykong']).toContain(spec.id);
       } else {
         expect(typeof spriteKey).toBe('string');
         expect(spriteKey.length).toBeGreaterThan(0);

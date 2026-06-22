@@ -36,7 +36,7 @@ import { getSpriteAnimationKey } from './spriteAnimationDriver';
  *      cue every call; the catalog is frozen at module load.
  */
 
-const ALL_CHARACTERS: ReadonlyArray<CharacterId> = ['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno'];
+const ALL_CHARACTERS: ReadonlyArray<CharacterId> = ['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno', 'link', 'kirby', 'donkeykong'];
 const ART_BACKED: ReadonlyArray<CharacterId> = ['wolf', 'cat', 'owl', 'bear'];
 const PROCEDURAL: ReadonlyArray<CharacterId> = [];
 
@@ -71,8 +71,8 @@ describe('AC 20004 Sub-AC 4 — moveset animation cue catalog', () => {
       }
     });
 
-    it('flat MOVESET_ANIMATION_CUE_BUNDLES has 100 entries (10 × 10)', () => {
-      expect(MOVESET_ANIMATION_CUE_BUNDLES).toHaveLength(100);
+    it('flat MOVESET_ANIMATION_CUE_BUNDLES has 130 entries (13 × 10)', () => {
+      expect(MOVESET_ANIMATION_CUE_BUNDLES).toHaveLength(130);
     });
 
     it('every cue bundle is frozen', () => {

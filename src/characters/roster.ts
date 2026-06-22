@@ -200,6 +200,45 @@ import {
   BRUNO_UP_SPECIAL,
   BRUNO_DOWN_SPECIAL,
 } from './Bruno';
+import {
+  LINK_TUNING,
+  LINK_JAB,
+  LINK_TILT,
+  LINK_SMASH,
+  LINK_NAIR,
+  LINK_FAIR,
+  LINK_BAIR,
+  LINK_NEUTRAL_SPECIAL,
+  LINK_SIDE_SPECIAL,
+  LINK_UP_SPECIAL,
+  LINK_DOWN_SPECIAL,
+} from './Link';
+import {
+  KIRBY_TUNING,
+  KIRBY_JAB,
+  KIRBY_TILT,
+  KIRBY_SMASH,
+  KIRBY_NAIR,
+  KIRBY_FAIR,
+  KIRBY_BAIR,
+  KIRBY_NEUTRAL_SPECIAL,
+  KIRBY_SIDE_SPECIAL,
+  KIRBY_UP_SPECIAL,
+  KIRBY_DOWN_SPECIAL,
+} from './Kirby';
+import {
+  DONKEYKONG_TUNING,
+  DONKEYKONG_JAB,
+  DONKEYKONG_TILT,
+  DONKEYKONG_SMASH,
+  DONKEYKONG_NAIR,
+  DONKEYKONG_FAIR,
+  DONKEYKONG_BAIR,
+  DONKEYKONG_NEUTRAL_SPECIAL,
+  DONKEYKONG_SIDE_SPECIAL,
+  DONKEYKONG_UP_SPECIAL,
+  DONKEYKONG_DOWN_SPECIAL,
+} from './DonkeyKong';
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -552,6 +591,60 @@ export const BRUNO_MOVES: ReadonlyArray<AttackMove> = Object.freeze([
   BRUNO_DOWN_SPECIAL,
 ]);
 
+/**
+ * Link's full moveset — same 10-entry shape as the rest of the cast,
+ * mirroring the registration call sequence in {@link Link}. Eleventh
+ * roster slot: the projectile-swordsman zoner (Zelda's Link archetype).
+ */
+export const LINK_MOVES: ReadonlyArray<AttackMove> = Object.freeze([
+  LINK_JAB,
+  LINK_TILT,
+  LINK_SMASH,
+  LINK_NAIR,
+  LINK_FAIR,
+  LINK_BAIR,
+  LINK_NEUTRAL_SPECIAL,
+  LINK_SIDE_SPECIAL,
+  LINK_UP_SPECIAL,
+  LINK_DOWN_SPECIAL,
+]);
+
+/**
+ * Kirby's full moveset — same 10-entry shape as the rest of the cast,
+ * mirroring the registration call sequence in {@link Kirby}. Twelfth
+ * roster slot: the multi-jump inhale puffball (Kirby archetype).
+ */
+export const KIRBY_MOVES: ReadonlyArray<AttackMove> = Object.freeze([
+  KIRBY_JAB,
+  KIRBY_TILT,
+  KIRBY_SMASH,
+  KIRBY_NAIR,
+  KIRBY_FAIR,
+  KIRBY_BAIR,
+  KIRBY_NEUTRAL_SPECIAL,
+  KIRBY_SIDE_SPECIAL,
+  KIRBY_UP_SPECIAL,
+  KIRBY_DOWN_SPECIAL,
+]);
+
+/**
+ * Donkey Kong's full moveset — same 10-entry shape as the rest of the
+ * cast, mirroring the registration call sequence in {@link DonkeyKong}.
+ * Thirteenth roster slot: the mobile heavyweight bruiser (DK archetype).
+ */
+export const DONKEYKONG_MOVES: ReadonlyArray<AttackMove> = Object.freeze([
+  DONKEYKONG_JAB,
+  DONKEYKONG_TILT,
+  DONKEYKONG_SMASH,
+  DONKEYKONG_NAIR,
+  DONKEYKONG_FAIR,
+  DONKEYKONG_BAIR,
+  DONKEYKONG_NEUTRAL_SPECIAL,
+  DONKEYKONG_SIDE_SPECIAL,
+  DONKEYKONG_UP_SPECIAL,
+  DONKEYKONG_DOWN_SPECIAL,
+]);
+
 // ---------------------------------------------------------------------------
 // Placeholder visual constants
 // ---------------------------------------------------------------------------
@@ -779,6 +872,55 @@ export const BRUNO_PLACEHOLDER: CharacterPlaceholderVisual = Object.freeze({
   spriteKey: ASSET_KEYS.charBrunoIdle,
 });
 
+/**
+ * Link placeholder — hero green with a cream accent (the Zelda-inspired
+ * projectile swordsman). Distinct hue from the existing cast keeps the
+ * char-select grid readable.
+ *
+ * Post-batch-3 — Link ships through the PROCEDURAL placeholder pipeline:
+ * `spriteKey: null` so MatchScene paints a flat-colour rectangle (playable
+ * but visually unfinished) until a sprite pack lands. The colours here are
+ * the fighter's whole on-screen identity meanwhile.
+ */
+export const LINK_PLACEHOLDER: CharacterPlaceholderVisual = Object.freeze({
+  primaryColor: 0x4a9e3a, // hero green
+  accentColor: 0xf0e8c0,
+  labelColor: 0xf0e8c0,
+  width: LINK_TUNING.width,
+  height: LINK_TUNING.height,
+  spriteKey: null,
+});
+
+/**
+ * Kirby placeholder — bubble pink with a pale accent (the multi-jump
+ * inhale puffball). Procedural pipeline (`spriteKey: null`) until a sprite
+ * pack lands. Distinct hue from the existing cast keeps the char-select
+ * grid readable.
+ */
+export const KIRBY_PLACEHOLDER: CharacterPlaceholderVisual = Object.freeze({
+  primaryColor: 0xe87aa8, // bubble pink
+  accentColor: 0xfff0f6,
+  labelColor: 0xfff0f6,
+  width: KIRBY_TUNING.width,
+  height: KIRBY_TUNING.height,
+  spriteKey: null,
+});
+
+/**
+ * Donkey Kong placeholder — ape brown with a tan accent (the mobile
+ * heavyweight bruiser). Procedural pipeline (`spriteKey: null`) until a
+ * sprite pack lands. Largest body in the cast (60×84); distinct hue from
+ * Bear's umber keeps the two heavyweights readable on the grid.
+ */
+export const DONKEYKONG_PLACEHOLDER: CharacterPlaceholderVisual = Object.freeze({
+  primaryColor: 0x6b4a2b, // ape brown
+  accentColor: 0xe8b86a,
+  labelColor: 0xe8b86a,
+  width: DONKEYKONG_TUNING.width,
+  height: DONKEYKONG_TUNING.height,
+  spriteKey: null,
+});
+
 // ---------------------------------------------------------------------------
 // Specs
 // ---------------------------------------------------------------------------
@@ -944,6 +1086,56 @@ export const BRUNO_SPEC: CharacterSpec = Object.freeze({
   playable: true,
 });
 
+/**
+ * Link spec — the projectile-swordsman zoner (Zelda's Link archetype).
+ * Eleventh roster slot: medium stats built around a projectile wall
+ * (arrow / boomerang / bomb), a hookshot tether recovery, and disjointed
+ * sword normals. Renders through the procedural placeholder pipeline
+ * (no sprite pack yet).
+ */
+export const LINK_SPEC: CharacterSpec = Object.freeze({
+  id: 'link',
+  displayName: 'Link (Zelda)',
+  role: 'projectile swordsman (Link)',
+  tuning: LINK_TUNING,
+  moves: LINK_MOVES,
+  placeholder: LINK_PLACEHOLDER,
+  playable: true,
+});
+
+/**
+ * Kirby spec — the multi-jump inhale puffball (Kirby archetype). Twelfth
+ * roster slot: light, floaty, five jumps, built around an inhale command
+ * grab, a final-cutter rising recovery, and a heavy stone plummet.
+ * Renders through the procedural placeholder pipeline (no sprite pack).
+ */
+export const KIRBY_SPEC: CharacterSpec = Object.freeze({
+  id: 'kirby',
+  displayName: 'Kirby',
+  role: 'multi-jump puffball (Kirby)',
+  tuning: KIRBY_TUNING,
+  moves: KIRBY_MOVES,
+  placeholder: KIRBY_PLACEHOLDER,
+  playable: true,
+});
+
+/**
+ * Donkey Kong spec — the mobile heavyweight bruiser (DK archetype).
+ * Thirteenth roster slot: heavy mass with real run speed (the heavy who
+ * keeps up — distinct from Bear's immovable wall), built around a
+ * chargeable giant punch, a shoulder-charge approach, a spinning-kong
+ * recovery, and a ground-pound. Procedural placeholder pipeline.
+ */
+export const DONKEYKONG_SPEC: CharacterSpec = Object.freeze({
+  id: 'donkeykong',
+  displayName: 'Donkey Kong',
+  role: 'mobile heavyweight (Donkey Kong)',
+  tuning: DONKEYKONG_TUNING,
+  moves: DONKEYKONG_MOVES,
+  placeholder: DONKEYKONG_PLACEHOLDER,
+  playable: true,
+});
+
 // ---------------------------------------------------------------------------
 // Registry
 // ---------------------------------------------------------------------------
@@ -966,6 +1158,9 @@ export const CHARACTER_ROSTER: Readonly<Record<CharacterId, CharacterSpec>> =
     volt: VOLT_SPEC,
     nova: NOVA_SPEC,
     bruno: BRUNO_SPEC,
+    link: LINK_SPEC,
+    kirby: KIRBY_SPEC,
+    donkeykong: DONKEYKONG_SPEC,
   });
 
 /**
@@ -986,6 +1181,9 @@ export const CHARACTER_SPECS_IN_ROSTER_ORDER: ReadonlyArray<CharacterSpec> =
     VOLT_SPEC,
     NOVA_SPEC,
     BRUNO_SPEC,
+    LINK_SPEC,
+    KIRBY_SPEC,
+    DONKEYKONG_SPEC,
   ]);
 
 /**

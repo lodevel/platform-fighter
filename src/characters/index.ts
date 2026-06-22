@@ -626,6 +626,73 @@ export {
   BRUNO_FIGHTER_CONTRACT,
 } from './Bruno';
 export type { BrunoOptions } from './Bruno';
+// Post-batch-3 roster expansion — three more Smash-inspired fighters
+// join the cast with full kits, rendered through the procedural
+// placeholder pipeline (no sprite packs): Link (Zelda projectile
+// swordsman), Kirby (multi-jump puffball), Donkey Kong (mobile
+// heavyweight bruiser).
+export {
+  Link,
+  LINK_TUNING,
+  LINK_JAB,
+  LINK_TILT,
+  LINK_SMASH,
+  LINK_NAIR,
+  LINK_FAIR,
+  LINK_BAIR,
+  LINK_NEUTRAL_SPECIAL,
+  LINK_SIDE_SPECIAL,
+  LINK_UP_SPECIAL,
+  LINK_DOWN_SPECIAL,
+  LINK_GRAB,
+  // Frozen per-fighter declarations.
+  LINK_MOVESET,
+  LINK_MOVEMENT_PROFILE,
+  LINK_FIGHTER_CONTRACT,
+} from './Link';
+export type { LinkOptions } from './Link';
+export {
+  Kirby,
+  KIRBY_TUNING,
+  KIRBY_JAB,
+  KIRBY_TILT,
+  KIRBY_SMASH,
+  KIRBY_NAIR,
+  KIRBY_FAIR,
+  KIRBY_BAIR,
+  KIRBY_NEUTRAL_SPECIAL,
+  KIRBY_SIDE_SPECIAL,
+  KIRBY_UP_SPECIAL,
+  KIRBY_DOWN_SPECIAL,
+  KIRBY_GRAB,
+  // Frozen per-fighter declarations.
+  KIRBY_MOVESET,
+  KIRBY_MOVEMENT_PROFILE,
+  KIRBY_FIGHTER_CONTRACT,
+} from './Kirby';
+export type { KirbyOptions } from './Kirby';
+// Donkeykong (id 'donkeykong') — the class is `DonkeyKong` (camel-cased
+// for readability); the id-derived display name is "Donkeykong".
+export {
+  DonkeyKong,
+  DONKEYKONG_TUNING,
+  DONKEYKONG_JAB,
+  DONKEYKONG_TILT,
+  DONKEYKONG_SMASH,
+  DONKEYKONG_NAIR,
+  DONKEYKONG_FAIR,
+  DONKEYKONG_BAIR,
+  DONKEYKONG_NEUTRAL_SPECIAL,
+  DONKEYKONG_SIDE_SPECIAL,
+  DONKEYKONG_UP_SPECIAL,
+  DONKEYKONG_DOWN_SPECIAL,
+  DONKEYKONG_GRAB,
+  // Frozen per-fighter declarations.
+  DONKEYKONG_MOVESET,
+  DONKEYKONG_MOVEMENT_PROFILE,
+  DONKEYKONG_FIGHTER_CONTRACT,
+} from './DonkeyKong';
+export type { DonkeyKongOptions } from './DonkeyKong';
 
 // Roster — Sub-AC 3.5 of AC 205. Aggregates stats + moves + placeholder
 // per character so the Fighter entity (and HUD / menu / replay layers)
@@ -644,6 +711,9 @@ export {
   VOLT_SPEC,
   NOVA_SPEC,
   BRUNO_SPEC,
+  LINK_SPEC,
+  KIRBY_SPEC,
+  DONKEYKONG_SPEC,
   WOLF_MOVES,
   CAT_MOVES,
   OWL_MOVES,
@@ -654,6 +724,9 @@ export {
   VOLT_MOVES,
   NOVA_MOVES,
   BRUNO_MOVES,
+  LINK_MOVES,
+  KIRBY_MOVES,
+  DONKEYKONG_MOVES,
   WOLF_PLACEHOLDER,
   CAT_PLACEHOLDER,
   OWL_PLACEHOLDER,
@@ -664,6 +737,9 @@ export {
   VOLT_PLACEHOLDER,
   NOVA_PLACEHOLDER,
   BRUNO_PLACEHOLDER,
+  LINK_PLACEHOLDER,
+  KIRBY_PLACEHOLDER,
+  DONKEYKONG_PLACEHOLDER,
   getCharacterSpec,
   findMoveByType,
 } from './roster';
@@ -685,6 +761,9 @@ export {
   VOLT_PALETTES,
   NOVA_PALETTES,
   BRUNO_PALETTES,
+  LINK_PALETTES,
+  KIRBY_PALETTES,
+  DONKEYKONG_PALETTES,
   applyPaletteToPlaceholder,
   getCharacterPalette,
   getCharacterPalettes,

@@ -412,6 +412,9 @@ export const CHARACTER_MOVESET_ANIMATION_CUES: Readonly<
   volt: buildCharacterCues('volt', MOVESET_TABLE.volt),
   nova: buildCharacterCues('nova', MOVESET_TABLE.nova),
   bruno: buildCharacterCues('bruno', MOVESET_TABLE.bruno),
+  link: buildCharacterCues('link', MOVESET_TABLE.link),
+  kirby: buildCharacterCues('kirby', MOVESET_TABLE.kirby),
+  donkeykong: buildCharacterCues('donkeykong', MOVESET_TABLE.donkeykong),
 });
 
 /**
@@ -460,7 +463,7 @@ export function getMoveAnimationCueAt(
  */
 export const MOVESET_ANIMATION_CUE_BUNDLES: ReadonlyArray<MoveAnimationCueBundle> =
   Object.freeze(
-    (['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno'] as const).flatMap((id) =>
+    (['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno', 'link', 'kirby', 'donkeykong'] as const).flatMap((id) =>
       MOVESET_SLOTS.map((slot) => CHARACTER_MOVESET_ANIMATION_CUES[id].moves[slot]),
     ),
   );
@@ -477,7 +480,7 @@ export const MOVESET_ANIMATION_CUE_BUNDLES: ReadonlyArray<MoveAnimationCueBundle
  */
 export function enumerateAllMovesetAnimationCueKeys(): ReadonlyArray<string> {
   const out: string[] = [];
-  for (const id of ['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno'] as const) {
+  for (const id of ['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno', 'link', 'kirby', 'donkeykong'] as const) {
     const cues = CHARACTER_MOVESET_ANIMATION_CUES[id];
     out.push(cues.idleKey);
     for (const k of [

@@ -180,6 +180,33 @@ import {
   BRUNO_UP_SPECIAL,
   BRUNO_DOWN_SPECIAL,
 } from './Bruno';
+import {
+  LINK_NAIR,
+  LINK_FAIR,
+  LINK_BAIR,
+  LINK_NEUTRAL_SPECIAL,
+  LINK_SIDE_SPECIAL,
+  LINK_UP_SPECIAL,
+  LINK_DOWN_SPECIAL,
+} from './Link';
+import {
+  KIRBY_NAIR,
+  KIRBY_FAIR,
+  KIRBY_BAIR,
+  KIRBY_NEUTRAL_SPECIAL,
+  KIRBY_SIDE_SPECIAL,
+  KIRBY_UP_SPECIAL,
+  KIRBY_DOWN_SPECIAL,
+} from './Kirby';
+import {
+  DONKEYKONG_NAIR,
+  DONKEYKONG_FAIR,
+  DONKEYKONG_BAIR,
+  DONKEYKONG_NEUTRAL_SPECIAL,
+  DONKEYKONG_SIDE_SPECIAL,
+  DONKEYKONG_UP_SPECIAL,
+  DONKEYKONG_DOWN_SPECIAL,
+} from './DonkeyKong';
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -402,6 +429,42 @@ export const MOVESET_TABLE: Readonly<Record<CharacterId, CharacterMoveset>> = Ob
     upSpecial: BRUNO_UP_SPECIAL,
     downSpecial: BRUNO_DOWN_SPECIAL,
   }),
+  link: Object.freeze({
+    jab: GROUNDED_NORMAL_TABLE.link.jab,
+    tilt: GROUNDED_NORMAL_TABLE.link.tilt,
+    smash: GROUNDED_NORMAL_TABLE.link.smash,
+    nair: LINK_NAIR,
+    fair: LINK_FAIR,
+    bair: LINK_BAIR,
+    neutralSpecial: LINK_NEUTRAL_SPECIAL,
+    sideSpecial: LINK_SIDE_SPECIAL,
+    upSpecial: LINK_UP_SPECIAL,
+    downSpecial: LINK_DOWN_SPECIAL,
+  }),
+  kirby: Object.freeze({
+    jab: GROUNDED_NORMAL_TABLE.kirby.jab,
+    tilt: GROUNDED_NORMAL_TABLE.kirby.tilt,
+    smash: GROUNDED_NORMAL_TABLE.kirby.smash,
+    nair: KIRBY_NAIR,
+    fair: KIRBY_FAIR,
+    bair: KIRBY_BAIR,
+    neutralSpecial: KIRBY_NEUTRAL_SPECIAL,
+    sideSpecial: KIRBY_SIDE_SPECIAL,
+    upSpecial: KIRBY_UP_SPECIAL,
+    downSpecial: KIRBY_DOWN_SPECIAL,
+  }),
+  donkeykong: Object.freeze({
+    jab: GROUNDED_NORMAL_TABLE.donkeykong.jab,
+    tilt: GROUNDED_NORMAL_TABLE.donkeykong.tilt,
+    smash: GROUNDED_NORMAL_TABLE.donkeykong.smash,
+    nair: DONKEYKONG_NAIR,
+    fair: DONKEYKONG_FAIR,
+    bair: DONKEYKONG_BAIR,
+    neutralSpecial: DONKEYKONG_NEUTRAL_SPECIAL,
+    sideSpecial: DONKEYKONG_SIDE_SPECIAL,
+    upSpecial: DONKEYKONG_UP_SPECIAL,
+    downSpecial: DONKEYKONG_DOWN_SPECIAL,
+  }),
 });
 
 /**
@@ -411,7 +474,7 @@ export const MOVESET_TABLE: Readonly<Record<CharacterId, CharacterMoveset>> = Ob
  * bruno), slot on the inner ({@link MOVESET_SLOTS}).
  */
 export const MOVESET_ENTRIES: ReadonlyArray<MovesetEntry> = Object.freeze(
-  (['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno'] as const).flatMap((characterId) =>
+  (['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno', 'link', 'kirby', 'donkeykong'] as const).flatMap((characterId) =>
     MOVESET_SLOTS.map((slot) =>
       Object.freeze({
         characterId,
@@ -508,7 +571,7 @@ export function enumerateMovesetSlotAnimationKeys(
  */
 export function enumerateAllMovesetAnimationKeys(): ReadonlyArray<string> {
   const out: string[] = [];
-  for (const id of ['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno'] as const) {
+  for (const id of ['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno', 'link', 'kirby', 'donkeykong'] as const) {
     out.push(getIdleAnimationKey(id));
     for (const slot of MOVESET_SLOTS) {
       const move = MOVESET_TABLE[id][slot];
