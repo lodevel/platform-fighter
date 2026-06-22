@@ -1,0 +1,16 @@
+{
+  // Standalone type-check for the art/sprite pipeline tooling.
+  // tools/ is intentionally NOT in the root tsconfig's `include` (which is the
+  // app/scripts build), so this config type-checks tools/ on its own:
+  //   npx tsc --noEmit -p tools/tsconfig.json
+  // It runs via `npx tsx` at runtime (Bundler resolution + .ts import specifiers).
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "types": ["node"],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"]
+  },
+  "include": ["./**/*.ts"],
+  "exclude": ["node_modules"]
+}
