@@ -4483,15 +4483,36 @@ export class MatchScene extends Phaser.Scene {
               const py = pos.y + proj.spawnOffsetY;
               const id = this.nextProjectileId;
               this.nextProjectileId += 1;
-              // Procedural sprite — pointed shape per character.
-              // Cat shuriken: yellow diamond. Owl feather: amber teardrop.
-              // Nova: a plasma orb that grows + brightens with charge.
+              // Procedural sprite — shaped per move/character.
+              // Link arrow: brown shaft + dark arrowhead + grey fletching.
+              // Owl feather: amber teardrop. Nova: plasma orb (charge-scaled).
+              // Default: cat shuriken yellow cross.
+              const isLink = move.id.startsWith('link');
               const isOwl = move.id.startsWith('owl');
               const isNova = move.id.startsWith('nova');
-              const shapeColor = isOwl ? 0xfff0a8 : 0xffd840;
-              const accentColor = isOwl ? 0x8b4513 : 0xff8800;
               const parts: Phaser.GameObjects.GameObject[] = [];
-              if (isNova) {
+              if (isLink) {
+                // Arrow: brown shaft + dark arrowhead + grey fletching.
+                // pWidth=28, pHeight=12 at Link's authored projectile size.
+                const shaft = this.add
+                  .rectangle(-facing * 2, 0, pWidth * 0.7, pHeight * 0.22, 0x8b5e3c, 1);
+                // Arrowhead drawn as a filled triangle via graphics.
+                const head = this.add.graphics();
+                const bx = facing * (pWidth * 0.22); // base-centre x (overlaps shaft tip)
+                const hw = pWidth * 0.32;             // head length along travel
+                const hh = pHeight * 0.5;             // head half-height
+                head.fillStyle(0x1a1a1a, 1);
+                head.fillTriangle(bx, -hh, bx, hh, bx + facing * hw, 0);
+                // Fletching — two angled grey slivers at the tail.
+                const tx = -facing * (pWidth * 0.38);
+                const fletch1 = this.add
+                  .rectangle(tx, -pHeight * 0.3, pWidth * 0.22, pHeight * 0.16, 0xbbbbbb, 0.9)
+                  .setAngle(facing * 25);
+                const fletch2 = this.add
+                  .rectangle(tx,  pHeight * 0.3, pWidth * 0.22, pHeight * 0.16, 0xbbbbbb, 0.9)
+                  .setAngle(-facing * 25);
+                parts.push(shaft, head, fletch1, fletch2);
+              } else if (isNova) {
                 // Charge beam — concentric plasma orb. Cyan when weak,
                 // white-hot at full charge; an outer glow halo doubles the
                 // visible radius so a full shot reads as a real threat.
@@ -4506,18 +4527,18 @@ export class MatchScene extends Phaser.Scene {
               } else if (isOwl) {
                 // Feather-bolt — elongated body with a darker tip.
                 const body = this.add
-                  .rectangle(0, 0, pWidth, pHeight, shapeColor, 1)
+                  .rectangle(0, 0, pWidth, pHeight, 0xfff0a8, 1)
                   .setStrokeStyle(2, 0x000000, 0.6);
                 const tip = this.add
-                  .rectangle(facing * (pWidth / 2 - 4), 0, 8, pHeight * 0.6, accentColor, 1);
+                  .rectangle(facing * (pWidth / 2 - 4), 0, 8, pHeight * 0.6, 0x8b4513, 1);
                 parts.push(body, tip);
               } else {
                 // Shuriken — yellow center + cross arms.
                 const armH = this.add
-                  .rectangle(0, 0, pWidth, pHeight * 0.4, shapeColor, 1)
+                  .rectangle(0, 0, pWidth, pHeight * 0.4, 0xffd840, 1)
                   .setStrokeStyle(2, 0x000000, 0.6);
                 const armV = this.add
-                  .rectangle(0, 0, pWidth * 0.4, pHeight, shapeColor, 1)
+                  .rectangle(0, 0, pWidth * 0.4, pHeight, 0xffd840, 1)
                   .setStrokeStyle(2, 0x000000, 0.6);
                 parts.push(armH, armV);
               }
