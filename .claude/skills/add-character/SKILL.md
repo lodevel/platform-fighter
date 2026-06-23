@@ -34,6 +34,43 @@ Copy a template fighter and rename. Author every move as a frozen literal (no
 - `grab` (GrabSpec: range + pummel + dashGrab + **4 throws** fwd/back/up/down)
 - overrides: `getUpAttackParams()`, `ledgeAttackParams()`
 
+### Hitbox placement — hitboxes must reach OUTSIDE the character body
+
+The fighter body is ~52 px wide (half-width ≈ 26 px) and ~110 px tall.
+A hitbox that sits entirely inside that volume can never touch an opponent —
+the soft-separation system keeps bodies from overlapping, so an interior
+hitbox is permanently blocked by the attacker's own body.
+
+**Rule:** the hitbox's FAR edge must extend past the body edge in the attack
+direction. Far edge = `offsetX + width/2` (forward attacks) or
+`|offsetY| + height/2` (vertical attacks).
+
+| Move type | Typical `offsetX` | Typical `width` | Far edge |
+|---|---|---|---|
+| Jab (short poke) | 35 | 30 | 50 px past centre |
+| Tilt / smash (reach) | 50–60 | 40–50 | 75–85 px |
+| Aerial (wide arc) | 40–55 | 45–55 | 67–82 px |
+| Dtilt (low sweep) | 45, offsetY +30 | 50 | 70 px |
+| Uair / utilt (overhead) | 0–10, offsetY −50 | 40–50 | 75 px above |
+| Dair / spike (downward) | 0–10, offsetY +50 | 35–45 | 72 px below |
+
+**Bad (hitbox trapped inside body):**
+```ts
+hitbox: { offsetX: 10, offsetY: 0, width: 20, height: 30 }
+// far edge = 10 + 10 = 20 px — still inside the 26 px half-width
+```
+
+**Good:**
+```ts
+hitbox: { offsetX: 40, offsetY: 0, width: 40, height: 50 }
+// far edge = 40 + 20 = 60 px — clearly outside the body
+```
+
+`offsetX` is automatically mirrored by `facing`, so always author as if
+facing RIGHT; negative `offsetX` = hits BEHIND the attacker (bair).
+
+---
+
 **Constructor wiring order matters** — register the forward `jab/tilt/smash`
 first (first-registered wins the slot), then wire the directional moves by id:
 
