@@ -97,6 +97,8 @@ CHECKS=(
 "art|file|nair.png|assets/characters/<id>/animations/nair.png||1"
 "art|file|fair.png|assets/characters/<id>/animations/fair.png||1"
 "art|file|bair.png|assets/characters/<id>/animations/bair.png||1"
+"art|file|uair.png (up aerial)|assets/characters/<id>/animations/uair.png||1"
+"art|file|dair.png (down spike)|assets/characters/<id>/animations/dair.png||1"
 "art|file|neutral_special.png|assets/characters/<id>/animations/neutral_special.png||1"
 "art|file|side_special.png|assets/characters/<id>/animations/side_special.png||1"
 "art|file|up_special.png|assets/characters/<id>/animations/up_special.png||1"

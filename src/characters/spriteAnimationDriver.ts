@@ -487,6 +487,8 @@ export const MOVE_SHEET_SPECS: ReadonlyArray<{
   Object.freeze({ sheet: 'nair', frameRate: 16, repeat: 0, hold: true }),
   Object.freeze({ sheet: 'fair', frameRate: 16, repeat: 0, hold: true }),
   Object.freeze({ sheet: 'bair', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'uair', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'dair', frameRate: 16, repeat: 0, hold: true }),
   Object.freeze({ sheet: 'neutral_special', frameRate: 14, repeat: 0, hold: true }),
   Object.freeze({ sheet: 'side_special', frameRate: 14, repeat: 0, hold: true }),
   Object.freeze({ sheet: 'up_special', frameRate: 16, repeat: 0, hold: true }),
@@ -523,6 +525,8 @@ const MOVE_SHEET_KEYS: Partial<Record<CharacterId, Readonly<Record<string, strin
     nair: ASSET_KEYS.charLinkNair,
     fair: ASSET_KEYS.charLinkFair,
     bair: ASSET_KEYS.charLinkBair,
+    uair: ASSET_KEYS.charLinkUair,
+    dair: ASSET_KEYS.charLinkDair,
     neutral_special: ASSET_KEYS.charLinkNeutralSpecial,
     side_special: ASSET_KEYS.charLinkSideSpecial,
     up_special: ASSET_KEYS.charLinkUpSpecial,
@@ -602,6 +606,8 @@ export function attackMoveToSheet(
       switch (move.aerialDirection) {
         case 'forward': return 'fair';
         case 'back': return 'bair';
+        case 'up': return 'uair';
+        case 'down': return 'dair';
         default: return 'nair';
       }
     default: return null;

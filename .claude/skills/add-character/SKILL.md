@@ -102,29 +102,34 @@ has NO animation — the engine does not fall back gracefully.
 Override priority in MatchScene (highest first):
 `hurt` → `active attack` → `grab/pummel/throw` → `shield` → `crouch` → (base SM)
 
-#### Per-move attacks (13 slots — each active move gets its own clip)
+#### Per-move attacks (15 slots — each active move gets its own clip)
 | Clip | How the renderer routes to it | Frame count |
 |------|-------------------------------|-------------|
 | `jab` | `type:'jab'`, id ends `.jab` | 3 |
 | `jab2` | `type:'jab'`, id ends `.jab2` | 3–4 |
 | `jab3` | `type:'jab'`, id ends `.jab3` | 4 (finisher — visually distinct) |
 | `tilt` | `type:'tilt'`, id does NOT end `.dtilt` | 3 |
-| `dtilt` | `type:'tilt'`, id ends `.dtilt` | 4 (crouching sweep LOW) |
+| `dtilt` | `type:'tilt'`, id ends `.dtilt` | 4 (crouching sweep LOW — grounded only) |
 | `smash` | `type:'smash'` (utilt/dsmash share — see NOTE below) | 4 |
-| `nair` | `type:'aerial'`, aerialDirection `neutral`/`up`/`down` (see NOTE) | 3 |
+| `nair` | `type:'aerial'`, aerialDirection `neutral` | 3 |
 | `fair` | `type:'aerial'`, aerialDirection `forward` | 3 |
 | `bair` | `type:'aerial'`, aerialDirection `back` | 3 |
+| `uair` | `type:'aerial'`, aerialDirection `up` | 3 (upward overhead arc) |
+| `dair` | `type:'aerial'`, aerialDirection `down` | 3 (downward spike) |
 | `neutral_special` | `type:'special'` or `'neutralSpecial'` | 3 |
 | `side_special` | `type:'sideSpecial'` | 3 |
 | `up_special` | `type:'upSpecial'` | 3 |
 | `down_special` | `type:'downSpecial'` | 3 |
 
-**NOTE — known routing gaps (engine limitation, not a skip in art):**
-`attackMoveToSheet` in `spriteAnimationDriver.ts` collapses some moves:
+**`dtilt` vs `dair` are completely different clips** — `dtilt` is a grounded
+crouching sweep; `dair` is an aerial spike/plunge. The renderer routes them
+independently. Never share art between them.
+
+**NOTE — remaining routing gaps (engine limitation, not a skip in art):**
+`attackMoveToSheet` in `spriteAnimationDriver.ts` still collapses:
 - `utilt` → `'tilt'` sheet (shares art with forward tilt)
 - `usmash` / `dsmash` → `'smash'` sheet (all three smashes share art)
 - `dashAttack` → base `'attack'` sheet
-- `uair` / `dair` → `'nair'` sheet (default aerial)
 These moves still need unique clip designs in the class file; they just share
 rendered art for now. Add dedicated sheets by extending `attackMoveToSheet`.
 
@@ -166,18 +171,18 @@ regenerated. Horizontal flip via `pngjs` script (see `docs/ART-PIPELINE.md`).
 Delete unwanted extra frames before packing.
 
 ### 3b — Wire (ALL of these — miss one and the sprite is frozen or invisible)
-1. **manifest.ts** `ASSET_KEYS`: **26 keys** for `char<Id>` —
+1. **manifest.ts** `ASSET_KEYS`: **28 keys** for `char<Id>` —
    `{Idle, Run, Jump, Attack, Crouch, Hurt, Shield, Grab, Pummel, Fthrow, Bthrow,
-   Uthrow, Dthrow, Jab, Jab2, Jab3, Tilt, Dtilt, Smash, Nair, Fair, Bair,
-   NeutralSpecial, SideSpecial, UpSpecial, DownSpecial}`.
+   Uthrow, Dthrow, Jab, Jab2, Jab3, Tilt, Dtilt, Smash, Nair, Fair, Bair, Uair,
+   Dair, NeutralSpecial, SideSpecial, UpSpecial, DownSpecial}`.
 2. **manifest.ts**: `const <id>Spritesheets = charSheetEntries('<id>', [...])` (counts
    straight from `frames.json`) + spread into `ASSET_MANIFEST.spritesheets`.
 3. **roster.ts**: `<ID>_PLACEHOLDER.spriteKey: ASSET_KEYS.char<Id>Idle` (not null).
 4. **spriteAnimationDriver.ts**: `case '<id>':` in `getCharacterSpritesheetKey`
    (idle/run/jump/attack) AND an `<id>: {...}` entry in `MOVE_SHEET_KEYS` covering
-   **all 22 move sheets**: `crouch, hurt, shield, grab, pummel, fthrow, bthrow,
-   uthrow, dthrow, jab, jab2, jab3, tilt, dtilt, smash, nair, fair, bair,
-   neutral_special, side_special, up_special, down_special`.
+   **all 24 move sheets**: `crouch, hurt, shield, grab, pummel, fthrow, bthrow,
+   uthrow, dthrow, jab, jab2, jab3, tilt, dtilt, smash, nair, fair, bair, uair,
+   dair, neutral_special, side_special, up_special, down_special`.
    Anim REGISTRATION is automatic — iterates `CHARACTER_IDS`, do NOT hand-add to
    any per-fighter list.
 5. **visualScale.ts** `CHARACTER_SPRITE_FACES_LEFT['<id>'] = false` (right-facing art;
