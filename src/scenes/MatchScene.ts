@@ -4118,20 +4118,6 @@ export class MatchScene extends Phaser.Scene {
                   : def.category === 'throwable'
                   ? 0xff4444 // red — bomb
                   : 0xc8a2ff; // violet — effect/consumable
-              const labelChar =
-                def.type === 'bat'
-                  ? 'B'
-                  : def.type === 'sword'
-                  ? 'S'
-                  : def.type === 'hammer'
-                  ? 'H'
-                  : def.type === 'spear'
-                  ? 'P'
-                  : def.type === 'rayGun'
-                  ? 'R'
-                  : def.type === 'bomb'
-                  ? '!'
-                  : '?';
               const vx = toVx(req.spawnPosition.x);
               const vy = toVy(req.spawnPosition.y);
               // Per-category silhouettes so weapons read at a glance
@@ -4144,7 +4130,7 @@ export class MatchScene extends Phaser.Scene {
               if (def.type === 'sword') {
                 if (this.textures.exists(ASSET_KEYS.itemSword)) {
                   visualParts.push(
-                    this.add.image(0, -28, ASSET_KEYS.itemSword)
+                    this.add.image(0, 0, ASSET_KEYS.itemSword)
                       .setOrigin(0.5, 1)
                       .setDisplaySize(36, 56),
                   );
@@ -4163,7 +4149,7 @@ export class MatchScene extends Phaser.Scene {
               } else if (def.type === 'hammer') {
                 if (this.textures.exists(ASSET_KEYS.itemHammer)) {
                   visualParts.push(
-                    this.add.image(0, -24, ASSET_KEYS.itemHammer)
+                    this.add.image(0, 0, ASSET_KEYS.itemHammer)
                       .setOrigin(0.5, 1)
                       .setDisplaySize(44, 48),
                   );
@@ -4179,7 +4165,7 @@ export class MatchScene extends Phaser.Scene {
               } else if (def.type === 'spear') {
                 if (this.textures.exists(ASSET_KEYS.itemSpear)) {
                   visualParts.push(
-                    this.add.image(0, -36, ASSET_KEYS.itemSpear)
+                    this.add.image(0, 0, ASSET_KEYS.itemSpear)
                       .setOrigin(0.5, 1)
                       .setDisplaySize(20, 72),
                   );
@@ -4253,13 +4239,6 @@ export class MatchScene extends Phaser.Scene {
                   .setStrokeStyle(2, 0x000000, 0.6);
                 visualParts.push(generic);
               }
-              const label = this.add.text(0, -14, labelChar, {
-                fontFamily: 'monospace',
-                fontSize: '12px',
-                color: '#000000',
-                fontStyle: 'bold',
-              }).setOrigin(0.5, 0.5);
-              visualParts.push(label);
               const container = this.add.container(vx, vy, visualParts);
               container.setDepth(2);
               this.itemVisuals.set(entity.id, container);
