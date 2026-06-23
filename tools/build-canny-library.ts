@@ -24,14 +24,14 @@ import { MODELS, SAMPLER, NEGATIVE, CHARACTER_PREFIX } from './comfy-style.ts';
 const FACING = 'strictly facing to the right, right-facing side profile view, body and head turned to the right';
 const LIB_DIR = 'assets/gen/canny-library';
 
-interface ClipSpec { fighter: string; clips: Record<string, string[]>; draftBody?: string }
+interface ClipSpec { fighter: string; clips: Record<string, string[]>; draftBody?: string; bg?: string }
 
 function poseHash(pose: string): string {
   return pose.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60);
 }
 
-function cannyGraph(body: string, pose: string, draftSeed: number) {
-  const draftPrompt = `${CHARACTER_PREFIX} ${body}, ${pose}, ${FACING}, full body, on a solid flat chroma-key magenta #FF00FF background`;
+function cannyGraph(body: string, bg: string, pose: string, draftSeed: number) {
+  const draftPrompt = `${CHARACTER_PREFIX} ${body}, ${pose}, ${FACING}, full body, on a solid flat chroma-key ${bg} background`;
   return {
     '1': { class_type: 'UNETLoader', inputs: { unet_name: MODELS.unet, weight_dtype: 'default' } },
     '2': { class_type: 'CLIPLoader', inputs: { clip_name: MODELS.clip, type: MODELS.clipType } },
@@ -52,6 +52,7 @@ async function main() {
   if (!specPath) throw new Error('usage: build-canny-library.ts <spec.json>');
   const spec: ClipSpec = JSON.parse(await readFile(specPath, 'utf8'));
   const body = spec.draftBody ?? 'a humanoid fighter';
+  const bg = spec.bg ?? 'magenta #FF00FF';
   const client = new ComfyClient();
   if (!(await client.isUp())) throw new Error('ComfyUI not up');
   await mkdir(LIB_DIR, { recursive: true });
@@ -65,13 +66,15 @@ async function main() {
   let n = 0, made = 0;
   for (const pose of poses) {
     n++;
-    const hash = poseHash(pose);
+    // Namespace by fighter: different bodies (link swordsman vs kirby puffball) must
+    // NOT share a pose's Canny, even for an identically-worded pose.
+    const hash = `${spec.fighter}__${poseHash(pose)}`;
     if (manifest[hash] && existsSync(`${LIB_DIR}/${manifest[hash].file}`)) {
       console.log(`[canny-lib] (${n}/${poses.length}) cached: ${hash}`);
       continue;
     }
     const draftSeed = 5000 + n;
-    const { bytes } = await client.render(cannyGraph(body, pose, draftSeed));
+    const { bytes } = await client.render(cannyGraph(body, bg, pose, draftSeed));
     const file = `${hash}.png`;
     await writeFile(`${LIB_DIR}/${file}`, bytes);
     manifest[hash] = { pose, file, model: MODELS.unet, draftSeed };

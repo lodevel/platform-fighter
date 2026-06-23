@@ -24,11 +24,22 @@ const CELL_H = 64;
 const BREATH = [1.0, 0.975, 1.0, 1.02];
 
 function readPng(f) { return PNG.sync.read(fs.readFileSync(f)); }
+// Chroma-key the flat background colour → alpha 0. Selectable via argv[3]:
+//   magenta (#FF00FF, default): bg is high-R, high-B, low-G.
+//   green   (#00FF00): for PINK fighters (Kirby) whose pink overlaps magenta in
+//                      colour space — magenta can't separate them, green can.
+// Tests are absolute per-channel (NOT relative like the old `g < r-50`, which a pink
+// body satisfies → it keyed Kirby out, leaving a white ghost).
+const KEYERS = {
+  magenta: (r, g, b) => r > 140 && b > 140 && g < 80,
+  green: (r, g, b) => g > 140 && r < 110 && b < 110,
+};
+const KEY_NAME = (process.argv[3] || 'magenta').toLowerCase();
+const isBgPixel = KEYERS[KEY_NAME] || KEYERS.magenta;
 function keyMagenta(p) {
   const d = p.data;
   for (let i = 0; i < d.length; i += 4) {
-    const r = d[i], g = d[i + 1], b = d[i + 2];
-    if (r > 140 && b > 120 && g < r - 50 && g < b - 40) d[i + 3] = 0;
+    if (isBgPixel(d[i], d[i + 1], d[i + 2])) d[i + 3] = 0;
   }
   return p;
 }
@@ -75,20 +86,23 @@ function listAnim(anim) {
 }
 
 function main() {
-  // gather all source frames (keyed)
-  const idleSrc = keyMagenta(readPng(IDLE_KEYFRAME));
-  const anims = {};
-  // Discover EVERY <anim>-<N>.png group in the frames dir (run/jump/attack/crouch +
-  // per-move attacks/specials) — no hardcoded list, so new clips pack automatically.
+  // Discover EVERY <anim>-<N>.png group in the frames dir (idle/run/jump/attack/
+  // crouch + per-move attacks/specials) — no hardcoded list, so new clips pack
+  // automatically.
   const groupNames = [...new Set(
     fs.readdirSync(FRAMES_DIR)
       .filter((f) => /^[a-z_]+-\d+\.png$/.test(f))
       .map((f) => f.replace(/-\d+\.png$/, '')),
   )].sort();
+  // Idle: if the fighter shipped generated idle frames, pack them like any group;
+  // otherwise synthesize a breathing loop from the legacy keyframe (link v1).
+  const hasIdleFrames = groupNames.includes('idle');
+  const idleSrc = hasIdleFrames ? null : keyMagenta(readPng(IDLE_KEYFRAME));
+  const anims = {};
   for (const anim of groupNames) anims[anim] = listAnim(anim).map((f) => keyMagenta(readPng(f)));
-  // global bbox across EVERYTHING
+  // global bbox across EVERYTHING (the legacy keyframe only when it's actually used)
   const acc = { minX: 1e9, minY: 1e9, maxX: -1, maxY: -1 };
-  accumBbox(idleSrc, acc);
+  if (idleSrc) accumBbox(idleSrc, acc);
   for (const a of Object.values(anims)) for (const p of a) accumBbox(p, acc);
   const rw = acc.maxX - acc.minX + 1, rh = acc.maxY - acc.minY + 1;
   // FIXED square cell so the manifest's frameWidth/frameHeight never drift across
@@ -100,10 +114,12 @@ function main() {
   fs.mkdirSync(ANIM_DIR, { recursive: true });
   const framesJson = { meta: { source: 'AI: Z-Image ControlNet pose-source pipeline (tools/gen-frames.ts + pack-clips.cjs)', cellWidth: cellW, cellHeight: cellH }, animations: {} };
 
-  // idle: 4 breathing frames synthesized from the keyframe (no generated idle poses)
-  const idleCells = BREATH.map((b) => makeCell(idleSrc, acc, cellW, cellH, b));
-  writeStrip('idle', idleCells, cellW, cellH, framesJson);
-  // every discovered group: one cell per generated frame
+  // idle: breathing loop from the keyframe ONLY when no idle frames were generated
+  if (!hasIdleFrames && idleSrc) {
+    const idleCells = BREATH.map((b) => makeCell(idleSrc, acc, cellW, cellH, b));
+    writeStrip('idle', idleCells, cellW, cellH, framesJson);
+  }
+  // every discovered group (incl. generated idle if present): one cell per frame
   for (const anim of groupNames) {
     const cells = anims[anim].map((p) => makeCell(p, acc, cellW, cellH, 1.0));
     if (cells.length) writeStrip(anim, cells, cellW, cellH, framesJson);

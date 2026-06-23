@@ -22,17 +22,16 @@ import { MODELS, SAMPLER, NEGATIVE, CHARACTER_PREFIX } from './comfy-style.ts';
 
 const UNION = 'Z-Image-Turbo-Fun-Controlnet-Union.safetensors';
 const FACING = 'strictly facing to the right, right-facing side profile view';
-const BG = 'on a solid flat chroma-key magenta #FF00FF background, no shadows';
 const LIB_DIR = 'assets/gen/canny-library';
 
-interface ClipSpec { fighter: string; identity: string; idSeed: number; clips: Record<string, string[]> }
+interface ClipSpec { fighter: string; identity: string; idSeed: number; clips: Record<string, string[]>; bg?: string }
 
 function poseHash(pose: string): string {
   return pose.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60);
 }
 
-function graphFromCanny(identity: string, pose: string, cannyFile: string, idSeed: number) {
-  const finalPrompt = `${CHARACTER_PREFIX} ${identity}, ${pose}, ${FACING}, ${BG}`;
+function graphFromCanny(identity: string, bg: string, pose: string, cannyFile: string, idSeed: number) {
+  const finalPrompt = `${CHARACTER_PREFIX} ${identity}, ${pose}, ${FACING}, on a solid flat chroma-key ${bg} background, no shadows`;
   return {
     '1': { class_type: 'UNETLoader', inputs: { unet_name: MODELS.unet, weight_dtype: 'default' } },
     '2': { class_type: 'CLIPLoader', inputs: { clip_name: MODELS.clip, type: MODELS.clipType } },
@@ -59,17 +58,18 @@ async function main() {
   if (!(await client.isUp())) throw new Error('ComfyUI not up');
   const outDir = `assets/gen/frames/${spec.fighter}`;
   await mkdir(outDir, { recursive: true });
+  const bg = spec.bg ?? 'magenta #FF00FF';
 
   let n = 0;
   const total = Object.values(spec.clips).reduce((a, c) => a + c.length, 0);
   for (const [anim, poses] of Object.entries(spec.clips)) {
     for (let i = 0; i < poses.length; i++) {
       const pose = poses[i]!;
-      const hash = poseHash(pose);
+      const hash = `${spec.fighter}__${poseHash(pose)}`;
       const entry = manifest[hash];
       n++;
       if (!entry) { console.log(`[gen-cn] (${n}/${total}) MISS no canny for "${pose}" — skipped`); continue; }
-      const { bytes } = await client.render(graphFromCanny(spec.identity, pose, entry.file, spec.idSeed));
+      const { bytes } = await client.render(graphFromCanny(spec.identity, bg, pose, entry.file, spec.idSeed));
       const out = `${outDir}/${anim}-${i}.png`;
       await writeFile(out, bytes);
       console.log(`[gen-cn] (${n}/${total}) ${anim}[${i}] <- ${entry.file} -> ${out} (${(bytes.length / 1024) | 0}KB)`);
