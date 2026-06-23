@@ -2425,7 +2425,27 @@ export class MatchScene extends Phaser.Scene {
           }
         }
 
-        slot.character.applyHit(effectiveHit);
+        const hitResult = slot.character.applyHit(effectiveHit);
+
+        // Shield pushback — when a raised shield absorbs a normal hit, the
+        // attacker bounces back in the opposite direction of their attack.
+        // Skipped when the shield just broke (attacker is rewarded with a
+        // free punish window) or when the hit was unblockable (command grab).
+        if (
+          targetWasShielding &&
+          hitResult.magnitude === 0 &&
+          !effectiveHit.unblockable &&
+          !slot.character.isShieldBroken() &&
+          attackerSlot
+        ) {
+          const vel = attackerSlot.character.getVelocity();
+          const pushDir = -(effectiveHit.facing); // opposite of attack direction
+          this.matter.body.setVelocity(attackerSlot.character.body, {
+            x: vel.x + pushDir * 3.0,
+            y: vel.y,
+          });
+        }
+
         // Both fighters FREEZE on contact (the genre's fundamental hit-pause
         // / "freeze frames"). The attacker arms the SAME freeze the defender
         // just took — with no launch — so the swing visibly stops on impact

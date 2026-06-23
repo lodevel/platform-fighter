@@ -462,6 +462,13 @@ export interface DownSpecialStallAndFallSpec {
    * meant to be a neutral-game tool. The flag is here for tuning.
    */
   readonly helplessAfterFall: boolean;
+  /**
+   * If `true`, the fighter is fully intangible during the active window
+   * (both stall and fall phases). Incoming hits pass through — no damage,
+   * no knockback, no hitstun. Mirrors Kirby-stone's canonical invincibility
+   * in Smash Bros. Default `false`.
+   */
+  readonly armorDuringFall?: boolean;
 }
 
 /**

@@ -6768,6 +6768,26 @@ export class Character {
       };
     }
 
+    // stallAndFall armor — while a down-special with `armorDuringFall: true`
+    // is in its active window (stall or fall phase), the fighter is fully
+    // intangible. Canonical example: Kirby stone form. Checked after
+    // invincibility/dodge/ledge so those still take priority if stacked.
+    if (this.activeAttack !== null) {
+      const m = this.activeAttack.move as unknown as {
+        type?: string;
+        downSpecialKind?: string;
+        stallAndFall?: { armorDuringFall?: boolean };
+      };
+      if (
+        m.type === 'downSpecial' &&
+        m.downSpecialKind === 'stallAndFall' &&
+        m.stallAndFall?.armorDuringFall === true &&
+        Character.phaseFor(this.activeAttack.framesElapsed, this.activeAttack.move) === 'active'
+      ) {
+        return { vector: { x: 0, y: 0 }, magnitude: 0, angle: 0, hitstunFrames: 0 };
+      }
+    }
+
     // AC 60403 Sub-AC 3 — if the fighter is hanging on a ledge but the
     // i-frame window has closed, an incoming hit lands normally AND
     // signals a force-release on the next applyInput tick. The state

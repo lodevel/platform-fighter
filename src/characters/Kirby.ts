@@ -433,6 +433,7 @@ export const KIRBY_DOWN_SPECIAL: StallAndFallDownSpecialMove = {
       height: 18,
     },
     helplessAfterFall: false,
+    armorDuringFall: true, // stone form is fully intangible while active
   },
 };
 
