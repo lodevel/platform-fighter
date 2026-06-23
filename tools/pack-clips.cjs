@@ -17,7 +17,14 @@ const path = require('path');
 const FIGHTER = process.argv[2] || 'link';
 const ROOT = path.join(__dirname, '..');
 const FRAMES_DIR = path.join(ROOT, 'assets', 'gen', 'frames', FIGHTER);
-const IDLE_KEYFRAME = path.join(ROOT, 'assets', 'gen', '_spike', 'cn-link.png');
+// Idle keyframe for the synthesized breathing loop (used only when no idle-*.png
+// frames were generated). Per-fighter `cn-<fighter>.png` if present, else the
+// legacy Link keyframe. Picking the wrong fighter's keyframe renders the WRONG
+// character's idle, so always ship a per-fighter keyframe for new packs.
+const SPIKE_DIR = path.join(ROOT, 'assets', 'gen', '_spike');
+const IDLE_KEYFRAME = fs.existsSync(path.join(SPIKE_DIR, `cn-${FIGHTER}.png`))
+  ? path.join(SPIKE_DIR, `cn-${FIGHTER}.png`)
+  : path.join(SPIKE_DIR, 'cn-link.png');
 const OUT_DIR = path.join(ROOT, 'assets', 'characters', FIGHTER);
 const ANIM_DIR = path.join(OUT_DIR, 'animations');
 const CELL_H = 256;

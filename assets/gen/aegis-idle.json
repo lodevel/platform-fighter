@@ -1,0 +1,15 @@
+{
+  "fighter": "aegis",
+
+  "identity": "elegant young swordsman prince, slender athletic build, deep royal-blue tunic and fitted blue-and-silver armor with layered tonal depth, ornate gold filigree trim at the collar, shoulders and hem, polished silver pauldrons and bracers catching the light, a flowing dark-blue cape lined with deep crimson trailing from the shoulders, a delicate silver circlet crown set with a small blue gem on the brow, neat shoulder-length blue hair, refined determined expression, both hands gripping a gleaming slender longsword — a bright steel single-edged blade with an ornate golden crossguard and a sapphire set in the pommel (no shield), dark-blue leggings, tall silver-trimmed leather boots, painterly semi-realistic digital art, warm gold rim-lighting on the left, cool deep-blue shadows on the right, full body character sprite facing right, magenta background",
+
+  "draftBody": "slender swordsman prince in fitted armor with a flowing cape, holding a slender longsword in both hands, no shield, painterly semi-realistic game sprite facing right, magenta background",
+
+  "idSeed": 640,
+
+  "clips": {
+    "idle": [
+      "standing in a relaxed poised ready stance, slender sword held point-down at the right side, off hand relaxed, cape settling, weight balanced on both feet, facing right"
+    ]
+  }
+}

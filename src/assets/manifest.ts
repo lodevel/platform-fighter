@@ -194,6 +194,30 @@ export const ASSET_KEYS = {
   charAegisRun: 'char.aegis.run',
   charAegisJump: 'char.aegis.jump',
   charAegisAttack: 'char.aegis.attack',
+  charAegisCrouch: 'char.aegis.crouch',
+  charAegisJab: 'char.aegis.jab',
+  charAegisJab2: 'char.aegis.jab2',
+  charAegisJab3: 'char.aegis.jab3',
+  charAegisTilt: 'char.aegis.tilt',
+  charAegisDtilt: 'char.aegis.dtilt',
+  charAegisSmash: 'char.aegis.smash',
+  charAegisNair: 'char.aegis.nair',
+  charAegisFair: 'char.aegis.fair',
+  charAegisBair: 'char.aegis.bair',
+  charAegisNeutralSpecial: 'char.aegis.neutral_special',
+  charAegisSideSpecial: 'char.aegis.side_special',
+  charAegisUpSpecial: 'char.aegis.up_special',
+  charAegisDownSpecial: 'char.aegis.down_special',
+  charAegisHurt: 'char.aegis.hurt',
+  charAegisShield: 'char.aegis.shield',
+  charAegisGrab: 'char.aegis.grab',
+  charAegisPummel: 'char.aegis.pummel',
+  charAegisFthrow: 'char.aegis.fthrow',
+  charAegisBthrow: 'char.aegis.bthrow',
+  charAegisUthrow: 'char.aegis.uthrow',
+  charAegisDthrow: 'char.aegis.dthrow',
+  charAegisUair: 'char.aegis.uair',
+  charAegisDair: 'char.aegis.dair',
 
   // ---------------- characters: volt ---------------------------------
   charVoltIdle: 'char.volt.idle',
@@ -690,44 +714,39 @@ const puffSpritesheets: readonly SpritesheetAssetEntry[] = [
   },
 ];
 
-// Aegis ships the *Adventurer* (sword-wielder) from the same Segel CC0
-// pack. Cropped to a fixed union rect and downscaled ÷6 into 128×130
-// cells; jump = the pack's JumpUp + JumpFall poses (rise → hold fall),
-// attack = the 8-frame sword slash.
-const aegisSpritesheets: readonly SpritesheetAssetEntry[] = [
-  {
-    key: ASSET_KEYS.charAegisIdle,
-    kind: 'spritesheet',
-    url: `${CHAR_ROOT}/aegis/animations/idle.png`,
-    frameWidth: 128,
-    frameHeight: 130,
-    frameCount: 12,
-  },
-  {
-    key: ASSET_KEYS.charAegisRun,
-    kind: 'spritesheet',
-    url: `${CHAR_ROOT}/aegis/animations/run.png`,
-    frameWidth: 128,
-    frameHeight: 130,
-    frameCount: 10,
-  },
-  {
-    key: ASSET_KEYS.charAegisJump,
-    kind: 'spritesheet',
-    url: `${CHAR_ROOT}/aegis/animations/jump.png`,
-    frameWidth: 128,
-    frameHeight: 130,
-    frameCount: 2,
-  },
-  {
-    key: ASSET_KEYS.charAegisAttack,
-    kind: 'spritesheet',
-    url: `${CHAR_ROOT}/aegis/animations/attack.png`,
-    frameWidth: 128,
-    frameHeight: 130,
-    frameCount: 8,
-  },
-];
+// Aegis — full AI sprite set at HD 256² (elegant blue-armored sword prince,
+// Z-Image ControlNet pipeline). Replaces the original Segel CC0 *Adventurer*
+// 4-clip 128×130 pack. Counts mirror assets/characters/aegis/frames.json.
+const aegisSpritesheets: readonly SpritesheetAssetEntry[] = charSheetEntries('aegis', [
+  [ASSET_KEYS.charAegisIdle, 'idle', 4],
+  [ASSET_KEYS.charAegisRun, 'run', 8],
+  [ASSET_KEYS.charAegisJump, 'jump', 5],
+  [ASSET_KEYS.charAegisAttack, 'attack', 5],
+  [ASSET_KEYS.charAegisCrouch, 'crouch', 1],
+  [ASSET_KEYS.charAegisJab, 'jab', 3],
+  [ASSET_KEYS.charAegisJab2, 'jab2', 4],
+  [ASSET_KEYS.charAegisJab3, 'jab3', 4],
+  [ASSET_KEYS.charAegisTilt, 'tilt', 3],
+  [ASSET_KEYS.charAegisDtilt, 'dtilt', 4],
+  [ASSET_KEYS.charAegisSmash, 'smash', 4],
+  [ASSET_KEYS.charAegisNair, 'nair', 3],
+  [ASSET_KEYS.charAegisFair, 'fair', 3],
+  [ASSET_KEYS.charAegisBair, 'bair', 3],
+  [ASSET_KEYS.charAegisNeutralSpecial, 'neutral_special', 3],
+  [ASSET_KEYS.charAegisSideSpecial, 'side_special', 3],
+  [ASSET_KEYS.charAegisUpSpecial, 'up_special', 3],
+  [ASSET_KEYS.charAegisDownSpecial, 'down_special', 3],
+  [ASSET_KEYS.charAegisHurt, 'hurt', 2],
+  [ASSET_KEYS.charAegisShield, 'shield', 1],
+  [ASSET_KEYS.charAegisGrab, 'grab', 3],
+  [ASSET_KEYS.charAegisPummel, 'pummel', 2],
+  [ASSET_KEYS.charAegisFthrow, 'fthrow', 3],
+  [ASSET_KEYS.charAegisBthrow, 'bthrow', 3],
+  [ASSET_KEYS.charAegisUthrow, 'uthrow', 3],
+  [ASSET_KEYS.charAegisDthrow, 'dthrow', 3],
+  [ASSET_KEYS.charAegisUair, 'uair', 3],
+  [ASSET_KEYS.charAegisDair, 'dair', 3],
+], CHAR_FRAME_SIZE_HD);
 
 // Post-batch-2 roster expansion — Volt / Nova / Bruno sprite packs.
 //

@@ -195,7 +195,9 @@ export const CHARACTER_SPRITE_ART_OFFSET_Y: Readonly<Record<CharacterId, number>
     bear: 0,
     blaze: 0,
     puff: 0,
-    aegis: 0,
+    // HD AI pack (256² cells): faint ground-shadow below the feet extends the
+    // packed bbox ~15px past the real feet (measured on idle/shield). Seat them.
+    aegis: 15 / 256,
     volt: 0,
     // Nova's idle/run cells leave ~14 of 96 px transparent below the feet, so
     // she floated ~15 px above the ground. 14 / 96 ≈ 0.146 seats her feet.

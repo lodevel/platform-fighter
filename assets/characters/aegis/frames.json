@@ -1,40 +1,601 @@
 {
   "meta": {
-    "source": "Adventurer and Slime game Sprites — ADVENTURER",
-    "cellWidth": 128,
-    "cellHeight": 130,
-    "license": "CC0",
-    "attribution": "Adventurer and Slime game Sprites — Segel, https://opengameart.org/content/adventurer-and-slime-game-sprites",
-    "notes": "Upstream ships per-frame 1333×936 PNG canvases. Every frame was cropped to the fixed union bounding rect (x 160..925, y 36..812) across the idle/run/slash/jump sets and box-filter downscaled ÷6 into uniform 128×130 cells, preserving the in-canvas baseline so all strips share one ground line."
+    "source": "AI: Z-Image ControlNet pose-source pipeline (tools/gen-frames.ts + pack-clips.cjs)",
+    "cellWidth": 256,
+    "cellHeight": 256
   },
   "animations": {
     "idle": {
       "strip": "animations/idle.png",
-      "frameCount": 12,
-      "frameWidth": 128,
-      "frameHeight": 130,
-      "sourceFrames": ["ADVENTURER/01-Idle/Normal/FR_Adventurer_Idle_000.png .. FR_Adventurer_Idle_011.png"]
-    },
-    "run": {
-      "strip": "animations/run.png",
-      "frameCount": 10,
-      "frameWidth": 128,
-      "frameHeight": 130,
-      "sourceFrames": ["ADVENTURER/02-Run/FR_Adventurer_Run_000.png .. FR_Adventurer_Run_009.png"]
-    },
-    "jump": {
-      "strip": "animations/jump.png",
-      "frameCount": 2,
-      "frameWidth": 128,
-      "frameHeight": 130,
-      "sourceFrames": ["ADVENTURER/04-Jump&Fall/FR_Adventurer_JumpUp_000.png", "ADVENTURER/04-Jump&Fall/FR_Adventurer_JumpFall_000.png"]
+      "frameCount": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ]
+      ]
     },
     "attack": {
       "strip": "animations/attack.png",
+      "frameCount": 5,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ]
+      ]
+    },
+    "bair": {
+      "strip": "animations/bair.png",
+      "frameCount": 3,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ]
+    },
+    "bthrow": {
+      "strip": "animations/bthrow.png",
+      "frameCount": 3,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ]
+    },
+    "crouch": {
+      "strip": "animations/crouch.png",
+      "frameCount": 1,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "sourceCells": [
+        [
+          0,
+          0
+        ]
+      ]
+    },
+    "dair": {
+      "strip": "animations/dair.png",
+      "frameCount": 3,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ]
+    },
+    "down_special": {
+      "strip": "animations/down_special.png",
+      "frameCount": 3,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ]
+    },
+    "dthrow": {
+      "strip": "animations/dthrow.png",
+      "frameCount": 3,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ]
+    },
+    "dtilt": {
+      "strip": "animations/dtilt.png",
+      "frameCount": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ]
+      ]
+    },
+    "fair": {
+      "strip": "animations/fair.png",
+      "frameCount": 3,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ]
+    },
+    "fthrow": {
+      "strip": "animations/fthrow.png",
+      "frameCount": 3,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ]
+    },
+    "grab": {
+      "strip": "animations/grab.png",
+      "frameCount": 3,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ]
+    },
+    "hurt": {
+      "strip": "animations/hurt.png",
+      "frameCount": 2,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    "jab": {
+      "strip": "animations/jab.png",
+      "frameCount": 3,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ]
+    },
+    "jab2": {
+      "strip": "animations/jab2.png",
+      "frameCount": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ]
+      ]
+    },
+    "jab3": {
+      "strip": "animations/jab3.png",
+      "frameCount": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ]
+      ]
+    },
+    "jump": {
+      "strip": "animations/jump.png",
+      "frameCount": 5,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ]
+      ]
+    },
+    "nair": {
+      "strip": "animations/nair.png",
+      "frameCount": 3,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ]
+    },
+    "neutral_special": {
+      "strip": "animations/neutral_special.png",
+      "frameCount": 3,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ]
+    },
+    "pummel": {
+      "strip": "animations/pummel.png",
+      "frameCount": 2,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    "run": {
+      "strip": "animations/run.png",
       "frameCount": 8,
-      "frameWidth": 128,
-      "frameHeight": 130,
-      "sourceFrames": ["ADVENTURER/03-Slash/FR_Adventurer_Slash_000.png .. FR_Adventurer_Slash_007.png"]
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          6,
+          0
+        ],
+        [
+          7,
+          0
+        ]
+      ]
+    },
+    "shield": {
+      "strip": "animations/shield.png",
+      "frameCount": 1,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "sourceCells": [
+        [
+          0,
+          0
+        ]
+      ]
+    },
+    "side_special": {
+      "strip": "animations/side_special.png",
+      "frameCount": 3,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ]
+    },
+    "smash": {
+      "strip": "animations/smash.png",
+      "frameCount": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ]
+      ]
+    },
+    "tilt": {
+      "strip": "animations/tilt.png",
+      "frameCount": 3,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ]
+    },
+    "uair": {
+      "strip": "animations/uair.png",
+      "frameCount": 3,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ]
+    },
+    "up_special": {
+      "strip": "animations/up_special.png",
+      "frameCount": 3,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ]
+    },
+    "uthrow": {
+      "strip": "animations/uthrow.png",
+      "frameCount": 3,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ]
     }
   }
 }

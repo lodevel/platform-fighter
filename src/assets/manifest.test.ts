@@ -232,10 +232,11 @@ describe('Spritesheet frame metadata', () => {
       [ASSET_KEYS.charPuffRun, 10],
       [ASSET_KEYS.charPuffJump, 4],
       [ASSET_KEYS.charPuffAttack, 8],
-      [ASSET_KEYS.charAegisIdle, 12],
-      [ASSET_KEYS.charAegisRun, 10],
-      [ASSET_KEYS.charAegisJump, 2],
-      [ASSET_KEYS.charAegisAttack, 8],
+      // Aegis regenerated as a full HD AI pack (was the 4-clip CC0 set).
+      [ASSET_KEYS.charAegisIdle, 4],
+      [ASSET_KEYS.charAegisRun, 8],
+      [ASSET_KEYS.charAegisJump, 5],
+      [ASSET_KEYS.charAegisAttack, 5],
     ];
     for (const [key, expectedCount] of cases) {
       const entry = findAssetEntry(key);
