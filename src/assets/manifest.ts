@@ -222,6 +222,14 @@ export const ASSET_KEYS = {
   charLinkSideSpecial: 'char.link.side_special',
   charLinkUpSpecial: 'char.link.up_special',
   charLinkDownSpecial: 'char.link.down_special',
+  charLinkHurt:    'char.link.hurt',
+  charLinkShield:  'char.link.shield',
+  charLinkGrab:    'char.link.grab',
+  charLinkPummel:  'char.link.pummel',
+  charLinkFthrow:  'char.link.fthrow',
+  charLinkBthrow:  'char.link.bthrow',
+  charLinkUthrow:  'char.link.uthrow',
+  charLinkDthrow:  'char.link.dthrow',
 
   // ---------------- characters: kirby (full AI sprite set) -----------
   charKirbyIdle: 'char.kirby.idle',
@@ -740,6 +748,14 @@ const linkMovesetSpritesheets: readonly SpritesheetAssetEntry[] = [
   { key: ASSET_KEYS.charLinkSideSpecial, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/side_special.png`, frameWidth: 128, frameHeight: 128, frameCount: 3 },
   { key: ASSET_KEYS.charLinkUpSpecial, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/up_special.png`, frameWidth: 128, frameHeight: 128, frameCount: 3 },
   { key: ASSET_KEYS.charLinkDownSpecial, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/down_special.png`, frameWidth: 128, frameHeight: 128, frameCount: 3 },
+  { key: ASSET_KEYS.charLinkHurt,   kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/hurt.png`,   frameWidth: 128, frameHeight: 128, frameCount: 2 },
+  { key: ASSET_KEYS.charLinkShield, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/shield.png`, frameWidth: 128, frameHeight: 128, frameCount: 1 },
+  { key: ASSET_KEYS.charLinkGrab,   kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/grab.png`,   frameWidth: 128, frameHeight: 128, frameCount: 3 },
+  { key: ASSET_KEYS.charLinkPummel, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/pummel.png`, frameWidth: 128, frameHeight: 128, frameCount: 2 },
+  { key: ASSET_KEYS.charLinkFthrow, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/fthrow.png`, frameWidth: 128, frameHeight: 128, frameCount: 3 },
+  { key: ASSET_KEYS.charLinkBthrow, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/bthrow.png`, frameWidth: 128, frameHeight: 128, frameCount: 3 },
+  { key: ASSET_KEYS.charLinkUthrow, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/uthrow.png`, frameWidth: 128, frameHeight: 128, frameCount: 3 },
+  { key: ASSET_KEYS.charLinkDthrow, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/dthrow.png`, frameWidth: 128, frameHeight: 128, frameCount: 3 },
 ];
 
 // Helper: build a fighter's spritesheet entries from (assetKey, file, frameCount)

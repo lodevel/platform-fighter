@@ -5165,18 +5165,33 @@ export class MatchScene extends Phaser.Scene {
           // through to the SM's collapsed `attack` / the squash below.
           const charId = slot.character.id;
           const activeAtk = slot.character.getActiveAttack();
-          const overrideSheet = activeAtk
-            ? attackMoveToSheet(activeAtk.move)
-            : slot.character.isCrouching()
-              ? 'crouch'
-              : null;
+          const grabState = slot.character.getGrabState();
+          const snap = slot.character.getAnimationSnapshot();
+          const overrideSheet = snap.hitstunRemaining > 0
+            ? 'hurt'
+            : activeAtk
+              ? attackMoveToSheet(activeAtk.move)
+              : (grabState.name === 'whiffStartup' || grabState.name === 'whiffActive')
+                ? 'grab'
+                : grabState.name === 'holding'
+                  ? 'pummel'
+                  : grabState.name === 'throwing'
+                    ? (grabState.active?.throwDirection === 'forward' ? 'fthrow'
+                      : grabState.active?.throwDirection === 'back'    ? 'bthrow'
+                      : grabState.active?.throwDirection === 'up'      ? 'uthrow'
+                      : 'dthrow')
+                    : slot.character.isShielding()
+                      ? 'shield'
+                      : slot.character.isCrouching()
+                        ? 'crouch'
+                        : null;
           const overrideKey = getMoveAnimKey(charId, overrideSheet);
           const curAnimKey =
             (sprite.anims && sprite.anims.currentAnim && sprite.anims.currentAnim.key) || null;
           let crouchAnimActive = false;
           if (overrideKey && this.anims.exists(overrideKey)) {
             if (curAnimKey !== overrideKey) sprite.play(overrideKey, true);
-            crouchAnimActive = overrideSheet === 'crouch';
+            crouchAnimActive = overrideSheet !== null;
           } else if (
             curAnimKey !== null &&
             MOVE_SHEET_NAMES.some((s) => curAnimKey === `${charId}.${s}.anim`)

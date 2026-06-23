@@ -127,6 +127,7 @@ import {
   applyGrabBreak,
   createGrabState,
   isGrabActing,
+  canPummel,
   resetGrabState,
   tickGrab,
   type GrabInput,
@@ -2462,9 +2463,25 @@ export class Character {
         throwDirection: this.readThrowDirectionInput(input),
       };
       const before = this.grabState;
+      const pummelReadyBefore = canPummel(before);
       this.grabState = tickGrab(before, grabInput, this.grabSpec);
       this.prevGrabHeld = grabHeldThisFrame;
       this.handleGrabStateTransition(before, this.grabState);
+      // Pummel damage — fires the frame the attack button is pressed while
+      // holding, if the pummel cooldown was zero. canPummel checks the
+      // PRE-tick state (cooldown 0); tickGrab already reset it to cooldownFrames.
+      if (
+        pummelReadyBefore &&
+        grabInput.pummelPressed &&
+        this.grabTarget !== null &&
+        this.grabSpec.pummel
+      ) {
+        this.grabTarget.applyHit({
+          damage: this.grabSpec.pummel.damage,
+          knockback: { x: 0, y: 0, scaling: 0 },
+          facing: this.facing,
+        });
+      }
       // While holding, pin the target's body to the grabber's
       // contact-point offset each frame so it can't drift.
       if (this.grabState.name === 'holding' && this.grabTarget !== null) {

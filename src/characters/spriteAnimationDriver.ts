@@ -491,6 +491,14 @@ export const MOVE_SHEET_SPECS: ReadonlyArray<{
   Object.freeze({ sheet: 'side_special', frameRate: 14, repeat: 0, hold: true }),
   Object.freeze({ sheet: 'up_special', frameRate: 16, repeat: 0, hold: true }),
   Object.freeze({ sheet: 'down_special', frameRate: 14, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'hurt',   frameRate: 16, repeat: -1, hold: true }),
+  Object.freeze({ sheet: 'shield', frameRate: 12, repeat: -1, hold: true }),
+  Object.freeze({ sheet: 'grab',   frameRate: 16, repeat: 0,  hold: true }),
+  Object.freeze({ sheet: 'pummel', frameRate: 18, repeat: 0,  hold: true }),
+  Object.freeze({ sheet: 'fthrow', frameRate: 16, repeat: 0,  hold: true }),
+  Object.freeze({ sheet: 'bthrow', frameRate: 16, repeat: 0,  hold: true }),
+  Object.freeze({ sheet: 'uthrow', frameRate: 16, repeat: 0,  hold: true }),
+  Object.freeze({ sheet: 'dthrow', frameRate: 16, repeat: 0,  hold: true }),
 ]);
 
 /** All per-move sheet names (incl. crouch) — used to detect a leftover override clip. */
@@ -519,6 +527,14 @@ const MOVE_SHEET_KEYS: Partial<Record<CharacterId, Readonly<Record<string, strin
     side_special: ASSET_KEYS.charLinkSideSpecial,
     up_special: ASSET_KEYS.charLinkUpSpecial,
     down_special: ASSET_KEYS.charLinkDownSpecial,
+    hurt:    ASSET_KEYS.charLinkHurt,
+    shield:  ASSET_KEYS.charLinkShield,
+    grab:    ASSET_KEYS.charLinkGrab,
+    pummel:  ASSET_KEYS.charLinkPummel,
+    fthrow:  ASSET_KEYS.charLinkFthrow,
+    bthrow:  ASSET_KEYS.charLinkBthrow,
+    uthrow:  ASSET_KEYS.charLinkUthrow,
+    dthrow:  ASSET_KEYS.charLinkDthrow,
   }),
   kirby: Object.freeze({
     crouch: ASSET_KEYS.charKirbyCrouch,
