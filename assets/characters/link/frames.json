@@ -109,6 +109,26 @@
         ]
       ]
     },
+    "dair": {
+      "strip": "animations/dair.png",
+      "frameCount": 3,
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ]
+    },
     "down_special": {
       "strip": "animations/down_special.png",
       "frameCount": 3,
@@ -499,6 +519,26 @@
     },
     "tilt": {
       "strip": "animations/tilt.png",
+      "frameCount": 3,
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ]
+    },
+    "uair": {
+      "strip": "animations/uair.png",
       "frameCount": 3,
       "frameWidth": 128,
       "frameHeight": 128,
