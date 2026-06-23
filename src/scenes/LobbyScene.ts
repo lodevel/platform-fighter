@@ -267,6 +267,15 @@ export class LobbyScene extends Phaser.Scene {
    */
   private lastDeviceSnapshot: InputDeviceSnapshot | null = null;
 
+  /**
+   * Separate held-state map for per-slot gamepad actions (ready/leave/
+   * cycle/confirm/cancel). Kept independent of `padButtonHeld` so the
+   * join-polling pass (which consumes face-button edges for new joins)
+   * does not swallow the same edge before the slot-action pass can see
+   * it. Both maps are reset on init() so re-entries start clean.
+   */
+  private padSlotButtonHeld: GamepadHeldButtonState = new Map();
+
   constructor() {
     super({ key: 'LobbyScene' });
   }
@@ -274,6 +283,7 @@ export class LobbyScene extends Phaser.Scene {
   init(_data?: LobbySceneData): void {
     this.state = DEFAULT_LOBBY_STATE;
     this.padButtonHeld = new Map();
+    this.padSlotButtonHeld = new Map();
     this.lastDeviceSnapshot = null;
   }
 
@@ -346,7 +356,7 @@ export class LobbyScene extends Phaser.Scene {
       .text(
         width / 2,
         height * 0.84,
-        '[ENTER] continue to character select',
+        '[ENTER] or [START] continue to character select',
         {
           fontFamily: 'monospace',
           fontSize: '24px',
@@ -356,7 +366,7 @@ export class LobbyScene extends Phaser.Scene {
       .setOrigin(0.5);
 
     this.add
-      .text(width / 2, height * 0.89, '[ESC] back to main menu', {
+      .text(width / 2, height * 0.89, '[ESC] or [SELECT] back to main menu', {
         fontFamily: 'monospace',
         fontSize: '21px',
         color: '#888899',
@@ -420,6 +430,7 @@ export class LobbyScene extends Phaser.Scene {
    */
   update(): void {
     this.pollGamepadJoins();
+    this.pollGamepadSlotActions();
     this.refreshDeviceChips();
   }
 
@@ -561,6 +572,85 @@ export class LobbyScene extends Phaser.Scene {
     if (result.state !== this.state) {
       this.state = result.state;
       this.refreshAllTiles();
+    }
+  }
+
+  /**
+   * Per-frame poll for per-slot gamepad actions on pads that already own
+   * a slot. Uses a separate held-state map so the join-polling pass does
+   * not consume the edges before this pass can see them.
+   *
+   * Button layout (W3C standard mapping):
+   *   0 A/Cross   → ready toggle for the owning slot
+   *   1 B/Circle  → leave (drop the slot)
+   *   2 X/Square  → cycle input type (keyboard ↔ AI variants)
+   *   3 Y/Triangle→ toggle human / AI
+   *   8 Select    → cancel (back to main menu) — global, any pad
+   *   9 Start     → advance to ModeSelectScene — global, any pad
+   */
+  private pollGamepadSlotActions(): void {
+    const padPlugin = this.input.gamepad;
+    if (!padPlugin) return;
+    const livePads = padPlugin.gamepads;
+    if (!livePads) return;
+
+    // Build pad index → Phaser Gamepad lookup.
+    const padMap = new Map<number, { buttons: ReadonlyArray<{ pressed: boolean }> }>();
+    for (let i = 0; i < livePads.length; i += 1) {
+      const pad = livePads[i];
+      if (pad) padMap.set(pad.index, pad as { buttons: ReadonlyArray<{ pressed: boolean }> });
+    }
+
+    // Helper: edge-detect a single button on a specific pad using our
+    // separate slot-action held map.
+    const edge = (padIdx: number, buttonIndex: number): boolean => {
+      const pad = padMap.get(padIdx);
+      const pressed = pad?.buttons[buttonIndex]?.pressed ?? false;
+      let perPad = this.padSlotButtonHeld.get(padIdx);
+      if (!perPad) {
+        perPad = new Map<number, boolean>();
+        this.padSlotButtonHeld.set(padIdx, perPad);
+      }
+      const wasHeld = perPad.get(buttonIndex) ?? false;
+      perPad.set(buttonIndex, pressed);
+      return pressed && !wasHeld;
+    };
+
+    // Update held state for pads with no slot (so first-press on join frame
+    // doesn't re-fire next frame as a slot action after they join).
+    for (const pad of livePads) {
+      if (!pad) continue;
+      const ownedSlot = this.state.slots.find(
+        s => s.joined && s.inputType === 'gamepad' && s.gamepadIndex === pad.index,
+      );
+      if (!ownedSlot) {
+        // Keep held state in sync even for unowned pads.
+        for (const btn of [0, 1, 2, 3, 8, 9]) edge(pad.index, btn);
+      }
+    }
+
+    let advanceFired = false;
+    let cancelFired = false;
+
+    for (let i = 0; i < this.state.slots.length; i += 1) {
+      const slot = this.state.slots[i];
+      if (!slot?.joined || slot.inputType !== 'gamepad' || slot.gamepadIndex === undefined) continue;
+      const padIdx = slot.gamepadIndex;
+      const slotIndex = (i + 1) as 1 | 2 | 3 | 4;
+
+      if (edge(padIdx, 0)) this.handleToggleReady(slotIndex);   // A = ready
+      if (edge(padIdx, 1)) this.handleJoinToggle(slotIndex);    // B = leave
+      if (edge(padIdx, 2)) this.handleCycleInput(slotIndex);    // X = cycle device
+      if (edge(padIdx, 3)) this.handleToggleHumanAi(slotIndex); // Y = human/AI
+
+      if (!advanceFired && edge(padIdx, 9)) {
+        advanceFired = true;
+        this.handleConfirm(); // START = advance
+      }
+      if (!cancelFired && edge(padIdx, 8)) {
+        cancelFired = true;
+        this.handleCancel(); // SELECT = back
+      }
     }
   }
 
@@ -824,7 +914,12 @@ export class LobbyScene extends Phaser.Scene {
     tile.statusLabel.setText(preview.statusLabel);
     tile.statusLabel.setColor(slot.joined ? '#e8e8f0' : '#888899');
 
-    tile.hintLabel.setText(preview.hintLabel);
+    // For gamepad slots show button hints instead of keyboard key hints.
+    const hintText =
+      slot.joined && slot.inputType === 'gamepad'
+        ? 'Ⓐ READY  Ⓑ LEAVE\nⓍ CYCLE  Ⓨ H/AI'
+        : preview.hintLabel;
+    tile.hintLabel.setText(hintText);
     tile.hintLabel.setColor(slot.joined ? '#a0a0b8' : '#6cf0c2');
 
     tile.joinedBanner.setVisible(slot.joined);
