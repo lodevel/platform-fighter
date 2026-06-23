@@ -279,11 +279,12 @@ shield/crouch overrides — no render-loop changes needed once sheets/keys exist
 ### 3c — Character × weapon matrix (pickup items)
 
 PICKUP weapons (see `src/items/` for the current list — new weapons will be
-added) can be held by any character. **Each character × weapon combination requires its own set of
-sprite frames.** The weapon sprite is overlaid on the character, but the
-character's hand grip in the body art must visually match what they are
-holding — the hand shape, grip position, and finger placement must look like
-the character is actually holding THAT weapon, not just standing near it.
+added) can be held by any character. **Each character × weapon combination
+requires its own set of sprite frames.** The weapon sprite is overlaid on the
+character, but the character's hand grip in the body art must visually match
+what they are holding — the hand shape, grip position, and finger placement
+must look like the character is actually holding THAT weapon, not just
+standing near it.
 
 A generic swing pose with the hand floating does not count. The grip must be
 adapted: wrapping both hands around a bat handle looks different from a
@@ -291,7 +292,6 @@ one-finger trigger pull on a ray gun or a fist around a sword hilt.
 
 **This is a hard per-character requirement:**
 - Adding a new character ⇒ one weapon-grip animation set per weapon currently in the game
-- Adding a new weapon ⇒ one weapon-grip animation set per character currently in the roster
 - The weapon list will grow — always check `src/items/` for the current full list before generating art
 
 **Per-weapon grip and pose reference:**
@@ -315,38 +315,10 @@ weapon they hold. Weapon-specific body clips will be routed once the
 `heldWeapon` override layer is added to `MatchScene.ts`. Art must be ready
 before the routing can be wired — produce the sprites now, integrate later.
 
----
-
-### Adding a new weapon — ground-pickup visual (`MatchScene.ts`)
-
-When you add a new `ItemDefinition` in `src/items/`, you also need to add its
-ground-pickup visual in the item-spawn block of `MatchScene.ts` (search for
-`itemVisuals.set`). The item container's **y=0 is the ground contact point** —
-the weapon sprite must have its bottom edge at exactly y=0 in container space.
-
-**The only two correct patterns:**
-
-```ts
-// Bottom-anchored (setOrigin y=1) — position at y=0 so bottom IS the ground.
-this.add.image(0, 0, ASSET_KEYS.itemMyWeapon)
-  .setOrigin(0.5, 1)
-  .setDisplaySize(w, h)
-
-// Center-anchored (default) — position at y = -(h/2) so bottom lands at y=0.
-this.add.image(0, -(h / 2), ASSET_KEYS.itemMyWeapon)
-  .setOrigin(0.5, 0.5)
-  .setDisplaySize(w, h)
-```
-
-**Never do this** — `setOrigin(0.5, 1)` with a negative y places the bottom
-ABOVE the ground, making the weapon float:
-```ts
-// WRONG — bottom is at y=-24, weapon floats 24px above the platform.
-this.add.image(0, -24, ASSET_KEYS.itemMyWeapon).setOrigin(0.5, 1)
-```
-
-Do NOT add a text label underneath the weapon sprite. The sprite itself must
-be distinctive enough to identify the weapon type at a glance.
+> **Adding a new weapon entirely** (new `ItemDefinition`, new sprite, rotation
+> arc, grip animations for every character) → use the **`add-weapon` skill**
+> instead. It handles the full pipeline including triggering this §3c step for
+> every fighter in the roster.
 
 **Grabs/throws that MOVE the grabbed character (DK-slam etc.) → `docs/SPRITE-PLAN.md`:**
 the grabber owns the move anim + a per-frame grab-anchor; the victim reuses ONE shared
