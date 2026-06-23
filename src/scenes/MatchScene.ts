@@ -55,7 +55,7 @@ import {
 import { resolveLedgeTrumps } from '../characters/ledgeHangState';
 // Truthful hitbox-centre math — shared with `spawnHitbox` so the hit
 // spark / debug overlay land exactly where the real Matter sensor does.
-import { computeHitboxCenter } from '../characters/attacks';
+import { computeHitboxCenter, type ActiveAttack } from '../characters/attacks';
 import {
   computeRageMultiplier,
   computeStaleMultiplier,
@@ -4142,38 +4142,56 @@ export class MatchScene extends Phaser.Scene {
               // platform instead of sinking halfway through it.
               const visualParts: Phaser.GameObjects.GameObject[] = [];
               if (def.type === 'sword') {
-                // Sword — long steel blade + crossguard + grip. The
-                // blade reads as the longest thin silhouette so the
-                // tipper weapon is recognisable at a glance.
-                const blade = this.add
-                  .rectangle(0, -24, 8, 40, 0xd8dde6, 1)
-                  .setStrokeStyle(2, 0x000000, 0.7);
-                const guard = this.add
-                  .rectangle(0, -5, 18, 4, 0xc9a86a, 1)
-                  .setStrokeStyle(1, 0x000000, 0.6);
-                const grip = this.add
-                  .rectangle(0, 0, 6, 8, 0x4d3a23, 1)
-                  .setStrokeStyle(1, 0x000000, 0.6);
-                visualParts.push(blade, guard, grip);
+                if (this.textures.exists(ASSET_KEYS.itemSword)) {
+                  visualParts.push(
+                    this.add.image(0, -28, ASSET_KEYS.itemSword)
+                      .setOrigin(0.5, 1)
+                      .setDisplaySize(36, 56),
+                  );
+                } else {
+                  const blade = this.add
+                    .rectangle(0, -24, 8, 40, 0xd8dde6, 1)
+                    .setStrokeStyle(2, 0x000000, 0.7);
+                  const guard = this.add
+                    .rectangle(0, -5, 18, 4, 0xc9a86a, 1)
+                    .setStrokeStyle(1, 0x000000, 0.6);
+                  const grip = this.add
+                    .rectangle(0, 0, 6, 8, 0x4d3a23, 1)
+                    .setStrokeStyle(1, 0x000000, 0.6);
+                  visualParts.push(blade, guard, grip);
+                }
               } else if (def.type === 'hammer') {
-                // Hammer — short shaft with a massive head: the
-                // unmistakable "this thing KOs" silhouette.
-                const shaft = this.add
-                  .rectangle(0, -14, 7, 30, 0x8b6f47, 1)
-                  .setStrokeStyle(2, 0x000000, 0.7);
-                const head = this.add
-                  .rectangle(0, -30, 30, 16, 0x9aa3ad, 1)
-                  .setStrokeStyle(2, 0x000000, 0.7);
-                visualParts.push(shaft, head);
+                if (this.textures.exists(ASSET_KEYS.itemHammer)) {
+                  visualParts.push(
+                    this.add.image(0, -24, ASSET_KEYS.itemHammer)
+                      .setOrigin(0.5, 1)
+                      .setDisplaySize(44, 48),
+                  );
+                } else {
+                  const shaft = this.add
+                    .rectangle(0, -14, 7, 30, 0x8b6f47, 1)
+                    .setStrokeStyle(2, 0x000000, 0.7);
+                  const head = this.add
+                    .rectangle(0, -30, 30, 16, 0x9aa3ad, 1)
+                    .setStrokeStyle(2, 0x000000, 0.7);
+                  visualParts.push(shaft, head);
+                }
               } else if (def.type === 'spear') {
-                // Spear — the longest, thinnest shaft with a leaf tip.
-                const shaft = this.add
-                  .rectangle(0, -24, 5, 46, 0x8b6f47, 1)
-                  .setStrokeStyle(2, 0x000000, 0.7);
-                const tip = this.add
-                  .triangle(0, -50, 0, 8, 5, 0, 10, 8, 0xd8dde6)
-                  .setStrokeStyle(1, 0x000000, 0.7);
-                visualParts.push(shaft, tip);
+                if (this.textures.exists(ASSET_KEYS.itemSpear)) {
+                  visualParts.push(
+                    this.add.image(0, -36, ASSET_KEYS.itemSpear)
+                      .setOrigin(0.5, 1)
+                      .setDisplaySize(20, 72),
+                  );
+                } else {
+                  const shaft = this.add
+                    .rectangle(0, -24, 5, 46, 0x8b6f47, 1)
+                    .setStrokeStyle(2, 0x000000, 0.7);
+                  const tip = this.add
+                    .triangle(0, -50, 0, 8, 5, 0, 10, 8, 0xd8dde6)
+                    .setStrokeStyle(1, 0x000000, 0.7);
+                  visualParts.push(shaft, tip);
+                }
               } else if (def.category === 'melee-weapon') {
                 // Bat — procedural tapered baseball-bat PNG
                 // (`ASSET_KEYS.itemBat`). Falls back to the legacy
@@ -4365,9 +4383,19 @@ export class MatchScene extends Phaser.Scene {
                         child.setScale(sign, 1);
                       }
                     }
+                    // Weapon swing animation: rotate container based on
+                    // weapon attack phase. Angles in Phaser degrees where
+                    // 0° = blade pointing up, 90° = pointing right (forward
+                    // when facing right). setScale(-1,1) mirrors the x-axis
+                    // so we always author angles for "facing right" and
+                    // mirroring handles the left-facing case automatically.
+                    container.setAngle(
+                      computeWeaponAngle(entity.definition.type, holder.character.getActiveAttack()),
+                    );
                   }
                 } else {
                   container.setScale(1, 1);
+                  container.setAngle(0);
                   for (const child of container.list) {
                     if (child instanceof Phaser.GameObjects.Text) {
                       child.setScale(1, 1);
@@ -6253,4 +6281,60 @@ function buildSpriteAnimationSnapshot(character: Character): SpriteAnimationSnap
     velocityY: velocity.y,
     destroyed: false,
   };
+}
+
+/**
+ * Weapon display angle for the held-item container.
+ *
+ * Phaser container angles: 0° = blade up, 90° = blade pointing right.
+ * The container is already mirrored via setScale(-1,1) when facing left,
+ * so angles are always authored for "facing right" only.
+ *
+ * Rest angles — plausible held-at-side poses before any attack:
+ *   sword/bat/hammer → ~30° (diagonal-forward)
+ *   spear/raygun     → ~85° (nearly horizontal, pointing forward)
+ *
+ * Attack arcs — sweep angle driven by progress t ∈ [0,1] over
+ * startupFrames + activeFrames. At t=1 the weapon is at the impact
+ * position where the hitbox fires.
+ */
+function computeWeaponAngle(itemType: string, active: ActiveAttack | null): number {
+  if (active && active.move.id.startsWith('item.')) {
+    const total = active.move.startupFrames + active.move.activeFrames;
+    const t = total > 0 ? Math.min(active.framesElapsed / total, 1) : 1;
+    switch (active.move.id) {
+      case 'item.bat.swing':
+        // Baseball arc: bat pulled back → big follow-through
+        return lerp(-60, 110, t);
+      case 'item.sword.slash':
+        // Overhead slash: raised → swung down-forward
+        return lerp(-70, 100, t);
+      case 'item.spear.thrust':
+        // Spear stays horizontal; small extension forward
+        return lerp(80, 90, t);
+      case 'item.hammer.smash': {
+        // Two-phase: windup (startup) raises hammer over head,
+        // then active window slams it down. Startup = 14 frames.
+        const startupRatio = active.move.startupFrames / total;
+        if (t <= startupRatio) {
+          return lerp(25, -110, t / startupRatio);
+        }
+        return lerp(-110, 130, (t - startupRatio) / (1 - startupRatio));
+      }
+      default:
+        return 30;
+    }
+  }
+  // Rest angle by item type
+  switch (itemType) {
+    case 'spear':
+    case 'rayGun':
+      return 85;
+    default:
+      return 30;
+  }
+}
+
+function lerp(a: number, b: number, t: number): number {
+  return a + (b - a) * t;
 }

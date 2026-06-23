@@ -358,6 +358,12 @@ export const ASSET_KEYS = {
   itemBat: 'item.bat.sprite',
   /** Ray-gun item sprite — 70×70 PNG from Kenney Platformer Art Deluxe (`raygun.png`). */
   itemRayGun: 'item.raygun.sprite',
+  /** Sword item sprite — 96×96 RGBA. */
+  itemSword: 'item.sword.sprite',
+  /** Spear item sprite — 96×96 RGBA. */
+  itemSpear: 'item.spear.sprite',
+  /** Hammer item sprite — 96×96 RGBA. */
+  itemHammer: 'item.hammer.sprite',
 
   // ---------------- audio: SFX ---------------------------------------
   sfxJab: 'sfx.jab',
@@ -1274,6 +1280,21 @@ const itemImages: readonly ImageAssetEntry[] = [
     key: ASSET_KEYS.itemRayGun,
     kind: 'image',
     url: `${ITEM_SPRITES_ROOT}/raygun.png`,
+  },
+  {
+    key: ASSET_KEYS.itemSword,
+    kind: 'image',
+    url: `${ITEM_SPRITES_ROOT}/sword.png`,
+  },
+  {
+    key: ASSET_KEYS.itemSpear,
+    kind: 'image',
+    url: `${ITEM_SPRITES_ROOT}/spear.png`,
+  },
+  {
+    key: ASSET_KEYS.itemHammer,
+    kind: 'image',
+    url: `${ITEM_SPRITES_ROOT}/hammer.png`,
   },
 ];
 
