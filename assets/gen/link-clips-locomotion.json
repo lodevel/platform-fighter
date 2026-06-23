@@ -1,0 +1,42 @@
+{
+  "fighter": "link",
+
+  "identity": "heroic elf swordsman, rich forest-green tunic with layered tonal depth, cream and gold embroidered trim at collar and hem, fine chainmail visible at collar and along the forearms, chest and torso crossed with two brown leather straps and a thick brown belt with an ornate golden buckle, small leather pouch at the hip, forest-green feathered cap with a single white feather, long golden-brown hair, sharply pointed ears, determined confident expression, left arm bearing an ornate round Hylian-style metal shield — dark hammered steel with a raised gold boss and carved geometric engravings, right hand gripping a gleaming longsword with a slender dark-metal blade, ornate golden crossguard, and a deep blue gemstone set in the pommel, dark forest-green leggings, tall brown leather knee-boots with ribbed stitching and silver metal clasps, painterly semi-realistic digital art, warm gold rim-lighting on the left, deep cool shadow greens on the right, full body character sprite facing right, magenta background",
+
+  "draftBody": "heroic elf swordsman in detailed forest-green tunic with chainmail, leather straps and golden belt, feathered cap, long golden hair, pointed ears, round hammered-metal shield with gold boss, gleaming longsword with gold crossguard and blue gemstone, tall leather boots, painterly semi-realistic game sprite facing right, magenta background",
+
+  "idSeed": 512,
+
+  "clips": {
+    "run": [
+      "running rightward, right leg planted forward, left leg lifting behind",
+      "running rightward, legs passing under the body in an upright stride",
+      "running rightward, left leg reaching forward, arms pumping",
+      "running rightward, left leg planted forward, pushing off",
+      "running rightward, right leg lifting behind the body",
+      "running rightward, legs passing under the body, leaning forward",
+      "running rightward, right leg reaching forward fully extended",
+      "running rightward, mid-air recovery, both feet off the ground"
+    ],
+
+    "jump": [
+      "crouching low, knees deeply bent, ready to spring up",
+      "exploding upward, legs beginning to extend, arms swinging up",
+      "rising in the air, legs tucked, arms raised",
+      "at the apex of the jump, body fully extended",
+      "starting to fall, legs lowering, arms out for balance"
+    ],
+
+    "attack": [
+      "winding up, sword raised high overhead behind the head",
+      "beginning the sword swing, blade coming down from above",
+      "mid sword swing, blade slashing forward horizontally",
+      "sword at full forward extension, the point of contact",
+      "follow through, sword swept down low across the body"
+    ],
+
+    "idle": [
+      "standing in a relaxed neutral ready stance, sword held down at the right side, round shield on the left arm, weight balanced on both feet, facing right"
+    ]
+  }
+}

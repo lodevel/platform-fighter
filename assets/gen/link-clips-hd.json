@@ -9,172 +9,172 @@
 
   "clips": {
     "run": [
-      "running rightward at full sprint, right leg planted forward, left leg sweeping back, arms pumping, tunic trailing behind, shield arm held close, sword arm swinging forward",
-      "running rightward, legs crossing under the body in a fluid upright stride, weight balanced, cape edge catching air",
-      "running rightward, left leg reaching fully forward, right arm punching forward with sword, body leaning into the run",
-      "running rightward, left leg planted, pushing off with full force, sword arm pulling back for counter-swing",
-      "running rightward, right leg sweeping back behind the body, left arm with shield driving forward for momentum",
-      "running rightward, legs passing under the body, body leaning slightly forward, weight shifting to the lead foot",
-      "running rightward, right leg extending forward fully, toes reaching, arms at maximum pump extension",
-      "running rightward, mid-stride both feet briefly off the ground, body fully airborne for one frame"
+      "running rightward, right leg planted forward, left leg lifting behind",
+      "running rightward, legs passing under the body in an upright stride",
+      "running rightward, left leg reaching forward, arms pumping",
+      "running rightward, left leg planted forward, pushing off",
+      "running rightward, right leg lifting behind the body",
+      "running rightward, legs passing under the body, leaning forward",
+      "running rightward, right leg reaching forward fully extended",
+      "running rightward, mid-air recovery, both feet off the ground"
     ],
 
     "jump": [
-      "crouching low with knees deeply bent, weight coiled, shield tight against the body, ready to spring upward",
-      "exploding upward from the crouch, legs beginning to straighten, sword arm swinging overhead for momentum, shield arm rising",
-      "rising through the air, knees tucking toward the chest, sword raised beside the head, shield arm extended for balance",
-      "at the apex of the jump, body fully extended, sword pointing upward, cape and tunic spread outward from the peak",
-      "beginning to fall, legs lowering and extending, sword dropping to ready position, arms spreading for balance on descent"
+      "crouching low, knees deeply bent, ready to spring up",
+      "exploding upward, legs beginning to extend, arms swinging up",
+      "rising in the air, legs tucked, arms raised",
+      "at the apex of the jump, body fully extended",
+      "starting to fall, legs lowering, arms out for balance"
     ],
 
     "attack": [
-      "winding up a sword swing, blade raised high overhead behind the head, body coiled and weight shifted back, left arm with shield drawn tight",
-      "beginning the sword swing downward, blade arcing from above, shoulders rotating forward, body uncoiling into the strike",
-      "mid sword swing, blade slashing forward horizontally at chest height, full shoulder rotation, shield arm pulling back for balance",
-      "sword at full forward extension, the point of contact — blade tip pointing right, arm locked out, body fully committed",
-      "follow through, sword swept low across the body after the strike, weight shifted forward, recovering balance"
+      "winding up, sword raised high overhead behind the head",
+      "beginning the sword swing, blade coming down from above",
+      "mid sword swing, blade slashing forward horizontally",
+      "sword at full forward extension, the point of contact",
+      "follow through, sword swept down low across the body"
     ],
 
     "crouch": [
-      "crouching down low in a defensive duck, knees deeply bent and spread, back flat, head lowered behind the shield which is raised and angled forward, sword held horizontal at waist level, facing right"
+      "crouching down low in a defensive duck, knees deeply bent, head lowered, shield up, facing right"
     ],
 
     "jab": [
-      "chambering a quick short sword jab, right arm pulled back at the elbow, blade pointing forward low, weight shifting onto the front foot",
-      "the sword fully extended forward in a fast straight jab, arm locked out, blade tip at chest height, body leaning slightly into the thrust",
-      "the sword retracting back to guard position after the jab, right elbow bending back, shield rising to cover center, weight settling"
+      "a quick short sword jab thrusting straight forward",
+      "the sword fully extended forward at the tip of a fast jab",
+      "the sword retracting back to guard after a quick jab"
     ],
 
     "jab2": [
-      "pulling the sword back from the jab, right arm bending and rotating to chamber a diagonal follow-up slash, body pivoting at the hip",
-      "the sword beginning to slash diagonally forward and downward in a fast follow-up, blade angling from high-right to low-left",
-      "the diagonal slash at full forward extension, blade sweeping across at the hit point at mid-body height",
-      "the sword sweeping low and back after the slash, elbow bending as the arm recovers toward guard, body weight resettling"
+      "pulling the sword back from jab1, chambering for a fast follow-up diagonal slash",
+      "the sword beginning to slash diagonally forward and downward in a fast follow-up",
+      "the diagonal slash at full forward extension at the hit point",
+      "the sword sweeping low, recovering to guard after the jab2"
     ],
 
     "jab3": [
-      "beginning a spinning sword finisher, body coiling into a pivot on the left foot, right arm pulling the sword inward tight to build momentum",
-      "mid-spin with the sword sweeping outward in a wide horizontal arc, body rotating fast, cape spinning outward from centrifugal force",
-      "the spinning slash at maximum extension, blade tip pointing fully outward from the spin, body at the apex of the rotation",
-      "completing the spin and landing back in a neutral guard stance facing right, sword arm settling at the side, shield forward"
+      "beginning a spinning sword finisher, body coiling into a spin",
+      "mid-spin with the sword sweeping outward in a wide horizontal arc",
+      "the spinning slash fully extended outward at maximum arc",
+      "landing back in a neutral guard stance after the spin finisher"
     ],
 
     "tilt": [
-      "leaning the upper body forward to angle a quick sword poke, right arm extending and low, blade angling slightly downward, left foot stepping forward",
-      "the sword swept forward at mid-height in a quick tilt slash, arm fully extended, blade edge leading, body weight fully on front foot",
-      "recovering from the tilt, right arm pulling the sword back toward the body, weight shifting back to neutral balanced stance"
+      "leaning forward into an angled forward sword poke",
+      "the sword swept forward in a quick tilt slash",
+      "recovering to a neutral stance after a tilt"
     ],
 
     "dtilt": [
-      "crouching very low to the ground, coiling the sword arm back to sweep the blade forward along the floor at ankle height, knees nearly touching ground",
-      "the sword beginning its low forward sweep along the ground, blade flat and horizontal at ankle height, body low and compact, weight driving the sweep",
-      "sword sweeping through at the hit point — blade flat, low at ground level, arm fully extended forward along the floor",
-      "sword fully extended forward along the ground after the low sweep, body rising slightly to begin recovering from the crouching position"
+      "crouching very low, coiling the body to sweep the sword forward at ankle height",
+      "the sword beginning its forward sweep along the ground at ankle height while crouching",
+      "sword sweeping through at the hit point, low at ground level",
+      "sword fully extended forward low, body recovering from the crouching sweep"
     ],
 
     "smash": [
-      "charging a big overhead sword smash, blade raised high directly overhead with both hands, body coiled back, knees slightly bent, weight loaded — a beat of held tension",
-      "swinging a powerful overhead smash downward with explosive force, both arms driving the blade from overhead toward the target, body fully uncoiling",
-      "the blade striking at the apex of the heavy smash, sword extended forward and slightly downward at the hit point, full body committed to the blow",
-      "the sword low and forward in the recovery of the heavy smash, right arm dropping, body weight resettling, balance returning"
+      "charging a big overhead sword smash, blade raised high, body coiled",
+      "swinging a powerful overhead sword smash downward with force",
+      "the blade striking forward at the apex of a heavy smash",
+      "the sword low and forward in the recovery of a heavy smash"
     ],
 
     "nair": [
-      "airborne, initiating a spinning neutral-air sword attack, body beginning to rotate, sword arm starting its outward sweep, feet tucked",
-      "airborne at the mid-spin, the sword whirling outward from the body at full extension, blade tip pointing out, cape billowing from the rotation",
-      "airborne, completing the neutral-air spin, sword finishing its arc and returning toward guard, body slowing the rotation to recover"
+      "airborne, a spinning neutral sword attack with the blade sweeping around the body",
+      "airborne mid-spin, the sword whirling outward",
+      "airborne, the sword finishing the neutral-air spin"
     ],
 
     "fair": [
-      "airborne, winding up a forward aerial overhead sword chop, right arm lifting the blade high above the head, body coiling back while falling",
-      "airborne, chopping the sword powerfully downward in front of the body, blade driving from overhead toward the ground, full extension of both arms",
-      "airborne, the sword swept low after the forward aerial chop, arm following through below center, body recovering from the downward arc"
+      "airborne, winding up a forward aerial overhead sword chop",
+      "airborne, chopping the sword downward in front in a forward aerial",
+      "airborne, the sword swept low after a forward aerial"
     ],
 
     "bair": [
-      "airborne, twisting the upper body backward to swing the sword behind the body, right arm crossing across the torso to reach behind, weight shifting on the twist",
-      "airborne, the sword striking backward behind the body at the hit point, blade tip pointing backward-left, body fully twisted in the back aerial",
-      "airborne, recovering from the back aerial, upper body unwinding to face forward again, sword arm returning toward the front guard position"
+      "airborne, twisting to swing the sword backward behind the body",
+      "airborne, the sword striking backward in a back aerial",
+      "airborne, recovering from the back aerial swing"
     ],
 
     "uair": [
-      "airborne, coiling the sword arm downward and tilting the head upward, glancing skyward to prepare an overhead swing, knees slightly bent in the air",
-      "airborne, sweeping the sword in a wide upward arc directly above the head at full extension, blade tip pointing straight up at the peak of the swing",
-      "airborne, sword arm at the peak of the upswing, momentum carrying the arm back down to recover, head returning to forward gaze"
+      "airborne, coiling the sword arm downward and glancing upward, preparing to swing overhead, facing right",
+      "airborne, sweeping the sword in a wide upward arc directly above the head at full extension, facing right",
+      "airborne, sword arm at the peak of the upswing, recovering downward after the overhead slice, facing right"
     ],
 
     "dair": [
-      "airborne, raising the sword high overhead with both hands, gripping the hilt two-handed, pointing the tip straight downward, body braced for the spike",
-      "airborne, driving the sword downward with both hands in a powerful overhead spike plunge, arms fully extended straight down, body rigid and committed",
-      "airborne, sword fully extended downward after the spike, arms straightened below the body, beginning to recover upward from the plunge position"
+      "airborne, raising the sword high overhead with both hands, pointing the tip straight down ready to spike, facing right",
+      "airborne, driving the sword downward with both hands in a powerful overhead spike plunge, facing right",
+      "airborne, sword arm extended fully downward after the spike, body recovering upward, facing right"
     ],
 
     "neutral_special": [
-      "drawing a bow taut with an arrow nocked, left arm extended holding the bow forward, right hand pulling the string back past the cheek, aiming straight right",
-      "releasing the arrow — the bowstring snapping forward, right hand releasing, left arm absorbing the bow's kick, eyes tracking the shot",
-      "lowering the bow after firing, right arm relaxing from the draw, bow arm dropping back to the side, recovering to a balanced stance"
+      "drawing a bow taut, arrow nocked, aiming straight forward",
+      "releasing the arrow, the bowstring snapping forward as the arrow flies",
+      "lowering the bow after firing the arrow"
     ],
 
     "side_special": [
-      "winding back to hurl a boomerang forward, right arm pulled behind the body rotating for the throw, body coiling at the waist, weight on the back foot",
-      "hurling the boomerang forward at full extension, right arm snapping forward completely, wrist flicking for spin, body fully rotated into the throw",
-      "arm following through after launching the boomerang, right arm sweeping low in front of the body, torso rotating through the release, head watching the projectile"
+      "winding back to hurl a boomerang forward",
+      "throwing the boomerang forward, arm fully extended",
+      "arm following through after launching the boomerang"
     ],
 
     "up_special": [
-      "beginning a rising spin attack, sword held low and coiled beside the body, knees bending to load the jump, free arm pulling in for rotation",
-      "whirling upward in the spinning blade attack, sword sweeping outward in a fast rising arc, body spiralling upward, hair and cape fanning from the spin",
-      "at the top of the rising spin attack, sword fully extended outward from the peak of the spiral, body beginning to slow its rotation before the fall"
+      "beginning a rising spin attack, sword held low and coiled",
+      "whirling the sword in a fast spin attack while rising upward",
+      "at the top of the rising spin attack, sword extended outward"
     ],
 
     "down_special": [
-      "crouching forward and reaching down with both hands, preparing to set a round bomb on the ground, weight on the front foot, head angled down",
-      "placing the bomb carefully low to the ground, both hands lowering the sphere near the floor, body low and compact, shield kept close on the left arm",
-      "rising back upward after placing the bomb, hands lifting away from the ground, body straightening, returning toward a neutral guarded stance"
+      "crouching to set a round bomb down on the ground",
+      "placing the bomb low to the ground, reaching down",
+      "rising back up after setting the bomb"
     ],
 
     "hurt": [
-      "recoiling backward from a hit, body twisted and lurching rearward, head snapping back, sword arm flailing, shield dropping slightly from the impact shock, facing right",
-      "stumbling back after the hit, weight shifted far rearward, feet skidding, one arm out for balance, grimacing expression, facing right"
+      "recoiling backward from a hit, body twisted in pain, head snapping back, facing right",
+      "stumbling back, weight shifted rearward, arms flailing slightly from the impact, facing right"
     ],
 
     "shield": [
-      "standing firm in a tight defensive stance, round metal shield raised high and angled forward to cover the upper body, sword held back beside the hip, knees slightly bent, braced for impact, facing right"
+      "standing firm with the round shield raised high in front, braced in a defensive stance, facing right"
     ],
 
     "grab": [
-      "lunging forward with the right arm reaching out open-handed to seize an opponent, left arm holding the shield back and out of the way, body weight surging forward, facing right",
-      "right arm fully extended forward at chest height, hand open and fingers spread, grasping for the opponent at full lunge extension, facing right",
-      "pulling the right arm back after a grab attempt, elbow bending as the hand returns, body recovering to a neutral stance, shield coming back up, facing right"
+      "lunging forward with the right arm reaching out to grab, left hand holding the shield back, facing right",
+      "right arm fully extended forward at chest height, hand open to seize an opponent, facing right",
+      "pulling the arm back slightly after a grab attempt, body recovering to neutral, facing right"
     ],
 
     "pummel": [
-      "right fist cocked back at the elbow, left arm braced forward as if gripping something in front, winding up a short-range strike while holding, facing right",
-      "right fist driving forward in a compact hook punch at close range, knuckles leading, left arm still holding firm, impact at close quarters, facing right"
+      "right fist cocked back while left hand grips something in front, winding up to strike, facing right",
+      "right fist driving forward in a short hook punch at close range into the grab, facing right"
     ],
 
     "fthrow": [
-      "gripping an opponent with both arms, heaving forward with the full weight of the body behind it, feet driving off the ground, body leaning far forward, facing right",
-      "releasing the opponent and shoving forward with both arms fully outstretched, palms open and pushing, body fully extended into the release, facing right",
-      "following through after the forward throw, arms extended low from the release, body leaning forward, gradually recovering balance and raising the shield, facing right"
+      "gripping the opponent with both hands, heaving forward with full body weight, facing right",
+      "releasing and shoving forward with outstretched arms at full extension, facing right",
+      "following through the throw, arms extended, body leaning forward, recovering stance, facing right"
     ],
 
     "bthrow": [
-      "pivoting fast on one foot, rotating the entire body backward to reverse direction while holding the opponent, sword arm tucked in, shield swinging outward, facing right turning left",
-      "releasing the opponent behind the body at the peak of the spin, right arm sweeping wide to the left in the release, body still rotating, facing left mid-throw",
-      "completing the full spin and settling back to face right, body decelerating from the rotation, arms returning to guard, feet planting to recover stance"
+      "spinning around pivoting on one foot to reverse direction while holding opponent, facing right",
+      "releasing behind the body mid-spin, arm swinging wide to the left, facing right",
+      "completing the spin and settling back to face right, body recovering after back throw"
     ],
 
     "uthrow": [
-      "bending knees deeply and coiling low while gripping an opponent overhead, arms straining upward, body loaded for an explosive upward launch, facing right",
-      "exploding upward from the coil, both arms driving the opponent directly overhead at full extension, legs pushing off the ground, body fully tall and reaching up, facing right",
-      "releasing the opponent at the peak of the upward throw, both arms high and open, eyes following the opponent upward, body decelerating from the launch, facing right"
+      "bending knees and coiling low while gripping opponent overhead, facing right",
+      "exploding upward with arms driving the opponent directly overhead at full extension, facing right",
+      "releasing the throw at the peak, arms high, looking up, body recovering, facing right"
     ],
 
     "dthrow": [
-      "pulling an opponent downward and dropping to one knee, arms driving the opponent toward the floor, body low and compact, full weight behind the downward force, facing right",
-      "slamming the opponent into the floor with both arms driving straight down, body bent over the impact, knee on the ground, shield arm helping pin the opponent, facing right",
-      "rising back up from the ground slam, pushing up with one knee first, arms rising as the body straightens, recovering to a standing guard stance, facing right"
+      "pulling opponent downward and dropping to one knee to pin them toward the ground, facing right",
+      "slamming opponent into the floor with both arms driving downward, body low, facing right",
+      "rising back up from the ground slam, recovering to standing, facing right"
     ]
   }
 }
