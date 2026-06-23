@@ -1,15 +1,15 @@
 {
   "meta": {
     "source": "AI: Z-Image ControlNet pose-source pipeline (tools/gen-frames.ts + pack-clips.cjs)",
-    "cellWidth": 64,
-    "cellHeight": 64
+    "cellWidth": 128,
+    "cellHeight": 128
   },
   "animations": {
     "idle": {
       "strip": "animations/idle.png",
       "frameCount": 4,
-      "frameWidth": 64,
-      "frameHeight": 64,
+      "frameWidth": 128,
+      "frameHeight": 128,
       "sourceCells": [
         [
           0,
@@ -32,8 +32,8 @@
     "attack": {
       "strip": "animations/attack.png",
       "frameCount": 5,
-      "frameWidth": 64,
-      "frameHeight": 64,
+      "frameWidth": 128,
+      "frameHeight": 128,
       "sourceCells": [
         [
           0,
@@ -60,8 +60,8 @@
     "bair": {
       "strip": "animations/bair.png",
       "frameCount": 3,
-      "frameWidth": 64,
-      "frameHeight": 64,
+      "frameWidth": 128,
+      "frameHeight": 128,
       "sourceCells": [
         [
           0,
@@ -80,8 +80,8 @@
     "crouch": {
       "strip": "animations/crouch.png",
       "frameCount": 2,
-      "frameWidth": 64,
-      "frameHeight": 64,
+      "frameWidth": 128,
+      "frameHeight": 128,
       "sourceCells": [
         [
           0,
@@ -96,8 +96,8 @@
     "down_special": {
       "strip": "animations/down_special.png",
       "frameCount": 3,
-      "frameWidth": 64,
-      "frameHeight": 64,
+      "frameWidth": 128,
+      "frameHeight": 128,
       "sourceCells": [
         [
           0,
@@ -116,8 +116,8 @@
     "dtilt": {
       "strip": "animations/dtilt.png",
       "frameCount": 4,
-      "frameWidth": 64,
-      "frameHeight": 64,
+      "frameWidth": 128,
+      "frameHeight": 128,
       "sourceCells": [
         [
           0,
@@ -140,8 +140,8 @@
     "fair": {
       "strip": "animations/fair.png",
       "frameCount": 3,
-      "frameWidth": 64,
-      "frameHeight": 64,
+      "frameWidth": 128,
+      "frameHeight": 128,
       "sourceCells": [
         [
           0,
@@ -160,8 +160,8 @@
     "jab": {
       "strip": "animations/jab.png",
       "frameCount": 3,
-      "frameWidth": 64,
-      "frameHeight": 64,
+      "frameWidth": 128,
+      "frameHeight": 128,
       "sourceCells": [
         [
           0,
@@ -180,8 +180,8 @@
     "jab2": {
       "strip": "animations/jab2.png",
       "frameCount": 4,
-      "frameWidth": 64,
-      "frameHeight": 64,
+      "frameWidth": 128,
+      "frameHeight": 128,
       "sourceCells": [
         [
           0,
@@ -204,8 +204,8 @@
     "jab3": {
       "strip": "animations/jab3.png",
       "frameCount": 4,
-      "frameWidth": 64,
-      "frameHeight": 64,
+      "frameWidth": 128,
+      "frameHeight": 128,
       "sourceCells": [
         [
           0,
@@ -228,8 +228,8 @@
     "jump": {
       "strip": "animations/jump.png",
       "frameCount": 5,
-      "frameWidth": 64,
-      "frameHeight": 64,
+      "frameWidth": 128,
+      "frameHeight": 128,
       "sourceCells": [
         [
           0,
@@ -256,8 +256,8 @@
     "nair": {
       "strip": "animations/nair.png",
       "frameCount": 3,
-      "frameWidth": 64,
-      "frameHeight": 64,
+      "frameWidth": 128,
+      "frameHeight": 128,
       "sourceCells": [
         [
           0,
@@ -276,8 +276,8 @@
     "neutral_special": {
       "strip": "animations/neutral_special.png",
       "frameCount": 3,
-      "frameWidth": 64,
-      "frameHeight": 64,
+      "frameWidth": 128,
+      "frameHeight": 128,
       "sourceCells": [
         [
           0,
@@ -296,8 +296,8 @@
     "run": {
       "strip": "animations/run.png",
       "frameCount": 8,
-      "frameWidth": 64,
-      "frameHeight": 64,
+      "frameWidth": 128,
+      "frameHeight": 128,
       "sourceCells": [
         [
           0,
@@ -336,8 +336,8 @@
     "side_special": {
       "strip": "animations/side_special.png",
       "frameCount": 3,
-      "frameWidth": 64,
-      "frameHeight": 64,
+      "frameWidth": 128,
+      "frameHeight": 128,
       "sourceCells": [
         [
           0,
@@ -356,8 +356,8 @@
     "smash": {
       "strip": "animations/smash.png",
       "frameCount": 4,
-      "frameWidth": 64,
-      "frameHeight": 64,
+      "frameWidth": 128,
+      "frameHeight": 128,
       "sourceCells": [
         [
           0,
@@ -380,8 +380,8 @@
     "tilt": {
       "strip": "animations/tilt.png",
       "frameCount": 3,
-      "frameWidth": 64,
-      "frameHeight": 64,
+      "frameWidth": 128,
+      "frameHeight": 128,
       "sourceCells": [
         [
           0,
@@ -400,8 +400,8 @@
     "up_special": {
       "strip": "animations/up_special.png",
       "frameCount": 3,
-      "frameWidth": 64,
-      "frameHeight": 64,
+      "frameWidth": 128,
+      "frameHeight": 128,
       "sourceCells": [
         [
           0,

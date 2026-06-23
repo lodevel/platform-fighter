@@ -100,7 +100,7 @@ node.exe node_modules/tsx/dist/cli.mjs tools/gen-frames-cn.ts assets/gen/<id>-cl
 node.exe tools/pack-clips.cjs <id>                          # -> assets/characters/<id>/animations/*.png + frames.json
 ```
 Canny library is namespaced per fighter (`<id>__<pose>`) — different bodies must not
-share cannys. Cells are a FIXED 64×64 so manifest frame dims never drift.
+share cannys. Cells are a FIXED 128×128 so manifest frame dims never drift.
 
 ### 3b — Wire (ALL of these — miss one and the sprite is frozen or invisible)
 1. **manifest.ts** `ASSET_KEYS`: 18 keys `char<Id>{Idle,Run,Jump,Attack,Crouch,

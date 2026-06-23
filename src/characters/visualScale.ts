@@ -73,11 +73,11 @@ export const CHARACTER_SPRITE_DISPLAY_SIZE: Readonly<Record<CharacterId, number>
   volt: 58,
   nova: 100,
   bruno: 80,
-  // Procedural-only fighters (no sprite sheet) — the display size equals
-  // the body height so the rendered rectangle matches the hurtbox 1:1.
-  link: 72, // body height 72
-  kirby: 52, // body height 52 (round puffball)
-  donkeykong: 84, // body height 84 (largest silhouette in the cast)
+  // AI-pack fighters (128×128 cell, ~0.96 fill fraction).
+  // display × 0.96 ≈ bodyHeight → visible silhouette matches hurtbox.
+  link: 75, // body 72, fill 0.96 → 72/0.96 ≈ 75
+  kirby: 54, // body 52, fill 0.96 → 52/0.96 ≈ 54
+  donkeykong: 88, // body 84, fill 0.96 → 84/0.96 ≈ 88
 });
 
 /**

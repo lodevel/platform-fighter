@@ -20,7 +20,7 @@ const FRAMES_DIR = path.join(ROOT, 'assets', 'gen', 'frames', FIGHTER);
 const IDLE_KEYFRAME = path.join(ROOT, 'assets', 'gen', '_spike', 'cn-link.png');
 const OUT_DIR = path.join(ROOT, 'assets', 'characters', FIGHTER);
 const ANIM_DIR = path.join(OUT_DIR, 'animations');
-const CELL_H = 64;
+const CELL_H = 128;
 const BREATH = [1.0, 0.975, 1.0, 1.02];
 
 function readPng(f) { return PNG.sync.read(fs.readFileSync(f)); }

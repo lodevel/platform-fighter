@@ -693,32 +693,32 @@ const linkSpritesheets: readonly SpritesheetAssetEntry[] = [
     key: ASSET_KEYS.charLinkIdle,
     kind: 'spritesheet',
     url: `${CHAR_ROOT}/link/animations/idle.png`,
-    frameWidth: 64,
-    frameHeight: 64,
+    frameWidth: 128,
+    frameHeight: 128,
     frameCount: 4,
   },
   {
     key: ASSET_KEYS.charLinkRun,
     kind: 'spritesheet',
     url: `${CHAR_ROOT}/link/animations/run.png`,
-    frameWidth: 64,
-    frameHeight: 64,
+    frameWidth: 128,
+    frameHeight: 128,
     frameCount: 8,
   },
   {
     key: ASSET_KEYS.charLinkJump,
     kind: 'spritesheet',
     url: `${CHAR_ROOT}/link/animations/jump.png`,
-    frameWidth: 64,
-    frameHeight: 64,
+    frameWidth: 128,
+    frameHeight: 128,
     frameCount: 5,
   },
   {
     key: ASSET_KEYS.charLinkAttack,
     kind: 'spritesheet',
     url: `${CHAR_ROOT}/link/animations/attack.png`,
-    frameWidth: 64,
-    frameHeight: 64,
+    frameWidth: 128,
+    frameHeight: 128,
     frameCount: 5,
   },
 ];
@@ -726,24 +726,24 @@ const linkSpritesheets: readonly SpritesheetAssetEntry[] = [
 // Link — full per-move + ducking set (AI ControlNet pipeline). Frame counts mirror
 // assets/characters/link/frames.json (one cell per generated pose).
 const linkMovesetSpritesheets: readonly SpritesheetAssetEntry[] = [
-  { key: ASSET_KEYS.charLinkCrouch, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/crouch.png`, frameWidth: 64, frameHeight: 64, frameCount: 2 },
-  { key: ASSET_KEYS.charLinkJab, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/jab.png`, frameWidth: 64, frameHeight: 64, frameCount: 3 },
-  { key: ASSET_KEYS.charLinkJab2, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/jab2.png`, frameWidth: 64, frameHeight: 64, frameCount: 4 },
-  { key: ASSET_KEYS.charLinkJab3, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/jab3.png`, frameWidth: 64, frameHeight: 64, frameCount: 4 },
-  { key: ASSET_KEYS.charLinkTilt, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/tilt.png`, frameWidth: 64, frameHeight: 64, frameCount: 3 },
-  { key: ASSET_KEYS.charLinkDtilt, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/dtilt.png`, frameWidth: 64, frameHeight: 64, frameCount: 4 },
-  { key: ASSET_KEYS.charLinkSmash, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/smash.png`, frameWidth: 64, frameHeight: 64, frameCount: 4 },
-  { key: ASSET_KEYS.charLinkNair, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/nair.png`, frameWidth: 64, frameHeight: 64, frameCount: 3 },
-  { key: ASSET_KEYS.charLinkFair, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/fair.png`, frameWidth: 64, frameHeight: 64, frameCount: 3 },
-  { key: ASSET_KEYS.charLinkBair, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/bair.png`, frameWidth: 64, frameHeight: 64, frameCount: 3 },
-  { key: ASSET_KEYS.charLinkNeutralSpecial, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/neutral_special.png`, frameWidth: 64, frameHeight: 64, frameCount: 3 },
-  { key: ASSET_KEYS.charLinkSideSpecial, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/side_special.png`, frameWidth: 64, frameHeight: 64, frameCount: 3 },
-  { key: ASSET_KEYS.charLinkUpSpecial, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/up_special.png`, frameWidth: 64, frameHeight: 64, frameCount: 3 },
-  { key: ASSET_KEYS.charLinkDownSpecial, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/down_special.png`, frameWidth: 64, frameHeight: 64, frameCount: 3 },
+  { key: ASSET_KEYS.charLinkCrouch, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/crouch.png`, frameWidth: 128, frameHeight: 128, frameCount: 2 },
+  { key: ASSET_KEYS.charLinkJab, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/jab.png`, frameWidth: 128, frameHeight: 128, frameCount: 3 },
+  { key: ASSET_KEYS.charLinkJab2, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/jab2.png`, frameWidth: 128, frameHeight: 128, frameCount: 4 },
+  { key: ASSET_KEYS.charLinkJab3, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/jab3.png`, frameWidth: 128, frameHeight: 128, frameCount: 4 },
+  { key: ASSET_KEYS.charLinkTilt, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/tilt.png`, frameWidth: 128, frameHeight: 128, frameCount: 3 },
+  { key: ASSET_KEYS.charLinkDtilt, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/dtilt.png`, frameWidth: 128, frameHeight: 128, frameCount: 4 },
+  { key: ASSET_KEYS.charLinkSmash, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/smash.png`, frameWidth: 128, frameHeight: 128, frameCount: 4 },
+  { key: ASSET_KEYS.charLinkNair, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/nair.png`, frameWidth: 128, frameHeight: 128, frameCount: 3 },
+  { key: ASSET_KEYS.charLinkFair, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/fair.png`, frameWidth: 128, frameHeight: 128, frameCount: 3 },
+  { key: ASSET_KEYS.charLinkBair, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/bair.png`, frameWidth: 128, frameHeight: 128, frameCount: 3 },
+  { key: ASSET_KEYS.charLinkNeutralSpecial, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/neutral_special.png`, frameWidth: 128, frameHeight: 128, frameCount: 3 },
+  { key: ASSET_KEYS.charLinkSideSpecial, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/side_special.png`, frameWidth: 128, frameHeight: 128, frameCount: 3 },
+  { key: ASSET_KEYS.charLinkUpSpecial, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/up_special.png`, frameWidth: 128, frameHeight: 128, frameCount: 3 },
+  { key: ASSET_KEYS.charLinkDownSpecial, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/down_special.png`, frameWidth: 128, frameHeight: 128, frameCount: 3 },
 ];
 
 // Helper: build a fighter's spritesheet entries from (assetKey, file, frameCount)
-// tuples at the standard 64x64 AI-pack cell. Cuts the per-character boilerplate for
+// tuples at the standard 128x128 AI-pack cell. Cuts the per-character boilerplate for
 // the full per-move sprite packs.
 function charSheetEntries(
   fighter: string,
@@ -753,8 +753,8 @@ function charSheetEntries(
     key,
     kind: 'spritesheet' as const,
     url: `${CHAR_ROOT}/${fighter}/animations/${file}.png`,
-    frameWidth: 64,
-    frameHeight: 64,
+    frameWidth: 128,
+    frameHeight: 128,
     frameCount,
   }));
 }
