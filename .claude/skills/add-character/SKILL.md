@@ -158,9 +158,15 @@ Override priority in MatchScene (highest first):
 | `up_special` | `type:'upSpecial'` | 3 |
 | `down_special` | `type:'downSpecial'` | 3 |
 
-**`dtilt` vs `dair` are completely different clips** — `dtilt` is a grounded
-crouching sweep; `dair` is an aerial spike/plunge. The renderer routes them
-independently. Never share art between them.
+**`dtilt` is the crouching attack clip** — the character is visibly low
+(crouched/bent) while attacking. It is completely distinct from the `crouch`
+idle (which is passive) and from `dair` (which is airborne). Three separate
+clips, three separate triggers:
+- `crouch` = passive idle duck, no attack. Loops while holding down.
+- `dtilt` = active grounded attack FROM the crouched position (down+attack input).
+- `dair` = aerial downward spike/plunge (airborne, not grounded).
+Never share art between them — they have different hurtbox states and the
+renderer routes them independently.
 
 **NOTE — remaining routing gaps (engine limitation, not a skip in art):**
 `attackMoveToSheet` in `spriteAnimationDriver.ts` still collapses:
@@ -204,8 +210,33 @@ share cannys. Cells are a FIXED 128×128 so manifest frame dims never drift.
 node.exe node_modules/tsx/dist/cli.mjs tools/audit-facing.ts <id>
 ```
 Any frame with a negative L/R mass bias (faces left) needs to be flipped or
-regenerated. Horizontal flip via `pngjs` script (see `docs/ART-PIPELINE.md`).
+regenerated. Horizontal flip via `npx tsx tools/flip-h.ts <file.png>`.
 Delete unwanted extra frames before packing.
+
+### ⚠️ Repack cascade — regenerating ANY frame affects ALL 28 strips
+
+`pack-clips.cjs` computes a **single global bounding box** across every raw
+frame for the character before outputting any strip. Regenerating even one
+frame (e.g. fixing the crouch) changes that bbox, which shifts the crop and
+scale of all 28 output strips. After any repack you MUST visually verify the
+full set, not just the changed clip.
+
+**Cascade checklist after repack:**
+1. Open `idle`, `run`, `crouch`, `hurt` — confirm character is centred and
+   not clipped. These are the base states seen most often.
+2. Open the clip you changed — confirm the pose is correct and facing right.
+3. Spot-check at least 3 attack clips (`jab`, `smash`, one aerial) — confirm
+   the character isn't shifted or cut off.
+4. Re-run the facing audit (`audit-facing.ts`) — a repack can introduce new
+   facing-left frames if raw frames were inconsistent.
+5. If the bbox shifted visibly (character is smaller or repositioned vs.
+   before), re-run the FULL pipeline for this fighter to lock in a clean bbox
+   from all frames together.
+
+**Safe single-frame fix (avoids cascade):** instead of repacking, write the
+corrected 128×128 cell directly to `assets/characters/<id>/animations/<clip>.png`
+(bypassing pack-clips). Only do this when the frame count and cell size are
+identical to the existing strip — the manifest frame count must not change.
 
 ### 3b — Wire (ALL of these — miss one and the sprite is frozen or invisible)
 1. **manifest.ts** `ASSET_KEYS`: **28 keys** for `char<Id>` —
