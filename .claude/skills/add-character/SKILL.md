@@ -263,8 +263,8 @@ shield/crouch overrides — no render-loop changes needed once sheets/keys exist
 
 ### 3c — Character × weapon matrix (pickup items)
 
-PICKUP weapons (bat / hammer / sword / spear / rayGun / bomb) can be held by
-any character. **Each character × weapon combination requires its own set of
+PICKUP weapons (see `src/items/` for the current list — new weapons will be
+added) can be held by any character. **Each character × weapon combination requires its own set of
 sprite frames.** The weapon sprite is overlaid on the character, but the
 character's hand grip in the body art must visually match what they are
 holding — the hand shape, grip position, and finger placement must look like
@@ -275,9 +275,9 @@ adapted: wrapping both hands around a bat handle looks different from a
 one-finger trigger pull on a ray gun or a fist around a sword hilt.
 
 **This is a hard per-character requirement:**
-- 1 character + 6 weapons = 6 extra animation sets on top of the base 28 clips
-- Adding a new character ⇒ 6 new weapon-grip animation sets
-- Adding a new weapon ⇒ new grip animations for every existing character
+- Adding a new character ⇒ one weapon-grip animation set per weapon currently in the game
+- Adding a new weapon ⇒ one weapon-grip animation set per character currently in the roster
+- The weapon list will grow — always check `src/items/` for the current full list before generating art
 
 **Per-weapon grip and pose reference:**
 
