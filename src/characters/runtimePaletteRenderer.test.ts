@@ -681,7 +681,7 @@ describe('end-to-end determinism — full palette grid', () => {
     }
   });
 
-  it('every (id, paletteIndex) tints the sprite with the body slot target', () => {
+  it('every (id, paletteIndex) applies tint or clears for the correct palette', () => {
     const r = new RuntimePaletteRenderer();
     for (const id of ids) {
       const ladder = ladders[id];
@@ -693,7 +693,14 @@ describe('end-to-end determinism — full palette grid', () => {
           { index: 1, characterId: id, paletteIndex: i },
         );
         expect(result.spritePath).toBe('tint');
-        expect(sprite.setTintCalls).toEqual([ladder[i]!.primaryColor]);
+        if (i === 0) {
+          // Canonical palette — sprite shows natural colours, no tint applied.
+          expect(sprite.clearTintCalls).toBe(1);
+          expect(sprite.setTintCalls).toHaveLength(0);
+        } else {
+          // Non-canonical palette — hue-shift tint toward primary colour.
+          expect(sprite.setTintCalls).toEqual([ladder[i]!.primaryColor]);
+        }
       }
     }
   });

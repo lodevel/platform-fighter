@@ -256,6 +256,21 @@ identical to the existing strip — the manifest frame count must not change.
 5. **visualScale.ts** `CHARACTER_SPRITE_FACES_LEFT['<id>'] = false` (right-facing art;
    trust the in-game playtest over eyeballing — this call has been wrong before).
 6. **<Name>.test.ts**: flip the `spriteKey).toBeNull()` assertion to `.not.toBeNull()`.
+7. **palettes.ts** — 8-entry palette ladder for the new character. **The palette
+   system changes the CHARACTER'S CLOTHES color, not just the UI background.**
+   Palette 0 is canonical (shows the sprite's authored colours with no tint).
+   Palettes 1–7 apply a hue-shift tint to the whole sprite in the character select
+   preview and in-match. Choose `primaryColor` values that are distinct and readable:
+   - They must be pairwise distinct within the ladder (test enforces this).
+   - Pick colours that feel like valid "alt costumes" — a green tunic hero might
+     have palettes: blue tunic, red tunic, purple, dark/black, gold, white, pink.
+   - `primaryColor` drives both the rect fallback AND the sprite hue shift; pick
+     a colour that reads clearly when multiplied against the character's art.
+   - `accentColor` tints secondary pixel ranges (outlines, detail strokes).
+   - `labelColor` is used for HUD labels and any highlight pixels in the sprite.
+   The WebGL shader remaps specific source pixel colours to target colours; the
+   canvas fallback uses `setTint` (whole-sprite hue multiply). Both paths read
+   the same `palettes.ts` table — no separate files needed per skin.
 
 The MatchScene render loop already plays the per-move clip for the active move
 (`attackMoveToSheet` maps `move.type` + `aerialDirection`) and plays all grab/hurt/

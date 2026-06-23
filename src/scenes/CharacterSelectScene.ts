@@ -51,8 +51,6 @@ import {
   paletteSwapForCharacter,
 } from '../characters/PaletteSwapRenderer';
 // AC 10303 Sub-AC 3 — shader-pipeline remap descriptor type (see the
-// remap capture in `refreshPlayerCard`).
-import type { PaletteSwapRemap } from '../characters/paletteSwapShader';
 // AC 20302 Sub-AC 2 — Runtime palette renderer for the preview path.
 import { RuntimePaletteRenderer } from '../characters/runtimePaletteRenderer';
 import { getCharacterSpec } from '../characters/roster';
@@ -1286,40 +1284,42 @@ export class CharacterSelectScene extends Phaser.Scene {
       return;
     }
 
-    // AC 10303 Sub-AC 3 — the live card preview runs through the SAME
-    // palette pipeline the match render uses.
-    const swap = paletteSwapForCharacter(
-      preview.slotIndex,
-      preview.characterId,
-      preview.paletteIndex,
-    );
-    const renderResult = this.paletteRenderer.paint(
+    // Resolve sprite texture first so the palette paint below can apply
+    // the tint to the correct character sprite in the same pass.
+    const spec = getCharacterSpec(preview.characterId);
+    const spriteKey = spec.placeholder.spriteKey;
+    const hasSprite = !!(spriteKey && this.textures.exists(spriteKey));
+    if (hasSprite) {
+      card.bodySprite.setTexture(spriteKey!);
+      applySpriteDisplayHeight(card.bodySprite, card.bodySpriteDisplayHeight);
+      card.bodySprite.setVisible(true);
+      card.bodyRect.setAlpha(0.15);
+    } else {
+      card.bodySprite.setVisible(false);
+      card.bodyRect.setAlpha(1);
+    }
+
+    // Apply palette to both the background rect and the character sprite so
+    // cycling skins changes the sprite's hue, not just the background color.
+    // Palette 0 (canonical) clears any tint so the sprite shows its natural
+    // authored colours; non-0 palettes apply a hue-shift tint.
+    this.paletteRenderer.paint(
       `slot-${preview.slotIndex}`,
-      { body: card.bodyRect, facingMark: card.facingMark },
+      {
+        body: card.bodyRect,
+        facingMark: card.facingMark,
+        ...(hasSprite ? { sprite: card.bodySprite } : {}),
+      },
       {
         index: preview.slotIndex,
         characterId: preview.characterId,
         paletteIndex: preview.paletteIndex,
       },
-      { bodyFillAlpha: 1, bodyStrokeAlpha: 1 },
-    );
-    // Capture the shader remap descriptor so a future sprite drop-in
-    // can consume it without re-deriving the colour pairs.
-    const remap: PaletteSwapRemap = renderResult.remap;
-    void remap;
-    applyPaletteSwap(
-      { body: card.bodyRect, facingMark: card.facingMark },
-      swap,
-      { bodyFillAlpha: 1, bodyStrokeAlpha: 1 },
+      { bodyFillAlpha: hasSprite ? 0.15 : 1, bodyStrokeAlpha: hasSprite ? 0 : 1 },
     );
 
     card.nameLabel.setText(preview.displayName.toUpperCase());
     card.roleLabel.setText(preview.roleLabel.toUpperCase());
-    // A restored gamepad slot whose physical pad didn't survive the
-    // scene restart is input-dead until a pad presses Ⓐ and re-adopts
-    // it (the joinPad orphan-adoption path, Smash-style). Surface that
-    // on the card in a warning tint instead of silently claiming a
-    // live GAMEPAD binding — match start is deliberately NOT gated.
     const orphanedGamepad =
       mode === 'human' &&
       preview.inputType === 'gamepad' &&
@@ -1339,22 +1339,6 @@ export class CharacterSelectScene extends Phaser.Scene {
       swatch.setStrokeStyle(data.active ? 3 : 1, data.active ? MENU_COLORS.gold : 0x666677);
     }
     card.mouseFocusBadge.setVisible(this.focusedMouseSlotIndex === card.slotIndex);
-
-    // Swap the body sprite to the picked character's idle frame.
-    const spec = getCharacterSpec(preview.characterId);
-    const spriteKey = spec.placeholder.spriteKey;
-    if (spriteKey && this.textures.exists(spriteKey)) {
-      card.bodySprite.setTexture(spriteKey);
-      applySpriteDisplayHeight(card.bodySprite, card.bodySpriteDisplayHeight);
-      card.bodySprite.setVisible(true);
-      // The sprite is the visible character; dim the underlying
-      // colour rect so it reads as a debug hurtbox rather than a
-      // duplicate body.
-      card.bodyRect.setAlpha(0.15);
-    } else {
-      card.bodySprite.setVisible(false);
-      card.bodyRect.setAlpha(1);
-    }
   }
 
   /**

@@ -660,14 +660,19 @@ export function applyPaletteSwapTintFallback(
   if (typeof sprite.setTint !== 'function') {
     return false;
   }
-  if (typeof sprite.clearTint === 'function') {
-    sprite.clearTint();
-  }
   // First entry is the body slot by `PALETTE_SLOT_ORDER` convention.
-  // Falls back to white (no tint) if the remap is somehow empty.
   const bodyEntry = remap.entries[0];
-  const tint = bodyEntry ? bodyEntry.target : 0xffffff;
-  sprite.setTint(tint);
+  // Canonical palette (source === target) — leave the sprite's natural
+  // colours intact instead of multiplying with the primary color.
+  if (!bodyEntry || bodyEntry.source === bodyEntry.target) {
+    if (typeof sprite.clearTint === 'function') sprite.clearTint();
+    return true;
+  }
+  // Non-canonical palette — tint the whole sprite toward the skin colour.
+  // This is a crude fallback; the WebGL pipeline remaps specific pixel
+  // ranges precisely. At minimum, each skin produces a visually distinct
+  // hue shift so players can tell palettes apart.
+  sprite.setTint(bodyEntry.target);
   return true;
 }
 

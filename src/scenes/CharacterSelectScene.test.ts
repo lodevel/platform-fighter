@@ -120,17 +120,15 @@ describe('CharacterSelectScene — AC 13 Sub-AC 4 wiring contract', () => {
     );
   });
 
-  it('builds the per-slot PaletteSwapRemap via the runtime renderer so the shader pipeline stays primed', () => {
-    // The shader / canvas-remap pipeline (`paletteSwapShader.ts`) is
-    // the future home of sprite-atlas tinting. The lobby preview must
-    // exercise the SAME remap descriptor so a future sprite drop-in
-    // can replace the rectangle painter without re-deriving colour
-    // pairs in two places (AC 20302 Sub-AC 2).
+  it('routes the preview through the runtime palette renderer (shader pipeline primed)', () => {
+    // The runtime renderer applies tint to both the body rect and the
+    // character sprite so cycling skins changes the sprite hue, not just
+    // the background colour (AC 20302 Sub-AC 2).
     expect(SCENE_SRC).toMatch(
       /import\s*\{\s*RuntimePaletteRenderer\s*\}\s*from\s*['"]\.\.\/characters\/runtimePaletteRenderer['"]/,
     );
     expect(SCENE_SRC).toMatch(/this\.paletteRenderer\.paint\(/);
-    expect(SCENE_SRC).toMatch(/PaletteSwapRemap/);
+    expect(SCENE_SRC).toMatch(/sprite.*bodySprite|bodySprite.*sprite/);
   });
 
   it('hides the fighter preview on empty cards (no half-picked ghost state)', () => {

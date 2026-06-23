@@ -759,13 +759,22 @@ describe('applyPaletteSwapPipeline', () => {
 // ---------------------------------------------------------------------------
 
 describe('applyPaletteSwapTintFallback', () => {
-  it('clears + sets tint to the body slot target colour', () => {
+  it('sets tint to the body slot target colour for a non-canonical palette', () => {
     const sprite = createTintOnlySprite();
     const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'wolf', 1));
     const used = applyPaletteSwapTintFallback(sprite, remap);
     expect(used).toBe(true);
-    expect(sprite.clearTintCalls).toBe(1);
+    expect(sprite.clearTintCalls).toBe(0);
     expect(sprite.setTintCalls).toEqual([WOLF_PALETTES[1]!.primaryColor]);
+  });
+
+  it('clears tint (no setTint) for the canonical palette so sprite shows natural colours', () => {
+    const sprite = createTintOnlySprite();
+    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'wolf', 0));
+    const used = applyPaletteSwapTintFallback(sprite, remap);
+    expect(used).toBe(true);
+    expect(sprite.clearTintCalls).toBe(1);
+    expect(sprite.setTintCalls).toHaveLength(0);
   });
 
   it('returns false when the sprite has no setTint method', () => {
