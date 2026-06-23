@@ -824,7 +824,7 @@ const kirbySpritesheets: readonly SpritesheetAssetEntry[] = charSheetEntries('ki
   [ASSET_KEYS.charKirbyDthrow, 'dthrow', 3],
   [ASSET_KEYS.charKirbyUair, 'uair', 3],
   [ASSET_KEYS.charKirbyDair, 'dair', 3],
-]);
+], CHAR_FRAME_SIZE_HD);
 
 // Donkey Kong — full AI sprite set. Counts mirror assets/characters/donkeykong/frames.json.
 const donkeykongSpritesheets: readonly SpritesheetAssetEntry[] = charSheetEntries('donkeykong', [
@@ -856,7 +856,7 @@ const donkeykongSpritesheets: readonly SpritesheetAssetEntry[] = charSheetEntrie
   [ASSET_KEYS.charDonkeykongDthrow, 'dthrow', 3],
   [ASSET_KEYS.charDonkeykongUair, 'uair', 3],
   [ASSET_KEYS.charDonkeykongDair, 'dair', 3],
-]);
+], CHAR_FRAME_SIZE_HD);
 
 // tools/build-newchar-sprites.cjs). The 'attack' strip reuses the
 // pack's JumpFall pounce pose (no dedicated attack animation).

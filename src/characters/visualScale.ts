@@ -206,8 +206,10 @@ export const CHARACTER_SPRITE_ART_OFFSET_Y: Readonly<Record<CharacterId, number>
     // feet (measured consistently across idle/run/shield/crouch). Seat the feet
     // by shifting down that fraction; the shadow then hangs into the floor.
     link: 15 / 256,
-    kirby: 0,
-    donkeykong: 0,
+    // HD re-pack (256² cells from original 1024 sources): same AI ground-shadow
+    // below the feet. Measured gaps: Kirby ~12px, DK ~14px on idle/shield.
+    kirby: 12 / 256,
+    donkeykong: 14 / 256,
   });
 
 /** Lookup the foot-padding offset fraction; 0 (feet on the bottom edge) default. */
