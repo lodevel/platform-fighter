@@ -121,9 +121,10 @@ export function createPhaserGameConfig(): Phaser.Types.Core.GameConfig {
 
     // Renderer flags ------------------------------------------------------
     render: {
-      pixelArt: true,
-      antialias: false,
-      roundPixels: true,
+      pixelArt: false,
+      antialias: true,
+      antialiasGL: true,
+      roundPixels: false,
       // Power preference helps laptops pick the discrete GPU when present.
       powerPreference: 'high-performance',
     },

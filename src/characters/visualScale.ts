@@ -42,42 +42,28 @@ import type { CharacterId } from '../types';
  * RENDER area.
  */
 export const CHARACTER_SPRITE_DISPLAY_SIZE: Readonly<Record<CharacterId, number>> = Object.freeze({
-  wolf: 150,
-  cat: 112,
-  owl: 105,
-  bear: 130,
+  wolf: 200,
+  cat: 150,
+  owl: 140,
+  bear: 175,
   // Post-M5 roster expansion. CRITICAL sizing rule (measured from the
   // original cast): the FRAME display height times the character's
   // alpha-fill fraction must land near the fighter's body height, so
-  // the visible silhouette matches the hurtbox — wolf (150 × 0.44 ≈
-  // 66 = body 66) and cat (112 × 0.58 ≈ 65 = body 65) are exactly 1.0.
-  // The new sheets fill their frames far more tightly than the legacy
-  // strips, so the agent's first pass (140/110/135) rendered them
-  // 1.3-1.9× oversized. Re-derived as `bodyHeight / fillFraction`:
-  //   Blaze  body 78, fill 0.71 → 78 / 0.71 ≈ 110
-  //   Puff   body 56, fill 0.83 → 56 / 0.83 ≈ 70  (round blob)
-  //   Aegis  body 76, fill 0.93 → 76 / 0.93 ≈ 86
-  // (Width derives from each frame's aspect via applySpriteDisplayHeight,
-  // so Puff's wide blob and Aegis's sword reach stay undistorted.)
-  blaze: 110,
-  puff: 70,
-  aegis: 86,
-  // Post-batch-2 roster expansion. Same `bodyHeight / fillFraction`
-  // rule, measured off each new pack's idle sheet (cell 0 alpha bbox):
-  //   Volt   body 52, fill 0.90 → 52 / 0.90 ≈ 58  (tiny chibi creature)
-  //   Nova   body 74, fill 0.74 → 74 / 0.74 ≈ 100 (armoured zoner)
-  //   Bruno  body 68, fill 0.86 → 68 / 0.86 ≈ 79 → 80 (compact hero)
-  // Width derives from each frame's aspect via applySpriteDisplayHeight,
-  // so the wide cyborg cannon and the chibi cat's round head stay
-  // undistorted.
-  volt: 58,
-  nova: 100,
-  bruno: 80,
+  // the visible silhouette matches the hurtbox — wolf (200 × 0.44 ≈
+  // 88 = body 88) and cat (150 × 0.58 ≈ 87 = body 87) are scaled ~1.33×.
+  // All values increased ~1.33× from original to fill more of the 1080p
+  // canvas (target: ~15-20% of screen height for main fighters).
+  blaze: 148,
+  puff: 94,
+  aegis: 115,
+  volt: 78,
+  nova: 134,
+  bruno: 107,
   // AI-pack fighters (128×128 cell, ~0.96 fill fraction).
   // display × 0.96 ≈ bodyHeight → visible silhouette matches hurtbox.
-  link: 75, // body 72, fill 0.96 → 72/0.96 ≈ 75
-  kirby: 54, // body 52, fill 0.96 → 52/0.96 ≈ 54
-  donkeykong: 88, // body 84, fill 0.96 → 84/0.96 ≈ 88
+  link: 100, // body 96, fill 0.96 → scaled 1.33× from 75
+  kirby: 72,  // body 69, fill 0.96 → scaled 1.33× from 54
+  donkeykong: 117, // body 112, fill 0.96 → scaled 1.33× from 88
 });
 
 /**
