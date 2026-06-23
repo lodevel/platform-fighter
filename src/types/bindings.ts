@@ -478,7 +478,7 @@ export function buildDefaultGamepadBindings(gamepadIndex: number): ActionMap {
     moveRight: gpAxis(gamepadIndex, 0, +1),
     moveUp: gpAxis(gamepadIndex, 1, -1),
     moveDown: gpAxis(gamepadIndex, 1, +1),
-    jump: gpButton(gamepadIndex, 0),
+    jump: Object.freeze([...gpButton(gamepadIndex, 0), ...gpButton(gamepadIndex, 1)]),
     attack: gpButton(gamepadIndex, 2),
     special: gpButton(gamepadIndex, 3),
     shield: gpButton(gamepadIndex, 5),

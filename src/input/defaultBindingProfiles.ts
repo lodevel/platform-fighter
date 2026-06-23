@@ -334,7 +334,7 @@ export const gamepadDefaults: ActionMap = Object.freeze({
   moveRight: gpAxis(null, 0, +1),
   moveUp: gpAxis(null, 1, -1),
   moveDown: gpAxis(null, 1, +1),
-  jump: gpButton(null, 0),
+  jump: Object.freeze([...gpButton(null, 0), ...gpButton(null, 1)]),
   attack: gpButton(null, 2),
   special: gpButton(null, 3),
   shield: gpButton(null, 5),
