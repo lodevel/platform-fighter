@@ -267,6 +267,37 @@ raygun/spear/sword) held organically need held-animation variants = fighters ×
 weapons (or × weapon-archetypes by grip). Adding a NEW weapon ⇒ new held-frames for
 every fighter; adding a NEW fighter ⇒ held-frames for every weapon. (Not yet built.)
 
+**Weapon visual coherence (what IS implemented):**
+The weapon sprite container rotates through an arc during attacks
+(`computeWeaponAngle` in `MatchScene.ts`). The arc is weapon-type-specific:
+- Bat: wide baseball swing (-60° → +110°)
+- Sword: overhead slash (-70° → +100°)
+- Spear: stays horizontal, forward thrust (80° → 90°)
+- Hammer: two-phase windup then slam (25° → -110° → +130°)
+
+The weapon rotation is the SAME for every character holding that weapon —
+**do not change per-character ranges or hitboxes**, weapons are balanced
+independently of who holds them.
+
+**What is NOT yet implemented — body animation coherence:**
+When a character picks up a bat and swings it, their body still plays their
+own character-specific attack animation (e.g. Link plays his sword-slash
+body art while swinging a bat). This reads as incoherent. The correct
+solution is per-weapon-archetype body overrides:
+
+| Weapon archetype | Expected body pose | Current state |
+|---|---|---|
+| Bat / sword / hammer (swing) | Both hands gripping, side-arc swing | Uses character's own jab/smash art ❌ |
+| Spear (thrust) | Forward lunge, weapon extended | Uses character's own tilt art ❌ |
+| Ray gun (shoot) | Point and fire, recoil | Uses character's own neutral-special art ❌ |
+
+Until body overrides are built, **the weapon container rotation is the primary
+visual signal** — ensure the arc timing is visually coherent with the
+character's body animation so they don't fight each other. If a character's
+jab animation has a very forward-reaching arm, the weapon arc should peak
+at the same frame the arm extends (tweak `startupFrames` in the item def if
+the timing is clearly off, but do NOT change damage or knockback).
+
 **Grabs/throws that MOVE the grabbed character (DK-slam etc.) → `docs/SPRITE-PLAN.md`:**
 the grabber owns the move anim + a per-frame grab-anchor; the victim reuses ONE shared
 `grabbed` pose pinned via `setPosition`, so victim art cost is constant, not per-grabber.
