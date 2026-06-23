@@ -44,29 +44,32 @@ import type { CharacterId } from '../types';
 /**
  * On-screen sprite display size (px) at the base 1920×1080 viewport.
  *
- * Target: characters at 18-25% of screen height (≈ 195-270px on 1080p),
- * matching the visual weight of modern platform fighters. Source cells are
- * 256×256 (see CHAR_FRAME_SIZE in manifest.ts), so display sizes in this
- * range are near 1:1 — bilinear scaling stays crisp with no noticeable blur.
+ * These are the original MAP-BALANCED proportions — sized so the fighter
+ * reads correctly against Stage 1's 1180px main platform and the cinematic
+ * auto-zoom camera. HD sharpness comes from the 256² source cells + bilinear
+ * filtering (renderer flags), NOT from inflating the on-screen footprint:
+ * a 256² sprite shown at 75px is crisp AND correctly proportioned. An earlier
+ * pass bumped these ~2× for "HD presence" and made characters dwarf the stage;
+ * reverted here.
  *
  * Sizing rule per character: `bodyHeight / fillFraction` — ensures the
  * visible silhouette (alpha-filled pixels) matches the hurtbox dimensions.
  */
 export const CHARACTER_SPRITE_DISPLAY_SIZE: Readonly<Record<CharacterId, number>> = Object.freeze({
-  wolf:       256, // body 88, fill 0.44 → 88/0.44 ≈ 200 → 256 for near-1:1 source
-  cat:        192, // body 87, fill 0.58 → 87/0.58 ≈ 150 → 192
-  owl:        180, // body 68, fill 0.52 → 68/0.52 ≈ 130 → 180
-  bear:       224, // body 85, fill 0.52 → 85/0.52 ≈ 163 → 224
-  blaze:      192, // body 78, fill 0.71 → 110 → 192
-  puff:       120, // body 56, fill 0.83 → 70  → 120 (small blob, keep compact)
-  aegis:      148, // body 76, fill 0.93 → 86  → 148
-  volt:       100, // body 52, fill 0.90 → 58  → 100 (tiny chibi — intentionally small)
-  nova:       172, // body 74, fill 0.74 → 100 → 172
-  bruno:      138, // body 68, fill 0.86 → 80  → 138
-  // AI-pack fighters (256×256 cell target, ~0.96 fill fraction after regen).
-  link:       160, // body 96, fill 0.96 → 100 → 160
-  kirby:       92, // body 69, fill 0.96 → 72  →  92 (keep small — Kirby is tiny)
-  donkeykong: 216, // body 112, fill 0.96 → 117 → 216
+  wolf:       150, // body 66, fill 0.44 → 66/0.44 = 150
+  cat:        112, // body 65, fill 0.58 → 65/0.58 ≈ 112
+  owl:        105, // body 68, fill 0.65 → ≈ 105
+  bear:       130, // body 85, fill 0.65 → ≈ 130
+  blaze:      110, // body 78, fill 0.71 → ≈ 110
+  puff:        70, // body 56, fill 0.83 → ≈ 70  (round blob)
+  aegis:       86, // body 76, fill 0.93 → ≈ 86
+  volt:        58, // body 52, fill 0.90 → ≈ 58  (tiny chibi creature)
+  nova:       100, // body 74, fill 0.74 → ≈ 100
+  bruno:       80, // body 68, fill 0.86 → ≈ 80
+  // AI-pack fighters (~0.96 fill fraction). display × 0.96 ≈ bodyHeight.
+  link:        75, // body 72, fill 0.96 → 72/0.96 = 75
+  kirby:       54, // body 52, fill 0.96 → ≈ 54
+  donkeykong:  88, // body 84, fill 0.96 → ≈ 88
 });
 
 /**
@@ -198,7 +201,11 @@ export const CHARACTER_SPRITE_ART_OFFSET_Y: Readonly<Record<CharacterId, number>
     // she floated ~15 px above the ground. 14 / 96 ≈ 0.146 seats her feet.
     nova: 14 / 96,
     bruno: 0,
-    link: 0, // procedural rectangle — feet on the bottom edge by construction
+    // HD pack (256² cells): the AI draws a faint ground-shadow below the feet
+    // that survives chroma-key, extending the packed bbox ~15px past the real
+    // feet (measured consistently across idle/run/shield/crouch). Seat the feet
+    // by shifting down that fraction; the shadow then hangs into the floor.
+    link: 15 / 256,
     kirby: 0,
     donkeykong: 0,
   });
