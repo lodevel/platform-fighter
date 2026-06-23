@@ -39,5 +39,7 @@ completed.yaml
 hello.txt
 
 # Generated art (large, reproducible). Keep one small sample render committed.
+# JSON clip-spec files are small design documents — track them.
 assets/gen/*
 !assets/gen/test-stage.png
+!assets/gen/*.json
