@@ -122,6 +122,17 @@ export interface AssetManifest {
 }
 
 // ---------------------------------------------------------------------
+// HD art standard — character sprite cell size
+// ---------------------------------------------------------------------
+
+/** Square cell size (px) for all AI-generated character sprite strips.
+ *  Source generation: 1024×1024 per frame (ComfyUI). pack-clips.cjs
+ *  crops and downscales to this size. Changing this constant + rerunning
+ *  pack-clips.cjs for all fighters is the only step needed to shift the
+ *  whole pipeline to a new resolution. */
+const CHAR_FRAME_SIZE = 256;
+
+// ---------------------------------------------------------------------
 // Cache keys
 // ---------------------------------------------------------------------
 
@@ -684,32 +695,32 @@ const aegisSpritesheets: readonly SpritesheetAssetEntry[] = [
     key: ASSET_KEYS.charAegisIdle,
     kind: 'spritesheet',
     url: `${CHAR_ROOT}/aegis/animations/idle.png`,
-    frameWidth: 128,
-    frameHeight: 130,
+    frameWidth: CHAR_FRAME_SIZE,
+    frameHeight: CHAR_FRAME_SIZE,
     frameCount: 12,
   },
   {
     key: ASSET_KEYS.charAegisRun,
     kind: 'spritesheet',
     url: `${CHAR_ROOT}/aegis/animations/run.png`,
-    frameWidth: 128,
-    frameHeight: 130,
+    frameWidth: CHAR_FRAME_SIZE,
+    frameHeight: CHAR_FRAME_SIZE,
     frameCount: 10,
   },
   {
     key: ASSET_KEYS.charAegisJump,
     kind: 'spritesheet',
     url: `${CHAR_ROOT}/aegis/animations/jump.png`,
-    frameWidth: 128,
-    frameHeight: 130,
+    frameWidth: CHAR_FRAME_SIZE,
+    frameHeight: CHAR_FRAME_SIZE,
     frameCount: 2,
   },
   {
     key: ASSET_KEYS.charAegisAttack,
     kind: 'spritesheet',
     url: `${CHAR_ROOT}/aegis/animations/attack.png`,
-    frameWidth: 128,
-    frameHeight: 130,
+    frameWidth: CHAR_FRAME_SIZE,
+    frameHeight: CHAR_FRAME_SIZE,
     frameCount: 8,
   },
 ];
@@ -724,72 +735,44 @@ const aegisSpritesheets: readonly SpritesheetAssetEntry[] = [
 // tools/gen-frames.ts + tools/pack-clips.cjs). 65×64 cells. run is a generated
 // 8-frame cycle; jump 5; attack is the collapsed swing (5 frames); idle is a
 // 4-frame breathing loop from the ControlNet keyframe.
-const linkSpritesheets: readonly SpritesheetAssetEntry[] = [
-  {
-    key: ASSET_KEYS.charLinkIdle,
-    kind: 'spritesheet',
-    url: `${CHAR_ROOT}/link/animations/idle.png`,
-    frameWidth: 128,
-    frameHeight: 128,
-    frameCount: 4,
-  },
-  {
-    key: ASSET_KEYS.charLinkRun,
-    kind: 'spritesheet',
-    url: `${CHAR_ROOT}/link/animations/run.png`,
-    frameWidth: 128,
-    frameHeight: 128,
-    frameCount: 8,
-  },
-  {
-    key: ASSET_KEYS.charLinkJump,
-    kind: 'spritesheet',
-    url: `${CHAR_ROOT}/link/animations/jump.png`,
-    frameWidth: 128,
-    frameHeight: 128,
-    frameCount: 5,
-  },
-  {
-    key: ASSET_KEYS.charLinkAttack,
-    kind: 'spritesheet',
-    url: `${CHAR_ROOT}/link/animations/attack.png`,
-    frameWidth: 128,
-    frameHeight: 128,
-    frameCount: 5,
-  },
-];
+const linkSpritesheets: readonly SpritesheetAssetEntry[] = charSheetEntries('link', [
+  [ASSET_KEYS.charLinkIdle,   'idle',   4],
+  [ASSET_KEYS.charLinkRun,    'run',    8],
+  [ASSET_KEYS.charLinkJump,   'jump',   5],
+  [ASSET_KEYS.charLinkAttack, 'attack', 5],
+]);
 
 // Link — full per-move + ducking set (AI ControlNet pipeline). Frame counts mirror
 // assets/characters/link/frames.json (one cell per generated pose).
 const linkMovesetSpritesheets: readonly SpritesheetAssetEntry[] = [
-  { key: ASSET_KEYS.charLinkCrouch, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/crouch.png`, frameWidth: 128, frameHeight: 128, frameCount: 1 },
-  { key: ASSET_KEYS.charLinkJab, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/jab.png`, frameWidth: 128, frameHeight: 128, frameCount: 3 },
-  { key: ASSET_KEYS.charLinkJab2, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/jab2.png`, frameWidth: 128, frameHeight: 128, frameCount: 4 },
-  { key: ASSET_KEYS.charLinkJab3, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/jab3.png`, frameWidth: 128, frameHeight: 128, frameCount: 4 },
-  { key: ASSET_KEYS.charLinkTilt, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/tilt.png`, frameWidth: 128, frameHeight: 128, frameCount: 3 },
-  { key: ASSET_KEYS.charLinkDtilt, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/dtilt.png`, frameWidth: 128, frameHeight: 128, frameCount: 4 },
-  { key: ASSET_KEYS.charLinkSmash, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/smash.png`, frameWidth: 128, frameHeight: 128, frameCount: 4 },
-  { key: ASSET_KEYS.charLinkNair, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/nair.png`, frameWidth: 128, frameHeight: 128, frameCount: 3 },
-  { key: ASSET_KEYS.charLinkFair, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/fair.png`, frameWidth: 128, frameHeight: 128, frameCount: 3 },
-  { key: ASSET_KEYS.charLinkBair, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/bair.png`, frameWidth: 128, frameHeight: 128, frameCount: 3 },
-  { key: ASSET_KEYS.charLinkUair, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/uair.png`, frameWidth: 128, frameHeight: 128, frameCount: 3 },
-  { key: ASSET_KEYS.charLinkDair, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/dair.png`, frameWidth: 128, frameHeight: 128, frameCount: 3 },
-  { key: ASSET_KEYS.charLinkNeutralSpecial, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/neutral_special.png`, frameWidth: 128, frameHeight: 128, frameCount: 3 },
-  { key: ASSET_KEYS.charLinkSideSpecial, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/side_special.png`, frameWidth: 128, frameHeight: 128, frameCount: 3 },
-  { key: ASSET_KEYS.charLinkUpSpecial, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/up_special.png`, frameWidth: 128, frameHeight: 128, frameCount: 3 },
-  { key: ASSET_KEYS.charLinkDownSpecial, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/down_special.png`, frameWidth: 128, frameHeight: 128, frameCount: 3 },
-  { key: ASSET_KEYS.charLinkHurt,   kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/hurt.png`,   frameWidth: 128, frameHeight: 128, frameCount: 2 },
-  { key: ASSET_KEYS.charLinkShield, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/shield.png`, frameWidth: 128, frameHeight: 128, frameCount: 1 },
-  { key: ASSET_KEYS.charLinkGrab,   kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/grab.png`,   frameWidth: 128, frameHeight: 128, frameCount: 3 },
-  { key: ASSET_KEYS.charLinkPummel, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/pummel.png`, frameWidth: 128, frameHeight: 128, frameCount: 2 },
-  { key: ASSET_KEYS.charLinkFthrow, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/fthrow.png`, frameWidth: 128, frameHeight: 128, frameCount: 3 },
-  { key: ASSET_KEYS.charLinkBthrow, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/bthrow.png`, frameWidth: 128, frameHeight: 128, frameCount: 3 },
-  { key: ASSET_KEYS.charLinkUthrow, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/uthrow.png`, frameWidth: 128, frameHeight: 128, frameCount: 3 },
-  { key: ASSET_KEYS.charLinkDthrow, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/dthrow.png`, frameWidth: 128, frameHeight: 128, frameCount: 3 },
+  { key: ASSET_KEYS.charLinkCrouch, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/crouch.png`, frameWidth: CHAR_FRAME_SIZE, frameHeight: CHAR_FRAME_SIZE, frameCount: 1 },
+  { key: ASSET_KEYS.charLinkJab, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/jab.png`, frameWidth: CHAR_FRAME_SIZE, frameHeight: CHAR_FRAME_SIZE, frameCount: 3 },
+  { key: ASSET_KEYS.charLinkJab2, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/jab2.png`, frameWidth: CHAR_FRAME_SIZE, frameHeight: CHAR_FRAME_SIZE, frameCount: 4 },
+  { key: ASSET_KEYS.charLinkJab3, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/jab3.png`, frameWidth: CHAR_FRAME_SIZE, frameHeight: CHAR_FRAME_SIZE, frameCount: 4 },
+  { key: ASSET_KEYS.charLinkTilt, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/tilt.png`, frameWidth: CHAR_FRAME_SIZE, frameHeight: CHAR_FRAME_SIZE, frameCount: 3 },
+  { key: ASSET_KEYS.charLinkDtilt, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/dtilt.png`, frameWidth: CHAR_FRAME_SIZE, frameHeight: CHAR_FRAME_SIZE, frameCount: 4 },
+  { key: ASSET_KEYS.charLinkSmash, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/smash.png`, frameWidth: CHAR_FRAME_SIZE, frameHeight: CHAR_FRAME_SIZE, frameCount: 4 },
+  { key: ASSET_KEYS.charLinkNair, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/nair.png`, frameWidth: CHAR_FRAME_SIZE, frameHeight: CHAR_FRAME_SIZE, frameCount: 3 },
+  { key: ASSET_KEYS.charLinkFair, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/fair.png`, frameWidth: CHAR_FRAME_SIZE, frameHeight: CHAR_FRAME_SIZE, frameCount: 3 },
+  { key: ASSET_KEYS.charLinkBair, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/bair.png`, frameWidth: CHAR_FRAME_SIZE, frameHeight: CHAR_FRAME_SIZE, frameCount: 3 },
+  { key: ASSET_KEYS.charLinkUair, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/uair.png`, frameWidth: CHAR_FRAME_SIZE, frameHeight: CHAR_FRAME_SIZE, frameCount: 3 },
+  { key: ASSET_KEYS.charLinkDair, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/dair.png`, frameWidth: CHAR_FRAME_SIZE, frameHeight: CHAR_FRAME_SIZE, frameCount: 3 },
+  { key: ASSET_KEYS.charLinkNeutralSpecial, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/neutral_special.png`, frameWidth: CHAR_FRAME_SIZE, frameHeight: CHAR_FRAME_SIZE, frameCount: 3 },
+  { key: ASSET_KEYS.charLinkSideSpecial, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/side_special.png`, frameWidth: CHAR_FRAME_SIZE, frameHeight: CHAR_FRAME_SIZE, frameCount: 3 },
+  { key: ASSET_KEYS.charLinkUpSpecial, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/up_special.png`, frameWidth: CHAR_FRAME_SIZE, frameHeight: CHAR_FRAME_SIZE, frameCount: 3 },
+  { key: ASSET_KEYS.charLinkDownSpecial, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/down_special.png`, frameWidth: CHAR_FRAME_SIZE, frameHeight: CHAR_FRAME_SIZE, frameCount: 3 },
+  { key: ASSET_KEYS.charLinkHurt,   kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/hurt.png`,   frameWidth: CHAR_FRAME_SIZE, frameHeight: CHAR_FRAME_SIZE, frameCount: 2 },
+  { key: ASSET_KEYS.charLinkShield, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/shield.png`, frameWidth: CHAR_FRAME_SIZE, frameHeight: CHAR_FRAME_SIZE, frameCount: 1 },
+  { key: ASSET_KEYS.charLinkGrab,   kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/grab.png`,   frameWidth: CHAR_FRAME_SIZE, frameHeight: CHAR_FRAME_SIZE, frameCount: 3 },
+  { key: ASSET_KEYS.charLinkPummel, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/pummel.png`, frameWidth: CHAR_FRAME_SIZE, frameHeight: CHAR_FRAME_SIZE, frameCount: 2 },
+  { key: ASSET_KEYS.charLinkFthrow, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/fthrow.png`, frameWidth: CHAR_FRAME_SIZE, frameHeight: CHAR_FRAME_SIZE, frameCount: 3 },
+  { key: ASSET_KEYS.charLinkBthrow, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/bthrow.png`, frameWidth: CHAR_FRAME_SIZE, frameHeight: CHAR_FRAME_SIZE, frameCount: 3 },
+  { key: ASSET_KEYS.charLinkUthrow, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/uthrow.png`, frameWidth: CHAR_FRAME_SIZE, frameHeight: CHAR_FRAME_SIZE, frameCount: 3 },
+  { key: ASSET_KEYS.charLinkDthrow, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/dthrow.png`, frameWidth: CHAR_FRAME_SIZE, frameHeight: CHAR_FRAME_SIZE, frameCount: 3 },
 ];
 
 // Helper: build a fighter's spritesheet entries from (assetKey, file, frameCount)
-// tuples at the standard 128x128 AI-pack cell. Cuts the per-character boilerplate for
+// tuples at the standard AI-pack cell size. Cuts the per-character boilerplate for
 // the full per-move sprite packs.
 function charSheetEntries(
   fighter: string,
@@ -799,8 +782,8 @@ function charSheetEntries(
     key,
     kind: 'spritesheet' as const,
     url: `${CHAR_ROOT}/${fighter}/animations/${file}.png`,
-    frameWidth: 128,
-    frameHeight: 128,
+    frameWidth: CHAR_FRAME_SIZE,
+    frameHeight: CHAR_FRAME_SIZE,
     frameCount,
   }));
 }

@@ -4,7 +4,7 @@
  * Reads assets/gen/frames/<fighter>/<anim>-<i>.png (magenta-bg AI frames) + the idle
  * keyframe, chroma-keys them, computes ONE global union-alpha bbox across EVERY frame
  * (so the character stays pinned at the same grid position across all anims), crops
- * each frame to that rect, downscales to a uniform cell, packs a horizontal strip per
+ * each frame to that rect, downscales to a uniform 256×256 cell (CELL_H), packs a horizontal strip per
  * anim, and writes assets/characters/<fighter>/animations/<anim>.png + frames.json.
  *
  * Idle is synthesized as a 4-frame breathing loop from a single keyframe; the other
@@ -20,7 +20,7 @@ const FRAMES_DIR = path.join(ROOT, 'assets', 'gen', 'frames', FIGHTER);
 const IDLE_KEYFRAME = path.join(ROOT, 'assets', 'gen', '_spike', 'cn-link.png');
 const OUT_DIR = path.join(ROOT, 'assets', 'characters', FIGHTER);
 const ANIM_DIR = path.join(OUT_DIR, 'animations');
-const CELL_H = 128;
+const CELL_H = 256;
 const BREATH = [1.0, 0.975, 1.0, 1.02];
 
 function readPng(f) { return PNG.sync.read(fs.readFileSync(f)); }

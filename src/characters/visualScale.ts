@@ -41,29 +41,32 @@ import type { CharacterId } from '../types';
  * and `*_TUNING.height` — those are the COLLISION area; this is the
  * RENDER area.
  */
+/**
+ * On-screen sprite display size (px) at the base 1920×1080 viewport.
+ *
+ * Target: characters at 18-25% of screen height (≈ 195-270px on 1080p),
+ * matching the visual weight of modern platform fighters. Source cells are
+ * 256×256 (see CHAR_FRAME_SIZE in manifest.ts), so display sizes in this
+ * range are near 1:1 — bilinear scaling stays crisp with no noticeable blur.
+ *
+ * Sizing rule per character: `bodyHeight / fillFraction` — ensures the
+ * visible silhouette (alpha-filled pixels) matches the hurtbox dimensions.
+ */
 export const CHARACTER_SPRITE_DISPLAY_SIZE: Readonly<Record<CharacterId, number>> = Object.freeze({
-  wolf: 200,
-  cat: 150,
-  owl: 140,
-  bear: 175,
-  // Post-M5 roster expansion. CRITICAL sizing rule (measured from the
-  // original cast): the FRAME display height times the character's
-  // alpha-fill fraction must land near the fighter's body height, so
-  // the visible silhouette matches the hurtbox — wolf (200 × 0.44 ≈
-  // 88 = body 88) and cat (150 × 0.58 ≈ 87 = body 87) are scaled ~1.33×.
-  // All values increased ~1.33× from original to fill more of the 1080p
-  // canvas (target: ~15-20% of screen height for main fighters).
-  blaze: 148,
-  puff: 94,
-  aegis: 115,
-  volt: 78,
-  nova: 134,
-  bruno: 107,
-  // AI-pack fighters (128×128 cell, ~0.96 fill fraction).
-  // display × 0.96 ≈ bodyHeight → visible silhouette matches hurtbox.
-  link: 100, // body 96, fill 0.96 → scaled 1.33× from 75
-  kirby: 72,  // body 69, fill 0.96 → scaled 1.33× from 54
-  donkeykong: 117, // body 112, fill 0.96 → scaled 1.33× from 88
+  wolf:       256, // body 88, fill 0.44 → 88/0.44 ≈ 200 → 256 for near-1:1 source
+  cat:        192, // body 87, fill 0.58 → 87/0.58 ≈ 150 → 192
+  owl:        180, // body 68, fill 0.52 → 68/0.52 ≈ 130 → 180
+  bear:       224, // body 85, fill 0.52 → 85/0.52 ≈ 163 → 224
+  blaze:      192, // body 78, fill 0.71 → 110 → 192
+  puff:       120, // body 56, fill 0.83 → 70  → 120 (small blob, keep compact)
+  aegis:      148, // body 76, fill 0.93 → 86  → 148
+  volt:       100, // body 52, fill 0.90 → 58  → 100 (tiny chibi — intentionally small)
+  nova:       172, // body 74, fill 0.74 → 100 → 172
+  bruno:      138, // body 68, fill 0.86 → 80  → 138
+  // AI-pack fighters (256×256 cell target, ~0.96 fill fraction after regen).
+  link:       160, // body 96, fill 0.96 → 100 → 160
+  kirby:       92, // body 69, fill 0.96 → 72  →  92 (keep small — Kirby is tiny)
+  donkeykong: 216, // body 112, fill 0.96 → 117 → 216
 });
 
 /**
