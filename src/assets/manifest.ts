@@ -726,7 +726,7 @@ const linkSpritesheets: readonly SpritesheetAssetEntry[] = [
 // Link — full per-move + ducking set (AI ControlNet pipeline). Frame counts mirror
 // assets/characters/link/frames.json (one cell per generated pose).
 const linkMovesetSpritesheets: readonly SpritesheetAssetEntry[] = [
-  { key: ASSET_KEYS.charLinkCrouch, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/crouch.png`, frameWidth: 128, frameHeight: 128, frameCount: 2 },
+  { key: ASSET_KEYS.charLinkCrouch, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/crouch.png`, frameWidth: 128, frameHeight: 128, frameCount: 1 },
   { key: ASSET_KEYS.charLinkJab, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/jab.png`, frameWidth: 128, frameHeight: 128, frameCount: 3 },
   { key: ASSET_KEYS.charLinkJab2, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/jab2.png`, frameWidth: 128, frameHeight: 128, frameCount: 4 },
   { key: ASSET_KEYS.charLinkJab3, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/jab3.png`, frameWidth: 128, frameHeight: 128, frameCount: 4 },
@@ -766,7 +766,7 @@ const kirbySpritesheets: readonly SpritesheetAssetEntry[] = charSheetEntries('ki
   [ASSET_KEYS.charKirbyRun, 'run', 8],
   [ASSET_KEYS.charKirbyJump, 'jump', 5],
   [ASSET_KEYS.charKirbyAttack, 'attack', 4],
-  [ASSET_KEYS.charKirbyCrouch, 'crouch', 2],
+  [ASSET_KEYS.charKirbyCrouch, 'crouch', 1],
   [ASSET_KEYS.charKirbyJab, 'jab', 3],
   [ASSET_KEYS.charKirbyJab2, 'jab2', 4],
   [ASSET_KEYS.charKirbyJab3, 'jab3', 4],
@@ -788,7 +788,7 @@ const donkeykongSpritesheets: readonly SpritesheetAssetEntry[] = charSheetEntrie
   [ASSET_KEYS.charDonkeykongRun, 'run', 8],
   [ASSET_KEYS.charDonkeykongJump, 'jump', 5],
   [ASSET_KEYS.charDonkeykongAttack, 'attack', 4],
-  [ASSET_KEYS.charDonkeykongCrouch, 'crouch', 2],
+  [ASSET_KEYS.charDonkeykongCrouch, 'crouch', 1],
   [ASSET_KEYS.charDonkeykongJab, 'jab', 3],
   [ASSET_KEYS.charDonkeykongJab2, 'jab2', 4],
   [ASSET_KEYS.charDonkeykongJab3, 'jab3', 4],

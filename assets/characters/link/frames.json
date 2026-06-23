@@ -79,16 +79,12 @@
     },
     "crouch": {
       "strip": "animations/crouch.png",
-      "frameCount": 2,
+      "frameCount": 1,
       "frameWidth": 128,
       "frameHeight": 128,
       "sourceCells": [
         [
           0,
-          0
-        ],
-        [
-          1,
           0
         ]
       ]
