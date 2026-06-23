@@ -5726,6 +5726,7 @@ export class MatchScene extends Phaser.Scene {
         const snapB = b.getAnimationSnapshot();
         if (
           snap.hitstunRemaining > 0 || snapB.hitstunRemaining > 0 ||
+          snap.hitlagRemaining > 0 || snapB.hitlagRemaining > 0 ||
           snap.destroyed || snapB.destroyed ||
           a.isGrabbed() || b.isGrabbed()
         ) continue;
