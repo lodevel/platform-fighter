@@ -201,13 +201,13 @@ export const KIRBY_BAIR: AerialMove = {
   autoCancelWindows: [{ startFrame: 0, endFrame: 5 }],
 };
 
-/** Kirby's up aerial — an overhead flip kick; his juggle launcher. */
+/** Kirby's up aerial —an overhead flip kick; his juggle launcher. */
 export const KIRBY_UAIR: AerialMove = {
   id: 'kirby.uair',
   type: 'aerial',
   aerialDirection: 'up',
   damage: 8,
-  knockback: { x: 0.3, y: -3.1, scaling: 0.2 },
+  knockback: { x: 0.3, y: -3.9, scaling: 0.35 }, // vertical KO ~205%
   hitbox: { offsetX: 0, offsetY: -28, width: 34, height: 28 },
   startupFrames: 5,
   activeFrames: 4,
@@ -224,7 +224,7 @@ export const KIRBY_DAIR: AerialMove = {
   type: 'aerial',
   aerialDirection: 'down',
   damage: 10,
-  knockback: { x: 0.4, y: 3.4, scaling: 0.23 },
+  knockback: { x: 0.4, y: 4.0, scaling: 0.28 }, // spike, kills from ground ~125%
   hitbox: { offsetX: 0, offsetY: 26, width: 30, height: 26 },
   startupFrames: 8,
   activeFrames: 5,
@@ -413,7 +413,7 @@ export const KIRBY_DOWN_SPECIAL: StallAndFallDownSpecialMove = {
   // Move-level damage / knockback are the METEOR (descent) values; +y is
   // downward in Phaser screen-space — the spike trajectory.
   damage: 12,
-  knockback: { x: 0.4, y: 3.5, scaling: 0.27 },
+  knockback: { x: 0.4, y: 4.5, scaling: 0.32 }, // kills from ground ~90%, from mid-air ~120%
   hitbox: { offsetX: 0, offsetY: 2, width: 46, height: 50 },
   startupFrames: 4,
   activeFrames: 16,
@@ -425,7 +425,7 @@ export const KIRBY_DOWN_SPECIAL: StallAndFallDownSpecialMove = {
     stallVelocity: -2, // slight hover before the drop
     fallVelocity: 28, // heavy stone plummet
     shockwaveDamage: 6,
-    shockwaveKnockback: { x: 1.8, y: -1.0, scaling: 0.14 },
+    shockwaveKnockback: { x: 2.5, y: -1.2, scaling: 0.20 },
     shockwaveHitbox: {
       offsetX: 0,
       offsetY: 24, // at his feet (body half-height = 26)
@@ -452,10 +452,10 @@ export const KIRBY_GRAB: GrabSpec = {
   pummel: { damage: 1.3, cooldownFrames: 12 },
   dashGrab: { rangeBonusX: 12, momentumRetain: 0.5 },
   throws: {
-    forward: { damage: 8, knockback: { x: 2.5, y: -1.0, scaling: 0.11 }, animationFrames: 20 },
-    back:    { damage: 10, knockback: { x: 2.9, y: -1.2, scaling: 0.13 }, animationFrames: 24 },
-    up:      { damage: 7, knockback: { x: 0.4, y: -3.1, scaling: 0.1 }, animationFrames: 15 },
-    down:    { damage: 6, knockback: { x: 0.9, y: 1.1, scaling: 0.08 }, animationFrames: 16 },
+    forward: { damage: 8,  knockback: { x: 4.0, y: -1.5, scaling: 0.25 }, animationFrames: 20 }, // KO from edge ~160%
+    back:    { damage: 10, knockback: { x: 5.0, y: -1.9, scaling: 0.30 }, animationFrames: 24 }, // KO from center ~152%
+    up:      { damage: 7,  knockback: { x: 0.5, y: -5.5, scaling: 0.35 }, animationFrames: 15 }, // vertical KO ~140%
+    down:    { damage: 6,  knockback: { x: 0.9, y: 1.1,  scaling: 0.08 }, animationFrames: 16 }, // combo throw — no KO
   },
 };
 

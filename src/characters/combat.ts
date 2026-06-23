@@ -117,19 +117,27 @@ export const BASELINE_MASS = 12;
  * stage showed `0.15` still sent a lightweight (mass 8) across the
  * side blast from a single forward-smash at ~30 % — because there is
  * NO velocity damping during hitstun, KO *reach* scales with knockback
- * *squared*, so even a modest over-tune launches absurdly far. `0.06`
- * moves a smash's KO threshold to ~75-80 % on a lightweight / ~105 %
- * on a middleweight and a Falcon-Punch-class special to ~50-55 %
- * (matching Smash Ultimate's ~55 % centre-stage Falcon Punch), while
- * the un-tempered `baseMagnitude` floors keep early-percent shoves
- * intact. Lowering the temper also deepens combos (less knockback =
- * longer follow-up windows), another step toward the Smash feel.
+ * *squared*, so even a modest over-tune launches absurdly far.
+ *
+ * `0.06` was chosen first but proved too conservative: at 150 % Link's
+ * forward smash (scaling 0.4) against a neutral-weight opponent from
+ * centre-stage produces ~1325 px of horizontal travel vs a blast zone
+ * at ~1340 px — a kill threshold of ~165 %, far above Smash Ultimate's
+ * ~100-110 % norm for a sword fighter's forward smash.
+ *
+ * `0.09` restores Smash-appropriate kill thresholds while preserving
+ * the relative balance between moves (smashes > specials > tilts > jabs):
+ *   - fwd smash kills neutral (mass 12) from centre at ~108 %
+ *   - usmash kills neutral from centre at ~105 %
+ *   - fwd smash kills lightweight (mass 8) at ~65 %
+ *   - tilts require ~150 %+ to kill — they never feel spammy
+ *   - jabs never kill regardless of percent
  *
  * (The hook in `computeKnockback` reads an optional `globalThis.__kbTemper`
  * override first so headless balance sweeps can try values without a
  * recompile; the global is never set in normal play.)
  */
-export const KNOCKBACK_PERCENT_TEMPER = 0.06;
+export const KNOCKBACK_PERCENT_TEMPER = 0.09;
 
 /**
  * Frames of hitstun applied per unit of realised knockback magnitude.

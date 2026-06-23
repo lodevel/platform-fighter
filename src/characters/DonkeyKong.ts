@@ -170,7 +170,7 @@ export const DONKEYKONG_FAIR: AerialMove = {
   type: 'aerial',
   aerialDirection: 'forward',
   damage: 11,
-  knockback: { x: 2.5, y: -0.8, scaling: 0.2 },
+  knockback: { x: 3.8, y: -1.3, scaling: 0.24 }, // KO ~290%
   hitbox: { offsetX: 28, offsetY: -3, width: 44, height: 24 },
   startupFrames: 9,
   activeFrames: 4,
@@ -187,7 +187,7 @@ export const DONKEYKONG_BAIR: AerialMove = {
   type: 'aerial',
   aerialDirection: 'back',
   damage: 13,
-  knockback: { x: 3.0, y: -1.0, scaling: 0.28 },
+  knockback: { x: 5.0, y: -1.8, scaling: 0.33 }, // aerial KO ~155%
   hitbox: { offsetX: 26, offsetY: -3, width: 42, height: 22 },
   startupFrames: 10,
   activeFrames: 4,
@@ -204,7 +204,7 @@ export const DONKEYKONG_UAIR: AerialMove = {
   type: 'aerial',
   aerialDirection: 'up',
   damage: 11,
-  knockback: { x: 0.3, y: -3.4, scaling: 0.22 },
+  knockback: { x: 0.3, y: -3.9, scaling: 0.35 }, // vertical KO ~200%
   hitbox: { offsetX: 0, offsetY: -32, width: 40, height: 32 },
   startupFrames: 7,
   activeFrames: 4,
@@ -221,7 +221,7 @@ export const DONKEYKONG_DAIR: AerialMove = {
   type: 'aerial',
   aerialDirection: 'down',
   damage: 13,
-  knockback: { x: 0.4, y: 3.7, scaling: 0.25 },
+  knockback: { x: 0.4, y: 4.8, scaling: 0.34 }, // heavy stomp, spike from ground ~80%
   hitbox: { offsetX: 0, offsetY: 30, width: 38, height: 30 },
   startupFrames: 10,
   activeFrames: 4,
@@ -451,10 +451,10 @@ export const DONKEYKONG_GRAB: GrabSpec = {
   pummel: { damage: 1.8, cooldownFrames: 14 },
   dashGrab: { rangeBonusX: 14, momentumRetain: 0.5 },
   throws: {
-    forward: { damage: 11, knockback: { x: 2.9, y: -1.1, scaling: 0.13 }, animationFrames: 22 },
-    back:    { damage: 13, knockback: { x: 3.3, y: -1.3, scaling: 0.15 }, animationFrames: 26 },
-    up:      { damage: 9, knockback: { x: 0.4, y: -3.4, scaling: 0.12 }, animationFrames: 16 },
-    down:    { damage: 8, knockback: { x: 0.9, y: 1.2, scaling: 0.09 }, animationFrames: 17 },
+    forward: { damage: 11, knockback: { x: 4.5, y: -1.6, scaling: 0.27 }, animationFrames: 22 }, // KO from edge ~145%
+    back:    { damage: 13, knockback: { x: 5.8, y: -2.1, scaling: 0.33 }, animationFrames: 26 }, // KO from center ~140% — DK's signature
+    up:      { damage: 9,  knockback: { x: 0.5, y: -6.0, scaling: 0.38 }, animationFrames: 16 }, // vertical KO ~130%
+    down:    { damage: 8,  knockback: { x: 1.0, y: 1.2,  scaling: 0.09 }, animationFrames: 17 }, // combo throw
   },
 };
 

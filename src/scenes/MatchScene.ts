@@ -853,6 +853,7 @@ export class MatchScene extends Phaser.Scene {
    * detached in SHUTDOWN.
    */
   private passThroughPlatformHandler: (() => void) | null = null;
+  private fighterSeparationHandler: (() => void) | null = null;
 
   // ---- AC 14 Sub-AC 2: auto-pause on controller disconnect ----------------
   /**
@@ -2638,6 +2639,9 @@ export class MatchScene extends Phaser.Scene {
     this.passThroughPlatformHandler = () => this.updatePassThroughPlatformMasks();
     this.matter.world.on('beforeupdate', this.passThroughPlatformHandler);
 
+    this.fighterSeparationHandler = () => this.updateFighterSeparation();
+    this.matter.world.on('afterupdate', this.fighterSeparationHandler);
+
     // Stash per-slot layout data so the respawn handler can teleport
     // each fighter back to the right point with the right facing.
     // Sub-AC 3 of AC 13 — also stash the resolved palette swap so
@@ -3500,6 +3504,10 @@ export class MatchScene extends Phaser.Scene {
       if (this.passThroughPlatformHandler) {
         this.matter?.world?.off('beforeupdate', this.passThroughPlatformHandler);
         this.passThroughPlatformHandler = null;
+      }
+      if (this.fighterSeparationHandler) {
+        this.matter?.world?.off('afterupdate', this.fighterSeparationHandler);
+        this.fighterSeparationHandler = null;
       }
       this.blastZoneWatcher?.reset();
       // Sub-AC 2 of AC 60202: drop registered bodies + out-of-bounds
@@ -5681,6 +5689,78 @@ export class MatchScene extends Phaser.Scene {
     f: number; b: number; s: number; br: string;
     feet: number; prev: number; top: number; vy: number; m: number;
   }> = [];
+
+  /**
+   * Soft fighter-to-fighter body separation, run once per physics step
+   * AFTER Matter resolves collisions. Mirrors Smash Bros "soft collision":
+   * when two fighters' bodies overlap (horizontally or vertically), apply a
+   * small corrective velocity to push them apart, at a rate proportional to
+   * the overlap depth. This prevents stacking without the bounciness of a
+   * rigid-body collision pair.
+   *
+   * Exemptions:
+   *   – Any fighter in hitstun (the launched body phases through the attacker
+   *     for one step; enforcing separation would fight the knockback vector).
+   *   – Any fighter currently held in a grab (the grabber pins their position
+   *     each step — applying a push would jitter the pin).
+   */
+  private updateFighterSeparation(): void {
+    const fighters: Character[] = [this.p1, this.p2, ...this.extraFighters].filter(
+      (f): f is Character => f !== null && f !== undefined,
+    );
+    if (fighters.length < 2) return;
+
+    // Speed (px/step) applied per px of overlap, capped so shallow grazes
+    // get a gentle nudge while deep interpenetrations resolve quickly.
+    const PUSH_PER_PX = 0.22;
+    const MAX_PUSH = 3.5;
+
+    for (let i = 0; i < fighters.length; i++) {
+      for (let j = i + 1; j < fighters.length; j++) {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const a = fighters[i]!;
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const b = fighters[j]!;
+
+        const snap = a.getAnimationSnapshot();
+        const snapB = b.getAnimationSnapshot();
+        if (
+          snap.hitstunRemaining > 0 || snapB.hitstunRemaining > 0 ||
+          snap.destroyed || snapB.destroyed ||
+          a.isGrabbed() || b.isGrabbed()
+        ) continue;
+
+        const ba = a.body.bounds;
+        const bb = b.body.bounds;
+
+        // AABB overlap on both axes is required for a real intersection.
+        const xOverlap = Math.min(ba.max.x, bb.max.x) - Math.max(ba.min.x, bb.min.x);
+        if (xOverlap <= 0) continue;
+        const yOverlap = Math.min(ba.max.y, bb.max.y) - Math.max(ba.min.y, bb.min.y);
+        if (yOverlap <= 0) continue;
+
+        const posA = a.getPosition();
+        const posB = b.getPosition();
+
+        // Resolve along the axis of least penetration.
+        if (xOverlap <= yOverlap) {
+          const push = Math.min(xOverlap * PUSH_PER_PX, MAX_PUSH);
+          const dir = posA.x < posB.x ? -1 : 1; // a is left → push a left
+          const va = a.getVelocity();
+          const vb = b.getVelocity();
+          this.matter.body.setVelocity(a.body, { x: va.x + dir * push, y: va.y });
+          this.matter.body.setVelocity(b.body, { x: vb.x - dir * push, y: vb.y });
+        } else {
+          const push = Math.min(yOverlap * PUSH_PER_PX, MAX_PUSH);
+          const dir = posA.y < posB.y ? -1 : 1; // a is above → push a up
+          const va = a.getVelocity();
+          const vb = b.getVelocity();
+          this.matter.body.setVelocity(a.body, { x: va.x, y: va.y + dir * push });
+          this.matter.body.setVelocity(b.body, { x: vb.x, y: vb.y - dir * push });
+        }
+      }
+    }
+  }
 
   private recordPlatDiag(
     b: number, s: number, br: string,

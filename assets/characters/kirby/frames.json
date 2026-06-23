@@ -49,6 +49,26 @@
         ]
       ]
     },
+    "bthrow": {
+      "strip": "animations/bthrow.png",
+      "frameCount": 3,
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ]
+    },
     "crouch": {
       "strip": "animations/crouch.png",
       "frameCount": 1,
@@ -61,8 +81,48 @@
         ]
       ]
     },
+    "dair": {
+      "strip": "animations/dair.png",
+      "frameCount": 3,
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ]
+    },
     "down_special": {
       "strip": "animations/down_special.png",
+      "frameCount": 3,
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ]
+    },
+    "dthrow": {
+      "strip": "animations/dthrow.png",
       "frameCount": 3,
       "frameWidth": 128,
       "frameHeight": 128,
@@ -121,6 +181,62 @@
         ],
         [
           2,
+          0
+        ]
+      ]
+    },
+    "fthrow": {
+      "strip": "animations/fthrow.png",
+      "frameCount": 3,
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ]
+    },
+    "grab": {
+      "strip": "animations/grab.png",
+      "frameCount": 3,
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ]
+    },
+    "hurt": {
+      "strip": "animations/hurt.png",
+      "frameCount": 2,
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
           0
         ]
       ]
@@ -285,6 +401,22 @@
         ]
       ]
     },
+    "pummel": {
+      "strip": "animations/pummel.png",
+      "frameCount": 2,
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    },
     "run": {
       "strip": "animations/run.png",
       "frameCount": 8,
@@ -321,6 +453,18 @@
         ],
         [
           7,
+          0
+        ]
+      ]
+    },
+    "shield": {
+      "strip": "animations/shield.png",
+      "frameCount": 1,
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "sourceCells": [
+        [
+          0,
           0
         ]
       ]
@@ -389,8 +533,48 @@
         ]
       ]
     },
+    "uair": {
+      "strip": "animations/uair.png",
+      "frameCount": 3,
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ]
+    },
     "up_special": {
       "strip": "animations/up_special.png",
+      "frameCount": 3,
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ]
+    },
+    "uthrow": {
+      "strip": "animations/uthrow.png",
       "frameCount": 3,
       "frameWidth": 128,
       "frameHeight": 128,

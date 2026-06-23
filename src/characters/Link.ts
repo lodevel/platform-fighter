@@ -177,7 +177,7 @@ export const LINK_FAIR: AerialMove = {
   type: 'aerial',
   aerialDirection: 'forward',
   damage: 9,
-  knockback: { x: 2.3, y: -0.8, scaling: 0.18 },
+  knockback: { x: 3.5, y: -1.2, scaling: 0.22 },
   hitbox: { offsetX: 26, offsetY: -3, width: 40, height: 20 },
   startupFrames: 8,
   activeFrames: 4,
@@ -194,7 +194,7 @@ export const LINK_BAIR: AerialMove = {
   type: 'aerial',
   aerialDirection: 'back',
   damage: 11,
-  knockback: { x: 2.7, y: -1.0, scaling: 0.26 },
+  knockback: { x: 4.5, y: -1.65, scaling: 0.30 },
   hitbox: { offsetX: 24, offsetY: -3, width: 38, height: 20 },
   startupFrames: 9,
   activeFrames: 4,
@@ -211,7 +211,7 @@ export const LINK_UAIR: AerialMove = {
   type: 'aerial',
   aerialDirection: 'up',
   damage: 9,
-  knockback: { x: 0.3, y: -3.2, scaling: 0.2 },
+  knockback: { x: 0.3, y: -3.9, scaling: 0.35 },
   hitbox: { offsetX: 0, offsetY: -30, width: 34, height: 30 },
   startupFrames: 6,
   activeFrames: 4,
@@ -464,10 +464,10 @@ export const LINK_GRAB: GrabSpec = {
   pummel: { damage: 1.4, cooldownFrames: 12 },
   dashGrab: { rangeBonusX: 12, momentumRetain: 0.5 },
   throws: {
-    forward: { damage: 9, knockback: { x: 2.6, y: -1.0, scaling: 0.11 }, animationFrames: 20 },
-    back:    { damage: 10, knockback: { x: 2.9, y: -1.2, scaling: 0.13 }, animationFrames: 24 },
-    up:      { damage: 7, knockback: { x: 0.4, y: -3.1, scaling: 0.1 }, animationFrames: 15 },
-    down:    { damage: 6, knockback: { x: 0.9, y: 1.1, scaling: 0.08 }, animationFrames: 16 },
+    forward: { damage: 9,  knockback: { x: 4.0, y: -1.5, scaling: 0.25 }, animationFrames: 20 }, // KO from edge ~160%, center ~250%
+    back:    { damage: 10, knockback: { x: 5.0, y: -1.9, scaling: 0.30 }, animationFrames: 24 }, // KO from center ~152%
+    up:      { damage: 7,  knockback: { x: 0.5, y: -5.5, scaling: 0.35 }, animationFrames: 15 }, // vertical KO ~140%
+    down:    { damage: 6,  knockback: { x: 0.9, y: 1.1, scaling: 0.08 },  animationFrames: 16 }, // combo throw — no KO
   },
 };
 
