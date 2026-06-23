@@ -168,6 +168,30 @@ export function getCharacterSpritesheetKey(
           return ASSET_KEYS.charLinkAttack;
       }
       break;
+    case 'kirby':
+      switch (sheet) {
+        case 'idle':
+          return ASSET_KEYS.charKirbyIdle;
+        case 'run':
+          return ASSET_KEYS.charKirbyRun;
+        case 'jump':
+          return ASSET_KEYS.charKirbyJump;
+        case 'attack':
+          return ASSET_KEYS.charKirbyAttack;
+      }
+      break;
+    case 'donkeykong':
+      switch (sheet) {
+        case 'idle':
+          return ASSET_KEYS.charDonkeykongIdle;
+        case 'run':
+          return ASSET_KEYS.charDonkeykongRun;
+        case 'jump':
+          return ASSET_KEYS.charDonkeykongJump;
+        case 'attack':
+          return ASSET_KEYS.charDonkeykongAttack;
+      }
+      break;
     case 'cat':
       switch (sheet) {
         case 'idle':
@@ -489,6 +513,32 @@ const MOVE_SHEET_KEYS: Partial<Record<CharacterId, Readonly<Record<string, strin
     side_special: ASSET_KEYS.charLinkSideSpecial,
     up_special: ASSET_KEYS.charLinkUpSpecial,
     down_special: ASSET_KEYS.charLinkDownSpecial,
+  }),
+  kirby: Object.freeze({
+    crouch: ASSET_KEYS.charKirbyCrouch,
+    jab: ASSET_KEYS.charKirbyJab,
+    tilt: ASSET_KEYS.charKirbyTilt,
+    smash: ASSET_KEYS.charKirbySmash,
+    nair: ASSET_KEYS.charKirbyNair,
+    fair: ASSET_KEYS.charKirbyFair,
+    bair: ASSET_KEYS.charKirbyBair,
+    neutral_special: ASSET_KEYS.charKirbyNeutralSpecial,
+    side_special: ASSET_KEYS.charKirbySideSpecial,
+    up_special: ASSET_KEYS.charKirbyUpSpecial,
+    down_special: ASSET_KEYS.charKirbyDownSpecial,
+  }),
+  donkeykong: Object.freeze({
+    crouch: ASSET_KEYS.charDonkeykongCrouch,
+    jab: ASSET_KEYS.charDonkeykongJab,
+    tilt: ASSET_KEYS.charDonkeykongTilt,
+    smash: ASSET_KEYS.charDonkeykongSmash,
+    nair: ASSET_KEYS.charDonkeykongNair,
+    fair: ASSET_KEYS.charDonkeykongFair,
+    bair: ASSET_KEYS.charDonkeykongBair,
+    neutral_special: ASSET_KEYS.charDonkeykongNeutralSpecial,
+    side_special: ASSET_KEYS.charDonkeykongSideSpecial,
+    up_special: ASSET_KEYS.charDonkeykongUpSpecial,
+    down_special: ASSET_KEYS.charDonkeykongDownSpecial,
   }),
 };
 

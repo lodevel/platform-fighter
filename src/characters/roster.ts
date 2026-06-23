@@ -906,7 +906,9 @@ export const KIRBY_PLACEHOLDER: CharacterPlaceholderVisual = Object.freeze({
   labelColor: 0xfff0f6,
   width: KIRBY_TUNING.width,
   height: KIRBY_TUNING.height,
-  spriteKey: null,
+  // AI sprite pack (full per-move set + crouch). Non-null spriteKey → MatchScene
+  // draws the real sheets; colours remain the char-select identity.
+  spriteKey: ASSET_KEYS.charKirbyIdle,
 });
 
 /**
@@ -921,7 +923,8 @@ export const DONKEYKONG_PLACEHOLDER: CharacterPlaceholderVisual = Object.freeze(
   labelColor: 0xe8b86a,
   width: DONKEYKONG_TUNING.width,
   height: DONKEYKONG_TUNING.height,
-  spriteKey: null,
+  // AI sprite pack (full per-move set + crouch). Non-null spriteKey → real sheets.
+  spriteKey: ASSET_KEYS.charDonkeykongIdle,
 });
 
 // ---------------------------------------------------------------------------

@@ -133,11 +133,12 @@ describe('Kirby — moveset contract + roster spec', () => {
     expect(KIRBY_FIGHTER_CONTRACT.movementProfile).toBe(KIRBY_MOVEMENT_PROFILE);
   });
 
-  it('roster spec is procedural (null sprite key)', () => {
+  it('roster spec is sprite-wired (AI sprite pack)', () => {
     expect(KIRBY_SPEC.displayName).toBe('Kirby');
     expect(KIRBY_SPEC.role).toBe('multi-jump puffball (Kirby)');
     expect(KIRBY_SPEC.playable).toBe(true);
-    expect(KIRBY_SPEC.placeholder.spriteKey).toBeNull();
+    // Kirby ships a full AI per-move sprite pack → spriteKey points at the idle sheet.
+    expect(KIRBY_SPEC.placeholder.spriteKey).not.toBeNull();
   });
 
   it('ships the full 10-move table with namespaced ids', () => {

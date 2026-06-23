@@ -134,8 +134,10 @@ export const CHARACTER_SPRITE_FACES_LEFT: Readonly<Record<CharacterId, boolean>>
     // right, like wolf/cat) before this flag is meaningful; until then `false`
     // is the intended end-state (flip only when moving left).
     link: false,
-    // Kirby / Donkey Kong — still procedural (no source art), engine default.
+    // Kirby — AI sprite pack, generated with enforced right-facing (flip when
+    // moving left), same default as the rest of the cast.
     kirby: false,
+    // Donkey Kong — AI sprite pack, enforced right-facing (flip when moving left).
     donkeykong: false,
   });
 

@@ -139,11 +139,12 @@ describe('Donkey Kong — moveset contract + roster spec', () => {
     expect(DONKEYKONG_FIGHTER_CONTRACT.movementProfile).toBe(DONKEYKONG_MOVEMENT_PROFILE);
   });
 
-  it('roster spec is procedural (null sprite key)', () => {
+  it('roster spec is sprite-wired (AI sprite pack)', () => {
     expect(DONKEYKONG_SPEC.displayName).toBe('Donkey Kong');
     expect(DONKEYKONG_SPEC.role).toBe('mobile heavyweight (Donkey Kong)');
     expect(DONKEYKONG_SPEC.playable).toBe(true);
-    expect(DONKEYKONG_SPEC.placeholder.spriteKey).toBeNull();
+    // DK ships a full AI per-move sprite pack → spriteKey points at the idle sheet.
+    expect(DONKEYKONG_SPEC.placeholder.spriteKey).not.toBeNull();
   });
 
   it('ships the full 10-move table with namespaced ids', () => {
