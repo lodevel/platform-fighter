@@ -5197,7 +5197,9 @@ export class MatchScene extends Phaser.Scene {
           const snap = slot.character.getAnimationSnapshot();
           const overrideSheet = snap.hitstunRemaining > 0
             ? 'hurt'
-            : activeAtk
+            : slot.character.isGrabbed()
+              ? 'hurt'
+              : activeAtk
               ? attackMoveToSheet(activeAtk.move)
               : (grabState.name === 'whiffStartup' || grabState.name === 'whiffActive')
                 ? 'grab'
