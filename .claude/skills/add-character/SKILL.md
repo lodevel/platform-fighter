@@ -262,41 +262,48 @@ The MatchScene render loop already plays the per-move clip for the active move
 shield/crouch overrides — no render-loop changes needed once sheets/keys exist.
 
 ### 3c — Character × weapon matrix (pickup items)
-A SIGNATURE weapon is baked into the frames above. PICKUP weapons (bat/bomb/hammer/
-raygun/spear/sword) held organically need held-animation variants = fighters ×
-weapons (or × weapon-archetypes by grip). Adding a NEW weapon ⇒ new held-frames for
-every fighter; adding a NEW fighter ⇒ held-frames for every weapon. (Not yet built.)
 
-**Weapon visual coherence (what IS implemented):**
-The weapon sprite container rotates through an arc during attacks
-(`computeWeaponAngle` in `MatchScene.ts`). The arc is weapon-type-specific:
-- Bat: wide baseball swing (-60° → +110°)
-- Sword: overhead slash (-70° → +100°)
-- Spear: stays horizontal, forward thrust (80° → 90°)
-- Hammer: two-phase windup then slam (25° → -110° → +130°)
+A SIGNATURE weapon is baked into the frames above. PICKUP weapons
+(bat / hammer / sword / spear / rayGun / bomb) are separate items any
+character can hold. **Each character needs its own body animations for each
+weapon** — the way a heavy bruiser swings a bat looks different from the way
+a nimble swordfighter does. Adding a NEW character ⇒ body animations for
+every weapon. Adding a NEW weapon ⇒ body animations for every character.
 
-The weapon rotation is the SAME for every character holding that weapon —
-**do not change per-character ranges or hitboxes**, weapons are balanced
-independently of who holds them.
+**Required per-weapon animation clips for each character:**
 
-**What is NOT yet implemented — body animation coherence:**
-When a character picks up a bat and swings it, their body still plays their
-own character-specific attack animation (e.g. Link plays his sword-slash
-body art while swinging a bat). This reads as incoherent. The correct
-solution is per-weapon-archetype body overrides:
-
-| Weapon archetype | Expected body pose | Current state |
+| Weapon | Body animation needed | Key visual difference |
 |---|---|---|
-| Bat / sword / hammer (swing) | Both hands gripping, side-arc swing | Uses character's own jab/smash art ❌ |
-| Spear (thrust) | Forward lunge, weapon extended | Uses character's own tilt art ❌ |
-| Ray gun (shoot) | Point and fire, recoil | Uses character's own neutral-special art ❌ |
+| Bat | Two-handed baseball swing — wide arc, follow-through | Weight and momentum in the swing |
+| Hammer | Two-phase: windup overhead, then slam down | Slow, heavy — body leans into it |
+| Sword | One-hand side slash — blade leads, off-hand trails | Precise, controlled arc |
+| Spear | Forward lunge — body extends fully in thrust direction | Linear, not rotational |
+| Ray gun | Point-and-fire stance — one arm extended, recoil on fire | Body braces, minimal movement |
+| Bomb | Underhand lob — body coils then releases upward | Throwing motion, not a strike |
 
-Until body overrides are built, **the weapon container rotation is the primary
-visual signal** — ensure the arc timing is visually coherent with the
-character's body animation so they don't fight each other. If a character's
-jab animation has a very forward-reaching arm, the weapon arc should peak
-at the same frame the arm extends (tweak `startupFrames` in the item def if
-the timing is clearly off, but do NOT change damage or knockback).
+These are the body poses; the weapon SPRITE overlaid via the container handles
+the rotation arc automatically (see below). You only need to produce frames
+that show the character's arms, posture, and weight transfer correctly.
+
+**Weapon sprite rotation (what IS already implemented):**
+`computeWeaponAngle` in `MatchScene.ts` rotates the weapon container through
+an attack-type-specific arc:
+- Bat: -60° → +110° (baseball swing)
+- Sword: -70° → +100° (slash)
+- Spear: 80° → 90° (stays horizontal, thrust)
+- Hammer: 25° → -110° → +130° (windup → slam)
+
+**The rotation arc and hitbox are identical for every character — do NOT
+change per-character ranges or damage.** Weapons are balanced independently
+of who holds them. Only the body animation differs.
+
+**Current engine state — body overrides not yet wired:**
+The body clip routing for held weapons is not yet implemented. Until it is,
+the character plays their own attack animation (jab/tilt/smash) regardless
+of what they're holding. Ensure the arc peak of the weapon container aligns
+with when the character's arm extends in their existing attack art — that is
+the minimum for visual coherence. Do NOT change damage or knockback to
+compensate; fix the body animation instead when the system is built.
 
 **Grabs/throws that MOVE the grabbed character (DK-slam etc.) → `docs/SPRITE-PLAN.md`:**
 the grabber owns the move anim + a per-frame grab-anchor; the victim reuses ONE shared
