@@ -315,6 +315,39 @@ weapon they hold. Weapon-specific body clips will be routed once the
 `heldWeapon` override layer is added to `MatchScene.ts`. Art must be ready
 before the routing can be wired — produce the sprites now, integrate later.
 
+---
+
+### Adding a new weapon — ground-pickup visual (`MatchScene.ts`)
+
+When you add a new `ItemDefinition` in `src/items/`, you also need to add its
+ground-pickup visual in the item-spawn block of `MatchScene.ts` (search for
+`itemVisuals.set`). The item container's **y=0 is the ground contact point** —
+the weapon sprite must have its bottom edge at exactly y=0 in container space.
+
+**The only two correct patterns:**
+
+```ts
+// Bottom-anchored (setOrigin y=1) — position at y=0 so bottom IS the ground.
+this.add.image(0, 0, ASSET_KEYS.itemMyWeapon)
+  .setOrigin(0.5, 1)
+  .setDisplaySize(w, h)
+
+// Center-anchored (default) — position at y = -(h/2) so bottom lands at y=0.
+this.add.image(0, -(h / 2), ASSET_KEYS.itemMyWeapon)
+  .setOrigin(0.5, 0.5)
+  .setDisplaySize(w, h)
+```
+
+**Never do this** — `setOrigin(0.5, 1)` with a negative y places the bottom
+ABOVE the ground, making the weapon float:
+```ts
+// WRONG — bottom is at y=-24, weapon floats 24px above the platform.
+this.add.image(0, -24, ASSET_KEYS.itemMyWeapon).setOrigin(0.5, 1)
+```
+
+Do NOT add a text label underneath the weapon sprite. The sprite itself must
+be distinctive enough to identify the weapon type at a glance.
+
 **Grabs/throws that MOVE the grabbed character (DK-slam etc.) → `docs/SPRITE-PLAN.md`:**
 the grabber owns the move anim + a per-frame grab-anchor; the victim reuses ONE shared
 `grabbed` pose pinned via `setPosition`, so victim art cost is constant, not per-grabber.
