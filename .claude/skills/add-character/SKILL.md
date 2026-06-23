@@ -71,17 +71,27 @@ GPU/WSL safety in `docs/ART-PIPELINE.md`; the rules below are hard-won.
 ### 3a — Generate
 Write `assets/gen/<id>-clips.json` = `{fighter, identity, draftBody, idSeed, clips}`.
 `clips` MUST cover idle + run + jump + attack(collapsed fallback) + crouch + EVERY
-per-move slot: `jab, tilt, smash, nair, fair, bair, neutral_special, side_special,
-up_special, down_special`. Rules that matter:
+per-move slot: `jab, jab2, jab3, tilt, dtilt, smash, nair, fair, bair,
+neutral_special, side_special, up_special, down_special`. Rules that matter:
+
 - **Every move is its OWN multi-frame clip with a mechanically-correct pose.** A
   ranged/projectile special is a FIRING pose (bow draw→release, gun recoil), NOT a
   recycled swing. "One animation for all attacks" is the legacy default and is wrong.
+- **Jab chains need 3 separate clips** (`jab`, `jab2`, `jab3`). All three moves have
+  `type: 'jab'` but the renderer detects the chain hit by move ID suffix (`.jab2`,
+  `.jab3`). Each must feel distinct: jab1 = quick poke, jab2 = follow-up angle,
+  jab3 = finisher/spinner (4 frames for fluidity). Do NOT recycle jab1 art for jab2/3.
+- **`dtilt` is a dedicated crouching attack clip**, distinct from the standing `tilt`.
+  Smash-style: no forward movement — the character sweeps/kicks/swipes LOW from a
+  crouched position. The renderer detects it by `.dtilt` ID suffix.
 - **Lock ONE facing.** The pipeline enforces right-facing in the draft; frames that
   face different directions make the sprite "spin" in-engine and NO engine flag fixes
   inconsistent art.
 - **`draftBody`** matches the silhouette + signature weapon so it's drawn organically
   into every frame (Link's sword; Kirby's hammer for side-B). Pickup weapons → §3c.
-- ~4 idle, 6–8 run, 3–4 per attack.
+- Frame counts: ~4 idle, 6–8 run, 3–4 per attack, 4 for jab3/finishers.
+- More frames = more fluidity. Prefer 4 over 3 for any attack that has a visible
+  windup→active→recovery arc. "Visual eye candy" is a goal, not a luxury.
 
 ```bash
 node.exe node_modules/tsx/dist/cli.mjs tools/build-canny-library.ts assets/gen/<id>-clips.json
@@ -93,16 +103,17 @@ Canny library is namespaced per fighter (`<id>__<pose>`) — different bodies mu
 share cannys. Cells are a FIXED 64×64 so manifest frame dims never drift.
 
 ### 3b — Wire (ALL of these — miss one and the sprite is frozen or invisible)
-1. **manifest.ts** `ASSET_KEYS`: 15 keys `char<Id>{Idle,Run,Jump,Attack,Crouch,Jab,
-   Tilt,Smash,Nair,Fair,Bair,NeutralSpecial,SideSpecial,UpSpecial,DownSpecial}`.
+1. **manifest.ts** `ASSET_KEYS`: 18 keys `char<Id>{Idle,Run,Jump,Attack,Crouch,
+   Jab,Jab2,Jab3,Tilt,Dtilt,Smash,Nair,Fair,Bair,NeutralSpecial,SideSpecial,
+   UpSpecial,DownSpecial}`.
 2. **manifest.ts**: `const <id>Spritesheets = charSheetEntries('<id>', [...])` (counts
    straight from `frames.json`) + spread into `ASSET_MANIFEST.spritesheets`.
 3. **roster.ts**: `<ID>_PLACEHOLDER.spriteKey: ASSET_KEYS.char<Id>Idle` (not null).
 4. **spriteAnimationDriver.ts**: `case '<id>':` in `getCharacterSpritesheetKey`
    (idle/run/jump/attack) AND an `<id>: {...}` entry in `MOVE_SHEET_KEYS` (crouch +
-   the 10 moves). Anim REGISTRATION is automatic — it iterates `CHARACTER_IDS`, so do
-   NOT hand-add to any per-fighter list (that hand-list was the footgun that froze
-   sprites; `CharacterId` is now derived from `CHARACTER_IDS`).
+   ALL 13 move sheets: jab/jab2/jab3/tilt/dtilt/smash/nair/fair/bair/neutral_special/
+   side_special/up_special/down_special). Anim REGISTRATION is automatic — iterates
+   `CHARACTER_IDS`, do NOT hand-add to any per-fighter list.
 5. **visualScale.ts** `CHARACTER_SPRITE_FACES_LEFT['<id>'] = false` (right-facing art;
    trust the in-game playtest over eyeballing — this call has been wrong before).
 6. **<Name>.test.ts**: flip the `spriteKey).toBeNull()` assertion to `.not.toBeNull()`.

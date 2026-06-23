@@ -1,0 +1,9 @@
+{
+  "autonomous": false,
+  "maxAttemptsPerChar": 2,
+  "queue": ["link", "kirby", "donkeykong"],
+  "done": ["link", "kirby", "donkeykong"],
+  "blocked": [],
+  "attempts": {},
+  "_note": "Autonomous AI sprite generation queue. Each character gets a full set (locomotion + ducking + per-move attacks incl. ranged + weapon integration), wired, gates green. Set autonomous=false to stop the auto-continue Stop hook. link is in progress."
+}

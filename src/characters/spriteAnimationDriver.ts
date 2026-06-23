@@ -479,7 +479,10 @@ export const MOVE_SHEET_SPECS: ReadonlyArray<{
 }> = Object.freeze([
   Object.freeze({ sheet: 'crouch', frameRate: 8, repeat: -1, hold: true }),
   Object.freeze({ sheet: 'jab', frameRate: 18, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'jab2', frameRate: 18, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'jab3', frameRate: 16, repeat: 0, hold: true }),
   Object.freeze({ sheet: 'tilt', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'dtilt', frameRate: 16, repeat: 0, hold: true }),
   Object.freeze({ sheet: 'smash', frameRate: 16, repeat: 0, hold: true }),
   Object.freeze({ sheet: 'nair', frameRate: 16, repeat: 0, hold: true }),
   Object.freeze({ sheet: 'fair', frameRate: 16, repeat: 0, hold: true }),
@@ -504,7 +507,10 @@ const MOVE_SHEET_KEYS: Partial<Record<CharacterId, Readonly<Record<string, strin
   link: Object.freeze({
     crouch: ASSET_KEYS.charLinkCrouch,
     jab: ASSET_KEYS.charLinkJab,
+    jab2: ASSET_KEYS.charLinkJab2,
+    jab3: ASSET_KEYS.charLinkJab3,
     tilt: ASSET_KEYS.charLinkTilt,
+    dtilt: ASSET_KEYS.charLinkDtilt,
     smash: ASSET_KEYS.charLinkSmash,
     nair: ASSET_KEYS.charLinkNair,
     fair: ASSET_KEYS.charLinkFair,
@@ -517,7 +523,10 @@ const MOVE_SHEET_KEYS: Partial<Record<CharacterId, Readonly<Record<string, strin
   kirby: Object.freeze({
     crouch: ASSET_KEYS.charKirbyCrouch,
     jab: ASSET_KEYS.charKirbyJab,
+    jab2: ASSET_KEYS.charKirbyJab2,
+    jab3: ASSET_KEYS.charKirbyJab3,
     tilt: ASSET_KEYS.charKirbyTilt,
+    dtilt: ASSET_KEYS.charKirbyDtilt,
     smash: ASSET_KEYS.charKirbySmash,
     nair: ASSET_KEYS.charKirbyNair,
     fair: ASSET_KEYS.charKirbyFair,
@@ -530,7 +539,10 @@ const MOVE_SHEET_KEYS: Partial<Record<CharacterId, Readonly<Record<string, strin
   donkeykong: Object.freeze({
     crouch: ASSET_KEYS.charDonkeykongCrouch,
     jab: ASSET_KEYS.charDonkeykongJab,
+    jab2: ASSET_KEYS.charDonkeykongJab2,
+    jab3: ASSET_KEYS.charDonkeykongJab3,
     tilt: ASSET_KEYS.charDonkeykongTilt,
+    dtilt: ASSET_KEYS.charDonkeykongDtilt,
     smash: ASSET_KEYS.charDonkeykongSmash,
     nair: ASSET_KEYS.charDonkeykongNair,
     fair: ASSET_KEYS.charDonkeykongFair,
@@ -553,12 +565,17 @@ export function getCharacterMoveSheetKey(id: CharacterId, sheet: string): string
  * jab / tilt / smash / nair / fair / bair / 4 specials.
  */
 export function attackMoveToSheet(
-  move: { readonly type?: string; readonly aerialDirection?: string } | null | undefined,
+  move: { readonly type?: string; readonly aerialDirection?: string; readonly id?: string } | null | undefined,
 ): string | null {
   if (!move?.type) return null;
   switch (move.type) {
-    case 'jab': return 'jab';
-    case 'tilt': return 'tilt';
+    case 'jab':
+      if (move.id?.endsWith('.jab3')) return 'jab3';
+      if (move.id?.endsWith('.jab2')) return 'jab2';
+      return 'jab';
+    case 'tilt':
+      if (move.id?.endsWith('.dtilt')) return 'dtilt';
+      return 'tilt';
     case 'smash': return 'smash';
     case 'special': // neutral special
     case 'neutralSpecial': return 'neutral_special';

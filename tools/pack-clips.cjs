@@ -91,7 +91,7 @@ function main() {
   // automatically.
   const groupNames = [...new Set(
     fs.readdirSync(FRAMES_DIR)
-      .filter((f) => /^[a-z_]+-\d+\.png$/.test(f))
+      .filter((f) => /^[a-z][a-z0-9_]*-\d+\.png$/.test(f))
       .map((f) => f.replace(/-\d+\.png$/, '')),
   )].sort();
   // Idle: if the fighter shipped generated idle frames, pack them like any group;

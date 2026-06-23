@@ -85,6 +85,30 @@
         ]
       ]
     },
+    "dtilt": {
+      "strip": "animations/dtilt.png",
+      "frameCount": 4,
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ]
+      ]
+    },
     "fair": {
       "strip": "animations/fair.png",
       "frameCount": 3,
@@ -145,6 +169,54 @@
         ],
         [
           2,
+          0
+        ]
+      ]
+    },
+    "jab2": {
+      "strip": "animations/jab2.png",
+      "frameCount": 4,
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ]
+      ]
+    },
+    "jab3": {
+      "strip": "animations/jab3.png",
+      "frameCount": 4,
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
           0
         ]
       ]
