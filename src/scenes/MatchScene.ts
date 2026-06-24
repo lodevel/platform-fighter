@@ -5786,33 +5786,38 @@ export class MatchScene extends Phaser.Scene {
       for (const t of slot.character.getActiveTraps()) {
         const cx = ox + t.x * s;
         const cy = oy + t.y * s;
-        const r = Math.max(6, t.width * 0.42 * s);
         if (t.detonated) {
-          // Blast flash while the detonated bomb lingers (a few frames).
-          g.fillStyle(0xffe066, 0.85);
-          g.fillCircle(cx, cy, r * 2.4);
+          // Blast: draw it at the ACTUAL hitbox extent (width × height) so the
+          // flash IS the damage radius the player needs to read.
+          const bx = (t.width / 2) * s;
+          const by = (t.height / 2) * s;
+          g.fillStyle(0xffe066, 0.5);
+          g.fillEllipse(cx, cy, bx * 2, by * 2);
           g.fillStyle(0xff7a22, 0.7);
-          g.fillCircle(cx, cy, r * 1.5);
+          g.fillEllipse(cx, cy, bx * 1.35, by * 1.35);
+          g.fillStyle(0xfff2b0, 0.9);
+          g.fillEllipse(cx, cy, bx * 0.6, by * 0.6);
           continue;
         }
-        // Fuse progress toward arm/detonate; blink accelerates near the end.
+        // Bomb OBJECT — small (it's a thrown bomb, not its blast). The blast
+        // radius only shows on detonation, above.
+        const r = Math.max(5, 8 * s);
         const fuseT = t.armDelay > 0 ? Math.min(1, t.framesSinceSpawn / t.armDelay) : 1;
         const blinkPeriod = Math.max(3, Math.round(16 * (1 - fuseT)) + 3);
         const blinkOn = Math.floor(t.framesSinceSpawn / blinkPeriod) % 2 === 0;
-        // Bomb body — dark sphere with a soft highlight.
         g.fillStyle(0x16161e, 1);
         g.fillCircle(cx, cy, r);
-        g.lineStyle(Math.max(1, 2 * s), 0x000000, 0.6);
+        g.lineStyle(Math.max(1, 1.5 * s), 0x000000, 0.6);
         g.strokeCircle(cx, cy, r);
         g.fillStyle(0x44464f, 0.85);
         g.fillCircle(cx - r * 0.3, cy - r * 0.32, r * 0.3);
         // Fuse cap + blinking spark (red→amber→pale as the fuse counts down).
         g.fillStyle(0x8b6f47, 1);
-        g.fillRect(cx - r * 0.16, cy - r * 1.28, r * 0.32, r * 0.42);
+        g.fillRect(cx - r * 0.16, cy - r * 1.25, r * 0.32, r * 0.42);
         if (blinkOn || !t.fused) {
           const spark = fuseT > 0.66 ? 0xff3030 : fuseT > 0.33 ? 0xffaa20 : 0xffe060;
           g.fillStyle(spark, 1);
-          g.fillCircle(cx, cy - r * 1.4, Math.max(2, r * 0.24));
+          g.fillCircle(cx, cy - r * 1.35, Math.max(2, r * 0.26));
         }
       }
     }

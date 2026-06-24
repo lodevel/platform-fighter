@@ -568,6 +568,11 @@ export const DIVE_SHOCKWAVE_FRAMES = 3;
  */
 export const TRAP_BLAST_FRAMES = 4;
 
+/** Per-frame downward acceleration applied to a placed trap that hasn't landed. */
+const TRAP_GRAVITY = 0.55;
+/** Terminal fall speed (px/frame) for a placed trap. */
+const TRAP_MAX_FALL = 14;
+
 /**
  * Launch knockback magnitude at/above which a hit sends the victim into
  * TUMBLE — the launched state that can be TECHED on ground contact. Below
@@ -1451,6 +1456,11 @@ export class Character {
     maxActive: number;
     moveId: string;
     body: MatterJS.BodyType | null;
+    // Spawned objects obey gravity by default: a placed bomb/mine falls until
+    // it rests on a platform surface below it. `vy` integrates downward;
+    // `landed` latches once it touches down (or is placed on the ground).
+    vy: number;
+    landed: boolean;
     // True for a timed bomb (detonates on a fuse); false for a contact mine.
     fused: boolean;
     // Timed-bomb extension (Samus): self-bounce velocity applied to the placer
@@ -4964,6 +4974,8 @@ export class Character {
       maxActive: spec.maxActiveTraps,
       moveId,
       body: null,
+      vy: 0,
+      landed: false,
       fused,
       selfBounceVelocity:
         fused && typeof spec.selfBounceVelocity === 'number'
@@ -4971,6 +4983,35 @@ export class Character {
           : null,
       detonated: false,
     });
+  }
+
+  /**
+   * Highest platform top surface strictly below `fromY` whose horizontal span
+   * contains `x`, or null if a falling trap at `x` is over a gap. Derived from
+   * the live `ledgeCandidates` (each platform contributes a left + right ledge
+   * corner at the same top `y`); pairing them by `platformId` recovers the
+   * platform's `[leftX, rightX]` span and top surface. Deterministic — reads
+   * only the frozen candidate snapshot.
+   */
+  private trapSurfaceYBelow(x: number, fromY: number): number | null {
+    const byPlatform = new Map<string, { left?: number; right?: number; y: number }>();
+    for (const c of this.ledgeCandidates) {
+      const e = byPlatform.get(c.platformId) ?? { y: c.y };
+      if (c.side === 'left') e.left = c.x;
+      else e.right = c.x;
+      e.y = c.y;
+      byPlatform.set(c.platformId, e);
+    }
+    let best: number | null = null;
+    for (const e of byPlatform.values()) {
+      if (e.left === undefined || e.right === undefined) continue;
+      const lo = Math.min(e.left, e.right);
+      const hi = Math.max(e.left, e.right);
+      if (x < lo || x > hi) continue;
+      if (e.y < fromY) continue; // surface must be at/below the trap (screen-down +)
+      if (best === null || e.y < best) best = e.y;
+    }
+    return best;
   }
 
   /**
@@ -4984,6 +5025,22 @@ export class Character {
     const survivors: typeof this.activeTraps = [];
     for (const t of this.activeTraps) {
       t.framesSinceSpawn += 1;
+      // Physics: an unlanded trap falls under gravity until it rests on the
+      // first platform surface below it (spawned objects obey physics by
+      // default). Only integrate while it has no live body yet — once it has
+      // armed/detonated its position is fixed at the blast point.
+      if (!t.landed && t.body === null) {
+        t.vy = Math.min(TRAP_MAX_FALL, t.vy + TRAP_GRAVITY);
+        const nextY = t.y + t.vy;
+        const surf = this.trapSurfaceYBelow(t.x, t.y);
+        if (surf !== null && nextY + t.height / 2 >= surf) {
+          t.y = surf - t.height / 2;
+          t.vy = 0;
+          t.landed = true;
+        } else {
+          t.y = nextY;
+        }
+      }
       // Arm: spawn the live sensor exactly once, at the placement point.
       if (t.body === null && t.framesSinceSpawn >= t.armDelay) {
         const trapMove = {
