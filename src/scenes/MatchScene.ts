@@ -1124,6 +1124,14 @@ export class MatchScene extends Phaser.Scene {
   }> = [];
 
   /**
+   * Immediate-mode graphics layer for placed down-special traps (bombs /
+   * mines). Cleared and fully redrawn each frame from every fighter's
+   * `getActiveTraps()` — traps come and go and have no stable id, so
+   * redraw-from-state is simpler than tracking persistent sprites.
+   */
+  private trapGraphics?: Phaser.GameObjects.Graphics;
+
+  /**
    * Per-slot transient swing-flash entries. Active for a few frames
    * after a held-item slot override fires, so the player can see the
    * bat swing connect even without a sprite animation.
@@ -4945,6 +4953,9 @@ export class MatchScene extends Phaser.Scene {
             }
             this.thrownItems = survivors;
           }
+          // Render placed down-special traps (bombs / mines). They work
+          // mechanically without a sprite, so this is the missing VISUAL.
+          this.renderTraps();
           // Tick projectiles — advance position, sync visual, AABB
           // hit-check vs every other slot's body, despawn on hit or
           // lifetime expiry.
@@ -5754,6 +5765,59 @@ export class MatchScene extends Phaser.Scene {
    *   – Any fighter currently held in a grab (the grabber pins their position
    *     each step — applying a push would jitter the pin).
    */
+  /**
+   * Draw every placed down-special trap (bomb / mine) at its world position.
+   * Bombs read as a dark sphere with a fuse spark that blinks faster and
+   * reddens as the fuse nears detonation; a detonated bomb shows a brief
+   * blast flash. Immediate-mode: clear + redraw from `getActiveTraps()`.
+   */
+  private renderTraps(): void {
+    if (!this.playerSlots) return;
+    if (!this.trapGraphics) {
+      this.trapGraphics = this.add.graphics().setDepth(2);
+    }
+    const g = this.trapGraphics;
+    g.clear();
+    const ox = this.baseStage.transform.offsetX;
+    const oy = this.baseStage.transform.offsetY;
+    const s = this.stage.scale;
+    for (const slot of this.playerSlots) {
+      if (this.stockTracker.isEliminated(slot.playerIndex)) continue;
+      for (const t of slot.character.getActiveTraps()) {
+        const cx = ox + t.x * s;
+        const cy = oy + t.y * s;
+        const r = Math.max(6, t.width * 0.42 * s);
+        if (t.detonated) {
+          // Blast flash while the detonated bomb lingers (a few frames).
+          g.fillStyle(0xffe066, 0.85);
+          g.fillCircle(cx, cy, r * 2.4);
+          g.fillStyle(0xff7a22, 0.7);
+          g.fillCircle(cx, cy, r * 1.5);
+          continue;
+        }
+        // Fuse progress toward arm/detonate; blink accelerates near the end.
+        const fuseT = t.armDelay > 0 ? Math.min(1, t.framesSinceSpawn / t.armDelay) : 1;
+        const blinkPeriod = Math.max(3, Math.round(16 * (1 - fuseT)) + 3);
+        const blinkOn = Math.floor(t.framesSinceSpawn / blinkPeriod) % 2 === 0;
+        // Bomb body — dark sphere with a soft highlight.
+        g.fillStyle(0x16161e, 1);
+        g.fillCircle(cx, cy, r);
+        g.lineStyle(Math.max(1, 2 * s), 0x000000, 0.6);
+        g.strokeCircle(cx, cy, r);
+        g.fillStyle(0x44464f, 0.85);
+        g.fillCircle(cx - r * 0.3, cy - r * 0.32, r * 0.3);
+        // Fuse cap + blinking spark (red→amber→pale as the fuse counts down).
+        g.fillStyle(0x8b6f47, 1);
+        g.fillRect(cx - r * 0.16, cy - r * 1.28, r * 0.32, r * 0.42);
+        if (blinkOn || !t.fused) {
+          const spark = fuseT > 0.66 ? 0xff3030 : fuseT > 0.33 ? 0xffaa20 : 0xffe060;
+          g.fillStyle(spark, 1);
+          g.fillCircle(cx, cy - r * 1.4, Math.max(2, r * 0.24));
+        }
+      }
+    }
+  }
+
   private updateFighterSeparation(): void {
     const fighters: Character[] = [this.p1, this.p2, ...this.extraFighters].filter(
       (f): f is Character => f !== null && f !== undefined,

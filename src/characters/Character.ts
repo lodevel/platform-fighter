@@ -1451,6 +1451,8 @@ export class Character {
     maxActive: number;
     moveId: string;
     body: MatterJS.BodyType | null;
+    // True for a timed bomb (detonates on a fuse); false for a contact mine.
+    fused: boolean;
     // Timed-bomb extension (Samus): self-bounce velocity applied to the placer
     // on detonation (null = none / contact-mine trap).
     selfBounceVelocity: number | null;
@@ -3911,6 +3913,40 @@ export class Character {
     return this.cooldownRemaining;
   }
 
+  /**
+   * Read-only snapshot of this fighter's placed down-special traps (bombs /
+   * mines) for the renderer. Each entry is a world-space sphere with timing
+   * so the scene can draw a fuse/arming state and pop it on detonation. The
+   * traps work mechanically even when unrendered, so this is purely visual.
+   */
+  getActiveTraps(): ReadonlyArray<{
+    readonly x: number;
+    readonly y: number;
+    readonly width: number;
+    readonly height: number;
+    readonly framesSinceSpawn: number;
+    /** Frames until arm/detonate (fuse length for a timed bomb). */
+    readonly armDelay: number;
+    readonly lifetime: number;
+    /** True for a timed bomb (fused); false for a contact mine. */
+    readonly fused: boolean;
+    readonly detonated: boolean;
+    readonly moveId: string;
+  }> {
+    return this.activeTraps.map((t) => ({
+      x: t.x,
+      y: t.y,
+      width: t.width,
+      height: t.height,
+      framesSinceSpawn: t.framesSinceSpawn,
+      armDelay: t.armDelay,
+      lifetime: t.lifetime,
+      fused: t.fused,
+      detonated: t.detonated,
+      moveId: t.moveId,
+    }));
+  }
+
   /** True iff a move is currently in startup / active / recovery. */
   isAttacking(): boolean {
     return this.activeAttack !== null;
@@ -4928,6 +4964,7 @@ export class Character {
       maxActive: spec.maxActiveTraps,
       moveId,
       body: null,
+      fused,
       selfBounceVelocity:
         fused && typeof spec.selfBounceVelocity === 'number'
           ? spec.selfBounceVelocity
