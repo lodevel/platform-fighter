@@ -27,6 +27,18 @@ Pick the archetype (weight class, run speed, fall speed), then choose one
 > calls for a dive-bomb, give it one of these rather than a flat down move — a
 > falling special that doesn't actually fall-and-hit-through is a missed kit.
 
+> **Any special that spawns a WORLD ENTITY needs its own VISUAL in
+> `MatchScene.ts`** — projectiles (`projectile`), traps/bombs/mines (`trap`),
+> summons (`summon`), tether lines, etc. The engine ticks the entity
+> *mechanically* (hitbox, damage, lifetime) even when nothing is drawn, so a
+> missing renderer = an **invisible move that "does nothing" on screen** while
+> still dealing damage (this was the trap/bomb bug: the entity worked but no
+> sprite existed). Expose the entity state from `Character` with a getter and
+> draw it each frame in MatchScene at `stageOffset + worldPos * stageScale`
+> (mirror the projectile / `renderTraps()` rendering). After wiring a new
+> entity-spawning move, RUN THE GAME and confirm the thing actually appears —
+> tests pass on invisible entities.
+
 Schemas: `specialSchema.ts`, `sideSpecialSchema.ts`, `upSpecialSchema.ts`,
 `downSpecialSchema.ts`. Model the class file on a recent, complete fighter —
 **`Nova.ts`** (projectile + charge + multiHit + trap, full directional kit) or
