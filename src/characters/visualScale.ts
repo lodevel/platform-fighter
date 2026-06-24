@@ -203,11 +203,10 @@ export const CHARACTER_SPRITE_ART_OFFSET_Y: Readonly<Record<CharacterId, number>
     // she floated ~15 px above the ground. 14 / 96 ≈ 0.146 seats her feet.
     nova: 14 / 96,
     bruno: 0,
-    // HD pack (256² cells): the AI draws a faint ground-shadow below the feet
-    // that survives chroma-key, extending the packed bbox ~15px past the real
-    // feet (measured consistently across idle/run/shield/crouch). Seat the feet
-    // by shifting down that fraction; the shadow then hangs into the floor.
-    link: 15 / 256,
+    // HD pack (256² cells): faint ground-shadow below the feet extends the
+    // packed bbox past the real feet. Polished-Smash restyle seats lower than
+    // the old painterly pack — measured ~9px on idle (was 15). Seat the feet.
+    link: 9 / 256,
     // HD re-pack (256² cells from original 1024 sources): same AI ground-shadow
     // below the feet. Measured gaps: Kirby ~12px, DK ~14px on idle/shield.
     kirby: 12 / 256,
