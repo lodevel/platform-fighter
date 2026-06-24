@@ -18,6 +18,15 @@ Pick the archetype (weight class, run speed, fall speed), then choose one
 - up (recovery): `multiHitRising · teleport · directionalJump · tether`
 - down: `groundPound · trap · stallAndFall · counter`
 
+> **Falling / dive attacks** (`stallAndFall`, and `groundPound`) are real,
+> first-class behaviours — use them when the kit wants a meteor/dive. They make
+> the fighter **plummet straight down and the body itself is a hitbox during the
+> descent** (damages everything in its fall path), then spawn a **landing
+> shockwave** at the feet. `stallAndFall` adds a brief pre-plunge stall/hover;
+> set `helplessAfterFall` for the high-risk version. If an archetype's identity
+> calls for a dive-bomb, give it one of these rather than a flat down move — a
+> falling special that doesn't actually fall-and-hit-through is a missed kit.
+
 Schemas: `specialSchema.ts`, `sideSpecialSchema.ts`, `upSpecialSchema.ts`,
 `downSpecialSchema.ts`. Model the class file on a recent, complete fighter —
 **`Nova.ts`** (projectile + charge + multiHit + trap, full directional kit) or
@@ -69,6 +78,17 @@ hitbox: { offsetX: 40, offsetY: 0, width: 40, height: 50 }
 `offsetX` is automatically mirrored by `facing`, so always author as if
 facing RIGHT; negative `offsetX` = hits BEHIND the attacker (bair).
 
+### Move timing — `cooldownFrames` is a HIDDEN lockout after the animation
+
+A move runs `startup → active → recovery → cooldownFrames`. The visible
+animation ends at `recovery`; `cooldownFrames` is an **extra input-dead window
+AFTER** the fighter has returned to idle. Big cooldowns make a move "look done
+but the button does nothing" — it reads as unresponsive (the bug felt on Link's
+specials). Keep `cooldownFrames` SMALL (≈4–8) and let the visible `recovery`
+frames be the real commitment. Only use a large cooldown when a move is meant to
+be hard-gated and you accept the dead feel; otherwise put the commitment in
+`recovery` (which is animated) instead of `cooldown` (which is invisible).
+
 ---
 
 **Constructor wiring order matters** — register the forward `jab/tilt/smash`
@@ -118,6 +138,14 @@ has NO animation — the engine does not fall back gracefully.
 | `run` | moving on ground | 6–8 |
 | `jump` | airborne, rising (velocityY < 0) | 4–5 |
 | `attack` | generic fallback for moves without a dedicated clip | 4 |
+
+> **`idle` MUST be 4 genuinely distinct frames** — a real breathing/weight-shift
+> cycle (e.g. neutral → breath-in → neutral → breath-out), generated like any
+> other clip. Do NOT ship a single idle frame: `pack-clips.cjs` will then
+> *synthesize* a 4-frame idle by scaling that one frame vertically (the `BREATH`
+> array), which reads as the character **"inflating and deflating,"** not moving.
+> The synthesis is a fallback only; always author real idle frames. (Pose the 4
+> frames nearly identically so the loop is a calm breath, not a jittery morph.)
 
 #### Status overrides (3 slots — interrupt the base motion)
 | Clip | Trigger | Frame count |
