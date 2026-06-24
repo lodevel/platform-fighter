@@ -340,7 +340,10 @@ export const LINK_NEUTRAL_SPECIAL: ProjectileSpecialMove = {
   startupFrames: 8,
   activeFrames: 4,
   recoveryFrames: 16,
-  cooldownFrames: 16,
+  // Small post-recovery buffer only — the visible recovery is the real
+  // commitment. A long hidden cooldown made the bow feel unresponsive: the
+  // animation finished but a re-press was eaten for ~0.27s. (was 16)
+  cooldownFrames: 5,
   animation: { startupFrames: 2, activeFrames: 1, recoveryFrames: 3 },
   projectile: {
     speed: 16, // ≈ 960 px/s — a fast arrow that crosses space quickly
@@ -369,7 +372,9 @@ export const LINK_SIDE_SPECIAL: MultiHitSideSpecialMove = {
   startupFrames: 7,
   activeFrames: 14,
   recoveryFrames: 16,
-  cooldownFrames: 18,
+  // Small post-recovery buffer only (was 18) — boomerang re-throw now responds
+  // as soon as the throw animation finishes.
+  cooldownFrames: 6,
   animation: { startupFrames: 2, activeFrames: 4, recoveryFrames: 3 },
   multiHit: {
     hitCount: 3,
@@ -400,7 +405,9 @@ export const LINK_UP_SPECIAL: TetherUpSpecialMove = {
   startupFrames: 6,
   activeFrames: 10,
   recoveryFrames: 28,
-  cooldownFrames: 16,
+  // The 28f recovery is already the commitment; trim the hidden cooldown so
+  // the grounded re-use feels responsive. (was 16)
+  cooldownFrames: 6,
   animation: { startupFrames: 1, activeFrames: 3, recoveryFrames: 4 },
   tether: {
     maxRange: 280, // = extensionSpeed * extensionFrames
@@ -431,7 +438,9 @@ export const LINK_DOWN_SPECIAL: TrapDownSpecialMove = {
   startupFrames: 6,
   activeFrames: 4,
   recoveryFrames: 12,
-  cooldownFrames: 14,
+  // Bomb output is already gated by the 2-bomb-out limit; trim the hidden
+  // cooldown so placing the next bomb responds right after the animation. (was 14)
+  cooldownFrames: 6,
   animation: { startupFrames: 2, activeFrames: 1, recoveryFrames: 3 },
   trap: {
     trapWidth: 40,
