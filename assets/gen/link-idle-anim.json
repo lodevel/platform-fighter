@@ -1,0 +1,18 @@
+{
+ "fighter": "link",
+ "identity": "Super Smash Bros Ultimate official character render, the adult Breath of the Wild hero rendered in the highly polished premium Smash Bros 3D style, a tall lean heroic young-adult swordsman with grown-up athletic proportions about seven-and-a-half heads tall, a normal proportioned small head on a tall athletic body with long legs, clearly a young man not a child, NOT chibi, a handsome youthful confident face with refined features and a calm focused expression, tied-back blonde hair in a short neat style, pointed elf ears, a deep rich saturated emerald and forest-green tunic with layered tonal depth made of detailed woven fabric with a visible cloth weave and fine stitched seams along the edges, the tunic a short fitted tunic ending in a short skirt over fitted tan trousers, a flowing heroic cape draping from the shoulders in a deep forest-green a shade darker than the tunic with a crisp gold-trimmed edge and a warm cream lining, clasped at the shoulders with a small gold brooch, the cape always present and flowing naturally with the motion, NO shield, natural fabric folds creases and wrinkles across the tunic and cape, soft textured wool-linen material that is matte and tactile, crisp gold and cream embroidered trim, a fitted light undershirt, a brown tooled-leather belt with a gold buckle and neat crossed straps, brown leather bracers and tan fingerless gloves, brown leather boots, the left arm bare and free with the forearm held forward in a steady guard position, a gleaming silver longsword with a deep-blue grip and ornate golden crossguard in the right hand, the metal and leather glossy and polished while the cloth stays richly textured, vibrant richly saturated colors, bright even studio lighting, premium AAA Nintendo first-party render quality, clean sharp and detailed, full body character sprite facing right, on a solid flat magenta background, no shadows",
+ "draftBody": "a clean simple clear full-body silhouette of a slim athletic young swordsman in a short fitted tunic and trousers, NO cape NO cloak NO shield, a straight sword in the right hand, the left arm bare and clearly visible held forward, limbs clearly separated, high contrast sharp clean outline, full body facing right, magenta background",
+ "negative": "scarf, shield, round shield, buckler, anything held in the left hand",
+ "cannyLow": 0.1,
+ "cannyHigh": 0.3,
+ "cnStrength": 0.58,
+ "idSeed": 1042,
+ "clips": {
+  "idle": [
+   "standing in a relaxed neutral ready stance, weight balanced evenly on both feet, shoulders level, the left forearm raised forward in a steady guard, the sword held down at the right side, facing right",
+   "standing in the same relaxed ready stance, chest and shoulders rising just slightly with a slow breath in, head lifting a touch, weight still balanced, left forearm in the same guard, sword down at the side, facing right",
+   "standing in a relaxed neutral ready stance, weight balanced evenly, shoulders level, the left forearm raised forward in a steady guard, the sword held down at the right side, facing right",
+   "standing in the same relaxed ready stance, shoulders settling slightly lower on a slow breath out, head lowering a touch, weight still balanced, left forearm in the same guard, sword down at the side, facing right"
+  ]
+ }
+}
