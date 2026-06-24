@@ -24,24 +24,47 @@ import { MODELS, SAMPLER, NEGATIVE, CHARACTER_PREFIX } from './comfy-style.ts';
 const FACING = 'strictly facing to the right, right-facing side profile view, body and head turned to the right';
 const LIB_DIR = 'assets/gen/canny-library';
 
-interface ClipSpec { fighter: string; clips: Record<string, string[]>; draftBody?: string; bg?: string }
+interface ClipSpec {
+  fighter: string;
+  clips: Record<string, string[]>;
+  draftBody?: string;
+  bg?: string;
+  // Per-spec negative additions appended to the global NEGATIVE — keeps an
+  // unwanted feature (e.g. a cape) OUT of the draft so the Canny edge map
+  // never contains it, the real root-cause fix vs only negating at render time.
+  negative?: string;
+  // Canny edge thresholds. Lower = denser, more complete edges = a tighter
+  // control map that leaves the render less room to improvise. Defaults match
+  // the legacy 0.3/0.7; a clean capeless silhouette wants ~0.1/0.3.
+  cannyLow?: number;
+  cannyHigh?: number;
+}
 
 function poseHash(pose: string): string {
   return pose.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60);
 }
 
-function cannyGraph(body: string, bg: string, pose: string, draftSeed: number) {
+function cannyGraph(
+  body: string,
+  bg: string,
+  pose: string,
+  draftSeed: number,
+  negativeExtra?: string,
+  cannyLow?: number,
+  cannyHigh?: number,
+) {
   const draftPrompt = `${CHARACTER_PREFIX} ${body}, ${pose}, ${FACING}, full body, on a solid flat chroma-key ${bg} background`;
+  const negativePrompt = negativeExtra ? `${NEGATIVE}, ${negativeExtra}` : NEGATIVE;
   return {
     '1': { class_type: 'UNETLoader', inputs: { unet_name: MODELS.unet, weight_dtype: 'default' } },
     '2': { class_type: 'CLIPLoader', inputs: { clip_name: MODELS.clip, type: MODELS.clipType } },
     '3': { class_type: 'VAELoader', inputs: { vae_name: MODELS.vae } },
     '20': { class_type: 'CLIPTextEncode', inputs: { clip: ['2', 0], text: draftPrompt } },
-    '21': { class_type: 'CLIPTextEncode', inputs: { clip: ['2', 0], text: NEGATIVE } },
+    '21': { class_type: 'CLIPTextEncode', inputs: { clip: ['2', 0], text: negativePrompt } },
     '22': { class_type: 'EmptySD3LatentImage', inputs: { width: 1024, height: 1024, batch_size: 1 } },
     '23': { class_type: 'KSampler', inputs: { model: ['1', 0], seed: draftSeed, steps: SAMPLER.steps, cfg: SAMPLER.cfg, sampler_name: SAMPLER.samplerName, scheduler: SAMPLER.scheduler, positive: ['20', 0], negative: ['21', 0], latent_image: ['22', 0], denoise: SAMPLER.denoise } },
     '24': { class_type: 'VAEDecode', inputs: { samples: ['23', 0], vae: ['3', 0] } },
-    '30': { class_type: 'Canny', inputs: { image: ['24', 0], low_threshold: 0.3, high_threshold: 0.7 } },
+    '30': { class_type: 'Canny', inputs: { image: ['24', 0], low_threshold: cannyLow ?? 0.3, high_threshold: cannyHigh ?? 0.7 } },
     // single SaveImage = the CANNY edge map (what we cache)
     '31': { class_type: 'SaveImage', inputs: { images: ['30', 0], filename_prefix: 'pf-canny' } },
   };
@@ -74,7 +97,9 @@ async function main() {
       continue;
     }
     const draftSeed = 5000 + n;
-    const { bytes } = await client.render(cannyGraph(body, bg, pose, draftSeed));
+    const { bytes } = await client.render(
+      cannyGraph(body, bg, pose, draftSeed, spec.negative, spec.cannyLow, spec.cannyHigh),
+    );
     const file = `${hash}.png`;
     await writeFile(`${LIB_DIR}/${file}`, bytes);
     manifest[hash] = { pose, file, model: MODELS.unet, draftSeed };

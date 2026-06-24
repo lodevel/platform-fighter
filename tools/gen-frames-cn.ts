@@ -24,23 +24,29 @@ const UNION = 'Z-Image-Turbo-Fun-Controlnet-Union.safetensors';
 const FACING = 'strictly facing to the right, right-facing side profile view';
 const LIB_DIR = 'assets/gen/canny-library';
 
-interface ClipSpec { fighter: string; identity: string; idSeed: number; clips: Record<string, string[]>; bg?: string }
+interface ClipSpec { fighter: string; identity: string; idSeed: number; clips: Record<string, string[]>; bg?: string; negative?: string; cnStrength?: number }
 
 function poseHash(pose: string): string {
   return pose.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60);
 }
 
-function graphFromCanny(identity: string, bg: string, pose: string, cannyFile: string, idSeed: number) {
+function graphFromCanny(identity: string, bg: string, pose: string, cannyFile: string, idSeed: number, negativeExtra?: string, cnStrength?: number) {
   const finalPrompt = `${CHARACTER_PREFIX} ${identity}, ${pose}, ${FACING}, on a solid flat chroma-key ${bg} background, no shadows`;
+  // Per-spec negative additions (e.g. suppress a hallucinated cape for a
+  // capeless fighter) appended to the shared global NEGATIVE.
+  const negativePrompt = negativeExtra ? `${NEGATIVE}, ${negativeExtra}` : NEGATIVE;
+  // ControlNet strength: higher hugs the (capeless) canny silhouette more
+  // tightly, giving the model less room to invent a cape; default 0.65.
+  const strength = cnStrength ?? 0.65;
   return {
     '1': { class_type: 'UNETLoader', inputs: { unet_name: MODELS.unet, weight_dtype: 'default' } },
     '2': { class_type: 'CLIPLoader', inputs: { clip_name: MODELS.clip, type: MODELS.clipType } },
     '3': { class_type: 'VAELoader', inputs: { vae_name: MODELS.vae } },
     '11': { class_type: 'ModelPatchLoader', inputs: { name: UNION } },
     '10': { class_type: 'LoadImage', inputs: { image: cannyFile } },
-    '31': { class_type: 'ZImageFunControlnet', inputs: { model: ['1', 0], model_patch: ['11', 0], vae: ['3', 0], strength: 0.65, image: ['10', 0] } },
+    '31': { class_type: 'ZImageFunControlnet', inputs: { model: ['1', 0], model_patch: ['11', 0], vae: ['3', 0], strength, image: ['10', 0] } },
     '40': { class_type: 'CLIPTextEncode', inputs: { clip: ['2', 0], text: finalPrompt } },
-    '41': { class_type: 'CLIPTextEncode', inputs: { clip: ['2', 0], text: NEGATIVE } },
+    '41': { class_type: 'CLIPTextEncode', inputs: { clip: ['2', 0], text: negativePrompt } },
     '42': { class_type: 'EmptySD3LatentImage', inputs: { width: 1024, height: 1024, batch_size: 1 } },
     '43': { class_type: 'KSampler', inputs: { model: ['31', 0], seed: idSeed, steps: SAMPLER.steps, cfg: SAMPLER.cfg, sampler_name: SAMPLER.samplerName, scheduler: SAMPLER.scheduler, positive: ['40', 0], negative: ['41', 0], latent_image: ['42', 0], denoise: SAMPLER.denoise } },
     '44': { class_type: 'VAEDecode', inputs: { samples: ['43', 0], vae: ['3', 0] } },
@@ -69,7 +75,7 @@ async function main() {
       const entry = manifest[hash];
       n++;
       if (!entry) { console.log(`[gen-cn] (${n}/${total}) MISS no canny for "${pose}" — skipped`); continue; }
-      const { bytes } = await client.render(graphFromCanny(spec.identity, bg, pose, entry.file, spec.idSeed));
+      const { bytes } = await client.render(graphFromCanny(spec.identity, bg, pose, entry.file, spec.idSeed, spec.negative, spec.cnStrength));
       const out = `${outDir}/${anim}-${i}.png`;
       await writeFile(out, bytes);
       console.log(`[gen-cn] (${n}/${total}) ${anim}[${i}] <- ${entry.file} -> ${out} (${(bytes.length / 1024) | 0}KB)`);

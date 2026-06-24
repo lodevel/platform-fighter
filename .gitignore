@@ -43,3 +43,6 @@ hello.txt
 assets/gen/*
 !assets/gen/test-stage.png
 !assets/gen/*.json
+# Decoupled-equipment source sprites (composited into character strips at build
+# time by tools/composite-shield.cjs) — track so the composite is reproducible.
+!assets/gen/link-shield.png
