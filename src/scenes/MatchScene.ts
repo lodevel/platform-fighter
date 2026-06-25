@@ -1154,6 +1154,26 @@ export class MatchScene extends Phaser.Scene {
   }> = [];
 
   /**
+   * Procedural explosion particles — radial embers, smoke puffs, and the
+   * expanding shockwave ring layered into a bomb detonation so it reads as a
+   * real blast instead of a single fireball sprite. Each has screen-space
+   * velocity + gravity + radius growth + alpha fade, ticked by
+   * {@link tickExplosionParticles}. Render-only and RNG-free (directions are
+   * deterministic by index) so replays paint identically.
+   */
+  private explosionParticles: Array<{
+    obj: Phaser.GameObjects.Arc;
+    vx: number;
+    vy: number;
+    gravity: number;
+    drag: number;
+    growth: number;
+    framesRemaining: number;
+    lifetime: number;
+    peakAlpha: number;
+  }> = [];
+
+  /**
    * One-shot procedural BURST flashes — an expanding, fading ring. Used
    * for the down-special dive LANDING shockwave (so a whiffed dive that
    * fires no collisionstart still flashes) and the charge-beam MUZZLE
@@ -1188,6 +1208,72 @@ export class MatchScene extends Phaser.Scene {
   ): void {
     const arc = this.add.circle(screenX, screenY, baseRadius, color, 0.8).setDepth(depth);
     this.oneShotBursts.push({ arc, framesRemaining: lifetime, lifetime, baseRadius, growth });
+  }
+
+  /**
+   * Spawn a rich, layered bomb explosion at a SCREEN-SPACE point sized to the
+   * blast (`fw`×`fh`): a white core flash, an expanding shockwave ring, an
+   * orange fireball glow, radial ember sparks (gravity + drag), and rising
+   * smoke puffs. Render-only; deterministic (ember angles are index-based).
+   */
+  private spawnBombExplosion(fx: number, fy: number, fw: number, fh: number): void {
+    const size = Math.max(fw, fh);
+    const push = (
+      obj: Phaser.GameObjects.Arc,
+      vx: number,
+      vy: number,
+      gravity: number,
+      drag: number,
+      growth: number,
+      lifetime: number,
+      peakAlpha: number,
+    ) => {
+      this.explosionParticles.push({ obj, vx, vy, gravity, drag, growth, framesRemaining: lifetime, lifetime, peakAlpha });
+    };
+    // White core flash — brightest, fastest.
+    this.spawnBurst(fx, fy, 0xfff4c0, size * 0.5, 7, size * 0.06, 6);
+    // Orange fireball glow — bigger, lingers a touch longer.
+    this.spawnBurst(fx, fy, 0xff6a20, size * 0.62, 12, size * 0.03, 4);
+    // Expanding shockwave RING (hollow stroke).
+    const ring = this.add
+      .circle(fx, fy, size * 0.28, 0xffd060, 0)
+      .setStrokeStyle(Math.max(2, size * 0.05), 0xffd060, 1)
+      .setDepth(6);
+    push(ring, 0, 0, 0, 1, size * 0.085, 12, 0.85);
+    // Radial ember sparks — deterministic spread, gravity pulls them down.
+    const N = 12;
+    for (let i = 0; i < N; i++) {
+      const ang = (i / N) * Math.PI * 2 + (i % 3) * 0.45;
+      const spd = size * (0.16 + 0.045 * (i % 4));
+      const col = i % 2 === 0 ? 0xffd84a : 0xff7a28;
+      const e = this.add.circle(fx, fy, Math.max(2, size * 0.05), col, 1).setDepth(6);
+      push(e, Math.cos(ang) * spd, Math.sin(ang) * spd - size * 0.04, size * 0.02, 0.9, -0.12, 16 + (i % 6), 1);
+    }
+    // Rising smoke puffs — expand + fade slowly above the blast.
+    for (let i = 0; i < 5; i++) {
+      const dx = (i - 2) * size * 0.13;
+      const s = this.add.circle(fx + dx, fy - size * 0.08, size * 0.13, 0x53535e, 1).setDepth(5);
+      push(s, dx * 0.05, -size * 0.045, 0, 0.97, size * 0.028, 26 + i * 2, 0.5);
+    }
+  }
+
+  /** Advance + expire every explosion particle (embers / smoke / ring). */
+  private tickExplosionParticles(): void {
+    if (this.explosionParticles.length === 0) return;
+    const survivors: typeof this.explosionParticles = [];
+    for (const p of this.explosionParticles) {
+      p.vx *= p.drag;
+      p.vy = p.vy * p.drag + p.gravity;
+      p.obj.x += p.vx;
+      p.obj.y += p.vy;
+      p.obj.setRadius(Math.max(0.5, p.obj.radius + p.growth));
+      p.framesRemaining -= 1;
+      const t = Math.max(0, p.framesRemaining / p.lifetime);
+      p.obj.setAlpha(t * p.peakAlpha);
+      if (p.framesRemaining <= 0) p.obj.destroy();
+      else survivors.push(p);
+    }
+    this.explosionParticles = survivors;
   }
 
   /** Advance + expire every one-shot burst flash. Render-only. */
@@ -3584,6 +3670,8 @@ export class MatchScene extends Phaser.Scene {
       // One-shot burst flashes (dive landings + muzzle flashes).
       for (const b of this.oneShotBursts) b.arc.destroy();
       this.oneShotBursts = [];
+      for (const p of this.explosionParticles) p.obj.destroy();
+      this.explosionParticles = [];
       this.hitboxDebugLayer?.destroy();
       this.hitboxDebugHintText?.destroy();
       this.hitboxDebugHintText = null;
@@ -3765,6 +3853,8 @@ export class MatchScene extends Phaser.Scene {
       this.explosionBursts = [];
       for (const b of this.oneShotBursts) b.arc.destroy();
       this.oneShotBursts = [];
+      for (const p of this.explosionParticles) p.obj.destroy();
+      this.explosionParticles = [];
       this.prevGrabHeld.clear();
       this.suppressAttackUntilRelease.clear();
       // Clear the per-match RNG references on shutdown so a fresh
@@ -4614,22 +4704,20 @@ export class MatchScene extends Phaser.Scene {
               .setDepth(4);
             this.swingFlashes.push({ container: flash as unknown as Phaser.GameObjects.Rectangle, framesRemaining: 6 });
 
-            // Explosion sprite — for bomb detonations only, layer the
-            // 3-frame Kenney Particle Pack explosion strip on top of
-            // the swing-flash for a "real" explosion read instead of
-            // just an orange rectangle. Tween scale + alpha so the
-            // burst grows + fades over its 18-frame run.
-            if (
-              active.move.id === 'item.bomb.detonate' &&
-              this.textures.exists(ASSET_KEYS.itemExplosion)
-            ) {
-              const burst = this.add
-                .sprite(fx, fy, ASSET_KEYS.itemExplosion, 0)
-                .setOrigin(0.5, 0.5)
-                .setDepth(5)
-                .setDisplaySize(fw * 1.4, fh * 1.4)
-                .setBlendMode(Phaser.BlendModes.ADD);
-              this.explosionBursts.push({ sprite: burst, framesRemaining: 18 });
+            // Bomb detonations — a rich layered blast (core flash, shockwave
+            // ring, ember sparks, smoke) instead of a single orange rectangle,
+            // plus the Kenney fireball sprite on top when present.
+            if (active.move.id === 'item.bomb.detonate') {
+              this.spawnBombExplosion(fx, fy, fw, fh);
+              if (this.textures.exists(ASSET_KEYS.itemExplosion)) {
+                const burst = this.add
+                  .sprite(fx, fy, ASSET_KEYS.itemExplosion, 0)
+                  .setOrigin(0.5, 0.5)
+                  .setDepth(7)
+                  .setDisplaySize(fw * 1.6, fh * 1.6)
+                  .setBlendMode(Phaser.BlendModes.ADD);
+                this.explosionBursts.push({ sprite: burst, framesRemaining: 18 });
+              }
             }
 
             // Bomb explosion → push nearby grounded / falling items
@@ -5538,6 +5626,7 @@ export class MatchScene extends Phaser.Scene {
         }
         // Advance + fade every one-shot burst (dive landings + muzzle flashes).
         this.tickOneShotBursts();
+        this.tickExplosionParticles();
 
         // ---- F3 hitbox debug overlay -----------------------------------
         // Redraw the diagnostic boxes from each fighter's live geometry
