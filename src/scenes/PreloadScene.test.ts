@@ -117,13 +117,16 @@ describe('PreloadScene — AC 10102 Sub-AC 2 wiring contract', () => {
     expect(SCENE_SRC).toMatch(/this\.cache\.audio\.exists\(\s*entry\.key\s*\)/);
   });
 
-  it('transitions to MainMenuScene once preload completes', () => {
-    // Boot → Preload → MainMenu is the documented startup chain. If
-    // this transition is wrong the player sees the loader bar finish
-    // and then stares at an empty canvas.
+  it('transitions to the next scene (password gate) once preload completes', () => {
+    // Boot → Preload → PasswordGate → MainMenu is the documented startup
+    // chain. The handoff jumps to PreloadScene.NEXT_SCENE_KEY (the gate),
+    // which forwards to the main menu once unlocked. If this transition is
+    // wrong the player sees the loader bar finish and stares at an empty
+    // canvas.
     expect(SCENE_SRC).toMatch(
-      /create\s*\(\)[^{]*\{[\s\S]*?this\.scene\.start\(\s*['"]MainMenuScene['"]\s*\)/,
+      /create\s*\(\)[^{]*\{[\s\S]*?this\.scene\.start\(\s*PreloadScene\.NEXT_SCENE_KEY\s*\)/,
     );
+    expect(SCENE_SRC).toMatch(/NEXT_SCENE_KEY\s*=\s*['"]PasswordGateScene['"]/);
   });
 });
 
@@ -181,14 +184,14 @@ describe('PreloadScene — AC 10104 Sub-AC 4 create() handoff contract', () => {
     const body = SCENE_SRC.slice(bodyStart, cursor - 1);
 
     const destroyIdx = body.indexOf('this.destroyProgressBar()');
-    const sceneStartIdx = body.indexOf("this.scene.start('MainMenuScene')");
+    const sceneStartIdx = body.indexOf('this.scene.start(PreloadScene.NEXT_SCENE_KEY)');
     expect(
       destroyIdx,
       'this.destroyProgressBar() not called from create()',
     ).toBeGreaterThanOrEqual(0);
     expect(
       sceneStartIdx,
-      "this.scene.start('MainMenuScene') not called from create()",
+      'this.scene.start(PreloadScene.NEXT_SCENE_KEY) not called from create()',
     ).toBeGreaterThanOrEqual(0);
     expect(
       destroyIdx,
@@ -232,12 +235,11 @@ describe('PreloadScene — AC 10104 Sub-AC 4 create() handoff contract', () => {
   });
 
   it('keeps the next-scene key as a named static so symbol search finds the boot chain', () => {
-    // Hard-coding the string in two places (the constant + the literal
-    // scene.start call) is intentional: the constant gives symbol search
-    // a single hit and the literal keeps the existing wiring contract
-    // test (which greps for the literal) honest. Both must agree.
+    // The constant is the single source of truth for the handoff target;
+    // create() starts PreloadScene.NEXT_SCENE_KEY (no duplicated literal).
+    // Boot → Preload → PasswordGate → MainMenu.
     expect(SCENE_SRC).toMatch(
-      /private\s+static\s+readonly\s+NEXT_SCENE_KEY\s*=\s*['"]MainMenuScene['"]/,
+      /private\s+static\s+readonly\s+NEXT_SCENE_KEY\s*=\s*['"]PasswordGateScene['"]/,
     );
   });
 });

@@ -25,11 +25,11 @@ export class PreloadScene extends Phaser.Scene {
   /**
    * Scene key the create() handoff jumps to once the loader fires
    * `complete`. Pulled out as a named constant so the boot chain
-   * (Boot → Preload → MainMenu) is greppable from one place — if
-   * MainMenuScene is ever renamed, this is the only edit that has
-   * to follow.
+   * (Boot → Preload → PasswordGate → MainMenu) is greppable from one
+   * place. The gate forwards to MainMenuScene once the password is
+   * entered (or immediately if this browser already unlocked).
    */
-  private static readonly NEXT_SCENE_KEY = 'MainMenuScene';
+  private static readonly NEXT_SCENE_KEY = 'PasswordGateScene';
 
   /**
    * Live references to the two progress-bar graphics so `create()` can
@@ -83,7 +83,7 @@ export class PreloadScene extends Phaser.Scene {
       return;
     }
 
-    this.scene.start('MainMenuScene');
+    this.scene.start(PreloadScene.NEXT_SCENE_KEY);
   }
 
   // -------------------------------------------------------------------

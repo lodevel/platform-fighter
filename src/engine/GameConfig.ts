@@ -21,6 +21,7 @@
 import Phaser from 'phaser';
 import { BootScene } from '../scenes/BootScene';
 import { PreloadScene } from '../scenes/PreloadScene';
+import { PasswordGateScene } from '../scenes/PasswordGateScene';
 import { MainMenuScene } from '../scenes/MainMenuScene';
 import { LobbyScene } from '../scenes/LobbyScene';
 import { ModeSelectScene } from '../scenes/ModeSelectScene';
@@ -50,6 +51,7 @@ export type { GameConstants } from './constants';
 export const SCENES: ReadonlyArray<new () => Phaser.Scene> = [
   BootScene,
   PreloadScene,
+  PasswordGateScene,
   MainMenuScene,
   LobbyScene,
   ModeSelectScene,
