@@ -1,0 +1,2200 @@
+ M .claude/scheduled_tasks.lock
+ M .claude/settings.local.json
+ M .claude/skills/add-character/SKILL.md
+ M .claude/skills/add-character/verify-character.sh
+ M .claude/skills/add-spawned-object/SKILL.md
+ M .claude/skills/add-weapon/SKILL.md
+ M .github/workflows/deploy.yml
+ M .gitignore
+ M ATTRIBUTION.md
+ M CLAUDE.md
+ M README.md
+ M assets/characters/README.md
+ D assets/characters/aegis/animations/attack.png
+ D assets/characters/aegis/animations/bair.png
+ D assets/characters/aegis/animations/bthrow.png
+ D assets/characters/aegis/animations/crouch.png
+ D assets/characters/aegis/animations/dair.png
+ D assets/characters/aegis/animations/down_special.png
+ D assets/characters/aegis/animations/dthrow.png
+ D assets/characters/aegis/animations/dtilt.png
+ D assets/characters/aegis/animations/fair.png
+ D assets/characters/aegis/animations/fthrow.png
+ D assets/characters/aegis/animations/grab.png
+ D assets/characters/aegis/animations/hurt.png
+ D assets/characters/aegis/animations/idle.png
+ D assets/characters/aegis/animations/jab.png
+ D assets/characters/aegis/animations/jab2.png
+ D assets/characters/aegis/animations/jab3.png
+ D assets/characters/aegis/animations/jump.png
+ D assets/characters/aegis/animations/nair.png
+ D assets/characters/aegis/animations/neutral_special.png
+ D assets/characters/aegis/animations/pummel.png
+ D assets/characters/aegis/animations/run.png
+ D assets/characters/aegis/animations/shield.png
+ D assets/characters/aegis/animations/side_special.png
+ D assets/characters/aegis/animations/smash.png
+ D assets/characters/aegis/animations/tilt.png
+ D assets/characters/aegis/animations/uair.png
+ D assets/characters/aegis/animations/up_special.png
+ D assets/characters/aegis/animations/uthrow.png
+ D assets/characters/aegis/frames.json
+ D assets/characters/bear/animations/attack.png
+ D assets/characters/bear/animations/idle.png
+ D assets/characters/bear/animations/jump.png
+ D assets/characters/bear/animations/run.png
+ D assets/characters/bear/bear_source_sheet.png
+ D assets/characters/blaze/animations/attack.png
+ D assets/characters/blaze/animations/idle.png
+ D assets/characters/blaze/animations/jump.png
+ D assets/characters/blaze/animations/run.png
+ D assets/characters/blaze/frames.json
+ D assets/characters/bruno/animations/attack.png
+ D assets/characters/bruno/animations/idle.png
+ D assets/characters/bruno/animations/jump.png
+ D assets/characters/bruno/animations/run.png
+ D assets/characters/bruno/frames.json
+ D assets/characters/cat/README.md
+ D assets/characters/cat/animations/.original_centered/attack.png
+ D assets/characters/cat/animations/.original_centered/idle.png
+ D assets/characters/cat/animations/.original_centered/jump.png
+ D assets/characters/cat/animations/.original_centered/run.png
+ D assets/characters/cat/animations/attack.png
+ D assets/characters/cat/animations/idle.png
+ D assets/characters/cat/animations/jump.png
+ D assets/characters/cat/animations/run.png
+ D assets/characters/cat/cat_source_sheet.png
+ D assets/characters/cat/frames.json
+ M assets/characters/donkeykong/animations/attack.png
+ M assets/characters/donkeykong/animations/bair.png
+ M assets/characters/donkeykong/animations/bthrow.png
+ M assets/characters/donkeykong/animations/crouch.png
+ M assets/characters/donkeykong/animations/dair.png
+ M assets/characters/donkeykong/animations/down_special.png
+ M assets/characters/donkeykong/animations/dthrow.png
+ M assets/characters/donkeykong/animations/dtilt.png
+ M assets/characters/donkeykong/animations/fair.png
+ M assets/characters/donkeykong/animations/fthrow.png
+ M assets/characters/donkeykong/animations/grab.png
+ M assets/characters/donkeykong/animations/hurt.png
+ M assets/characters/donkeykong/animations/idle.png
+ M assets/characters/donkeykong/animations/jab.png
+ M assets/characters/donkeykong/animations/jab2.png
+ D assets/characters/donkeykong/animations/jab3.png
+ M assets/characters/donkeykong/animations/jump.png
+ M assets/characters/donkeykong/animations/nair.png
+ M assets/characters/donkeykong/animations/neutral_special.png
+ M assets/characters/donkeykong/animations/pummel.png
+ M assets/characters/donkeykong/animations/run.png
+ M assets/characters/donkeykong/animations/shield.png
+ M assets/characters/donkeykong/animations/side_special.png
+ M assets/characters/donkeykong/animations/smash.png
+ M assets/characters/donkeykong/animations/tilt.png
+ M assets/characters/donkeykong/animations/uair.png
+ M assets/characters/donkeykong/animations/up_special.png
+ M assets/characters/donkeykong/animations/uthrow.png
+ M assets/characters/donkeykong/frames.json
+ D assets/characters/kirby/animations/attack.png
+ D assets/characters/kirby/animations/bair.png
+ D assets/characters/kirby/animations/bthrow.png
+ D assets/characters/kirby/animations/crouch.png
+ D assets/characters/kirby/animations/dair.png
+ D assets/characters/kirby/animations/down_special.png
+ D assets/characters/kirby/animations/dthrow.png
+ D assets/characters/kirby/animations/dtilt.png
+ D assets/characters/kirby/animations/fair.png
+ D assets/characters/kirby/animations/fthrow.png
+ D assets/characters/kirby/animations/grab.png
+ D assets/characters/kirby/animations/hurt.png
+ D assets/characters/kirby/animations/idle.png
+ D assets/characters/kirby/animations/jab.png
+ D assets/characters/kirby/animations/jab2.png
+ D assets/characters/kirby/animations/jab3.png
+ D assets/characters/kirby/animations/jump.png
+ D assets/characters/kirby/animations/nair.png
+ D assets/characters/kirby/animations/neutral_special.png
+ D assets/characters/kirby/animations/pummel.png
+ D assets/characters/kirby/animations/run.png
+ D assets/characters/kirby/animations/shield.png
+ D assets/characters/kirby/animations/side_special.png
+ D assets/characters/kirby/animations/smash.png
+ D assets/characters/kirby/animations/tilt.png
+ D assets/characters/kirby/animations/uair.png
+ D assets/characters/kirby/animations/up_special.png
+ D assets/characters/kirby/animations/uthrow.png
+ D assets/characters/kirby/frames.json
+ D assets/characters/link/animations/attack.png
+ M assets/characters/link/animations/bair.png
+ D assets/characters/link/animations/bthrow.png
+ D assets/characters/link/animations/crouch.png
+ M assets/characters/link/animations/dair.png
+ D assets/characters/link/animations/down_special.png
+ D assets/characters/link/animations/dthrow.png
+ M assets/characters/link/animations/dtilt.png
+ M assets/characters/link/animations/fair.png
+ D assets/characters/link/animations/fthrow.png
+ D assets/characters/link/animations/grab.png
+ D assets/characters/link/animations/hurt.png
+ M assets/characters/link/animations/idle.png
+ M assets/characters/link/animations/jab.png
+ M assets/characters/link/animations/jab2.png
+ M assets/characters/link/animations/jab3.png
+ M assets/characters/link/animations/jump.png
+ M assets/characters/link/animations/nair.png
+ D assets/characters/link/animations/neutral_special.png
+ D assets/characters/link/animations/pummel.png
+ D assets/characters/link/animations/run.png
+ D assets/characters/link/animations/shield.png
+ D assets/characters/link/animations/side_special.png
+ M assets/characters/link/animations/smash.png
+ M assets/characters/link/animations/tilt.png
+ M assets/characters/link/animations/uair.png
+ D assets/characters/link/animations/up_special.png
+ D assets/characters/link/animations/uthrow.png
+ M assets/characters/link/frames.json
+ D assets/characters/nova/animations/attack.png
+ D assets/characters/nova/animations/idle.png
+ D assets/characters/nova/animations/jump.png
+ D assets/characters/nova/animations/run.png
+ D assets/characters/nova/frames.json
+ D assets/characters/owl/.opaque_originals/owl_vander.png
+ D assets/characters/owl/animations/attack.png
+ D assets/characters/owl/animations/idle.png
+ D assets/characters/owl/animations/jump.png
+ D assets/characters/owl/animations/run.png
+ D assets/characters/owl/owl_source_sheet.png
+ D assets/characters/puff/animations/attack.png
+ D assets/characters/puff/animations/idle.png
+ D assets/characters/puff/animations/jump.png
+ D assets/characters/puff/animations/run.png
+ D assets/characters/puff/frames.json
+ D assets/characters/volt/animations/attack.png
+ D assets/characters/volt/animations/idle.png
+ D assets/characters/volt/animations/jump.png
+ D assets/characters/volt/animations/run.png
+ D assets/characters/volt/frames.json
+ D assets/characters/wolf/README.md
+ D assets/characters/wolf/animations/.opaque_originals/attack.png
+ D assets/characters/wolf/animations/.opaque_originals/idle.png
+ D assets/characters/wolf/animations/.opaque_originals/jump.png
+ D assets/characters/wolf/animations/.opaque_originals/run.png
+ D assets/characters/wolf/animations/attack.png
+ D assets/characters/wolf/animations/idle.png
+ D assets/characters/wolf/animations/jump.png
+ D assets/characters/wolf/animations/run.png
+ D assets/characters/wolf/frames.json
+ D assets/characters/wolf/wolf_source_sheet.png
+ D assets/generated/sprites/.palette-cache.json
+ D assets/generated/sprites/bear/0_umber.png
+ D assets/generated/sprites/bear/1_polar.png
+ D assets/generated/sprites/bear/2_onyx.png
+ D assets/generated/sprites/bear/3_panda.png
+ D assets/generated/sprites/bear/4_honey.png
+ D assets/generated/sprites/bear/5_russet.png
+ D assets/generated/sprites/bear/6_slate.png
+ D assets/generated/sprites/bear/7_bloodied.png
+ D assets/generated/sprites/cat/0_sky.png
+ D assets/generated/sprites/cat/1_fuchsia.png
+ D assets/generated/sprites/cat/2_mint.png
+ D assets/generated/sprites/cat/3_lavender.png
+ D assets/generated/sprites/cat/4_coral.png
+ D assets/generated/sprites/cat/5_lime.png
+ D assets/generated/sprites/cat/6_teal.png
+ D assets/generated/sprites/cat/7_shadow.png
+ D assets/generated/sprites/owl/0_indigo.png
+ D assets/generated/sprites/owl/1_snow.png
+ D assets/generated/sprites/owl/2_emerald.png
+ D assets/generated/sprites/owl/3_gilded.png
+ D assets/generated/sprites/owl/4_crimson.png
+ D assets/generated/sprites/owl/5_aqua.png
+ D assets/generated/sprites/owl/6_plum.png
+ D assets/generated/sprites/owl/7_charcoal.png
+ D assets/generated/sprites/wolf/0_crimson.png
+ D assets/generated/sprites/wolf/1_cobalt.png
+ D assets/generated/sprites/wolf/2_sunburst.png
+ D assets/generated/sprites/wolf/3_forest.png
+ D assets/generated/sprites/wolf/4_royal.png
+ D assets/generated/sprites/wolf/5_ember.png
+ D assets/generated/sprites/wolf/6_lagoon.png
+ D assets/generated/sprites/wolf/7_rose.png
+ D assets/palettes/README.md
+ D assets/palettes/bear.json
+ D assets/palettes/cat.json
+ D assets/palettes/owl.json
+ D assets/palettes/palette.schema.json
+ D assets/palettes/wolf.json
+ D assets/sprites/characters/README.md
+ D assets/sprites/characters/cat/animations/aerial.png
+ D assets/sprites/characters/cat/animations/dodge.png
+ D assets/sprites/characters/cat/animations/idle.png
+ D assets/sprites/characters/cat/animations/jab.png
+ D assets/sprites/characters/cat/animations/jump.png
+ D assets/sprites/characters/cat/animations/shield.png
+ D assets/sprites/characters/cat/animations/smash.png
+ D assets/sprites/characters/cat/animations/tilt.png
+ D assets/sprites/characters/cat/animations/walk.png
+ D assets/sprites/characters/cat/frames.json
+ D assets/sprites/characters/wolf/animations/aerial.png
+ D assets/sprites/characters/wolf/animations/dodge.png
+ D assets/sprites/characters/wolf/animations/idle.png
+ D assets/sprites/characters/wolf/animations/jab.png
+ D assets/sprites/characters/wolf/animations/jump.png
+ D assets/sprites/characters/wolf/animations/shield.png
+ D assets/sprites/characters/wolf/animations/smash.png
+ D assets/sprites/characters/wolf/animations/tilt.png
+ D assets/sprites/characters/wolf/animations/walk.png
+ D assets/sprites/characters/wolf/frames.json
+ M assets/sprites/items/hammer.png
+ D data/characters/aegis.json
+ D data/characters/bear.json
+ D data/characters/blaze.json
+ D data/characters/bruno.json
+ D data/characters/cat.json
+ D data/characters/nova.json
+ D data/characters/owl.json
+ D data/characters/puff.json
+ D data/characters/volt.json
+ D data/characters/wolf.json
+ M docs/ART-PIPELINE.md
+ M docs/ART-STYLE.md
+ M docs/CHARACTER-CHECKLIST.md
+ M index.html
+ M package-lock.json
+ M package.json
+ D scripts/palette-swap.ts
+ D scripts/palette-swap/README.md
+ D scripts/palette-swap/cache.test.ts
+ D scripts/palette-swap/cache.ts
+ D scripts/palette-swap/index.ts
+ D scripts/palette-swap/paletteDefinition.ts
+ D scripts/palette-swap/paletteSwap.test.ts
+ D scripts/palette-swap/paletteSwap.ts
+ D scripts/palette-swap/pngCodec.ts
+ D scripts/validate-character-data.ts
+ M src/ai/AIInputProvider.test.ts
+ M src/ai/AIInputProvider.ts
+ M src/ai/HardTierAI.test.ts
+ M src/ai/HardTierAI.ts
+ M src/ai/MediumTierAI.test.ts
+ M src/ai/MediumTierAI.ts
+ M src/ai/perception/WorldSnapshot.ts
+ M src/ai/simpleBot.ts
+ M src/ai/simpleBotItemAwareness.test.ts
+ M src/assets/manifest.test.ts
+ M src/assets/manifest.ts
+ D src/builder/CanvasArea.test.ts
+ D src/builder/CanvasArea.ts
+ D src/builder/CatalogPanel.test.ts
+ D src/builder/CatalogPanel.ts
+ D src/builder/GhostPreview.test.ts
+ D src/builder/GhostPreview.ts
+ D src/builder/PlacedPieceRenderer.test.ts
+ D src/builder/PlacedPieceRenderer.ts
+ D src/builder/SaveLoadDialog.test.ts
+ D src/builder/SaveLoadDialog.ts
+ D src/builder/SelectionHighlight.test.ts
+ D src/builder/SelectionHighlight.ts
+ M src/builder/catalogPieces.ts
+ M src/builder/dragDrop.test.ts
+ M src/builder/dragDrop.ts
+ M src/builder/dragDropIntegration.test.ts
+ M src/builder/index.ts
+ D src/camera/CameraController.test.ts
+ D src/camera/CameraController.ts
+ M src/camera/index.ts
+ M src/characterBuilder/characterEditState.test.ts
+ M src/characterBuilder/characterEditState.ts
+ M src/characterBuilder/characterStorage.test.ts
+ M src/characterBuilder/characterStorage.ts
+ D src/characters/Aegis.test.ts
+ D src/characters/Aegis.ts
+ D src/characters/Bear.ts
+ D src/characters/Bear.ts.before-hitbox-scale
+ D src/characters/Blaze.test.ts
+ D src/characters/Blaze.ts
+ D src/characters/Bruno.test.ts
+ D src/characters/Bruno.ts
+ D src/characters/Cat.ts
+ D src/characters/Cat.ts.before-hitbox-scale
+ M src/characters/Character.test.ts
+ M src/characters/Character.ts
+ M src/characters/DonkeyKong.test.ts
+ M src/characters/DonkeyKong.ts
+ D src/characters/Kirby.test.ts
+ D src/characters/Kirby.ts
+ M src/characters/Link.test.ts
+ M src/characters/Link.ts
+ D src/characters/Nova.test.ts
+ D src/characters/Nova.ts
+ D src/characters/Owl.ts
+ D src/characters/Owl.ts.before-hitbox-scale
+ M src/characters/PaletteSwapRenderer.test.ts
+ D src/characters/Puff.test.ts
+ D src/characters/Puff.ts
+ M src/characters/Roster.test.ts
+ D src/characters/Volt.test.ts
+ D src/characters/Volt.ts
+ D src/characters/Wolf.ts
+ D src/characters/Wolf.ts.before-hitbox-scale
+ M src/characters/aerialAttackInput.test.ts
+ M src/characters/aerialAttackInput.ts
+ M src/characters/aerialSchema.test.ts
+ M src/characters/aerialSchema.ts
+ M src/characters/animationState.test.ts
+ M src/characters/animationState.ts
+ M src/characters/attackRegistration.ts
+ M src/characters/attacks.ts
+ M src/characters/characterFactory.test.ts
+ M src/characters/characterFactory.ts
+ M src/characters/characterSerializer.test.ts
+ M src/characters/characterSerializer.ts
+ M src/characters/characterSpec.test.ts
+ M src/characters/chargeSchema.test.ts
+ M src/characters/chargeSchema.ts
+ M src/characters/combat.test.ts
+ M src/characters/combat.ts
+ M src/characters/combatSfx.test.ts
+ M src/characters/contractFighter.ts
+ M src/characters/defensiveAnimationState.test.ts
+ M src/characters/defensiveAnimationState.ts
+ M src/characters/dodgeState.ts
+ M src/characters/downSpecialSchema.test.ts
+ M src/characters/downSpecialSchema.ts
+ D src/characters/extendedMoves.ts
+ M src/characters/fighterAnimationState.test.ts
+ M src/characters/fighterMovementProfiles.ts
+ M src/characters/fighterRegistry.test.ts
+ M src/characters/fighterRegistry.ts
+ M src/characters/grabSchema.test.ts
+ M src/characters/grabSchema.ts
+ M src/characters/grabState.ts
+ M src/characters/groundedAttackInput.test.ts
+ M src/characters/groundedAttackInput.ts
+ M src/characters/groundedNormalDriver.test.ts
+ M src/characters/groundedNormalDriver.ts
+ M src/characters/handAnchors.test.ts
+ M src/characters/handAnchors.ts
+ M src/characters/hurtState.test.ts
+ M src/characters/index.ts
+ M src/characters/ledgeHangState.test.ts
+ M src/characters/ledgeHangState.ts
+ M src/characters/locomotionState.ts
+ M src/characters/moveResolver.test.ts
+ M src/characters/moveResolver.ts
+ M src/characters/moveSchema.ts
+ M src/characters/movesetAnimationCues.test.ts
+ M src/characters/movesetAnimationCues.ts
+ M src/characters/movesetAnimationDriver.test.ts
+ M src/characters/movesetAnimationDriver.ts
+ M src/characters/movesetContract.test.ts
+ M src/characters/movesetContract.ts
+ M src/characters/paletteSwapShader.test.ts
+ M src/characters/palettes.test.ts
+ M src/characters/palettes.ts
+ M src/characters/perFighterSmoke.test.ts
+ M src/characters/roster.ts
+ M src/characters/runtimePaletteRenderer.test.ts
+ M src/characters/shieldState.test.ts
+ M src/characters/shieldState.ts
+ M src/characters/sideSpecialSchema.ts
+ M src/characters/smashChargeRoster.test.ts
+ M src/characters/specialFramework.ts
+ M src/characters/specialSchema.test.ts
+ M src/characters/specialSchema.ts
+ M src/characters/spriteAnimationDriver.test.ts
+ M src/characters/spriteAnimationDriver.ts
+ M src/characters/throwSchema.test.ts
+ M src/characters/throwSchema.ts
+ M src/characters/upSpecialSchema.test.ts
+ M src/characters/upSpecialSchema.ts
+ M src/characters/visualScale.ts
+ D src/creatures/Creature.test.ts
+ D src/creatures/Creature.ts
+ D src/creatures/creatureRegistry.test.ts
+ D src/creatures/creatureRegistry.ts
+ D src/creatures/creatureSchema.test.ts
+ D src/creatures/creatureSchema.ts
+ D src/creatures/index.ts
+ D src/creatures/wolfPup.ts
+ D src/engine/GameConfig.ts
+ M src/engine/GameLoop.ts
+ M src/engine/index.ts
+ M src/entities/Fighter.test.ts
+ M src/entities/Fighter.ts
+ M src/entities/FighterCombatSfx.test.ts
+ M src/entities/LavaHazard.ts
+ M src/entities/index.ts
+ D src/fx/HitSpark.test.ts
+ D src/fx/HitSpark.ts
+ D src/fx/HitboxDebugLayer.test.ts
+ D src/fx/HitboxDebugLayer.ts
+ D src/fx/SwingTrail.test.ts
+ D src/fx/SwingTrail.ts
+ M src/fx/hitboxDebugFormat.test.ts
+ M src/fx/hitboxDebugFormat.ts
+ M src/fx/index.ts
+ M src/fx/swingTrailFormat.test.ts
+ M src/fx/swingTrailFormat.ts
+ M src/input/BindingsMigrations.test.ts
+ M src/input/BindingsPersistenceIntegration.test.ts
+ M src/input/BindingsPersistenceLifecycle.test.ts
+ M src/input/BindingsStore.test.ts
+ M src/input/ControllerReconnectionHandler.test.ts
+ M src/input/ControllerReconnectionHandler.ts
+ M src/input/DeviceInputDispatcher.test.ts
+ M src/input/DeviceInputDispatcher.ts
+ M src/input/GamepadConnectionMonitor.ts
+ M src/input/InputBindingManager.ts
+ M src/input/InputBindingsSerializer.test.ts
+ M src/input/InputBindingsSerializer.ts
+ M src/input/InputBindingsStore.test.ts
+ M src/input/InputBindingsStore.ts
+ M src/input/InputProvider.test.ts
+ M src/input/InputProvider.ts
+ M src/input/InputResolver.test.ts
+ M src/input/InputResolver.ts
+ M src/input/InputService.test.ts
+ M src/input/InputService.ts
+ M src/input/LocalInputHandler.ts
+ M src/input/PlayerInputController.test.ts
+ M src/input/PlayerInputController.ts
+ M src/input/RawInputSource.ts
+ M src/input/RebindingMixedInputIntegration.test.ts
+ M src/input/RuntimeBindingsDispatch.test.ts
+ M src/input/RuntimeInputPipeline.test.ts
+ M src/input/index.ts
+ M src/input/keyCodes.ts
+ D src/items/Bat.ts
+ D src/items/Bomb.ts
+ M src/items/Hammer.test.ts
+ M src/items/Hammer.ts
+ M src/items/Inventory.ts
+ M src/items/ItemDefinition.ts
+ M src/items/ItemEntity.ts
+ M src/items/ItemRegistry.ts
+ D src/items/PickupController.ts
+ M src/items/RayGun.ts
+ D src/items/Spear.test.ts
+ D src/items/Spear.ts
+ D src/items/Sword.test.ts
+ D src/items/Sword.ts
+ D src/items/ThrowController.ts
+ M src/items/index.ts
+ M src/items/integrationScenario.test.ts
+ M src/items/itemFramework.test.ts
+ M src/items/itemLifecycle.ts
+ M src/items/itemSpawnSettings.test.ts
+ M src/items/itemSpawnSettings.ts
+ D src/main.ts
+ M src/match/BlastZoneKoHandling.test.ts
+ M src/match/BlastZoneWatcher.test.ts
+ M src/match/DisconnectPauseController.test.ts
+ M src/match/DisconnectPauseController.ts
+ M src/match/HitboxDamageHandler.test.ts
+ M src/match/HitboxDamageHandler.ts
+ M src/match/KoLifecycle.test.ts
+ M src/match/MatchEndDetector.test.ts
+ M src/match/MatchEndDetector.ts
+ M src/match/MatchStart.test.ts
+ M src/match/MatchStart.ts
+ M src/match/MatchStatsTracker.ts
+ M src/match/RespawnHandler.test.ts
+ M src/match/RespawnHandler.ts
+ M src/match/StockTracker.ts
+ M src/match/index.ts
+ M src/replay/DesyncRecoveryController.test.ts
+ M src/replay/FrameAdvanceStepper.test.ts
+ M src/replay/IndexedDBReplayStorage.test.ts
+ M src/replay/InputCaptureBuffer.test.ts
+ M src/replay/InputCaptureBuffer.ts
+ M src/replay/LocalStorageReplayStorage.test.ts
+ M src/replay/PlaybackChecksumVerifier.test.ts
+ M src/replay/PlaybackSimulationStateManager.test.ts
+ M src/replay/RecordingController.test.ts
+ M src/replay/RecordingController.ts
+ M src/replay/ReplayFile.test.ts
+ M src/replay/ReplayFile.ts
+ M src/replay/ReplayLibrary.test.ts
+ M src/replay/ReplayPlaybackController.test.ts
+ M src/replay/ReplayStorage.test.ts
+ M src/replay/RewindController.test.ts
+ M src/replay/downloadReplay.test.ts
+ M src/replay/replayChecksum.test.ts
+ M src/replay/replayMigrations.test.ts
+ M src/replay/replayMigrations.ts
+ M src/replay/replayTypes.test.ts
+ M src/replay/replayTypes.ts
+ M src/replay/stateChecksum.test.ts
+ M src/replay/stateChecksum.ts
+ D src/scenes/BootScene.test.ts
+ D src/scenes/BootScene.ts
+ D src/scenes/CharacterEditorScene.ts
+ D src/scenes/CharacterSelectScene.test.ts
+ D src/scenes/CharacterSelectScene.ts
+ D src/scenes/CustomStageScene.test.ts
+ D src/scenes/CustomStageScene.ts
+ D src/scenes/LobbyScene.test.ts
+ D src/scenes/LobbyScene.ts
+ D src/scenes/MainMenuScene.ts
+ D src/scenes/MatchScene.ts
+ D src/scenes/ModeSelectScene.test.ts
+ D src/scenes/ModeSelectScene.ts
+ D src/scenes/PasswordGateScene.ts
+ D src/scenes/PauseMenuScene.test.ts
+ D src/scenes/PauseMenuScene.ts
+ D src/scenes/PreloadScene.test.ts
+ D src/scenes/PreloadScene.ts
+ D src/scenes/RebindingScene.ts
+ D src/scenes/ResultsScene.test.ts
+ D src/scenes/ResultsScene.ts
+ D src/scenes/StageBuilderScene.test.ts
+ D src/scenes/StageBuilderScene.ts
+ D src/scenes/StageSelectScene.ts
+ M src/scenes/bootKeys.ts
+ M src/scenes/characterSelect.test.ts
+ M src/scenes/characterSelect.ts
+ M src/scenes/customStageMatchLauncher.test.ts
+ M src/scenes/customStageMatchLauncher.ts
+ M src/scenes/handCursorState.test.ts
+ M src/scenes/handCursorState.ts
+ M src/scenes/lobby.ts
+ M src/scenes/lobbyRosterPersistence.test.ts
+ D src/scenes/menuInputBootstrap.ts
+ M src/scenes/modeSelect.test.ts
+ M src/scenes/pauseMenu.ts
+ M src/scenes/resultsStats.ts
+ M src/scenes/stageSelect.test.ts
+ M src/scenes/stageSelect.ts
+ M src/stages/BaseStage.test.ts
+ M src/stages/BaseStage.ts
+ D src/stages/LavaHazardRenderer.test.ts
+ D src/stages/LavaHazardRenderer.ts
+ D src/stages/PlatformVisualBinder.test.ts
+ D src/stages/PlatformVisualBinder.ts
+ D src/stages/StageBackgroundRenderer.test.ts
+ D src/stages/StageBackgroundRenderer.ts
+ D src/stages/StageRenderer.test.ts
+ D src/stages/StageRenderer.ts
+ D src/stages/WindHazardRenderer.ts
+ M src/stages/backgroundThemes.test.ts
+ M src/stages/backgroundThemes.ts
+ M src/stages/index.ts
+ M src/stages/stageDefinitions.test.ts
+ M src/stages/stageDefinitions.ts
+ M src/types/index.ts
+ M src/types/inputBindings.ts
+ D src/ui/ChargeIndicator.test.ts
+ D src/ui/ChargeIndicator.ts
+ D src/ui/DamageHud.test.ts
+ D src/ui/DamageHud.ts
+ D src/ui/DesyncReportOverlay.test.ts
+ D src/ui/DesyncReportOverlay.ts
+ D src/ui/FpsCounter.test.ts
+ D src/ui/FpsCounter.ts
+ D src/ui/RebindingScreen.test.ts
+ D src/ui/RebindingScreen.ts
+ D src/ui/ReconnectPromptOverlay.test.ts
+ D src/ui/ReconnectPromptOverlay.ts
+ D src/ui/ShieldBubble.test.ts
+ D src/ui/ShieldBubble.ts
+ D src/ui/VcrOverlay.test.ts
+ D src/ui/VcrOverlay.ts
+ M src/ui/bindingCapture.test.ts
+ M src/ui/bindingCapture.ts
+ M src/ui/bindingCapturePolling.ts
+ M src/ui/bindingConflicts.test.ts
+ M src/ui/bindingConflicts.ts
+ M src/ui/index.ts
+ D src/ui/menuPadNav.ts
+ D src/ui/menuTheme.ts
+ M src/ui/rebindingScreenFormat.test.ts
+ M src/ui/rebindingScreenFormat.ts
+ M src/ui/shieldBubbleFormat.test.ts
+ M src/ui/shieldBubbleFormat.ts
+ D tools/_drive-dk.cjs
+ D tools/_drive-kirby.cjs
+ D tools/_drive-link.cjs
+ M tools/_spike-cn.ts
+ M tools/_spike-pose.ts
+ D tools/_verify-runcycle.cjs
+ D tools/blast-probe.mjs
+ D tools/build-newchar-sprites.cjs
+ M tools/comfy-client.ts
+ M tools/comfy-style.ts
+ M tools/gen-frames-cn.ts
+ D tools/ko-probe.mjs
+ D tools/masklock-probe.mjs
+ D tools/measure-sprite.cjs
+ M tools/pack-clips.cjs
+ D tools/replay-probe.mjs
+ D tools/repro-platform.mjs
+ D tools/temper-sweep.mjs
+ D tools/user-replay.json
+ D tools/verify-ko.mjs
+ M tsconfig.json
+ M vite.config.ts
+?? .agents/
+?? .tmp/
+?? AGENTS.md
+?? assets/characters/donkeykong/animations/air_dodge.png
+?? assets/characters/donkeykong/animations/air_drift.png
+?? assets/characters/donkeykong/animations/airjump.png
+?? assets/characters/donkeykong/animations/airjump_b.png
+?? assets/characters/donkeykong/animations/captured.png
+?? assets/characters/donkeykong/animations/captured_hit.png
+?? assets/characters/donkeykong/animations/captured_release.png
+?? assets/characters/donkeykong/animations/cargo_bthrow.png
+?? assets/characters/donkeykong/animations/cargo_dthrow.png
+?? assets/characters/donkeykong/animations/cargo_fthrow.png
+?? assets/characters/donkeykong/animations/cargo_hold.png
+?? assets/characters/donkeykong/animations/cargo_hold_air.png
+?? assets/characters/donkeykong/animations/cargo_jump.png
+?? assets/characters/donkeykong/animations/cargo_recipient_bthrow.png
+?? assets/characters/donkeykong/animations/cargo_recipient_carried.png
+?? assets/characters/donkeykong/animations/cargo_recipient_dthrow.png
+?? assets/characters/donkeykong/animations/cargo_recipient_fthrow.png
+?? assets/characters/donkeykong/animations/cargo_recipient_uthrow.png
+?? assets/characters/donkeykong/animations/cargo_uthrow.png
+?? assets/characters/donkeykong/animations/cargo_walk.png
+?? assets/characters/donkeykong/animations/crouch_end.png
+?? assets/characters/donkeykong/animations/crouch_start.png
+?? assets/characters/donkeykong/animations/dash.png
+?? assets/characters/donkeykong/animations/dash_attack.png
+?? assets/characters/donkeykong/animations/dash_grab.png
+?? assets/characters/donkeykong/animations/dash_turn.png
+?? assets/characters/donkeykong/animations/down_special_air.png
+?? assets/characters/donkeykong/animations/down_special_air_land.png
+?? assets/characters/donkeykong/animations/down_wait.png
+?? assets/characters/donkeykong/animations/down_wait_face_down.png
+?? assets/characters/donkeykong/animations/dsmash.png
+?? assets/characters/donkeykong/animations/dsmash_charge.png
+?? assets/characters/donkeykong/animations/entry.png
+?? assets/characters/donkeykong/animations/fall.png
+?? assets/characters/donkeykong/animations/fall_aerial.png
+?? assets/characters/donkeykong/animations/fall_aerial_b.png
+?? assets/characters/donkeykong/animations/fall_aerial_f.png
+?? assets/characters/donkeykong/animations/fall_b.png
+?? assets/characters/donkeykong/animations/fall_fast.png
+?? assets/characters/donkeykong/animations/fall_special.png
+?? assets/characters/donkeykong/animations/final_air_attack.png
+?? assets/characters/donkeykong/animations/final_air_end.png
+?? assets/characters/donkeykong/animations/final_air_start.png
+?? assets/characters/donkeykong/animations/final_attack.png
+?? assets/characters/donkeykong/animations/final_end.png
+?? assets/characters/donkeykong/animations/final_start.png
+?? assets/characters/donkeykong/animations/final_victim_jungle_entry.png
+?? assets/characters/donkeykong/animations/final_victim_jungle_stagger_a.png
+?? assets/characters/donkeykong/animations/final_victim_jungle_stagger_b.png
+?? assets/characters/donkeykong/animations/final_victim_jungle_uppercut_pre.png
+?? assets/characters/donkeykong/animations/final_victim_volt_burst_pre.png
+?? assets/characters/donkeykong/animations/final_victim_volt_caught.png
+?? assets/characters/donkeykong/animations/final_victim_volt_vortex.png
+?? assets/characters/donkeykong/animations/footstool_air_pose.png
+?? assets/characters/donkeykong/animations/footstool_jump_mini.png
+?? assets/characters/donkeykong/animations/footstool_pose.png
+?? assets/characters/donkeykong/animations/fx__donkey_final_arc.png
+?? assets/characters/donkeykong/animations/fx__donkey_final_lasthit.png
+?? assets/characters/donkeykong/animations/fx__donkey_final_rash.png
+?? assets/characters/donkeykong/animations/fx__donkey_final_rashhit.png
+?? assets/characters/donkeykong/animations/fx__donkey_giantpunch.png
+?? assets/characters/donkeykong/animations/getup.png
+?? assets/characters/donkeykong/animations/getup_attack.png
+?? assets/characters/donkeykong/animations/getup_attack_face_down.png
+?? assets/characters/donkeykong/animations/getup_roll.png
+?? assets/characters/donkeykong/animations/grab_escape.png
+?? assets/characters/donkeykong/animations/grab_hold.png
+?? assets/characters/donkeykong/animations/grab_pull.png
+?? assets/characters/donkeykong/animations/item_bat_swing_1.png
+?? assets/characters/donkeykong/animations/item_bat_swing_3.png
+?? assets/characters/donkeykong/animations/item_bat_swing_4.png
+?? assets/characters/donkeykong/animations/item_bat_swing_dash.png
+?? assets/characters/donkeykong/animations/item_carry.png
+?? assets/characters/donkeykong/animations/item_fflower_shoot_air_loop.png
+?? assets/characters/donkeykong/animations/item_fflower_shoot_loop.png
+?? assets/characters/donkeykong/animations/item_fflower_shoot_loop_upper.png
+?? assets/characters/donkeykong/animations/item_hammer_jump.png
+?? assets/characters/donkeykong/animations/item_hammer_move.png
+?? assets/characters/donkeykong/animations/item_hammer_wait.png
+?? assets/characters/donkeykong/animations/item_heavy_get.png
+?? assets/characters/donkeykong/animations/item_heavy_throw_b.png
+?? assets/characters/donkeykong/animations/item_heavy_throw_f.png
+?? assets/characters/donkeykong/animations/item_heavy_throw_hi.png
+?? assets/characters/donkeykong/animations/item_heavy_throw_lw.png
+?? assets/characters/donkeykong/animations/item_lgun_shoot.png
+?? assets/characters/donkeykong/animations/item_lgun_shoot_air.png
+?? assets/characters/donkeykong/animations/item_lgun_shoot_upper.png
+?? assets/characters/donkeykong/animations/item_light_eat.png
+?? assets/characters/donkeykong/animations/item_light_walk_eat.png
+?? assets/characters/donkeykong/animations/item_pickup_stand.png
+?? assets/characters/donkeykong/animations/item_pickup_walk.png
+?? assets/characters/donkeykong/animations/item_scope_air_end.png
+?? assets/characters/donkeykong/animations/item_scope_air_fire.png
+?? assets/characters/donkeykong/animations/item_scope_air_rapid.png
+?? assets/characters/donkeykong/animations/item_scope_air_start.png
+?? assets/characters/donkeykong/animations/item_scope_end.png
+?? assets/characters/donkeykong/animations/item_scope_end_upper.png
+?? assets/characters/donkeykong/animations/item_scope_fall.png
+?? assets/characters/donkeykong/animations/item_scope_fire.png
+?? assets/characters/donkeykong/animations/item_scope_fire_upper.png
+?? assets/characters/donkeykong/animations/item_scope_rapid.png
+?? assets/characters/donkeykong/animations/item_scope_rapid_upper.png
+?? assets/characters/donkeykong/animations/item_scope_start.png
+?? assets/characters/donkeykong/animations/item_scope_start_upper.png
+?? assets/characters/donkeykong/animations/item_scope_wait.png
+?? assets/characters/donkeykong/animations/item_scope_wait_upper.png
+?? assets/characters/donkeykong/animations/item_shoot_legs_jump_squat.png
+?? assets/characters/donkeykong/animations/item_shoot_legs_landing.png
+?? assets/characters/donkeykong/animations/item_shoot_legs_walk_b.png
+?? assets/characters/donkeykong/animations/item_shoot_legs_walk_f.png
+?? assets/characters/donkeykong/animations/item_sword_swing_4.png
+?? assets/characters/donkeykong/animations/item_sword_swing_4_hold.png
+?? assets/characters/donkeykong/animations/item_throw_air_b.png
+?? assets/characters/donkeykong/animations/item_throw_air_f.png
+?? assets/characters/donkeykong/animations/item_throw_air_hi.png
+?? assets/characters/donkeykong/animations/item_throw_air_lw.png
+?? assets/characters/donkeykong/animations/item_throw_b.png
+?? assets/characters/donkeykong/animations/item_throw_dash.png
+?? assets/characters/donkeykong/animations/item_throw_drop.png
+?? assets/characters/donkeykong/animations/item_throw_f.png
+?? assets/characters/donkeykong/animations/item_throw_hi.png
+?? assets/characters/donkeykong/animations/item_throw_lw.png
+?? assets/characters/donkeykong/animations/jump_b.png
+?? assets/characters/donkeykong/animations/jump_short.png
+?? assets/characters/donkeykong/animations/jump_short_b.png
+?? assets/characters/donkeykong/animations/jumpsquat.png
+?? assets/characters/donkeykong/animations/landing_hard.png
+?? assets/characters/donkeykong/animations/landing_soft.png
+?? assets/characters/donkeykong/animations/ledge.png
+?? assets/characters/donkeykong/animations/ledge_attack.png
+?? assets/characters/donkeykong/animations/ledge_catch.png
+?? assets/characters/donkeykong/animations/ledge_getup.png
+?? assets/characters/donkeykong/animations/ledge_jump.png
+?? assets/characters/donkeykong/animations/ledge_roll.png
+?? assets/characters/donkeykong/animations/neutral_special_air.png
+?? assets/characters/donkeykong/animations/neutral_special_air_cancel.png
+?? assets/characters/donkeykong/animations/neutral_special_air_charge.png
+?? assets/characters/donkeykong/animations/neutral_special_cancel.png
+?? assets/characters/donkeykong/animations/neutral_special_charge.png
+?? assets/characters/donkeykong/animations/parry.png
+?? assets/characters/donkeykong/animations/pivot_grab.png
+?? assets/characters/donkeykong/animations/review_legacy_grab.png
+?? assets/characters/donkeykong/animations/review_pilot_dash_grab_contact.png
+?? assets/characters/donkeykong/animations/review_pilot_dtilt_contact.png
+?? assets/characters/donkeykong/animations/review_pilot_jab1_contact.png
+?? assets/characters/donkeykong/animations/review_pilot_jab2_contact.png
+?? assets/characters/donkeykong/animations/review_pilot_pivot_grab_contact.png
+?? assets/characters/donkeykong/animations/review_pilot_standing_grab_contact.png
+?? assets/characters/donkeykong/animations/roll.png
+?? assets/characters/donkeykong/animations/roll_back.png
+?? assets/characters/donkeykong/animations/run_brake.png
+?? assets/characters/donkeykong/animations/run_brake_left.png
+?? assets/characters/donkeykong/animations/run_turn.png
+?? assets/characters/donkeykong/animations/shield_break.png
+?? assets/characters/donkeykong/animations/shield_end.png
+?? assets/characters/donkeykong/animations/shield_hit.png
+?? assets/characters/donkeykong/animations/side_special_air.png
+?? assets/characters/donkeykong/animations/smash_charge.png
+?? assets/characters/donkeykong/animations/spot_dodge.png
+?? assets/characters/donkeykong/animations/super_lift_fall.png
+?? assets/characters/donkeykong/animations/super_lift_jump.png
+?? assets/characters/donkeykong/animations/super_lift_jump_squat.png
+?? assets/characters/donkeykong/animations/super_lift_landing.png
+?? assets/characters/donkeykong/animations/super_lift_turn.png
+?? assets/characters/donkeykong/animations/super_lift_wait.png
+?? assets/characters/donkeykong/animations/super_lift_walk_fast.png
+?? assets/characters/donkeykong/animations/super_lift_walk_middle.png
+?? assets/characters/donkeykong/animations/super_lift_walk_slow.png
+?? assets/characters/donkeykong/animations/taunt_down_r.png
+?? assets/characters/donkeykong/animations/taunt_side_r.png
+?? assets/characters/donkeykong/animations/taunt_up_r.png
+?? assets/characters/donkeykong/animations/tech.png
+?? assets/characters/donkeykong/animations/tech_back.png
+?? assets/characters/donkeykong/animations/tech_ceiling.png
+?? assets/characters/donkeykong/animations/tech_forward.png
+?? assets/characters/donkeykong/animations/tech_wall.png
+?? assets/characters/donkeykong/animations/tech_wall_jump.png
+?? assets/characters/donkeykong/animations/tilt_down.png
+?? assets/characters/donkeykong/animations/tilt_up.png
+?? assets/characters/donkeykong/animations/trip.png
+?? assets/characters/donkeykong/animations/trip_attack.png
+?? assets/characters/donkeykong/animations/tumble.png
+?? assets/characters/donkeykong/animations/up_special_air.png
+?? assets/characters/donkeykong/animations/up_special_air_land.png
+?? assets/characters/donkeykong/animations/up_special_ground.png
+?? assets/characters/donkeykong/animations/usmash.png
+?? assets/characters/donkeykong/animations/usmash_charge.png
+?? assets/characters/donkeykong/animations/utilt.png
+?? assets/characters/donkeykong/animations/walk.png
+?? assets/characters/donkeykong/item-axes.json
+?? assets/characters/link/animations/a00waititem.png
+?? assets/characters/link/animations/a01turn.png
+?? assets/characters/link/animations/a01walkbrakel.png
+?? assets/characters/link/animations/a01walkbraker.png
+?? assets/characters/link/animations/a01walkfast.png
+?? assets/characters/link/animations/a01walkslow.png
+?? assets/characters/link/animations/a02dash.png
+?? assets/characters/link/animations/a02run.png
+?? assets/characters/link/animations/a02runbrakel.png
+?? assets/characters/link/animations/a02runbraker.png
+?? assets/characters/link/animations/a02turndash.png
+?? assets/characters/link/animations/a02turnrun.png
+?? assets/characters/link/animations/a02turnrunbrake.png
+?? assets/characters/link/animations/a03jumpsquat.png
+?? assets/characters/link/animations/a04damagefall.png
+?? assets/characters/link/animations/a04landingfallspecial.png
+?? assets/characters/link/animations/a05landingheavy.png
+?? assets/characters/link/animations/a05landinglight.png
+?? assets/characters/link/animations/a05squat.png
+?? assets/characters/link/animations/a05squatrv.png
+?? assets/characters/link/animations/a05squatwait.png
+?? assets/characters/link/animations/a05squatwaititem.png
+?? assets/characters/link/animations/air_dodge.png
+?? assets/characters/link/animations/air_drift.png
+?? assets/characters/link/animations/airjump.png
+?? assets/characters/link/animations/airjump_b.png
+?? assets/characters/link/animations/b00guard.png
+?? assets/characters/link/animations/b00guardoff.png
+?? assets/characters/link/animations/b00guardon.png
+?? assets/characters/link/animations/b00justshieldoff.png
+?? assets/characters/link/animations/b01guarddamage.png
+?? assets/characters/link/animations/b02escapeb.png
+?? assets/characters/link/animations/b02escapef.png
+?? assets/characters/link/animations/b02rebound.png
+?? assets/characters/link/animations/d00specialairnend.png
+?? assets/characters/link/animations/d00specialairnloop.png
+?? assets/characters/link/animations/d00specialairnstart.png
+?? assets/characters/link/animations/d00specialnend.png
+?? assets/characters/link/animations/d00specialnloop.png
+?? assets/characters/link/animations/d00specialnstart.png
+?? assets/characters/link/animations/d01specialairs1.png
+?? assets/characters/link/animations/d01specialairs2.png
+?? assets/characters/link/animations/d01specials1.png
+?? assets/characters/link/animations/d01specials2.png
+?? assets/characters/link/animations/d02specialairhi.png
+?? assets/characters/link/animations/d02specialhi.png
+?? assets/characters/link/animations/d02specialhihold.png
+?? assets/characters/link/animations/d02specialhistart.png
+?? assets/characters/link/animations/d03specialairlw.png
+?? assets/characters/link/animations/d03specialairlwblast.png
+?? assets/characters/link/animations/d03speciallw.png
+?? assets/characters/link/animations/d03speciallwblast.png
+?? assets/characters/link/animations/d04final.png
+?? assets/characters/link/animations/d04finalair.png
+?? assets/characters/link/animations/dash_attack.png
+?? assets/characters/link/animations/dsmash.png
+?? assets/characters/link/animations/dsmash_charge.png
+?? assets/characters/link/animations/e00catch.png
+?? assets/characters/link/animations/e00catchattack.png
+?? assets/characters/link/animations/e00catchcut.png
+?? assets/characters/link/animations/e00catchdash.png
+?? assets/characters/link/animations/e00catchpull.png
+?? assets/characters/link/animations/e00catchturn.png
+?? assets/characters/link/animations/e00catchwait.png
+?? assets/characters/link/animations/e01throwb.png
+?? assets/characters/link/animations/e01throwf.png
+?? assets/characters/link/animations/e01throwhi.png
+?? assets/characters/link/animations/e01throwlw.png
+?? assets/characters/link/animations/e02capturedamagehi.png
+?? assets/characters/link/animations/e02capturepulledhi.png
+?? assets/characters/link/animations/e02capturewaithi.png
+?? assets/characters/link/animations/e03capturecut.png
+?? assets/characters/link/animations/e03capturedamagelw.png
+?? assets/characters/link/animations/e03capturejump.png
+?? assets/characters/link/animations/e03capturepulledlw.png
+?? assets/characters/link/animations/e03capturewaitlw.png
+?? assets/characters/link/animations/f00damagehi1.png
+?? assets/characters/link/animations/f00damagelw1.png
+?? assets/characters/link/animations/f00damagen1.png
+?? assets/characters/link/animations/f01damageair1.png
+?? assets/characters/link/animations/f01damageflyhi.png
+?? assets/characters/link/animations/f01damageflylw.png
+?? assets/characters/link/animations/f01damageflymeteor.png
+?? assets/characters/link/animations/f01damageflyn.png
+?? assets/characters/link/animations/f01damageflyroll.png
+?? assets/characters/link/animations/f01damageflytop.png
+?? assets/characters/link/animations/f02damageelec.png
+?? assets/characters/link/animations/f03downattacku.png
+?? assets/characters/link/animations/f03downbacku.png
+?? assets/characters/link/animations/f03downforwardu.png
+?? assets/characters/link/animations/f03downstandu.png
+?? assets/characters/link/animations/f03downwaitu.png
+?? assets/characters/link/animations/f04downattackd.png
+?? assets/characters/link/animations/f04downbackd.png
+?? assets/characters/link/animations/f04downforwardd.png
+?? assets/characters/link/animations/f04downstandd.png
+?? assets/characters/link/animations/f04downwaitd.png
+?? assets/characters/link/animations/f05passive.png
+?? assets/characters/link/animations/f05passiveceil.png
+?? assets/characters/link/animations/f05passivestandb.png
+?? assets/characters/link/animations/f05passivestandf.png
+?? assets/characters/link/animations/f05passivewall.png
+?? assets/characters/link/animations/f05passivewalljump.png
+?? assets/characters/link/animations/f06furafura.png
+?? assets/characters/link/animations/fall.png
+?? assets/characters/link/animations/fall_aerial.png
+?? assets/characters/link/animations/fall_aerial_b.png
+?? assets/characters/link/animations/fall_aerial_f.png
+?? assets/characters/link/animations/fall_b.png
+?? assets/characters/link/animations/fall_special.png
+?? assets/characters/link/animations/fall_special_b.png
+?? assets/characters/link/animations/fall_special_f.png
+?? assets/characters/link/animations/final_victim_jungle_entry.png
+?? assets/characters/link/animations/final_victim_jungle_stagger_a.png
+?? assets/characters/link/animations/final_victim_jungle_stagger_b.png
+?? assets/characters/link/animations/final_victim_jungle_uppercut_pre.png
+?? assets/characters/link/animations/final_victim_volt_burst_pre.png
+?? assets/characters/link/animations/final_victim_volt_caught.png
+?? assets/characters/link/animations/final_victim_volt_vortex.png
+?? assets/characters/link/animations/fx__link_ancientbowarrow.png
+?? assets/characters/link/animations/fx__link_boomerang.png
+?? assets/characters/link/animations/fx__link_bowarrow.png
+?? assets/characters/link/animations/g01cliffcatch.png
+?? assets/characters/link/animations/g01cliffwait.png
+?? assets/characters/link/animations/g02cliffattack.png
+?? assets/characters/link/animations/g02cliffclimb.png
+?? assets/characters/link/animations/g02cliffescape.png
+?? assets/characters/link/animations/g02cliffjump1.png
+?? assets/characters/link/animations/g02cliffjump2.png
+?? assets/characters/link/animations/g03slip.png
+?? assets/characters/link/animations/g03slipattack.png
+?? assets/characters/link/animations/g03slipdown.png
+?? assets/characters/link/animations/g03slipescapeb.png
+?? assets/characters/link/animations/g03slipescapef.png
+?? assets/characters/link/animations/g03slipstand.png
+?? assets/characters/link/animations/g03slipwait.png
+?? assets/characters/link/animations/h00lighteat.png
+?? assets/characters/link/animations/h00lightget.png
+?? assets/characters/link/animations/h00lightwalkeat.png
+?? assets/characters/link/animations/h00lightwalkget.png
+?? assets/characters/link/animations/h01lightthrowb.png
+?? assets/characters/link/animations/h01lightthrowdash.png
+?? assets/characters/link/animations/h01lightthrowdrop.png
+?? assets/characters/link/animations/h01lightthrowf.png
+?? assets/characters/link/animations/h01lightthrowhi.png
+?? assets/characters/link/animations/h01lightthrowlw.png
+?? assets/characters/link/animations/h02lightthrowairb.png
+?? assets/characters/link/animations/h02lightthrowairf.png
+?? assets/characters/link/animations/h02lightthrowairhi.png
+?? assets/characters/link/animations/h02lightthrowairlw.png
+?? assets/characters/link/animations/h03heavyget.png
+?? assets/characters/link/animations/h03heavythrowb.png
+?? assets/characters/link/animations/h03heavythrowf.png
+?? assets/characters/link/animations/h03heavythrowhi.png
+?? assets/characters/link/animations/h03heavythrowlw.png
+?? assets/characters/link/animations/h03heavywalk.png
+?? assets/characters/link/animations/h04swing1.png
+?? assets/characters/link/animations/h04swing3.png
+?? assets/characters/link/animations/h04swing4.png
+?? assets/characters/link/animations/h04swing4charge.png
+?? assets/characters/link/animations/h04swingdash.png
+?? assets/characters/link/animations/h05itemhammerair.png
+?? assets/characters/link/animations/h05itemhammermove.png
+?? assets/characters/link/animations/h05itemhammerwait.png
+?? assets/characters/link/animations/h06swing4bat.png
+?? assets/characters/link/animations/h10itemlegsjumpsquat.png
+?? assets/characters/link/animations/h10itemlegslanding.png
+?? assets/characters/link/animations/h10itemlegswalkb.png
+?? assets/characters/link/animations/h10itemlegswalkf.png
+?? assets/characters/link/animations/h11itemshoot.png
+?? assets/characters/link/animations/h11itemshootair.png
+?? assets/characters/link/animations/h11itemshootairloop.png
+?? assets/characters/link/animations/h11itemshootloop.png
+?? assets/characters/link/animations/h11itemshootloopupper.png
+?? assets/characters/link/animations/h11itemshootupper.png
+?? assets/characters/link/animations/h12itemscopeairend.png
+?? assets/characters/link/animations/h12itemscopeairfire.png
+?? assets/characters/link/animations/h12itemscopeairrapid.png
+?? assets/characters/link/animations/h12itemscopeairstart.png
+?? assets/characters/link/animations/h12itemscopeend.png
+?? assets/characters/link/animations/h12itemscopeendupper.png
+?? assets/characters/link/animations/h12itemscopefall.png
+?? assets/characters/link/animations/h12itemscopefire.png
+?? assets/characters/link/animations/h12itemscopefireupper.png
+?? assets/characters/link/animations/h12itemscoperapid.png
+?? assets/characters/link/animations/h12itemscoperapidupper.png
+?? assets/characters/link/animations/h12itemscopestart.png
+?? assets/characters/link/animations/h12itemscopestartupper.png
+?? assets/characters/link/animations/h12itemscopewait.png
+?? assets/characters/link/animations/h12itemscopewaitupper.png
+?? assets/characters/link/animations/j00entryr.png
+?? assets/characters/link/animations/j01appealhir.png
+?? assets/characters/link/animations/j01appeallwr.png
+?? assets/characters/link/animations/j01appealsr.png
+?? assets/characters/link/animations/j02lose.png
+?? assets/characters/link/animations/j02win1.png
+?? assets/characters/link/animations/j02win1wait.png
+?? assets/characters/link/animations/j02win2.png
+?? assets/characters/link/animations/j02win2wait.png
+?? assets/characters/link/animations/j02win3.png
+?? assets/characters/link/animations/j02win3wait.png
+?? assets/characters/link/animations/jump_b.png
+?? assets/characters/link/animations/landing_air_b.png
+?? assets/characters/link/animations/landing_air_f.png
+?? assets/characters/link/animations/landing_air_hi.png
+?? assets/characters/link/animations/landing_air_lw.png
+?? assets/characters/link/animations/landing_air_n.png
+?? assets/characters/link/animations/smash2.png
+?? assets/characters/link/animations/smash_charge.png
+?? assets/characters/link/animations/spot_dodge.png
+?? assets/characters/link/animations/usmash.png
+?? assets/characters/link/animations/usmash_charge.png
+?? assets/characters/link/animations/utilt.png
+?? assets/characters/link/animations/walk.png
+?? assets/characters/link/item-axes.json
+?? assets/characters/pikachu/
+?? assets/gen/donkeykong-clips-batch.json
+?? assets/gen/donkeykong-clips-batch2.json
+?? assets/gen/donkeykong-clips-loco.json
+?? assets/gen/donkeykong-clips-pilot.json
+?? assets/gen/donkeykong-clips-pilot3.json
+?? assets/gen/donkeykong-clips-ufd.json
+?? assets/gen/donkeykong-clips-utilt-fix.json
+?? assets/sprites/items/apple.png
+?? assets/sprites/items/banana-peel.png
+?? assets/sprites/items/barrel.png
+?? assets/sprites/items/beam-sword.png
+?? assets/sprites/items/bob-omb.png
+?? assets/sprites/items/bread.png
+?? assets/sprites/items/capsule.png
+?? assets/sprites/items/cheese.png
+?? assets/sprites/items/cherries.png
+?? assets/sprites/items/cherry-pie.png
+?? assets/sprites/items/chocolate.png
+?? assets/sprites/items/cola.png
+?? assets/sprites/items/corn-dog.png
+?? assets/sprites/items/crate.png
+?? assets/sprites/items/dim-sum.png
+?? assets/sprites/items/donut.png
+?? assets/sprites/items/dumplings.png
+?? assets/sprites/items/eggs.png
+?? assets/sprites/items/fire-flower.png
+?? assets/sprites/items/golden-hammer.png
+?? assets/sprites/items/grapes.png
+?? assets/sprites/items/hamburger.png
+?? assets/sprites/items/hammer-handle.png
+?? assets/sprites/items/hammer-head.png
+?? assets/sprites/items/heart-container.png
+?? assets/sprites/items/hot-dog.png
+?? assets/sprites/items/kebab.png
+?? assets/sprites/items/kiwi.png
+?? assets/sprites/items/lemons.png
+?? assets/sprites/items/lollipop.png
+?? assets/sprites/items/maxim-tomato.png
+?? assets/sprites/items/milk.png
+?? assets/sprites/items/mont-blanc.png
+?? assets/sprites/items/onigiri.png
+?? assets/sprites/items/pancakes.png
+?? assets/sprites/items/pear.png
+?? assets/sprites/items/pineapple.png
+?? assets/sprites/items/pizza.png
+?? assets/sprites/items/popcorn.png
+?? assets/sprites/items/ray-gun.png
+?? assets/sprites/items/salad.png
+?? assets/sprites/items/salisbury-steak.png
+?? assets/sprites/items/spaghetti.png
+?? assets/sprites/items/squash-soup.png
+?? assets/sprites/items/star-rod.png
+?? assets/sprites/items/steak.png
+?? assets/sprites/items/strawberry-shortcake.png
+?? assets/sprites/items/super-scope.png
+?? assets/sprites/items/tea.png
+?? assets/sprites/items/tempura.png
+?? assets/sprites/items/turkey.png
+?? dk-motion-preview.html
+?? docs/3D-REWORK-PLAN.md
+?? docs/CHARACTER-ASSET-SYSTEM.md
+?? docs/CHARACTER-RENDERING-REFACTOR-PLAN.md
+?? docs/CHARACTER-SYSTEM-ROADMAP.md
+?? docs/PROJECT-ROADMAP.md
+?? docs/REWORK-IMPLEMENTATION-2026-09-09.md
+?? docs/REWORK-REVIEW-2026-09-09.md
+?? docs/art/
+?? docs/review/
+?? link-preview.html
+?? pikachu-back-air-packed-preview.html
+?? pikachu-back-air-preview.html
+?? pikachu-dash-attack-packed-preview.html
+?? pikachu-down-air-packed-preview.html
+?? pikachu-down-air-preview.html
+?? pikachu-fair-posed-preview.html
+?? pikachu-fair-preview.html
+?? pikachu-forward-tilt-preview.html
+?? pikachu-grab-preview.html
+?? pikachu-jab-packed-preview.html
+?? pikachu-jab-preview.html
+?? pikachu-motion-preview.html
+?? pikachu-neutral-air-packed-preview.html
+?? pikachu-neutral-air-preview.html
+?? pikachu-preview.html
+?? pikachu-progress.js
+?? pikachu-smash-packed-preview.html
+?? pikachu-smash-preview.html
+?? pikachu-special-preview.html
+?? pikachu-up-air-packed-preview.html
+?? pikachu-up-air-preview.html
+?? pikachu-up-air-timeline-preview.html
+?? pikachu-vertical-tilt-packed-preview.html
+?? pikachu-vertical-tilt-preview.html
+?? port/
+?? scripts/buildIdentity.test.ts
+?? scripts/buildIdentity.ts
+?? scripts/copy-runtime-assets.ts
+?? src/ai/LiveCpuController.physics.test.ts
+?? src/ai/LiveCpuController.test.ts
+?? src/ai/LiveCpuController.ts
+?? src/ai/finalSmashCpuPolicy.test.ts
+?? src/ai/finalSmashCpuPolicy.ts
+?? src/ai/smashBallSurfaceCpuPolicy.test.ts
+?? src/ai/smashBallSurfaceCpuPolicy.ts
+?? src/assets/losslessRgbaPage.test.ts
+?? src/assets/losslessRgbaPage.ts
+?? src/assets/packedFrames.test.ts
+?? src/assets/packedFrames.ts
+?? src/assets/textureResidency.test.ts
+?? src/assets/textureResidency.ts
+?? src/camera/cameraFraming.test.ts
+?? src/camera/cameraFraming.ts
+?? src/characterBuilder/characterEditorFields.test.ts
+?? src/characterBuilder/characterEditorFields.ts
+?? src/characterBuilder/moveFramePreview.test.ts
+?? src/characterBuilder/moveFramePreview.ts
+?? src/characters/Character.aerialLandingAttack.physics.test.ts
+?? src/characters/Character.airMovement.physics.test.ts
+?? src/characters/Character.buriedHurtbox.physics.test.ts
+?? src/characters/Character.dodgeTailHit.physics.test.ts
+?? src/characters/Character.grabProtection.physics.test.ts
+?? src/characters/Character.landing.physics.test.ts
+?? src/characters/Character.launchInfluence.physics.test.ts
+?? src/characters/Character.launchRecovery.physics.test.ts
+?? src/characters/Character.ledgeRootMotion.physics.test.ts
+?? src/characters/Character.ordinaryLanding.physics.test.ts
+?? src/characters/Character.physics.test.ts
+?? src/characters/Character.referenceDodge.physics.test.ts
+?? src/characters/Character.referenceLaunchEnergy.physics.test.ts
+?? src/characters/Character.referenceLocomotion.physics.test.ts
+?? src/characters/Character.referenceTransport.physics.test.ts
+?? src/characters/Character.shieldRelease.physics.test.ts
+?? src/characters/Character.specialLanding.physics.test.ts
+?? src/characters/Character.superArmor.test.ts
+?? src/characters/Character.taunts.physics.test.ts
+?? src/characters/Character.throwHits.physics.test.ts
+?? src/characters/Character.ultimateCapture.physics.test.ts
+?? src/characters/DonkeyKong.attackValues.physics.test.ts
+?? src/characters/DonkeyKong.collisionGeometry.test.ts
+?? src/characters/DonkeyKong.knockback.physics.test.ts
+?? src/characters/DonkeyKong.knockdown-support.physics.test.ts
+?? src/characters/DonkeyKong.physics.test.ts
+?? src/characters/DonkeyKong.recovery.physics.test.ts
+?? src/characters/DonkeyKong.smashKeys.physics.test.ts
+?? src/characters/DonkeyKong.sourceFixes.physics.test.ts
+?? src/characters/DonkeyKong.sourceFixes.test.ts
+?? src/characters/DonkeyKong.sourceInteractions.test.ts
+?? src/characters/DonkeyKong.sourceMechanics.test.ts
+?? src/characters/FreshLink.ts
+?? src/characters/Link.bow.physics.test.ts
+?? src/characters/Link.combat.integration.physics.test.ts
+?? src/characters/Link.downAirLaunch.physics.test.ts
+?? src/characters/Link.downSmashLaunch.physics.test.ts
+?? src/characters/Link.fairBairLaunch.physics.test.ts
+?? src/characters/Link.forwardSmashLaunch.physics.test.ts
+?? src/characters/Link.groundSpin.physics.test.ts
+?? src/characters/Link.hurtbox.physics.test.ts
+?? src/characters/Link.jabLaunch.physics.test.ts
+?? src/characters/Link.launch.physics.test.ts
+?? src/characters/Link.nairDashLaunch.physics.test.ts
+?? src/characters/Link.normals.physics.test.ts
+?? src/characters/Link.rebound.physics.test.ts
+?? src/characters/Link.referenceKnockback.physics.test.ts
+?? src/characters/Link.specialReference.physics.test.ts
+?? src/characters/Link.specials.physics.test.ts
+?? src/characters/Link.tiltLaunch.physics.test.ts
+?? src/characters/Link.upSmashLaunch.physics.test.ts
+?? src/characters/Pikachu.completion-runtime.physics.test.ts
+?? src/characters/Pikachu.footstool.physics.test.ts
+?? src/characters/Pikachu.ground-recovery.physics.test.ts
+?? src/characters/Pikachu.integration.physics.test.ts
+?? src/characters/Pikachu.item-body.physics.test.ts
+?? src/characters/Pikachu.ledge-jump.physics.test.ts
+?? src/characters/Pikachu.specials.physics.test.ts
+?? src/characters/Pikachu.surface-tech.physics.test.ts
+?? src/characters/Pikachu.ts
+?? src/characters/Pikachu.turn-brake.physics.test.ts
+?? src/characters/Pikachu.wall-jump.physics.test.ts
+?? src/characters/activeFighters.ts
+?? src/characters/artFrameSelector.test.ts
+?? src/characters/artFrameSelector.ts
+?? src/characters/attackAbsorber.test.ts
+?? src/characters/attackAbsorber.ts
+?? src/characters/attackCollisionShapes.test.ts
+?? src/characters/attackCollisionShapes.ts
+?? src/characters/attackHeightMetadata.ts
+?? src/characters/attackHitWindows.ts
+?? src/characters/attackReflector.test.ts
+?? src/characters/attackReflector.ts
+?? src/characters/authorableCharacterRegistry.test.ts
+?? src/characters/authorableCharacterRegistry.ts
+?? src/characters/authoredCaptureMotionFamily.ts
+?? src/characters/buriedPresentation.test.ts
+?? src/characters/buriedPresentation.ts
+?? src/characters/buriedState.test.ts
+?? src/characters/buriedState.ts
+?? src/characters/capsuleGeometry.test.ts
+?? src/characters/capsuleGeometry.ts
+?? src/characters/captureAttachmentBirth.physics.test.ts
+?? src/characters/captureAttachmentCalibration.test.ts
+?? src/characters/captureAttachmentCalibration.ts
+?? src/characters/captureAttachmentCoordinator.test.ts
+?? src/characters/captureAttachmentCoordinator.ts
+?? src/characters/captureAttachmentDefaultData.test.ts
+?? src/characters/captureAttachmentDefaultData.ts
+?? src/characters/captureAttachmentDepth.test.ts
+?? src/characters/captureAttachmentDepth.ts
+?? src/characters/captureAttachmentIntegration.physics.test.ts
+?? src/characters/characterAerialLandingAttackSerializer.test.ts
+?? src/characters/characterAnimationWindows.test.ts
+?? src/characters/characterCollisionSerializer.test.ts
+?? src/characters/characterDamageOnlyChargeSerializer.test.ts
+?? src/characters/characterFairBairSerializer.test.ts
+?? src/characters/characterFixedKnockbackSerializer.test.ts
+?? src/characters/characterHitWindowSerializer.test.ts
+?? src/characters/characterHurtboxCapsuleSerializer.test.ts
+?? src/characters/characterJabSerializer.test.ts
+?? src/characters/characterLandingSerializer.test.ts
+?? src/characters/characterLocomotionSerializer.test.ts
+?? src/characters/characterNativeAttackMetadataSerializer.test.ts
+?? src/characters/characterReboundSerializer.test.ts
+?? src/characters/characterReferenceKnockbackSerializer.test.ts
+?? src/characters/characterReferenceLaunchSerializer.test.ts
+?? src/characters/characterThrowHitsSerializer.test.ts
+?? src/characters/characterUpSpecialFlightSerializer.test.ts
+?? src/characters/chargedBowFixture.ts
+?? src/characters/combat.electric.test.ts
+?? src/characters/dodgeState.reference.test.ts
+?? src/characters/donkeykongAirDodge.physics.test.ts
+?? src/characters/donkeykongAirMovement.test.ts
+?? src/characters/donkeykongAirMovement.ts
+?? src/characters/donkeykongAnimationContinuity.physics.test.ts
+?? src/characters/donkeykongAttackCollisionPose.test.ts
+?? src/characters/donkeykongAttackCollisionPose.ts
+?? src/characters/donkeykongAttackData.ts
+?? src/characters/donkeykongAttackReactionMetadata.test.ts
+?? src/characters/donkeykongAttackReactionMetadata.ts
+?? src/characters/donkeykongBodyProfile.ts
+?? src/characters/donkeykongCaptureAttachment.test.ts
+?? src/characters/donkeykongCaptureAttachment.ts
+?? src/characters/donkeykongCargoRules.test.ts
+?? src/characters/donkeykongCargoRules.ts
+?? src/characters/donkeykongCargoThrowGrips.test.ts
+?? src/characters/donkeykongCatchCollisionPose.physics.test.ts
+?? src/characters/donkeykongCatchCollisionPose.test.ts
+?? src/characters/donkeykongCatchCollisionPose.ts
+?? src/characters/donkeykongCollisionGeometry.ts
+?? src/characters/donkeykongCompleteGrab.test.ts
+?? src/characters/donkeykongCompleteGrab.ts
+?? src/characters/donkeykongFootstool.test.ts
+?? src/characters/donkeykongFootstool.ts
+?? src/characters/donkeykongGrabInterruption.physics.test.ts
+?? src/characters/donkeykongGrabPresentation.physics.test.ts
+?? src/characters/donkeykongGrabSourceClocks.physics.test.ts
+?? src/characters/donkeykongGrabTimeline.test.ts
+?? src/characters/donkeykongGrabTimeline.ts
+?? src/characters/donkeykongGroundAttackRegions.physics.test.ts
+?? src/characters/donkeykongGroundMovement.test.ts
+?? src/characters/donkeykongGroundMovement.ts
+?? src/characters/donkeykongHeavyArmor.test.ts
+?? src/characters/donkeykongHeavyArmor.ts
+?? src/characters/donkeykongHeavyArmorRuntime.test.ts
+?? src/characters/donkeykongHeavyCarry.test.ts
+?? src/characters/donkeykongHeavyCarry.ts
+?? src/characters/donkeykongHeavyItems.test.ts
+?? src/characters/donkeykongHeavyItems.ts
+?? src/characters/donkeykongHeavyRuntime.test.ts
+?? src/characters/donkeykongItemRuntime.test.ts
+?? src/characters/donkeykongJabContinuability.physics.test.ts
+?? src/characters/donkeykongJabContinuability.test.ts
+?? src/characters/donkeykongJabContinuability.ts
+?? src/characters/donkeykongJabContinuabilitySerializer.test.ts
+?? src/characters/donkeykongLedgeRootMotion.ts
+?? src/characters/donkeykongMovementRuntime.test.ts
+?? src/characters/donkeykongPairedActionTimeline.test.ts
+?? src/characters/donkeykongPairedActionTimeline.ts
+?? src/characters/donkeykongPairedProtectionClock.test.ts
+?? src/characters/donkeykongPairedProtectionClock.ts
+?? src/characters/donkeykongPairedProtectionRuntime.test.ts
+?? src/characters/donkeykongPairedProtectionSerializer.test.ts
+?? src/characters/donkeykongPunchControls.test.ts
+?? src/characters/donkeykongPunchControls.ts
+?? src/characters/donkeykongRenderMetrics.test.ts
+?? src/characters/donkeykongSourceMoves.ts
+?? src/characters/donkeykongTaunts.test.ts
+?? src/characters/donkeykongTaunts.ts
+?? src/characters/donkeykongTurnBrake.test.ts
+?? src/characters/donkeykongTurnBrake.ts
+?? src/characters/donkeykongUfdStats.ts
+?? src/characters/donkeykongVerticalMovement.test.ts
+?? src/characters/donkeykongVerticalMovement.ts
+?? src/characters/donkeykongVerticalRuntime.physics.test.ts
+?? src/characters/grabDamageTransaction.test.ts
+?? src/characters/grabDamageTransaction.ts
+?? src/characters/grabSourceClocks.test.ts
+?? src/characters/grabSourcePresentation.ts
+?? src/characters/groundRecovery.ts
+?? src/characters/heavyCarry.physics.test.ts
+?? src/characters/heldItemSocket.test.ts
+?? src/characters/heldItemSocket.ts
+?? src/characters/jumpTakeoffVelocity.ts
+?? src/characters/ledgeRootMotionSchema.ts
+?? src/characters/legacyMoveFixtures.ts
+?? src/characters/linkAirPresentation.test.ts
+?? src/characters/linkAirPresentation.ts
+?? src/characters/linkAncientFinal.ts
+?? src/characters/linkArticlePlanValidation.test.ts
+?? src/characters/linkArticlePlanValidation.ts
+?? src/characters/linkAttackData.json
+?? src/characters/linkAttackData.ts
+?? src/characters/linkAttackGeometry.json
+?? src/characters/linkAttackGeometry.test.ts
+?? src/characters/linkBodyProfileValidation.ts
+?? src/characters/linkBoomerang.ts
+?? src/characters/linkBoomerangFlight.ts
+?? src/characters/linkBow.ts
+?? src/characters/linkCaptureActionEquipment.test.ts
+?? src/characters/linkCaptureActionEquipment.ts
+?? src/characters/linkCaptureActionEquipmentFacts.json
+?? src/characters/linkCaptureEquipmentLease.test.ts
+?? src/characters/linkCaptureEquipmentLease.ts
+?? src/characters/linkCommonBodyRoute.ts
+?? src/characters/linkCommonMotionFacts.ts
+?? src/characters/linkCommonPresentationController.ts
+?? src/characters/linkContextualPresentation.test.ts
+?? src/characters/linkContextualPresentation.ts
+?? src/characters/linkDamagePresentation.test.ts
+?? src/characters/linkDamagePresentation.ts
+?? src/characters/linkDefenceLedge.physics.test.ts
+?? src/characters/linkEquipment.ts
+?? src/characters/linkFootstool.ts
+?? src/characters/linkFreshCaptureSource.json
+?? src/characters/linkFreshGrab.ts
+?? src/characters/linkFreshKit.ts
+?? src/characters/linkFreshMovement.ts
+?? src/characters/linkFreshNormals.ts
+?? src/characters/linkFreshRecoveryAttacks.ts
+?? src/characters/linkFreshSpecials.ts
+?? src/characters/linkFreshSpin.ts
+?? src/characters/linkGuardReleasePresentation.test.ts
+?? src/characters/linkGuardReleasePresentation.ts
+?? src/characters/linkHeldCrouchSourceMotion.test.ts
+?? src/characters/linkIntrinsicAuthoring.ts
+?? src/characters/linkIntrinsicEquipment.test.ts
+?? src/characters/linkIntrinsicEquipment.ts
+?? src/characters/linkIntrinsicEquipmentFacts.json
+?? src/characters/linkIntrinsicPresentation.ts
+?? src/characters/linkIntrinsicStateValidation.ts
+?? src/characters/linkItemContextEquipment.test.ts
+?? src/characters/linkItemContextEquipment.ts
+?? src/characters/linkItemContextEquipmentFacts.json
+?? src/characters/linkLandingEquipment.test.ts
+?? src/characters/linkLandingEquipment.ts
+?? src/characters/linkLandingEquipmentFacts.json
+?? src/characters/linkLandingPresentationLease.test.ts
+?? src/characters/linkLandingPresentationLease.ts
+?? src/characters/linkLedgeRootMotion.ts
+?? src/characters/linkMovement.ts
+?? src/characters/linkNativeAttackPacket.ts
+?? src/characters/linkNormalBodyClock.test.ts
+?? src/characters/linkNormalBodyClock.ts
+?? src/characters/linkNormalEquipment.test.ts
+?? src/characters/linkNormalEquipment.ts
+?? src/characters/linkNormalEquipmentFacts.json
+?? src/characters/linkNormalRules.ts
+?? src/characters/linkNormalTable.test.ts
+?? src/characters/linkOwnBowArticle.test.ts
+?? src/characters/linkOwnBowArticle.ts
+?? src/characters/linkPackedBodyProfile.test.ts
+?? src/characters/linkPackedBodyProfile.ts
+?? src/characters/linkPassiveShield.test.ts
+?? src/characters/linkPassiveShield.ts
+?? src/characters/linkRemoteBomb.ts
+?? src/characters/linkSelectedNormalPackets.json
+?? src/characters/linkSelectedSpecialPackets.json
+?? src/characters/linkShieldTilt.test.ts
+?? src/characters/linkShieldTilt.ts
+?? src/characters/linkShieldTiltFacts.json
+?? src/characters/linkSmashFollowupCharge.test.ts
+?? src/characters/linkSmashFollowupCharge.ts
+?? src/characters/linkSourceClock.ts
+?? src/characters/linkSourceMoveIdentity.ts
+?? src/characters/linkSourceRecoveryAttacks.json
+?? src/characters/linkSpecialController.ts
+?? src/characters/linkSpinContactSelection.test.ts
+?? src/characters/linkSpinContactSelection.ts
+?? src/characters/linkSpinController.ts
+?? src/characters/linkSpinTiming.ts
+?? src/characters/linkSwordBeam.ts
+?? src/characters/linkTauntEquipment.test.ts
+?? src/characters/linkTauntEquipment.ts
+?? src/characters/linkTauntEquipmentFacts.json
+?? src/characters/linkUfdStats.ts
+?? src/characters/nativePacketHit.ts
+?? src/characters/nativeShieldTraction.ts
+?? src/characters/ordinaryProjectileCheckpoint.test.ts
+?? src/characters/ordinaryProjectileCheckpoint.ts
+?? src/characters/packedBodyPresentation.ts
+?? src/characters/paletteArtKeys.ts
+?? src/characters/persistedFormatMarker.ts
+?? src/characters/pikachuAngledTiltHurtboxes.ts
+?? src/characters/pikachuAngledTiltPose.ts
+?? src/characters/pikachuAttackData.ts
+?? src/characters/pikachuAttackForceReaction.ts
+?? src/characters/pikachuAuxiliaryBody.ts
+?? src/characters/pikachuBackAir.physics.test.ts
+?? src/characters/pikachuBackAirHurtboxes.ts
+?? src/characters/pikachuBackAirLanding.physics.test.ts
+?? src/characters/pikachuBackAirPose.ts
+?? src/characters/pikachuBackThrowRootMotion.ts
+?? src/characters/pikachuCaptureBodyClearance.ts
+?? src/characters/pikachuChargeHurtboxes.ts
+?? src/characters/pikachuCrouchCrawl.test.ts
+?? src/characters/pikachuCrouchCrawl.ts
+?? src/characters/pikachuDashAttack.physics.test.ts
+?? src/characters/pikachuDashAttackHurtboxes.ts
+?? src/characters/pikachuDashAttackPose.ts
+?? src/characters/pikachuDirectionalDodge.ts
+?? src/characters/pikachuDirectionalDodgeHurtboxes.ts
+?? src/characters/pikachuDownAirHurtboxes.ts
+?? src/characters/pikachuDownAirLanding.physics.test.ts
+?? src/characters/pikachuDownAirPose.physics.test.ts
+?? src/characters/pikachuDownAirPose.ts
+?? src/characters/pikachuFairClock.physics.test.ts
+?? src/characters/pikachuFairHurtboxes.ts
+?? src/characters/pikachuFootstool.ts
+?? src/characters/pikachuForwardTiltHurtboxes.ts
+?? src/characters/pikachuForwardTiltPose.physics.test.ts
+?? src/characters/pikachuForwardTiltPose.ts
+?? src/characters/pikachuGrab.test.ts
+?? src/characters/pikachuGrab.ts
+?? src/characters/pikachuGroundJumpPresentation.ts
+?? src/characters/pikachuHeavyItems.test.ts
+?? src/characters/pikachuJab.physics.test.ts
+?? src/characters/pikachuJabHurtboxes.ts
+?? src/characters/pikachuJoltCurve.ts
+?? src/characters/pikachuLedgeAttachment.ts
+?? src/characters/pikachuLedgeJumpRuntime.test.ts
+?? src/characters/pikachuLedgeJumpRuntime.ts
+?? src/characters/pikachuLedgeRootMotion.test.ts
+?? src/characters/pikachuLedgeRootMotion.ts
+?? src/characters/pikachuMovement.ts
+?? src/characters/pikachuNeutralAir.physics.test.ts
+?? src/characters/pikachuNeutralAirHurtboxes.ts
+?? src/characters/pikachuNormalMoves.physics.test.ts
+?? src/characters/pikachuNormalMoves.test.ts
+?? src/characters/pikachuNormalMoves.ts
+?? src/characters/pikachuPresentation.test.ts
+?? src/characters/pikachuPresentation.ts
+?? src/characters/pikachuQuickAttackPreparation.test.ts
+?? src/characters/pikachuQuickAttackPreparation.ts
+?? src/characters/pikachuRecoveryAttacks.ts
+?? src/characters/pikachuRecoveryRuntime.ts
+?? src/characters/pikachuShootingLayerAnchors.json
+?? src/characters/pikachuSmashHurtboxes.ts
+?? src/characters/pikachuSmashes.physics.test.ts
+?? src/characters/pikachuSourceMoves.physics.test.ts
+?? src/characters/pikachuSourceMoves.ts
+?? src/characters/pikachuSpecialContactData.ts
+?? src/characters/pikachuSpecialHurtboxes.ts
+?? src/characters/pikachuSpecialMoves.ts
+?? src/characters/pikachuSpecialPhaseHurtboxes.ts
+?? src/characters/pikachuSpecialPresentation.ts
+?? src/characters/pikachuSpecialRuntime.ts
+?? src/characters/pikachuSpecialTransforms.ts
+?? src/characters/pikachuStateHurtboxes.ts
+?? src/characters/pikachuStatePresentation.ts
+?? src/characters/pikachuSurfaceTech.test.ts
+?? src/characters/pikachuSurfaceTech.ts
+?? src/characters/pikachuTaunts.ts
+?? src/characters/pikachuTurnBrake.ts
+?? src/characters/pikachuUfdStats.ts
+?? src/characters/pikachuUpAirHurtboxes.ts
+?? src/characters/pikachuUpAirPose.physics.test.ts
+?? src/characters/pikachuUpAirPose.ts
+?? src/characters/pikachuUpSmashPose.ts
+?? src/characters/pikachuUpTiltPose.physics.test.ts
+?? src/characters/pikachuUpTiltPose.ts
+?? src/characters/pikachuVerticalTiltHurtboxes.ts
+?? src/characters/pointContactInterpolation.ts
+?? src/characters/projectileCircleSweep.test.ts
+?? src/characters/projectileCircleSweep.ts
+?? src/characters/projectileMotion.test.ts
+?? src/characters/projectileMotion.ts
+?? src/characters/referenceAutolink.test.ts
+?? src/characters/referenceAutolink.ts
+?? src/characters/referenceCombatModifiers.test.ts
+?? src/characters/referenceCombatModifiers.ts
+?? src/characters/referenceDamageSpeedUp.test.ts
+?? src/characters/referenceDamageSpeedUp.ts
+?? src/characters/referenceKnockback.test.ts
+?? src/characters/referenceKnockback.ts
+?? src/characters/referenceLaunchEnergy.test.ts
+?? src/characters/referenceLaunchEnergy.ts
+?? src/characters/referenceLaunchInfluence.test.ts
+?? src/characters/referenceLaunchInfluence.ts
+?? src/characters/referenceSdi.test.ts
+?? src/characters/referenceSdi.ts
+?? src/characters/referenceTrip.test.ts
+?? src/characters/referenceTrip.ts
+?? src/characters/regionalProtection.test.ts
+?? src/characters/regionalProtection.ts
+?? src/characters/shieldBreak.ts
+?? src/characters/shieldPushback.test.ts
+?? src/characters/shieldPushback.ts
+?? src/characters/simulationSpriteAnimation.test.ts
+?? src/characters/simulationSpriteAnimation.ts
+?? src/characters/simulationStandingGrabFallback.test.ts
+?? src/characters/sourceDamagePresentationReceipt.ts
+?? src/characters/sourceShapeSweep.test.ts
+?? src/characters/sourceShapeSweep.ts
+?? src/characters/spriteAnimationDriver.sheets.test.ts
+?? src/characters/stepCharacterPhysics.test.ts
+?? src/characters/stepCharacterPhysics.ts
+?? src/characters/surfaceTech.test.ts
+?? src/characters/surfaceTech.ts
+?? src/characters/surfaceTechProfiles.ts
+?? src/characters/tauntSchema.ts
+?? src/characters/ultimateCapture.test.ts
+?? src/characters/ultimateCapture.ts
+?? src/characters/ultimateUniversalRules.physics.test.ts
+?? src/characters/ultimateUniversalRules.test.ts
+?? src/characters/upperBodyLayer.test.ts
+?? src/characters/upperBodyLayer.ts
+?? src/engine/buildIdentity.ts
+?? src/entities/GazeHazard.test.ts
+?? src/entities/GazeHazard.ts
+?? src/finalSmash/
+?? src/fx/pikachuNeutralAirEffects.ts
+?? src/fx/proceduralLinkArticles.ts
+?? src/input/ControlsDeviceSession.test.ts
+?? src/input/ControlsDeviceSession.ts
+?? src/input/ControlsProfileSession.ts
+?? src/input/InputProfileStore.test.ts
+?? src/input/InputProfileStore.ts
+?? src/input/InputResolverHistory.test.ts
+?? src/input/PlayerControlsInput.test.ts
+?? src/input/PlayerControlsInput.ts
+?? src/input/PlayerControlsSession.test.ts
+?? src/input/PlayerControlsSession.ts
+?? src/input/connectedGamepads.test.ts
+?? src/input/connectedGamepads.ts
+?? src/input/digitalWalkModifier.test.ts
+?? src/input/playerControlsRows.ts
+?? src/input/smashBindingDefaults.test.ts
+?? src/input/smashBindingDefaults.ts
+?? src/input/tauntTransport.test.ts
+?? src/items/BananaPeel.test.ts
+?? src/items/BananaPeel.ts
+?? src/items/Barrel.ts
+?? src/items/BeamSword.test.ts
+?? src/items/BeamSword.ts
+?? src/items/BobOmb.test.ts
+?? src/items/BobOmb.ts
+?? src/items/Capsule.ts
+?? src/items/Crate.ts
+?? src/items/FireFlower.ts
+?? src/items/Food.ts
+?? src/items/HeartContainer.ts
+?? src/items/HomeRunBat.test.ts
+?? src/items/HomeRunBat.ts
+?? src/items/LinkArrowItem.ts
+?? src/items/LinkRemoteBombItem.ts
+?? src/items/MaximTomato.ts
+?? src/items/SmashBall.ts
+?? src/items/StarRod.test.ts
+?? src/items/StarRod.ts
+?? src/items/SuperScope.ts
+?? src/items/containerRuntime.physics.test.ts
+?? src/items/hammerLock.physics.test.ts
+?? src/items/healingItems.physics.test.ts
+?? src/items/heldItemDrop.ts
+?? src/items/homeRunBat.physics.test.ts
+?? src/items/itemAcquisitionBounds.ts
+?? src/items/itemActions.test.ts
+?? src/items/itemActions.ts
+?? src/items/itemAvailability.test.ts
+?? src/items/itemCatalog.test.ts
+?? src/items/itemCatalog.ts
+?? src/items/itemCatch.test.ts
+?? src/items/itemCatch.ts
+?? src/items/itemCatchAcquisition.test.ts
+?? src/items/itemContainer.test.ts
+?? src/items/itemContainer.ts
+?? src/items/itemHealing.test.ts
+?? src/items/itemHealing.ts
+?? src/items/itemMotionClips.test.ts
+?? src/items/itemMotionClips.ts
+?? src/items/itemPhysicsFixture.ts
+?? src/items/itemShooting.test.ts
+?? src/items/itemShooting.ts
+?? src/items/linkHeldItems.physics.test.ts
+?? src/items/nativeItemThrow.test.ts
+?? src/items/nativeItemThrow.ts
+?? src/items/recoveryTransaction.test.ts
+?? src/items/recoveryTransaction.ts
+?? src/items/resolveItemInput.test.ts
+?? src/items/resolveItemInput.ts
+?? src/items/shootingItems.physics.test.ts
+?? src/items/shootingTurn.physics.test.ts
+?? src/items/throwingItems.physics.test.ts
+?? src/match/AttackClankHandler.test.ts
+?? src/match/AttackClankHandler.ts
+?? src/match/AttackContactLedger.ts
+?? src/match/HitboxDamageHandler.activeShield.physics.test.ts
+?? src/match/HitboxDamageHandler.collisionHits.physics.test.ts
+?? src/match/HitboxDamageHandler.hurtboxCapsule.physics.test.ts
+?? src/match/HitboxDamageHandler.rehit.physics.test.ts
+?? src/match/MatchRulesController.test.ts
+?? src/match/MatchRulesController.ts
+?? src/match/ReferenceKnockbackDelivery.test.ts
+?? src/match/characterSnapshot.ts
+?? src/match/donkeykongPairedProtection.physics.test.ts
+?? src/match/linkArticles.test.ts
+?? src/match/linkArticles.ts
+?? src/match/matchParticipants.test.ts
+?? src/match/matchParticipants.ts
+?? src/match/namedProfileOwnership.test.ts
+?? src/match/oneOnOneDamage.ts
+?? src/match/revivalPlatform.test.ts
+?? src/match/revivalPlatform.ts
+?? src/match/simDigest.test.ts
+?? src/match/simDigest.ts
+?? src/physics/
+?? src/replay/MatchHistoryCheckpoint.test.ts
+?? src/replay/MatchHistoryCheckpoint.ts
+?? src/replay/MatchHistoryEvidence.test.ts
+?? src/replay/MatchHistoryEvidence.ts
+?? src/replay/ReplayCharacterSnapshot.test.ts
+?? src/replay/ReplayInputCompleteness.test.ts
+?? src/replay/itemAcquisitionProof.test.ts
+?? src/scenes/MatchScene.passThrough.physics.test.ts
+?? src/scenes/MatchScene.upperPlatformRecovery.physics.test.ts
+?? src/scenes/characterTuneSelection.test.ts
+?? src/scenes/characterTuneSelection.ts
+?? src/scenes/controlsDeviceHandoff.ts
+?? src/scenes/controlsProfileHandoff.ts
+?? src/scenes/linkResultsCallbackFacts.json
+?? src/scenes/linkResultsCallbacks.test.ts
+?? src/scenes/linkResultsCallbacks.ts
+?? src/scenes/linkResultsPresentation.ts
+?? src/scenes/matchRules.test.ts
+?? src/scenes/matchRules.ts
+?? src/sim/
+?? src/stages/BaseStage.substep.test.ts
+?? src/stages/PlatformMotion.physics.test.ts
+?? src/stages/hazardBodies.test.ts
+?? src/stages/hazardBodies.ts
+?? src/stages/platformMotion.ts
+?? src/stages/stageBodies.ts
+?? src/stages/stageViewport.test.ts
+?? src/stages/stageViewport.ts
+?? src/ui/chargeReadout.ts
+?? src/ui/menuKeyboard.test.ts
+?? src/ui/menuKeyboard.ts
+?? tools/__pycache__/
+?? tools/archive/
+?? tools/browser-gpu.mjs
+?? tools/browser-match-host.mjs
+?? tools/browser-match-keyboard.mjs
+?? tools/character-memory-audit.ts
+?? tools/cleanup-duplicate-build-assets.py
+?? tools/cleanup-plan.py
+?? tools/combat-parity-artifacts.mjs
+?? tools/comfy-client.test.ts
+?? tools/contact-sheet.py
+?? tools/diagnose_final_851_bounds_v1.py
+?? tools/dk-anatomical-capsules.py
+?? tools/dk-animation-counts.py
+?? tools/dk-app15-execute-birth-corrected-checkpoint.mjs
+?? tools/dk-app15-execute-capture-identity-checkpoint.mjs
+?? tools/dk-app15-execute-reviewed-checkpoint.mjs
+?? tools/dk-app15-export-acceptance-specs.mjs
+?? tools/dk-app15-install-tested-source.py
+?? tools/dk-art-batch-local-correction-review.py
+?? tools/dk-art-batch-output-review.py
+?? tools/dk-art-batch-render.mjs
+?? tools/dk-art-batch02-interior-alpha-repair.py
+?? tools/dk-art-batch02-quarter-anatomy.py
+?? tools/dk-art-batch02-texture-cleanup.py
+?? tools/dk-art-batch03-attack-overlay.py
+?? tools/dk-art-batch03-local-palette-cleanup.py
+?? tools/dk-art-batch03-quarter-anatomy.py
+?? tools/dk-art-batch04-attack-overlay.py
+?? tools/dk-art-batch04-final-fringe-cleanup.py
+?? tools/dk-art-batch04-final-quarter-anatomy.py
+?? tools/dk-art-batch04-local-correction-prepare.py
+?? tools/dk-art-batch04-local-correction-review.py
+?? tools/dk-art-batch04-local-palette-cleanup.py
+?? tools/dk-art-batch04-quarter-anatomy.py
+?? tools/dk-art-batch05-attack-overlay.py
+?? tools/dk-art-batch05-local-fringe-cleanup.py
+?? tools/dk-art-batch05-quarter-anatomy.py
+?? tools/dk-art-batch06-attack-overlay.py
+?? tools/dk-art-batch06-final-quarter-anatomy.py
+?? tools/dk-art-batch06-local-fringe-cleanup.py
+?? tools/dk-art-batch06-material-cleanup.py
+?? tools/dk-art-batch06-material-cleanup3.py
+?? tools/dk-art-batch06-material-cleanup4.py
+?? tools/dk-art-batch06-quarter-anatomy.py
+?? tools/dk-art-batch07-attack-overlay.py
+?? tools/dk-art-batch07-final-material-cleanup.py
+?? tools/dk-art-batch07-final-palette-cleanup.py
+?? tools/dk-art-batch07-final-quarter-anatomy.py
+?? tools/dk-art-batch07-final-seam-cleanup.py
+?? tools/dk-art-batch07-local-fringe-cleanup.py
+?? tools/dk-art-firstbatch-attack-overlay.py
+?? tools/dk-art-firstbatch-palette-cleanup.py
+?? tools/dk-art-firstbatch-quarter-anatomy.py
+?? tools/dk-art-firstcontact-correction-prepare.py
+?? tools/dk-art-firstcontact-correction-review.py
+?? tools/dk-art-firstcontact-local-author.py
+?? tools/dk-art-firstcontact-palette-cleanup.py
+?? tools/dk-art-firstcontact-prepare.py
+?? tools/dk-art-firstcontact-review.py
+?? tools/dk-art-full-dtilt-draft.py
+?? tools/dk-art-full-jab-draft.py
+?? tools/dk-art-full-jab2-draft.py
+?? tools/dk-art-fullclip-batch-prepare.py
+?? tools/dk-art-fullclip-batch02-prepare.py
+?? tools/dk-art-fullclip-batch03-prepare.py
+?? tools/dk-art-fullclip-batch04-prepare.py
+?? tools/dk-art-fullclip-batch05-prepare.py
+?? tools/dk-art-fullclip-batch06-prepare.py
+?? tools/dk-art-fullclip-batch07-prepare.py
+?? tools/dk-art-fullclip-guides-prepare.py
+?? tools/dk-art-fullclip-local-correction-prepare.py
+?? tools/dk-art-fullclip-third-prepare.py
+?? tools/dk-art-grabpilot-inputs-prepare.py
+?? tools/dk-art-halfbatch-output-review.py
+?? tools/dk-art-packed-collision-review.py
+?? tools/dk-art-packed-pilot-prepare.py
+?? tools/dk-art-pilot-attack-overlay.py
+?? tools/dk-art-pilot-correction-prepare.py
+?? tools/dk-art-pilot-eye-palm-author.py
+?? tools/dk-art-pilot-prepare.py
+?? tools/dk-art-pilot-review-prepare.py
+?? tools/dk-art-pilot-stage.py
+?? tools/dk-art-pilot-third-prepare.py
+?? tools/dk-art-render.mjs
+?? tools/dk-art-target-anatomy-segmentation.py
+?? tools/dk-attack-data-audit.ts
+?? tools/dk-common-item-params-extract.py
+?? tools/dk-dash-startup-own-RGB-fringe-cleanup-03.py
+?? tools/dk-dash-startup-own-hand-clean5-05.py
+?? tools/dk-dash-startup-own-material-cleanup-02.py
+?? tools/dk-dash-startup-own-material-cleanup.py
+?? tools/dk-dash-startup-own-wrist-opacity-04.py
+?? tools/dk-final-geometry.py
+?? tools/dk-final-match-probe.mjs
+?? tools/dk-firstclips-source-packets.py
+?? tools/dk-full-dash-grab-batch-render-02.mjs
+?? tools/dk-full-dash-grab-batch-render-03.mjs
+?? tools/dk-full-dash-grab-batch-render.mjs
+?? tools/dk-full-dash-grab-guides-prepare.py
+?? tools/dk-full-dash-grab-input-qa.py
+?? tools/dk-full-dash-grab-inputs-prepare.py
+?? tools/dk-full-dash-grab-output-review.py
+?? tools/dk-full-dash-grab-startup-feature-proposal-02.py
+?? tools/dk-full-dash-grab-startup-feature-proposal-03.py
+?? tools/dk-full-dash-grab-startup-feature-proposal.py
+?? tools/dk-full-dash-grab-startup-own-hand-bleed-03.py
+?? tools/dk-full-dash-grab-startup-own-hand-prepare-02.py
+?? tools/dk-full-grab-batch-render.mjs
+?? tools/dk-full-grab-guides-prepare.py
+?? tools/dk-full-grab-local-hand-batch-render.mjs
+?? tools/dk-full-grab-native4-skin-cap-cleanup.py
+?? tools/dk-full-grab-reach-batch-render.mjs
+?? tools/dk-full-grab-reach-feature-proposal.py
+?? tools/dk-full-grab-reach-input-fold-repair.py
+?? tools/dk-full-grab-reach-input-qa.py
+?? tools/dk-full-grab-reach-inputs-prepare.py
+?? tools/dk-full-grab-reach-output-cleanup.py
+?? tools/dk-full-grab-reach-output-review.py
+?? tools/dk-full-grab-receiving-prepare.py
+?? tools/dk-full-grab-startup-attempt2-cleanup.py
+?? tools/dk-full-grab-startup-feature-proposal.py
+?? tools/dk-full-grab-startup-input-qa.py
+?? tools/dk-full-grab-startup-inputs-prepare.py
+?? tools/dk-full-grab-startup-local-hand-output-review.py
+?? tools/dk-full-grab-startup-local-hand-prepare.py
+?? tools/dk-full-grab-startup-output-review.py
+?? tools/dk-full-jab-metadata-review.py
+?? tools/dk-full-standing-grab-inputs-finalize.py
+?? tools/dk-full-standing-grab-normalize-probes.mjs
+?? tools/dk-full-standing-grab-pack-candidate.py
+?? tools/dk-full-standing-remaining-cleanup.py
+?? tools/dk-full-standing-remaining-inputs.py
+?? tools/dk-full-standing-remaining-output-review.py
+?? tools/dk-full-standing-remaining-recipes.py
+?? tools/dk-full-standing-remaining-render.mjs
+?? tools/dk-full-standing-remaining03-speck-cleanup.py
+?? tools/dk-full-standing-remaining04-bridge-cleanup.py
+?? tools/dk-full-standing-remaining04-detail-cleanup.py
+?? tools/dk-full-standing-remaining04-forehead-input-repair.py
+?? tools/dk-full-standing-remaining04-shape-bridge-cleanup.py
+?? tools/dk-full-standing-static-art-manifest.py
+?? tools/dk-full-standing-static-atlas.py
+?? tools/dk-full-standing-static-gallery.py
+?? tools/dk-garment-visibility.py
+?? tools/dk-grab-own-hand-branch-candidate.py
+?? tools/dk-grab-receiving-fit-candidate.py
+?? tools/dk-grab-receiving-own-probes.py
+?? tools/dk-grab-source-socket-packets.py
+?? tools/dk-grabpilot-branch-core-fit.py
+?? tools/dk-grabpilot-branchcore1-world-review.py
+?? tools/dk-grabpilot-digit-layout-proposal.py
+?? tools/dk-grabpilot-digit-layout2-proposal.py
+?? tools/dk-grabpilot-digit-layout3-proposal.py
+?? tools/dk-grabpilot-digit-layout4-proposal.py
+?? tools/dk-grabpilot-digit-layout4-world-review.py
+?? tools/dk-grabpilot-fit-plan.py
+?? tools/dk-grabpilot-hand-ownership-refine.py
+?? tools/dk-grabpilot-hand6-world-review.py
+?? tools/dk-grabpilot-input-diagnostics.py
+?? tools/dk-grabpilot-output-review.py
+?? tools/dk-grabpilot-quarter-ownership.py
+?? tools/dk-grabpilot-receiving-world-review.py
+?? tools/dk-grabpilot-rgb-cleanup.py
+?? tools/dk-grabpilot-source-anatomy.py
+?? tools/dk-heavy-target-contour-receiving-fit-v2.py
+?? tools/dk-heavy-target-contour-receiving-fit-v3.py
+?? tools/dk-heavy-target-contour-receiving-fit-v4.py
+?? tools/dk-item-applicability-audit.py
+?? tools/dk-jostle-match-regression.mjs
+?? tools/dk-material-guide.py
+?? tools/dk-native-assets-acquire.py
+?? tools/dk-native-guide.py
+?? tools/dk-native-receiving.py
+?? tools/dk-pilot-mixed-receiving-prepare.py
+?? tools/dk-pivot-fringe-cleanup.py
+?? tools/dk-pivot-local-correction-prepare.py
+?? tools/dk-production-build.mjs
+?? tools/dk-progress-data.mjs
+?? tools/dk-publish-checkpoint.mjs
+?? tools/dk-receiving-fit-compare.py
+?? tools/dk-receiving-rectangle-compare.py
+?? tools/dk-reconcile-contracts.mjs
+?? tools/dk-runtime-action-map.py
+?? tools/dk-runtime-mechanics-review.mjs
+?? tools/dk-serve-review.mjs
+?? tools/dk-standing-native33-38-extra-finger-review.py
+?? tools/dk-standing-native7-own-hand-core-proposal.py
+?? tools/dk-standing-own-branch-final-review.py
+?? tools/dk-standing-own-hand-layout-proposals.py
+?? tools/dk-standing-own-probes-pack-candidate.py
+?? tools/dk-standing-receiving-fit-static-review-views.py
+?? tools/dk-standing-receiving-own-review-views.py
+?? tools/dk-target-contour-receiving-fit.py
+?? tools/dk_native_pose.py
+?? tools/donkeykong-final-victims.py
+?? tools/fighter-pack.py
+?? tools/fighter-texture-budget.py
+?? tools/fighter_frames.py
+?? tools/final-release-raf-probe.mjs
+?? tools/final_actor_corpus_fit_v1.py
+?? tools/final_actor_cranial_recipe_pilots_v1.py
+?? tools/final_actor_fit_recovery_v2.py
+?? tools/final_actor_fit_six_pilots_v1.py
+?? tools/final_current_851_geometry_review_v3.py
+?? tools/final_dk_anatomy_bounded_crown_pilots_v3.py
+?? tools/final_dk_selective_crown_audit_v3.py
+?? tools/final_dk_selective_crown_worker_v3.py
+?? tools/final_frozen_native_read_cache_v1.py
+?? tools/final_full_scalp_eight_review_v2.py
+?? tools/final_fx_clean_recipes_v1.py
+?? tools/final_fx_point_six_review_v1.py
+?? tools/final_fx_same_drawing_points_v1.py
+?? tools/final_target_part_projection_v1.py
+?? tools/final_target_part_projection_v2.py
+?? tools/final_target_part_six_hair_review_v2.py
+?? tools/final_target_part_six_review_v1.py
+?? tools/fit_anatomical_capsule_chain_v2.py
+?? tools/fit_anatomical_capsule_chain_v3.py
+?? tools/fit_anatomical_capsule_chain_v4_cached.py
+?? tools/fit_anatomical_capsule_chain_v5_radii.py
+?? tools/fit_anatomical_capsule_chain_v6_scores.py
+?? tools/fit_anatomical_capsule_chain_v7_score_distance.py
+?? tools/fit_anatomical_capsule_envelope_v1.py
+?? tools/gen-donkeykong-attack-data.py
+?? tools/inferno-knockout-flight-probe.mjs
+?? tools/inferno-knockout-raf-probe.mjs
+?? tools/install-dk-final.py
+?? tools/install-donkeykong-final-victims.py
+?? tools/install-lossless-packed.py
+?? tools/install-pikachu-final-victims.py
+?? tools/install-pikachu-final.py
+?? tools/install_final_fx_qualified_v1.py
+?? tools/inventory-final-support851.py
+?? tools/inventory-installed-character-page-bytes.py
+?? tools/key-pose-plan.py
+?? tools/ktx2-quality.py
+?? tools/ktx2-split-alpha-pilot.py
+?? tools/launch-raf-pacing-probe.mjs
+?? tools/launch_final_851_measured_v1.py
+?? tools/launch_final_six_fresh_child_v1.py
+?? tools/link-authored-guide.py
+?? tools/link-boomerang-blank-probe.mjs
+?? tools/link-build-final.py
+?? tools/link-canonical-item-proof.mjs
+?? tools/link-canonical-item-proof.test.mjs
+?? tools/link-cap-volume.py
+?? tools/link-cel-style.py
+?? tools/link-composed-shooting-guide-v2.py
+?? tools/link-composed-shooting-guide.py
+?? tools/link-final-match-probe.mjs
+?? tools/link-final-raf-profile.mjs
+?? tools/link-final-repeat-raf-acceptance.mjs
+?? tools/link-item-acquisition-proof.mjs
+?? tools/link-item-action-lease-proof.mjs
+?? tools/link-item-action-lease-proof.test.mjs
+?? tools/link-item-paid-emission-proof.mjs
+?? tools/link-item-paid-emission-proof.test.mjs
+?? tools/link-layer-ledge-probe.ts
+?? tools/link-native-article-guide-v2.py
+?? tools/link-native-article-guide.py
+?? tools/link-native-guide.py
+?? tools/link-playable-expectations.json
+?? tools/link-playable-probe.mjs
+?? tools/link-reference-audit.py
+?? tools/link-render-clip.py
+?? tools/link-throw-release-proof.mjs
+?? tools/link-throw-release-proof.test.mjs
+?? tools/link-visibility-probe.mjs
+?? tools/link_anatomical_head_projection_v1.py
+?? tools/link_anatomical_head_projection_v2.py
+?? tools/link_audited_body_receiving_adapter_v1.py
+?? tools/link_author_raster_v2.cpp
+?? tools/link_author_raster_v2.py
+?? tools/link_conditional_body_receiving_adapter_v1.py
+?? tools/link_immutable_input_stage_v1.py
+?? tools/link_native_pose.py
+?? tools/link_native_uv_raster.py
+?? tools/link_normal_745_corrected_review_v2.py
+?? tools/link_normal_equipment_guide_v1.py
+?? tools/link_normal_exclusive_745_worker_v1.py
+?? tools/link_part_owned_equipment_v2.py
+?? tools/link_part_owned_equipment_v3.py
+?? tools/link_physical_body_region_projection_v1.py
+?? tools/link_physical_body_region_projection_v2.py
+?? tools/link_physical_body_region_projection_v3.py
+?? tools/link_physical_body_region_projection_v4.py
+?? tools/link_physical_body_region_projection_v5.py
+?? tools/link_physical_body_region_projection_v6.py
+?? tools/link_physical_context_projection_v1.py
+?? tools/link_physical_context_projection_v2.py
+?? tools/link_physical_context_projection_v3_equipment.py
+?? tools/link_pinned_input_redirect_v1.py
+?? tools/link_remaining_c17_equipment_bank_v2.py
+?? tools/link_selected_c_equipment_guide_v2.py
+?? tools/link_selected_c_physical_qualification_v2.py
+?? tools/link_targeted_uair14_v1.py
+?? tools/lossless-atlas-render-probe.mjs
+?? tools/match-freeze-acceptance.mjs
+?? tools/match-freeze-stress.mjs
+?? tools/match-phase-profile.mjs
+?? tools/match-shader-preparation-acceptance.mjs
+?? tools/menu-user-bugs.mjs
+?? tools/native-hit-positions.py
+?? tools/node-libm-trig.c
+?? tools/node-libm-trig.ts
+?? tools/pikachu-additional-hurtbox-export.py
+?? tools/pikachu-additional-hurtbox-prepare.py
+?? tools/pikachu-art-render.mjs
+?? tools/pikachu-back-air-preview-acceptance.mjs
+?? tools/pikachu-back-air-preview-build.mjs
+?? tools/pikachu-back-throw-facing-export.py
+?? tools/pikachu-back-throw-root-prepare.py
+?? tools/pikachu-captured-floor-measure.py
+?? tools/pikachu-completion-context-contact-pages.py
+?? tools/pikachu-completion-directional-dodge-review-prepare.py
+?? tools/pikachu-completion-directional-dodge-trace-audit.mjs
+?? tools/pikachu-completion-first-sprite-floor-review.py
+?? tools/pikachu-completion-footstool-verify.mjs
+?? tools/pikachu-completion-item-runtime-review.py
+?? tools/pikachu-completion-ledge-attachment-replay.mjs
+?? tools/pikachu-completion-locomotion-review-prepare.py
+?? tools/pikachu-completion-locomotion-trace-audit.mjs
+?? tools/pikachu-completion-respawn-verify.mjs
+?? tools/pikachu-completion-runtime-capture-events-alpha.py
+?? tools/pikachu-completion-runtime-captured-alpha.py
+?? tools/pikachu-completion-runtime-ground-recovery-alpha.py
+?? tools/pikachu-completion-runtime-ground-recovery-verify.mjs
+?? tools/pikachu-completion-runtime-ledge-jump-alpha.py
+?? tools/pikachu-completion-runtime-review.py
+?? tools/pikachu-completion-runtime-throw-floor-alpha.py
+?? tools/pikachu-completion-runtime-trip-alpha.py
+?? tools/pikachu-completion-states-art-render.mjs
+?? tools/pikachu-completion-states-attack-floor-stage.py
+?? tools/pikachu-completion-states-attack-late-correction-prepare.py
+?? tools/pikachu-completion-states-attack-late-expand-profile.py
+?? tools/pikachu-completion-states-attack-late-output-review.py
+?? tools/pikachu-completion-states-attack-late-prepare.py
+?? tools/pikachu-completion-states-attack-late-render.mjs
+?? tools/pikachu-completion-states-attack-late-stage.py
+?? tools/pikachu-completion-states-auxiliary-contract-check.ts
+?? tools/pikachu-completion-states-auxiliary-prepare.py
+?? tools/pikachu-completion-states-crouch-install.py
+?? tools/pikachu-completion-states-crouch-output-review.py
+?? tools/pikachu-completion-states-crouch-prepare.py
+?? tools/pikachu-completion-states-crouch-render.mjs
+?? tools/pikachu-completion-states-crouch-stage.py
+?? tools/pikachu-completion-states-existing-family-audit.py
+?? tools/pikachu-completion-states-floor-clearance.py
+?? tools/pikachu-completion-states-floor-install.py
+?? tools/pikachu-completion-states-floor-matte-refine.py
+?? tools/pikachu-completion-states-floor-prepare.py
+?? tools/pikachu-completion-states-floor-stage.py
+?? tools/pikachu-completion-states-footstool-output-review.py
+?? tools/pikachu-completion-states-footstool-prepare.py
+?? tools/pikachu-completion-states-footstool-render.mjs
+?? tools/pikachu-completion-states-footstool-stage.py
+?? tools/pikachu-completion-states-footstool-tile.py
+?? tools/pikachu-completion-states-item-carry-review.py
+?? tools/pikachu-completion-states-item-carry-stage.py
+?? tools/pikachu-completion-states-item-ordinary-sockets.py
+?? tools/pikachu-completion-states-items-finalize.py
+?? tools/pikachu-completion-states-items-floor-correction-prepare.py
+?? tools/pikachu-completion-states-items-output-review.py
+?? tools/pikachu-completion-states-items-prepare.py
+?? tools/pikachu-completion-states-items-render.mjs
+?? tools/pikachu-completion-states-items-stage.py
+?? tools/pikachu-completion-states-items-tile.py
+?? tools/pikachu-completion-states-local-floor-combined-prepare.py
+?? tools/pikachu-completion-states-local-floor-output-review.py
+?? tools/pikachu-completion-states-local-floor-prepare.py
+?? tools/pikachu-completion-states-local-floor-render.mjs
+?? tools/pikachu-completion-states-local-floor-stage.py
+?? tools/pikachu-completion-states-output-review.py
+?? tools/pikachu-completion-states-pending-floor-profile.py
+?? tools/pikachu-completion-states-recovery-singlecell-prepare.py
+?? tools/pikachu-completion-states-source-floor-audit.py
+?? tools/pikachu-completion-states-throw-install.py
+?? tools/pikachu-completion-states-throw-output-review.py
+?? tools/pikachu-completion-states-throw-prepare.py
+?? tools/pikachu-completion-states-throw-render.mjs
+?? tools/pikachu-completion-states-throw-stage.py
+?? tools/pikachu-completion-surface-tech-trace-audit.mjs
+?? tools/pikachu-completion-surface-tech-trace-verify.mjs
+?? tools/pikachu-completion-throw-runtime-review.py
+?? tools/pikachu-dash-attack-preview-acceptance.mjs
+?? tools/pikachu-dash-attack-preview-build.mjs
+?? tools/pikachu-dash-color-inputs-prepare.py
+?? tools/pikachu-dash-contact-prepare.py
+?? tools/pikachu-down-air-preview-acceptance.mjs
+?? tools/pikachu-down-air-preview-build.mjs
+?? tools/pikachu-down-throw-native-review-prepare.py
+?? tools/pikachu-fair-hurtbox-prepare.py
+?? tools/pikachu-fair-motion-acceptance.mjs
+?? tools/pikachu-fair-preview-build.mjs
+?? tools/pikachu-final-dashboard-acceptance.mjs
+?? tools/pikachu-final-geometry.py
+?? tools/pikachu-final-match-probe.mjs
+?? tools/pikachu-final-victims.py
+?? tools/pikachu-floor-retarget-inputs-prepare.py
+?? tools/pikachu-floor-retarget-stage.py
+?? tools/pikachu-floor-startup-retarget-review.py
+?? tools/pikachu-floor-tail-retarget-review.py
+?? tools/pikachu-frame-metadata.py
+?? tools/pikachu-full-body-inputs-prepare.py
+?? tools/pikachu-idle-replacement-finalize.py
+?? tools/pikachu-item-native-review-prepare.py
+?? tools/pikachu-jab-preview-acceptance.mjs
+?? tools/pikachu-jab-preview-build.mjs
+?? tools/pikachu-legacy-normal-pack.py
+?? tools/pikachu-locomotion-source-audit.py
+?? tools/pikachu-motion-gallery-acceptance.mjs
+?? tools/pikachu-motion-gallery-build.mjs
+?? tools/pikachu-motion-gallery-live.mjs
+?? tools/pikachu-motion-preview-acceptance.mjs
+?? tools/pikachu-motion-preview-build.mjs
+?? tools/pikachu-native-assets-acquire.py
+?? tools/pikachu-native-guide.py
+?? tools/pikachu-native-pose-verify.py
+?? tools/pikachu-neutral-air-preview-acceptance.mjs
+?? tools/pikachu-neutral-air-preview-build.mjs
+?? tools/pikachu-normal-art-review-prepare.py
+?? tools/pikachu-packed-alpha-bounds.py
+?? tools/pikachu-preview-acceptance.mjs
+?? tools/pikachu-preview-build.mjs
+?? tools/pikachu-production-build.mjs
+?? tools/pikachu-progress-acceptance.mjs
+?? tools/pikachu-progress-data.mjs
+?? tools/pikachu-quick-rotation-pivot-prepare.py
+?? tools/pikachu-registered-normal-pack.py
+?? tools/pikachu-registered-pack.py
+?? tools/pikachu-remaining-root-review-prepare.py
+?? tools/pikachu-runtime-floor-clearance.py
+?? tools/pikachu-runtime-gallery.py
+?? tools/pikachu-runtime-launch-clearance.py
+?? tools/pikachu-runtime-review-prepare.py
+?? tools/pikachu-serve-live-gallery.mjs
+?? tools/pikachu-smash-charge-inputs-prepare.py
+?? tools/pikachu-smash-charge-render.mjs
+?? tools/pikachu-smash-contact-prepare.py
+?? tools/pikachu-smash-gallery-charge-acceptance.mjs
+?? tools/pikachu-smash-preview-acceptance.mjs
+?? tools/pikachu-smash-preview-build.mjs
+?? tools/pikachu-source-acquire.py
+?? tools/pikachu-source-compile.py
+?? tools/pikachu-source-extract.py
+?? tools/pikachu-source-grab-extract.py
+?? tools/pikachu-source-prc-read.py
+?? tools/pikachu-special-motion-extract.py
+?? tools/pikachu-special-receiving-export.py
+?? tools/pikachu-special-receiving-prepare.py
+?? tools/pikachu-state-facing-export.py
+?? tools/pikachu-surface-tech-physics-proposal.mjs
+?? tools/pikachu-targeted-contact-export.py
+?? tools/pikachu-texture-atlas-repack.py
+?? tools/pikachu-thunder-body-pack.py
+?? tools/pikachu-thunder-inputs-prepare.py
+?? tools/pikachu-thunder-native-review-prepare.py
+?? tools/pikachu-thunder-pilot-render.mjs
+?? tools/pikachu-thunder-source-review-prepare.py
+?? tools/pikachu-tiled-art-accept.py
+?? tools/pikachu-tiled-art-review-prepare.py
+?? tools/pikachu-tiled-body-inputs-prepare.py
+?? tools/pikachu-tiled-body-pack.py
+?? tools/pikachu-tiled-contour-correction-prepare.py
+?? tools/pikachu-tiled-receiving-export.py
+?? tools/pikachu-tiled-receiving-prepare.py
+?? tools/pikachu-turn-facing-export.py
+?? tools/pikachu-up-air-preview-acceptance.mjs
+?? tools/pikachu-up-air-preview-build.mjs
+?? tools/pikachu-upper-platform-prone-physics-audit.mjs
+?? tools/pikachu-vertical-tilt-hurtbox-prepare.py
+?? tools/pikachu-vertical-tilt-preview-acceptance.mjs
+?? tools/pikachu-vertical-tilt-preview-build.mjs
+?? tools/pikachu_authored_pose_adaptation.py
+?? tools/pikachu_native_pose.py
+?? tools/prepare-link-normal-landing-gear-demand.py
+?? tools/qualify_final_native_memo_six_v1.py
+?? tools/qualify_final_six_hair_v2.py
+?? tools/qualify_link_c17_source_registration_v1.py
+?? tools/qualify_link_selected_c_physical_reuse_v2.py
+?? tools/qualify_link_unheld_visible_flag_v1.py
+?? tools/record_final_scoped_root_reviews_v1.py
+?? tools/reference-sdi-audit.py
+?? tools/render-dk-final-art.py
+?? tools/render-pikachu-final-art.py
+?? tools/review-dk-final-art.py
+?? tools/review-pikachu-final-art.py
+?? tools/review_link_c17_selected_gear_v2.py
+?? tools/sim-math-parity.ts
+?? tools/sim-replay.ts
+?? tools/snapshot-link-artwork-preview.py
+?? tools/stage_final_fx_exact_cells_v1.py
+?? tools/stage_link_1842_c17_v1.py
+?? tools/stage_link_745_airborne_v1.py
+?? tools/sync-manifest-sheets.py
+?? tools/ufd-pose-canny.py
+?? tools/update-link-preview-status.py
+?? tools/user-visuals-acceptance.ts
+?? tools/vendor/
+?? tools/windows-edge-cdp.mjs

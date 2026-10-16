@@ -69,6 +69,7 @@ export type {
   CharacterBodyPlugin,
   HitContext,
   HitConnectCallback,
+  HitConnectResult,
   HurtboxLookup,
   FriendlyFirePredicate,
 } from './HitboxDamageHandler';

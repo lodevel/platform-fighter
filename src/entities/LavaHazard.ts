@@ -506,3 +506,48 @@ export class LavaHazard {
     this._frame = pos;
   }
 }
+
+/** The fields of a `StageHazard` authoring record the lava factory reads. */
+export interface LavaStageHazardLike {
+  readonly type: string;
+  readonly id?: string;
+  readonly x: number;
+  readonly y: number;
+  readonly width: number;
+  readonly height: number;
+  readonly minHeight?: number;
+  readonly cycleFrames?: number;
+  readonly phaseFrames?: number;
+  readonly damagePerTick?: number;
+  readonly activeThreshold?: number;
+}
+
+/**
+ * Convert a `StageHazard` authoring record (lava type) into the runtime
+ * {@link LavaHazard} entity, with {@link LAVA_DEFAULTS} for omitted timing
+ * fields. Phaser-free (sister of `createWindHazardFromStageHazard`), so the
+ * headless simulation and the port build the same entity the game does.
+ *
+ * Throws on a non-lava `StageHazard.type` so a programmer mistake
+ * surfaces as a clear error rather than a silent no-op.
+ */
+export function createLavaHazardFromStageHazard(stageHazard: LavaStageHazardLike): LavaHazard {
+  if (stageHazard.type !== 'lava') {
+    throw new Error(
+      `createLavaHazardFromStageHazard: hazard.type must be 'lava', got '${stageHazard.type}'.`,
+    );
+  }
+  return new LavaHazard({
+    id: stageHazard.id ?? 'lava',
+    x: stageHazard.x,
+    baseY: stageHazard.y,
+    width: stageHazard.width,
+    maxHeight: stageHazard.height,
+    minHeight: stageHazard.minHeight ?? LAVA_DEFAULTS.minHeight,
+    cycleFrames: stageHazard.cycleFrames ?? LAVA_DEFAULTS.cycleFrames,
+    phaseFrames: stageHazard.phaseFrames ?? 0,
+    damagePerTick: stageHazard.damagePerTick ?? LAVA_DEFAULTS.damagePerTick,
+    activeThreshold:
+      stageHazard.activeThreshold ?? LAVA_DEFAULTS.activeThreshold,
+  });
+}

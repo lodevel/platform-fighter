@@ -525,8 +525,8 @@ export class MediumTierAI extends AIInputProvider {
         // healthy off-stage bot has its full air-jump budget unless
         // the recovery blackboard's lastAirJumpTick latch indicates
         // otherwise. This mirrors how the Hard tier derives the field.
-        jumpsRemaining: this.deriveJumpsRemaining(),
-        upSpecialAvailable: this.deriveUpSpecialAvailable(),
+        jumpsRemaining: snapshot.self.jumpsRemaining ?? this.deriveJumpsRemaining(),
+        upSpecialAvailable: snapshot.self.upSpecialAvailable ?? this.deriveUpSpecialAvailable(),
         isInHitstun: snapshot.self.isInHitstun,
         isOnLedge: snapshot.self.isOnLedge,
       },
@@ -535,7 +535,7 @@ export class MediumTierAI extends AIInputProvider {
         stageRight: stage.stageRight,
         stageTop: stage.stageTop,
         blastZone: stage.blastZone,
-        nearestLedge: deriveNearestLedge(
+        nearestLedge: stage.nearestLedge !== undefined ? stage.nearestLedge : deriveNearestLedge(
           snapshot.self.position.x,
           stage.stageLeft,
           stage.stageRight,

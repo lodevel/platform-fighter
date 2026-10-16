@@ -1,0 +1,146 @@
+{
+  "state": "packed_cells_visually_reviewed_runtime_pending",
+  "coordinateContract": {
+    "canonicalCanvas": [
+      2048,
+      2560
+    ],
+    "canonicalRoot": [
+      1024,
+      1664
+    ],
+    "frameWidth": 512,
+    "frameHeight": 640,
+    "root": [
+      256,
+      416
+    ],
+    "scaleToWorld": 0.4666666666666667,
+    "bodyCentreFromRoot": [
+      0,
+      -25
+    ]
+  },
+  "clockContract": "docs/review/2026-10-06/pikachu-character/sources/state-runtime-clock-contract.json",
+  "clockContractSha256": "e95d168f659b5f30ec563d93ac63acc336bece3ab69638e27ef0b30b881bd747",
+  "animations": {
+    "hurt": {
+      "strip": "animations/hurt.png",
+      "frameCount": 3,
+      "sha256": "1806ab97cef9bba11ec96ead8de8b3e732fa631bd3e6b22cf3197e3d5c05c221",
+      "columns": 3,
+      "rows": 1,
+      "frameWindows": [
+        {
+          "startFrame": 0,
+          "endFrame": 5,
+          "artFrameIndex": 0
+        },
+        {
+          "startFrame": 5,
+          "endFrame": 9,
+          "artFrameIndex": 1
+        }
+      ],
+      "loopDuration": null,
+      "nativeSampleIndices": [
+        0,
+        5,
+        11
+      ],
+      "nativeWindows": [
+        {
+          "nativeStart": 0,
+          "nativeEnd": 5,
+          "artFrameIndex": 0
+        },
+        {
+          "nativeStart": 5,
+          "nativeEnd": 11,
+          "artFrameIndex": 1
+        },
+        {
+          "nativeStart": 11,
+          "nativeEnd": 12,
+          "artFrameIndex": 2
+        }
+      ],
+      "drawingFacingBinding": "Observed reaction entry-facing basis; reviewed source drawings RIGHT. No extra facing flip from back exposure/head inversion.",
+      "holdRule": "While observed damage remains eligible, clamp presentation/receiving age to8 after9. Source terminal native11 (ground) or14 (air) retained loaded but excluded from this authored beta route; actual existing hitstun determines exit.",
+      "specialPhase": null,
+      "specialClockKind": null,
+      "dynamicCutoff": null,
+      "playableEndExclusive": null,
+      "runtimeBindingStatus": "Observed eligible damage getter and shared driver/paired receiving consumers present; accepted body/caps and actualmatch damage route pending"
+    }
+  },
+  "sources": [
+    {
+      "sourceKey": "full-hurt-ground-sample0-source0",
+      "nativeSample": 0,
+      "sourceReferenceSha256": "609d2848f2f15b9359f1cc0052bdb1b33d607ea24fe1c2571d44ff7afed0961c",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-reactions-misc-batch000-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "7b8abe2c726aa65049d513757516265106407298d918dce13a1f0b51cd45bd77",
+      "atlasCell": 0,
+      "cellOffset": [
+        0,
+        0
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-reactions-misc-batch000-bounded-source0-attempt1.review.json",
+      "reviewSha256": "707bc999873e12ae75c966c5f107caae415e0309afc4b1b3175bad03281e4a9d"
+    },
+    {
+      "sourceKey": "full-hurt-ground-sample5-source5",
+      "nativeSample": 5,
+      "sourceReferenceSha256": "dd12c6dfb05cca2c63a34beb3ccc6b86f7bee07d1b128e413e169aa121329561",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-reactions-misc-batch000-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "7b8abe2c726aa65049d513757516265106407298d918dce13a1f0b51cd45bd77",
+      "atlasCell": 1,
+      "cellOffset": [
+        1024,
+        0
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-reactions-misc-batch000-bounded-source0-attempt1.review.json",
+      "reviewSha256": "707bc999873e12ae75c966c5f107caae415e0309afc4b1b3175bad03281e4a9d"
+    },
+    {
+      "sourceKey": "full-hurt-ground-sample11-source11",
+      "nativeSample": 11,
+      "sourceReferenceSha256": "381ce86578f5fa63af8201d0452ce7c7fe56af0473efd4365661588c55d45352",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-reactions-misc-batch000-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "7b8abe2c726aa65049d513757516265106407298d918dce13a1f0b51cd45bd77",
+      "atlasCell": 2,
+      "cellOffset": [
+        0,
+        1280
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-reactions-misc-batch000-bounded-source0-attempt1.review.json",
+      "reviewSha256": "707bc999873e12ae75c966c5f107caae415e0309afc4b1b3175bad03281e4a9d"
+    }
+  ],
+  "galleries": {
+    "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/hurt-cells-1.png": "13fb762d48048a55efd065a1fb423e40ed8302c87d69ab98f3a01a2192b738cd"
+  },
+  "limits": [
+    "Actual packed-cell inspection required before aggregate registration.",
+    "Authored beta presentation windows do not establish native status rate parity.",
+    "Actual running-game qualification remains separate."
+  ],
+  "packedVisualReview": {
+    "reviewer": "pikachu_art_motion",
+    "state": "actual_saved_packed_cells_reviewed",
+    "inspectedGalleries": {
+      "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/hurt-cells-1.png": "13fb762d48048a55efd065a1fb423e40ed8302c87d69ab98f3a01a2192b738cd"
+    },
+    "observations": [
+      "Actually inspected all three saved512x640 cells on light and dark. Ground0 eyes closed/open mouth with arm forward,5 deeper head-down recoil,11 upright right settle source-only. Original source orientation, occluded limbs/ears, one attached tail, protected red cheeks and root416 preserved; no shift or shrink.",
+      "Explicit beta observed-age drawing clock holds last pre-cancel pose at normalized age8 while actual hitstun continues. Source11/14 remain source-only; native status variant/rate and actual running-match receiving remain unqualified."
+    ]
+  }
+}

@@ -424,8 +424,8 @@ describe('replayChecksum — realistic payload smoke', () => {
       stockCount: 3,
       stageId: 'flat',
       players: [
-        { index: 1, characterId: 'wolf', paletteIndex: 0, inputType: 'keyboard_p1' },
-        { index: 2, characterId: 'cat', paletteIndex: 1, inputType: 'keyboard_p2' },
+        { index: 1, characterId: 'donkeykong', paletteIndex: 0, inputType: 'keyboard_p1' },
+        { index: 2, characterId: 'pikachu', paletteIndex: 1, inputType: 'keyboard_p2' },
       ],
       rngSeed: 0xc0ffee,
     },

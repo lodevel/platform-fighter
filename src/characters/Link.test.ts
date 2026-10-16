@@ -35,6 +35,7 @@ import {
 } from './Link';
 import { LINK_SPEC, LINK_MOVES } from './roster';
 import { LINK_PALETTES } from './palettes';
+import { LINK_ATTACK_DATA } from './linkAttackData';
 import { assertFighterMoveset } from './movesetContract';
 import { validateNeutralSpecialMove } from './specialSchema';
 import { validateSideSpecialMove } from './sideSpecialSchema';
@@ -61,8 +62,8 @@ function createMockScene(): { scene: any } {
 }
 
 describe('Link — movement profile (projectile-swordsman zoner)', () => {
-  it('ships the medium baseline line: run 7.8, mass 12', () => {
-    expect(LINK_MOVEMENT_PROFILE.maxRunSpeed).toBe(7.8);
+  it('ships the UFD run speed at five pixels per unit, with mass 12', () => {
+    expect(LINK_MOVEMENT_PROFILE.maxRunSpeed).toBe(7.67);
     expect(LINK_MOVEMENT_PROFILE.mass).toBe(12);
     expect(LINK_MOVEMENT_PROFILE.maxJumps).toBe(2);
   });
@@ -95,23 +96,23 @@ describe('Link — specials reuse existing schemas', () => {
     expect(() => validateNeutralSpecialMove(LINK_NEUTRAL_SPECIAL)).not.toThrow();
   });
 
-  it('side special is a multiHit boomerang with a launcher finisher', () => {
-    expect(LINK_SIDE_SPECIAL.sideSpecialKind).toBe('multiHit');
-    expect(LINK_SIDE_SPECIAL.multiHit.hitCount).toBe(3);
+  it('side special is a returning projectile', () => {
+    expect(LINK_SIDE_SPECIAL.sideSpecialKind).toBe('boomerang');
+    expect(LINK_SIDE_SPECIAL.boomerang.returnSpeed).toBeGreaterThan(0);
     expect(() => validateSideSpecialMove(LINK_SIDE_SPECIAL)).not.toThrow();
   });
 
-  it('up special is a tether recovery whose extension geometry is consistent', () => {
-    expect(LINK_UP_SPECIAL.upSpecialKind).toBe('tether');
-    // Schema invariant: extensionSpeed * extensionFrames === maxRange.
-    expect(LINK_UP_SPECIAL.tether.extensionSpeed * LINK_UP_SPECIAL.tether.extensionFrames)
-      .toBe(LINK_UP_SPECIAL.tether.maxRange);
+  it('up special has aerial recovery and an independent grounded spin', () => {
+    expect(LINK_UP_SPECIAL.upSpecialKind).toBe('multiHitRising');
+    // Ground Spin Attack clean hit: 14% (SmashWiki Link (SSBU) Up special; linkAttackData spin.ground).
+    expect(LINK_ATTACK_DATA.spin.ground.phases[0]!.packets[0]!.damage).toBe(14);
     expect(() => validateUpSpecialMove(LINK_UP_SPECIAL)).not.toThrow();
   });
 
-  it('down special is a trap bomb that detonates on a fuse', () => {
+  // The bomb item and its remote detonation run in linkSpecialController / linkArticles.
+  it('down special declares the bomb blast as a trap-kind move', () => {
     expect(LINK_DOWN_SPECIAL.downSpecialKind).toBe('trap');
-    expect(LINK_DOWN_SPECIAL.trap.fuseDetonateFrames).toBeGreaterThan(0);
+    expect(LINK_DOWN_SPECIAL.trap.fuseDetonateFrames).toBeUndefined();
     expect(() => validateDownSpecialMove(LINK_DOWN_SPECIAL)).not.toThrow();
   });
 
@@ -139,16 +140,21 @@ describe('Link — moveset contract + roster spec', () => {
     expect(LINK_SPEC.placeholder.spriteKey).not.toBeNull();
   });
 
-  it('ships the full 10-move table with namespaced ids', () => {
-    expect(LINK_MOVES).toHaveLength(10);
+  it('ships the full move table with namespaced ids: 16 normals, 4 recovery attacks, 4 specials', () => {
+    expect(LINK_MOVES).toHaveLength(24);
     for (const move of LINK_MOVES) {
       expect(move.id.startsWith('link.'), move.id).toBe(true);
     }
   });
 
-  it('grounded triplet escalates damage AND startup (jab < tilt < smash)', () => {
+  it('jab is quicker than tilt and smash, whose sword tip hits harder', () => {
+    // SmashWiki: jab 1 3%, forward tilt 13%, forward smash strike 1 7% (tip 14%).
+    const smashTip = Math.max(...LINK_SMASH.hitWindows![0]!.collisionHits!.map((h) => h.damage ?? 0));
+    expect(LINK_JAB.damage).toBe(3);
+    expect(LINK_TILT.damage).toBe(13);
+    expect(smashTip).toBe(14);
     expect(LINK_JAB.damage).toBeLessThan(LINK_TILT.damage);
-    expect(LINK_TILT.damage).toBeLessThan(LINK_SMASH.damage);
+    expect(LINK_TILT.damage).toBeLessThan(smashTip);
     expect(LINK_JAB.startupFrames).toBeLessThan(LINK_TILT.startupFrames);
     expect(LINK_TILT.startupFrames).toBeLessThan(LINK_SMASH.startupFrames);
   });

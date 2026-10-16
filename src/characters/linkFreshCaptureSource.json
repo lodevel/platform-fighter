@@ -1,0 +1,5093 @@
+{
+  "schema": "link-normal-capture-source-packet-index/1",
+  "source": "source-contracts/normal-packet-index/index.json",
+  "captureContracts": {
+    "source": "source-contracts/grabs-throws-getups.json",
+    "grabs": [
+      {
+        "inventoryActionId": "link.catch",
+        "sourceMotion": "catch",
+        "nativeMotion": {
+          "gameScript": "game_catch",
+          "animations": [
+            "e00catch.nuanmb"
+          ],
+          "cancelFrame": "35",
+          "xluStart": "0",
+          "xluEnd": "0",
+          "loop": "false",
+          "sourceMotion": "catch"
+        },
+        "condition": "Groundedstanding grab input when legally actionable; separate airborne/grounded victim capture capsules.",
+        "wiki": {
+          "url": "https://www.ssbwiki.com/Link_(SSBU)/Grab",
+          "revision": 1451731,
+          "captureRows": [
+            {
+              "group": null,
+              "subsection": "Standing Grab",
+              "template": "UltimateGrabboxTableRow",
+              "fields": {
+                "id": "0",
+                "r": "3.3",
+                "bn": "top",
+                "xpos": "0.0",
+                "ypos": "8.0",
+                "zpos": "4.0 to 7.7",
+                "a": "f"
+              },
+              "sourceOffset": 362
+            },
+            {
+              "group": null,
+              "subsection": "Standing Grab",
+              "template": "UltimateGrabboxTableRow",
+              "fields": {
+                "id": "1",
+                "r": "1.65",
+                "bn": "top",
+                "xpos": "0.0",
+                "ypos": "8.0",
+                "zpos": "2.35 to 9.35",
+                "g": "f"
+              },
+              "sourceOffset": 454
+            }
+          ],
+          "timingSource": "\n===Standing grab===\n{|class=\"wikitable\"\n!Grab\n|6-7\n|-\n!Interruptible\n|35\n|-\n!Animation length\n|55\n|}\n\n{{FrameStripStart}}\n{{FrameStrip|t=Lag|c=5}}{{FrameStrip|t=Grab|c=2}}{{FrameStrip|t=Lag|c=27}}{{FrameStrip|t=Interruptible|c=21}}\n{{FrameStripEnd}}\n\n===Dash grab===\n{|class=\"wikitable\"\n!Grab\n|9-10\n|-\n!Interruptible\n|43\n|-\n!Animation length\n|57\n|}\n\n{{FrameStripStart}}\n{{FrameStrip|t=Lag|c=8}}{{FrameStrip|t=Grab|c=2}}{{FrameStrip|t=Lag|c=32}}{{FrameStrip|t=Interruptible|c=15}}\n{{FrameStripEnd}}\n\n===Pivot grab===\n{|class=\"wikitable\"\n!Grab\n|10-11\n|-\n!Interruptible\n|38\n|-\n!Animation length\n|58\n|}\n\n{{FrameStripStart}}\n{{FrameStrip|t=Lag|c=9}}{{FrameStrip|t=Grab|c=2}}{{FrameStrip|t=Lag|c=26}}{{FrameStrip|t=Interruptible|c=21}}\n{{FrameStripEnd}}\n\n{{FrameIconLegend|lag=y|grab=y|interruptible=y}}\n\n{{MvSubNavLink|g=SSBU}}\n[[Category:Link (SSBU)]]\n[[Category:Grabs (SSBU)]]"
+        },
+        "nativeFunction": {
+          "sourcePath": "sources/native/scripts/Catch.txt",
+          "sha256": "227b0aad92e62e6602a1a63c6fcf13b684eae4be2b94aab0df82e47e4efe267b",
+          "function": "game_catch",
+          "controlFlow": [
+            {
+              "line": 3,
+              "raw": "if macros::is_excute(agent) {"
+            },
+            {
+              "line": 7,
+              "raw": "if macros::is_excute(agent) {"
+            },
+            {
+              "line": 13,
+              "raw": "if macros::is_excute(agent) {"
+            }
+          ],
+          "events": [
+            {
+              "line": 2,
+              "command": "frame",
+              "args": [
+                "agent.lua_state_agent",
+                "5.0"
+              ],
+              "raw": "frame(agent.lua_state_agent, 5.0)",
+              "clockOperation": {
+                "line": 2,
+                "operation": "frame",
+                "value": 5.0
+              }
+            },
+            {
+              "line": 4,
+              "command": "GrabModule::set_rebound",
+              "args": [
+                "agent.module_accessor",
+                "true"
+              ],
+              "raw": "GrabModule::set_rebound(agent.module_accessor, true)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 2,
+                  "operation": "frame",
+                  "value": 5.0
+                }
+              ]
+            },
+            {
+              "line": 6,
+              "command": "frame",
+              "args": [
+                "agent.lua_state_agent",
+                "6.0"
+              ],
+              "raw": "frame(agent.lua_state_agent, 6.0)",
+              "clockOperation": {
+                "line": 6,
+                "operation": "frame",
+                "value": 6.0
+              }
+            },
+            {
+              "line": 8,
+              "command": "macros::CATCH",
+              "args": [
+                "agent",
+                "0",
+                "Hash40::new(\"top\")",
+                "3.3",
+                "0.0",
+                "8.0",
+                "4.0",
+                "Some(0.0)",
+                "Some(8.0)",
+                "Some(7.7)",
+                "*FIGHTER_STATUS_KIND_CAPTURE_PULLED",
+                "*COLLISION_SITUATION_MASK_G"
+              ],
+              "raw": "macros::CATCH(agent, 0, Hash40::new(\"top\"), 3.3, 0.0, 8.0, 4.0, Some(0.0), Some(8.0), Some(7.7), *FIGHTER_STATUS_KIND_CAPTURE_PULLED, *COLLISION_SITUATION_MASK_G)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 2,
+                  "operation": "frame",
+                  "value": 5.0
+                },
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 6.0
+                }
+              ],
+              "capturePacket": {
+                "agent": "agent",
+                "id": 0,
+                "bone": "Hash40::new(\"top\")",
+                "radius": 3.3,
+                "x": 0.0,
+                "y": 8.0,
+                "z": 4.0,
+                "x2": "Some(0.0)",
+                "y2": "Some(8.0)",
+                "z2": "Some(7.7)",
+                "targetStatus": "*FIGHTER_STATUS_KIND_CAPTURE_PULLED",
+                "situationMask": "*COLLISION_SITUATION_MASK_G"
+              },
+              "consumer": "Separate ground/air capture capsules; target status admission, capture cut/mash and attachment require mapped common caller."
+            },
+            {
+              "line": 9,
+              "command": "macros::CATCH",
+              "args": [
+                "agent",
+                "1",
+                "Hash40::new(\"top\")",
+                "1.65",
+                "0.0",
+                "8.0",
+                "2.35",
+                "Some(0.0)",
+                "Some(8.0)",
+                "Some(9.35)",
+                "*FIGHTER_STATUS_KIND_CAPTURE_PULLED",
+                "*COLLISION_SITUATION_MASK_A"
+              ],
+              "raw": "macros::CATCH(agent, 1, Hash40::new(\"top\"), 1.65, 0.0, 8.0, 2.35, Some(0.0), Some(8.0), Some(9.35), *FIGHTER_STATUS_KIND_CAPTURE_PULLED, *COLLISION_SITUATION_MASK_A)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 2,
+                  "operation": "frame",
+                  "value": 5.0
+                },
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 6.0
+                }
+              ],
+              "capturePacket": {
+                "agent": "agent",
+                "id": 1,
+                "bone": "Hash40::new(\"top\")",
+                "radius": 1.65,
+                "x": 0.0,
+                "y": 8.0,
+                "z": 2.35,
+                "x2": "Some(0.0)",
+                "y2": "Some(8.0)",
+                "z2": "Some(9.35)",
+                "targetStatus": "*FIGHTER_STATUS_KIND_CAPTURE_PULLED",
+                "situationMask": "*COLLISION_SITUATION_MASK_A"
+              },
+              "consumer": "Separate ground/air capture capsules; target status admission, capture cut/mash and attachment require mapped common caller."
+            },
+            {
+              "line": 11,
+              "command": "macros::game_CaptureCutCommon",
+              "args": [
+                "agent"
+              ],
+              "raw": "macros::game_CaptureCutCommon(agent)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 2,
+                  "operation": "frame",
+                  "value": 5.0
+                },
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 6.0
+                }
+              ]
+            },
+            {
+              "line": 12,
+              "command": "wait",
+              "args": [
+                "agent.lua_state_agent",
+                "2.0"
+              ],
+              "raw": "wait(agent.lua_state_agent, 2.0)",
+              "clockOperation": {
+                "line": 12,
+                "operation": "wait",
+                "value": 2.0
+              }
+            },
+            {
+              "line": 14,
+              "command": "grab!",
+              "args": [
+                "agent",
+                "*MA_MSC_CMD_GRAB_CLEAR_ALL"
+              ],
+              "raw": "grab!(agent, *MA_MSC_CMD_GRAB_CLEAR_ALL)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 2,
+                  "operation": "frame",
+                  "value": 5.0
+                },
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 6.0
+                },
+                {
+                  "line": 12,
+                  "operation": "wait",
+                  "value": 2.0
+                }
+              ]
+            },
+            {
+              "line": 15,
+              "command": "WorkModule::on_flag",
+              "args": [
+                "agent.module_accessor",
+                "*FIGHTER_STATUS_CATCH_FLAG_CATCH_WAIT"
+              ],
+              "raw": "WorkModule::on_flag(agent.module_accessor, *FIGHTER_STATUS_CATCH_FLAG_CATCH_WAIT)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 2,
+                  "operation": "frame",
+                  "value": 5.0
+                },
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 6.0
+                },
+                {
+                  "line": 12,
+                  "operation": "wait",
+                  "value": 2.0
+                }
+              ]
+            },
+            {
+              "line": 16,
+              "command": "GrabModule::set_rebound",
+              "args": [
+                "agent.module_accessor",
+                "false"
+              ],
+              "raw": "GrabModule::set_rebound(agent.module_accessor, false)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 2,
+                  "operation": "frame",
+                  "value": 5.0
+                },
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 6.0
+                },
+                {
+                  "line": 12,
+                  "operation": "wait",
+                  "value": 2.0
+                }
+              ]
+            }
+          ],
+          "clockStatus": "RAW_LEXICAL_ONLY: frame absolute and wait relative native motion clocks. Preserve branches and loops; do not infer gameplay elapsed or expand symbolic loops."
+        },
+        "consumer": "Capture geometry is source bone-local sphere/capsule with G/A masks and targetCAPTURE_PULLED; apply ownership once, catch_cut on escape/KO, exact source attachment/mash timing native-common required."
+      },
+      {
+        "inventoryActionId": "link.catch_dash",
+        "sourceMotion": "catch_dash",
+        "nativeMotion": {
+          "gameScript": "game_catchdash",
+          "animations": [
+            "e00catchdash.nuanmb"
+          ],
+          "cancelFrame": "43",
+          "xluStart": "0",
+          "xluEnd": "0",
+          "loop": "false",
+          "sourceMotion": "catch_dash"
+        },
+        "condition": "Groundeddash grab input when legally actionable; separate airborne/grounded victim capture capsules.",
+        "wiki": {
+          "url": "https://www.ssbwiki.com/Link_(SSBU)/Grab",
+          "revision": 1451731,
+          "captureRows": [
+            {
+              "group": null,
+              "subsection": "Dash Grab",
+              "template": "UltimateGrabboxTableRow",
+              "fields": {
+                "id": "0",
+                "r": "2.6",
+                "bn": "top",
+                "xpos": "0.0",
+                "ypos": "7.0",
+                "zpos": "4.0 to 9.4",
+                "a": "f"
+              },
+              "sourceOffset": 599
+            },
+            {
+              "group": null,
+              "subsection": "Dash Grab",
+              "template": "UltimateGrabboxTableRow",
+              "fields": {
+                "id": "1",
+                "r": "1.3",
+                "bn": "top",
+                "xpos": "0.0",
+                "ypos": "7.0",
+                "zpos": "2.7 to 10.7",
+                "g": "f"
+              },
+              "sourceOffset": 691
+            }
+          ],
+          "timingSource": "\n===Standing grab===\n{|class=\"wikitable\"\n!Grab\n|6-7\n|-\n!Interruptible\n|35\n|-\n!Animation length\n|55\n|}\n\n{{FrameStripStart}}\n{{FrameStrip|t=Lag|c=5}}{{FrameStrip|t=Grab|c=2}}{{FrameStrip|t=Lag|c=27}}{{FrameStrip|t=Interruptible|c=21}}\n{{FrameStripEnd}}\n\n===Dash grab===\n{|class=\"wikitable\"\n!Grab\n|9-10\n|-\n!Interruptible\n|43\n|-\n!Animation length\n|57\n|}\n\n{{FrameStripStart}}\n{{FrameStrip|t=Lag|c=8}}{{FrameStrip|t=Grab|c=2}}{{FrameStrip|t=Lag|c=32}}{{FrameStrip|t=Interruptible|c=15}}\n{{FrameStripEnd}}\n\n===Pivot grab===\n{|class=\"wikitable\"\n!Grab\n|10-11\n|-\n!Interruptible\n|38\n|-\n!Animation length\n|58\n|}\n\n{{FrameStripStart}}\n{{FrameStrip|t=Lag|c=9}}{{FrameStrip|t=Grab|c=2}}{{FrameStrip|t=Lag|c=26}}{{FrameStrip|t=Interruptible|c=21}}\n{{FrameStripEnd}}\n\n{{FrameIconLegend|lag=y|grab=y|interruptible=y}}\n\n{{MvSubNavLink|g=SSBU}}\n[[Category:Link (SSBU)]]\n[[Category:Grabs (SSBU)]]"
+        },
+        "nativeFunction": {
+          "sourcePath": "sources/native/scripts/CatchDash.txt",
+          "sha256": "391b15f1d0165027098d150c46c3b97b8d047ee9c42bd5fee3b1f65da29b671a",
+          "function": "game_catchdash",
+          "controlFlow": [
+            {
+              "line": 3,
+              "raw": "if macros::is_excute(agent) {"
+            },
+            {
+              "line": 7,
+              "raw": "if macros::is_excute(agent) {"
+            },
+            {
+              "line": 13,
+              "raw": "if macros::is_excute(agent) {"
+            }
+          ],
+          "events": [
+            {
+              "line": 2,
+              "command": "frame",
+              "args": [
+                "agent.lua_state_agent",
+                "8.0"
+              ],
+              "raw": "frame(agent.lua_state_agent, 8.0)",
+              "clockOperation": {
+                "line": 2,
+                "operation": "frame",
+                "value": 8.0
+              }
+            },
+            {
+              "line": 4,
+              "command": "GrabModule::set_rebound",
+              "args": [
+                "agent.module_accessor",
+                "true"
+              ],
+              "raw": "GrabModule::set_rebound(agent.module_accessor, true)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 2,
+                  "operation": "frame",
+                  "value": 8.0
+                }
+              ]
+            },
+            {
+              "line": 6,
+              "command": "frame",
+              "args": [
+                "agent.lua_state_agent",
+                "9.0"
+              ],
+              "raw": "frame(agent.lua_state_agent, 9.0)",
+              "clockOperation": {
+                "line": 6,
+                "operation": "frame",
+                "value": 9.0
+              }
+            },
+            {
+              "line": 8,
+              "command": "macros::CATCH",
+              "args": [
+                "agent",
+                "0",
+                "Hash40::new(\"top\")",
+                "2.6",
+                "0.0",
+                "7.0",
+                "4.0",
+                "Some(0.0)",
+                "Some(7.0)",
+                "Some(9.4)",
+                "*FIGHTER_STATUS_KIND_CAPTURE_PULLED",
+                "*COLLISION_SITUATION_MASK_G"
+              ],
+              "raw": "macros::CATCH(agent, 0, Hash40::new(\"top\"), 2.6, 0.0, 7.0, 4.0, Some(0.0), Some(7.0), Some(9.4), *FIGHTER_STATUS_KIND_CAPTURE_PULLED, *COLLISION_SITUATION_MASK_G)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 2,
+                  "operation": "frame",
+                  "value": 8.0
+                },
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 9.0
+                }
+              ],
+              "capturePacket": {
+                "agent": "agent",
+                "id": 0,
+                "bone": "Hash40::new(\"top\")",
+                "radius": 2.6,
+                "x": 0.0,
+                "y": 7.0,
+                "z": 4.0,
+                "x2": "Some(0.0)",
+                "y2": "Some(7.0)",
+                "z2": "Some(9.4)",
+                "targetStatus": "*FIGHTER_STATUS_KIND_CAPTURE_PULLED",
+                "situationMask": "*COLLISION_SITUATION_MASK_G"
+              },
+              "consumer": "Separate ground/air capture capsules; target status admission, capture cut/mash and attachment require mapped common caller."
+            },
+            {
+              "line": 9,
+              "command": "macros::CATCH",
+              "args": [
+                "agent",
+                "1",
+                "Hash40::new(\"top\")",
+                "1.3",
+                "0.0",
+                "7.0",
+                "2.7",
+                "Some(0.0)",
+                "Some(7.0)",
+                "Some(10.7)",
+                "*FIGHTER_STATUS_KIND_CAPTURE_PULLED",
+                "*COLLISION_SITUATION_MASK_A"
+              ],
+              "raw": "macros::CATCH(agent, 1, Hash40::new(\"top\"), 1.3, 0.0, 7.0, 2.7, Some(0.0), Some(7.0), Some(10.7), *FIGHTER_STATUS_KIND_CAPTURE_PULLED, *COLLISION_SITUATION_MASK_A)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 2,
+                  "operation": "frame",
+                  "value": 8.0
+                },
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 9.0
+                }
+              ],
+              "capturePacket": {
+                "agent": "agent",
+                "id": 1,
+                "bone": "Hash40::new(\"top\")",
+                "radius": 1.3,
+                "x": 0.0,
+                "y": 7.0,
+                "z": 2.7,
+                "x2": "Some(0.0)",
+                "y2": "Some(7.0)",
+                "z2": "Some(10.7)",
+                "targetStatus": "*FIGHTER_STATUS_KIND_CAPTURE_PULLED",
+                "situationMask": "*COLLISION_SITUATION_MASK_A"
+              },
+              "consumer": "Separate ground/air capture capsules; target status admission, capture cut/mash and attachment require mapped common caller."
+            },
+            {
+              "line": 11,
+              "command": "macros::game_CaptureCutCommon",
+              "args": [
+                "agent"
+              ],
+              "raw": "macros::game_CaptureCutCommon(agent)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 2,
+                  "operation": "frame",
+                  "value": 8.0
+                },
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 9.0
+                }
+              ]
+            },
+            {
+              "line": 12,
+              "command": "wait",
+              "args": [
+                "agent.lua_state_agent",
+                "2.0"
+              ],
+              "raw": "wait(agent.lua_state_agent, 2.0)",
+              "clockOperation": {
+                "line": 12,
+                "operation": "wait",
+                "value": 2.0
+              }
+            },
+            {
+              "line": 14,
+              "command": "grab!",
+              "args": [
+                "agent",
+                "*MA_MSC_CMD_GRAB_CLEAR_ALL"
+              ],
+              "raw": "grab!(agent, *MA_MSC_CMD_GRAB_CLEAR_ALL)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 2,
+                  "operation": "frame",
+                  "value": 8.0
+                },
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 9.0
+                },
+                {
+                  "line": 12,
+                  "operation": "wait",
+                  "value": 2.0
+                }
+              ]
+            },
+            {
+              "line": 15,
+              "command": "WorkModule::on_flag",
+              "args": [
+                "agent.module_accessor",
+                "*FIGHTER_STATUS_CATCH_FLAG_CATCH_WAIT"
+              ],
+              "raw": "WorkModule::on_flag(agent.module_accessor, *FIGHTER_STATUS_CATCH_FLAG_CATCH_WAIT)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 2,
+                  "operation": "frame",
+                  "value": 8.0
+                },
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 9.0
+                },
+                {
+                  "line": 12,
+                  "operation": "wait",
+                  "value": 2.0
+                }
+              ]
+            },
+            {
+              "line": 16,
+              "command": "GrabModule::set_rebound",
+              "args": [
+                "agent.module_accessor",
+                "false"
+              ],
+              "raw": "GrabModule::set_rebound(agent.module_accessor, false)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 2,
+                  "operation": "frame",
+                  "value": 8.0
+                },
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 9.0
+                },
+                {
+                  "line": 12,
+                  "operation": "wait",
+                  "value": 2.0
+                }
+              ]
+            }
+          ],
+          "clockStatus": "RAW_LEXICAL_ONLY: frame absolute and wait relative native motion clocks. Preserve branches and loops; do not infer gameplay elapsed or expand symbolic loops."
+        },
+        "consumer": "Capture geometry is source bone-local sphere/capsule with G/A masks and targetCAPTURE_PULLED; apply ownership once, catch_cut on escape/KO, exact source attachment/mash timing native-common required."
+      },
+      {
+        "inventoryActionId": "link.catch_turn",
+        "sourceMotion": "catch_turn",
+        "nativeMotion": {
+          "gameScript": "game_catchturn",
+          "animations": [
+            "e00catchturn.nuanmb"
+          ],
+          "cancelFrame": "38",
+          "xluStart": "0",
+          "xluEnd": "0",
+          "loop": "false",
+          "sourceMotion": "catch_turn"
+        },
+        "condition": "Groundedpivot grab input when legally actionable; separate airborne/grounded victim capture capsules.",
+        "wiki": {
+          "url": "https://www.ssbwiki.com/Link_(SSBU)/Grab",
+          "revision": 1451731,
+          "captureRows": [
+            {
+              "group": null,
+              "subsection": "Pivot Grab",
+              "template": "UltimateGrabboxTableRow",
+              "fields": {
+                "id": "0",
+                "r": "3.3",
+                "bn": "top",
+                "xpos": "0.0",
+                "ypos": "7.0",
+                "zpos": "-4.0 to -13.2",
+                "a": "f"
+              },
+              "sourceOffset": 835
+            },
+            {
+              "group": null,
+              "subsection": "Pivot Grab",
+              "template": "UltimateGrabboxTableRow",
+              "fields": {
+                "id": "1",
+                "r": "1.65",
+                "bn": "top",
+                "xpos": "0.0",
+                "ypos": "7.0",
+                "zpos": "-2.35 to -14.85",
+                "g": "f"
+              },
+              "sourceOffset": 930
+            }
+          ],
+          "timingSource": "\n===Standing grab===\n{|class=\"wikitable\"\n!Grab\n|6-7\n|-\n!Interruptible\n|35\n|-\n!Animation length\n|55\n|}\n\n{{FrameStripStart}}\n{{FrameStrip|t=Lag|c=5}}{{FrameStrip|t=Grab|c=2}}{{FrameStrip|t=Lag|c=27}}{{FrameStrip|t=Interruptible|c=21}}\n{{FrameStripEnd}}\n\n===Dash grab===\n{|class=\"wikitable\"\n!Grab\n|9-10\n|-\n!Interruptible\n|43\n|-\n!Animation length\n|57\n|}\n\n{{FrameStripStart}}\n{{FrameStrip|t=Lag|c=8}}{{FrameStrip|t=Grab|c=2}}{{FrameStrip|t=Lag|c=32}}{{FrameStrip|t=Interruptible|c=15}}\n{{FrameStripEnd}}\n\n===Pivot grab===\n{|class=\"wikitable\"\n!Grab\n|10-11\n|-\n!Interruptible\n|38\n|-\n!Animation length\n|58\n|}\n\n{{FrameStripStart}}\n{{FrameStrip|t=Lag|c=9}}{{FrameStrip|t=Grab|c=2}}{{FrameStrip|t=Lag|c=26}}{{FrameStrip|t=Interruptible|c=21}}\n{{FrameStripEnd}}\n\n{{FrameIconLegend|lag=y|grab=y|interruptible=y}}\n\n{{MvSubNavLink|g=SSBU}}\n[[Category:Link (SSBU)]]\n[[Category:Grabs (SSBU)]]"
+        },
+        "nativeFunction": {
+          "sourcePath": "sources/native/scripts/CatchTurn.txt",
+          "sha256": "d59b7833e21f836596a9a6bfb64186dfe8611d4cbf375118452a1c98c997daab",
+          "function": "game_catchturn",
+          "controlFlow": [
+            {
+              "line": 3,
+              "raw": "if macros::is_excute(agent) {"
+            },
+            {
+              "line": 7,
+              "raw": "if macros::is_excute(agent) {"
+            },
+            {
+              "line": 13,
+              "raw": "if macros::is_excute(agent) {"
+            }
+          ],
+          "events": [
+            {
+              "line": 2,
+              "command": "frame",
+              "args": [
+                "agent.lua_state_agent",
+                "9.0"
+              ],
+              "raw": "frame(agent.lua_state_agent, 9.0)",
+              "clockOperation": {
+                "line": 2,
+                "operation": "frame",
+                "value": 9.0
+              }
+            },
+            {
+              "line": 4,
+              "command": "GrabModule::set_rebound",
+              "args": [
+                "agent.module_accessor",
+                "true"
+              ],
+              "raw": "GrabModule::set_rebound(agent.module_accessor, true)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 2,
+                  "operation": "frame",
+                  "value": 9.0
+                }
+              ]
+            },
+            {
+              "line": 6,
+              "command": "frame",
+              "args": [
+                "agent.lua_state_agent",
+                "10.0"
+              ],
+              "raw": "frame(agent.lua_state_agent, 10.0)",
+              "clockOperation": {
+                "line": 6,
+                "operation": "frame",
+                "value": 10.0
+              }
+            },
+            {
+              "line": 8,
+              "command": "macros::CATCH",
+              "args": [
+                "agent",
+                "0",
+                "Hash40::new(\"top\")",
+                "3.3",
+                "0.0",
+                "7.0",
+                "-4.0",
+                "Some(0.0)",
+                "Some(7.0)",
+                "Some(-13.2)",
+                "*FIGHTER_STATUS_KIND_CAPTURE_PULLED",
+                "*COLLISION_SITUATION_MASK_G"
+              ],
+              "raw": "macros::CATCH(agent, 0, Hash40::new(\"top\"), 3.3, 0.0, 7.0, -4.0, Some(0.0), Some(7.0), Some(-13.2), *FIGHTER_STATUS_KIND_CAPTURE_PULLED, *COLLISION_SITUATION_MASK_G)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 2,
+                  "operation": "frame",
+                  "value": 9.0
+                },
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 10.0
+                }
+              ],
+              "capturePacket": {
+                "agent": "agent",
+                "id": 0,
+                "bone": "Hash40::new(\"top\")",
+                "radius": 3.3,
+                "x": 0.0,
+                "y": 7.0,
+                "z": -4.0,
+                "x2": "Some(0.0)",
+                "y2": "Some(7.0)",
+                "z2": "Some(-13.2)",
+                "targetStatus": "*FIGHTER_STATUS_KIND_CAPTURE_PULLED",
+                "situationMask": "*COLLISION_SITUATION_MASK_G"
+              },
+              "consumer": "Separate ground/air capture capsules; target status admission, capture cut/mash and attachment require mapped common caller."
+            },
+            {
+              "line": 9,
+              "command": "macros::CATCH",
+              "args": [
+                "agent",
+                "1",
+                "Hash40::new(\"top\")",
+                "1.65",
+                "0.0",
+                "7.0",
+                "-2.35",
+                "Some(0.0)",
+                "Some(7.0)",
+                "Some(-14.85)",
+                "*FIGHTER_STATUS_KIND_CAPTURE_PULLED",
+                "*COLLISION_SITUATION_MASK_A"
+              ],
+              "raw": "macros::CATCH(agent, 1, Hash40::new(\"top\"), 1.65, 0.0, 7.0, -2.35, Some(0.0), Some(7.0), Some(-14.85), *FIGHTER_STATUS_KIND_CAPTURE_PULLED, *COLLISION_SITUATION_MASK_A)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 2,
+                  "operation": "frame",
+                  "value": 9.0
+                },
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 10.0
+                }
+              ],
+              "capturePacket": {
+                "agent": "agent",
+                "id": 1,
+                "bone": "Hash40::new(\"top\")",
+                "radius": 1.65,
+                "x": 0.0,
+                "y": 7.0,
+                "z": -2.35,
+                "x2": "Some(0.0)",
+                "y2": "Some(7.0)",
+                "z2": "Some(-14.85)",
+                "targetStatus": "*FIGHTER_STATUS_KIND_CAPTURE_PULLED",
+                "situationMask": "*COLLISION_SITUATION_MASK_A"
+              },
+              "consumer": "Separate ground/air capture capsules; target status admission, capture cut/mash and attachment require mapped common caller."
+            },
+            {
+              "line": 11,
+              "command": "macros::game_CaptureCutCommon",
+              "args": [
+                "agent"
+              ],
+              "raw": "macros::game_CaptureCutCommon(agent)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 2,
+                  "operation": "frame",
+                  "value": 9.0
+                },
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 10.0
+                }
+              ]
+            },
+            {
+              "line": 12,
+              "command": "wait",
+              "args": [
+                "agent.lua_state_agent",
+                "2.0"
+              ],
+              "raw": "wait(agent.lua_state_agent, 2.0)",
+              "clockOperation": {
+                "line": 12,
+                "operation": "wait",
+                "value": 2.0
+              }
+            },
+            {
+              "line": 14,
+              "command": "grab!",
+              "args": [
+                "agent",
+                "*MA_MSC_CMD_GRAB_CLEAR_ALL"
+              ],
+              "raw": "grab!(agent, *MA_MSC_CMD_GRAB_CLEAR_ALL)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 2,
+                  "operation": "frame",
+                  "value": 9.0
+                },
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 10.0
+                },
+                {
+                  "line": 12,
+                  "operation": "wait",
+                  "value": 2.0
+                }
+              ]
+            },
+            {
+              "line": 15,
+              "command": "WorkModule::on_flag",
+              "args": [
+                "agent.module_accessor",
+                "*FIGHTER_STATUS_CATCH_FLAG_CATCH_WAIT"
+              ],
+              "raw": "WorkModule::on_flag(agent.module_accessor, *FIGHTER_STATUS_CATCH_FLAG_CATCH_WAIT)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 2,
+                  "operation": "frame",
+                  "value": 9.0
+                },
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 10.0
+                },
+                {
+                  "line": 12,
+                  "operation": "wait",
+                  "value": 2.0
+                }
+              ]
+            },
+            {
+              "line": 16,
+              "command": "GrabModule::set_rebound",
+              "args": [
+                "agent.module_accessor",
+                "false"
+              ],
+              "raw": "GrabModule::set_rebound(agent.module_accessor, false)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 2,
+                  "operation": "frame",
+                  "value": 9.0
+                },
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 10.0
+                },
+                {
+                  "line": 12,
+                  "operation": "wait",
+                  "value": 2.0
+                }
+              ]
+            }
+          ],
+          "clockStatus": "RAW_LEXICAL_ONLY: frame absolute and wait relative native motion clocks. Preserve branches and loops; do not infer gameplay elapsed or expand symbolic loops."
+        },
+        "consumer": "Capture geometry is source bone-local sphere/capsule with G/A masks and targetCAPTURE_PULLED; apply ownership once, catch_cut on escape/KO, exact source attachment/mash timing native-common required."
+      }
+    ],
+    "throws": [
+      {
+        "inventoryActionId": "link.throw_f",
+        "sourceMotion": "throw_f",
+        "nativeMotion": {
+          "gameScript": "game_throwf",
+          "animations": [
+            "e01throwf.nuanmb"
+          ],
+          "cancelFrame": "38",
+          "xluStart": "0",
+          "xluEnd": "0",
+          "loop": "false",
+          "sourceMotion": "throw_f"
+        },
+        "condition": "Captor Link has retained captured victim and grounded legal throw input direction; direction binding uses capture facing, not ordinary attack planner.",
+        "wiki": {
+          "url": "https://www.ssbwiki.com/Link_(SSBU)/Forward_throw",
+          "revision": 1710351,
+          "packetRows": [
+            {
+              "group": "Hitbox",
+              "subsection": "Kick hitlag anomaly",
+              "template": "UltimateHitboxTableRow",
+              "fields": {
+                "id": "0",
+                "damage": "3.0%",
+                "angle": "361",
+                "af": "3",
+                "bk": "55",
+                "ks": "55",
+                "fkv": "0",
+                "r": "3.8",
+                "bn": "kneer",
+                "xpos": "0.0",
+                "ypos": "0.0",
+                "zpos": "0.0",
+                "ff": "1.0",
+                "type": "Foot",
+                "effect": "Normal",
+                "sfx": "Kick",
+                "slvl": "M",
+                "clang": "f",
+                "rebound": "f"
+              },
+              "sourceOffset": 634
+            },
+            {
+              "group": "Hitbox",
+              "subsection": "Kick hitlag anomaly",
+              "template": "UltimateHitboxTableRow",
+              "fields": {
+                "id": "1",
+                "damage": "3.0%",
+                "angle": "361",
+                "af": "3",
+                "bk": "55",
+                "ks": "55",
+                "fkv": "0",
+                "r": "3.8",
+                "bn": "kneer",
+                "xpos": "3.5",
+                "ypos": "-0.5",
+                "zpos": "0.0",
+                "ff": "1.0",
+                "type": "Foot",
+                "effect": "Normal",
+                "sfx": "Kick",
+                "slvl": "M",
+                "clang": "f",
+                "rebound": "f"
+              },
+              "sourceOffset": 838
+            },
+            {
+              "group": "Throw",
+              "subsection": "Kick hitlag anomaly",
+              "template": "UltimateThrowTableRow",
+              "fields": {
+                "id": "0",
+                "type": "Throwing",
+                "damage": "2.5%",
+                "angle": "33",
+                "bk": "75",
+                "ks": "85",
+                "fkv": "0",
+                "ff": "0.0",
+                "effect": "Normal",
+                "sfx": "None",
+                "slvl": "S"
+              },
+              "sourceOffset": 1105
+            },
+            {
+              "group": "Throw",
+              "subsection": "Kick hitlag anomaly",
+              "template": "UltimateThrowTableRow",
+              "fields": {
+                "kind": "1",
+                "id": "0",
+                "type": "Throwing",
+                "damage": "3.0%",
+                "angle": "361",
+                "bk": "40",
+                "ks": "100",
+                "fkv": "0",
+                "effect": "Normal",
+                "sfx": "None",
+                "slvl": "S"
+              },
+              "sourceOffset": 1238
+            }
+          ],
+          "timingSource": "\n{|class=\"wikitable\"\n!Invincibility\n|1-13\n|-\n!Hitbox\n|12-13\n|-\n!Throw Release\n|13\n|-\n!Interruptible\n|38\n|-\n!Animation length\n|56\n|}\n{{FrameStripStart}}\n{{FrameStrip|t=Lag|c=11}}{{FrameStrip|t=Hitbox|c=1|e=HitboxThrowS}}{{FrameStrip|t=Hitbox|c=1|s=HitboxThrowE}}{{FrameStrip|t=Lag|c=24}}{{FrameStrip|t=Interruptible|c=19}}\n|-\n{{FrameStrip|t=Invincible|c=13}}{{FrameStrip|t=Vulnerable|c=43}}\n{{FrameStripEnd}}\n\n{{FrameIconLegend|lag=y|hitbox=y|throw=y|interruptible=y|vulnerable=y|invincible=y}}\n\n{{MvSubNavLink|g=SSBU}}\n\n[[Category:Link (SSBU)]]\n[[Category:Forward throws (SSBU)]]"
+        },
+        "nativeFunction": {
+          "sourcePath": "sources/native/scripts/ThrowF.txt",
+          "sha256": "6f79d17d4f57e709e518ae689c547603429fb237d9c5c3be0bab7989e1b5f110",
+          "function": "game_throwf",
+          "controlFlow": [
+            {
+              "line": 1,
+              "raw": "if macros::is_excute(agent) {"
+            },
+            {
+              "line": 7,
+              "raw": "if macros::is_excute(agent) {"
+            },
+            {
+              "line": 14,
+              "raw": "if macros::is_excute(agent) {"
+            },
+            {
+              "line": 21,
+              "raw": "if macros::is_excute(agent) {"
+            }
+          ],
+          "events": [
+            {
+              "line": 3,
+              "command": "macros::ATTACK_ABS",
+              "args": [
+                "agent",
+                "*FIGHTER_ATTACK_ABSOLUTE_KIND_THROW",
+                "0",
+                "2.5",
+                "33",
+                "85",
+                "0",
+                "75",
+                "0.0",
+                "1.0",
+                "*ATTACK_LR_CHECK_F",
+                "0.0",
+                "true",
+                "Hash40::new(\"collision_attr_normal\")",
+                "*ATTACK_SOUND_LEVEL_S",
+                "*COLLISION_SOUND_ATTR_NONE",
+                "*ATTACK_REGION_THROW"
+              ],
+              "raw": "macros::ATTACK_ABS(agent, *FIGHTER_ATTACK_ABSOLUTE_KIND_THROW, 0, 2.5, 33, 85, 0, 75, 0.0, 1.0, *ATTACK_LR_CHECK_F, 0.0, true, Hash40::new(\"collision_attr_normal\"), *ATTACK_SOUND_LEVEL_S, *COLLISION_SOUND_ATTR_NONE, *ATTACK_REGION_THROW)",
+              "precedingLexicalClockOperations": [],
+              "absolutePacket": {
+                "agent": "agent",
+                "kind": "*FIGHTER_ATTACK_ABSOLUTE_KIND_THROW",
+                "id": 0,
+                "damage": 2.5,
+                "angle": 33,
+                "growth": 85,
+                "fixed": 0,
+                "base": 75,
+                "hitlag": 0.0,
+                "unknown": 1.0,
+                "directionCheck": "*ATTACK_LR_CHECK_F",
+                "unknown2": 0.0,
+                "bool": true,
+                "attribute": "Hash40::new(\"collision_attr_normal\")",
+                "soundLevel": "*ATTACK_SOUND_LEVEL_S",
+                "soundAttribute": "*COLLISION_SOUND_ATTR_NONE",
+                "region": "*ATTACK_REGION_THROW"
+              },
+              "consumer": "Throw/capture absolute packet; ATK_HIT_ABS selects application target, not ordinary geometric ATTACK collision."
+            },
+            {
+              "line": 4,
+              "command": "macros::ATTACK_ABS",
+              "args": [
+                "agent",
+                "*FIGHTER_ATTACK_ABSOLUTE_KIND_CATCH",
+                "0",
+                "3.0",
+                "361",
+                "100",
+                "0",
+                "40",
+                "0.0",
+                "1.0",
+                "*ATTACK_LR_CHECK_F",
+                "0.0",
+                "true",
+                "Hash40::new(\"collision_attr_normal\")",
+                "*ATTACK_SOUND_LEVEL_S",
+                "*COLLISION_SOUND_ATTR_NONE",
+                "*ATTACK_REGION_THROW"
+              ],
+              "raw": "macros::ATTACK_ABS(agent, *FIGHTER_ATTACK_ABSOLUTE_KIND_CATCH, 0, 3.0, 361, 100, 0, 40, 0.0, 1.0, *ATTACK_LR_CHECK_F, 0.0, true, Hash40::new(\"collision_attr_normal\"), *ATTACK_SOUND_LEVEL_S, *COLLISION_SOUND_ATTR_NONE, *ATTACK_REGION_THROW)",
+              "precedingLexicalClockOperations": [],
+              "absolutePacket": {
+                "agent": "agent",
+                "kind": "*FIGHTER_ATTACK_ABSOLUTE_KIND_CATCH",
+                "id": 0,
+                "damage": 3.0,
+                "angle": 361,
+                "growth": 100,
+                "fixed": 0,
+                "base": 40,
+                "hitlag": 0.0,
+                "unknown": 1.0,
+                "directionCheck": "*ATTACK_LR_CHECK_F",
+                "unknown2": 0.0,
+                "bool": true,
+                "attribute": "Hash40::new(\"collision_attr_normal\")",
+                "soundLevel": "*ATTACK_SOUND_LEVEL_S",
+                "soundAttribute": "*COLLISION_SOUND_ATTR_NONE",
+                "region": "*ATTACK_REGION_THROW"
+              },
+              "consumer": "Throw/capture absolute packet; ATK_HIT_ABS selects application target, not ordinary geometric ATTACK collision."
+            },
+            {
+              "line": 6,
+              "command": "frame",
+              "args": [
+                "agent.lua_state_agent",
+                "12.0"
+              ],
+              "raw": "frame(agent.lua_state_agent, 12.0)",
+              "clockOperation": {
+                "line": 6,
+                "operation": "frame",
+                "value": 12.0
+              }
+            },
+            {
+              "line": 8,
+              "command": "macros::ATTACK",
+              "args": [
+                "agent",
+                "0",
+                "0",
+                "Hash40::new(\"kneer\")",
+                "3.0",
+                "361",
+                "55",
+                "0",
+                "55",
+                "3.8",
+                "0.0",
+                "0.0",
+                "0.0",
+                "None",
+                "None",
+                "None",
+                "1.0",
+                "1.0",
+                "*ATTACK_SETOFF_KIND_OFF",
+                "*ATTACK_LR_CHECK_F",
+                "false",
+                "0",
+                "0.0",
+                "0",
+                "false",
+                "false",
+                "false",
+                "false",
+                "true",
+                "*COLLISION_SITUATION_MASK_GA",
+                "*COLLISION_CATEGORY_MASK_ALL",
+                "*COLLISION_PART_MASK_ALL",
+                "false",
+                "Hash40::new(\"collision_attr_normal\")",
+                "*ATTACK_SOUND_LEVEL_M",
+                "*COLLISION_SOUND_ATTR_KICK",
+                "*ATTACK_REGION_KICK"
+              ],
+              "raw": "macros::ATTACK(agent, 0, 0, Hash40::new(\"kneer\"), 3.0, 361, 55, 0, 55, 3.8, 0.0, 0.0, 0.0, None, None, None, 1.0, 1.0, *ATTACK_SETOFF_KIND_OFF, *ATTACK_LR_CHECK_F, false, 0, 0.0, 0, false, false, false, false, true, *COLLISION_SITUATION_MASK_GA, *COLLISION_CATEGORY_MASK_ALL, *COLLISION_PART_MASK_ALL, false, Hash40::new(\"collision_attr_normal\"), *ATTACK_SOUND_LEVEL_M, *COLLISION_SOUND_ATTR_KICK, *ATTACK_REGION_KICK)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 12.0
+                }
+              ],
+              "packet": {
+                "agent": "agent",
+                "id": 0,
+                "part": 0,
+                "bone": "Hash40::new(\"kneer\")",
+                "damage": 3.0,
+                "angle": 361,
+                "growth": 55,
+                "fixed": 0,
+                "base": 55,
+                "radius": 3.8,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "x2": null,
+                "y2": null,
+                "z2": null,
+                "hitlag": 1.0,
+                "sdi": 1.0,
+                "setoff": "*ATTACK_SETOFF_KIND_OFF",
+                "directionCheck": "*ATTACK_LR_CHECK_F",
+                "setWeight": false,
+                "shieldDamage": 0,
+                "trip": 0.0,
+                "rehit": 0,
+                "reflectable": false,
+                "absorbable": false,
+                "flinchless": false,
+                "disableHitlag": false,
+                "direct": true,
+                "situationMask": "*COLLISION_SITUATION_MASK_GA",
+                "categoryMask": "*COLLISION_CATEGORY_MASK_ALL",
+                "partMask": "*COLLISION_PART_MASK_ALL",
+                "friendlyFire": false,
+                "attribute": "Hash40::new(\"collision_attr_normal\")",
+                "soundLevel": "*ATTACK_SOUND_LEVEL_M",
+                "soundAttribute": "*COLLISION_SOUND_ATTR_KICK",
+                "region": "*ATTACK_REGION_KICK"
+              },
+              "argumentCount": 37,
+              "expectedArgumentCount": 37,
+              "packetComplete": true,
+              "consumer": "Native authored per-hit packet; collision consumes transformed bone-attached sphere/capsule, not raw screen rectangle. Motion/status may scale damage and kinetics."
+            },
+            {
+              "line": 9,
+              "command": "macros::ATTACK",
+              "args": [
+                "agent",
+                "1",
+                "0",
+                "Hash40::new(\"kneer\")",
+                "3.0",
+                "361",
+                "55",
+                "0",
+                "55",
+                "3.8",
+                "3.5",
+                "-0.5",
+                "0.0",
+                "None",
+                "None",
+                "None",
+                "1.0",
+                "1.0",
+                "*ATTACK_SETOFF_KIND_OFF",
+                "*ATTACK_LR_CHECK_F",
+                "false",
+                "0",
+                "0.0",
+                "0",
+                "false",
+                "false",
+                "false",
+                "false",
+                "true",
+                "*COLLISION_SITUATION_MASK_GA",
+                "*COLLISION_CATEGORY_MASK_ALL",
+                "*COLLISION_PART_MASK_ALL",
+                "false",
+                "Hash40::new(\"collision_attr_normal\")",
+                "*ATTACK_SOUND_LEVEL_M",
+                "*COLLISION_SOUND_ATTR_KICK",
+                "*ATTACK_REGION_KICK"
+              ],
+              "raw": "macros::ATTACK(agent, 1, 0, Hash40::new(\"kneer\"), 3.0, 361, 55, 0, 55, 3.8, 3.5, -0.5, 0.0, None, None, None, 1.0, 1.0, *ATTACK_SETOFF_KIND_OFF, *ATTACK_LR_CHECK_F, false, 0, 0.0, 0, false, false, false, false, true, *COLLISION_SITUATION_MASK_GA, *COLLISION_CATEGORY_MASK_ALL, *COLLISION_PART_MASK_ALL, false, Hash40::new(\"collision_attr_normal\"), *ATTACK_SOUND_LEVEL_M, *COLLISION_SOUND_ATTR_KICK, *ATTACK_REGION_KICK)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 12.0
+                }
+              ],
+              "packet": {
+                "agent": "agent",
+                "id": 1,
+                "part": 0,
+                "bone": "Hash40::new(\"kneer\")",
+                "damage": 3.0,
+                "angle": 361,
+                "growth": 55,
+                "fixed": 0,
+                "base": 55,
+                "radius": 3.8,
+                "x": 3.5,
+                "y": -0.5,
+                "z": 0.0,
+                "x2": null,
+                "y2": null,
+                "z2": null,
+                "hitlag": 1.0,
+                "sdi": 1.0,
+                "setoff": "*ATTACK_SETOFF_KIND_OFF",
+                "directionCheck": "*ATTACK_LR_CHECK_F",
+                "setWeight": false,
+                "shieldDamage": 0,
+                "trip": 0.0,
+                "rehit": 0,
+                "reflectable": false,
+                "absorbable": false,
+                "flinchless": false,
+                "disableHitlag": false,
+                "direct": true,
+                "situationMask": "*COLLISION_SITUATION_MASK_GA",
+                "categoryMask": "*COLLISION_CATEGORY_MASK_ALL",
+                "partMask": "*COLLISION_PART_MASK_ALL",
+                "friendlyFire": false,
+                "attribute": "Hash40::new(\"collision_attr_normal\")",
+                "soundLevel": "*ATTACK_SOUND_LEVEL_M",
+                "soundAttribute": "*COLLISION_SOUND_ATTR_KICK",
+                "region": "*ATTACK_REGION_KICK"
+              },
+              "argumentCount": 37,
+              "expectedArgumentCount": 37,
+              "packetComplete": true,
+              "consumer": "Native authored per-hit packet; collision consumes transformed bone-attached sphere/capsule, not raw screen rectangle. Motion/status may scale damage and kinetics."
+            },
+            {
+              "line": 10,
+              "command": "AttackModule::set_catch_only_all",
+              "args": [
+                "agent.module_accessor",
+                "true",
+                "false"
+              ],
+              "raw": "AttackModule::set_catch_only_all(agent.module_accessor, true, false)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 12.0
+                }
+              ]
+            },
+            {
+              "line": 11,
+              "command": "macros::CHECK_FINISH_CAMERA",
+              "args": [
+                "agent",
+                "12",
+                "4"
+              ],
+              "raw": "macros::CHECK_FINISH_CAMERA(agent, 12, 4)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 12.0
+                }
+              ]
+            },
+            {
+              "line": 13,
+              "command": "frame",
+              "args": [
+                "agent.lua_state_agent",
+                "13.0"
+              ],
+              "raw": "frame(agent.lua_state_agent, 13.0)",
+              "clockOperation": {
+                "line": 13,
+                "operation": "frame",
+                "value": 13.0
+              }
+            },
+            {
+              "line": 15,
+              "command": "WorkModule::get_int64",
+              "args": [
+                "agent.module_accessor",
+                "*FIGHTER_STATUS_THROW_WORK_INT_TARGET_OBJECT"
+              ],
+              "raw": "WorkModule::get_int64(agent.module_accessor, *FIGHTER_STATUS_THROW_WORK_INT_TARGET_OBJECT)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 12.0
+                },
+                {
+                  "line": 13,
+                  "operation": "frame",
+                  "value": 13.0
+                }
+              ]
+            },
+            {
+              "line": 16,
+              "command": "WorkModule::get_int64",
+              "args": [
+                "agent.module_accessor",
+                "*FIGHTER_STATUS_THROW_WORK_INT_TARGET_HIT_GROUP"
+              ],
+              "raw": "WorkModule::get_int64(agent.module_accessor, *FIGHTER_STATUS_THROW_WORK_INT_TARGET_HIT_GROUP)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 12.0
+                },
+                {
+                  "line": 13,
+                  "operation": "frame",
+                  "value": 13.0
+                }
+              ]
+            },
+            {
+              "line": 17,
+              "command": "WorkModule::get_int64",
+              "args": [
+                "agent.module_accessor",
+                "*FIGHTER_STATUS_THROW_WORK_INT_TARGET_HIT_NO"
+              ],
+              "raw": "WorkModule::get_int64(agent.module_accessor, *FIGHTER_STATUS_THROW_WORK_INT_TARGET_HIT_NO)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 12.0
+                },
+                {
+                  "line": 13,
+                  "operation": "frame",
+                  "value": 13.0
+                }
+              ]
+            },
+            {
+              "line": 18,
+              "command": "macros::ATK_HIT_ABS",
+              "args": [
+                "agent",
+                "*FIGHTER_ATTACK_ABSOLUTE_KIND_THROW",
+                "Hash40::new(\"throw\")",
+                "target",
+                "target_group",
+                "target_no"
+              ],
+              "raw": "macros::ATK_HIT_ABS(agent, *FIGHTER_ATTACK_ABSOLUTE_KIND_THROW, Hash40::new(\"throw\"), target, target_group, target_no)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 12.0
+                },
+                {
+                  "line": 13,
+                  "operation": "frame",
+                  "value": 13.0
+                }
+              ]
+            },
+            {
+              "line": 20,
+              "command": "wait",
+              "args": [
+                "agent.lua_state_agent",
+                "1.0"
+              ],
+              "raw": "wait(agent.lua_state_agent, 1.0)",
+              "clockOperation": {
+                "line": 20,
+                "operation": "wait",
+                "value": 1.0
+              }
+            },
+            {
+              "line": 22,
+              "command": "AttackModule::clear_all",
+              "args": [
+                "agent.module_accessor"
+              ],
+              "raw": "AttackModule::clear_all(agent.module_accessor)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 12.0
+                },
+                {
+                  "line": 13,
+                  "operation": "frame",
+                  "value": 13.0
+                },
+                {
+                  "line": 20,
+                  "operation": "wait",
+                  "value": 1.0
+                }
+              ]
+            }
+          ],
+          "clockStatus": "RAW_LEXICAL_ONLY: frame absolute and wait relative native motion clocks. Preserve branches and loops; do not infer gameplay elapsed or expand symbolic loops."
+        },
+        "consumer": "Keep throw absolute packet separate from preceding geometry/target-only damage. ATK_HIT_ABS receives selectedtarget-object/group/no; side victims only where native hitbox eligibility permits. Release/flag/protection/held-item restoration at exact status boundary, not double normal-attack plus absolute damage."
+      },
+      {
+        "inventoryActionId": "link.throw_b",
+        "sourceMotion": "throw_b",
+        "nativeMotion": {
+          "gameScript": "game_throwb",
+          "animations": [
+            "e01throwb.nuanmb"
+          ],
+          "cancelFrame": "39",
+          "xluStart": "0",
+          "xluEnd": "0",
+          "loop": "false",
+          "sourceMotion": "throw_b"
+        },
+        "condition": "Captor Link has retained captured victim and grounded legal throw input direction; direction binding uses capture facing, not ordinary attack planner.",
+        "wiki": {
+          "url": "https://www.ssbwiki.com/Link_(SSBU)/Back_throw",
+          "revision": 1710353,
+          "packetRows": [
+            {
+              "group": "Hitbox",
+              "subsection": null,
+              "template": "UltimateHitboxTableRow",
+              "fields": {
+                "id": "0",
+                "damage": "3.0%",
+                "angle": "361",
+                "af": "4",
+                "bk": "55",
+                "ks": "55",
+                "fkv": "0",
+                "r": "3.5",
+                "bn": "kneer",
+                "xpos": "0.0",
+                "ypos": "0.0",
+                "zpos": "0.0",
+                "ff": "1.0",
+                "type": "Foot",
+                "effect": "Normal",
+                "sfx": "Kick",
+                "slvl": "M",
+                "clang": "f",
+                "rebound": "f"
+              },
+              "sourceOffset": 308
+            },
+            {
+              "group": "Hitbox",
+              "subsection": null,
+              "template": "UltimateHitboxTableRow",
+              "fields": {
+                "id": "1",
+                "damage": "3.0%",
+                "angle": "361",
+                "af": "4",
+                "bk": "55",
+                "ks": "55",
+                "fkv": "0",
+                "r": "3.5",
+                "bn": "kneer",
+                "xpos": "3.5",
+                "ypos": "-0.5",
+                "zpos": "0.0",
+                "ff": "1.0",
+                "type": "Foot",
+                "effect": "Normal",
+                "sfx": "Kick",
+                "slvl": "M",
+                "clang": "f",
+                "rebound": "f"
+              },
+              "sourceOffset": 512
+            },
+            {
+              "group": "Throw",
+              "subsection": null,
+              "template": "UltimateThrowTableRow",
+              "fields": {
+                "id": "0",
+                "type": "Throwing",
+                "damage": "2.5%",
+                "angle": "130",
+                "bk": "67",
+                "ks": "110",
+                "fkv": "0",
+                "ff": "0.0",
+                "effect": "Normal",
+                "sfx": "None",
+                "slvl": "S"
+              },
+              "sourceOffset": 779
+            },
+            {
+              "group": "Throw",
+              "subsection": null,
+              "template": "UltimateThrowTableRow",
+              "fields": {
+                "kind": "1",
+                "id": "0",
+                "type": "Throwing",
+                "damage": "3.0%",
+                "angle": "361",
+                "bk": "40",
+                "ks": "100",
+                "fkv": "0",
+                "effect": "Normal",
+                "sfx": "None",
+                "slvl": "S"
+              },
+              "sourceOffset": 914
+            }
+          ],
+          "timingSource": "\n{|class=\"wikitable\"\n!Invincibility\n|1-14\n|-\n!Hitbox\n|12-13\n|-\n!Throw Release\n|14\n|-\n!Interruptible\n|39\n|-\n!Animation length\n|57\n|}\n{{FrameStripStart}}\n{{FrameStrip|t=Lag|c=11}}{{FrameStrip|t=Hitbox|c=2|e=HitboxThrowS}}{{FrameStrip|t=Lag|c=25|s=LagThrowE}}{{FrameStrip|t=Interruptible|c=19}}\n|-\n{{FrameStrip|t=Invincible|c=14}}{{FrameStrip|t=Vulnerable|c=43}}\n{{FrameStripEnd}}\n\n{{FrameIconLegend|lag=y|hitbox=y|throw=y|interruptible=y|vulnerable=y|invincible=y}}\n\n{{MvSubNavLink|g=SSBU}}\n\n[[Category:Link (SSBU)]]\n[[Category:Back throws (SSBU)]]"
+        },
+        "nativeFunction": {
+          "sourcePath": "sources/native/scripts/ThrowB.txt",
+          "sha256": "f4e096f23df8e609d53aa6652cba1081a2fb6a6cdeb5614f4c86de81ef267835",
+          "function": "game_throwb",
+          "controlFlow": [
+            {
+              "line": 1,
+              "raw": "if macros::is_excute(agent) {"
+            },
+            {
+              "line": 7,
+              "raw": "if macros::is_excute(agent) {"
+            },
+            {
+              "line": 14,
+              "raw": "if macros::is_excute(agent) {"
+            }
+          ],
+          "events": [
+            {
+              "line": 3,
+              "command": "macros::ATTACK_ABS",
+              "args": [
+                "agent",
+                "*FIGHTER_ATTACK_ABSOLUTE_KIND_THROW",
+                "0",
+                "2.5",
+                "130",
+                "110",
+                "0",
+                "67",
+                "0.0",
+                "1.0",
+                "*ATTACK_LR_CHECK_F",
+                "0.0",
+                "true",
+                "Hash40::new(\"collision_attr_normal\")",
+                "*ATTACK_SOUND_LEVEL_S",
+                "*COLLISION_SOUND_ATTR_NONE",
+                "*ATTACK_REGION_THROW"
+              ],
+              "raw": "macros::ATTACK_ABS(agent, *FIGHTER_ATTACK_ABSOLUTE_KIND_THROW, 0, 2.5, 130, 110, 0, 67, 0.0, 1.0, *ATTACK_LR_CHECK_F, 0.0, true, Hash40::new(\"collision_attr_normal\"), *ATTACK_SOUND_LEVEL_S, *COLLISION_SOUND_ATTR_NONE, *ATTACK_REGION_THROW)",
+              "precedingLexicalClockOperations": [],
+              "absolutePacket": {
+                "agent": "agent",
+                "kind": "*FIGHTER_ATTACK_ABSOLUTE_KIND_THROW",
+                "id": 0,
+                "damage": 2.5,
+                "angle": 130,
+                "growth": 110,
+                "fixed": 0,
+                "base": 67,
+                "hitlag": 0.0,
+                "unknown": 1.0,
+                "directionCheck": "*ATTACK_LR_CHECK_F",
+                "unknown2": 0.0,
+                "bool": true,
+                "attribute": "Hash40::new(\"collision_attr_normal\")",
+                "soundLevel": "*ATTACK_SOUND_LEVEL_S",
+                "soundAttribute": "*COLLISION_SOUND_ATTR_NONE",
+                "region": "*ATTACK_REGION_THROW"
+              },
+              "consumer": "Throw/capture absolute packet; ATK_HIT_ABS selects application target, not ordinary geometric ATTACK collision."
+            },
+            {
+              "line": 4,
+              "command": "macros::ATTACK_ABS",
+              "args": [
+                "agent",
+                "*FIGHTER_ATTACK_ABSOLUTE_KIND_CATCH",
+                "0",
+                "3.0",
+                "361",
+                "100",
+                "0",
+                "40",
+                "0.0",
+                "1.0",
+                "*ATTACK_LR_CHECK_F",
+                "0.0",
+                "true",
+                "Hash40::new(\"collision_attr_normal\")",
+                "*ATTACK_SOUND_LEVEL_S",
+                "*COLLISION_SOUND_ATTR_NONE",
+                "*ATTACK_REGION_THROW"
+              ],
+              "raw": "macros::ATTACK_ABS(agent, *FIGHTER_ATTACK_ABSOLUTE_KIND_CATCH, 0, 3.0, 361, 100, 0, 40, 0.0, 1.0, *ATTACK_LR_CHECK_F, 0.0, true, Hash40::new(\"collision_attr_normal\"), *ATTACK_SOUND_LEVEL_S, *COLLISION_SOUND_ATTR_NONE, *ATTACK_REGION_THROW)",
+              "precedingLexicalClockOperations": [],
+              "absolutePacket": {
+                "agent": "agent",
+                "kind": "*FIGHTER_ATTACK_ABSOLUTE_KIND_CATCH",
+                "id": 0,
+                "damage": 3.0,
+                "angle": 361,
+                "growth": 100,
+                "fixed": 0,
+                "base": 40,
+                "hitlag": 0.0,
+                "unknown": 1.0,
+                "directionCheck": "*ATTACK_LR_CHECK_F",
+                "unknown2": 0.0,
+                "bool": true,
+                "attribute": "Hash40::new(\"collision_attr_normal\")",
+                "soundLevel": "*ATTACK_SOUND_LEVEL_S",
+                "soundAttribute": "*COLLISION_SOUND_ATTR_NONE",
+                "region": "*ATTACK_REGION_THROW"
+              },
+              "consumer": "Throw/capture absolute packet; ATK_HIT_ABS selects application target, not ordinary geometric ATTACK collision."
+            },
+            {
+              "line": 6,
+              "command": "frame",
+              "args": [
+                "agent.lua_state_agent",
+                "12.0"
+              ],
+              "raw": "frame(agent.lua_state_agent, 12.0)",
+              "clockOperation": {
+                "line": 6,
+                "operation": "frame",
+                "value": 12.0
+              }
+            },
+            {
+              "line": 8,
+              "command": "macros::ATTACK",
+              "args": [
+                "agent",
+                "0",
+                "0",
+                "Hash40::new(\"kneer\")",
+                "3.0",
+                "361",
+                "55",
+                "0",
+                "55",
+                "3.5",
+                "0.0",
+                "0.0",
+                "0.0",
+                "None",
+                "None",
+                "None",
+                "1.0",
+                "1.0",
+                "*ATTACK_SETOFF_KIND_OFF",
+                "*ATTACK_LR_CHECK_B",
+                "false",
+                "0",
+                "0.0",
+                "0",
+                "false",
+                "false",
+                "false",
+                "false",
+                "true",
+                "*COLLISION_SITUATION_MASK_GA",
+                "*COLLISION_CATEGORY_MASK_ALL",
+                "*COLLISION_PART_MASK_ALL",
+                "false",
+                "Hash40::new(\"collision_attr_normal\")",
+                "*ATTACK_SOUND_LEVEL_M",
+                "*COLLISION_SOUND_ATTR_KICK",
+                "*ATTACK_REGION_KICK"
+              ],
+              "raw": "macros::ATTACK(agent, 0, 0, Hash40::new(\"kneer\"), 3.0, 361, 55, 0, 55, 3.5, 0.0, 0.0, 0.0, None, None, None, 1.0, 1.0, *ATTACK_SETOFF_KIND_OFF, *ATTACK_LR_CHECK_B, false, 0, 0.0, 0, false, false, false, false, true, *COLLISION_SITUATION_MASK_GA, *COLLISION_CATEGORY_MASK_ALL, *COLLISION_PART_MASK_ALL, false, Hash40::new(\"collision_attr_normal\"), *ATTACK_SOUND_LEVEL_M, *COLLISION_SOUND_ATTR_KICK, *ATTACK_REGION_KICK)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 12.0
+                }
+              ],
+              "packet": {
+                "agent": "agent",
+                "id": 0,
+                "part": 0,
+                "bone": "Hash40::new(\"kneer\")",
+                "damage": 3.0,
+                "angle": 361,
+                "growth": 55,
+                "fixed": 0,
+                "base": 55,
+                "radius": 3.5,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "x2": null,
+                "y2": null,
+                "z2": null,
+                "hitlag": 1.0,
+                "sdi": 1.0,
+                "setoff": "*ATTACK_SETOFF_KIND_OFF",
+                "directionCheck": "*ATTACK_LR_CHECK_B",
+                "setWeight": false,
+                "shieldDamage": 0,
+                "trip": 0.0,
+                "rehit": 0,
+                "reflectable": false,
+                "absorbable": false,
+                "flinchless": false,
+                "disableHitlag": false,
+                "direct": true,
+                "situationMask": "*COLLISION_SITUATION_MASK_GA",
+                "categoryMask": "*COLLISION_CATEGORY_MASK_ALL",
+                "partMask": "*COLLISION_PART_MASK_ALL",
+                "friendlyFire": false,
+                "attribute": "Hash40::new(\"collision_attr_normal\")",
+                "soundLevel": "*ATTACK_SOUND_LEVEL_M",
+                "soundAttribute": "*COLLISION_SOUND_ATTR_KICK",
+                "region": "*ATTACK_REGION_KICK"
+              },
+              "argumentCount": 37,
+              "expectedArgumentCount": 37,
+              "packetComplete": true,
+              "consumer": "Native authored per-hit packet; collision consumes transformed bone-attached sphere/capsule, not raw screen rectangle. Motion/status may scale damage and kinetics."
+            },
+            {
+              "line": 9,
+              "command": "macros::ATTACK",
+              "args": [
+                "agent",
+                "1",
+                "0",
+                "Hash40::new(\"kneer\")",
+                "3.0",
+                "361",
+                "55",
+                "0",
+                "55",
+                "3.5",
+                "3.5",
+                "-0.5",
+                "0.0",
+                "None",
+                "None",
+                "None",
+                "1.0",
+                "1.0",
+                "*ATTACK_SETOFF_KIND_OFF",
+                "*ATTACK_LR_CHECK_B",
+                "false",
+                "0",
+                "0.0",
+                "0",
+                "false",
+                "false",
+                "false",
+                "false",
+                "true",
+                "*COLLISION_SITUATION_MASK_GA",
+                "*COLLISION_CATEGORY_MASK_ALL",
+                "*COLLISION_PART_MASK_ALL",
+                "false",
+                "Hash40::new(\"collision_attr_normal\")",
+                "*ATTACK_SOUND_LEVEL_M",
+                "*COLLISION_SOUND_ATTR_KICK",
+                "*ATTACK_REGION_KICK"
+              ],
+              "raw": "macros::ATTACK(agent, 1, 0, Hash40::new(\"kneer\"), 3.0, 361, 55, 0, 55, 3.5, 3.5, -0.5, 0.0, None, None, None, 1.0, 1.0, *ATTACK_SETOFF_KIND_OFF, *ATTACK_LR_CHECK_B, false, 0, 0.0, 0, false, false, false, false, true, *COLLISION_SITUATION_MASK_GA, *COLLISION_CATEGORY_MASK_ALL, *COLLISION_PART_MASK_ALL, false, Hash40::new(\"collision_attr_normal\"), *ATTACK_SOUND_LEVEL_M, *COLLISION_SOUND_ATTR_KICK, *ATTACK_REGION_KICK)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 12.0
+                }
+              ],
+              "packet": {
+                "agent": "agent",
+                "id": 1,
+                "part": 0,
+                "bone": "Hash40::new(\"kneer\")",
+                "damage": 3.0,
+                "angle": 361,
+                "growth": 55,
+                "fixed": 0,
+                "base": 55,
+                "radius": 3.5,
+                "x": 3.5,
+                "y": -0.5,
+                "z": 0.0,
+                "x2": null,
+                "y2": null,
+                "z2": null,
+                "hitlag": 1.0,
+                "sdi": 1.0,
+                "setoff": "*ATTACK_SETOFF_KIND_OFF",
+                "directionCheck": "*ATTACK_LR_CHECK_B",
+                "setWeight": false,
+                "shieldDamage": 0,
+                "trip": 0.0,
+                "rehit": 0,
+                "reflectable": false,
+                "absorbable": false,
+                "flinchless": false,
+                "disableHitlag": false,
+                "direct": true,
+                "situationMask": "*COLLISION_SITUATION_MASK_GA",
+                "categoryMask": "*COLLISION_CATEGORY_MASK_ALL",
+                "partMask": "*COLLISION_PART_MASK_ALL",
+                "friendlyFire": false,
+                "attribute": "Hash40::new(\"collision_attr_normal\")",
+                "soundLevel": "*ATTACK_SOUND_LEVEL_M",
+                "soundAttribute": "*COLLISION_SOUND_ATTR_KICK",
+                "region": "*ATTACK_REGION_KICK"
+              },
+              "argumentCount": 37,
+              "expectedArgumentCount": 37,
+              "packetComplete": true,
+              "consumer": "Native authored per-hit packet; collision consumes transformed bone-attached sphere/capsule, not raw screen rectangle. Motion/status may scale damage and kinetics."
+            },
+            {
+              "line": 10,
+              "command": "AttackModule::set_catch_only_all",
+              "args": [
+                "agent.module_accessor",
+                "true",
+                "false"
+              ],
+              "raw": "AttackModule::set_catch_only_all(agent.module_accessor, true, false)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 12.0
+                }
+              ]
+            },
+            {
+              "line": 11,
+              "command": "macros::CHECK_FINISH_CAMERA",
+              "args": [
+                "agent",
+                "-18",
+                "12"
+              ],
+              "raw": "macros::CHECK_FINISH_CAMERA(agent, -18, 12)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 12.0
+                }
+              ]
+            },
+            {
+              "line": 13,
+              "command": "frame",
+              "args": [
+                "agent.lua_state_agent",
+                "14.0"
+              ],
+              "raw": "frame(agent.lua_state_agent, 14.0)",
+              "clockOperation": {
+                "line": 13,
+                "operation": "frame",
+                "value": 14.0
+              }
+            },
+            {
+              "line": 15,
+              "command": "WorkModule::get_int64",
+              "args": [
+                "agent.module_accessor",
+                "*FIGHTER_STATUS_THROW_WORK_INT_TARGET_OBJECT"
+              ],
+              "raw": "WorkModule::get_int64(agent.module_accessor, *FIGHTER_STATUS_THROW_WORK_INT_TARGET_OBJECT)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 12.0
+                },
+                {
+                  "line": 13,
+                  "operation": "frame",
+                  "value": 14.0
+                }
+              ]
+            },
+            {
+              "line": 16,
+              "command": "WorkModule::get_int64",
+              "args": [
+                "agent.module_accessor",
+                "*FIGHTER_STATUS_THROW_WORK_INT_TARGET_HIT_GROUP"
+              ],
+              "raw": "WorkModule::get_int64(agent.module_accessor, *FIGHTER_STATUS_THROW_WORK_INT_TARGET_HIT_GROUP)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 12.0
+                },
+                {
+                  "line": 13,
+                  "operation": "frame",
+                  "value": 14.0
+                }
+              ]
+            },
+            {
+              "line": 17,
+              "command": "WorkModule::get_int64",
+              "args": [
+                "agent.module_accessor",
+                "*FIGHTER_STATUS_THROW_WORK_INT_TARGET_HIT_NO"
+              ],
+              "raw": "WorkModule::get_int64(agent.module_accessor, *FIGHTER_STATUS_THROW_WORK_INT_TARGET_HIT_NO)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 12.0
+                },
+                {
+                  "line": 13,
+                  "operation": "frame",
+                  "value": 14.0
+                }
+              ]
+            },
+            {
+              "line": 18,
+              "command": "macros::ATK_HIT_ABS",
+              "args": [
+                "agent",
+                "*FIGHTER_ATTACK_ABSOLUTE_KIND_THROW",
+                "Hash40::new(\"throw\")",
+                "target",
+                "target_group",
+                "target_no"
+              ],
+              "raw": "macros::ATK_HIT_ABS(agent, *FIGHTER_ATTACK_ABSOLUTE_KIND_THROW, Hash40::new(\"throw\"), target, target_group, target_no)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 12.0
+                },
+                {
+                  "line": 13,
+                  "operation": "frame",
+                  "value": 14.0
+                }
+              ]
+            },
+            {
+              "line": 19,
+              "command": "AttackModule::clear_all",
+              "args": [
+                "agent.module_accessor"
+              ],
+              "raw": "AttackModule::clear_all(agent.module_accessor)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 12.0
+                },
+                {
+                  "line": 13,
+                  "operation": "frame",
+                  "value": 14.0
+                }
+              ]
+            }
+          ],
+          "clockStatus": "RAW_LEXICAL_ONLY: frame absolute and wait relative native motion clocks. Preserve branches and loops; do not infer gameplay elapsed or expand symbolic loops."
+        },
+        "consumer": "Keep throw absolute packet separate from preceding geometry/target-only damage. ATK_HIT_ABS receives selectedtarget-object/group/no; side victims only where native hitbox eligibility permits. Release/flag/protection/held-item restoration at exact status boundary, not double normal-attack plus absolute damage."
+      },
+      {
+        "inventoryActionId": "link.throw_hi",
+        "sourceMotion": "throw_hi",
+        "nativeMotion": {
+          "gameScript": "game_throwhi",
+          "animations": [
+            "e01throwhi.nuanmb"
+          ],
+          "cancelFrame": "50",
+          "xluStart": "0",
+          "xluEnd": "0",
+          "loop": "false",
+          "sourceMotion": "throw_hi"
+        },
+        "condition": "Captor Link has retained captured victim and grounded legal throw input direction; direction binding uses capture facing, not ordinary attack planner.",
+        "wiki": {
+          "url": "https://www.ssbwiki.com/Link_(SSBU)/Up_throw",
+          "revision": 1710354,
+          "packetRows": [
+            {
+              "group": "Hitbox",
+              "subsection": null,
+              "template": "UltimateHitboxTableRow",
+              "fields": {
+                "id": "0",
+                "damage": "5.0%",
+                "angle": "20",
+                "af": "3",
+                "bk": "50",
+                "ks": "100",
+                "fkv": "0",
+                "r": "3.8",
+                "bn": "sword2",
+                "xpos": "6.8",
+                "ypos": "0.0",
+                "zpos": "0.0",
+                "ff": "1.0",
+                "type": "Sword",
+                "effect": "Slash",
+                "sfx": "slash",
+                "slvl": "L",
+                "clang": "f",
+                "rebound": "f"
+              },
+              "sourceOffset": 306
+            },
+            {
+              "group": "Hitbox",
+              "subsection": null,
+              "template": "UltimateHitboxTableRow",
+              "fields": {
+                "id": "1",
+                "damage": "5.0%",
+                "angle": "20",
+                "af": "3",
+                "bk": "50",
+                "ks": "100",
+                "fkv": "0",
+                "r": "3.8",
+                "bn": "sword2",
+                "xpos": "2.0",
+                "ypos": "0.0",
+                "zpos": "0.0",
+                "ff": "1.0",
+                "type": "Sword",
+                "effect": "Slash",
+                "sfx": "slash",
+                "slvl": "L",
+                "clang": "f",
+                "rebound": "f"
+              },
+              "sourceOffset": 512
+            },
+            {
+              "group": "Throw",
+              "subsection": null,
+              "template": "UltimateThrowTableRow",
+              "fields": {
+                "id": "0",
+                "type": "Throwing",
+                "damage": "2.0%",
+                "angle": "90",
+                "bk": "24",
+                "ks": "230",
+                "fkv": "0",
+                "ff": "0.0",
+                "effect": "Normal",
+                "sfx": "None",
+                "slvl": "S"
+              },
+              "sourceOffset": 780
+            },
+            {
+              "group": "Throw",
+              "subsection": null,
+              "template": "UltimateThrowTableRow",
+              "fields": {
+                "kind": "1",
+                "id": "0",
+                "type": "Throwing",
+                "damage": "3.0%",
+                "angle": "361",
+                "bk": "40",
+                "ks": "100",
+                "fkv": "0",
+                "effect": "Normal",
+                "sfx": "None",
+                "slvl": "S"
+              },
+              "sourceOffset": 914
+            }
+          ],
+          "timingSource": "\n{|class=\"wikitable\"\n!Invincibility\n|1-28\n|-\n!Hitbox\n|26-29\n|-\n!Throw Release\n|28\n|-\n!Interruptible\n|50\n|-\n!Animation length\n|72\n|}\n{{FrameStripStart}}\n{{FrameStrip|t=Lag|c=25}}{{FrameStrip|t=Hitbox|c=2|e=HitboxThrowS}}{{FrameStrip|t=Hitbox|c=2|s=HitboxThrowE}}{{FrameStrip|t=Lag|c=20}}{{FrameStrip|t=Interruptible|c=23}}\n|-\n{{FrameStrip|t=Invincible|c=28}}{{FrameStrip|t=Vulnerable|c=44}}\n{{FrameStripEnd}}\n\n{{FrameIconLegend|lag=y|hitbox=y|throw=y|interruptible=y|vulnerable=y|invincible=y}}\n\n{{MvSubNavLink|g=SSBU}}\n\n[[Category:Link (SSBU)]]\n[[Category:Up throws (SSBU)]]"
+        },
+        "nativeFunction": {
+          "sourcePath": "sources/native/scripts/ThrowHi.txt",
+          "sha256": "2ef497dd7bb0571388da45ef1176f797243f04a6ecea25d6131a500e11007e5d",
+          "function": "game_throwhi",
+          "controlFlow": [
+            {
+              "line": 1,
+              "raw": "if macros::is_excute(agent) {"
+            },
+            {
+              "line": 7,
+              "raw": "if macros::is_excute(agent) {"
+            },
+            {
+              "line": 16,
+              "raw": "if macros::is_excute(agent) {"
+            },
+            {
+              "line": 23,
+              "raw": "if macros::is_excute(agent) {"
+            }
+          ],
+          "events": [
+            {
+              "line": 3,
+              "command": "macros::ATTACK_ABS",
+              "args": [
+                "agent",
+                "*FIGHTER_ATTACK_ABSOLUTE_KIND_THROW",
+                "0",
+                "2.0",
+                "90",
+                "230",
+                "0",
+                "24",
+                "0.0",
+                "1.0",
+                "*ATTACK_LR_CHECK_F",
+                "0.0",
+                "true",
+                "Hash40::new(\"collision_attr_normal\")",
+                "*ATTACK_SOUND_LEVEL_S",
+                "*COLLISION_SOUND_ATTR_NONE",
+                "*ATTACK_REGION_THROW"
+              ],
+              "raw": "macros::ATTACK_ABS(agent, *FIGHTER_ATTACK_ABSOLUTE_KIND_THROW, 0, 2.0, 90, 230, 0, 24, 0.0, 1.0, *ATTACK_LR_CHECK_F, 0.0, true, Hash40::new(\"collision_attr_normal\"), *ATTACK_SOUND_LEVEL_S, *COLLISION_SOUND_ATTR_NONE, *ATTACK_REGION_THROW)",
+              "precedingLexicalClockOperations": [],
+              "absolutePacket": {
+                "agent": "agent",
+                "kind": "*FIGHTER_ATTACK_ABSOLUTE_KIND_THROW",
+                "id": 0,
+                "damage": 2.0,
+                "angle": 90,
+                "growth": 230,
+                "fixed": 0,
+                "base": 24,
+                "hitlag": 0.0,
+                "unknown": 1.0,
+                "directionCheck": "*ATTACK_LR_CHECK_F",
+                "unknown2": 0.0,
+                "bool": true,
+                "attribute": "Hash40::new(\"collision_attr_normal\")",
+                "soundLevel": "*ATTACK_SOUND_LEVEL_S",
+                "soundAttribute": "*COLLISION_SOUND_ATTR_NONE",
+                "region": "*ATTACK_REGION_THROW"
+              },
+              "consumer": "Throw/capture absolute packet; ATK_HIT_ABS selects application target, not ordinary geometric ATTACK collision."
+            },
+            {
+              "line": 4,
+              "command": "macros::ATTACK_ABS",
+              "args": [
+                "agent",
+                "*FIGHTER_ATTACK_ABSOLUTE_KIND_CATCH",
+                "0",
+                "3.0",
+                "361",
+                "100",
+                "0",
+                "40",
+                "0.0",
+                "1.0",
+                "*ATTACK_LR_CHECK_F",
+                "0.0",
+                "true",
+                "Hash40::new(\"collision_attr_normal\")",
+                "*ATTACK_SOUND_LEVEL_S",
+                "*COLLISION_SOUND_ATTR_NONE",
+                "*ATTACK_REGION_THROW"
+              ],
+              "raw": "macros::ATTACK_ABS(agent, *FIGHTER_ATTACK_ABSOLUTE_KIND_CATCH, 0, 3.0, 361, 100, 0, 40, 0.0, 1.0, *ATTACK_LR_CHECK_F, 0.0, true, Hash40::new(\"collision_attr_normal\"), *ATTACK_SOUND_LEVEL_S, *COLLISION_SOUND_ATTR_NONE, *ATTACK_REGION_THROW)",
+              "precedingLexicalClockOperations": [],
+              "absolutePacket": {
+                "agent": "agent",
+                "kind": "*FIGHTER_ATTACK_ABSOLUTE_KIND_CATCH",
+                "id": 0,
+                "damage": 3.0,
+                "angle": 361,
+                "growth": 100,
+                "fixed": 0,
+                "base": 40,
+                "hitlag": 0.0,
+                "unknown": 1.0,
+                "directionCheck": "*ATTACK_LR_CHECK_F",
+                "unknown2": 0.0,
+                "bool": true,
+                "attribute": "Hash40::new(\"collision_attr_normal\")",
+                "soundLevel": "*ATTACK_SOUND_LEVEL_S",
+                "soundAttribute": "*COLLISION_SOUND_ATTR_NONE",
+                "region": "*ATTACK_REGION_THROW"
+              },
+              "consumer": "Throw/capture absolute packet; ATK_HIT_ABS selects application target, not ordinary geometric ATTACK collision."
+            },
+            {
+              "line": 6,
+              "command": "frame",
+              "args": [
+                "agent.lua_state_agent",
+                "26.0"
+              ],
+              "raw": "frame(agent.lua_state_agent, 26.0)",
+              "clockOperation": {
+                "line": 6,
+                "operation": "frame",
+                "value": 26.0
+              }
+            },
+            {
+              "line": 8,
+              "command": "macros::ATTACK",
+              "args": [
+                "agent",
+                "0",
+                "0",
+                "Hash40::new(\"sword2\")",
+                "5.0",
+                "20",
+                "100",
+                "0",
+                "50",
+                "3.8",
+                "6.8",
+                "0.0",
+                "0.0",
+                "None",
+                "None",
+                "None",
+                "1.0",
+                "1.0",
+                "*ATTACK_SETOFF_KIND_OFF",
+                "*ATTACK_LR_CHECK_F",
+                "false",
+                "0",
+                "0.0",
+                "0",
+                "false",
+                "false",
+                "false",
+                "false",
+                "true",
+                "*COLLISION_SITUATION_MASK_GA",
+                "*COLLISION_CATEGORY_MASK_ALL",
+                "*COLLISION_PART_MASK_ALL",
+                "false",
+                "Hash40::new(\"collision_attr_cutup\")",
+                "*ATTACK_SOUND_LEVEL_L",
+                "*COLLISION_SOUND_ATTR_CUTUP",
+                "*ATTACK_REGION_SWORD"
+              ],
+              "raw": "macros::ATTACK(agent, 0, 0, Hash40::new(\"sword2\"), 5.0, 20, 100, 0, 50, 3.8, 6.8, 0.0, 0.0, None, None, None, 1.0, 1.0, *ATTACK_SETOFF_KIND_OFF, *ATTACK_LR_CHECK_F, false, 0, 0.0, 0, false, false, false, false, true, *COLLISION_SITUATION_MASK_GA, *COLLISION_CATEGORY_MASK_ALL, *COLLISION_PART_MASK_ALL, false, Hash40::new(\"collision_attr_cutup\"), *ATTACK_SOUND_LEVEL_L, *COLLISION_SOUND_ATTR_CUTUP, *ATTACK_REGION_SWORD)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 26.0
+                }
+              ],
+              "packet": {
+                "agent": "agent",
+                "id": 0,
+                "part": 0,
+                "bone": "Hash40::new(\"sword2\")",
+                "damage": 5.0,
+                "angle": 20,
+                "growth": 100,
+                "fixed": 0,
+                "base": 50,
+                "radius": 3.8,
+                "x": 6.8,
+                "y": 0.0,
+                "z": 0.0,
+                "x2": null,
+                "y2": null,
+                "z2": null,
+                "hitlag": 1.0,
+                "sdi": 1.0,
+                "setoff": "*ATTACK_SETOFF_KIND_OFF",
+                "directionCheck": "*ATTACK_LR_CHECK_F",
+                "setWeight": false,
+                "shieldDamage": 0,
+                "trip": 0.0,
+                "rehit": 0,
+                "reflectable": false,
+                "absorbable": false,
+                "flinchless": false,
+                "disableHitlag": false,
+                "direct": true,
+                "situationMask": "*COLLISION_SITUATION_MASK_GA",
+                "categoryMask": "*COLLISION_CATEGORY_MASK_ALL",
+                "partMask": "*COLLISION_PART_MASK_ALL",
+                "friendlyFire": false,
+                "attribute": "Hash40::new(\"collision_attr_cutup\")",
+                "soundLevel": "*ATTACK_SOUND_LEVEL_L",
+                "soundAttribute": "*COLLISION_SOUND_ATTR_CUTUP",
+                "region": "*ATTACK_REGION_SWORD"
+              },
+              "argumentCount": 37,
+              "expectedArgumentCount": 37,
+              "packetComplete": true,
+              "consumer": "Native authored per-hit packet; collision consumes transformed bone-attached sphere/capsule, not raw screen rectangle. Motion/status may scale damage and kinetics."
+            },
+            {
+              "line": 9,
+              "command": "macros::ATTACK",
+              "args": [
+                "agent",
+                "1",
+                "0",
+                "Hash40::new(\"sword2\")",
+                "5.0",
+                "20",
+                "100",
+                "0",
+                "50",
+                "3.8",
+                "2.0",
+                "0.0",
+                "0.0",
+                "None",
+                "None",
+                "None",
+                "1.0",
+                "1.0",
+                "*ATTACK_SETOFF_KIND_OFF",
+                "*ATTACK_LR_CHECK_F",
+                "false",
+                "0",
+                "0.0",
+                "0",
+                "false",
+                "false",
+                "false",
+                "false",
+                "true",
+                "*COLLISION_SITUATION_MASK_GA",
+                "*COLLISION_CATEGORY_MASK_ALL",
+                "*COLLISION_PART_MASK_ALL",
+                "false",
+                "Hash40::new(\"collision_attr_cutup\")",
+                "*ATTACK_SOUND_LEVEL_L",
+                "*COLLISION_SOUND_ATTR_CUTUP",
+                "*ATTACK_REGION_SWORD"
+              ],
+              "raw": "macros::ATTACK(agent, 1, 0, Hash40::new(\"sword2\"), 5.0, 20, 100, 0, 50, 3.8, 2.0, 0.0, 0.0, None, None, None, 1.0, 1.0, *ATTACK_SETOFF_KIND_OFF, *ATTACK_LR_CHECK_F, false, 0, 0.0, 0, false, false, false, false, true, *COLLISION_SITUATION_MASK_GA, *COLLISION_CATEGORY_MASK_ALL, *COLLISION_PART_MASK_ALL, false, Hash40::new(\"collision_attr_cutup\"), *ATTACK_SOUND_LEVEL_L, *COLLISION_SOUND_ATTR_CUTUP, *ATTACK_REGION_SWORD)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 26.0
+                }
+              ],
+              "packet": {
+                "agent": "agent",
+                "id": 1,
+                "part": 0,
+                "bone": "Hash40::new(\"sword2\")",
+                "damage": 5.0,
+                "angle": 20,
+                "growth": 100,
+                "fixed": 0,
+                "base": 50,
+                "radius": 3.8,
+                "x": 2.0,
+                "y": 0.0,
+                "z": 0.0,
+                "x2": null,
+                "y2": null,
+                "z2": null,
+                "hitlag": 1.0,
+                "sdi": 1.0,
+                "setoff": "*ATTACK_SETOFF_KIND_OFF",
+                "directionCheck": "*ATTACK_LR_CHECK_F",
+                "setWeight": false,
+                "shieldDamage": 0,
+                "trip": 0.0,
+                "rehit": 0,
+                "reflectable": false,
+                "absorbable": false,
+                "flinchless": false,
+                "disableHitlag": false,
+                "direct": true,
+                "situationMask": "*COLLISION_SITUATION_MASK_GA",
+                "categoryMask": "*COLLISION_CATEGORY_MASK_ALL",
+                "partMask": "*COLLISION_PART_MASK_ALL",
+                "friendlyFire": false,
+                "attribute": "Hash40::new(\"collision_attr_cutup\")",
+                "soundLevel": "*ATTACK_SOUND_LEVEL_L",
+                "soundAttribute": "*COLLISION_SOUND_ATTR_CUTUP",
+                "region": "*ATTACK_REGION_SWORD"
+              },
+              "argumentCount": 37,
+              "expectedArgumentCount": 37,
+              "packetComplete": true,
+              "consumer": "Native authored per-hit packet; collision consumes transformed bone-attached sphere/capsule, not raw screen rectangle. Motion/status may scale damage and kinetics."
+            },
+            {
+              "line": 10,
+              "command": "AttackModule::set_catch_only_all",
+              "args": [
+                "agent.module_accessor",
+                "true",
+                "false"
+              ],
+              "raw": "AttackModule::set_catch_only_all(agent.module_accessor, true, false)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 26.0
+                }
+              ]
+            },
+            {
+              "line": 11,
+              "command": "macros::CHECK_FINISH_CAMERA",
+              "args": [
+                "agent",
+                "6",
+                "28"
+              ],
+              "raw": "macros::CHECK_FINISH_CAMERA(agent, 6, 28)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 26.0
+                }
+              ]
+            },
+            {
+              "line": 12,
+              "command": "lua_bind::FighterCutInManager::set_throw_finish_zoom_rate",
+              "args": [
+                "singletons::FighterCutInManager()",
+                "1.8"
+              ],
+              "raw": "lua_bind::FighterCutInManager::set_throw_finish_zoom_rate(singletons::FighterCutInManager(), 1.8)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 26.0
+                }
+              ]
+            },
+            {
+              "line": 13,
+              "command": "lua_bind::FighterCutInManager::set_throw_finish_offset",
+              "args": [
+                "singletons::FighterCutInManager()",
+                "Vector3f{x: 0.0, y: 12.0, z: 0.0}"
+              ],
+              "raw": "lua_bind::FighterCutInManager::set_throw_finish_offset(singletons::FighterCutInManager(), Vector3f{x: 0.0, y: 12.0, z: 0.0})",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 26.0
+                }
+              ]
+            },
+            {
+              "line": 15,
+              "command": "frame",
+              "args": [
+                "agent.lua_state_agent",
+                "28.0"
+              ],
+              "raw": "frame(agent.lua_state_agent, 28.0)",
+              "clockOperation": {
+                "line": 15,
+                "operation": "frame",
+                "value": 28.0
+              }
+            },
+            {
+              "line": 17,
+              "command": "WorkModule::get_int64",
+              "args": [
+                "agent.module_accessor",
+                "*FIGHTER_STATUS_THROW_WORK_INT_TARGET_OBJECT"
+              ],
+              "raw": "WorkModule::get_int64(agent.module_accessor, *FIGHTER_STATUS_THROW_WORK_INT_TARGET_OBJECT)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 26.0
+                },
+                {
+                  "line": 15,
+                  "operation": "frame",
+                  "value": 28.0
+                }
+              ]
+            },
+            {
+              "line": 18,
+              "command": "WorkModule::get_int64",
+              "args": [
+                "agent.module_accessor",
+                "*FIGHTER_STATUS_THROW_WORK_INT_TARGET_HIT_GROUP"
+              ],
+              "raw": "WorkModule::get_int64(agent.module_accessor, *FIGHTER_STATUS_THROW_WORK_INT_TARGET_HIT_GROUP)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 26.0
+                },
+                {
+                  "line": 15,
+                  "operation": "frame",
+                  "value": 28.0
+                }
+              ]
+            },
+            {
+              "line": 19,
+              "command": "WorkModule::get_int64",
+              "args": [
+                "agent.module_accessor",
+                "*FIGHTER_STATUS_THROW_WORK_INT_TARGET_HIT_NO"
+              ],
+              "raw": "WorkModule::get_int64(agent.module_accessor, *FIGHTER_STATUS_THROW_WORK_INT_TARGET_HIT_NO)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 26.0
+                },
+                {
+                  "line": 15,
+                  "operation": "frame",
+                  "value": 28.0
+                }
+              ]
+            },
+            {
+              "line": 20,
+              "command": "macros::ATK_HIT_ABS",
+              "args": [
+                "agent",
+                "*FIGHTER_ATTACK_ABSOLUTE_KIND_THROW",
+                "Hash40::new(\"throw\")",
+                "target",
+                "target_group",
+                "target_no"
+              ],
+              "raw": "macros::ATK_HIT_ABS(agent, *FIGHTER_ATTACK_ABSOLUTE_KIND_THROW, Hash40::new(\"throw\"), target, target_group, target_no)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 26.0
+                },
+                {
+                  "line": 15,
+                  "operation": "frame",
+                  "value": 28.0
+                }
+              ]
+            },
+            {
+              "line": 22,
+              "command": "frame",
+              "args": [
+                "agent.lua_state_agent",
+                "30.0"
+              ],
+              "raw": "frame(agent.lua_state_agent, 30.0)",
+              "clockOperation": {
+                "line": 22,
+                "operation": "frame",
+                "value": 30.0
+              }
+            },
+            {
+              "line": 24,
+              "command": "AttackModule::clear_all",
+              "args": [
+                "agent.module_accessor"
+              ],
+              "raw": "AttackModule::clear_all(agent.module_accessor)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 6,
+                  "operation": "frame",
+                  "value": 26.0
+                },
+                {
+                  "line": 15,
+                  "operation": "frame",
+                  "value": 28.0
+                },
+                {
+                  "line": 22,
+                  "operation": "frame",
+                  "value": 30.0
+                }
+              ]
+            }
+          ],
+          "clockStatus": "RAW_LEXICAL_ONLY: frame absolute and wait relative native motion clocks. Preserve branches and loops; do not infer gameplay elapsed or expand symbolic loops."
+        },
+        "consumer": "Keep throw absolute packet separate from preceding geometry/target-only damage. ATK_HIT_ABS receives selectedtarget-object/group/no; side victims only where native hitbox eligibility permits. Release/flag/protection/held-item restoration at exact status boundary, not double normal-attack plus absolute damage."
+      },
+      {
+        "inventoryActionId": "link.throw_lw",
+        "sourceMotion": "throw_lw",
+        "nativeMotion": {
+          "gameScript": "game_throwlw",
+          "animations": [
+            "e01throwlw.nuanmb"
+          ],
+          "cancelFrame": "49",
+          "xluStart": "0",
+          "xluEnd": "0",
+          "loop": "false",
+          "sourceMotion": "throw_lw"
+        },
+        "condition": "Captor Link has retained captured victim and grounded legal throw input direction; direction binding uses capture facing, not ordinary attack planner.",
+        "wiki": {
+          "url": "https://www.ssbwiki.com/Link_(SSBU)/Down_throw",
+          "revision": 1710355,
+          "packetRows": [
+            {
+              "group": "Hitbox",
+              "subsection": null,
+              "template": "UltimateHitboxTableRow",
+              "fields": {
+                "id": "0",
+                "damage": "3.0%",
+                "angle": "361",
+                "bk": "60",
+                "ks": "150",
+                "fkv": "0",
+                "r": "4.3",
+                "bn": "top",
+                "xpos": "0.0",
+                "ypos": "2.4",
+                "zpos": "-8.4",
+                "ff": "1.0",
+                "type": "Elbow",
+                "effect": "Normal",
+                "sfx": "Kick",
+                "slvl": "M",
+                "clang": "f",
+                "rebound": "f"
+              },
+              "sourceOffset": 459
+            },
+            {
+              "group": "Throw",
+              "subsection": null,
+              "template": "UltimateThrowTableRow",
+              "fields": {
+                "id": "0",
+                "type": "Throwing",
+                "damage": "3.0%",
+                "angle": "83",
+                "bk": "60",
+                "ks": "125",
+                "fkv": "0",
+                "ff": "0.0",
+                "effect": "Normal",
+                "sfx": "None",
+                "slvl": "S"
+              },
+              "sourceOffset": 720
+            },
+            {
+              "group": "Throw",
+              "subsection": null,
+              "template": "UltimateThrowTableRow",
+              "fields": {
+                "kind": "1",
+                "id": "0",
+                "type": "Throwing",
+                "damage": "3.0%",
+                "angle": "361",
+                "bk": "40",
+                "ks": "100",
+                "fkv": "0",
+                "effect": "Normal",
+                "sfx": "None",
+                "slvl": "S"
+              },
+              "sourceOffset": 854
+            }
+          ],
+          "timingSource": "\n{|class=\"wikitable\"\n!Invincibility\n|1-24\n|-\n!Hitbox\n|22-23\n|-\n!Throw Release\n|24\n|-\n!Interruptible\n|49\n|-\n!Animation length\n|64\n|}\n{{FrameStripStart}}\n{{FrameStrip|t=Lag|c=21}}{{FrameStrip|t=Hitbox|c=2|e=HitboxThrowS}}{{FrameStrip|t=Lag|c=25|s=LagThrowE}}{{FrameStrip|t=Interruptible|c=16}}\n|-\n{{FrameStrip|t=Invincible|c=24}}{{FrameStrip|t=Vulnerable|c=40}}\n{{FrameStripEnd}}\n\n{{FrameIconLegend|lag=y|hitbox=y|throw=y|interruptible=y|vulnerable=y|invincible=y}}\n\n{{MvSubNavLink|g=SSBU}}\n\n[[Category:Link (SSBU)]]\n[[Category:Down throws (SSBU)]]"
+        },
+        "nativeFunction": {
+          "sourcePath": "sources/native/scripts/ThrowLw.txt",
+          "sha256": "393c3a64287ca6905a3d59533fdda1ecbf3108efed0a795c0d58c0a966086a9e",
+          "function": "game_throwlw",
+          "controlFlow": [
+            {
+              "line": 1,
+              "raw": "if macros::is_excute(agent) {"
+            },
+            {
+              "line": 8,
+              "raw": "if macros::is_excute(agent) {"
+            },
+            {
+              "line": 14,
+              "raw": "if macros::is_excute(agent) {"
+            }
+          ],
+          "events": [
+            {
+              "line": 3,
+              "command": "macros::FT_LEAVE_NEAR_OTTOTTO",
+              "args": [
+                "agent",
+                "-2.5",
+                "2.5"
+              ],
+              "raw": "macros::FT_LEAVE_NEAR_OTTOTTO(agent, -2.5, 2.5)",
+              "precedingLexicalClockOperations": []
+            },
+            {
+              "line": 4,
+              "command": "macros::ATTACK_ABS",
+              "args": [
+                "agent",
+                "*FIGHTER_ATTACK_ABSOLUTE_KIND_THROW",
+                "0",
+                "3.0",
+                "83",
+                "125",
+                "0",
+                "60",
+                "0.0",
+                "1.0",
+                "*ATTACK_LR_CHECK_F",
+                "0.0",
+                "true",
+                "Hash40::new(\"collision_attr_normal\")",
+                "*ATTACK_SOUND_LEVEL_S",
+                "*COLLISION_SOUND_ATTR_NONE",
+                "*ATTACK_REGION_THROW"
+              ],
+              "raw": "macros::ATTACK_ABS(agent, *FIGHTER_ATTACK_ABSOLUTE_KIND_THROW, 0, 3.0, 83, 125, 0, 60, 0.0, 1.0, *ATTACK_LR_CHECK_F, 0.0, true, Hash40::new(\"collision_attr_normal\"), *ATTACK_SOUND_LEVEL_S, *COLLISION_SOUND_ATTR_NONE, *ATTACK_REGION_THROW)",
+              "precedingLexicalClockOperations": [],
+              "absolutePacket": {
+                "agent": "agent",
+                "kind": "*FIGHTER_ATTACK_ABSOLUTE_KIND_THROW",
+                "id": 0,
+                "damage": 3.0,
+                "angle": 83,
+                "growth": 125,
+                "fixed": 0,
+                "base": 60,
+                "hitlag": 0.0,
+                "unknown": 1.0,
+                "directionCheck": "*ATTACK_LR_CHECK_F",
+                "unknown2": 0.0,
+                "bool": true,
+                "attribute": "Hash40::new(\"collision_attr_normal\")",
+                "soundLevel": "*ATTACK_SOUND_LEVEL_S",
+                "soundAttribute": "*COLLISION_SOUND_ATTR_NONE",
+                "region": "*ATTACK_REGION_THROW"
+              },
+              "consumer": "Throw/capture absolute packet; ATK_HIT_ABS selects application target, not ordinary geometric ATTACK collision."
+            },
+            {
+              "line": 5,
+              "command": "macros::ATTACK_ABS",
+              "args": [
+                "agent",
+                "*FIGHTER_ATTACK_ABSOLUTE_KIND_CATCH",
+                "0",
+                "3.0",
+                "361",
+                "100",
+                "0",
+                "40",
+                "0.0",
+                "1.0",
+                "*ATTACK_LR_CHECK_F",
+                "0.0",
+                "true",
+                "Hash40::new(\"collision_attr_normal\")",
+                "*ATTACK_SOUND_LEVEL_S",
+                "*COLLISION_SOUND_ATTR_NONE",
+                "*ATTACK_REGION_THROW"
+              ],
+              "raw": "macros::ATTACK_ABS(agent, *FIGHTER_ATTACK_ABSOLUTE_KIND_CATCH, 0, 3.0, 361, 100, 0, 40, 0.0, 1.0, *ATTACK_LR_CHECK_F, 0.0, true, Hash40::new(\"collision_attr_normal\"), *ATTACK_SOUND_LEVEL_S, *COLLISION_SOUND_ATTR_NONE, *ATTACK_REGION_THROW)",
+              "precedingLexicalClockOperations": [],
+              "absolutePacket": {
+                "agent": "agent",
+                "kind": "*FIGHTER_ATTACK_ABSOLUTE_KIND_CATCH",
+                "id": 0,
+                "damage": 3.0,
+                "angle": 361,
+                "growth": 100,
+                "fixed": 0,
+                "base": 40,
+                "hitlag": 0.0,
+                "unknown": 1.0,
+                "directionCheck": "*ATTACK_LR_CHECK_F",
+                "unknown2": 0.0,
+                "bool": true,
+                "attribute": "Hash40::new(\"collision_attr_normal\")",
+                "soundLevel": "*ATTACK_SOUND_LEVEL_S",
+                "soundAttribute": "*COLLISION_SOUND_ATTR_NONE",
+                "region": "*ATTACK_REGION_THROW"
+              },
+              "consumer": "Throw/capture absolute packet; ATK_HIT_ABS selects application target, not ordinary geometric ATTACK collision."
+            },
+            {
+              "line": 7,
+              "command": "frame",
+              "args": [
+                "agent.lua_state_agent",
+                "22.0"
+              ],
+              "raw": "frame(agent.lua_state_agent, 22.0)",
+              "clockOperation": {
+                "line": 7,
+                "operation": "frame",
+                "value": 22.0
+              }
+            },
+            {
+              "line": 9,
+              "command": "macros::ATTACK",
+              "args": [
+                "agent",
+                "0",
+                "0",
+                "Hash40::new(\"top\")",
+                "3.0",
+                "361",
+                "150",
+                "0",
+                "60",
+                "4.3",
+                "0.0",
+                "2.4",
+                "-8.4",
+                "None",
+                "None",
+                "None",
+                "1.0",
+                "1.0",
+                "*ATTACK_SETOFF_KIND_OFF",
+                "*ATTACK_LR_CHECK_POS",
+                "false",
+                "0",
+                "0.0",
+                "0",
+                "false",
+                "false",
+                "false",
+                "false",
+                "true",
+                "*COLLISION_SITUATION_MASK_GA",
+                "*COLLISION_CATEGORY_MASK_ALL",
+                "*COLLISION_PART_MASK_ALL",
+                "false",
+                "Hash40::new(\"collision_attr_normal\")",
+                "*ATTACK_SOUND_LEVEL_M",
+                "*COLLISION_SOUND_ATTR_KICK",
+                "*ATTACK_REGION_ELBOW"
+              ],
+              "raw": "macros::ATTACK(agent, 0, 0, Hash40::new(\"top\"), 3.0, 361, 150, 0, 60, 4.3, 0.0, 2.4, -8.4, None, None, None, 1.0, 1.0, *ATTACK_SETOFF_KIND_OFF, *ATTACK_LR_CHECK_POS, false, 0, 0.0, 0, false, false, false, false, true, *COLLISION_SITUATION_MASK_GA, *COLLISION_CATEGORY_MASK_ALL, *COLLISION_PART_MASK_ALL, false, Hash40::new(\"collision_attr_normal\"), *ATTACK_SOUND_LEVEL_M, *COLLISION_SOUND_ATTR_KICK, *ATTACK_REGION_ELBOW)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 7,
+                  "operation": "frame",
+                  "value": 22.0
+                }
+              ],
+              "packet": {
+                "agent": "agent",
+                "id": 0,
+                "part": 0,
+                "bone": "Hash40::new(\"top\")",
+                "damage": 3.0,
+                "angle": 361,
+                "growth": 150,
+                "fixed": 0,
+                "base": 60,
+                "radius": 4.3,
+                "x": 0.0,
+                "y": 2.4,
+                "z": -8.4,
+                "x2": null,
+                "y2": null,
+                "z2": null,
+                "hitlag": 1.0,
+                "sdi": 1.0,
+                "setoff": "*ATTACK_SETOFF_KIND_OFF",
+                "directionCheck": "*ATTACK_LR_CHECK_POS",
+                "setWeight": false,
+                "shieldDamage": 0,
+                "trip": 0.0,
+                "rehit": 0,
+                "reflectable": false,
+                "absorbable": false,
+                "flinchless": false,
+                "disableHitlag": false,
+                "direct": true,
+                "situationMask": "*COLLISION_SITUATION_MASK_GA",
+                "categoryMask": "*COLLISION_CATEGORY_MASK_ALL",
+                "partMask": "*COLLISION_PART_MASK_ALL",
+                "friendlyFire": false,
+                "attribute": "Hash40::new(\"collision_attr_normal\")",
+                "soundLevel": "*ATTACK_SOUND_LEVEL_M",
+                "soundAttribute": "*COLLISION_SOUND_ATTR_KICK",
+                "region": "*ATTACK_REGION_ELBOW"
+              },
+              "argumentCount": 37,
+              "expectedArgumentCount": 37,
+              "packetComplete": true,
+              "consumer": "Native authored per-hit packet; collision consumes transformed bone-attached sphere/capsule, not raw screen rectangle. Motion/status may scale damage and kinetics."
+            },
+            {
+              "line": 10,
+              "command": "AttackModule::set_catch_only_all",
+              "args": [
+                "agent.module_accessor",
+                "true",
+                "false"
+              ],
+              "raw": "AttackModule::set_catch_only_all(agent.module_accessor, true, false)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 7,
+                  "operation": "frame",
+                  "value": 22.0
+                }
+              ]
+            },
+            {
+              "line": 11,
+              "command": "macros::CHECK_FINISH_CAMERA",
+              "args": [
+                "agent",
+                "-2",
+                "0"
+              ],
+              "raw": "macros::CHECK_FINISH_CAMERA(agent, -2, 0)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 7,
+                  "operation": "frame",
+                  "value": 22.0
+                }
+              ]
+            },
+            {
+              "line": 13,
+              "command": "frame",
+              "args": [
+                "agent.lua_state_agent",
+                "24.0"
+              ],
+              "raw": "frame(agent.lua_state_agent, 24.0)",
+              "clockOperation": {
+                "line": 13,
+                "operation": "frame",
+                "value": 24.0
+              }
+            },
+            {
+              "line": 15,
+              "command": "WorkModule::get_int64",
+              "args": [
+                "agent.module_accessor",
+                "*FIGHTER_STATUS_THROW_WORK_INT_TARGET_OBJECT"
+              ],
+              "raw": "WorkModule::get_int64(agent.module_accessor, *FIGHTER_STATUS_THROW_WORK_INT_TARGET_OBJECT)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 7,
+                  "operation": "frame",
+                  "value": 22.0
+                },
+                {
+                  "line": 13,
+                  "operation": "frame",
+                  "value": 24.0
+                }
+              ]
+            },
+            {
+              "line": 16,
+              "command": "WorkModule::get_int64",
+              "args": [
+                "agent.module_accessor",
+                "*FIGHTER_STATUS_THROW_WORK_INT_TARGET_HIT_GROUP"
+              ],
+              "raw": "WorkModule::get_int64(agent.module_accessor, *FIGHTER_STATUS_THROW_WORK_INT_TARGET_HIT_GROUP)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 7,
+                  "operation": "frame",
+                  "value": 22.0
+                },
+                {
+                  "line": 13,
+                  "operation": "frame",
+                  "value": 24.0
+                }
+              ]
+            },
+            {
+              "line": 17,
+              "command": "WorkModule::get_int64",
+              "args": [
+                "agent.module_accessor",
+                "*FIGHTER_STATUS_THROW_WORK_INT_TARGET_HIT_NO"
+              ],
+              "raw": "WorkModule::get_int64(agent.module_accessor, *FIGHTER_STATUS_THROW_WORK_INT_TARGET_HIT_NO)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 7,
+                  "operation": "frame",
+                  "value": 22.0
+                },
+                {
+                  "line": 13,
+                  "operation": "frame",
+                  "value": 24.0
+                }
+              ]
+            },
+            {
+              "line": 18,
+              "command": "macros::ATK_HIT_ABS",
+              "args": [
+                "agent",
+                "*FIGHTER_ATTACK_ABSOLUTE_KIND_THROW",
+                "Hash40::new(\"throw\")",
+                "target",
+                "target_group",
+                "target_no"
+              ],
+              "raw": "macros::ATK_HIT_ABS(agent, *FIGHTER_ATTACK_ABSOLUTE_KIND_THROW, Hash40::new(\"throw\"), target, target_group, target_no)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 7,
+                  "operation": "frame",
+                  "value": 22.0
+                },
+                {
+                  "line": 13,
+                  "operation": "frame",
+                  "value": 24.0
+                }
+              ]
+            },
+            {
+              "line": 19,
+              "command": "AttackModule::clear_all",
+              "args": [
+                "agent.module_accessor"
+              ],
+              "raw": "AttackModule::clear_all(agent.module_accessor)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 7,
+                  "operation": "frame",
+                  "value": 22.0
+                },
+                {
+                  "line": 13,
+                  "operation": "frame",
+                  "value": 24.0
+                }
+              ]
+            }
+          ],
+          "clockStatus": "RAW_LEXICAL_ONLY: frame absolute and wait relative native motion clocks. Preserve branches and loops; do not infer gameplay elapsed or expand symbolic loops."
+        },
+        "consumer": "Keep throw absolute packet separate from preceding geometry/target-only damage. ATK_HIT_ABS receives selectedtarget-object/group/no; side victims only where native hitbox eligibility permits. Release/flag/protection/held-item restoration at exact status boundary, not double normal-attack plus absolute damage."
+      }
+    ],
+    "getups": [
+      {
+        "inventoryActionId": "link.down_attack_u",
+        "sourceMotion": "down_attack_u",
+        "nativeMotion": {
+          "gameScript": "game_downattacku",
+          "animations": [
+            "f03downattacku.nuanmb"
+          ],
+          "cancelFrame": "46",
+          "xluStart": "1",
+          "xluEnd": "23",
+          "loop": "false",
+          "sourceMotion": "down_attack_u"
+        },
+        "condition": "Attack from corresponding prone orientation/trip/ledge state; exact pose orientation association retained separately until native posed guide.",
+        "wikiSources": [
+          {
+            "url": "https://www.ssbwiki.com/Link_(SSBU)/Floor_attack_(front)",
+            "revision": 1656180,
+            "packets": [
+              {
+                "group": "Hit 1",
+                "subsection": null,
+                "template": "UltimateHitboxTableRow",
+                "fields": {
+                  "id": "0",
+                  "damage": "7.0%",
+                  "sd": "8.0",
+                  "angle": "48",
+                  "bk": "80",
+                  "ks": "48",
+                  "fkv": "0",
+                  "r": "5.0",
+                  "bn": "top",
+                  "xpos": "0.0",
+                  "ypos": "5.0",
+                  "zpos": "-15.0 to -4.0",
+                  "ff": "1.0",
+                  "type": "Sword",
+                  "effect": "Slash",
+                  "sfx": "Slash",
+                  "slvl": "M",
+                  "clang": "f",
+                  "rebound": "f"
+                },
+                "sourceOffset": 262
+              },
+              {
+                "group": "Hit 2",
+                "subsection": null,
+                "template": "UltimateHitboxTableRow",
+                "fields": {
+                  "id": "0",
+                  "damage": "7.0%",
+                  "sd": "8.0",
+                  "angle": "48",
+                  "bk": "80",
+                  "ks": "48",
+                  "fkv": "0",
+                  "r": "5.0",
+                  "bn": "top",
+                  "xpos": "0.0",
+                  "ypos": "5.0",
+                  "zpos": "17.0 to 4.0",
+                  "ff": "1.0",
+                  "type": "Sword",
+                  "effect": "Slash",
+                  "sfx": "Slash",
+                  "slvl": "M",
+                  "clang": "f",
+                  "rebound": "f"
+                },
+                "sourceOffset": 506
+              }
+            ],
+            "timingSource": "\n{|class=\"wikitable\"\n!Intangibility\n|1-22\n|-\n!Hit 1\n|17-18\n|-\n!Hit 2\n|21-22\n|-\n!Interruptible\n|46\n|-\n!Animation length\n|49\n|}\n\n{{FrameStripStart}}\n{{FrameStrip|t=Lag|c=16}}{{FrameStrip|t=Hitbox|c=2}}{{FrameStrip|t=Lag|c=2}}{{FrameStrip|t=Hitbox|c=2}}{{FrameStrip|t=Lag|c=23}}{{FrameStrip|t=Interruptible|c=4}}\n|-\n{{FrameStrip|t=Intangible|c=22}}{{FrameStrip|t=Vulnerable|c=27}}\n{{FrameStripEnd}}\n\n{{FrameIconLegend|lag=y|charge=y|hitbox=y|intangible=y|vulnerable=y|interruptible=y}}\n\n{{MvSubNavLink|g=SSBU}}\n[[Category:Link (SSBU)]]\n[[Category:Floor attacks (SSBU)]]"
+          },
+          {
+            "url": "https://www.ssbwiki.com/Link_(SSBU)/Floor_attack_(back)",
+            "revision": 1656181,
+            "packets": [
+              {
+                "group": "Hit 1",
+                "subsection": null,
+                "template": "UltimateHitboxTableRow",
+                "fields": {
+                  "id": "0",
+                  "damage": "7.0%",
+                  "sd": "8.0",
+                  "angle": "48",
+                  "bk": "80",
+                  "ks": "48",
+                  "fkv": "0",
+                  "r": "5.0",
+                  "bn": "top",
+                  "xpos": "0.0",
+                  "ypos": "5.0",
+                  "zpos": "-17.0 to -5.0",
+                  "ff": "1.0",
+                  "type": "Sword",
+                  "effect": "Slash",
+                  "sfx": "Slash",
+                  "slvl": "M",
+                  "clang": "f",
+                  "rebound": "f"
+                },
+                "sourceOffset": 260
+              },
+              {
+                "group": "Hit 2",
+                "subsection": null,
+                "template": "UltimateHitboxTableRow",
+                "fields": {
+                  "id": "0",
+                  "damage": "7.0%",
+                  "sd": "8.0",
+                  "angle": "48",
+                  "bk": "80",
+                  "ks": "48",
+                  "fkv": "0",
+                  "r": "5.0",
+                  "bn": "top",
+                  "xpos": "0.0",
+                  "ypos": "5.0",
+                  "zpos": "19.0 to 5.0",
+                  "ff": "1.0",
+                  "type": "Sword",
+                  "effect": "Slash",
+                  "sfx": "Slash",
+                  "slvl": "M",
+                  "clang": "f",
+                  "rebound": "f"
+                },
+                "sourceOffset": 504
+              }
+            ],
+            "timingSource": "\n{|class=\"wikitable\"\n!Intangibility\n|1-22\n|-\n!Hit 1\n|17-18\n|-\n!Hit 2\n|21-22\n|-\n!Interruptible\n|46\n|-\n!Animation length\n|49\n|}\n\n{{FrameStripStart}}\n{{FrameStrip|t=Lag|c=16}}{{FrameStrip|t=Hitbox|c=2}}{{FrameStrip|t=Lag|c=2}}{{FrameStrip|t=Hitbox|c=2}}{{FrameStrip|t=Lag|c=23}}{{FrameStrip|t=Interruptible|c=4}}\n|-\n{{FrameStrip|t=Intangible|c=22}}{{FrameStrip|t=Vulnerable|c=27}}\n{{FrameStripEnd}}\n\n{{FrameIconLegend|lag=y|charge=y|hitbox=y|intangible=y|vulnerable=y|interruptible=y}}\n\n{{MvSubNavLink|g=SSBU}}\n[[Category:Link (SSBU)]]\n[[Category:Floor attacks (SSBU)]]"
+          }
+        ],
+        "nativeFunction": {
+          "sourcePath": "sources/native/scripts/DownAttackU.txt",
+          "sha256": "2528b98de91c2590c07d82f89cdb6bbbf61ce948494e3ce8468fcfa82cf78952",
+          "function": "game_downattacku",
+          "controlFlow": [
+            {
+              "line": 3,
+              "raw": "if macros::is_excute(agent) {"
+            },
+            {
+              "line": 7,
+              "raw": "if macros::is_excute(agent) {"
+            },
+            {
+              "line": 11,
+              "raw": "if macros::is_excute(agent) {"
+            },
+            {
+              "line": 15,
+              "raw": "if macros::is_excute(agent) {"
+            }
+          ],
+          "events": [
+            {
+              "line": 2,
+              "command": "frame",
+              "args": [
+                "agent.lua_state_agent",
+                "17.0"
+              ],
+              "raw": "frame(agent.lua_state_agent, 17.0)",
+              "clockOperation": {
+                "line": 2,
+                "operation": "frame",
+                "value": 17.0
+              }
+            },
+            {
+              "line": 4,
+              "command": "macros::ATTACK",
+              "args": [
+                "agent",
+                "0",
+                "0",
+                "Hash40::new(\"top\")",
+                "7.0",
+                "48",
+                "48",
+                "0",
+                "80",
+                "5.0",
+                "0.0",
+                "5.0",
+                "-17.0",
+                "Some(0.0)",
+                "Some(5.0)",
+                "Some(-5.0)",
+                "1.0",
+                "1.0",
+                "*ATTACK_SETOFF_KIND_OFF",
+                "*ATTACK_LR_CHECK_POS",
+                "false",
+                "8",
+                "0.0",
+                "0",
+                "false",
+                "false",
+                "false",
+                "false",
+                "true",
+                "*COLLISION_SITUATION_MASK_GA",
+                "*COLLISION_CATEGORY_MASK_ALL",
+                "*COLLISION_PART_MASK_ALL",
+                "false",
+                "Hash40::new(\"collision_attr_cutup\")",
+                "*ATTACK_SOUND_LEVEL_M",
+                "*COLLISION_SOUND_ATTR_CUTUP",
+                "*ATTACK_REGION_SWORD"
+              ],
+              "raw": "macros::ATTACK(agent, 0, 0, Hash40::new(\"top\"), 7.0, 48, 48, 0, 80, 5.0, 0.0, 5.0, -17.0, Some(0.0), Some(5.0), Some(-5.0), 1.0, 1.0, *ATTACK_SETOFF_KIND_OFF, *ATTACK_LR_CHECK_POS, false, 8, 0.0, 0, false, false, false, false, true, *COLLISION_SITUATION_MASK_GA, *COLLISION_CATEGORY_MASK_ALL, *COLLISION_PART_MASK_ALL, false, Hash40::new(\"collision_attr_cutup\"), *ATTACK_SOUND_LEVEL_M, *COLLISION_SOUND_ATTR_CUTUP, *ATTACK_REGION_SWORD)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 2,
+                  "operation": "frame",
+                  "value": 17.0
+                }
+              ],
+              "packet": {
+                "agent": "agent",
+                "id": 0,
+                "part": 0,
+                "bone": "Hash40::new(\"top\")",
+                "damage": 7.0,
+                "angle": 48,
+                "growth": 48,
+                "fixed": 0,
+                "base": 80,
+                "radius": 5.0,
+                "x": 0.0,
+                "y": 5.0,
+                "z": -17.0,
+                "x2": "Some(0.0)",
+                "y2": "Some(5.0)",
+                "z2": "Some(-5.0)",
+                "hitlag": 1.0,
+                "sdi": 1.0,
+                "setoff": "*ATTACK_SETOFF_KIND_OFF",
+                "directionCheck": "*ATTACK_LR_CHECK_POS",
+                "setWeight": false,
+                "shieldDamage": 8,
+                "trip": 0.0,
+                "rehit": 0,
+                "reflectable": false,
+                "absorbable": false,
+                "flinchless": false,
+                "disableHitlag": false,
+                "direct": true,
+                "situationMask": "*COLLISION_SITUATION_MASK_GA",
+                "categoryMask": "*COLLISION_CATEGORY_MASK_ALL",
+                "partMask": "*COLLISION_PART_MASK_ALL",
+                "friendlyFire": false,
+                "attribute": "Hash40::new(\"collision_attr_cutup\")",
+                "soundLevel": "*ATTACK_SOUND_LEVEL_M",
+                "soundAttribute": "*COLLISION_SOUND_ATTR_CUTUP",
+                "region": "*ATTACK_REGION_SWORD"
+              },
+              "argumentCount": 37,
+              "expectedArgumentCount": 37,
+              "packetComplete": true,
+              "consumer": "Native authored per-hit packet; collision consumes transformed bone-attached sphere/capsule, not raw screen rectangle. Motion/status may scale damage and kinetics."
+            },
+            {
+              "line": 6,
+              "command": "wait",
+              "args": [
+                "agent.lua_state_agent",
+                "2.0"
+              ],
+              "raw": "wait(agent.lua_state_agent, 2.0)",
+              "clockOperation": {
+                "line": 6,
+                "operation": "wait",
+                "value": 2.0
+              }
+            },
+            {
+              "line": 8,
+              "command": "AttackModule::clear_all",
+              "args": [
+                "agent.module_accessor"
+              ],
+              "raw": "AttackModule::clear_all(agent.module_accessor)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 2,
+                  "operation": "frame",
+                  "value": 17.0
+                },
+                {
+                  "line": 6,
+                  "operation": "wait",
+                  "value": 2.0
+                }
+              ]
+            },
+            {
+              "line": 10,
+              "command": "frame",
+              "args": [
+                "agent.lua_state_agent",
+                "21.0"
+              ],
+              "raw": "frame(agent.lua_state_agent, 21.0)",
+              "clockOperation": {
+                "line": 10,
+                "operation": "frame",
+                "value": 21.0
+              }
+            },
+            {
+              "line": 12,
+              "command": "macros::ATTACK",
+              "args": [
+                "agent",
+                "0",
+                "0",
+                "Hash40::new(\"top\")",
+                "7.0",
+                "48",
+                "48",
+                "0",
+                "80",
+                "5.0",
+                "0.0",
+                "5.0",
+                "19.0",
+                "Some(0.0)",
+                "Some(5.0)",
+                "Some(5.0)",
+                "1.0",
+                "1.0",
+                "*ATTACK_SETOFF_KIND_OFF",
+                "*ATTACK_LR_CHECK_POS",
+                "false",
+                "8",
+                "0.0",
+                "0",
+                "false",
+                "false",
+                "false",
+                "false",
+                "true",
+                "*COLLISION_SITUATION_MASK_GA",
+                "*COLLISION_CATEGORY_MASK_ALL",
+                "*COLLISION_PART_MASK_ALL",
+                "false",
+                "Hash40::new(\"collision_attr_cutup\")",
+                "*ATTACK_SOUND_LEVEL_M",
+                "*COLLISION_SOUND_ATTR_CUTUP",
+                "*ATTACK_REGION_SWORD"
+              ],
+              "raw": "macros::ATTACK(agent, 0, 0, Hash40::new(\"top\"), 7.0, 48, 48, 0, 80, 5.0, 0.0, 5.0, 19.0, Some(0.0), Some(5.0), Some(5.0), 1.0, 1.0, *ATTACK_SETOFF_KIND_OFF, *ATTACK_LR_CHECK_POS, false, 8, 0.0, 0, false, false, false, false, true, *COLLISION_SITUATION_MASK_GA, *COLLISION_CATEGORY_MASK_ALL, *COLLISION_PART_MASK_ALL, false, Hash40::new(\"collision_attr_cutup\"), *ATTACK_SOUND_LEVEL_M, *COLLISION_SOUND_ATTR_CUTUP, *ATTACK_REGION_SWORD)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 2,
+                  "operation": "frame",
+                  "value": 17.0
+                },
+                {
+                  "line": 6,
+                  "operation": "wait",
+                  "value": 2.0
+                },
+                {
+                  "line": 10,
+                  "operation": "frame",
+                  "value": 21.0
+                }
+              ],
+              "packet": {
+                "agent": "agent",
+                "id": 0,
+                "part": 0,
+                "bone": "Hash40::new(\"top\")",
+                "damage": 7.0,
+                "angle": 48,
+                "growth": 48,
+                "fixed": 0,
+                "base": 80,
+                "radius": 5.0,
+                "x": 0.0,
+                "y": 5.0,
+                "z": 19.0,
+                "x2": "Some(0.0)",
+                "y2": "Some(5.0)",
+                "z2": "Some(5.0)",
+                "hitlag": 1.0,
+                "sdi": 1.0,
+                "setoff": "*ATTACK_SETOFF_KIND_OFF",
+                "directionCheck": "*ATTACK_LR_CHECK_POS",
+                "setWeight": false,
+                "shieldDamage": 8,
+                "trip": 0.0,
+                "rehit": 0,
+                "reflectable": false,
+                "absorbable": false,
+                "flinchless": false,
+                "disableHitlag": false,
+                "direct": true,
+                "situationMask": "*COLLISION_SITUATION_MASK_GA",
+                "categoryMask": "*COLLISION_CATEGORY_MASK_ALL",
+                "partMask": "*COLLISION_PART_MASK_ALL",
+                "friendlyFire": false,
+                "attribute": "Hash40::new(\"collision_attr_cutup\")",
+                "soundLevel": "*ATTACK_SOUND_LEVEL_M",
+                "soundAttribute": "*COLLISION_SOUND_ATTR_CUTUP",
+                "region": "*ATTACK_REGION_SWORD"
+              },
+              "argumentCount": 37,
+              "expectedArgumentCount": 37,
+              "packetComplete": true,
+              "consumer": "Native authored per-hit packet; collision consumes transformed bone-attached sphere/capsule, not raw screen rectangle. Motion/status may scale damage and kinetics."
+            },
+            {
+              "line": 14,
+              "command": "wait",
+              "args": [
+                "agent.lua_state_agent",
+                "2.0"
+              ],
+              "raw": "wait(agent.lua_state_agent, 2.0)",
+              "clockOperation": {
+                "line": 14,
+                "operation": "wait",
+                "value": 2.0
+              }
+            },
+            {
+              "line": 16,
+              "command": "AttackModule::clear_all",
+              "args": [
+                "agent.module_accessor"
+              ],
+              "raw": "AttackModule::clear_all(agent.module_accessor)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 2,
+                  "operation": "frame",
+                  "value": 17.0
+                },
+                {
+                  "line": 6,
+                  "operation": "wait",
+                  "value": 2.0
+                },
+                {
+                  "line": 10,
+                  "operation": "frame",
+                  "value": 21.0
+                },
+                {
+                  "line": 14,
+                  "operation": "wait",
+                  "value": 2.0
+                }
+              ]
+            }
+          ],
+          "clockStatus": "RAW_LEXICAL_ONLY: frame absolute and wait relative native motion clocks. Preserve branches and loops; do not infer gameplay elapsed or expand symbolic loops."
+        },
+        "limits": "Both front/back published floorattacktiming17..18,21..22/protection1..22/FAF46; do not collapse the distinct supine/prone pose cues because timing matches. NativeU/D-to-Wiki-front/back exact visual association awaits source rig; no unsupported alias claim."
+      },
+      {
+        "inventoryActionId": "link.down_attack_d",
+        "sourceMotion": "down_attack_d",
+        "nativeMotion": {
+          "gameScript": "game_downattackd",
+          "animations": [
+            "f04downattackd.nuanmb"
+          ],
+          "cancelFrame": "46",
+          "xluStart": "1",
+          "xluEnd": "23",
+          "loop": "false",
+          "sourceMotion": "down_attack_d"
+        },
+        "condition": "Attack from corresponding prone orientation/trip/ledge state; exact pose orientation association retained separately until native posed guide.",
+        "wikiSources": [
+          {
+            "url": "https://www.ssbwiki.com/Link_(SSBU)/Floor_attack_(front)",
+            "revision": 1656180,
+            "packets": [
+              {
+                "group": "Hit 1",
+                "subsection": null,
+                "template": "UltimateHitboxTableRow",
+                "fields": {
+                  "id": "0",
+                  "damage": "7.0%",
+                  "sd": "8.0",
+                  "angle": "48",
+                  "bk": "80",
+                  "ks": "48",
+                  "fkv": "0",
+                  "r": "5.0",
+                  "bn": "top",
+                  "xpos": "0.0",
+                  "ypos": "5.0",
+                  "zpos": "-15.0 to -4.0",
+                  "ff": "1.0",
+                  "type": "Sword",
+                  "effect": "Slash",
+                  "sfx": "Slash",
+                  "slvl": "M",
+                  "clang": "f",
+                  "rebound": "f"
+                },
+                "sourceOffset": 262
+              },
+              {
+                "group": "Hit 2",
+                "subsection": null,
+                "template": "UltimateHitboxTableRow",
+                "fields": {
+                  "id": "0",
+                  "damage": "7.0%",
+                  "sd": "8.0",
+                  "angle": "48",
+                  "bk": "80",
+                  "ks": "48",
+                  "fkv": "0",
+                  "r": "5.0",
+                  "bn": "top",
+                  "xpos": "0.0",
+                  "ypos": "5.0",
+                  "zpos": "17.0 to 4.0",
+                  "ff": "1.0",
+                  "type": "Sword",
+                  "effect": "Slash",
+                  "sfx": "Slash",
+                  "slvl": "M",
+                  "clang": "f",
+                  "rebound": "f"
+                },
+                "sourceOffset": 506
+              }
+            ],
+            "timingSource": "\n{|class=\"wikitable\"\n!Intangibility\n|1-22\n|-\n!Hit 1\n|17-18\n|-\n!Hit 2\n|21-22\n|-\n!Interruptible\n|46\n|-\n!Animation length\n|49\n|}\n\n{{FrameStripStart}}\n{{FrameStrip|t=Lag|c=16}}{{FrameStrip|t=Hitbox|c=2}}{{FrameStrip|t=Lag|c=2}}{{FrameStrip|t=Hitbox|c=2}}{{FrameStrip|t=Lag|c=23}}{{FrameStrip|t=Interruptible|c=4}}\n|-\n{{FrameStrip|t=Intangible|c=22}}{{FrameStrip|t=Vulnerable|c=27}}\n{{FrameStripEnd}}\n\n{{FrameIconLegend|lag=y|charge=y|hitbox=y|intangible=y|vulnerable=y|interruptible=y}}\n\n{{MvSubNavLink|g=SSBU}}\n[[Category:Link (SSBU)]]\n[[Category:Floor attacks (SSBU)]]"
+          },
+          {
+            "url": "https://www.ssbwiki.com/Link_(SSBU)/Floor_attack_(back)",
+            "revision": 1656181,
+            "packets": [
+              {
+                "group": "Hit 1",
+                "subsection": null,
+                "template": "UltimateHitboxTableRow",
+                "fields": {
+                  "id": "0",
+                  "damage": "7.0%",
+                  "sd": "8.0",
+                  "angle": "48",
+                  "bk": "80",
+                  "ks": "48",
+                  "fkv": "0",
+                  "r": "5.0",
+                  "bn": "top",
+                  "xpos": "0.0",
+                  "ypos": "5.0",
+                  "zpos": "-17.0 to -5.0",
+                  "ff": "1.0",
+                  "type": "Sword",
+                  "effect": "Slash",
+                  "sfx": "Slash",
+                  "slvl": "M",
+                  "clang": "f",
+                  "rebound": "f"
+                },
+                "sourceOffset": 260
+              },
+              {
+                "group": "Hit 2",
+                "subsection": null,
+                "template": "UltimateHitboxTableRow",
+                "fields": {
+                  "id": "0",
+                  "damage": "7.0%",
+                  "sd": "8.0",
+                  "angle": "48",
+                  "bk": "80",
+                  "ks": "48",
+                  "fkv": "0",
+                  "r": "5.0",
+                  "bn": "top",
+                  "xpos": "0.0",
+                  "ypos": "5.0",
+                  "zpos": "19.0 to 5.0",
+                  "ff": "1.0",
+                  "type": "Sword",
+                  "effect": "Slash",
+                  "sfx": "Slash",
+                  "slvl": "M",
+                  "clang": "f",
+                  "rebound": "f"
+                },
+                "sourceOffset": 504
+              }
+            ],
+            "timingSource": "\n{|class=\"wikitable\"\n!Intangibility\n|1-22\n|-\n!Hit 1\n|17-18\n|-\n!Hit 2\n|21-22\n|-\n!Interruptible\n|46\n|-\n!Animation length\n|49\n|}\n\n{{FrameStripStart}}\n{{FrameStrip|t=Lag|c=16}}{{FrameStrip|t=Hitbox|c=2}}{{FrameStrip|t=Lag|c=2}}{{FrameStrip|t=Hitbox|c=2}}{{FrameStrip|t=Lag|c=23}}{{FrameStrip|t=Interruptible|c=4}}\n|-\n{{FrameStrip|t=Intangible|c=22}}{{FrameStrip|t=Vulnerable|c=27}}\n{{FrameStripEnd}}\n\n{{FrameIconLegend|lag=y|charge=y|hitbox=y|intangible=y|vulnerable=y|interruptible=y}}\n\n{{MvSubNavLink|g=SSBU}}\n[[Category:Link (SSBU)]]\n[[Category:Floor attacks (SSBU)]]"
+          }
+        ],
+        "nativeFunction": {
+          "sourcePath": "sources/native/scripts/DownAttackD.txt",
+          "sha256": "1396a5901d98be28ca4faa61b398a05fd49e068e0543cbc94b3555ac24d0c279",
+          "function": "game_downattackd",
+          "controlFlow": [
+            {
+              "line": 3,
+              "raw": "if macros::is_excute(agent) {"
+            },
+            {
+              "line": 7,
+              "raw": "if macros::is_excute(agent) {"
+            },
+            {
+              "line": 11,
+              "raw": "if macros::is_excute(agent) {"
+            },
+            {
+              "line": 15,
+              "raw": "if macros::is_excute(agent) {"
+            }
+          ],
+          "events": [
+            {
+              "line": 2,
+              "command": "frame",
+              "args": [
+                "agent.lua_state_agent",
+                "17.0"
+              ],
+              "raw": "frame(agent.lua_state_agent, 17.0)",
+              "clockOperation": {
+                "line": 2,
+                "operation": "frame",
+                "value": 17.0
+              }
+            },
+            {
+              "line": 4,
+              "command": "macros::ATTACK",
+              "args": [
+                "agent",
+                "0",
+                "0",
+                "Hash40::new(\"top\")",
+                "7.0",
+                "48",
+                "48",
+                "0",
+                "80",
+                "5.0",
+                "0.0",
+                "5.0",
+                "-15.0",
+                "Some(0.0)",
+                "Some(5.0)",
+                "Some(-4.0)",
+                "1.0",
+                "1.0",
+                "*ATTACK_SETOFF_KIND_OFF",
+                "*ATTACK_LR_CHECK_POS",
+                "false",
+                "8",
+                "0.0",
+                "0",
+                "false",
+                "false",
+                "false",
+                "false",
+                "true",
+                "*COLLISION_SITUATION_MASK_GA",
+                "*COLLISION_CATEGORY_MASK_ALL",
+                "*COLLISION_PART_MASK_ALL",
+                "false",
+                "Hash40::new(\"collision_attr_cutup\")",
+                "*ATTACK_SOUND_LEVEL_M",
+                "*COLLISION_SOUND_ATTR_CUTUP",
+                "*ATTACK_REGION_SWORD"
+              ],
+              "raw": "macros::ATTACK(agent, 0, 0, Hash40::new(\"top\"), 7.0, 48, 48, 0, 80, 5.0, 0.0, 5.0, -15.0, Some(0.0), Some(5.0), Some(-4.0), 1.0, 1.0, *ATTACK_SETOFF_KIND_OFF, *ATTACK_LR_CHECK_POS, false, 8, 0.0, 0, false, false, false, false, true, *COLLISION_SITUATION_MASK_GA, *COLLISION_CATEGORY_MASK_ALL, *COLLISION_PART_MASK_ALL, false, Hash40::new(\"collision_attr_cutup\"), *ATTACK_SOUND_LEVEL_M, *COLLISION_SOUND_ATTR_CUTUP, *ATTACK_REGION_SWORD)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 2,
+                  "operation": "frame",
+                  "value": 17.0
+                }
+              ],
+              "packet": {
+                "agent": "agent",
+                "id": 0,
+                "part": 0,
+                "bone": "Hash40::new(\"top\")",
+                "damage": 7.0,
+                "angle": 48,
+                "growth": 48,
+                "fixed": 0,
+                "base": 80,
+                "radius": 5.0,
+                "x": 0.0,
+                "y": 5.0,
+                "z": -15.0,
+                "x2": "Some(0.0)",
+                "y2": "Some(5.0)",
+                "z2": "Some(-4.0)",
+                "hitlag": 1.0,
+                "sdi": 1.0,
+                "setoff": "*ATTACK_SETOFF_KIND_OFF",
+                "directionCheck": "*ATTACK_LR_CHECK_POS",
+                "setWeight": false,
+                "shieldDamage": 8,
+                "trip": 0.0,
+                "rehit": 0,
+                "reflectable": false,
+                "absorbable": false,
+                "flinchless": false,
+                "disableHitlag": false,
+                "direct": true,
+                "situationMask": "*COLLISION_SITUATION_MASK_GA",
+                "categoryMask": "*COLLISION_CATEGORY_MASK_ALL",
+                "partMask": "*COLLISION_PART_MASK_ALL",
+                "friendlyFire": false,
+                "attribute": "Hash40::new(\"collision_attr_cutup\")",
+                "soundLevel": "*ATTACK_SOUND_LEVEL_M",
+                "soundAttribute": "*COLLISION_SOUND_ATTR_CUTUP",
+                "region": "*ATTACK_REGION_SWORD"
+              },
+              "argumentCount": 37,
+              "expectedArgumentCount": 37,
+              "packetComplete": true,
+              "consumer": "Native authored per-hit packet; collision consumes transformed bone-attached sphere/capsule, not raw screen rectangle. Motion/status may scale damage and kinetics."
+            },
+            {
+              "line": 6,
+              "command": "wait",
+              "args": [
+                "agent.lua_state_agent",
+                "2.0"
+              ],
+              "raw": "wait(agent.lua_state_agent, 2.0)",
+              "clockOperation": {
+                "line": 6,
+                "operation": "wait",
+                "value": 2.0
+              }
+            },
+            {
+              "line": 8,
+              "command": "AttackModule::clear_all",
+              "args": [
+                "agent.module_accessor"
+              ],
+              "raw": "AttackModule::clear_all(agent.module_accessor)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 2,
+                  "operation": "frame",
+                  "value": 17.0
+                },
+                {
+                  "line": 6,
+                  "operation": "wait",
+                  "value": 2.0
+                }
+              ]
+            },
+            {
+              "line": 10,
+              "command": "frame",
+              "args": [
+                "agent.lua_state_agent",
+                "21.0"
+              ],
+              "raw": "frame(agent.lua_state_agent, 21.0)",
+              "clockOperation": {
+                "line": 10,
+                "operation": "frame",
+                "value": 21.0
+              }
+            },
+            {
+              "line": 12,
+              "command": "macros::ATTACK",
+              "args": [
+                "agent",
+                "0",
+                "0",
+                "Hash40::new(\"top\")",
+                "7.0",
+                "48",
+                "48",
+                "0",
+                "80",
+                "5.0",
+                "0.0",
+                "5.0",
+                "17.0",
+                "Some(0.0)",
+                "Some(5.0)",
+                "Some(4.0)",
+                "1.0",
+                "1.0",
+                "*ATTACK_SETOFF_KIND_OFF",
+                "*ATTACK_LR_CHECK_POS",
+                "false",
+                "8",
+                "0.0",
+                "0",
+                "false",
+                "false",
+                "false",
+                "false",
+                "true",
+                "*COLLISION_SITUATION_MASK_GA",
+                "*COLLISION_CATEGORY_MASK_ALL",
+                "*COLLISION_PART_MASK_ALL",
+                "false",
+                "Hash40::new(\"collision_attr_cutup\")",
+                "*ATTACK_SOUND_LEVEL_M",
+                "*COLLISION_SOUND_ATTR_CUTUP",
+                "*ATTACK_REGION_SWORD"
+              ],
+              "raw": "macros::ATTACK(agent, 0, 0, Hash40::new(\"top\"), 7.0, 48, 48, 0, 80, 5.0, 0.0, 5.0, 17.0, Some(0.0), Some(5.0), Some(4.0), 1.0, 1.0, *ATTACK_SETOFF_KIND_OFF, *ATTACK_LR_CHECK_POS, false, 8, 0.0, 0, false, false, false, false, true, *COLLISION_SITUATION_MASK_GA, *COLLISION_CATEGORY_MASK_ALL, *COLLISION_PART_MASK_ALL, false, Hash40::new(\"collision_attr_cutup\"), *ATTACK_SOUND_LEVEL_M, *COLLISION_SOUND_ATTR_CUTUP, *ATTACK_REGION_SWORD)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 2,
+                  "operation": "frame",
+                  "value": 17.0
+                },
+                {
+                  "line": 6,
+                  "operation": "wait",
+                  "value": 2.0
+                },
+                {
+                  "line": 10,
+                  "operation": "frame",
+                  "value": 21.0
+                }
+              ],
+              "packet": {
+                "agent": "agent",
+                "id": 0,
+                "part": 0,
+                "bone": "Hash40::new(\"top\")",
+                "damage": 7.0,
+                "angle": 48,
+                "growth": 48,
+                "fixed": 0,
+                "base": 80,
+                "radius": 5.0,
+                "x": 0.0,
+                "y": 5.0,
+                "z": 17.0,
+                "x2": "Some(0.0)",
+                "y2": "Some(5.0)",
+                "z2": "Some(4.0)",
+                "hitlag": 1.0,
+                "sdi": 1.0,
+                "setoff": "*ATTACK_SETOFF_KIND_OFF",
+                "directionCheck": "*ATTACK_LR_CHECK_POS",
+                "setWeight": false,
+                "shieldDamage": 8,
+                "trip": 0.0,
+                "rehit": 0,
+                "reflectable": false,
+                "absorbable": false,
+                "flinchless": false,
+                "disableHitlag": false,
+                "direct": true,
+                "situationMask": "*COLLISION_SITUATION_MASK_GA",
+                "categoryMask": "*COLLISION_CATEGORY_MASK_ALL",
+                "partMask": "*COLLISION_PART_MASK_ALL",
+                "friendlyFire": false,
+                "attribute": "Hash40::new(\"collision_attr_cutup\")",
+                "soundLevel": "*ATTACK_SOUND_LEVEL_M",
+                "soundAttribute": "*COLLISION_SOUND_ATTR_CUTUP",
+                "region": "*ATTACK_REGION_SWORD"
+              },
+              "argumentCount": 37,
+              "expectedArgumentCount": 37,
+              "packetComplete": true,
+              "consumer": "Native authored per-hit packet; collision consumes transformed bone-attached sphere/capsule, not raw screen rectangle. Motion/status may scale damage and kinetics."
+            },
+            {
+              "line": 14,
+              "command": "wait",
+              "args": [
+                "agent.lua_state_agent",
+                "2.0"
+              ],
+              "raw": "wait(agent.lua_state_agent, 2.0)",
+              "clockOperation": {
+                "line": 14,
+                "operation": "wait",
+                "value": 2.0
+              }
+            },
+            {
+              "line": 16,
+              "command": "AttackModule::clear_all",
+              "args": [
+                "agent.module_accessor"
+              ],
+              "raw": "AttackModule::clear_all(agent.module_accessor)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 2,
+                  "operation": "frame",
+                  "value": 17.0
+                },
+                {
+                  "line": 6,
+                  "operation": "wait",
+                  "value": 2.0
+                },
+                {
+                  "line": 10,
+                  "operation": "frame",
+                  "value": 21.0
+                },
+                {
+                  "line": 14,
+                  "operation": "wait",
+                  "value": 2.0
+                }
+              ]
+            }
+          ],
+          "clockStatus": "RAW_LEXICAL_ONLY: frame absolute and wait relative native motion clocks. Preserve branches and loops; do not infer gameplay elapsed or expand symbolic loops."
+        },
+        "limits": "Both front/back published floorattacktiming17..18,21..22/protection1..22/FAF46; do not collapse the distinct supine/prone pose cues because timing matches. NativeU/D-to-Wiki-front/back exact visual association awaits source rig; no unsupported alias claim."
+      },
+      {
+        "inventoryActionId": "link.slip_attack",
+        "sourceMotion": "slip_attack",
+        "nativeMotion": {
+          "gameScript": "game_slipattack",
+          "animations": [
+            "g03slipattack.nuanmb"
+          ],
+          "cancelFrame": "50",
+          "xluStart": "1",
+          "xluEnd": "8",
+          "loop": "false",
+          "sourceMotion": "slip_attack"
+        },
+        "condition": "Attack from corresponding prone orientation/trip/ledge state; exact pose orientation association retained separately until native posed guide.",
+        "wikiSources": [
+          {
+            "url": "https://www.ssbwiki.com/Link_(SSBU)/Floor_attack_(trip)",
+            "revision": 1656183,
+            "packets": [
+              {
+                "group": "Hit 1",
+                "subsection": null,
+                "template": "UltimateHitboxTableRow",
+                "fields": {
+                  "id": "0",
+                  "damage": "5.0%",
+                  "sd": "8.0",
+                  "angle": "361",
+                  "bk": "60",
+                  "ks": "50",
+                  "fkv": "0",
+                  "r": "5.0",
+                  "bn": "top",
+                  "xpos": "0.0",
+                  "ypos": "5.0",
+                  "zpos": "24.0 to 7.0",
+                  "ff": "1.0",
+                  "type": "Sword",
+                  "effect": "Slash",
+                  "sfx": "Slash",
+                  "slvl": "M",
+                  "clang": "f",
+                  "rebound": "f"
+                },
+                "sourceOffset": 388
+              },
+              {
+                "group": "Hit 2",
+                "subsection": null,
+                "template": "UltimateHitboxTableRow",
+                "fields": {
+                  "id": "0",
+                  "damage": "5.0%",
+                  "sd": "8.0",
+                  "angle": "361",
+                  "bk": "60",
+                  "ks": "50",
+                  "fkv": "0",
+                  "r": "5.0",
+                  "bn": "top",
+                  "xpos": "0.0",
+                  "ypos": "5.0",
+                  "zpos": "-19.5 to -5.0",
+                  "ff": "1.0",
+                  "type": "Sword",
+                  "effect": "Slash",
+                  "sfx": "Slash",
+                  "slvl": "M",
+                  "clang": "f",
+                  "rebound": "f"
+                },
+                "sourceOffset": 631
+              }
+            ],
+            "timingSource": "\n{|class=\"wikitable\"\n!Intangibility\n|1-7\n|-\n!Hit 1\n|19-20\n|-\n!Hit 2\n|28-29\n|-\n!Interruptible\n|50\n|-\n!Animation length\n|59\n|}\n\n{{FrameStripStart}}\n{{FrameStrip|t=Lag|c=18}}{{FrameStrip|t=Hitbox|c=2}}{{FrameStrip|t=Lag|c=7}}{{FrameStrip|t=Hitbox|c=2}}{{FrameStrip|t=Lag|c=20}}{{FrameStrip|t=Interruptible|c=10}}\n|-\n{{FrameStrip|t=Intangible|c=7}}{{FrameStrip|t=Vulnerable|c=52}}\n{{FrameStripEnd}}\n\n{{FrameIconLegend|lag=y|charge=y|hitbox=y|intangible=y|vulnerable=y|interruptible=y}}\n\n{{MvSubNavLink|g=SSBU}}\n[[Category:Link (SSBU)]]\n[[Category:Floor attacks (SSBU)]]"
+          }
+        ],
+        "nativeFunction": {
+          "sourcePath": "sources/native/scripts/SlipAttack.txt",
+          "sha256": "fd991d1dc9c58bad9e5bd98d9b31b3a8c9c2ae89fe50e71da1aa29f559c7d2e0",
+          "function": "game_slipattack",
+          "controlFlow": [
+            {
+              "line": 3,
+              "raw": "if macros::is_excute(agent) {"
+            },
+            {
+              "line": 7,
+              "raw": "if macros::is_excute(agent) {"
+            },
+            {
+              "line": 11,
+              "raw": "if macros::is_excute(agent) {"
+            },
+            {
+              "line": 15,
+              "raw": "if macros::is_excute(agent) {"
+            }
+          ],
+          "events": [
+            {
+              "line": 2,
+              "command": "frame",
+              "args": [
+                "agent.lua_state_agent",
+                "19.0"
+              ],
+              "raw": "frame(agent.lua_state_agent, 19.0)",
+              "clockOperation": {
+                "line": 2,
+                "operation": "frame",
+                "value": 19.0
+              }
+            },
+            {
+              "line": 4,
+              "command": "macros::ATTACK",
+              "args": [
+                "agent",
+                "0",
+                "0",
+                "Hash40::new(\"top\")",
+                "5.0",
+                "361",
+                "50",
+                "0",
+                "60",
+                "5.0",
+                "0.0",
+                "5.0",
+                "24.0",
+                "Some(0.0)",
+                "Some(5.0)",
+                "Some(7.0)",
+                "1.0",
+                "1.0",
+                "*ATTACK_SETOFF_KIND_OFF",
+                "*ATTACK_LR_CHECK_POS",
+                "false",
+                "8",
+                "0.0",
+                "0",
+                "false",
+                "false",
+                "false",
+                "false",
+                "true",
+                "*COLLISION_SITUATION_MASK_GA",
+                "*COLLISION_CATEGORY_MASK_ALL",
+                "*COLLISION_PART_MASK_ALL",
+                "false",
+                "Hash40::new(\"collision_attr_cutup\")",
+                "*ATTACK_SOUND_LEVEL_M",
+                "*COLLISION_SOUND_ATTR_CUTUP",
+                "*ATTACK_REGION_SWORD"
+              ],
+              "raw": "macros::ATTACK(agent, 0, 0, Hash40::new(\"top\"), 5.0, 361, 50, 0, 60, 5.0, 0.0, 5.0, 24.0, Some(0.0), Some(5.0), Some(7.0), 1.0, 1.0, *ATTACK_SETOFF_KIND_OFF, *ATTACK_LR_CHECK_POS, false, 8, 0.0, 0, false, false, false, false, true, *COLLISION_SITUATION_MASK_GA, *COLLISION_CATEGORY_MASK_ALL, *COLLISION_PART_MASK_ALL, false, Hash40::new(\"collision_attr_cutup\"), *ATTACK_SOUND_LEVEL_M, *COLLISION_SOUND_ATTR_CUTUP, *ATTACK_REGION_SWORD)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 2,
+                  "operation": "frame",
+                  "value": 19.0
+                }
+              ],
+              "packet": {
+                "agent": "agent",
+                "id": 0,
+                "part": 0,
+                "bone": "Hash40::new(\"top\")",
+                "damage": 5.0,
+                "angle": 361,
+                "growth": 50,
+                "fixed": 0,
+                "base": 60,
+                "radius": 5.0,
+                "x": 0.0,
+                "y": 5.0,
+                "z": 24.0,
+                "x2": "Some(0.0)",
+                "y2": "Some(5.0)",
+                "z2": "Some(7.0)",
+                "hitlag": 1.0,
+                "sdi": 1.0,
+                "setoff": "*ATTACK_SETOFF_KIND_OFF",
+                "directionCheck": "*ATTACK_LR_CHECK_POS",
+                "setWeight": false,
+                "shieldDamage": 8,
+                "trip": 0.0,
+                "rehit": 0,
+                "reflectable": false,
+                "absorbable": false,
+                "flinchless": false,
+                "disableHitlag": false,
+                "direct": true,
+                "situationMask": "*COLLISION_SITUATION_MASK_GA",
+                "categoryMask": "*COLLISION_CATEGORY_MASK_ALL",
+                "partMask": "*COLLISION_PART_MASK_ALL",
+                "friendlyFire": false,
+                "attribute": "Hash40::new(\"collision_attr_cutup\")",
+                "soundLevel": "*ATTACK_SOUND_LEVEL_M",
+                "soundAttribute": "*COLLISION_SOUND_ATTR_CUTUP",
+                "region": "*ATTACK_REGION_SWORD"
+              },
+              "argumentCount": 37,
+              "expectedArgumentCount": 37,
+              "packetComplete": true,
+              "consumer": "Native authored per-hit packet; collision consumes transformed bone-attached sphere/capsule, not raw screen rectangle. Motion/status may scale damage and kinetics."
+            },
+            {
+              "line": 6,
+              "command": "wait",
+              "args": [
+                "agent.lua_state_agent",
+                "2.0"
+              ],
+              "raw": "wait(agent.lua_state_agent, 2.0)",
+              "clockOperation": {
+                "line": 6,
+                "operation": "wait",
+                "value": 2.0
+              }
+            },
+            {
+              "line": 8,
+              "command": "AttackModule::clear_all",
+              "args": [
+                "agent.module_accessor"
+              ],
+              "raw": "AttackModule::clear_all(agent.module_accessor)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 2,
+                  "operation": "frame",
+                  "value": 19.0
+                },
+                {
+                  "line": 6,
+                  "operation": "wait",
+                  "value": 2.0
+                }
+              ]
+            },
+            {
+              "line": 10,
+              "command": "frame",
+              "args": [
+                "agent.lua_state_agent",
+                "28.0"
+              ],
+              "raw": "frame(agent.lua_state_agent, 28.0)",
+              "clockOperation": {
+                "line": 10,
+                "operation": "frame",
+                "value": 28.0
+              }
+            },
+            {
+              "line": 12,
+              "command": "macros::ATTACK",
+              "args": [
+                "agent",
+                "0",
+                "0",
+                "Hash40::new(\"top\")",
+                "5.0",
+                "361",
+                "50",
+                "0",
+                "60",
+                "5.0",
+                "0.0",
+                "5.0",
+                "-19.5",
+                "Some(0.0)",
+                "Some(5.0)",
+                "Some(-5.0)",
+                "1.0",
+                "1.0",
+                "*ATTACK_SETOFF_KIND_OFF",
+                "*ATTACK_LR_CHECK_POS",
+                "false",
+                "8",
+                "0.0",
+                "0",
+                "false",
+                "false",
+                "false",
+                "false",
+                "true",
+                "*COLLISION_SITUATION_MASK_GA",
+                "*COLLISION_CATEGORY_MASK_ALL",
+                "*COLLISION_PART_MASK_ALL",
+                "false",
+                "Hash40::new(\"collision_attr_cutup\")",
+                "*ATTACK_SOUND_LEVEL_M",
+                "*COLLISION_SOUND_ATTR_CUTUP",
+                "*ATTACK_REGION_SWORD"
+              ],
+              "raw": "macros::ATTACK(agent, 0, 0, Hash40::new(\"top\"), 5.0, 361, 50, 0, 60, 5.0, 0.0, 5.0, -19.5, Some(0.0), Some(5.0), Some(-5.0), 1.0, 1.0, *ATTACK_SETOFF_KIND_OFF, *ATTACK_LR_CHECK_POS, false, 8, 0.0, 0, false, false, false, false, true, *COLLISION_SITUATION_MASK_GA, *COLLISION_CATEGORY_MASK_ALL, *COLLISION_PART_MASK_ALL, false, Hash40::new(\"collision_attr_cutup\"), *ATTACK_SOUND_LEVEL_M, *COLLISION_SOUND_ATTR_CUTUP, *ATTACK_REGION_SWORD)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 2,
+                  "operation": "frame",
+                  "value": 19.0
+                },
+                {
+                  "line": 6,
+                  "operation": "wait",
+                  "value": 2.0
+                },
+                {
+                  "line": 10,
+                  "operation": "frame",
+                  "value": 28.0
+                }
+              ],
+              "packet": {
+                "agent": "agent",
+                "id": 0,
+                "part": 0,
+                "bone": "Hash40::new(\"top\")",
+                "damage": 5.0,
+                "angle": 361,
+                "growth": 50,
+                "fixed": 0,
+                "base": 60,
+                "radius": 5.0,
+                "x": 0.0,
+                "y": 5.0,
+                "z": -19.5,
+                "x2": "Some(0.0)",
+                "y2": "Some(5.0)",
+                "z2": "Some(-5.0)",
+                "hitlag": 1.0,
+                "sdi": 1.0,
+                "setoff": "*ATTACK_SETOFF_KIND_OFF",
+                "directionCheck": "*ATTACK_LR_CHECK_POS",
+                "setWeight": false,
+                "shieldDamage": 8,
+                "trip": 0.0,
+                "rehit": 0,
+                "reflectable": false,
+                "absorbable": false,
+                "flinchless": false,
+                "disableHitlag": false,
+                "direct": true,
+                "situationMask": "*COLLISION_SITUATION_MASK_GA",
+                "categoryMask": "*COLLISION_CATEGORY_MASK_ALL",
+                "partMask": "*COLLISION_PART_MASK_ALL",
+                "friendlyFire": false,
+                "attribute": "Hash40::new(\"collision_attr_cutup\")",
+                "soundLevel": "*ATTACK_SOUND_LEVEL_M",
+                "soundAttribute": "*COLLISION_SOUND_ATTR_CUTUP",
+                "region": "*ATTACK_REGION_SWORD"
+              },
+              "argumentCount": 37,
+              "expectedArgumentCount": 37,
+              "packetComplete": true,
+              "consumer": "Native authored per-hit packet; collision consumes transformed bone-attached sphere/capsule, not raw screen rectangle. Motion/status may scale damage and kinetics."
+            },
+            {
+              "line": 14,
+              "command": "wait",
+              "args": [
+                "agent.lua_state_agent",
+                "2.0"
+              ],
+              "raw": "wait(agent.lua_state_agent, 2.0)",
+              "clockOperation": {
+                "line": 14,
+                "operation": "wait",
+                "value": 2.0
+              }
+            },
+            {
+              "line": 16,
+              "command": "AttackModule::clear_all",
+              "args": [
+                "agent.module_accessor"
+              ],
+              "raw": "AttackModule::clear_all(agent.module_accessor)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 2,
+                  "operation": "frame",
+                  "value": 19.0
+                },
+                {
+                  "line": 6,
+                  "operation": "wait",
+                  "value": 2.0
+                },
+                {
+                  "line": 10,
+                  "operation": "frame",
+                  "value": 28.0
+                },
+                {
+                  "line": 14,
+                  "operation": "wait",
+                  "value": 2.0
+                }
+              ]
+            }
+          ],
+          "clockStatus": "RAW_LEXICAL_ONLY: frame absolute and wait relative native motion clocks. Preserve branches and loops; do not infer gameplay elapsed or expand symbolic loops."
+        },
+        "limits": "Both front/back published floorattacktiming17..18,21..22/protection1..22/FAF46; do not collapse the distinct supine/prone pose cues because timing matches. NativeU/D-to-Wiki-front/back exact visual association awaits source rig; no unsupported alias claim."
+      },
+      {
+        "inventoryActionId": "link.cliff_attack_quick",
+        "sourceMotion": "cliff_attack_quick",
+        "nativeMotion": {
+          "gameScript": "game_cliffattack",
+          "animations": [
+            "g02cliffattack.nuanmb"
+          ],
+          "cancelFrame": "56",
+          "xluStart": "1",
+          "xluEnd": "23",
+          "loop": "false",
+          "sourceMotion": "cliff_attack_quick"
+        },
+        "condition": "Attack from corresponding prone orientation/trip/ledge state; exact pose orientation association retained separately until native posed guide.",
+        "wikiSources": [
+          {
+            "url": "https://www.ssbwiki.com/Link_(SSBU)/Edge_attack",
+            "revision": 1695929,
+            "packets": [
+              {
+                "group": null,
+                "subsection": null,
+                "template": "UltimateHitboxTableRow",
+                "fields": {
+                  "id": "0",
+                  "damage": "9.0%",
+                  "angle": "45",
+                  "af": "3",
+                  "bk": "90",
+                  "ks": "20",
+                  "fkv": "0",
+                  "r": "5.0",
+                  "bn": "top",
+                  "xpos": "0.0",
+                  "ypos": "5.0",
+                  "zpos": "15.5 to -4.0",
+                  "ff": "1.0",
+                  "type": "Sword",
+                  "effect": "Stab",
+                  "sfx": "Slash",
+                  "slvl": "M",
+                  "clang": "f",
+                  "rebound": "f"
+                },
+                "sourceOffset": 201
+              }
+            ],
+            "timingSource": "\nFor each ledge grab without touching the ground or being hit, intangibility is reduced on subsequent ledge grabs, until it is lost entirely from the fourth grab onward. The hitbox visualization only shows intangibility for the first ledge grab.\n\n{|class=\"wikitable\"\n!Intangibility (1st grab)\n|1-22\n|-\n!Intangibility (2nd grab)\n|1-18\n|-\n!Intangibility (3rd grab)\n|1-11\n|-\n!Hitbox\n|20-22\n|-\n!Interruptible\n|56\n|-\n!Animation length\n|55\n|}\n\n{{FrameStripStart}}\n!Hitboxes&nbsp;{{FrameStrip|t=Lag|c=19}}{{FrameStrip|t=Hitbox|c=3}}{{FrameStrip|t=Lag|c=33}}\n|-\n!1st grab&nbsp;{{FrameStrip|t=Intangible|c=22}}{{FrameStrip|t=Vulnerable|c=33}}\n|-\n!2nd grab&nbsp;{{FrameStrip|t=Intangible|c=18}}{{FrameStrip|t=Vulnerable|c=37}}\n|-\n!3rd grab&nbsp;{{FrameStrip|t=Intangible|c=11}}{{FrameStrip|t=Vulnerable|c=44}}\n{{FrameStripEnd}}\n\n{{FrameIconLegend|lag=y|vulnerable=y|intangible=y|hitbox=y}}\n\n{{MvSubNavLink|g=SSBU}}\n[[Category:Link (SSBU)]]\n[[Category:Edge attacks (SSBU)]]"
+          }
+        ],
+        "nativeFunction": {
+          "sourcePath": "sources/native/scripts/CliffAttack.txt",
+          "sha256": "21e949f49cd2612a488204e15f488c22df3e450df10177f17e7c934ecb8d28a6",
+          "function": "game_cliffattack",
+          "controlFlow": [
+            {
+              "line": 3,
+              "raw": "if macros::is_excute(agent) {"
+            },
+            {
+              "line": 7,
+              "raw": "if macros::is_excute(agent) {"
+            }
+          ],
+          "events": [
+            {
+              "line": 2,
+              "command": "frame",
+              "args": [
+                "agent.lua_state_agent",
+                "20.0"
+              ],
+              "raw": "frame(agent.lua_state_agent, 20.0)",
+              "clockOperation": {
+                "line": 2,
+                "operation": "frame",
+                "value": 20.0
+              }
+            },
+            {
+              "line": 4,
+              "command": "macros::ATTACK",
+              "args": [
+                "agent",
+                "0",
+                "0",
+                "Hash40::new(\"top\")",
+                "9.0",
+                "45",
+                "20",
+                "0",
+                "90",
+                "5.0",
+                "0.0",
+                "5.0",
+                "15.5",
+                "Some(0.0)",
+                "Some(5.0)",
+                "Some(-4.0)",
+                "1.0",
+                "1.0",
+                "*ATTACK_SETOFF_KIND_OFF",
+                "*ATTACK_LR_CHECK_F",
+                "false",
+                "0",
+                "0.0",
+                "0",
+                "false",
+                "false",
+                "false",
+                "false",
+                "true",
+                "*COLLISION_SITUATION_MASK_GA",
+                "*COLLISION_CATEGORY_MASK_ALL",
+                "*COLLISION_PART_MASK_ALL",
+                "false",
+                "Hash40::new(\"collision_attr_sting\")",
+                "*ATTACK_SOUND_LEVEL_M",
+                "*COLLISION_SOUND_ATTR_CUTUP",
+                "*ATTACK_REGION_SWORD"
+              ],
+              "raw": "macros::ATTACK(agent, 0, 0, Hash40::new(\"top\"), 9.0, 45, 20, 0, 90, 5.0, 0.0, 5.0, 15.5, Some(0.0), Some(5.0), Some(-4.0), 1.0, 1.0, *ATTACK_SETOFF_KIND_OFF, *ATTACK_LR_CHECK_F, false, 0, 0.0, 0, false, false, false, false, true, *COLLISION_SITUATION_MASK_GA, *COLLISION_CATEGORY_MASK_ALL, *COLLISION_PART_MASK_ALL, false, Hash40::new(\"collision_attr_sting\"), *ATTACK_SOUND_LEVEL_M, *COLLISION_SOUND_ATTR_CUTUP, *ATTACK_REGION_SWORD)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 2,
+                  "operation": "frame",
+                  "value": 20.0
+                }
+              ],
+              "packet": {
+                "agent": "agent",
+                "id": 0,
+                "part": 0,
+                "bone": "Hash40::new(\"top\")",
+                "damage": 9.0,
+                "angle": 45,
+                "growth": 20,
+                "fixed": 0,
+                "base": 90,
+                "radius": 5.0,
+                "x": 0.0,
+                "y": 5.0,
+                "z": 15.5,
+                "x2": "Some(0.0)",
+                "y2": "Some(5.0)",
+                "z2": "Some(-4.0)",
+                "hitlag": 1.0,
+                "sdi": 1.0,
+                "setoff": "*ATTACK_SETOFF_KIND_OFF",
+                "directionCheck": "*ATTACK_LR_CHECK_F",
+                "setWeight": false,
+                "shieldDamage": 0,
+                "trip": 0.0,
+                "rehit": 0,
+                "reflectable": false,
+                "absorbable": false,
+                "flinchless": false,
+                "disableHitlag": false,
+                "direct": true,
+                "situationMask": "*COLLISION_SITUATION_MASK_GA",
+                "categoryMask": "*COLLISION_CATEGORY_MASK_ALL",
+                "partMask": "*COLLISION_PART_MASK_ALL",
+                "friendlyFire": false,
+                "attribute": "Hash40::new(\"collision_attr_sting\")",
+                "soundLevel": "*ATTACK_SOUND_LEVEL_M",
+                "soundAttribute": "*COLLISION_SOUND_ATTR_CUTUP",
+                "region": "*ATTACK_REGION_SWORD"
+              },
+              "argumentCount": 37,
+              "expectedArgumentCount": 37,
+              "packetComplete": true,
+              "consumer": "Native authored per-hit packet; collision consumes transformed bone-attached sphere/capsule, not raw screen rectangle. Motion/status may scale damage and kinetics."
+            },
+            {
+              "line": 6,
+              "command": "wait",
+              "args": [
+                "agent.lua_state_agent",
+                "3.0"
+              ],
+              "raw": "wait(agent.lua_state_agent, 3.0)",
+              "clockOperation": {
+                "line": 6,
+                "operation": "wait",
+                "value": 3.0
+              }
+            },
+            {
+              "line": 8,
+              "command": "AttackModule::clear_all",
+              "args": [
+                "agent.module_accessor"
+              ],
+              "raw": "AttackModule::clear_all(agent.module_accessor)",
+              "precedingLexicalClockOperations": [
+                {
+                  "line": 2,
+                  "operation": "frame",
+                  "value": 20.0
+                },
+                {
+                  "line": 6,
+                  "operation": "wait",
+                  "value": 3.0
+                }
+              ]
+            }
+          ],
+          "clockStatus": "RAW_LEXICAL_ONLY: frame absolute and wait relative native motion clocks. Preserve branches and loops; do not infer gameplay elapsed or expand symbolic loops."
+        },
+        "limits": "Both front/back published floorattacktiming17..18,21..22/protection1..22/FAF46; do not collapse the distinct supine/prone pose cues because timing matches. NativeU/D-to-Wiki-front/back exact visual association awaits source rig; no unsupported alias claim."
+      }
+    ],
+    "pummel": {
+      "inventoryActionId": "link.catch_attack",
+      "stableGrabId": "link.grab",
+      "sourceMotion": "catch_attack",
+      "nativeFunction": {
+        "sourcePath": "sources/native/scripts/CatchAttack.txt",
+        "sha256": "a99f82b0bb62ffc9399eec4731d5fce95b6ebf40a2d2bf526b3d6278246bb29c",
+        "function": "game_catchattack",
+        "controlFlow": [
+          {
+            "line": 3,
+            "raw": "if macros::is_excute(agent) {"
+          },
+          {
+            "line": 8,
+            "raw": "if macros::is_excute(agent) {"
+          }
+        ],
+        "events": [
+          {
+            "line": 2,
+            "command": "frame",
+            "args": [
+              "agent.lua_state_agent",
+              "1.0"
+            ],
+            "raw": "frame(agent.lua_state_agent, 1.0)",
+            "clockOperation": {
+              "line": 2,
+              "operation": "frame",
+              "value": 1.0
+            }
+          },
+          {
+            "line": 4,
+            "command": "macros::ATTACK",
+            "args": [
+              "agent",
+              "0",
+              "0",
+              "Hash40::new(\"top\")",
+              "1.3",
+              "361",
+              "100",
+              "30",
+              "0",
+              "4.8",
+              "0.0",
+              "7.0",
+              "7.0",
+              "None",
+              "None",
+              "None",
+              "2.1",
+              "1.0",
+              "*ATTACK_SETOFF_KIND_OFF",
+              "*ATTACK_LR_CHECK_F",
+              "false",
+              "0",
+              "0.0",
+              "0",
+              "false",
+              "false",
+              "false",
+              "false",
+              "true",
+              "*COLLISION_SITUATION_MASK_GA",
+              "*COLLISION_CATEGORY_MASK_ALL",
+              "*COLLISION_PART_MASK_ALL",
+              "false",
+              "Hash40::new(\"collision_attr_normal\")",
+              "*ATTACK_SOUND_LEVEL_S",
+              "*COLLISION_SOUND_ATTR_KICK",
+              "*ATTACK_REGION_SWORD"
+            ],
+            "raw": "macros::ATTACK(agent, 0, 0, Hash40::new(\"top\"), 1.3, 361, 100, 30, 0, 4.8, 0.0, 7.0, 7.0, None, None, None, 2.1, 1.0, *ATTACK_SETOFF_KIND_OFF, *ATTACK_LR_CHECK_F, false, 0, 0.0, 0, false, false, false, false, true, *COLLISION_SITUATION_MASK_GA, *COLLISION_CATEGORY_MASK_ALL, *COLLISION_PART_MASK_ALL, false, Hash40::new(\"collision_attr_normal\"), *ATTACK_SOUND_LEVEL_S, *COLLISION_SOUND_ATTR_KICK, *ATTACK_REGION_SWORD)",
+            "precedingLexicalClockOperations": [
+              {
+                "line": 2,
+                "operation": "frame",
+                "value": 1.0
+              }
+            ],
+            "packet": {
+              "agent": "agent",
+              "id": 0,
+              "part": 0,
+              "bone": "Hash40::new(\"top\")",
+              "damage": 1.3,
+              "angle": 361,
+              "growth": 100,
+              "fixed": 30,
+              "base": 0,
+              "radius": 4.8,
+              "x": 0.0,
+              "y": 7.0,
+              "z": 7.0,
+              "x2": null,
+              "y2": null,
+              "z2": null,
+              "hitlag": 2.1,
+              "sdi": 1.0,
+              "setoff": "*ATTACK_SETOFF_KIND_OFF",
+              "directionCheck": "*ATTACK_LR_CHECK_F",
+              "setWeight": false,
+              "shieldDamage": 0,
+              "trip": 0.0,
+              "rehit": 0,
+              "reflectable": false,
+              "absorbable": false,
+              "flinchless": false,
+              "disableHitlag": false,
+              "direct": true,
+              "situationMask": "*COLLISION_SITUATION_MASK_GA",
+              "categoryMask": "*COLLISION_CATEGORY_MASK_ALL",
+              "partMask": "*COLLISION_PART_MASK_ALL",
+              "friendlyFire": false,
+              "attribute": "Hash40::new(\"collision_attr_normal\")",
+              "soundLevel": "*ATTACK_SOUND_LEVEL_S",
+              "soundAttribute": "*COLLISION_SOUND_ATTR_KICK",
+              "region": "*ATTACK_REGION_SWORD"
+            },
+            "argumentCount": 37,
+            "expectedArgumentCount": 37,
+            "packetComplete": true,
+            "consumer": "Native authored per-hit packet; collision consumes transformed bone-attached sphere/capsule, not raw screen rectangle. Motion/status may scale damage and kinetics."
+          },
+          {
+            "line": 5,
+            "command": "AttackModule::set_catch_only_all",
+            "args": [
+              "agent.module_accessor",
+              "true",
+              "false"
+            ],
+            "raw": "AttackModule::set_catch_only_all(agent.module_accessor, true, false)",
+            "precedingLexicalClockOperations": [
+              {
+                "line": 2,
+                "operation": "frame",
+                "value": 1.0
+              }
+            ]
+          },
+          {
+            "line": 7,
+            "command": "wait",
+            "args": [
+              "agent.lua_state_agent",
+              "1.0"
+            ],
+            "raw": "wait(agent.lua_state_agent, 1.0)",
+            "clockOperation": {
+              "line": 7,
+              "operation": "wait",
+              "value": 1.0
+            }
+          },
+          {
+            "line": 9,
+            "command": "AttackModule::clear_all",
+            "args": [
+              "agent.module_accessor"
+            ],
+            "raw": "AttackModule::clear_all(agent.module_accessor)",
+            "precedingLexicalClockOperations": [
+              {
+                "line": 2,
+                "operation": "frame",
+                "value": 1.0
+              },
+              {
+                "line": 7,
+                "operation": "wait",
+                "value": 1.0
+              }
+            ]
+          }
+        ],
+        "clockStatus": "RAW_LEXICAL_ONLY: frame absolute and wait relative native motion clocks. Preserve branches and loops; do not infer gameplay elapsed or expand symbolic loops."
+      },
+      "wiki": {
+        "url": "https://www.ssbwiki.com/Link_(SSBU)/Pummel",
+        "revision": 1656113,
+        "rawSHA256": "006ab92bd12f3020010ce114221428885c3973e4354f9f902b3895ad85499396",
+        "packetRows": [
+          {
+            "group": null,
+            "subsection": null,
+            "template": "UltimateHitboxTableRow",
+            "fields": {
+              "id": "0",
+              "damage": "1.3%",
+              "angle": "361",
+              "af": "3",
+              "bk": "0",
+              "ks": "100",
+              "fkv": "30",
+              "r": "4.8",
+              "bn": "top",
+              "xpos": "0.0",
+              "ypos": "7.0",
+              "zpos": "7.0",
+              "ff": "2.1",
+              "type": "Sword",
+              "effect": "Normal",
+              "sfx": "Kick",
+              "slvl": "S",
+              "clang": "f",
+              "rebound": "f"
+            },
+            "sourceOffset": 190
+          }
+        ],
+        "timingSource": "\n{|class=\"wikitable\"\n!Hitbox\n|1\n|-\n!Interruptible\n|7\n|-\n!Animation length\n|24\n|}\n\n{{FrameStripStart}}\n{{FrameStrip|t=Hitbox|c=1}}{{FrameStrip|t=Lag|c=5}}{{FrameStrip|t=Interruptible|c=18}}\n{{FrameStripEnd}}\n\n{{FrameIconLegend|lag=y|hitbox=y|interruptible=y}}\n{{MvSubNavLink|g=SSBU}}\n[[Category:Link (SSBU)]]\n[[Category:Pummels (SSBU)]]"
+      },
+      "selectedPublic": {
+        "damage": 1.3,
+        "hitFrame": 1,
+        "firstActionableFrame": 7,
+        "publicAnimationLength": 24,
+        "angle": 361,
+        "base": 0,
+        "growth": 100,
+        "fixed": 30,
+        "hitlagMultiplier": 2.1,
+        "radius": 4.8
+      },
+      "condition": "Actual retained capture lease; fresh legal pummel input, catch-only packet targets that retained victim once. No independent fighter grab-release launch from fixedKB30.",
+      "clockLimit": "Public FAF7 means actions locked through first six public frames; native raw cancel7/native frame1 event and hitlag freezes are separately owned. Do not inherit legacy damage1.4 or cooldown12.",
+      "nativeCatchOnly": "AttackModule.set_catch_only_all true,false; consume this captured target restriction, not an ordinary hit on bystanders."
+    }
+  }
+}

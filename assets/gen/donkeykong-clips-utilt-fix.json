@@ -1,0 +1,17 @@
+{
+  "fighter": "donkeykong",
+  "identity": "a large muscular cartoon gorilla, Donkey Kong style, reddish-brown fur with a lighter tan chest and muzzle, small black nose, thick brows, wearing a bright red necktie, huge shoulders and arms, short legs, big hands and feet, cel shaded with bold dark outlines, vibrant saturated colors, Brawlhalla style clean 2D game sprite",
+  "draftBody": "a simple clear full-body silhouette of a large gorilla with huge arms, short legs and a small head, no clothing except a necktie, limbs clearly separated, high contrast sharp clean outline, full body",
+  "negative": "human, monkey tail, clothing, shirt, hat, weapon, text, watermark, two characters",
+  "cannyLow": 0.1,
+  "cannyHigh": 0.3,
+  "cnStrength": 0.6,
+  "idSeed": 4242,
+  "clips": {
+    "utilt": [
+      "Large cartoon gorilla crouched low on all fours, right-facing; near arm already raised with an open hand near the head/shoulder, other arm and legs planted, torso coiled slightly, full body, feet visible",
+      "right-facing, Same low stance, near arm now swinging upward and forward, fist/hand rising past shoulder height toward the top of the arc, full body, feet visible",
+      "right-facing, Near arm at the top of its arc directly above the head, torso rotated upward to follow the swing, other arm still braced low for balance, full body, feet visible"
+    ]
+  }
+}

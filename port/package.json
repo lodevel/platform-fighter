@@ -1,0 +1,21 @@
+{
+  "name": "platform-fighter-port",
+  "private": true,
+  "type": "module",
+  "description": "Three.js renderer + HTML menus for the Phaser → Three.js port (docs/review/2026-10-13/threejs-port/PLAN.md). Uses the root package's vite/typescript/vitest.",
+  "scripts": {
+    "dev": "vite --port 4210 --strictPort",
+    "typecheck": "node scripts/typecheck.mjs && node scripts/check-layers.mjs",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@fontsource/bungee": "^5.1.0",
+    "@fontsource/chakra-petch": "^5.1.0",
+    "three": "0.170.0"
+  },
+  "devDependencies": {
+    "@types/three": "0.170.0"
+  }
+}

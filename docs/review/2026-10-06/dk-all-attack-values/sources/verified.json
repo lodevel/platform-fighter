@@ -1,0 +1,254 @@
+[
+  {
+    "motion": "Attack11",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/Attack11.txt",
+    "sha256": "f38d10fc7bcfc5785d3b35bd17329fa91f5a866740719115af56c3c2b5333e1e",
+    "matchesPriorCapture": true
+  },
+  {
+    "motion": "Attack12",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/Attack12.txt",
+    "sha256": "b1dce9fe1ddca08ba478b625a2a6061813ca568738b1b0d610c0e8daa3782590",
+    "matchesPriorCapture": true
+  },
+  {
+    "motion": "AttackAirB",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/AttackAirB.txt",
+    "sha256": "ff3b35c5f51bdedddeb9197fba394b8851048ab6b8509f305e9bb4a3cfc0309b",
+    "matchesPriorCapture": true
+  },
+  {
+    "motion": "AttackAirF",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/AttackAirF.txt",
+    "sha256": "f3ff94d0a38a8c6a6586e620a0da5c08ef93a8505a0ea2ab79c41002b7a38df2",
+    "matchesPriorCapture": true
+  },
+  {
+    "motion": "AttackAirHi",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/AttackAirHi.txt",
+    "sha256": "1008482ddcff3f180492abb9e842e13348a46c9119811ade44db2ed624078e9a",
+    "matchesPriorCapture": true
+  },
+  {
+    "motion": "AttackAirLw",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/AttackAirLw.txt",
+    "sha256": "5bfe3ead37e54907b9037021021bd1418401c621173a4cb835c1277348893c6d",
+    "matchesPriorCapture": true
+  },
+  {
+    "motion": "AttackAirN",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/AttackAirN.txt",
+    "sha256": "013ca631b17ff111687e35992540364052c3fce0b6a057e4ba933adde579034a",
+    "matchesPriorCapture": true
+  },
+  {
+    "motion": "AttackDash",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/AttackDash.txt",
+    "sha256": "5028d04cc7f4378297e7a0070675e6c3029ead2ff4a990ffbe886ee812ed862b",
+    "matchesPriorCapture": true
+  },
+  {
+    "motion": "AttackHi3",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/AttackHi3.txt",
+    "sha256": "8430cd1320760b12b3a1b4057f7b8a1cd10b09d2c9e5b38e471a795008decf4b",
+    "matchesPriorCapture": true
+  },
+  {
+    "motion": "AttackHi4",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/AttackHi4.txt",
+    "sha256": "33c946a851f060e1621caa861c49ba3d924fa68e68f77d61258c04f243bbf524",
+    "matchesPriorCapture": true
+  },
+  {
+    "motion": "AttackLw3",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/AttackLw3.txt",
+    "sha256": "70cbe0bcd800ac067992ca82faf9f4f9fdae789c03df513d5f6434eef0cb5c44",
+    "matchesPriorCapture": true
+  },
+  {
+    "motion": "AttackLw4",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/AttackLw4.txt",
+    "sha256": "e2f6a860ba0de7696e6f820ecb12370445c097f1ad13c8e0d83ccaf06248316c",
+    "matchesPriorCapture": true
+  },
+  {
+    "motion": "AttackS3",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/AttackS3.txt",
+    "sha256": "a0632c2c6a071ae047ba564a4f360ce1b1652766574962bf88b71f82eaec942b",
+    "matchesPriorCapture": true
+  },
+  {
+    "motion": "AttackS3Hi",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/AttackS3Hi.txt",
+    "sha256": "5ee7e6748d5c81a441dfbd9a1d6e6a6b04f08cfb5ef508976707a2fe78c5957c",
+    "matchesPriorCapture": true
+  },
+  {
+    "motion": "AttackS3Lw",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/AttackS3Lw.txt",
+    "sha256": "c9b58e0877bd318d98186b59cdcf5b942b112aaa04d23a0f355c448cc8da7f95",
+    "matchesPriorCapture": true
+  },
+  {
+    "motion": "AttackS4",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/AttackS4.txt",
+    "sha256": "9cd3ed8848fcc26e650e3fd05b0418c54d9ca9e75b4e6673d26d0f901190602d",
+    "matchesPriorCapture": true
+  },
+  {
+    "motion": "CatchAttack",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/CatchAttack.txt",
+    "sha256": "ddf017cada807e545929fddd5bdf61b7e4e7a63de59f70af7cd59391d5985e89",
+    "matchesPriorCapture": true
+  },
+  {
+    "motion": "CliffAttack",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/CliffAttack.txt",
+    "sha256": "f1718c77aff323efb7868c1851b4aa81f6d772865bccade114a267b4e3917ae9",
+    "matchesPriorCapture": true
+  },
+  {
+    "motion": "DownAttackD",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/DownAttackD.txt",
+    "sha256": "32bcecd0b459964c1d0e7824fac87957b903ed659dbf5cc5366bdd70fc096143",
+    "matchesPriorCapture": true
+  },
+  {
+    "motion": "DownAttackU",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/DownAttackU.txt",
+    "sha256": "c86beeecf46c237c21b41a599b52ffc0bdd67d9f2e6eefe0b14cc5ed4cf907b2",
+    "matchesPriorCapture": true
+  },
+  {
+    "motion": "SlipAttack",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/SlipAttack.txt",
+    "sha256": "d47e358e2629c4c2376163babc1ee1b506daac9b94a1e3ece29e1d163b2fdca6",
+    "matchesPriorCapture": true
+  },
+  {
+    "motion": "SpecialAirHi",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/SpecialAirHi.txt",
+    "sha256": "a6f1267150add578d200eab170523f1c1d60b8f551b0df07cc702780b68be62e",
+    "matchesPriorCapture": true
+  },
+  {
+    "motion": "SpecialAirLw",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/SpecialAirLw.txt",
+    "sha256": "93a5862fe00949f247222a2bb7af405aa2a89422c6db1815a5736fe338ae089e",
+    "matchesPriorCapture": true
+  },
+  {
+    "motion": "SpecialAirN",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/SpecialAirN.txt",
+    "sha256": "fd8b69a1ac7d45632ae02fe810a6037a904d0883261aa3263454cad2a25f440d",
+    "matchesPriorCapture": true
+  },
+  {
+    "motion": "SpecialAirNMax",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/SpecialAirNMax.txt",
+    "sha256": "337b4124dc40322f3a10bd00413a4780b1bebda2ead7c0ed4056109c0cd1688b",
+    "matchesPriorCapture": true
+  },
+  {
+    "motion": "SpecialAirS",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/SpecialAirS.txt",
+    "sha256": "b8d46f72f4b91d85dbe75ef5ccc429e3be9a90961da2a60b87b8796c99fe22fb",
+    "matchesPriorCapture": true
+  },
+  {
+    "motion": "SpecialHi",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/SpecialHi.txt",
+    "sha256": "716ad4d453cda9703b2104bdee76a9ade606238cbdb5cde1d320d1ea95aadfb2",
+    "matchesPriorCapture": true
+  },
+  {
+    "motion": "SpecialLwLoop",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/SpecialLwLoop.txt",
+    "sha256": "7fc8ba1a929cb1b1ef979ff8fadecd4e9f075747fbc4ec25b0f45fedbc154ef9",
+    "matchesPriorCapture": true
+  },
+  {
+    "motion": "SpecialN",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/SpecialN.txt",
+    "sha256": "773ea66c73d48e1b84b73bc8edc484563964b2434e053c84e0ff306cb6442935",
+    "matchesPriorCapture": true
+  },
+  {
+    "motion": "SpecialNMax",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/SpecialNMax.txt",
+    "sha256": "c550cc855215770af1609ecef0f258848f07d414e05509c5d37a1e3a03f82369",
+    "matchesPriorCapture": true
+  },
+  {
+    "motion": "SpecialS",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/SpecialS.txt",
+    "sha256": "0c3ef1e548ebdf27a74a5ea94832b8119096ae20b87907c9d8de6708c37413aa",
+    "matchesPriorCapture": true
+  },
+  {
+    "motion": "ThrowB",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ThrowB.txt",
+    "sha256": "86d2c26e08c85a83aa64d18611e42b2ca9865c1692e34b8a4f81c73565368099",
+    "matchesPriorCapture": true
+  },
+  {
+    "motion": "ThrowF",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ThrowF.txt",
+    "sha256": "983de29796635393a45a8b4b86f5cf7f5b965bcd98b98f84cbf986934e33a815",
+    "matchesPriorCapture": true
+  },
+  {
+    "motion": "ThrowFB",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ThrowFB.txt",
+    "sha256": "285a2abd2d63f943098be768d51111c9680f296faf469f71b0e9c14793dbf31f",
+    "matchesPriorCapture": true
+  },
+  {
+    "motion": "ThrowFF",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ThrowFF.txt",
+    "sha256": "8f9b0b3be54044a2b5bda7ef15fc899a74ef25a389f668662067004a0a390f54",
+    "matchesPriorCapture": true
+  },
+  {
+    "motion": "ThrowFHi",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ThrowFHi.txt",
+    "sha256": "bb681b31786a10639c9bba241df08fc70b742f4dc2e95666336ff1ed8f5493e0",
+    "matchesPriorCapture": true
+  },
+  {
+    "motion": "ThrowFLw",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ThrowFLw.txt",
+    "sha256": "a34e01b10f81b0e609967649324f6753ee8c2a258f127d58c840fa2c0f20add1",
+    "matchesPriorCapture": true
+  },
+  {
+    "motion": "ThrowHi",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ThrowHi.txt",
+    "sha256": "3c8ee9306e6101e40ed731f850795859f8f596de457234bebe206d5e71bd40c6",
+    "matchesPriorCapture": true
+  },
+  {
+    "motion": "ThrowLw",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ThrowLw.txt",
+    "sha256": "befbb62cb3cb3deee824a391c157ec07109b0b90958cd734ab0865b4fca05ac8",
+    "matchesPriorCapture": true
+  },
+  {
+    "motion": "Catch",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/Catch.txt",
+    "sha256": "4c668ab1aee02e43ab38a96d778918a3b374f5c3900295b3545df51d24d283ee",
+    "matchesPriorCapture": null
+  },
+  {
+    "motion": "CatchDash",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/CatchDash.txt",
+    "sha256": "4836ed711771416ef4a8a3db611f5e3050342a200441f3d59e51d37eda6fd8e8",
+    "matchesPriorCapture": null
+  },
+  {
+    "motion": "CatchTurn",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/CatchTurn.txt",
+    "sha256": "d70bc4c5f41b85779a9d390cfce48430947e786007fd4a4cb2bf9b7526cded32",
+    "matchesPriorCapture": null
+  }
+]

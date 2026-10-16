@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Link · artwork preview</title>
+<style>
+  :root { color-scheme:dark; font-family:system-ui,sans-serif; background:#10151e; color:#e7ecf5 }
+  body { max-width:1100px; margin:28px auto; padding:0 18px }
+  h1 { font-size:28px; margin:0 0 6px; letter-spacing:-.7px }
+  p { color:#abb7c9; margin:0 0 20px; line-height:1.5 }
+  .controls { display:flex; gap:12px; align-items:center; flex-wrap:wrap; padding:16px; background:#1b2330; border-radius:12px }
+  label { display:flex; align-items:center; gap:8px; font-size:14px }
+  select,button { background:#2b3749; color:#f5f7fc; border:1px solid #435169; border-radius:7px; padding:8px 11px; font:inherit }
+  button { cursor:pointer } button:disabled { opacity:.5 }
+  canvas { display:block; width:100%; height:auto; border:1px solid #39445a; border-radius:12px; margin:16px 0 12px }
+  .timeline { display:flex; align-items:center; gap:12px } #age { flex:1; min-width:80px }
+  #readout { font:13px ui-monospace,monospace; line-height:1.8; color:#cad5e4; margin:14px 0 }
+  footer { font-size:12px; color:#8998af; line-height:1.6; overflow-wrap:anywhere; margin-top:20px }
+  #error { color:#ff9f9f } a { color:#a5c4ff }
+  .progress { margin:22px 0; padding:20px; border:1px solid #3a4b61; border-radius:12px; background:#182231 }
+  .progress h2 { font-size:21px; margin:0 0 12px } .progress h3 { font-size:16px; margin:20px 0 9px }
+  .stage-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(245px,1fr)); gap:12px }
+  .stage { background:#222f40; border-radius:8px; padding:14px } .stage strong { display:block; font-size:19px; margin:5px 0 }
+  .stage .title { color:#bdcadb; font-size:13px } .stage .detail { font-size:13px; color:#a9b8cc; line-height:1.5 }
+  #remaining { line-height:1.8; padding-left:20px; color:#d2dceb } #updated { font-size:12px; color:#99aac0 }
+</style>
+<h1>Link · artwork preview</h1>
+<p>24 installed motion families, 745 drawings. Work in progress: this page previews artwork and source frame registration. Full moveset and match verification are still pending.</p>
+<section class="progress" aria-label="Rebuild progress">
+  <h2>Progress and what’s left</h2>
+  <p id="activity">Loading the latest progress snapshot…</p>
+  <div id="stages" class="stage-grid"></div>
+  <h3>Remaining work</h3><ul id="remaining"></ul>
+  <div id="updated"></div>
+</section>
+<div class="controls">
+  <label>Motion <select id="motion"><option value="a00wait1">Idle</option><option value="a01walkmiddle">Walking</option><option value="c00attack11">Jab 1</option><option value="c00attack12">Jab 2</option><option value="c00attack13">Jab 3</option><option value="c01attacks3s">Forward tilt</option><option value="c02attacklw3">Down tilt</option><option value="c02attackhi3">Up tilt</option><option value="c05attackairb">Back air</option><option value="b02escapen">Spot dodge</option><option value="a03jumpf">Forward jump</option><option value="a03jumpb">Backward jump</option><option value="a03jumpaerialf">Forward air jump</option><option value="a03jumpaerialb">Backward air jump</option><option value="a04fall">Falling</option><option value="a04fallf">Falling forward</option><option value="a04fallb">Falling backward</option><option value="a04fallaerial">Falling after air jump</option><option value="a04fallaerialf">Air-jump fall forward</option><option value="a04fallaerialb">Air-jump fall backward</option><option value="a04fallspecial">Special fall</option><option value="a04fallspecialf">Special fall forward</option><option value="a04fallspecialb">Special fall backward</option><option value="b02escapeair">Air dodge</option></select></label>
+  <button id="play" disabled>Play</button><button id="restart" disabled>Restart</button>
+  <label>Facing <select id="facing"><option value="1">Right</option><option value="-1">Left</option></select></label>
+  <label>View <select id="zoom"><option value="3">3× world scale</option><option value="1">1× gameplay scale</option><option value="2">2× world scale</option><option value="4">4× world scale</option></select></label>
+  <label>Background <select id="background"><option value="dark">Dark</option><option value="light">Light</option><option value="checker">Checkerboard</option></select></label>
+  <label><input id="repeat" type="checkbox" checked> Repeat preview</label>
+  <label><input id="geometry" type="checkbox"> Receiving geometry</label>
+</div>
+<canvas id="view" width="1100" height="640" aria-label="Registered Link animation artwork"></canvas>
+<div class="timeline"><span>Frame</span><input id="age" type="range" min="0" max="100" step="1" value="0" aria-label="Animation frame"><output id="ageLabel">0</output></div>
+<p id="error" role="alert"></p>
+<details><summary>Technical details</summary><div id="readout" aria-live="polite">Loading installed artwork…</div><footer id="provenance"></footer></details>
+<script type="module">
+const $=id=>document.getElementById(id), canvas=$('view'), ctx=canvas.getContext('2d');
+async function refreshProgress(){
+  try{
+    const response=await fetch('.tmp/link-preview-status.json',{cache:'no-store'});if(!response.ok)throw Error(`Status HTTP ${response.status}`);
+    const status=await response.json();if(status.schema!=='link-preview-progress/1')throw Error('Unexpected progress schema');
+    $('activity').textContent=`Working now: ${status.currentActivity}`;
+    $('stages').replaceChildren(...status.stages.map(stage=>{
+      const card=document.createElement('div');card.className='stage';
+      const title=document.createElement('div');title.className='title';title.textContent=stage.title;
+      const value=document.createElement('strong');value.textContent=stage.value;
+      const detail=document.createElement('div');detail.className='detail';detail.textContent=stage.detail;
+      card.append(title,value,detail);return card;
+    }));
+    $('remaining').replaceChildren(...status.remaining.map(text=>{const row=document.createElement('li');row.textContent=text;return row;}));
+    $('updated').textContent=`Last updated ${new Date(status.updatedAt).toLocaleString()}. This panel refreshes every 15 seconds. Export and installation counts are separate from accepted match behavior.`;
+  }catch(error){$('updated').textContent=`Progress update unavailable: ${error.message}. Previous snapshot retained.`;}
+}
+refreshProgress();setInterval(refreshProgress,15000);
+let metadata, images={}, playing=false, age=0, previousTime=null;
+const setPlay=value=>{playing=value;$('play').textContent=value?'Pause':'Play';previousTime=null;};
+function draw(){
+  if(!metadata)return;
+  const profile=metadata.profiles[$('motion').value], sample=Math.floor(age);
+  const drawing=profile.drawings.find(d=>sample>=d.startAge&&sample<d.endAgeExclusive);
+  if(!drawing)throw Error('No drawing for selected source age');
+  const address=drawing.render??{sheet:profile.sheet,frameIndex:drawing.frameIndex};
+  const animation=metadata.animations[address.sheet], image=images[address.sheet];
+  const columns=Math.floor(image.width/animation.frameWidth), scale=profile.scaleToWorld*Number($('zoom').value);
+  const facing=Number($('facing').value), rootX=550, rootY=500, background=$('background').value;
+  ctx.fillStyle=background==='light'?'#ece9e1':'#151d2a';ctx.fillRect(0,0,1100,640);
+  if(background==='checker')for(let y=0;y<640;y+=24)for(let x=0;x<1100;x+=24){ctx.fillStyle=((x+y)/24)%2?'#263246':'#1c2636';ctx.fillRect(x,y,24,24);}
+  ctx.strokeStyle=background==='light'?'#b2aaa0':'#45536a';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(0,rootY+.5);ctx.lineTo(1100,rootY+.5);ctx.stroke();
+  ctx.save();ctx.translate(rootX,rootY);ctx.scale(facing*scale,scale);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
+  ctx.drawImage(image,(address.frameIndex%columns)*animation.frameWidth,Math.floor(address.frameIndex/columns)*animation.frameHeight,animation.frameWidth,animation.frameHeight,-drawing.originX*profile.frameWidth,-drawing.originY*profile.frameHeight,profile.frameWidth,profile.frameHeight);ctx.restore();
+  if($('geometry').checked){ctx.save();ctx.translate(rootX,rootY);ctx.scale(facing*Number($('zoom').value),Number($('zoom').value));
+    for(const c of drawing.receiving){ctx.strokeStyle='#69d5e966';ctx.lineWidth=c.radius*2;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(c.start.x,c.start.y);ctx.lineTo(c.end.x,c.end.y);ctx.stroke();if(c.start.x===c.end.x&&c.start.y===c.end.y){ctx.fillStyle='#69d5e966';ctx.beginPath();ctx.arc(c.start.x,c.start.y,c.radius,0,Math.PI*2);ctx.fill();}}ctx.restore();}
+  ctx.fillStyle=background==='light'?'#625b52':'#a7b7cf';ctx.font='12px system-ui';ctx.fillText('Registered actor ROOT / support reference',14,rootY+20);
+  $('age').value=sample;$('ageLabel').textContent=sample;
+  $('readout').textContent=`${profile.sheet} · source age ${sample} · evaluated native sample ${drawing.nativeSample} · logical drawing ${drawing.frameIndex}\nPhysical page ${address.sheet} / frame ${address.frameIndex} · pixel-to-world ${profile.scaleToWorld.toFixed(9)} · viewing ${$('zoom').value}×`;
+  $('readout').style.whiteSpace='pre-wrap';
+}
+function tick(time){
+  if(metadata&&playing){const profile=metadata.profiles[$('motion').value];if(previousTime!==null)age+=(time-previousTime)*.06;
+    const extent=$('repeat').checked?(profile.loopFrames??profile.endAgeExclusive):profile.endAgeExclusive;
+    if(age>=extent){if($('repeat').checked)age%=extent;else{age=profile.endAgeExclusive-1;setPlay(false);}}previousTime=time;draw();}
+  requestAnimationFrame(tick);
+}
+$('play').onclick=()=>setPlay(!playing);$('restart').onclick=()=>{age=0;previousTime=null;draw();};
+$('motion').onchange=()=>{age=0;previousTime=null;$('age').max=metadata.profiles[$('motion').value].endAgeExclusive-1;draw();};
+$('age').oninput=()=>{setPlay(false);age=Number($('age').value);draw();};
+for(const id of ['facing','zoom','background','geometry'])$(id).onchange=draw;
+document.addEventListener('visibilitychange',()=>{previousTime=null;});
+try{
+  const response=await fetch('.tmp/link-preview-assets/bcc096a390d81aa2/preview.json');if(!response.ok)throw Error(`Metadata HTTP ${response.status}`);metadata=await response.json();
+  await Promise.all(Object.entries(metadata.animations).map(async([key,a])=>{const image=new Image();image.src=a.url;await image.decode();images[key]=image;}));
+  $('play').disabled=false;$('restart').disabled=false;
+  $('provenance').textContent=`Installed frames metadata SHA-256: ${metadata.framesSha256}. 145 losslessly repaged sharp atlas pages; no game bundle loaded. Playback advances source age at 60 steps/second. Walking uses the selected 40-frame closure period; its retained source sample 40 remains available by scrubbing. Repeat for the other resources is a preview control. Idle uses 26 registered drawings across source ages 0–100. The 1× view uses the same pixel-to-world scale as the installed profile.`;
+  draw();requestAnimationFrame(tick);
+}catch(error){$('error').textContent=error.message;$('readout').textContent='Artwork unavailable';}
+</script>
+</html>

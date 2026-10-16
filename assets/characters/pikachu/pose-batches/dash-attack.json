@@ -1,0 +1,387 @@
+{
+  "state": "packed_output_visual_and_runtime_review_required",
+  "scope": "Partial registered normal batch; no roster/manifest/full-fighter acceptance",
+  "coordinateContract": {
+    "canonicalCanvas": [
+      2048,
+      1536
+    ],
+    "canonicalRoot": [
+      1024,
+      1152
+    ],
+    "frameWidth": 512,
+    "frameHeight": 384,
+    "root": [
+      256,
+      288
+    ],
+    "scaleToWorld": 0.4666666666666667,
+    "bodyCentreFromRoot": [
+      0,
+      -25
+    ]
+  },
+  "approvalSha256": "f72d5d307d81c2d1f3055930e0f43a8332c7e581b38a47d51104ee3c5579a277",
+  "animations": {
+    "dash_attack": {
+      "strip": "animations/dash_attack.png",
+      "frameCount": 13,
+      "sha256": "d0f3b72c0162b532e767843a288d33a732c590bf1f75e402434d37757281099f",
+      "frameWindows": [
+        {
+          "startFrame": 0,
+          "endFrame": 3,
+          "artFrameIndex": 0
+        },
+        {
+          "startFrame": 3,
+          "endFrame": 5,
+          "artFrameIndex": 1
+        },
+        {
+          "startFrame": 5,
+          "endFrame": 6,
+          "artFrameIndex": 2
+        },
+        {
+          "startFrame": 6,
+          "endFrame": 7,
+          "artFrameIndex": 3
+        },
+        {
+          "startFrame": 7,
+          "endFrame": 8,
+          "artFrameIndex": 4
+        },
+        {
+          "startFrame": 8,
+          "endFrame": 9,
+          "artFrameIndex": 5
+        },
+        {
+          "startFrame": 9,
+          "endFrame": 10,
+          "artFrameIndex": 6
+        },
+        {
+          "startFrame": 10,
+          "endFrame": 11,
+          "artFrameIndex": 7
+        },
+        {
+          "startFrame": 11,
+          "endFrame": 12,
+          "artFrameIndex": 8
+        },
+        {
+          "startFrame": 12,
+          "endFrame": 18,
+          "artFrameIndex": 9
+        },
+        {
+          "startFrame": 18,
+          "endFrame": 26,
+          "artFrameIndex": 10
+        },
+        {
+          "startFrame": 26,
+          "endFrame": 34,
+          "artFrameIndex": 11
+        },
+        {
+          "startFrame": 34,
+          "endFrame": 35,
+          "artFrameIndex": 12
+        }
+      ],
+      "columns": 8,
+      "rows": 2,
+      "atlasRepack": {
+        "sheet": "dash_attack",
+        "previousLayout": "docs/review/2026-10-06/pikachu-character/art/texture-atlas-repack/dash_attack-reviewed-linear.png",
+        "previousSha256": "b25f3d48c3a5ba5be11147e44a36674742427f3b4a45666a049dfb9d22765428",
+        "sha256": "d0f3b72c0162b532e767843a288d33a732c590bf1f75e402434d37757281099f",
+        "dimensions": [
+          4096,
+          768
+        ],
+        "columns": 8,
+        "rows": 2,
+        "cellPixelsUnchanged": true,
+        "cells": [
+          {
+            "index": 0,
+            "cell": [
+              0,
+              0
+            ],
+            "rgbaSha256": "809562a3cc6870570ce581094d2c247753c0dc5659de69051ef899755e34bde2"
+          },
+          {
+            "index": 1,
+            "cell": [
+              1,
+              0
+            ],
+            "rgbaSha256": "37bb9b9cc607609606a4d6498eb3b9946c5ca1483b297cf4f735c17af47f4b35"
+          },
+          {
+            "index": 2,
+            "cell": [
+              2,
+              0
+            ],
+            "rgbaSha256": "f0c461178c96240965b4d276703c811c7fb88122abd412d69186fd63fe7cc61c"
+          },
+          {
+            "index": 3,
+            "cell": [
+              3,
+              0
+            ],
+            "rgbaSha256": "c7b1aebcf89cd2111f03a61768d9d228b986b736b01cf940d85dcdcd6dad9998"
+          },
+          {
+            "index": 4,
+            "cell": [
+              4,
+              0
+            ],
+            "rgbaSha256": "22c49e66275ddaaabb0b203278aea2b6482fffd77aa8ec4de71a452bcb5e5c41"
+          },
+          {
+            "index": 5,
+            "cell": [
+              5,
+              0
+            ],
+            "rgbaSha256": "394808dc6368214abff95e8defb87a535212601fd8f57338acc52c97a655a22a"
+          },
+          {
+            "index": 6,
+            "cell": [
+              6,
+              0
+            ],
+            "rgbaSha256": "6d7c1d639442d2ec1f5608ef00e5a4586d49c296f0ab1c7311746823e1c5b299"
+          },
+          {
+            "index": 7,
+            "cell": [
+              7,
+              0
+            ],
+            "rgbaSha256": "5648811783ef948da4f90c429a36b7968ae81eaef2c34e5fd70eb2e5d2e17bd0"
+          },
+          {
+            "index": 8,
+            "cell": [
+              0,
+              1
+            ],
+            "rgbaSha256": "f6feacdf9d87c8ca774a059d730aae0a77e116aeb564cda635612aff5a370c55"
+          },
+          {
+            "index": 9,
+            "cell": [
+              1,
+              1
+            ],
+            "rgbaSha256": "57f2ad15585b7308794ed197761164af7dcb4edb350d3ab24aa9f42de4be9414"
+          },
+          {
+            "index": 10,
+            "cell": [
+              2,
+              1
+            ],
+            "rgbaSha256": "191b1b4643f4fe4d16c15fa49c7fc258eed34c7fa0218133c44ccec2d7de0af4"
+          },
+          {
+            "index": 11,
+            "cell": [
+              3,
+              1
+            ],
+            "rgbaSha256": "cb5e9ec7aee33565a81a8a491245ab505a0426befa67c2caa7a9c02bd626b3d8"
+          },
+          {
+            "index": 12,
+            "cell": [
+              4,
+              1
+            ],
+            "rgbaSha256": "ddf7a311dd888b416a4f1c48f646e976ae563aa2f0d7d1156b44f37de00f9529"
+          }
+        ],
+        "layoutReview": "docs/review/2026-10-06/pikachu-character/art/texture-atlas-repack/dash_attack-layout-review.png",
+        "layoutReviewSha256": "30c3d109af539a1e08d39c6b892309467241f91a3156f307b6d48f2015b08ed6"
+      }
+    }
+  },
+  "sources": [
+    {
+      "action": "dash-attack",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-dash-attack-startup-source0-attempt2-cutout.png",
+      "sha256": "f8bd32373560283092970ff3deb80e60cd842eabff4216ddd8880868aa9fb162",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "dash-attack",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-dash-attack-windup-source3-attempt2-cutout.png",
+      "sha256": "17fccbbe4a5b3ae8f77a95b02dab774fab44fc74c1b2e9a5b246ae0fb6d1cf99",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "dash-attack",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-dash-attack-contact-6-source5-attempt2-cutout.png",
+      "sha256": "f80f500204bbb6fcf3fa3b7f0740f022de70deef64cea5537d34e4aa281c2c57",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "dash-attack",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-dash-attack-contact-7-source6-attempt2-cutout.png",
+      "sha256": "45cd9ed8391d81e3748fd1730ed3255f1b0f87c755d4f741f9a06b375eda0f58",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "dash-attack",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-dash-attack-contact-8-source7-attempt1-cutout.png",
+      "sha256": "b727edb45d309dae485537931063070c31087d66e4b34fbb9cd7304b68247fbc",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "dash-attack",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-dash-attack-contact-9-source8-attempt1-cutout.png",
+      "sha256": "5eb9fcb8264951fa2a75d30d3604ec67805b6892d6413533d34655bdbf32da2e",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "dash-attack",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-dash-attack-contact-10-source9-attempt1-cutout.png",
+      "sha256": "9cf1ab5fd8864404a6db7e23f1605a0685a83022254511bd330ab22cd6f902f7",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "dash-attack",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-dash-attack-contact-11-source10-attempt1-cutout.png",
+      "sha256": "d201ffaec3699969a2250eacfa119ed2a160d87719cccf69f80cbcdce1aaa443",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "dash-attack",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-dash-attack-contact-12-source11-attempt1-cutout.png",
+      "sha256": "4064820cdb18dedaa165412fafcb531782e9775b02876d9eebdb9e020b441cfc",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "dash-attack",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-dash-attack-clear-source12-attempt1-cutout.png",
+      "sha256": "69bdfe0689498752d1884013c6aa458346bd368c301dcc384bd112da825821f9",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "dash-attack",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-dash-attack-recover-source18-attempt1-cutout.png",
+      "sha256": "ab9b6aba068e6078465b363c4f318439308bdb8ef12df6179f86aa0e7cca8805",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "dash-attack",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-dash-attack-settle-source26-attempt1-cutout.png",
+      "sha256": "244906332c7ed601281d2e922c0cfaa10db2d3ab88009c6889cda8312a9b13f7",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "dash-attack",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-dash-attack-return-source34-attempt1-cutout.png",
+      "sha256": "de855ab343127766af9a9defecac49bf8b98be9d75327961c8eb90dc01bd14aa",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    }
+  ],
+  "galleries": {
+    "dash_attack-cells-1.png": "6c91fe468044037fb9b065bbe85e3ae0df7681a00436c7fbd52d06b3655e71fc",
+    "dash_attack-cells-2.png": "a9f1ab6d7bc45fe212be72154784b024f7731bb975a636c77fc2d5b9aaeb103a",
+    "dash_attack-cells-3.png": "745c24e591c9728035add812f55da5baf9225bd3f85dfef1c10a435f7274c4d8",
+    "dash_attack-cells-4.png": "a42b16130f4a9054ce05c8ee21eeb133ac5e1ad5a53c33199749f28d9e27a424"
+  }
+}

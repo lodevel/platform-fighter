@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   DeviceInputDispatcher,
   NEUTRAL_ACTION_MAP,
+  NEUTRAL_SMASH_SAMPLE,
   type GamepadButtonState,
   type GamepadSource,
 } from './DeviceInputDispatcher';
@@ -545,7 +546,8 @@ describe('DeviceInputDispatcher — defaults integration smoke', () => {
     keyboard.releaseAll();
     // Slot 3 — gamepad
     gamepad.connect(0);
-    for (const action of LOGICAL_ACTIONS) {
+    // The gamepad `walk` modifier has no default: the analog stick already walks.
+    for (const action of LOGICAL_ACTIONS.filter((a) => a !== 'walk')) {
       const binding = DEFAULT_GAMEPAD_P3_BINDINGS[action][0] as GamepadBinding;
       // Reset all sources first.
       gamepad.setAxis(0, 0, 0);
@@ -561,5 +563,144 @@ describe('DeviceInputDispatcher — defaults integration smoke', () => {
       }
       expect(dispatcher.isActionHeld(3, action)).toBe(true);
     }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Smash action — right-stick direction
+// ---------------------------------------------------------------------------
+
+describe('DeviceInputDispatcher.sampleSmash', () => {
+  const RIGHT_STICK: GamepadBinding[] = [
+    { kind: 'gamepad', gamepadIndex: 0, source: { type: 'axis', axisIndex: 2, direction: -1, threshold: 0.6 } },
+    { kind: 'gamepad', gamepadIndex: 0, source: { type: 'axis', axisIndex: 2, direction: 1, threshold: 0.6 } },
+    { kind: 'gamepad', gamepadIndex: 0, source: { type: 'axis', axisIndex: 3, direction: -1, threshold: 0.6 } },
+    { kind: 'gamepad', gamepadIndex: 0, source: { type: 'axis', axisIndex: 3, direction: 1, threshold: 0.6 } },
+  ];
+
+  function stickHarness() {
+    const h = buildDispatcher();
+    h.store.setAction(3, 'smash', RIGHT_STICK);
+    h.gamepad.connect(0);
+    return h;
+  }
+
+  it.each([
+    ['right', 1, 0, 1, 0],
+    ['left', -1, 0, -1, 0],
+    ['up', 0, -1, 0, -1],
+    ['down', 0, 1, 0, 1],
+  ] as const)('reads a right-stick %s push as a 4-way direction', (_name, ax, ay, x, y) => {
+    const { gamepad, dispatcher } = stickHarness();
+    gamepad.setAxis(0, 2, ax);
+    gamepad.setAxis(0, 3, ay);
+    expect(dispatcher.sampleSmash(3)).toEqual({ held: true, buttonHeld: false, fromStick: true, x, y });
+    expect(dispatcher.sampleActions(3).smash).toBe(true);
+  });
+
+  it('snaps a diagonal to the dominant axis and breaks ties horizontally', () => {
+    const { gamepad, dispatcher } = stickHarness();
+    gamepad.setAxis(0, 2, -0.65);
+    gamepad.setAxis(0, 3, -0.9);
+    expect(dispatcher.sampleSmash(3)).toEqual({ held: true, buttonHeld: false, fromStick: true, x: 0, y: -1 });
+    gamepad.setAxis(0, 2, 0.95);
+    gamepad.setAxis(0, 3, 0.7);
+    expect(dispatcher.sampleSmash(3)).toEqual({ held: true, buttonHeld: false, fromStick: true, x: 1, y: 0 });
+    gamepad.setAxis(0, 2, -0.8);
+    gamepad.setAxis(0, 3, 0.8);
+    expect(dispatcher.sampleSmash(3)).toEqual({ held: true, buttonHeld: false, fromStick: true, x: -1, y: 0 });
+  });
+
+  it('reads the direction from the whole stick even when one half-axis is bound', () => {
+    const { store, gamepad, dispatcher } = stickHarness();
+    store.setAction(3, 'smash', [RIGHT_STICK[3]!]); // down only, any-pad style
+    gamepad.setAxis(0, 2, -0.2);
+    gamepad.setAxis(0, 3, 0.9);
+    expect(dispatcher.sampleSmash(3)).toEqual({ held: true, buttonHeld: false, fromStick: true, x: 0, y: 1 });
+  });
+
+  it('reads the pad the axis is held on for an any-pad (null) binding', () => {
+    const { store, gamepad, dispatcher } = stickHarness();
+    store.setAction(3, 'smash', RIGHT_STICK.map((b) => ({ ...b, gamepadIndex: null })));
+    gamepad.connect(1);
+    gamepad.setAxis(0, 2, 0.2); // pad 0 resting
+    gamepad.setAxis(1, 2, -1); // pad 1 pushed left
+    expect(dispatcher.sampleSmash(3)).toEqual({ held: true, buttonHeld: false, fromStick: true, x: -1, y: 0 });
+  });
+
+  it('stays neutral below the threshold (stick drift) and when the pad is gone', () => {
+    const { gamepad, dispatcher } = stickHarness();
+    gamepad.setAxis(0, 2, 0.55);
+    expect(dispatcher.sampleSmash(3)).toBe(NEUTRAL_SMASH_SAMPLE);
+    gamepad.setAxis(0, 2, 1);
+    gamepad.disconnect(0);
+    expect(dispatcher.sampleSmash(3)).toBe(NEUTRAL_SMASH_SAMPLE);
+  });
+
+  it('a smash key is held without a direction (fromStick false)', () => {
+    const { store, keyboard, dispatcher } = buildDispatcher();
+    store.setAction(1, 'smash', [{ kind: 'keyboard', keyCode: KEY_CODE.V }]);
+    expect(dispatcher.sampleSmash(1)).toBe(NEUTRAL_SMASH_SAMPLE);
+    keyboard.press(KEY_CODE.V);
+    expect(dispatcher.sampleSmash(1)).toEqual({ held: true, buttonHeld: true, fromStick: false, x: 0, y: 0 });
+    expect(dispatcher.sampleActions(1).smash).toBe(true);
+  });
+
+  it('reports a held smash button and a held stick separately, and both together', () => {
+    const { store, gamepad, dispatcher } = stickHarness();
+    store.setAction(3, 'smash', [
+      { kind: 'gamepad', gamepadIndex: 0, source: { type: 'button', buttonIndex: 7 } },
+      ...RIGHT_STICK,
+    ]);
+    gamepad.setButton(0, 7, pressedButton());
+    expect(dispatcher.sampleSmash(3)).toEqual({ held: true, buttonHeld: true, fromStick: false, x: 0, y: 0 });
+    gamepad.setAxis(0, 3, -1);
+    expect(dispatcher.sampleSmash(3)).toEqual({ held: true, buttonHeld: true, fromStick: true, x: 0, y: -1 });
+    gamepad.setButton(0, 7, { pressed: false, value: 0 });
+    expect(dispatcher.sampleSmash(3)).toEqual({ held: true, buttonHeld: false, fromStick: true, x: 0, y: -1 });
+  });
+
+  it('a smash key held with the stick keeps both flags (keyboard + pad on one slot)', () => {
+    const { store, keyboard, gamepad, dispatcher } = stickHarness();
+    store.setAction(3, 'smash', [{ kind: 'keyboard', keyCode: KEY_CODE.V }, ...RIGHT_STICK]);
+    keyboard.press(KEY_CODE.V);
+    gamepad.setAxis(0, 2, 1);
+    expect(dispatcher.sampleSmash(3)).toEqual({ held: true, buttonHeld: true, fromStick: true, x: 1, y: 0 });
+    keyboard.release(KEY_CODE.V);
+    gamepad.setAxis(0, 2, 0);
+    expect(dispatcher.sampleSmash(3)).toBe(NEUTRAL_SMASH_SAMPLE);
+  });
+
+  it('the left stick never feeds smash, and smash never feeds the move vector', () => {
+    const { gamepad, dispatcher } = stickHarness();
+    gamepad.setAxis(0, 0, -1);
+    gamepad.setAxis(0, 1, 1);
+    expect(dispatcher.sampleSmash(3)).toBe(NEUTRAL_SMASH_SAMPLE);
+    gamepad.setAxis(0, 0, 0);
+    gamepad.setAxis(0, 1, 0);
+    gamepad.setAxis(0, 2, 1);
+    expect(dispatcher.sampleMoveX(3)).toBe(0);
+    expect(dispatcher.sampleMoveY(3)).toBe(0);
+  });
+
+  it.each([4, 5, 7])('an axis off the named sticks (axis %i, e.g. a trigger) is a held button, not a stick', (axisIndex) => {
+    const { store, gamepad, dispatcher } = stickHarness();
+    store.setAction(3, 'smash', [
+      { kind: 'gamepad', gamepadIndex: 0, source: { type: 'axis', axisIndex, direction: 1, threshold: 0.5 } },
+    ]);
+    // Its would-be "pair" axis deflected: must not be read as a direction.
+    gamepad.setAxis(0, axisIndex & ~1, -1);
+    gamepad.setAxis(0, axisIndex | 1, -1);
+    gamepad.setAxis(0, axisIndex, 1);
+    expect(dispatcher.sampleSmash(3)).toEqual({ held: true, buttonHeld: true, fromStick: false, x: 0, y: 0 });
+    gamepad.setAxis(0, axisIndex, 0);
+    expect(dispatcher.sampleSmash(3)).toBe(NEUTRAL_SMASH_SAMPLE);
+  });
+
+  it('the default gamepad bindings put smash on the right stick', () => {
+    const { gamepad, dispatcher } = buildDispatcher();
+    gamepad.connect(0); // slot 3 defaults are pinned to pad 0
+    gamepad.setAxis(0, 3, 1);
+    expect(dispatcher.sampleSmash(3)).toEqual({ held: true, buttonHeld: false, fromStick: true, x: 0, y: 1 });
   });
 });

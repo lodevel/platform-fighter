@@ -1,0 +1,38 @@
+{
+  "result": "PASS",
+  "scope": "End of identical 360-tick ordinary trace per fighter. Compares resident page metadata and renderer memory counts. Natural RAF stage effects are not synchronized; draw-call totals are not asserted. Physical memory and frame-time performance are not measured.",
+  "before": "before-browser/report.json",
+  "after": "after-browser/report.json",
+  "rows": [
+    {
+      "characterId": "donkeykong",
+      "matchingResidentPages": 472,
+      "rgbaBytes": 920945792,
+      "rendererMemory": {
+        "geometries": 109,
+        "textures": 26
+      },
+      "pending": 0
+    },
+    {
+      "characterId": "pikachu",
+      "matchingResidentPages": 257,
+      "rgbaBytes": 208371520,
+      "rendererMemory": {
+        "geometries": 109,
+        "textures": 27
+      },
+      "pending": 0
+    },
+    {
+      "characterId": "link",
+      "matchingResidentPages": 484,
+      "rgbaBytes": 497157376,
+      "rendererMemory": {
+        "geometries": 109,
+        "textures": 46
+      },
+      "pending": 0
+    }
+  ]
+}

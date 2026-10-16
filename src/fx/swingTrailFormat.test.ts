@@ -26,7 +26,7 @@ const HITBOX = Object.freeze({ offsetX: 60, offsetY: -10, width: 80, height: 40 
 
 function input(overrides: Partial<SwingTrailInput>): SwingTrailInput {
   return {
-    moveId: 'item.sword.slash',
+    moveId: 'item.beamSword.ftilt',
     moveType: 'smash',
     damage: 14,
     phase: 'active',
@@ -39,21 +39,22 @@ function input(overrides: Partial<SwingTrailInput>): SwingTrailInput {
 
 describe('swingTrailFormat — swingTrailAppliesTo', () => {
   it('applies to every held-weapon move id', () => {
-    expect(swingTrailAppliesTo('item.sword.slash', 'tilt')).toBe(true);
-    expect(swingTrailAppliesTo('item.bat.swing', 'jab')).toBe(true);
-    expect(swingTrailAppliesTo('item.hammer.smash', 'smash')).toBe(true);
-    expect(swingTrailAppliesTo('item.spear.thrust', 'tilt')).toBe(true);
+    expect(swingTrailAppliesTo('item.beamSword.ftilt', 'tilt')).toBe(true);
+    expect(swingTrailAppliesTo('item.starRod.jab', 'jab')).toBe(true);
+    expect(swingTrailAppliesTo('item.homeRunBat.jab', 'jab')).toBe(true);
+    expect(swingTrailAppliesTo('item.homeRunBat.dashAttack', 'tilt')).toBe(true);
+    expect(swingTrailAppliesTo('item.beamSword.fsmash', 'smash')).toBe(true);
   });
 
   it('applies to smash-type moves regardless of id', () => {
-    expect(swingTrailAppliesTo('wolf.smash.forward', 'smash')).toBe(true);
+    expect(swingTrailAppliesTo('donkeykong.smash.forward', 'smash')).toBe(true);
   });
 
   it('does NOT apply to fast pokes (jab / tilt / aerial / special)', () => {
-    expect(swingTrailAppliesTo('wolf.jab', 'jab')).toBe(false);
-    expect(swingTrailAppliesTo('cat.ftilt', 'tilt')).toBe(false);
-    expect(swingTrailAppliesTo('owl.nair', 'aerial')).toBe(false);
-    expect(swingTrailAppliesTo('owl.neutralB', 'special')).toBe(false);
+    expect(swingTrailAppliesTo('donkeykong.jab', 'jab')).toBe(false);
+    expect(swingTrailAppliesTo('pikachu.ftilt', 'tilt')).toBe(false);
+    expect(swingTrailAppliesTo('pikachu.nair', 'aerial')).toBe(false);
+    expect(swingTrailAppliesTo('pikachu.neutralB', 'special')).toBe(false);
   });
 });
 
@@ -94,7 +95,7 @@ describe('swingTrailFormat — computeSwingTrailVisual', () => {
 
   it('hides for non-trailed moves even in the active phase', () => {
     const v = computeSwingTrailVisual(
-      input({ moveId: 'wolf.jab', moveType: 'jab' }),
+      input({ moveId: 'donkeykong.jab', moveType: 'jab' }),
     );
     expect(v.visible).toBe(false);
   });

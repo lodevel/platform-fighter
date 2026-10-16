@@ -30,10 +30,10 @@ import {
 } from './groundedAttackInput';
 
 const FULL_SLOTS: GroundedAttackSlots = {
-  jabId: 'wolf.jab',
-  tiltId: 'wolf.tilt',
-  smashId: 'wolf.smash',
-  defaultId: 'wolf.jab',
+  jabId: 'test.jab',
+  tiltId: 'test.tilt',
+  smashId: 'test.smash',
+  defaultId: 'test.jab',
 };
 
 function snap(partial: Partial<GroundedAttackInputSnapshot> = {}): GroundedAttackInputSnapshot {
@@ -141,7 +141,7 @@ describe('classifyGroundedAttack — jab / tilt / smash dispatch', () => {
       snap({ attackJustPressed: true, moveX: 0 }),
       FULL_SLOTS,
     );
-    expect(result).toEqual({ moveId: 'wolf.jab', pattern: 'jab' });
+    expect(result).toEqual({ moveId: 'test.jab', pattern: 'jab' });
   });
 
   it('neutral attack press + sub-deadzone deflection → jab (drift tolerance)', () => {
@@ -149,7 +149,7 @@ describe('classifyGroundedAttack — jab / tilt / smash dispatch', () => {
       snap({ attackJustPressed: true, moveX: 0.2, prevMoveX: 0.2 }),
       FULL_SLOTS,
     );
-    expect(result).toEqual({ moveId: 'wolf.jab', pattern: 'jab' });
+    expect(result).toEqual({ moveId: 'test.jab', pattern: 'jab' });
   });
 
   // ---- Tilt pattern -----------------------------------------------------
@@ -160,7 +160,7 @@ describe('classifyGroundedAttack — jab / tilt / smash dispatch', () => {
       snap({ attackJustPressed: true, moveX: 0.5, prevMoveX: 0.5 }),
       FULL_SLOTS,
     );
-    expect(result).toEqual({ moveId: 'wolf.tilt', pattern: 'tilt' });
+    expect(result).toEqual({ moveId: 'test.tilt', pattern: 'tilt' });
   });
 
   it('tilt classifies on negative-direction holds too', () => {
@@ -168,7 +168,7 @@ describe('classifyGroundedAttack — jab / tilt / smash dispatch', () => {
       snap({ attackJustPressed: true, moveX: -0.5, prevMoveX: -0.5 }),
       FULL_SLOTS,
     );
-    expect(result).toEqual({ moveId: 'wolf.tilt', pattern: 'tilt' });
+    expect(result).toEqual({ moveId: 'test.tilt', pattern: 'tilt' });
   });
 
   it('tilt at sub-flick deflection (50%) does not become smash', () => {
@@ -187,7 +187,7 @@ describe('classifyGroundedAttack — jab / tilt / smash dispatch', () => {
       snap({ heavyJustPressed: true }),
       FULL_SLOTS,
     );
-    expect(result).toEqual({ moveId: 'wolf.smash', pattern: 'smash' });
+    expect(result).toEqual({ moveId: 'test.smash', pattern: 'smash' });
   });
 
   it('smash flick (rest → full deflection) on light press → smash', () => {
@@ -195,7 +195,7 @@ describe('classifyGroundedAttack — jab / tilt / smash dispatch', () => {
       snap({ attackJustPressed: true, moveX: 1, prevMoveX: 0 }),
       FULL_SLOTS,
     );
-    expect(result).toEqual({ moveId: 'wolf.smash', pattern: 'smash' });
+    expect(result).toEqual({ moveId: 'test.smash', pattern: 'smash' });
   });
 
   it('smash flick from the negative side fires smash too', () => {
@@ -203,7 +203,7 @@ describe('classifyGroundedAttack — jab / tilt / smash dispatch', () => {
       snap({ attackJustPressed: true, moveX: -0.85, prevMoveX: 0 }),
       FULL_SLOTS,
     );
-    expect(result).toEqual({ moveId: 'wolf.smash', pattern: 'smash' });
+    expect(result).toEqual({ moveId: 'test.smash', pattern: 'smash' });
   });
 
   it('a held lean above the rest threshold cannot become a flick by pushing further', () => {
@@ -224,7 +224,7 @@ describe('classifyGroundedAttack — jab / tilt / smash dispatch', () => {
       FULL_SLOTS,
     );
     expect(result?.pattern).toBe('smash');
-    expect(result?.moveId).toBe('wolf.smash');
+    expect(result?.moveId).toBe('test.smash');
   });
 });
 

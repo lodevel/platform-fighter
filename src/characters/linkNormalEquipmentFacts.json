@@ -1,0 +1,619 @@
+{
+  "link.jab": {
+    "motion": "attack_11",
+    "source": {
+      "function": "expression_attack11",
+      "path": "sources/native/scripts/Attack11.txt",
+      "sha256": "2a71a5320b45bee93cffd59a041177a2a62b8861dad970eb81dbcd924579a229"
+    },
+    "events": [
+      {
+        "scriptNativeFrame": 0,
+        "changes": {
+          "heldItemVisible": false
+        },
+        "sourceLine": 46,
+        "raw": "ItemModule::set_have_item_visibility(agent.module_accessor, false, 0)",
+        "guard": null
+      }
+    ],
+    "nativeMetadata": {
+      "gameScript": "game_attack11",
+      "animations": [
+        "c00attack11.nuanmb"
+      ],
+      "cancelFrame": "25",
+      "xluStart": "0",
+      "xluEnd": "0",
+      "loop": "false",
+      "sourceMotion": "attack_11"
+    }
+  },
+  "link.jab2": {
+    "motion": "attack_12",
+    "source": {
+      "function": "expression_attack12",
+      "path": "sources/native/scripts/Attack12.txt",
+      "sha256": "7b8265fe022c379dd92d0f05ff18317d4ece7b98126811be20f285bad1689336"
+    },
+    "events": [
+      {
+        "scriptNativeFrame": 0,
+        "changes": {
+          "heldItemVisible": false
+        },
+        "sourceLine": 42,
+        "raw": "ItemModule::set_have_item_visibility(agent.module_accessor, false, 0)",
+        "guard": null
+      }
+    ],
+    "nativeMetadata": {
+      "gameScript": "game_attack12",
+      "animations": [
+        "c00attack12.nuanmb"
+      ],
+      "cancelFrame": "25",
+      "xluStart": "0",
+      "xluEnd": "0",
+      "loop": "false",
+      "sourceMotion": "attack_12"
+    }
+  },
+  "link.jab3": {
+    "motion": "attack_13",
+    "source": {
+      "function": "expression_attack13",
+      "path": "sources/native/scripts/Attack13.txt",
+      "sha256": "c91802adee10bd18b00e1586c02be136f7cd6a441ae22a671e644a0bb7b50d97"
+    },
+    "events": [
+      {
+        "scriptNativeFrame": 0,
+        "changes": {
+          "heldItemVisible": false
+        },
+        "sourceLine": 37,
+        "raw": "ItemModule::set_have_item_visibility(agent.module_accessor, false, 0)",
+        "guard": null
+      }
+    ],
+    "nativeMetadata": {
+      "gameScript": "game_attack13",
+      "animations": [
+        "c00attack13.nuanmb"
+      ],
+      "cancelFrame": "35",
+      "xluStart": "0",
+      "xluEnd": "0",
+      "loop": "false",
+      "sourceMotion": "attack_13"
+    }
+  },
+  "link.tilt": {
+    "motion": "attack_s3_s",
+    "source": {
+      "function": "expression_attacks3",
+      "path": "sources/native/scripts/AttackS3.txt",
+      "sha256": "22cec6f0f55d459e09a6f4c868e4dd1d7cd202d6cf316308f55ac21a33dd415b"
+    },
+    "events": [
+      {
+        "scriptNativeFrame": 0,
+        "changes": {
+          "heldItemVisible": false
+        },
+        "sourceLine": 57,
+        "raw": "ItemModule::set_have_item_visibility(agent.module_accessor, false, 0)",
+        "guard": null
+      }
+    ],
+    "nativeMetadata": {
+      "gameScript": "game_attacks3",
+      "animations": [
+        "c01attacks3s.nuanmb"
+      ],
+      "cancelFrame": "40",
+      "xluStart": "0",
+      "xluEnd": "0",
+      "loop": "false",
+      "sourceMotion": "attack_s3_s"
+    }
+  },
+  "link.utilt": {
+    "motion": "attack_hi3",
+    "source": {
+      "function": "expression_attackhi3",
+      "path": "sources/native/scripts/AttackHi3.txt",
+      "sha256": "8d1fdb656e3e412f5a1d9c7bdb240a811fc4bef5e3d95439cf49fa7cc97bd73a"
+    },
+    "events": [
+      {
+        "scriptNativeFrame": 0,
+        "changes": {
+          "heldItemVisible": false
+        },
+        "sourceLine": 43,
+        "raw": "ItemModule::set_have_item_visibility(agent.module_accessor, false, 0)",
+        "guard": null
+      }
+    ],
+    "nativeMetadata": {
+      "gameScript": "game_attackhi3",
+      "animations": [
+        "c02attackhi3.nuanmb"
+      ],
+      "cancelFrame": "36",
+      "xluStart": "0",
+      "xluEnd": "0",
+      "loop": "false",
+      "sourceMotion": "attack_hi3"
+    }
+  },
+  "link.dtilt": {
+    "motion": "attack_lw3",
+    "source": {
+      "function": "expression_attacklw3",
+      "path": "sources/native/scripts/AttackLw3.txt",
+      "sha256": "6e99a5253b49cdbe1fffb739e4c6224d9d479b0bfc5fa938a5df5d1df2a662d7"
+    },
+    "events": [
+      {
+        "scriptNativeFrame": 0,
+        "changes": {
+          "heldItemVisible": false
+        },
+        "sourceLine": 41,
+        "raw": "ItemModule::set_have_item_visibility(agent.module_accessor, false, 0)",
+        "guard": null
+      }
+    ],
+    "nativeMetadata": {
+      "gameScript": "game_attacklw3",
+      "animations": [
+        "c02attacklw3.nuanmb"
+      ],
+      "cancelFrame": "34",
+      "xluStart": "0",
+      "xluEnd": "0",
+      "loop": "false",
+      "sourceMotion": "attack_lw3"
+    }
+  },
+  "link.dashAttack": {
+    "motion": "attack_dash",
+    "source": {
+      "function": "expression_attackdash",
+      "path": "sources/native/scripts/AttackDash.txt",
+      "sha256": "ddc85f97a467414a679f2ddad0e1495a23a1f8e50e0b6c9d55b0e84800c61f1b"
+    },
+    "events": [
+      {
+        "scriptNativeFrame": 0,
+        "changes": {
+          "heldItemVisible": false
+        },
+        "sourceLine": 57,
+        "raw": "ItemModule::set_have_item_visibility(agent.module_accessor, false, 0)",
+        "guard": null
+      }
+    ],
+    "nativeMetadata": {
+      "gameScript": "game_attackdash",
+      "animations": [
+        "c00attackdash.nuanmb"
+      ],
+      "cancelFrame": "57",
+      "xluStart": "0",
+      "xluEnd": "0",
+      "loop": "false",
+      "sourceMotion": "attack_dash"
+    }
+  },
+  "link.smash": {
+    "motion": "attack_s4_s",
+    "source": {
+      "function": "expression_attacks4",
+      "path": "sources/native/scripts/AttackS4.txt",
+      "sha256": "656419eb9c96fbea1d8832812020f4af2084b8e9c573714915a81fd6c7c846ac"
+    },
+    "events": [
+      {
+        "scriptNativeFrame": 0,
+        "changes": {
+          "heldItemVisible": false
+        },
+        "sourceLine": 72,
+        "raw": "ItemModule::set_have_item_visibility(agent.module_accessor, false, 0)",
+        "guard": null
+      },
+      {
+        "scriptNativeFrame": 3.0,
+        "changes": {
+          "shield": "back"
+        },
+        "sourceLine": 77,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_back\") as i64)",
+        "guard": null
+      },
+      {
+        "scriptNativeFrame": 10.0,
+        "changes": {
+          "heldItemVisible": false
+        },
+        "sourceLine": 85,
+        "raw": "ItemModule::set_have_item_visibility(agent.module_accessor, false, 0)",
+        "guard": "FIGHTER_STATUS_ATTACK_FLAG_SMASH_SMASH_HOLD_TO_ATTACK"
+      },
+      {
+        "scriptNativeFrame": 11.0,
+        "changes": {
+          "shield": "back"
+        },
+        "sourceLine": 90,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_back\") as i64)",
+        "guard": null
+      },
+      {
+        "scriptNativeFrame": 39.0,
+        "changes": {
+          "shield": "normal"
+        },
+        "sourceLine": 106,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_normal\") as i64)",
+        "guard": null
+      }
+    ],
+    "nativeMetadata": {
+      "gameScript": "game_attacks4",
+      "animations": [
+        "c03attacks4s.nuanmb"
+      ],
+      "cancelFrame": "49",
+      "xluStart": "0",
+      "xluEnd": "0",
+      "loop": "false",
+      "sourceMotion": "attack_s4_s"
+    }
+  },
+  "link.smash2": {
+    "motion": "attack_s4_s2",
+    "source": {
+      "function": "expression_attacks4s2",
+      "path": "sources/native/scripts/AttackS4S2.txt",
+      "sha256": "5fa47091b409f71409359b2147b864d0ecf488b9fc963114c9936c144944af3c"
+    },
+    "events": [
+      {
+        "scriptNativeFrame": 0,
+        "changes": {
+          "heldItemVisible": false
+        },
+        "sourceLine": 50,
+        "raw": "ItemModule::set_have_item_visibility(agent.module_accessor, false, 0)",
+        "guard": null
+      },
+      {
+        "scriptNativeFrame": 0,
+        "changes": {
+          "shield": "back"
+        },
+        "sourceLine": 52,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_back\") as i64)",
+        "guard": null
+      },
+      {
+        "scriptNativeFrame": 47.0,
+        "changes": {
+          "shield": "normal"
+        },
+        "sourceLine": 61,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_normal\") as i64)",
+        "guard": null
+      }
+    ],
+    "nativeMetadata": {
+      "gameScript": "game_attacks4s2",
+      "animations": [
+        "c03attacks4s2.nuanmb"
+      ],
+      "cancelFrame": "61",
+      "xluStart": "0",
+      "xluEnd": "0",
+      "loop": "false",
+      "sourceMotion": "attack_s4_s2"
+    }
+  },
+  "link.usmash": {
+    "motion": "attack_hi4",
+    "source": {
+      "function": "expression_attackhi4",
+      "path": "sources/native/scripts/AttackHi4.txt",
+      "sha256": "9143973872dbcc36b922bdf782b2cfc1e673d56d12d07c77262c776852ca0774"
+    },
+    "events": [],
+    "nativeMetadata": {
+      "gameScript": "game_attackhi4",
+      "animations": [
+        "c04attackhi4.nuanmb"
+      ],
+      "cancelFrame": "78",
+      "xluStart": "0",
+      "xluEnd": "0",
+      "loop": "false",
+      "sourceMotion": "attack_hi4"
+    }
+  },
+  "link.dsmash": {
+    "motion": "attack_lw4",
+    "source": {
+      "function": "expression_attacklw4",
+      "path": "sources/native/scripts/AttackLw4.txt",
+      "sha256": "9db3caff8116aa41cf52ae47a5242c95547376258b05d2577decc110444fea71"
+    },
+    "events": [],
+    "nativeMetadata": {
+      "gameScript": "game_attacklw4",
+      "animations": [
+        "c04attacklw4.nuanmb"
+      ],
+      "cancelFrame": "52",
+      "xluStart": "0",
+      "xluEnd": "0",
+      "loop": "false",
+      "sourceMotion": "attack_lw4"
+    }
+  },
+  "link.nair": {
+    "motion": "attack_air_n",
+    "source": {
+      "function": "expression_attackairn",
+      "path": "sources/native/scripts/AttackAirN.txt",
+      "sha256": "6ab51c2effa7edbd07a575992c78ea9c6fbfc598f1a53b04a5dde184bd14fd7d"
+    },
+    "events": [],
+    "nativeMetadata": {
+      "gameScript": "game_attackairn",
+      "animations": [
+        "c05attackairn.nuanmb"
+      ],
+      "cancelFrame": "39",
+      "xluStart": "0",
+      "xluEnd": "0",
+      "loop": "false",
+      "sourceMotion": "attack_air_n"
+    }
+  },
+  "link.fair": {
+    "motion": "attack_air_f",
+    "source": {
+      "function": "expression_attackairf",
+      "path": "sources/native/scripts/AttackAirF.txt",
+      "sha256": "93fb2fa4417a54471af7abe8ac7ff3fa4ed71866ed846c2ce98c92007bdf50bd"
+    },
+    "events": [],
+    "nativeMetadata": {
+      "gameScript": "game_attackairf",
+      "animations": [
+        "c05attackairf.nuanmb"
+      ],
+      "cancelFrame": "50",
+      "xluStart": "0",
+      "xluEnd": "0",
+      "loop": "false",
+      "sourceMotion": "attack_air_f"
+    }
+  },
+  "link.bair": {
+    "motion": "attack_air_b",
+    "source": {
+      "function": "expression_attackairb",
+      "path": "sources/native/scripts/AttackAirB.txt",
+      "sha256": "8625e819ae08e5e825d90d3bb2634357f2a85d6d5842d52fe53447b6ef3dad36"
+    },
+    "events": [],
+    "nativeMetadata": {
+      "gameScript": "game_attackairb",
+      "animations": [
+        "c05attackairb.nuanmb"
+      ],
+      "cancelFrame": "31",
+      "xluStart": "0",
+      "xluEnd": "0",
+      "loop": "false",
+      "sourceMotion": "attack_air_b"
+    }
+  },
+  "link.uair": {
+    "motion": "attack_air_hi",
+    "source": {
+      "function": "expression_attackairhi",
+      "path": "sources/native/scripts/AttackAirHi.txt",
+      "sha256": "ccde9af4fab17a9863defb47d226404bf4718ac88be01b2c708dc22c2c147703"
+    },
+    "events": [
+      {
+        "scriptNativeFrame": 0,
+        "changes": {
+          "heldItemVisible": false
+        },
+        "sourceLine": 46,
+        "raw": "ItemModule::set_have_item_visibility(agent.module_accessor, false, 0)",
+        "guard": null
+      },
+      {
+        "scriptNativeFrame": 2.0,
+        "changes": {
+          "shield": "back"
+        },
+        "sourceLine": 50,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_back\") as i64)",
+        "guard": null
+      },
+      {
+        "scriptNativeFrame": 48.0,
+        "changes": {
+          "heldItemVisible": true
+        },
+        "sourceLine": 62,
+        "raw": "ItemModule::set_have_item_visibility(agent.module_accessor, true, 0)",
+        "guard": null
+      },
+      {
+        "scriptNativeFrame": 48.0,
+        "changes": {
+          "shield": "normal"
+        },
+        "sourceLine": 63,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_normal\") as i64)",
+        "guard": null
+      }
+    ],
+    "nativeMetadata": {
+      "gameScript": "game_attackairhi",
+      "animations": [
+        "c05attackairhi.nuanmb"
+      ],
+      "cancelFrame": "60",
+      "xluStart": "0",
+      "xluEnd": "0",
+      "loop": "false",
+      "sourceMotion": "attack_air_hi"
+    }
+  },
+  "link.dair": {
+    "motion": "attack_air_lw",
+    "source": {
+      "function": "expression_attackairlw",
+      "path": "sources/native/scripts/AttackAirLw.txt",
+      "sha256": "7c28992bcc210712f8c44f255c46722139e5c546dd2d4f061a1d9bc0d66523a8"
+    },
+    "events": [
+      {
+        "scriptNativeFrame": 3.0,
+        "changes": {
+          "shield": "back"
+        },
+        "sourceLine": 58,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_back\") as i64)",
+        "guard": null
+      },
+      {
+        "scriptNativeFrame": 3.0,
+        "changes": {
+          "heldItemVisible": false
+        },
+        "sourceLine": 59,
+        "raw": "ItemModule::set_have_item_visibility(agent.module_accessor, false, 0)",
+        "guard": null
+      },
+      {
+        "scriptNativeFrame": 78.0,
+        "changes": {
+          "shield": "normal"
+        },
+        "sourceLine": 71,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_normal\") as i64)",
+        "guard": null
+      },
+      {
+        "scriptNativeFrame": 78.0,
+        "changes": {
+          "heldItemVisible": true
+        },
+        "sourceLine": 72,
+        "raw": "ItemModule::set_have_item_visibility(agent.module_accessor, true, 0)",
+        "guard": null
+      }
+    ],
+    "nativeMetadata": {
+      "gameScript": "game_attackairlw",
+      "animations": [
+        "c05attackairlw.nuanmb"
+      ],
+      "cancelFrame": "80",
+      "xluStart": "0",
+      "xluEnd": "0",
+      "loop": "false",
+      "sourceMotion": "attack_air_lw"
+    }
+  },
+  "link.smash_hold": {
+    "motion": "attack_s4_hold",
+    "source": {
+      "function": "expression_attacks4charge",
+      "path": "sources/native/scripts/AttackS4Charge.txt",
+      "sha256": "fd6e24bc24b17d922de543b92af81c036647195bd9f899f6a5fc2972492fe645"
+    },
+    "events": [
+      {
+        "scriptNativeFrame": 0,
+        "changes": {
+          "shield": "back"
+        },
+        "sourceLine": 24,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_back\") as i64)",
+        "guard": null
+      },
+      {
+        "scriptNativeFrame": 0,
+        "changes": {
+          "heldItemVisible": false
+        },
+        "sourceLine": 25,
+        "raw": "ItemModule::set_have_item_visibility(agent.module_accessor, false, 0)",
+        "guard": null
+      }
+    ],
+    "nativeMetadata": {
+      "gameScript": "game_attacks4charge",
+      "animations": [
+        "c03attacks4charge.nuanmb"
+      ],
+      "cancelFrame": "0",
+      "xluStart": "0",
+      "xluEnd": "0",
+      "loop": "false",
+      "sourceMotion": "attack_s4_hold"
+    }
+  },
+  "link.usmash_hold": {
+    "motion": "attack_hi4_hold",
+    "source": {
+      "function": "expression_attackhi4charge",
+      "path": "sources/native/scripts/AttackHi4Charge.txt",
+      "sha256": "ac0764bf4d60e0d40f52c2d9f7d96831d1467685096954132c7e63f1a3467c2a"
+    },
+    "events": [],
+    "nativeMetadata": {
+      "gameScript": "game_attackhi4charge",
+      "animations": [
+        "c04attackhi4charge.nuanmb"
+      ],
+      "cancelFrame": "0",
+      "xluStart": "0",
+      "xluEnd": "0",
+      "loop": "false",
+      "sourceMotion": "attack_hi4_hold"
+    }
+  },
+  "link.dsmash_hold": {
+    "motion": "attack_lw4_hold",
+    "source": {
+      "function": "expression_attacklw4charge",
+      "path": "sources/native/scripts/AttackLw4Charge.txt",
+      "sha256": "4d0961ad97d4b2d8a68e3bc19753e2b4b651ed40d294ae620f9bcebfcdc5c6c3"
+    },
+    "events": [],
+    "nativeMetadata": {
+      "gameScript": "game_attacklw4charge",
+      "animations": [
+        "c04attacklw4charge.nuanmb"
+      ],
+      "cancelFrame": "0",
+      "xluStart": "0",
+      "xluEnd": "0",
+      "loop": "false",
+      "sourceMotion": "attack_lw4_hold"
+    }
+  }
+}

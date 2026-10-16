@@ -10,7 +10,7 @@ import { CHARACTER_LABEL } from '../characters/Character';
 import type { HitInfo } from '../characters/combat';
 import type { HitboxPlugin } from '../characters/attacks';
 import type { Hurtbox } from '../characters/moveSchema';
-import { PLATFORM_LABELS } from '../stages/StageRenderer';
+import { PLATFORM_LABELS } from '../stages/stageBodies';
 
 /**
  * Sub-AC 2 of AC 60002: damage tracking that applies incoming damage
@@ -62,16 +62,36 @@ function makeHitboxBody(
 ): HitboxOrCharacterBody {
   const plugin: HitboxPlugin = {
     ownerId,
+    ...(options.ownerBodyId !== undefined ? { ownerBodyId: options.ownerBodyId } : {}),
     moveId: options.moveId ?? 'test.jab',
     damage: options.damage ?? 8,
     knockback: options.knockback ?? { x: 1.5, y: -0.5, scaling: 0.05 },
     facing: options.facing ?? 1,
+    ...(options.hitbox ? { hitbox: options.hitbox } : {}),
+    ...(options.sweetSpot ? { sweetSpot: options.sweetSpot } : {}),
   };
   return {
     label: HITBOX_LABEL,
     plugin,
     ...(id !== undefined ? { id } : {}),
   } as HitboxOrCharacterBody;
+}
+
+function withGeometry(
+  body: HitboxOrCharacterBody,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+): HitboxOrCharacterBody {
+  return {
+    ...body,
+    position: { x, y },
+    bounds: {
+      min: { x: x - width / 2, y: y - height / 2 },
+      max: { x: x + width / 2, y: y + height / 2 },
+    },
+  };
 }
 
 function makePlatform(passThrough = false): HitboxOrCharacterBody {
@@ -113,32 +133,32 @@ function makeLogger(): {
 describe('HitboxDamageHandler — registration', () => {
   it('rejects a negative or non-integer playerIndex', () => {
     const h = new HitboxDamageHandler(() => {});
-    expect(() => h.registerPlayer(-1, makeCharacterBody('wolf'))).toThrow();
-    expect(() => h.registerPlayer(1.5, makeCharacterBody('cat'))).toThrow();
+    expect(() => h.registerPlayer(-1, makeCharacterBody('donkeykong'))).toThrow();
+    expect(() => h.registerPlayer(1.5, makeCharacterBody('pikachu'))).toThrow();
   });
 
   it('isRegistered reflects the registry state', () => {
     const h = new HitboxDamageHandler(() => {});
     expect(h.isRegistered(0)).toBe(false);
-    h.registerPlayer(0, makeCharacterBody('wolf'));
+    h.registerPlayer(0, makeCharacterBody('donkeykong'));
     expect(h.isRegistered(0)).toBe(true);
   });
 
   it('re-registering the same playerIndex replaces the body', () => {
     const { log, cb } = makeLogger();
     const h = new HitboxDamageHandler(cb);
-    const oldBody = makeCharacterBody('wolf');
-    const newBody = makeCharacterBody('wolf');
+    const oldBody = makeCharacterBody('donkeykong');
+    const newBody = makeCharacterBody('donkeykong');
     h.registerPlayer(0, oldBody);
     h.registerPlayer(0, newBody);
     // Old body no longer fires.
     h.handleCollisionStart(
-      makeEvent({ bodyA: oldBody, bodyB: makeHitboxBody('cat') }),
+      makeEvent({ bodyA: oldBody, bodyB: makeHitboxBody('pikachu') }),
     );
     expect(log.length).toBe(0);
     // New body does.
     h.handleCollisionStart(
-      makeEvent({ bodyA: newBody, bodyB: makeHitboxBody('cat') }),
+      makeEvent({ bodyA: newBody, bodyB: makeHitboxBody('pikachu') }),
     );
     expect(log.length).toBe(1);
   });
@@ -146,11 +166,11 @@ describe('HitboxDamageHandler — registration', () => {
   it('unregisterPlayer stops further emissions for that slot', () => {
     const { log, cb } = makeLogger();
     const h = new HitboxDamageHandler(cb);
-    const body = makeCharacterBody('wolf');
+    const body = makeCharacterBody('donkeykong');
     h.registerPlayer(0, body);
     h.unregisterPlayer(0);
     h.handleCollisionStart(
-      makeEvent({ bodyA: body, bodyB: makeHitboxBody('cat') }),
+      makeEvent({ bodyA: body, bodyB: makeHitboxBody('pikachu') }),
     );
     expect(log).toEqual([]);
     expect(h.isRegistered(0)).toBe(false);
@@ -164,8 +184,8 @@ describe('HitboxDamageHandler — registration', () => {
 
   it('reset clears the entire registry', () => {
     const h = new HitboxDamageHandler(() => {});
-    h.registerPlayer(0, makeCharacterBody('wolf'));
-    h.registerPlayer(1, makeCharacterBody('cat'));
+    h.registerPlayer(0, makeCharacterBody('donkeykong'));
+    h.registerPlayer(1, makeCharacterBody('pikachu'));
     h.reset();
     expect(h.isRegistered(0)).toBe(false);
     expect(h.isRegistered(1)).toBe(false);
@@ -177,27 +197,45 @@ describe('HitboxDamageHandler — registration', () => {
 // ---------------------------------------------------------------------------
 
 describe('HitboxDamageHandler — detection', () => {
+  it('attributes a mirror-match hit by unique body id, not character id', () => {
+    const { log, cb } = makeLogger();
+    const h = new HitboxDamageHandler(cb);
+    const p1Dk = makeCharacterBody('donkeykong', 11);
+    const p2Dk = makeCharacterBody('donkeykong', 22);
+    h.registerPlayer(0, p1Dk);
+    h.registerPlayer(1, p2Dk);
+    const p2Swing = makeHitboxBody('donkeykong', { ownerBodyId: 22 }, 100);
+    h.handleCollisionStart(makeEvent({ bodyA: p2Swing, bodyB: p1Dk }));
+    expect(log).toHaveLength(1);
+    expect(log[0]!.targetIndex).toBe(0);
+    expect(log[0]!.context).toMatchObject({
+      attackerOwnerId: 'donkeykong',
+      attackerBodyId: 22,
+      attackerPlayerIndex: 1,
+    });
+  });
+
   it('fires for hitbox→character pair order (A,B)', () => {
     const { log, cb } = makeLogger();
     const h = new HitboxDamageHandler(cb);
-    const wolf = makeCharacterBody('wolf');
-    h.registerPlayer(0, wolf);
-    const hitbox = makeHitboxBody('cat', { damage: 12, moveId: 'cat.smash' });
-    h.handleCollisionStart(makeEvent({ bodyA: hitbox, bodyB: wolf }));
+    const dk = makeCharacterBody('donkeykong');
+    h.registerPlayer(0, dk);
+    const hitbox = makeHitboxBody('pikachu', { damage: 12, moveId: 'pikachu.smash' });
+    h.handleCollisionStart(makeEvent({ bodyA: hitbox, bodyB: dk }));
     expect(log.length).toBe(1);
     expect(log[0]!.targetIndex).toBe(0);
     expect(log[0]!.hit.damage).toBe(12);
-    expect(log[0]!.context.attackerOwnerId).toBe('cat');
-    expect(log[0]!.context.moveId).toBe('cat.smash');
+    expect(log[0]!.context.attackerOwnerId).toBe('pikachu');
+    expect(log[0]!.context.moveId).toBe('pikachu.smash');
   });
 
   it('fires for character→hitbox in reverse pair order (B,A)', () => {
     const { log, cb } = makeLogger();
     const h = new HitboxDamageHandler(cb);
-    const cat = makeCharacterBody('cat');
-    h.registerPlayer(1, cat);
-    const hitbox = makeHitboxBody('wolf');
-    h.handleCollisionStart(makeEvent({ bodyA: cat, bodyB: hitbox }));
+    const pika = makeCharacterBody('pikachu');
+    h.registerPlayer(1, pika);
+    const hitbox = makeHitboxBody('donkeykong');
+    h.handleCollisionStart(makeEvent({ bodyA: pika, bodyB: hitbox }));
     expect(log.length).toBe(1);
     expect(log[0]!.targetIndex).toBe(1);
   });
@@ -205,39 +243,39 @@ describe('HitboxDamageHandler — detection', () => {
   it('multiplexes correctly across multiple registered players', () => {
     const { log, cb } = makeLogger();
     const h = new HitboxDamageHandler(cb);
-    const wolf = makeCharacterBody('wolf', 1);
-    const cat = makeCharacterBody('cat', 2);
-    h.registerPlayer(0, wolf);
-    h.registerPlayer(1, cat);
+    const dk = makeCharacterBody('donkeykong', 1);
+    const pika = makeCharacterBody('pikachu', 2);
+    h.registerPlayer(0, dk);
+    h.registerPlayer(1, pika);
     // Two different hitboxes hitting two different targets in one event.
-    const hb1 = makeHitboxBody('cat', { damage: 5 }, 100);
-    const hb2 = makeHitboxBody('wolf', { damage: 7 }, 101);
+    const hb1 = makeHitboxBody('pikachu', { damage: 5 }, 100);
+    const hb2 = makeHitboxBody('donkeykong', { damage: 7 }, 101);
     h.handleCollisionStart(
       makeEvent(
-        { bodyA: hb1, bodyB: wolf },
-        { bodyA: hb2, bodyB: cat },
+        { bodyA: hb1, bodyB: dk },
+        { bodyA: hb2, bodyB: pika },
       ),
     );
     expect(log.length).toBe(2);
-    const wolfHit = log.find((e) => e.targetIndex === 0)!;
-    const catHit = log.find((e) => e.targetIndex === 1)!;
-    expect(wolfHit.hit.damage).toBe(5);
-    expect(catHit.hit.damage).toBe(7);
+    const dkHit = log.find((e) => e.targetIndex === 0)!;
+    const pikaHit = log.find((e) => e.targetIndex === 1)!;
+    expect(dkHit.hit.damage).toBe(5);
+    expect(pikaHit.hit.damage).toBe(7);
   });
 
   it('one hitbox can hit multiple characters in the same event (AoE)', () => {
     const { log, cb } = makeLogger();
     const h = new HitboxDamageHandler(cb);
-    const wolf = makeCharacterBody('wolf');
-    const cat = makeCharacterBody('cat');
-    h.registerPlayer(0, wolf);
-    h.registerPlayer(1, cat);
-    // Single hitbox owned by 'owl' hits both in one event.
-    const owlSwing = makeHitboxBody('owl', { damage: 9 }, 200);
+    const dk = makeCharacterBody('donkeykong');
+    const pika = makeCharacterBody('pikachu');
+    h.registerPlayer(0, dk);
+    h.registerPlayer(1, pika);
+    // Single hitbox owned by 'link' hits both in one event.
+    const linkSwing = makeHitboxBody('link', { damage: 9 }, 200);
     h.handleCollisionStart(
       makeEvent(
-        { bodyA: owlSwing, bodyB: wolf },
-        { bodyA: owlSwing, bodyB: cat },
+        { bodyA: linkSwing, bodyB: dk },
+        { bodyA: linkSwing, bodyB: pika },
       ),
     );
     expect(log.length).toBe(2);
@@ -253,30 +291,30 @@ describe('HitboxDamageHandler — HitInfo construction', () => {
   it('builds HitInfo with damage / knockback / facing from the plugin', () => {
     const { log, cb } = makeLogger();
     const h = new HitboxDamageHandler(cb);
-    const target = makeCharacterBody('wolf');
+    const target = makeCharacterBody('donkeykong');
     h.registerPlayer(0, target);
     const knockback = { x: 4.2, y: -1.7, scaling: 0.18 };
-    const hitbox = makeHitboxBody('cat', {
+    const hitbox = makeHitboxBody('pikachu', {
       damage: 14,
       knockback,
       facing: -1,
-      moveId: 'cat.smash.up',
+      moveId: 'pikachu.smash.up',
     });
     h.handleCollisionStart(makeEvent({ bodyA: hitbox, bodyB: target }));
     expect(log.length).toBe(1);
     expect(log[0]!.hit.damage).toBe(14);
     expect(log[0]!.hit.knockback).toEqual(knockback);
     expect(log[0]!.hit.facing).toBe(-1);
-    expect(log[0]!.context.moveId).toBe('cat.smash.up');
-    expect(log[0]!.context.attackerOwnerId).toBe('cat');
+    expect(log[0]!.context.moveId).toBe('pikachu.smash.up');
+    expect(log[0]!.context.attackerOwnerId).toBe('pikachu');
   });
 
   it('passes through fractional damage values without rounding', () => {
     const { log, cb } = makeLogger();
     const h = new HitboxDamageHandler(cb);
-    const target = makeCharacterBody('wolf');
+    const target = makeCharacterBody('donkeykong');
     h.registerPlayer(0, target);
-    const hitbox = makeHitboxBody('cat', { damage: 3.75 });
+    const hitbox = makeHitboxBody('pikachu', { damage: 3.75 });
     h.handleCollisionStart(makeEvent({ bodyA: hitbox, bodyB: target }));
     expect(log[0]!.hit.damage).toBeCloseTo(3.75);
   });
@@ -290,23 +328,23 @@ describe('HitboxDamageHandler — self-hit suppression', () => {
   it('suppresses a hit where attacker ownerId === target characterId', () => {
     const { log, cb } = makeLogger();
     const h = new HitboxDamageHandler(cb);
-    const wolf = makeCharacterBody('wolf');
-    h.registerPlayer(0, wolf);
-    // Wolf's own hitbox should not damage Wolf (impossible in real
+    const dk = makeCharacterBody('donkeykong');
+    h.registerPlayer(0, dk);
+    // DK's own hitbox should not damage DK (impossible in real
     // gameplay because the body is set isSensor + collision masks
     // exclude self, but this is a defence-in-depth test).
-    const wolfSwing = makeHitboxBody('wolf');
-    h.handleCollisionStart(makeEvent({ bodyA: wolfSwing, bodyB: wolf }));
+    const dkSwing = makeHitboxBody('donkeykong');
+    h.handleCollisionStart(makeEvent({ bodyA: dkSwing, bodyB: dk }));
     expect(log).toEqual([]);
   });
 
   it('still fires when ownerId differs from target characterId', () => {
     const { log, cb } = makeLogger();
     const h = new HitboxDamageHandler(cb);
-    const wolf = makeCharacterBody('wolf');
-    h.registerPlayer(0, wolf);
-    const catSwing = makeHitboxBody('cat');
-    h.handleCollisionStart(makeEvent({ bodyA: catSwing, bodyB: wolf }));
+    const dk = makeCharacterBody('donkeykong');
+    h.registerPlayer(0, dk);
+    const pikaSwing = makeHitboxBody('pikachu');
+    h.handleCollisionStart(makeEvent({ bodyA: pikaSwing, bodyB: dk }));
     expect(log.length).toBe(1);
   });
 });
@@ -319,10 +357,10 @@ describe('HitboxDamageHandler — friendly-fire predicate', () => {
   it('default: no predicate set, every cross-character hit fires', () => {
     const { log, cb } = makeLogger();
     const h = new HitboxDamageHandler(cb);
-    const wolf = makeCharacterBody('wolf');
-    h.registerPlayer(0, wolf);
+    const dk = makeCharacterBody('donkeykong');
+    h.registerPlayer(0, dk);
     h.handleCollisionStart(
-      makeEvent({ bodyA: makeHitboxBody('cat'), bodyB: wolf }),
+      makeEvent({ bodyA: makeHitboxBody('pikachu'), bodyB: dk }),
     );
     expect(log.length).toBe(1);
   });
@@ -330,11 +368,11 @@ describe('HitboxDamageHandler — friendly-fire predicate', () => {
   it('predicate returning false drops the hit silently', () => {
     const { log, cb } = makeLogger();
     const h = new HitboxDamageHandler(cb);
-    const wolf = makeCharacterBody('wolf');
-    h.registerPlayer(0, wolf);
+    const dk = makeCharacterBody('donkeykong');
+    h.registerPlayer(0, dk);
     h.setFriendlyFirePredicate(() => false);
     h.handleCollisionStart(
-      makeEvent({ bodyA: makeHitboxBody('cat'), bodyB: wolf }),
+      makeEvent({ bodyA: makeHitboxBody('pikachu'), bodyB: dk }),
     );
     expect(log).toEqual([]);
   });
@@ -342,11 +380,11 @@ describe('HitboxDamageHandler — friendly-fire predicate', () => {
   it('predicate returning true fires the hit normally', () => {
     const { log, cb } = makeLogger();
     const h = new HitboxDamageHandler(cb);
-    const wolf = makeCharacterBody('wolf');
-    h.registerPlayer(0, wolf);
+    const dk = makeCharacterBody('donkeykong');
+    h.registerPlayer(0, dk);
     h.setFriendlyFirePredicate(() => true);
     h.handleCollisionStart(
-      makeEvent({ bodyA: makeHitboxBody('cat'), bodyB: wolf }),
+      makeEvent({ bodyA: makeHitboxBody('pikachu'), bodyB: dk }),
     );
     expect(log.length).toBe(1);
   });
@@ -355,51 +393,51 @@ describe('HitboxDamageHandler — friendly-fire predicate', () => {
     const calls: Array<{ ownerId: string; targetIndex: number }> = [];
     const { cb } = makeLogger();
     const h = new HitboxDamageHandler(cb);
-    const wolf = makeCharacterBody('wolf');
-    const cat = makeCharacterBody('cat');
-    h.registerPlayer(0, wolf);
-    h.registerPlayer(1, cat);
+    const dk = makeCharacterBody('donkeykong');
+    const pika = makeCharacterBody('pikachu');
+    h.registerPlayer(0, dk);
+    h.registerPlayer(1, pika);
     h.setFriendlyFirePredicate((ownerId, targetIndex) => {
       calls.push({ ownerId, targetIndex });
       return true;
     });
     h.handleCollisionStart(
-      makeEvent({ bodyA: makeHitboxBody('cat'), bodyB: wolf }),
+      makeEvent({ bodyA: makeHitboxBody('pikachu'), bodyB: dk }),
     );
-    expect(calls).toEqual([{ ownerId: 'cat', targetIndex: 0 }]);
+    expect(calls).toEqual([{ ownerId: 'pikachu', targetIndex: 0 }]);
   });
 
   it('a dropped hit can re-fire later (no confirmation registry update)', () => {
     const { log, cb } = makeLogger();
     const h = new HitboxDamageHandler(cb);
-    const wolf = makeCharacterBody('wolf');
-    h.registerPlayer(0, wolf);
+    const dk = makeCharacterBody('donkeykong');
+    h.registerPlayer(0, dk);
     let allow = false;
     h.setFriendlyFirePredicate(() => allow);
     // Same hitbox body re-used so the confirmation registry is the
     // same key — the per-lifetime dedup would normally suppress a
     // repeat hit on the same target.
-    const swing = makeHitboxBody('cat');
-    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: wolf }));
+    const swing = makeHitboxBody('pikachu');
+    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: dk }));
     expect(log).toEqual([]); // dropped by predicate
     allow = true;
-    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: wolf }));
+    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: dk }));
     expect(log.length).toBe(1); // now fires — predicate was the only block
   });
 
   it('clearing the predicate (null) restores default behaviour', () => {
     const { log, cb } = makeLogger();
     const h = new HitboxDamageHandler(cb);
-    const wolf = makeCharacterBody('wolf');
-    h.registerPlayer(0, wolf);
+    const dk = makeCharacterBody('donkeykong');
+    h.registerPlayer(0, dk);
     h.setFriendlyFirePredicate(() => false);
     h.handleCollisionStart(
-      makeEvent({ bodyA: makeHitboxBody('cat'), bodyB: wolf }),
+      makeEvent({ bodyA: makeHitboxBody('pikachu'), bodyB: dk }),
     );
     expect(log).toEqual([]);
     h.setFriendlyFirePredicate(null);
     h.handleCollisionStart(
-      makeEvent({ bodyA: makeHitboxBody('cat'), bodyB: wolf }),
+      makeEvent({ bodyA: makeHitboxBody('pikachu'), bodyB: dk }),
     );
     expect(log.length).toBe(1);
   });
@@ -413,12 +451,12 @@ describe('HitboxDamageHandler — filtering', () => {
   it('ignores character-vs-platform collisions', () => {
     const { log, cb } = makeLogger();
     const h = new HitboxDamageHandler(cb);
-    const wolf = makeCharacterBody('wolf');
-    h.registerPlayer(0, wolf);
+    const dk = makeCharacterBody('donkeykong');
+    h.registerPlayer(0, dk);
     h.handleCollisionStart(
       makeEvent(
-        { bodyA: wolf, bodyB: makePlatform() },
-        { bodyA: wolf, bodyB: makePlatform(true) },
+        { bodyA: dk, bodyB: makePlatform() },
+        { bodyA: dk, bodyB: makePlatform(true) },
       ),
     );
     expect(log).toEqual([]);
@@ -427,20 +465,20 @@ describe('HitboxDamageHandler — filtering', () => {
   it('ignores character-vs-character collisions (no hitbox involved)', () => {
     const { log, cb } = makeLogger();
     const h = new HitboxDamageHandler(cb);
-    const wolf = makeCharacterBody('wolf');
-    const cat = makeCharacterBody('cat');
-    h.registerPlayer(0, wolf);
-    h.registerPlayer(1, cat);
-    h.handleCollisionStart(makeEvent({ bodyA: wolf, bodyB: cat }));
+    const dk = makeCharacterBody('donkeykong');
+    const pika = makeCharacterBody('pikachu');
+    h.registerPlayer(0, dk);
+    h.registerPlayer(1, pika);
+    h.handleCollisionStart(makeEvent({ bodyA: dk, bodyB: pika }));
     expect(log).toEqual([]);
   });
 
   it('ignores hitbox-vs-platform collisions', () => {
     const { log, cb } = makeLogger();
     const h = new HitboxDamageHandler(cb);
-    const wolf = makeCharacterBody('wolf');
-    h.registerPlayer(0, wolf);
-    const swing = makeHitboxBody('cat');
+    const dk = makeCharacterBody('donkeykong');
+    h.registerPlayer(0, dk);
+    const swing = makeHitboxBody('pikachu');
     h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: makePlatform() }));
     expect(log).toEqual([]);
   });
@@ -448,7 +486,7 @@ describe('HitboxDamageHandler — filtering', () => {
   it('ignores hitbox-vs-blast-zone collisions', () => {
     const { log, cb } = makeLogger();
     const h = new HitboxDamageHandler(cb);
-    const swing = makeHitboxBody('wolf');
+    const swing = makeHitboxBody('donkeykong');
     const blastZone: HitboxOrCharacterBody = { label: 'blastZone.left' };
     h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: blastZone }));
     expect(log).toEqual([]);
@@ -458,8 +496,8 @@ describe('HitboxDamageHandler — filtering', () => {
     const { log, cb } = makeLogger();
     const h = new HitboxDamageHandler(cb);
     // No characters registered.
-    const stranger = makeCharacterBody('owl');
-    const swing = makeHitboxBody('cat');
+    const stranger = makeCharacterBody('link');
+    const swing = makeHitboxBody('pikachu');
     h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: stranger }));
     expect(log).toEqual([]);
   });
@@ -470,7 +508,7 @@ describe('HitboxDamageHandler — filtering', () => {
     h.handleCollisionStart({ pairs: [] });
     h.handleCollisionStart(makeEvent({ bodyA: null, bodyB: null }));
     h.handleCollisionStart(
-      makeEvent({ bodyA: null, bodyB: makeHitboxBody('cat') }),
+      makeEvent({ bodyA: null, bodyB: makeHitboxBody('pikachu') }),
     );
     expect(log).toEqual([]);
   });
@@ -480,8 +518,8 @@ describe('HitboxDamageHandler — filtering', () => {
     const h = new HitboxDamageHandler(cb);
     h.handleCollisionStart(
       makeEvent({
-        bodyA: makeHitboxBody('wolf'),
-        bodyB: makeHitboxBody('cat'),
+        bodyA: makeHitboxBody('donkeykong'),
+        bodyB: makeHitboxBody('pikachu'),
       }),
     );
     expect(log).toEqual([]);
@@ -490,8 +528,8 @@ describe('HitboxDamageHandler — filtering', () => {
   it('ignores hitbox bodies whose plugin is missing or malformed', () => {
     const { log, cb } = makeLogger();
     const h = new HitboxDamageHandler(cb);
-    const wolf = makeCharacterBody('wolf');
-    h.registerPlayer(0, wolf);
+    const dk = makeCharacterBody('donkeykong');
+    h.registerPlayer(0, dk);
     const malformed: HitboxOrCharacterBody = { label: HITBOX_LABEL };
     const malformed2: HitboxOrCharacterBody = {
       label: HITBOX_LABEL,
@@ -499,8 +537,8 @@ describe('HitboxDamageHandler — filtering', () => {
     };
     h.handleCollisionStart(
       makeEvent(
-        { bodyA: malformed, bodyB: wolf },
-        { bodyA: malformed2, bodyB: wolf },
+        { bodyA: malformed, bodyB: dk },
+        { bodyA: malformed2, bodyB: dk },
       ),
     );
     expect(log).toEqual([]);
@@ -515,15 +553,15 @@ describe('HitboxDamageHandler — de-duplication', () => {
   it('fires at most once per (hitboxBody, target) within one event', () => {
     const { log, cb } = makeLogger();
     const h = new HitboxDamageHandler(cb);
-    const wolf = makeCharacterBody('wolf', 1);
-    h.registerPlayer(0, wolf);
-    const swing = makeHitboxBody('cat', { damage: 6 }, 50);
+    const dk = makeCharacterBody('donkeykong', 1);
+    h.registerPlayer(0, dk);
+    const swing = makeHitboxBody('pikachu', { damage: 6 }, 50);
     // Same hitbox-target overlap reported twice in one event (e.g.
     // compound body with two parts touching the same hurtbox).
     h.handleCollisionStart(
       makeEvent(
-        { bodyA: swing, bodyB: wolf },
-        { bodyA: swing, bodyB: wolf },
+        { bodyA: swing, bodyB: dk },
+        { bodyA: swing, bodyB: dk },
       ),
     );
     expect(log.length).toBe(1);
@@ -532,13 +570,13 @@ describe('HitboxDamageHandler — de-duplication', () => {
   it('also dedups when the duplicate pair has reversed order', () => {
     const { log, cb } = makeLogger();
     const h = new HitboxDamageHandler(cb);
-    const wolf = makeCharacterBody('wolf', 1);
-    h.registerPlayer(0, wolf);
-    const swing = makeHitboxBody('cat', {}, 50);
+    const dk = makeCharacterBody('donkeykong', 1);
+    h.registerPlayer(0, dk);
+    const swing = makeHitboxBody('pikachu', {}, 50);
     h.handleCollisionStart(
       makeEvent(
-        { bodyA: swing, bodyB: wolf },
-        { bodyA: wolf, bodyB: swing },
+        { bodyA: swing, bodyB: dk },
+        { bodyA: dk, bodyB: swing },
       ),
     );
     expect(log.length).toBe(1);
@@ -555,11 +593,11 @@ describe('HitboxDamageHandler — de-duplication', () => {
   it('does NOT re-fire when the same hitbox+target appear in a new event', () => {
     const { log, cb } = makeLogger();
     const h = new HitboxDamageHandler(cb);
-    const wolf = makeCharacterBody('wolf', 1);
-    h.registerPlayer(0, wolf);
-    const swing = makeHitboxBody('cat', {}, 50);
-    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: wolf }));
-    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: wolf }));
+    const dk = makeCharacterBody('donkeykong', 1);
+    h.registerPlayer(0, dk);
+    const swing = makeHitboxBody('pikachu', {}, 50);
+    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: dk }));
+    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: dk }));
     expect(log.length).toBe(1);
   });
 
@@ -570,12 +608,12 @@ describe('HitboxDamageHandler — de-duplication', () => {
     // land their own hit.
     const { log, cb } = makeLogger();
     const h = new HitboxDamageHandler(cb);
-    const wolf = makeCharacterBody('wolf', 1);
-    h.registerPlayer(0, wolf);
-    const swing1 = makeHitboxBody('cat', { damage: 4 }, 50);
-    const swing2 = makeHitboxBody('cat', { damage: 6 }, 51);
-    h.handleCollisionStart(makeEvent({ bodyA: swing1, bodyB: wolf }));
-    h.handleCollisionStart(makeEvent({ bodyA: swing2, bodyB: wolf }));
+    const dk = makeCharacterBody('donkeykong', 1);
+    h.registerPlayer(0, dk);
+    const swing1 = makeHitboxBody('pikachu', { damage: 4 }, 50);
+    const swing2 = makeHitboxBody('pikachu', { damage: 6 }, 51);
+    h.handleCollisionStart(makeEvent({ bodyA: swing1, bodyB: dk }));
+    h.handleCollisionStart(makeEvent({ bodyA: swing2, bodyB: dk }));
     expect(log.length).toBe(2);
     expect(log.map((e) => e.hit.damage)).toEqual([4, 6]);
   });
@@ -583,14 +621,14 @@ describe('HitboxDamageHandler — de-duplication', () => {
   it('different hitboxes hitting the same character in one event both fire', () => {
     const { log, cb } = makeLogger();
     const h = new HitboxDamageHandler(cb);
-    const wolf = makeCharacterBody('wolf', 1);
-    h.registerPlayer(0, wolf);
-    const swingA = makeHitboxBody('cat', { damage: 4 }, 50);
-    const swingB = makeHitboxBody('owl', { damage: 9 }, 51);
+    const dk = makeCharacterBody('donkeykong', 1);
+    h.registerPlayer(0, dk);
+    const swingA = makeHitboxBody('pikachu', { damage: 4 }, 50);
+    const swingB = makeHitboxBody('link', { damage: 9 }, 51);
     h.handleCollisionStart(
       makeEvent(
-        { bodyA: swingA, bodyB: wolf },
-        { bodyA: swingB, bodyB: wolf },
+        { bodyA: swingA, bodyB: dk },
+        { bodyA: swingB, bodyB: dk },
       ),
     );
     expect(log.length).toBe(2);
@@ -602,13 +640,13 @@ describe('HitboxDamageHandler — de-duplication', () => {
     // dedup correctly using object reference equality.
     const { log, cb } = makeLogger();
     const h = new HitboxDamageHandler(cb);
-    const wolf = makeCharacterBody('wolf'); // no id
-    h.registerPlayer(0, wolf);
-    const swing = makeHitboxBody('cat'); // no id
+    const dk = makeCharacterBody('donkeykong'); // no id
+    h.registerPlayer(0, dk);
+    const swing = makeHitboxBody('pikachu'); // no id
     h.handleCollisionStart(
       makeEvent(
-        { bodyA: swing, bodyB: wolf },
-        { bodyA: swing, bodyB: wolf },
+        { bodyA: swing, bodyB: dk },
+        { bodyA: swing, bodyB: dk },
       ),
     );
     expect(log.length).toBe(1);
@@ -625,29 +663,45 @@ describe('HitboxDamageHandler — de-duplication', () => {
 // ---------------------------------------------------------------------------
 
 describe('HitboxDamageHandler — hit confirmation (AC 60103 Sub-AC 3)', () => {
+  it('does not consume a swing when the target explicitly rejects contact', () => {
+    let callbacks = 0;
+    const h = new HitboxDamageHandler(() => {
+      callbacks += 1;
+      return { confirmed: callbacks > 1 };
+    });
+    const target = makeCharacterBody('donkeykong', 1);
+    const swing = makeHitboxBody('pikachu', {}, 50);
+    h.registerPlayer(0, target);
+    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: target }));
+    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: target }));
+    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: target }));
+    // Rejected once, accepted once, then suppressed by lifetime confirmation.
+    expect(callbacks).toBe(2);
+  });
+
   it('a single hitbox body can hit each registered target at most once', () => {
     // AoE swing connects with two targets in event 1 (two hits), then
     // re-overlaps both in event 2 (zero hits) — the per-lifetime
     // confirmation set already records both targets.
     const { log, cb } = makeLogger();
     const h = new HitboxDamageHandler(cb);
-    const wolf = makeCharacterBody('wolf', 1);
-    const cat = makeCharacterBody('cat', 2);
-    h.registerPlayer(0, wolf);
-    h.registerPlayer(1, cat);
-    const swing = makeHitboxBody('owl', { damage: 9 }, 200);
+    const dk = makeCharacterBody('donkeykong', 1);
+    const pika = makeCharacterBody('pikachu', 2);
+    h.registerPlayer(0, dk);
+    h.registerPlayer(1, pika);
+    const swing = makeHitboxBody('link', { damage: 9 }, 200);
     h.handleCollisionStart(
       makeEvent(
-        { bodyA: swing, bodyB: wolf },
-        { bodyA: swing, bodyB: cat },
+        { bodyA: swing, bodyB: dk },
+        { bodyA: swing, bodyB: pika },
       ),
     );
     expect(log.length).toBe(2);
     // Re-overlap: identical pair stream in a new event.
     h.handleCollisionStart(
       makeEvent(
-        { bodyA: swing, bodyB: wolf },
-        { bodyA: swing, bodyB: cat },
+        { bodyA: swing, bodyB: dk },
+        { bodyA: swing, bodyB: pika },
       ),
     );
     expect(log.length).toBe(2);
@@ -660,19 +714,19 @@ describe('HitboxDamageHandler — hit confirmation (AC 60103 Sub-AC 3)', () => {
     // confirmed against earlier targets.
     const { log, cb } = makeLogger();
     const h = new HitboxDamageHandler(cb);
-    const wolf = makeCharacterBody('wolf', 1);
-    h.registerPlayer(0, wolf);
-    const swing = makeHitboxBody('cat', { damage: 7 }, 300);
-    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: wolf }));
+    const dk = makeCharacterBody('donkeykong', 1);
+    h.registerPlayer(0, dk);
+    const swing = makeHitboxBody('pikachu', { damage: 7 }, 300);
+    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: dk }));
     expect(log.length).toBe(1);
     // Bring slot 1 into the registry and overlap the same swing.
-    const owl = makeCharacterBody('owl', 2);
-    h.registerPlayer(1, owl);
-    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: owl }));
+    const link = makeCharacterBody('link', 2);
+    h.registerPlayer(1, link);
+    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: link }));
     expect(log.length).toBe(2);
     expect(log[1]!.targetIndex).toBe(1);
     // ...but slot 0 still cannot be re-hit by the same swing.
-    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: wolf }));
+    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: dk }));
     expect(log.length).toBe(2);
   });
 
@@ -685,17 +739,17 @@ describe('HitboxDamageHandler — hit confirmation (AC 60103 Sub-AC 3)', () => {
     // an empty confirmation set.
     const { log, cb } = makeLogger();
     const h = new HitboxDamageHandler(cb);
-    const wolf = makeCharacterBody('wolf', 1);
-    h.registerPlayer(0, wolf);
-    const swing = makeHitboxBody('cat', { damage: 5 }, 400);
-    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: wolf }));
+    const dk = makeCharacterBody('donkeykong', 1);
+    h.registerPlayer(0, dk);
+    const swing = makeHitboxBody('pikachu', { damage: 5 }, 400);
+    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: dk }));
     expect(log.length).toBe(1);
     // Without `forgetHitbox`: a re-overlap is silently dropped.
-    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: wolf }));
+    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: dk }));
     expect(log.length).toBe(1);
     // After `forgetHitbox`: the same body re-fires.
     h.forgetHitbox(swing);
-    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: wolf }));
+    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: dk }));
     expect(log.length).toBe(2);
   });
 
@@ -705,10 +759,10 @@ describe('HitboxDamageHandler — hit confirmation (AC 60103 Sub-AC 3)', () => {
     expect(() => h.forgetHitbox(undefined)).not.toThrow();
     // A body the handler never observed — silent no-op.
     expect(() =>
-      h.forgetHitbox(makeHitboxBody('cat', {}, 999)),
+      h.forgetHitbox(makeHitboxBody('pikachu', {}, 999)),
     ).not.toThrow();
     // Calling twice on the same body — silent no-op.
-    const s = makeHitboxBody('cat', {}, 1000);
+    const s = makeHitboxBody('pikachu', {}, 1000);
     expect(() => {
       h.forgetHitbox(s);
       h.forgetHitbox(s);
@@ -720,17 +774,17 @@ describe('HitboxDamageHandler — hit confirmation (AC 60103 Sub-AC 3)', () => {
     // every per-swing confirmation so the next match starts fresh.
     const { log, cb } = makeLogger();
     const h = new HitboxDamageHandler(cb);
-    const wolf = makeCharacterBody('wolf', 1);
-    h.registerPlayer(0, wolf);
-    const swing = makeHitboxBody('cat', { damage: 3 }, 500);
-    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: wolf }));
+    const dk = makeCharacterBody('donkeykong', 1);
+    h.registerPlayer(0, dk);
+    const swing = makeHitboxBody('pikachu', { damage: 3 }, 500);
+    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: dk }));
     expect(log.length).toBe(1);
     // After reset, even the same body+target fires again — but the
     // registry is also empty, so the caller must re-register the
     // player before the next event lands.
     h.reset();
-    h.registerPlayer(0, wolf);
-    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: wolf }));
+    h.registerPlayer(0, dk);
+    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: dk }));
     expect(log.length).toBe(2);
   });
 
@@ -741,22 +795,22 @@ describe('HitboxDamageHandler — hit confirmation (AC 60103 Sub-AC 3)', () => {
     // hitbox plugin (no clamping, no rounding, no mutation).
     const { log, cb } = makeLogger();
     const h = new HitboxDamageHandler(cb);
-    const target = makeCharacterBody('wolf', 1);
+    const target = makeCharacterBody('donkeykong', 1);
     h.registerPlayer(0, target);
     const moveTable = {
       damage: 11.25,
       knockback: { x: 3.7, y: -2.4, scaling: 0.22 },
       facing: -1 as const,
-      moveId: 'cat.smash.down',
+      moveId: 'pikachu.smash.down',
     };
-    const swing = makeHitboxBody('cat', moveTable, 600);
+    const swing = makeHitboxBody('pikachu', moveTable, 600);
     h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: target }));
     expect(log.length).toBe(1);
     expect(log[0]!.hit.damage).toBe(11.25);
     expect(log[0]!.hit.knockback).toEqual(moveTable.knockback);
     expect(log[0]!.hit.facing).toBe(-1);
-    expect(log[0]!.context.moveId).toBe('cat.smash.down');
-    expect(log[0]!.context.attackerOwnerId).toBe('cat');
+    expect(log[0]!.context.moveId).toBe('pikachu.smash.down');
+    expect(log[0]!.context.attackerOwnerId).toBe('pikachu');
   });
 });
 
@@ -777,18 +831,18 @@ describe('HitboxDamageHandler — re-entrancy', () => {
     };
     const h = new HitboxDamageHandler(callback);
     handlerRef = h;
-    const wolf = makeCharacterBody('wolf', 1);
-    const cat = makeCharacterBody('cat', 2);
-    h.registerPlayer(0, wolf);
-    h.registerPlayer(1, cat);
+    const dk = makeCharacterBody('donkeykong', 1);
+    const pika = makeCharacterBody('pikachu', 2);
+    h.registerPlayer(0, dk);
+    h.registerPlayer(1, pika);
     // Both characters hit in the same event; the first hit
     // unregisters slot 1, so the second pair (still in this event)
     // should be safely ignored.
     expect(() =>
       h.handleCollisionStart(
         makeEvent(
-          { bodyA: makeHitboxBody('cat', { damage: 5 }, 10), bodyB: wolf },
-          { bodyA: makeHitboxBody('wolf', { damage: 5 }, 11), bodyB: cat },
+          { bodyA: makeHitboxBody('pikachu', { damage: 5 }, 10), bodyB: dk },
+          { bodyA: makeHitboxBody('donkeykong', { damage: 5 }, 11), bodyB: pika },
         ),
       ),
     ).not.toThrow();
@@ -840,12 +894,56 @@ describe('HitboxDamageHandler — hurtbox lookup (AC 10002 Sub-AC 2)', () => {
   it('drops the hit when every active hurtbox is intangible', () => {
     const { log, cb } = makeLogger();
     const h = new HitboxDamageHandler(cb);
-    const wolf = makeCharacterBody('wolf', 1);
-    h.registerPlayer(0, wolf);
+    const dk = makeCharacterBody('donkeykong', 1);
+    h.registerPlayer(0, dk);
     // Lookup: target is mid-dodge — single intangible hurtbox.
     h.setHurtboxLookup(() => [intangible]);
-    const swing = makeHitboxBody('cat', { damage: 10 }, 100);
-    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: wolf }));
+    const swing = makeHitboxBody('pikachu', { damage: 10 }, 100);
+    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: dk }));
+    expect(log).toEqual([]);
+  });
+
+  it('drops a broad-body Matter contact that misses every authored hurtbox', () => {
+    const { log, cb } = makeLogger();
+    const h = new HitboxDamageHandler(cb);
+    const target = withGeometry(makeCharacterBody('donkeykong', 1), 0, 0, 100, 100);
+    const narrowHurtbox: Hurtbox = {
+      id: 'leaning-body',
+      offsetX: -35,
+      offsetY: 0,
+      width: 10,
+      height: 30,
+    };
+    h.registerPlayer(0, target);
+    h.setHurtboxLookup(() => [narrowHurtbox]);
+    const swing = withGeometry(makeHitboxBody('pikachu', {}, 10), 30, 0, 20, 20);
+    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: target }));
+    expect(log).toEqual([]);
+  });
+
+  it('applies flags only from hurtboxes the sensor actually overlaps', () => {
+    const { log, cb } = makeLogger();
+    const h = new HitboxDamageHandler(cb);
+    const target = withGeometry(makeCharacterBody('donkeykong', 1), 0, 0, 100, 100);
+    const protectedLimb: Hurtbox = {
+      id: 'protected-limb',
+      offsetX: 30,
+      offsetY: 0,
+      width: 20,
+      height: 30,
+      intangible: true,
+    };
+    const tangibleBody: Hurtbox = {
+      id: 'shifted-body',
+      offsetX: -30,
+      offsetY: 0,
+      width: 20,
+      height: 30,
+    };
+    h.registerPlayer(0, target);
+    h.setHurtboxLookup(() => [protectedLimb, tangibleBody]);
+    const swing = withGeometry(makeHitboxBody('pikachu', {}, 10), 30, 0, 16, 16);
+    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: target }));
     expect(log).toEqual([]);
   });
 
@@ -856,16 +954,16 @@ describe('HitboxDamageHandler — hurtbox lookup (AC 10002 Sub-AC 2)', () => {
     // intangible drop.
     const { log, cb } = makeLogger();
     const h = new HitboxDamageHandler(cb);
-    const wolf = makeCharacterBody('wolf', 1);
-    h.registerPlayer(0, wolf);
+    const dk = makeCharacterBody('donkeykong', 1);
+    h.registerPlayer(0, dk);
     let intangibleNow = true;
     h.setHurtboxLookup(() => (intangibleNow ? [intangible] : [tangibleBody]));
-    const swing = makeHitboxBody('cat', { damage: 8 }, 200);
-    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: wolf }));
+    const swing = makeHitboxBody('pikachu', { damage: 8 }, 200);
+    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: dk }));
     expect(log.length).toBe(0);
     // I-frame window closes mid-active-window — second event lands.
     intangibleNow = false;
-    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: wolf }));
+    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: dk }));
     expect(log.length).toBe(1);
     expect(log[0]!.hit.damage).toBe(8);
   });
@@ -873,11 +971,11 @@ describe('HitboxDamageHandler — hurtbox lookup (AC 10002 Sub-AC 2)', () => {
   it('scales hit damage by the max damageMultiplier across the tangible set', () => {
     const { log, cb } = makeLogger();
     const h = new HitboxDamageHandler(cb);
-    const wolf = makeCharacterBody('wolf', 1);
-    h.registerPlayer(0, wolf);
+    const dk = makeCharacterBody('donkeykong', 1);
+    h.registerPlayer(0, dk);
     h.setHurtboxLookup(() => [tangibleBody, weakpoint]);
-    const swing = makeHitboxBody('cat', { damage: 10 }, 300);
-    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: wolf }));
+    const swing = makeHitboxBody('pikachu', { damage: 10 }, 300);
+    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: dk }));
     expect(log.length).toBe(1);
     // 10 base × 1.5 weakpoint multiplier = 15
     expect(log[0]!.hit.damage).toBe(15);
@@ -889,11 +987,11 @@ describe('HitboxDamageHandler — hurtbox lookup (AC 10002 Sub-AC 2)', () => {
   it('leaves damage unchanged when no hurtbox in the set declares a multiplier', () => {
     const { log, cb } = makeLogger();
     const h = new HitboxDamageHandler(cb);
-    const wolf = makeCharacterBody('wolf', 1);
-    h.registerPlayer(0, wolf);
+    const dk = makeCharacterBody('donkeykong', 1);
+    h.registerPlayer(0, dk);
     h.setHurtboxLookup(() => [tangibleBody]);
-    const swing = makeHitboxBody('cat', { damage: 7 }, 400);
-    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: wolf }));
+    const swing = makeHitboxBody('pikachu', { damage: 7 }, 400);
+    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: dk }));
     expect(log.length).toBe(1);
     expect(log[0]!.hit.damage).toBe(7);
   });
@@ -901,11 +999,11 @@ describe('HitboxDamageHandler — hurtbox lookup (AC 10002 Sub-AC 2)', () => {
   it('null lookup preserves the unmodified dispatch path (legacy contract)', () => {
     const { log, cb } = makeLogger();
     const h = new HitboxDamageHandler(cb);
-    const wolf = makeCharacterBody('wolf', 1);
-    h.registerPlayer(0, wolf);
+    const dk = makeCharacterBody('donkeykong', 1);
+    h.registerPlayer(0, dk);
     // Default state — no lookup registered.
-    const swing = makeHitboxBody('cat', { damage: 9 }, 500);
-    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: wolf }));
+    const swing = makeHitboxBody('pikachu', { damage: 9 }, 500);
+    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: dk }));
     expect(log.length).toBe(1);
     expect(log[0]!.hit.damage).toBe(9);
   });
@@ -913,14 +1011,14 @@ describe('HitboxDamageHandler — hurtbox lookup (AC 10002 Sub-AC 2)', () => {
   it('lookup returning null treats the target as unmodified (defensive)', () => {
     const { log, cb } = makeLogger();
     const h = new HitboxDamageHandler(cb);
-    const wolf = makeCharacterBody('wolf', 1);
-    h.registerPlayer(0, wolf);
+    const dk = makeCharacterBody('donkeykong', 1);
+    h.registerPlayer(0, dk);
     // Lookup says "I don't know about this slot" — handler falls
     // back to the unmodified dispatch path so an unwired slot can
     // never drop hits silently.
     h.setHurtboxLookup(() => null);
-    const swing = makeHitboxBody('cat', { damage: 6 }, 600);
-    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: wolf }));
+    const swing = makeHitboxBody('pikachu', { damage: 6 }, 600);
+    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: dk }));
     expect(log.length).toBe(1);
     expect(log[0]!.hit.damage).toBe(6);
   });
@@ -928,11 +1026,11 @@ describe('HitboxDamageHandler — hurtbox lookup (AC 10002 Sub-AC 2)', () => {
   it('lookup returning [] treats the target as unmodified (defensive)', () => {
     const { log, cb } = makeLogger();
     const h = new HitboxDamageHandler(cb);
-    const wolf = makeCharacterBody('wolf', 1);
-    h.registerPlayer(0, wolf);
+    const dk = makeCharacterBody('donkeykong', 1);
+    h.registerPlayer(0, dk);
     h.setHurtboxLookup(() => []);
-    const swing = makeHitboxBody('cat', { damage: 5 }, 700);
-    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: wolf }));
+    const swing = makeHitboxBody('pikachu', { damage: 5 }, 700);
+    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: dk }));
     expect(log.length).toBe(1);
     expect(log[0]!.hit.damage).toBe(5);
   });
@@ -940,12 +1038,12 @@ describe('HitboxDamageHandler — hurtbox lookup (AC 10002 Sub-AC 2)', () => {
   it('setHurtboxLookup(null) reverts to unmodified dispatch', () => {
     const { log, cb } = makeLogger();
     const h = new HitboxDamageHandler(cb);
-    const wolf = makeCharacterBody('wolf', 1);
-    h.registerPlayer(0, wolf);
+    const dk = makeCharacterBody('donkeykong', 1);
+    h.registerPlayer(0, dk);
     h.setHurtboxLookup(() => [intangible]);
     h.setHurtboxLookup(null);
-    const swing = makeHitboxBody('cat', { damage: 4 }, 800);
-    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: wolf }));
+    const swing = makeHitboxBody('pikachu', { damage: 4 }, 800);
+    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: dk }));
     expect(log.length).toBe(1);
     expect(log[0]!.hit.damage).toBe(4);
   });
@@ -953,20 +1051,20 @@ describe('HitboxDamageHandler — hurtbox lookup (AC 10002 Sub-AC 2)', () => {
   it('only the intended target index sees its lookup result (multi-target isolation)', () => {
     const { log, cb } = makeLogger();
     const h = new HitboxDamageHandler(cb);
-    const wolf = makeCharacterBody('wolf', 1);
-    const cat = makeCharacterBody('cat', 2);
-    h.registerPlayer(0, wolf);
-    h.registerPlayer(1, cat);
-    // Wolf is dodging (intangible); Cat is wide open (tangible).
+    const dk = makeCharacterBody('donkeykong', 1);
+    const pika = makeCharacterBody('pikachu', 2);
+    h.registerPlayer(0, dk);
+    h.registerPlayer(1, pika);
+    // DK is dodging (intangible); Pikachu is wide open (tangible).
     h.setHurtboxLookup((idx) => (idx === 0 ? [intangible] : [tangibleBody]));
-    const swing = makeHitboxBody('owl', { damage: 12 }, 900);
+    const swing = makeHitboxBody('link', { damage: 12 }, 900);
     h.handleCollisionStart(
       makeEvent(
-        { bodyA: swing, bodyB: wolf },
-        { bodyA: swing, bodyB: cat },
+        { bodyA: swing, bodyB: dk },
+        { bodyA: swing, bodyB: pika },
       ),
     );
-    // Wolf drops (intangible), Cat takes the unscaled 12 damage.
+    // DK drops (intangible), Pikachu takes the unscaled 12 damage.
     expect(log.length).toBe(1);
     expect(log[0]!.targetIndex).toBe(1);
     expect(log[0]!.hit.damage).toBe(12);
@@ -979,20 +1077,102 @@ describe('HitboxDamageHandler — hurtbox lookup (AC 10002 Sub-AC 2)', () => {
     // lookup invocations.
     const { log, cb } = makeLogger();
     const h = new HitboxDamageHandler(cb);
-    const wolf = makeCharacterBody('wolf', 1);
-    h.registerPlayer(0, wolf);
+    const dk = makeCharacterBody('donkeykong', 1);
+    h.registerPlayer(0, dk);
     let lookupCalls = 0;
     h.setHurtboxLookup(() => {
       lookupCalls += 1;
       return [tangibleBody];
     });
-    const swing = makeHitboxBody('cat', { damage: 6 }, 1000);
-    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: wolf }));
-    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: wolf }));
+    const swing = makeHitboxBody('pikachu', { damage: 6 }, 1000);
+    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: dk }));
+    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: dk }));
     expect(log.length).toBe(1);
     // Second event was dropped by per-lifetime confirmation BEFORE the
     // lookup ran — exactly one lookup call total.
     expect(lookupCalls).toBe(1);
+  });
+});
+
+describe('HitboxDamageHandler — sweet-spot geometry', () => {
+  it('applies authored damage, knockback, and hitlag flag on tip overlap', () => {
+    const { log, cb } = makeLogger();
+    const h = new HitboxDamageHandler(cb);
+    const attacker = withGeometry(makeCharacterBody('aegis', 22), 0, 0, 40, 60);
+    const target = withGeometry(makeCharacterBody('donkeykong', 11), 70, 0, 20, 30);
+    h.registerPlayer(0, target);
+    h.registerPlayer(1, attacker);
+    h.setHurtboxLookup((index) =>
+      index === 0
+        ? [{ id: 'body', offsetX: 0, offsetY: 0, width: 20, height: 30 }]
+        : null,
+    );
+    const swing = withGeometry(
+      makeHitboxBody(
+        'aegis',
+        {
+          ownerBodyId: 22,
+          damage: 10,
+          knockback: {
+            x: 2,
+            y: -1,
+            scaling: 0.2,
+            baseMagnitude: 1,
+          },
+          hitbox: { offsetX: 40, offsetY: 0, width: 80, height: 30 },
+          sweetSpot: {
+            hitbox: { offsetX: 70, offsetY: 0, width: 20, height: 30 },
+            damageMultiplier: 1.5,
+            knockbackMultiplier: 1.4,
+          },
+        },
+        100,
+      ),
+      40,
+      0,
+      80,
+      30,
+    );
+    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: target }));
+    expect(log).toHaveLength(1);
+    expect(log[0]!.hit.damage).toBe(15);
+    expect(log[0]!.hit.sweetSpot).toBe(true);
+    expect(log[0]!.hit.knockback.x).toBeCloseTo(2.8);
+    expect(log[0]!.hit.knockback.y).toBeCloseTo(-1.4);
+    expect(log[0]!.hit.knockback.baseMagnitude).toBeCloseTo(1.4);
+  });
+
+  it('uses base move values when contact misses the sweet sub-region', () => {
+    const { log, cb } = makeLogger();
+    const h = new HitboxDamageHandler(cb);
+    const attacker = withGeometry(makeCharacterBody('aegis', 22), 0, 0, 40, 60);
+    const target = withGeometry(makeCharacterBody('donkeykong', 11), 20, 0, 20, 30);
+    h.registerPlayer(0, target);
+    h.registerPlayer(1, attacker);
+    const swing = withGeometry(
+      makeHitboxBody(
+        'aegis',
+        {
+          ownerBodyId: 22,
+          damage: 10,
+          hitbox: { offsetX: 40, offsetY: 0, width: 80, height: 30 },
+          sweetSpot: {
+            hitbox: { offsetX: 70, offsetY: 0, width: 20, height: 30 },
+            damageMultiplier: 1.5,
+            knockbackMultiplier: 1.4,
+          },
+        },
+        101,
+      ),
+      40,
+      0,
+      80,
+      30,
+    );
+    h.handleCollisionStart(makeEvent({ bodyA: swing, bodyB: target }));
+    expect(log).toHaveLength(1);
+    expect(log[0]!.hit.damage).toBe(10);
+    expect(log[0]!.hit.sweetSpot).toBeUndefined();
   });
 });
 
@@ -1005,19 +1185,19 @@ describe('HitboxDamageHandler — determinism', () => {
     const run = (): CallbackLog[] => {
       const { log, cb } = makeLogger();
       const h = new HitboxDamageHandler(cb);
-      const wolf = makeCharacterBody('wolf', 1);
-      const cat = makeCharacterBody('cat', 2);
-      h.registerPlayer(0, wolf);
-      h.registerPlayer(1, cat);
-      const swing1 = makeHitboxBody('cat', { damage: 8 }, 100);
-      const swing2 = makeHitboxBody('wolf', { damage: 12 }, 101);
+      const dk = makeCharacterBody('donkeykong', 1);
+      const pika = makeCharacterBody('pikachu', 2);
+      h.registerPlayer(0, dk);
+      h.registerPlayer(1, pika);
+      const swing1 = makeHitboxBody('pikachu', { damage: 8 }, 100);
+      const swing2 = makeHitboxBody('donkeykong', { damage: 12 }, 101);
       h.handleCollisionStart(
         makeEvent(
-          { bodyA: swing1, bodyB: wolf },
-          { bodyA: swing2, bodyB: cat },
+          { bodyA: swing1, bodyB: dk },
+          { bodyA: swing2, bodyB: pika },
         ),
       );
-      h.handleCollisionStart(makeEvent({ bodyA: swing1, bodyB: wolf }));
+      h.handleCollisionStart(makeEvent({ bodyA: swing1, bodyB: dk }));
       return log;
     };
     expect(run()).toEqual(run());
@@ -1103,59 +1283,83 @@ describe('HitboxDamageHandler — integration with Character.applyHit', () => {
     };
 
     const scene = createMockScene();
-    const wolf = new Character(scene.scene, {
-      id: 'wolf',
+    const dk = new Character(scene.scene, {
+      id: 'donkeykong',
       spawnX: 0,
       spawnY: 0,
     });
     // Adapt the Character body to the handler's `HitboxOrCharacterBody`
     // shape — the mock body already has `label` and `plugin` on its
     // `options`. We project a minimal facade.
-    const wolfBody = scene.bodies[0]!;
-    const wolfBodyFacade: HitboxOrCharacterBody = {
-      label: wolfBody.label as string,
-      plugin: wolfBody.options['plugin'] as { characterId: string },
+    const dkBody = scene.bodies[0]!;
+    const dkBodyFacade: HitboxOrCharacterBody = {
+      label: dkBody.label as string,
+      plugin: dkBody.options['plugin'] as { characterId: string },
     };
 
     const handler = new HitboxDamageHandler((targetIndex, hit) => {
       // The MatchScene wires this lookup; the test mirrors it.
-      if (targetIndex === 0) wolf.applyHit(hit);
+      if (targetIndex === 0) dk.applyHit(hit);
     });
-    handler.registerPlayer(0, wolfBodyFacade);
+    handler.registerPlayer(0, dkBodyFacade);
 
-    // Build a Cat-owned hitbox payload and fire a synthetic
+    // Build a Pikachu-owned hitbox payload and fire a synthetic
     // `collisionstart` event. Each "swing" is a fresh body, mirroring
     // the way `spawnHitbox` allocates a new sensor every time the
     // attacker's `tickAttack` enters the active phase.
-    const catHit = makeHitboxBody('cat', {
+    const pikaHit = makeHitboxBody('pikachu', {
       damage: 7,
       knockback: { x: 1.5, y: -0.5, scaling: 0.05 },
       facing: 1,
-      moveId: 'cat.jab',
+      moveId: 'pikachu.jab',
     });
-    expect(wolf.getDamagePercent()).toBe(0);
-    handler.handleCollisionStart(makeEvent({ bodyA: catHit, bodyB: wolfBodyFacade }));
-    expect(wolf.getDamagePercent()).toBe(7);
+    expect(dk.getDamagePercent()).toBe(0);
+    handler.handleCollisionStart(makeEvent({ bodyA: pikaHit, bodyB: dkBodyFacade }));
+    expect(dk.getDamagePercent()).toBe(7);
     // Subsequent hit accumulates — represented as a NEW swing body
     // because per-lifetime hit confirmation prevents the same body
     // from re-hitting the same target.
-    const catHit2 = makeHitboxBody('cat', {
+    const pikaHit2 = makeHitboxBody('pikachu', {
       damage: 7,
       knockback: { x: 1.5, y: -0.5, scaling: 0.05 },
       facing: 1,
-      moveId: 'cat.jab',
+      moveId: 'pikachu.jab',
     });
-    handler.handleCollisionStart(makeEvent({ bodyA: catHit2, bodyB: wolfBodyFacade }));
-    expect(wolf.getDamagePercent()).toBe(14);
+    handler.handleCollisionStart(makeEvent({ bodyA: pikaHit2, bodyB: dkBodyFacade }));
+    expect(dk.getDamagePercent()).toBe(14);
     // Post-M2 hit-feel pass: knockback velocity + hitstun are queued
     // behind the hitlag freeze. Drive applyInput through the freeze
     // before checking the post-hit state.
-    while (wolf.getHitlagRemaining() > 0) {
-      wolf.applyInput({ moveX: 0, jump: false });
+    while (dk.getHitlagRemaining() > 0) {
+      dk.applyInput({ moveX: 0, jump: false });
     }
     // Hitstun was applied — the fighter is locked out of player input.
-    expect(wolf.isInHitstun()).toBe(true);
+    expect(dk.isInHitstun()).toBe(true);
     // Velocity was perturbed by the knockback.
-    expect(wolf.getVelocity().x).toBeGreaterThan(0);
+    expect(dk.getVelocity().x).toBeGreaterThan(0);
+  });
+});
+
+describe('opted-in completed-physics contact sampling', () => {
+  it('ignores the pre-solve root, then confirms only the solved owner contact once', () => {
+    const owner = withGeometry(makeCharacterBody('donkeykong', 1), 40, 0, 8, 8);
+    const target = withGeometry(makeCharacterBody('pikachu', 2), 40, 0, 8, 8);
+    const sensor = withGeometry(makeHitboxBody('donkeykong', { ownerBodyId: 1,
+      hitbox: { offsetX: 0, offsetY: 0, width: 8, height: 8 } }, 3), 40, 0, 8, 8);
+    (sensor as {plugin: HitboxPlugin}).plugin = { ...sensor.plugin as HitboxPlugin, ownerAnchoredContact: true, postPhysicsContactOnly: true };
+    const calls: number[] = [];
+    const handler = new HitboxDamageHandler(index => { calls.push(index); return { confirmed: true }; });
+    handler.registerPlayer(0, owner); handler.registerPlayer(1, target);
+    handler.setHurtboxLookup(() => [{ id: 'body', offsetX: 0, offsetY: 0, width: 8, height: 8 }]);
+    handler.handleCollisionStart(makeEvent({ bodyA: sensor, bodyB: target }));
+    expect(calls).toEqual([]);
+    // Stage collision resolves the owner back by40; the opted-in runtime
+    // refreshes its sensor there before completed-step sampling.
+    Object.assign(owner, withGeometry(owner, 0, 0, 8, 8));
+    Object.assign(sensor, withGeometry(sensor, 0, 0, 8, 8));
+    handler.sampleHurtboxContacts([sensor]); expect(calls).toEqual([]);
+    Object.assign(target, withGeometry(target, 0, 0, 8, 8));
+    handler.sampleHurtboxContacts([sensor]); expect(calls).toEqual([1]);
+    handler.sampleHurtboxContacts([sensor]); expect(calls).toEqual([1]);
   });
 });

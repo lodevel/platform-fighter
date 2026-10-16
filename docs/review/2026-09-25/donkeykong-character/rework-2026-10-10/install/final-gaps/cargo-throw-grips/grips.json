@@ -1,0 +1,1528 @@
+{
+ "cargo_fthrow": [
+  {
+   "artFrameIndex": 0,
+   "nativeSample": 1,
+   "nativeFrame": 1,
+   "motion": "e01throwff",
+   "shiftArtPx": 13,
+   "grip": {
+    "x": -6.459,
+    "y": -12.505
+   },
+   "bones": {
+    "Throw": {
+     "x": -6.459,
+     "y": -12.505
+    },
+    "HaveL": {
+     "x": 25.403,
+     "y": -5.744
+    },
+    "HaveR": {
+     "x": -36.946,
+     "y": -22.962
+    },
+    "HandL": {
+     "x": 23.735,
+     "y": -1.599
+    },
+    "HandR": {
+     "x": -37.098,
+     "y": -7.686
+    }
+   }
+  },
+  {
+   "artFrameIndex": 1,
+   "nativeSample": 4,
+   "nativeFrame": 4,
+   "motion": "e01throwff",
+   "shiftArtPx": 17,
+   "grip": {
+    "x": -32.551,
+    "y": -67.247
+   },
+   "bones": {
+    "Throw": {
+     "x": -32.551,
+     "y": -67.247
+    },
+    "HaveL": {
+     "x": 86.986,
+     "y": -55.072
+    },
+    "HaveR": {
+     "x": -53.982,
+     "y": -48.45
+    },
+    "HandL": {
+     "x": 61.897,
+     "y": -41.847
+    },
+    "HandR": {
+     "x": -50.448,
+     "y": -33.729
+    }
+   }
+  },
+  {
+   "artFrameIndex": 2,
+   "nativeSample": 8,
+   "nativeFrame": 8,
+   "motion": "e01throwff",
+   "shiftArtPx": 11,
+   "grip": {
+    "x": -40.297,
+    "y": -74.623
+   },
+   "bones": {
+    "Throw": {
+     "x": -40.297,
+     "y": -74.623
+    },
+    "HaveL": {
+     "x": 85.081,
+     "y": -53.428
+    },
+    "HaveR": {
+     "x": -53.824,
+     "y": -52.199
+    },
+    "HandL": {
+     "x": 59.094,
+     "y": -36.21
+    },
+    "HandR": {
+     "x": -54.761,
+     "y": -39.098
+    }
+   }
+  },
+  {
+   "artFrameIndex": 3,
+   "nativeSample": 15,
+   "nativeFrame": 15,
+   "motion": "e01throwff",
+   "shiftArtPx": 7,
+   "grip": {
+    "x": 182.999,
+    "y": -72.219
+   },
+   "bones": {
+    "Throw": {
+     "x": 182.999,
+     "y": -72.219
+    },
+    "HaveL": {
+     "x": 27.471,
+     "y": -28.767
+    },
+    "HaveR": {
+     "x": 112.301,
+     "y": -8.088
+    },
+    "HandL": {
+     "x": 11.825,
+     "y": -39.43
+    },
+    "HandR": {
+     "x": 116.506,
+     "y": -1.335
+    }
+   }
+  },
+  {
+   "artFrameIndex": 4,
+   "nativeSample": 22,
+   "nativeFrame": 22,
+   "motion": "e01throwff",
+   "shiftArtPx": 11,
+   "grip": {
+    "x": 182.999,
+    "y": -72.901
+   },
+   "bones": {
+    "Throw": {
+     "x": 182.999,
+     "y": -72.901
+    },
+    "HaveL": {
+     "x": -8.133,
+     "y": -58.004
+    },
+    "HaveR": {
+     "x": 56.251,
+     "y": 14.187
+    },
+    "HandL": {
+     "x": 11.661,
+     "y": -69.378
+    },
+    "HandR": {
+     "x": 59.77,
+     "y": 29.873
+    }
+   }
+  },
+  {
+   "artFrameIndex": 5,
+   "nativeSample": 28,
+   "nativeFrame": 28,
+   "motion": "e01throwff",
+   "shiftArtPx": 7,
+   "grip": {
+    "x": 182.999,
+    "y": -72.219
+   },
+   "bones": {
+    "Throw": {
+     "x": 182.999,
+     "y": -72.219
+    },
+    "HaveL": {
+     "x": -6.146,
+     "y": -67.23
+    },
+    "HaveR": {
+     "x": 58.42,
+     "y": 13.217
+    },
+    "HandL": {
+     "x": 12.487,
+     "y": -74.777
+    },
+    "HandR": {
+     "x": 63.332,
+     "y": 29.065
+    }
+   }
+  },
+  {
+   "artFrameIndex": 6,
+   "nativeSample": 34,
+   "nativeFrame": 34,
+   "motion": "e01throwff",
+   "shiftArtPx": 8,
+   "grip": {
+    "x": 182.999,
+    "y": -72.39
+   },
+   "bones": {
+    "Throw": {
+     "x": 182.999,
+     "y": -72.39
+    },
+    "HaveL": {
+     "x": 31.906,
+     "y": -56.616
+    },
+    "HaveR": {
+     "x": 78.488,
+     "y": 10.832
+    },
+    "HandL": {
+     "x": 16.462,
+     "y": -63.913
+    },
+    "HandR": {
+     "x": 83.196,
+     "y": 24.428
+    }
+   }
+  },
+  {
+   "artFrameIndex": 7,
+   "nativeSample": 40,
+   "nativeFrame": 40,
+   "motion": "e01throwff",
+   "shiftArtPx": 12,
+   "grip": {
+    "x": 182.999,
+    "y": -73.072
+   },
+   "bones": {
+    "Throw": {
+     "x": 182.999,
+     "y": -73.072
+    },
+    "HaveL": {
+     "x": 87.042,
+     "y": -47.438
+    },
+    "HaveR": {
+     "x": 86.369,
+     "y": -0.164
+    },
+    "HandL": {
+     "x": 57.412,
+     "y": -39.453
+    },
+    "HandR": {
+     "x": 78.27,
+     "y": 8.445
+    }
+   }
+  },
+  {
+   "artFrameIndex": 8,
+   "nativeSample": 46,
+   "nativeFrame": 46,
+   "motion": "e01throwff",
+   "shiftArtPx": 8,
+   "grip": {
+    "x": 182.999,
+    "y": -72.39
+   },
+   "bones": {
+    "Throw": {
+     "x": 182.999,
+     "y": -72.39
+    },
+    "HaveL": {
+     "x": 79.371,
+     "y": 15.95
+    },
+    "HaveR": {
+     "x": 30.876,
+     "y": -9.671
+    },
+    "HandL": {
+     "x": 51.393,
+     "y": 6.503
+    },
+    "HandR": {
+     "x": 19.806,
+     "y": 2.459
+    }
+   }
+  },
+  {
+   "artFrameIndex": 9,
+   "nativeSample": 52,
+   "nativeFrame": 52,
+   "motion": "e01throwff",
+   "shiftArtPx": 7,
+   "grip": {
+    "x": 182.999,
+    "y": -72.219
+   },
+   "bones": {
+    "Throw": {
+     "x": 182.999,
+     "y": -72.219
+    },
+    "HaveL": {
+     "x": 40.375,
+     "y": 48.95
+    },
+    "HaveR": {
+     "x": 8.371,
+     "y": 3.585
+    },
+    "HandL": {
+     "x": 45.551,
+     "y": 18.763
+    },
+    "HandR": {
+     "x": -4.619,
+     "y": 13.604
+    }
+   }
+  },
+  {
+   "artFrameIndex": 10,
+   "nativeSample": 58,
+   "nativeFrame": 58,
+   "motion": "e01throwff",
+   "shiftArtPx": 13,
+   "grip": {
+    "x": 182.999,
+    "y": -73.242
+   },
+   "bones": {
+    "Throw": {
+     "x": 182.999,
+     "y": -73.242
+    },
+    "HaveL": {
+     "x": 36.669,
+     "y": 35.672
+    },
+    "HaveR": {
+     "x": 16.272,
+     "y": 32.566
+    },
+    "HandL": {
+     "x": 43.276,
+     "y": 18.006
+    },
+    "HandR": {
+     "x": 4.651,
+     "y": 17.745
+    }
+   }
+  },
+  {
+   "artFrameIndex": 11,
+   "nativeSample": 65,
+   "nativeFrame": 64,
+   "motion": "e01throwff",
+   "shiftArtPx": 12,
+   "grip": {
+    "x": 182.999,
+    "y": -73.072
+   },
+   "bones": {
+    "Throw": {
+     "x": 182.999,
+     "y": -73.072
+    },
+    "HaveL": {
+     "x": 36.669,
+     "y": 35.843
+    },
+    "HaveR": {
+     "x": 15.171,
+     "y": 35.767
+    },
+    "HandL": {
+     "x": 43.276,
+     "y": 18.177
+    },
+    "HandR": {
+     "x": 9.957,
+     "y": 18.299
+    }
+   }
+  }
+ ],
+ "cargo_bthrow": [
+  {
+   "artFrameIndex": 0,
+   "nativeSample": 1,
+   "nativeFrame": 1,
+   "motion": "e01throwfb",
+   "shiftArtPx": 15,
+   "grip": {
+    "x": 48.198,
+    "y": -62.308
+   },
+   "bones": {
+    "Throw": {
+     "x": 48.198,
+     "y": -62.308
+    },
+    "HaveL": {
+     "x": 62.545,
+     "y": -43.894
+    },
+    "HaveR": {
+     "x": 38.455,
+     "y": -18.802
+    },
+    "HandL": {
+     "x": 43.193,
+     "y": -37.438
+    },
+    "HandR": {
+     "x": 23.257,
+     "y": -6.58
+    }
+   }
+  },
+  {
+   "artFrameIndex": 1,
+   "nativeSample": 6,
+   "nativeFrame": 6,
+   "motion": "e01throwfb",
+   "shiftArtPx": 18,
+   "grip": {
+    "x": 43.497,
+    "y": -16.173
+   },
+   "bones": {
+    "Throw": {
+     "x": 43.497,
+     "y": -16.173
+    },
+    "HaveL": {
+     "x": 41.287,
+     "y": -18.037
+    },
+    "HaveR": {
+     "x": 34.848,
+     "y": -18.326
+    },
+    "HandL": {
+     "x": 21.941,
+     "y": -18.181
+    },
+    "HandR": {
+     "x": 16.924,
+     "y": -14.337
+    }
+   }
+  },
+  {
+   "artFrameIndex": 2,
+   "nativeSample": 11,
+   "nativeFrame": 11,
+   "motion": "e01throwfb",
+   "shiftArtPx": 26,
+   "grip": {
+    "x": 8.899,
+    "y": 0.508
+   },
+   "bones": {
+    "Throw": {
+     "x": 8.899,
+     "y": 0.508
+    },
+    "HaveL": {
+     "x": 5.675,
+     "y": -11.529
+    },
+    "HaveR": {
+     "x": -17.634,
+     "y": -8.761
+    },
+    "HandL": {
+     "x": 2.924,
+     "y": -18.592
+    },
+    "HandR": {
+     "x": -32.554,
+     "y": -10.158
+    }
+   }
+  },
+  {
+   "artFrameIndex": 3,
+   "nativeSample": 16,
+   "nativeFrame": 16,
+   "motion": "e01throwfb",
+   "shiftArtPx": 28,
+   "grip": {
+    "x": -137.582,
+    "y": -59.729
+   },
+   "bones": {
+    "Throw": {
+     "x": -137.582,
+     "y": -59.729
+    },
+    "HaveL": {
+     "x": -48.383,
+     "y": -63.105
+    },
+    "HaveR": {
+     "x": -4.597,
+     "y": -94.071
+    },
+    "HandL": {
+     "x": -31.867,
+     "y": -55.869
+    },
+    "HandR": {
+     "x": 1.581,
+     "y": -74.677
+    }
+   }
+  },
+  {
+   "artFrameIndex": 4,
+   "nativeSample": 22,
+   "nativeFrame": 22,
+   "motion": "e01throwfb",
+   "shiftArtPx": 14,
+   "grip": {
+    "x": -188.874,
+    "y": -63.582
+   },
+   "bones": {
+    "Throw": {
+     "x": -188.874,
+     "y": -63.582
+    },
+    "HaveL": {
+     "x": -37.294,
+     "y": -65.71
+    },
+    "HaveR": {
+     "x": 82.758,
+     "y": -46.239
+    },
+    "HandL": {
+     "x": -33.805,
+     "y": -49.127
+    },
+    "HandR": {
+     "x": 79.921,
+     "y": -26.619
+    }
+   }
+  },
+  {
+   "artFrameIndex": 5,
+   "nativeSample": 27,
+   "nativeFrame": 27,
+   "motion": "e01throwfb",
+   "shiftArtPx": 13,
+   "grip": {
+    "x": -188.874,
+    "y": -63.412
+   },
+   "bones": {
+    "Throw": {
+     "x": -188.874,
+     "y": -63.412
+    },
+    "HaveL": {
+     "x": -40.164,
+     "y": -61.133
+    },
+    "HaveR": {
+     "x": 84.9,
+     "y": -38.126
+    },
+    "HandL": {
+     "x": -46.974,
+     "y": -43.027
+    },
+    "HandR": {
+     "x": 82.449,
+     "y": -17.866
+    }
+   }
+  },
+  {
+   "artFrameIndex": 6,
+   "nativeSample": 32,
+   "nativeFrame": 32,
+   "motion": "e01throwfb",
+   "shiftArtPx": 15,
+   "grip": {
+    "x": -188.874,
+    "y": -63.753
+   },
+   "bones": {
+    "Throw": {
+     "x": -188.874,
+     "y": -63.753
+    },
+    "HaveL": {
+     "x": -53.816,
+     "y": -60.233
+    },
+    "HaveR": {
+     "x": 88.444,
+     "y": -42.417
+    },
+    "HandL": {
+     "x": -57.317,
+     "y": -40.125
+    },
+    "HandR": {
+     "x": 79.831,
+     "y": -24.05
+    }
+   }
+  },
+  {
+   "artFrameIndex": 7,
+   "nativeSample": 38,
+   "nativeFrame": 38,
+   "motion": "e01throwfb",
+   "shiftArtPx": 15,
+   "grip": {
+    "x": -188.874,
+    "y": -63.753
+   },
+   "bones": {
+    "Throw": {
+     "x": -188.874,
+     "y": -63.753
+    },
+    "HaveL": {
+     "x": -67.405,
+     "y": -50.833
+    },
+    "HaveR": {
+     "x": 83.685,
+     "y": -42.963
+    },
+    "HandL": {
+     "x": -61.405,
+     "y": -31.637
+    },
+    "HandR": {
+     "x": 73.106,
+     "y": -28.966
+    }
+   }
+  },
+  {
+   "artFrameIndex": 8,
+   "nativeSample": 44,
+   "nativeFrame": 44,
+   "motion": "e01throwfb",
+   "shiftArtPx": 12,
+   "grip": {
+    "x": -188.874,
+    "y": -63.241
+   },
+   "bones": {
+    "Throw": {
+     "x": -188.874,
+     "y": -63.241
+    },
+    "HaveL": {
+     "x": -53.871,
+     "y": -3.428
+    },
+    "HaveR": {
+     "x": 58.202,
+     "y": -0.739
+    },
+    "HandL": {
+     "x": -33.799,
+     "y": 0.266
+    },
+    "HandR": {
+     "x": 53.728,
+     "y": -10.171
+    }
+   }
+  },
+  {
+   "artFrameIndex": 9,
+   "nativeSample": 49,
+   "nativeFrame": 49,
+   "motion": "e01throwfb",
+   "shiftArtPx": 12,
+   "grip": {
+    "x": -188.874,
+    "y": -63.241
+   },
+   "bones": {
+    "Throw": {
+     "x": -188.874,
+     "y": -63.241
+    },
+    "HaveL": {
+     "x": -16.015,
+     "y": 34.605
+    },
+    "HaveR": {
+     "x": -23.106,
+     "y": 22.12
+    },
+    "HandL": {
+     "x": -9.474,
+     "y": 17.323
+    },
+    "HandR": {
+     "x": -10.927,
+     "y": 6.718
+    }
+   }
+  },
+  {
+   "artFrameIndex": 10,
+   "nativeSample": 54,
+   "nativeFrame": 54,
+   "motion": "e01throwfb",
+   "shiftArtPx": 11,
+   "grip": {
+    "x": -188.874,
+    "y": -63.071
+   },
+   "bones": {
+    "Throw": {
+     "x": -188.874,
+     "y": -63.071
+    },
+    "HaveL": {
+     "x": -15.946,
+     "y": 35.017
+    },
+    "HaveR": {
+     "x": -36.715,
+     "y": 35.424
+    },
+    "HandL": {
+     "x": -10.467,
+     "y": 17.567
+    },
+    "HandR": {
+     "x": -41.579,
+     "y": 17.74
+    }
+   }
+  },
+  {
+   "artFrameIndex": 11,
+   "nativeSample": 60,
+   "nativeFrame": 59,
+   "motion": "e01throwfb",
+   "shiftArtPx": 15,
+   "grip": {
+    "x": -188.874,
+    "y": -63.753
+   },
+   "bones": {
+    "Throw": {
+     "x": -188.874,
+     "y": -63.753
+    },
+    "HaveL": {
+     "x": -15.157,
+     "y": 35.255
+    },
+    "HaveR": {
+     "x": -36.655,
+     "y": 35.325
+    },
+    "HandL": {
+     "x": -9.944,
+     "y": 17.783
+    },
+    "HandR": {
+     "x": -43.263,
+     "y": 17.662
+    }
+   }
+  }
+ ],
+ "cargo_uthrow": [
+  {
+   "artFrameIndex": 0,
+   "nativeSample": 1,
+   "nativeFrame": 1,
+   "motion": "e01throwfhi",
+   "shiftArtPx": 20,
+   "grip": {
+    "x": 31.693,
+    "y": 29.095
+   },
+   "bones": {
+    "Throw": {
+     "x": 31.693,
+     "y": 29.095
+    },
+    "HaveL": {
+     "x": 56.696,
+     "y": 27.612
+    },
+    "HaveR": {
+     "x": 5.008,
+     "y": -2.663
+    },
+    "HandL": {
+     "x": 41.515,
+     "y": 26.468
+    },
+    "HandR": {
+     "x": -5.246,
+     "y": 7.726
+    }
+   }
+  },
+  {
+   "artFrameIndex": 1,
+   "nativeSample": 6,
+   "nativeFrame": 6,
+   "motion": "e01throwfhi",
+   "shiftArtPx": 52,
+   "grip": {
+    "x": -50.21,
+    "y": -3.05
+   },
+   "bones": {
+    "Throw": {
+     "x": -50.21,
+     "y": -3.05
+    },
+    "HaveL": {
+     "x": -46.911,
+     "y": 15.86
+    },
+    "HaveR": {
+     "x": -38.091,
+     "y": -32.464
+    },
+    "HandL": {
+     "x": -19.248,
+     "y": 23.743
+    },
+    "HandR": {
+     "x": -47.885,
+     "y": -23.986
+    }
+   }
+  },
+  {
+   "artFrameIndex": 2,
+   "nativeSample": 10,
+   "nativeFrame": 10,
+   "motion": "e01throwfhi",
+   "shiftArtPx": 16,
+   "grip": {
+    "x": -39.086,
+    "y": 13.592
+   },
+   "bones": {
+    "Throw": {
+     "x": -39.086,
+     "y": 13.592
+    },
+    "HaveL": {
+     "x": -22.046,
+     "y": 30.159
+    },
+    "HaveR": {
+     "x": -33.506,
+     "y": -19.954
+    },
+    "HandL": {
+     "x": 4.353,
+     "y": 22.692
+    },
+    "HandR": {
+     "x": -42.013,
+     "y": -9.539
+    }
+   }
+  },
+  {
+   "artFrameIndex": 3,
+   "nativeSample": 15,
+   "nativeFrame": 15,
+   "motion": "e01throwfhi",
+   "shiftArtPx": 24,
+   "grip": {
+    "x": 4.949,
+    "y": -175.78
+   },
+   "bones": {
+    "Throw": {
+     "x": 4.949,
+     "y": -175.78
+    },
+    "HaveL": {
+     "x": -21.451,
+     "y": -94.239
+    },
+    "HaveR": {
+     "x": -55.922,
+     "y": -80.859
+    },
+    "HandL": {
+     "x": 0.555,
+     "y": -90.482
+    },
+    "HandR": {
+     "x": -58.633,
+     "y": -81.191
+    }
+   }
+  },
+  {
+   "artFrameIndex": 4,
+   "nativeSample": 21,
+   "nativeFrame": 21,
+   "motion": "e01throwfhi",
+   "shiftArtPx": 24,
+   "grip": {
+    "x": 4.996,
+    "y": -409.034
+   },
+   "bones": {
+    "Throw": {
+     "x": 4.996,
+     "y": -409.034
+    },
+    "HaveL": {
+     "x": -37.323,
+     "y": -72.714
+    },
+    "HaveR": {
+     "x": -74.329,
+     "y": -72.584
+    },
+    "HandL": {
+     "x": -9.611,
+     "y": -71.549
+    },
+    "HandR": {
+     "x": -65.141,
+     "y": -71.384
+    }
+   }
+  },
+  {
+   "artFrameIndex": 5,
+   "nativeSample": 27,
+   "nativeFrame": 27,
+   "motion": "e01throwfhi",
+   "shiftArtPx": 18,
+   "grip": {
+    "x": 5.01,
+    "y": -413.228
+   },
+   "bones": {
+    "Throw": {
+     "x": 5.01,
+     "y": -413.228
+    },
+    "HaveL": {
+     "x": -29.138,
+     "y": -89.651
+    },
+    "HaveR": {
+     "x": -73.075,
+     "y": -66.675
+    },
+    "HandL": {
+     "x": -9.063,
+     "y": -70.816
+    },
+    "HandR": {
+     "x": -62.341,
+     "y": -65.352
+    }
+   }
+  },
+  {
+   "artFrameIndex": 6,
+   "nativeSample": 33,
+   "nativeFrame": 33,
+   "motion": "e01throwfhi",
+   "shiftArtPx": 7,
+   "grip": {
+    "x": 18.241,
+    "y": -408.419
+   },
+   "bones": {
+    "Throw": {
+     "x": 18.241,
+     "y": -408.419
+    },
+    "HaveL": {
+     "x": 25.375,
+     "y": -95.685
+    },
+    "HaveR": {
+     "x": -63.487,
+     "y": -66.413
+    },
+    "HandL": {
+     "x": 44.85,
+     "y": -71.405
+    },
+    "HandR": {
+     "x": -53.501,
+     "y": -64.29
+    }
+   }
+  },
+  {
+   "artFrameIndex": 7,
+   "nativeSample": 38,
+   "nativeFrame": 38,
+   "motion": "e01throwfhi",
+   "shiftArtPx": 7,
+   "grip": {
+    "x": 10.489,
+    "y": -406.397
+   },
+   "bones": {
+    "Throw": {
+     "x": 10.489,
+     "y": -406.397
+    },
+    "HaveL": {
+     "x": 57.77,
+     "y": 22.472
+    },
+    "HaveR": {
+     "x": -23.073,
+     "y": -73.915
+    },
+    "HandL": {
+     "x": 64.041,
+     "y": 0.203
+    },
+    "HandR": {
+     "x": -34.428,
+     "y": -63.351
+    }
+   }
+  },
+  {
+   "artFrameIndex": 8,
+   "nativeSample": 44,
+   "nativeFrame": 44,
+   "motion": "e01throwfhi",
+   "shiftArtPx": 6,
+   "grip": {
+    "x": -11.465,
+    "y": -402.94
+   },
+   "bones": {
+    "Throw": {
+     "x": -11.465,
+     "y": -402.94
+    },
+    "HaveL": {
+     "x": 40.296,
+     "y": 50.216
+    },
+    "HaveR": {
+     "x": 13.117,
+     "y": -0.854
+    },
+    "HandL": {
+     "x": 43.275,
+     "y": 19.2
+    },
+    "HandR": {
+     "x": -0.945,
+     "y": -3.687
+    }
+   }
+  },
+  {
+   "artFrameIndex": 9,
+   "nativeSample": 50,
+   "nativeFrame": 49,
+   "motion": "e01throwfhi",
+   "shiftArtPx": 10,
+   "grip": {
+    "x": -0.0,
+    "y": -407.968
+   },
+   "bones": {
+    "Throw": {
+     "x": -0.0,
+     "y": -407.968
+    },
+    "HaveL": {
+     "x": 36.668,
+     "y": 36.178
+    },
+    "HaveR": {
+     "x": 15.169,
+     "y": 36.112
+    },
+    "HandL": {
+     "x": 43.276,
+     "y": 18.517
+    },
+    "HandR": {
+     "x": 9.957,
+     "y": 18.639
+    }
+   }
+  }
+ ],
+ "cargo_dthrow": [
+  {
+   "artFrameIndex": 0,
+   "nativeSample": 1,
+   "nativeFrame": 1,
+   "motion": "e01throwflw",
+   "shiftArtPx": 6,
+   "grip": {
+    "x": 59.795,
+    "y": -50.857
+   },
+   "bones": {
+    "Throw": {
+     "x": 59.795,
+     "y": -50.857
+    },
+    "HaveL": {
+     "x": 62.813,
+     "y": -58.083
+    },
+    "HaveR": {
+     "x": 52.379,
+     "y": -6.779
+    },
+    "HandL": {
+     "x": 54.681,
+     "y": -41.465
+    },
+    "HandR": {
+     "x": 32.201,
+     "y": -6.579
+    }
+   }
+  },
+  {
+   "artFrameIndex": 1,
+   "nativeSample": 6,
+   "nativeFrame": 6,
+   "motion": "e01throwflw",
+   "shiftArtPx": 17,
+   "grip": {
+    "x": 66.772,
+    "y": 7.154
+   },
+   "bones": {
+    "Throw": {
+     "x": 66.772,
+     "y": 7.154
+    },
+    "HaveL": {
+     "x": 83.078,
+     "y": 0.697
+    },
+    "HaveR": {
+     "x": 71.001,
+     "y": 8.174
+    },
+    "HandL": {
+     "x": 75.183,
+     "y": 7.11
+    },
+    "HandR": {
+     "x": 63.309,
+     "y": 16.974
+    }
+   }
+  },
+  {
+   "artFrameIndex": 2,
+   "nativeSample": 12,
+   "nativeFrame": 12,
+   "motion": "e01throwflw",
+   "shiftArtPx": 17,
+   "grip": {
+    "x": 55.417,
+    "y": 1.554
+   },
+   "bones": {
+    "Throw": {
+     "x": 55.417,
+     "y": 1.554
+    },
+    "HaveL": {
+     "x": 78.592,
+     "y": 1.886
+    },
+    "HaveR": {
+     "x": 66.348,
+     "y": 5.613
+    },
+    "HandL": {
+     "x": 66.232,
+     "y": 6.717
+    },
+    "HandR": {
+     "x": 54.308,
+     "y": 12.099
+    }
+   }
+  },
+  {
+   "artFrameIndex": 3,
+   "nativeSample": 17,
+   "nativeFrame": 17,
+   "motion": "e01throwflw",
+   "shiftArtPx": 9,
+   "grip": {
+    "x": 29.058,
+    "y": -8.547
+   },
+   "bones": {
+    "Throw": {
+     "x": 29.058,
+     "y": -8.547
+    },
+    "HaveL": {
+     "x": -15.304,
+     "y": -5.407
+    },
+    "HaveR": {
+     "x": 35.423,
+     "y": 11.771
+    },
+    "HandL": {
+     "x": -4.475,
+     "y": 10.419
+    },
+    "HandR": {
+     "x": 23.514,
+     "y": 23.928
+    }
+   }
+  },
+  {
+   "artFrameIndex": 4,
+   "nativeSample": 22,
+   "nativeFrame": 22,
+   "motion": "e01throwflw",
+   "shiftArtPx": 9,
+   "grip": {
+    "x": 29.058,
+    "y": -8.547
+   },
+   "bones": {
+    "Throw": {
+     "x": 29.058,
+     "y": -8.547
+    },
+    "HaveL": {
+     "x": -20.446,
+     "y": -10.783
+    },
+    "HaveR": {
+     "x": 29.168,
+     "y": 11.131
+    },
+    "HandL": {
+     "x": -10.18,
+     "y": 6.868
+    },
+    "HandR": {
+     "x": 18.784,
+     "y": 24.932
+    }
+   }
+  },
+  {
+   "artFrameIndex": 5,
+   "nativeSample": 28,
+   "nativeFrame": 28,
+   "motion": "e01throwflw",
+   "shiftArtPx": 10,
+   "grip": {
+    "x": 29.058,
+    "y": -8.718
+   },
+   "bones": {
+    "Throw": {
+     "x": 29.058,
+     "y": -8.718
+    },
+    "HaveL": {
+     "x": -25.206,
+     "y": -6.379
+    },
+    "HaveR": {
+     "x": 22.102,
+     "y": 13.11
+    },
+    "HandL": {
+     "x": -10.627,
+     "y": 7.875
+    },
+    "HandR": {
+     "x": 16.195,
+     "y": 27.037
+    }
+   }
+  },
+  {
+   "artFrameIndex": 6,
+   "nativeSample": 33,
+   "nativeFrame": 33,
+   "motion": "e01throwflw",
+   "shiftArtPx": 30,
+   "grip": {
+    "x": 29.058,
+    "y": -12.128
+   },
+   "bones": {
+    "Throw": {
+     "x": 29.058,
+     "y": -12.128
+    },
+    "HaveL": {
+     "x": 27.261,
+     "y": 5.862
+    },
+    "HaveR": {
+     "x": 27.422,
+     "y": 22.299
+    },
+    "HandL": {
+     "x": 36.4,
+     "y": 12.829
+    },
+    "HandR": {
+     "x": 22.313,
+     "y": 19.065
+    }
+   }
+  },
+  {
+   "artFrameIndex": 7,
+   "nativeSample": 39,
+   "nativeFrame": 39,
+   "motion": "e01throwflw",
+   "shiftArtPx": 14,
+   "grip": {
+    "x": 29.058,
+    "y": -9.4
+   },
+   "bones": {
+    "Throw": {
+     "x": 29.058,
+     "y": -9.4
+    },
+    "HaveL": {
+     "x": 45.957,
+     "y": 30.009
+    },
+    "HaveR": {
+     "x": 15.171,
+     "y": 35.43
+    },
+    "HandL": {
+     "x": 51.649,
+     "y": 13.99
+    },
+    "HandR": {
+     "x": 9.958,
+     "y": 17.957
+    }
+   }
+  },
+  {
+   "artFrameIndex": 8,
+   "nativeSample": 44,
+   "nativeFrame": 44,
+   "motion": "e01throwflw",
+   "shiftArtPx": 16,
+   "grip": {
+    "x": 29.058,
+    "y": -9.741
+   },
+   "bones": {
+    "Throw": {
+     "x": 29.058,
+     "y": -9.741
+    },
+    "HaveL": {
+     "x": 36.668,
+     "y": 35.156
+    },
+    "HaveR": {
+     "x": 15.168,
+     "y": 35.089
+    },
+    "HandL": {
+     "x": 43.276,
+     "y": 17.495
+    },
+    "HandR": {
+     "x": 9.956,
+     "y": 17.615
+    }
+   }
+  },
+  {
+   "artFrameIndex": 9,
+   "nativeSample": 49,
+   "nativeFrame": 49,
+   "motion": "e01throwflw",
+   "shiftArtPx": 16,
+   "grip": {
+    "x": 29.058,
+    "y": -9.741
+   },
+   "bones": {
+    "Throw": {
+     "x": 29.058,
+     "y": -9.741
+    },
+    "HaveL": {
+     "x": 36.667,
+     "y": 35.156
+    },
+    "HaveR": {
+     "x": 15.169,
+     "y": 35.09
+    },
+    "HandL": {
+     "x": 43.275,
+     "y": 17.495
+    },
+    "HandR": {
+     "x": 9.957,
+     "y": 17.617
+    }
+   }
+  },
+  {
+   "artFrameIndex": 10,
+   "nativeSample": 55,
+   "nativeFrame": 55,
+   "motion": "e01throwflw",
+   "shiftArtPx": 16,
+   "grip": {
+    "x": 29.058,
+    "y": -9.741
+   },
+   "bones": {
+    "Throw": {
+     "x": 29.058,
+     "y": -9.741
+    },
+    "HaveL": {
+     "x": 36.668,
+     "y": 35.156
+    },
+    "HaveR": {
+     "x": 15.17,
+     "y": 35.089
+    },
+    "HandL": {
+     "x": 43.276,
+     "y": 17.495
+    },
+    "HandR": {
+     "x": 9.957,
+     "y": 17.616
+    }
+   }
+  },
+  {
+   "artFrameIndex": 11,
+   "nativeSample": 60,
+   "nativeFrame": 59,
+   "motion": "e01throwflw",
+   "shiftArtPx": 16,
+   "grip": {
+    "x": 29.058,
+    "y": -9.741
+   },
+   "bones": {
+    "Throw": {
+     "x": 29.058,
+     "y": -9.741
+    },
+    "HaveL": {
+     "x": 36.667,
+     "y": 35.157
+    },
+    "HaveR": {
+     "x": 15.168,
+     "y": 35.09
+    },
+    "HandL": {
+     "x": 43.276,
+     "y": 17.496
+    },
+    "HandR": {
+     "x": 9.955,
+     "y": 17.617
+    }
+   }
+  }
+ ]
+}

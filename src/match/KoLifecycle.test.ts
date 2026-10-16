@@ -55,7 +55,7 @@ import {
   type PositionedBody,
 } from './BlastZonePositionWatcher';
 import { MatchEndDetector, DEFAULT_ENDING_DURATION_FRAMES } from './MatchEndDetector';
-import { BLAST_ZONE_LABELS } from '../stages/StageRenderer';
+import { BLAST_ZONE_LABELS } from '../stages/stageBodies';
 import type { BlastZone } from '../types';
 
 // ---------------------------------------------------------------------------

@@ -11,7 +11,7 @@
  *      becomes the new binding for that slot+action. The captured binding
  *      is written to the {@link InputBindingsStore} via `setAction(...)`,
  *      replacing whatever was there.
- *   3. ESC (keyboard) or B (gamepad button index 1) cancels capture and
+ *   3. ESC (keyboard) or Start (gamepad button index 9) cancels capture and
  *      restores the previous label.
  *
  * Why a pure-helper module sibling to `RebindingScreen.ts`:
@@ -34,10 +34,14 @@
 
 import {
   DEFAULT_GAMEPAD_AXIS_THRESHOLD,
+  SMASH_STICK_THRESHOLD,
+  buildStickHalfAxisBindings,
+  isNamedStickAxis,
 } from '../input/InputBindingsStore';
 import type {
   GamepadBinding,
   GamepadBindingSource,
+  InputBinding,
   KeyboardBinding,
   LogicalAction,
   PlayerBindingsIndex,
@@ -81,12 +85,10 @@ export const CAPTURE_HOVER_HINT = 'Click to rebind';
 export const CAPTURE_CANCEL_KEYCODE = 27;
 
 /**
- * Standard-layout gamepad button index that cancels capture (button 1 =
- * B / Circle — the universal "back" face button). Mirrors the rebinding
- * default that maps button 1 to taunt; while capture is active the
- * cancel meaning takes precedence so a player can always back out.
+ * Start / Options cancels capture. Face buttons, including B / Circle,
+ * remain assignable even though they navigate menus outside capture.
  */
-export const CAPTURE_CANCEL_GAMEPAD_BUTTON = 1;
+export const CAPTURE_CANCEL_GAMEPAD_BUTTON = 9;
 
 /**
  * True iff the supplied keyCode should cancel an active capture rather
@@ -229,6 +231,33 @@ function assertValidGamepadIndex(gamepadIndex: number): void {
       `bindingCapture: invalid gamepadIndex (${String(gamepadIndex)}). Must be a non-negative integer.`,
     );
   }
+}
+
+/**
+ * The binding list a capture stores for `action`. A stick push captured
+ * on the Smash row becomes all four half-axes of that stick (at the
+ * smash threshold), so every direction smashes like a C-stick instead
+ * of only the direction the player happened to push. Only the named
+ * sticks expand; any other axis, keys, buttons and every other action
+ * stay the single captured binding.
+ */
+export function captureBindingsForAction(
+  action: LogicalAction,
+  binding: InputBinding,
+): ReadonlyArray<InputBinding> {
+  if (
+    action !== 'smash' ||
+    binding.kind !== 'gamepad' ||
+    binding.source.type !== 'axis' ||
+    !isNamedStickAxis(binding.source.axisIndex)
+  ) {
+    return [binding];
+  }
+  return buildStickHalfAxisBindings(
+    binding.gamepadIndex,
+    binding.source.axisIndex,
+    SMASH_STICK_THRESHOLD,
+  );
 }
 
 // ---------------------------------------------------------------------------

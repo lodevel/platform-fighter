@@ -90,12 +90,12 @@ describe('characterSelect — AC 13 Sub-AC 1 (same-character selection allowed)'
       }
     });
 
-    it('opens with the M1 lineup (Wolf P1, Cat P2)', () => {
+    it('opens with the M1 lineup (DK P1, Pikachu P2)', () => {
       // Opening defaults preserve the existing dev-mode behaviour from
       // ModeSelectScene.buildConfirmedMatchConfig so smoke tests that
-      // press ENTER through the menus still produce a Wolf-vs-Cat match.
-      expect(DEFAULT_CHARACTER_SELECT_STATE.slots[0]?.characterId).toBe('wolf');
-      expect(DEFAULT_CHARACTER_SELECT_STATE.slots[1]?.characterId).toBe('cat');
+      // press ENTER through the menus still produce a DK-vs-Pikachu match.
+      expect(DEFAULT_CHARACTER_SELECT_STATE.slots[0]?.characterId).toBe('donkeykong');
+      expect(DEFAULT_CHARACTER_SELECT_STATE.slots[1]?.characterId).toBe('pikachu');
     });
   });
 
@@ -104,26 +104,26 @@ describe('characterSelect — AC 13 Sub-AC 1 (same-character selection allowed)'
   // ---------------------------------------------------------------------
 
   describe('setSlotCharacter (NO uniqueness restriction across slots)', () => {
-    it('accepts a duplicate pick — two slots can both choose Wolf', () => {
-      // The headline assertion. Slot 2 picking Wolf when slot 1 is
-      // already on Wolf must succeed; the resulting state has both
-      // slots on `'wolf'`.
-      const next = setSlotCharacter(DEFAULT_CHARACTER_SELECT_STATE, 2, 'wolf');
-      expect(next.slots[0]?.characterId).toBe('wolf');
-      expect(next.slots[1]?.characterId).toBe('wolf');
+    it('accepts a duplicate pick — two slots can both choose DK', () => {
+      // The headline assertion. Slot 2 picking DK when slot 1 is
+      // already on DK must succeed; the resulting state has both
+      // slots on `'donkeykong'`.
+      const next = setSlotCharacter(DEFAULT_CHARACTER_SELECT_STATE, 2, 'donkeykong');
+      expect(next.slots[0]?.characterId).toBe('donkeykong');
+      expect(next.slots[1]?.characterId).toBe('donkeykong');
     });
 
     it('does not throw on duplicate picks (no restriction error path)', () => {
       // Belt-and-braces: even if a future maintainer wires a try/catch
       // around the call, the *throw* itself must not happen.
       expect(() =>
-        setSlotCharacter(DEFAULT_CHARACTER_SELECT_STATE, 2, 'wolf'),
+        setSlotCharacter(DEFAULT_CHARACTER_SELECT_STATE, 2, 'donkeykong'),
       ).not.toThrow();
     });
 
     it('allows ALL FOUR slots to pick the same character', () => {
       // The most extreme "same-character allowed" configuration: a
-      // four-Wolf match. The state must arrive at this configuration
+      // four-DK match. The state must arrive at this configuration
       // through normal transitions only (no special "force duplicate"
       // path).
       let state: CharacterSelectState = DEFAULT_CHARACTER_SELECT_STATE;
@@ -131,17 +131,17 @@ describe('characterSelect — AC 13 Sub-AC 1 (same-character selection allowed)'
       state = joinSlot(state, 2);
       state = joinSlot(state, 3);
       state = joinSlot(state, 4);
-      // Pick Wolf in every slot.
-      state = setSlotCharacter(state, 1, 'wolf');
-      state = setSlotCharacter(state, 2, 'wolf');
-      state = setSlotCharacter(state, 3, 'wolf');
-      state = setSlotCharacter(state, 4, 'wolf');
+      // Pick DK in every slot.
+      state = setSlotCharacter(state, 1, 'donkeykong');
+      state = setSlotCharacter(state, 2, 'donkeykong');
+      state = setSlotCharacter(state, 3, 'donkeykong');
+      state = setSlotCharacter(state, 4, 'donkeykong');
       // All four slots now sharing one character.
       expect(state.slots.map((s) => s.characterId)).toEqual([
-        'wolf',
-        'wolf',
-        'wolf',
-        'wolf',
+        'donkeykong',
+        'donkeykong',
+        'donkeykong',
+        'donkeykong',
       ]);
     });
 
@@ -151,20 +151,20 @@ describe('characterSelect — AC 13 Sub-AC 1 (same-character selection allowed)'
       let state = setSlotPalette(DEFAULT_CHARACTER_SELECT_STATE, 1, 5);
       state = joinSlot(state, 1); // already joined, but explicit
       const before = state.slots[0]!;
-      const after = setSlotCharacter(state, 1, 'cat').slots[0]!;
+      const after = setSlotCharacter(state, 1, 'pikachu').slots[0]!;
       expect(after.paletteIndex).toBe(before.paletteIndex);
       expect(after.inputType).toBe(before.inputType);
       expect(after.joined).toBe(before.joined);
       // And the only field that changed is characterId.
-      expect(after.characterId).toBe('cat');
-      expect(before.characterId).toBe('wolf');
+      expect(after.characterId).toBe('pikachu');
+      expect(before.characterId).toBe('donkeykong');
     });
 
     it('returns the same state reference on a no-op pick', () => {
       // Re-picking the same character on a slot that already has it
       // must be a true no-op — same `===` reference — so React-style
       // memo'd renderers don't churn.
-      const same = setSlotCharacter(DEFAULT_CHARACTER_SELECT_STATE, 1, 'wolf');
+      const same = setSlotCharacter(DEFAULT_CHARACTER_SELECT_STATE, 1, 'donkeykong');
       expect(same).toBe(DEFAULT_CHARACTER_SELECT_STATE);
     });
 
@@ -176,7 +176,7 @@ describe('characterSelect — AC 13 Sub-AC 1 (same-character selection allowed)'
           DEFAULT_CHARACTER_SELECT_STATE,
           // @ts-expect-error — testing runtime guard for invalid index
           5,
-          'wolf',
+          'donkeykong',
         ),
       ).toThrow(/slotIndex/);
     });
@@ -204,13 +204,13 @@ describe('characterSelect — AC 13 Sub-AC 1 (same-character selection allowed)'
 
   describe('buildPlayerSlotsFromState (duplicates survive the projection)', () => {
     it('emits two PlayerSlot entries with the same characterId when two slots picked it', () => {
-      let state = setSlotCharacter(DEFAULT_CHARACTER_SELECT_STATE, 2, 'wolf');
+      let state = setSlotCharacter(DEFAULT_CHARACTER_SELECT_STATE, 2, 'donkeykong');
       state = joinSlot(state, 2);
       const players = buildPlayerSlotsFromState(state);
-      // Both slot-1 and slot-2 in the output, both on Wolf.
+      // Both slot-1 and slot-2 in the output, both on DK.
       expect(players).toHaveLength(2);
-      expect(players[0]?.characterId).toBe('wolf');
-      expect(players[1]?.characterId).toBe('wolf');
+      expect(players[0]?.characterId).toBe('donkeykong');
+      expect(players[1]?.characterId).toBe('donkeykong');
       // The slot indices are still distinct — duplicates of character,
       // not of slot identity.
       expect(players[0]?.index).toBe(1);
@@ -226,7 +226,7 @@ describe('characterSelect — AC 13 Sub-AC 1 (same-character selection allowed)'
 
     it('emits a frozen array of frozen PlayerSlot entries', () => {
       let state = joinSlot(DEFAULT_CHARACTER_SELECT_STATE, 2);
-      state = setSlotCharacter(state, 2, 'wolf');
+      state = setSlotCharacter(state, 2, 'donkeykong');
       const players = buildPlayerSlotsFromState(state);
       expect(Object.isFrozen(players)).toBe(true);
       for (const p of players) {
@@ -236,10 +236,10 @@ describe('characterSelect — AC 13 Sub-AC 1 (same-character selection allowed)'
 
     it('carries paletteIndex through unchanged so duplicates are visually distinguishable', () => {
       // The palette is the differentiation hook AC 13 calls out. Two
-      // Wolf-pickers with palette 0 and palette 3 must end up with
+      // DK-pickers with palette 0 and palette 3 must end up with
       // those exact palette indices in the resulting PlayerSlot[],
       // ready for the renderer to apply hue-shifted sprites.
-      let state = setSlotCharacter(DEFAULT_CHARACTER_SELECT_STATE, 2, 'wolf');
+      let state = setSlotCharacter(DEFAULT_CHARACTER_SELECT_STATE, 2, 'donkeykong');
       state = setSlotPalette(state, 1, 0);
       state = setSlotPalette(state, 2, 3);
       state = joinSlot(state, 2);
@@ -254,25 +254,25 @@ describe('characterSelect — AC 13 Sub-AC 1 (same-character selection allowed)'
   // ---------------------------------------------------------------------
 
   describe('hasSameCharacterPicks (reports — never rejects — duplicates)', () => {
-    it('returns false for the default lineup (Wolf vs Cat)', () => {
-      // Default lineup is (Wolf, Cat, Owl, Bear) but only slot 1 is
+    it('returns false for the default lineup (DK vs Pikachu)', () => {
+      // Default lineup is (DK, Pikachu, DK, Pikachu) but only slot 1 is
       // joined, so there are no duplicates among joined slots.
       expect(hasSameCharacterPicks(DEFAULT_CHARACTER_SELECT_STATE)).toBe(false);
     });
 
     it('returns true once two joined slots share a character', () => {
       let state = joinSlot(DEFAULT_CHARACTER_SELECT_STATE, 2);
-      state = setSlotCharacter(state, 2, 'wolf');
+      state = setSlotCharacter(state, 2, 'donkeykong');
       expect(hasSameCharacterPicks(state)).toBe(true);
     });
 
     it('ignores un-joined duplicates (only counts active lobby members)', () => {
-      // If slot 2 is on Wolf but hasn't joined yet, the lineup is
+      // If slot 2 is on DK but hasn't joined yet, the lineup is
       // effectively just slot 1 — no duplicates to worry about.
       const state = setSlotCharacter(
         DEFAULT_CHARACTER_SELECT_STATE,
         2,
-        'wolf',
+        'donkeykong',
       );
       expect(state.slots[1]?.joined).toBe(false);
       expect(hasSameCharacterPicks(state)).toBe(false);
@@ -319,15 +319,10 @@ describe('characterSelect — AC 13 Sub-AC 1 (same-character selection allowed)'
 
   describe('isPlayableCharacter', () => {
     it('reports the full M2 cast as playable', () => {
-      // M1 cut shipped Wolf + Cat. AC 60004 Sub-AC 4 promoted Owl,
-      // and AC 60001 Sub-AC 1 promoted Bear — every roster slot is
-      // now playable: true once each character ships their grounded
-      // triplet (jab / tilt / smash). Selection UIs no longer need to
-      // grey out any tile.
-      expect(isPlayableCharacter('wolf')).toBe(true);
-      expect(isPlayableCharacter('cat')).toBe(true);
-      expect(isPlayableCharacter('owl')).toBe(true);
-      expect(isPlayableCharacter('bear')).toBe(true);
+      // Every selectable fighter is playable, so selection UIs never
+      // need to grey out a tile.
+      expect(isPlayableCharacter('donkeykong')).toBe(true);
+      expect(isPlayableCharacter('pikachu')).toBe(true);
     });
 
     it('the playable check does NOT gate same-character selection', () => {
@@ -335,7 +330,7 @@ describe('characterSelect — AC 13 Sub-AC 1 (same-character selection allowed)'
       // tile, the underlying `setSlotCharacter` still doesn't enforce
       // playability. Sub-AC 1 is about uniqueness, not roster gating;
       // we keep the no-restriction property pure.
-      const allIds: ReadonlyArray<CharacterId> = ['wolf', 'cat', 'owl', 'bear'];
+      const allIds: ReadonlyArray<CharacterId> = ['donkeykong', 'pikachu'];
       for (const id of allIds) {
         expect(() =>
           setSlotCharacter(DEFAULT_CHARACTER_SELECT_STATE, 1, id),
@@ -356,33 +351,33 @@ describe('characterSelect — AC 13 Sub-AC 4 (palette previews + auto-distinct)'
 
   describe('buildSlotPreview (per-slot palette preview projection)', () => {
     it('projects a slot onto the palette colours from palettes.ts', () => {
-      // Slot 1 default is Wolf with palette 0 — the canonical wolf red
+      // Slot 1 default is DK with palette 0 — the canonical donkeykong red
       // that matches WOLF_PLACEHOLDER. The preview must surface those
       // exact colours so the lobby tile and the in-match body agree.
       const slot = DEFAULT_CHARACTER_SELECT_STATE.slots[0]!;
       const preview = buildSlotPreview(slot);
-      const wolfP0 = getCharacterPalette('wolf', 0);
-      expect(preview.primaryColor).toBe(wolfP0.primaryColor);
-      expect(preview.accentColor).toBe(wolfP0.accentColor);
-      expect(preview.labelColor).toBe(wolfP0.labelColor);
-      expect(preview.paletteName).toBe(wolfP0.displayName);
-      expect(preview.characterId).toBe('wolf');
+      const dkP0 = getCharacterPalette('donkeykong', 0);
+      expect(preview.primaryColor).toBe(dkP0.primaryColor);
+      expect(preview.accentColor).toBe(dkP0.accentColor);
+      expect(preview.labelColor).toBe(dkP0.labelColor);
+      expect(preview.paletteName).toBe(dkP0.displayName);
+      expect(preview.characterId).toBe('donkeykong');
       expect(preview.slotIndex).toBe(1);
-      expect(preview.displayName).toBe('Wolf');
-      expect(preview.roleLabel).toBe('bruiser');
+      expect(preview.displayName).toBe('Donkey Kong');
+      expect(preview.roleLabel).toBe(SELECTABLE_CHARACTER_SPECS[0]!.role);
       expect(preview.playable).toBe(true);
       expect(preview.joined).toBe(true);
     });
 
     it('honours the slot.paletteIndex when picking colours', () => {
       // Slot 2 defaults to palette index 1 (slot index - 1) — the
-      // preview must read off Cat palette 1 (Fuchsia), not palette 0.
+      // preview must read off Pikachu palette 1 (Fuchsia), not palette 0.
       const slot = DEFAULT_CHARACTER_SELECT_STATE.slots[1]!;
       const preview = buildSlotPreview(slot);
-      const catP1 = getCharacterPalette('cat', 1);
+      const pikachuP1 = getCharacterPalette('pikachu', 1);
       expect(preview.paletteIndex).toBe(1);
-      expect(preview.primaryColor).toBe(catP1.primaryColor);
-      expect(preview.paletteName).toBe(catP1.displayName);
+      expect(preview.primaryColor).toBe(pikachuP1.primaryColor);
+      expect(preview.paletteName).toBe(pikachuP1.displayName);
     });
 
     it('returns a frozen record so consumers cannot mutate previews', () => {
@@ -462,20 +457,20 @@ describe('characterSelect — AC 13 Sub-AC 4 (palette previews + auto-distinct)'
 
   describe('autoAssignDistinctPalettes (auto-pick distinct palettes on duplicates)', () => {
     it('is a no-op when all joined slots have unique characters', () => {
-      // Slot 1 is on Wolf, slot 2 is on Cat (different chars) — no
+      // Slot 1 is on DK, slot 2 is on Pikachu (different chars) — no
       // collision, no churn. Same `===` reference is returned.
       let state = joinSlot(DEFAULT_CHARACTER_SELECT_STATE, 2);
-      // After join, slots 1+2 are on (Wolf p0, Cat p1) — no overlap.
+      // After join, slots 1+2 are on (DK p0, Pikachu p1) — no overlap.
       const same = autoAssignDistinctPalettes(state);
       expect(same).toBe(state);
     });
 
     it('is a no-op when duplicate-character slots already have distinct palettes', () => {
-      // Slot 1 is Wolf p0 (default). Slot 2 picks Wolf at palette 1 —
+      // Slot 1 is DK p0 (default). Slot 2 picks DK at palette 1 —
       // duplicate character but different palette. The auto-pass must
       // not reshuffle a configuration the players already painted
       // distinctly.
-      let state = setSlotCharacter(DEFAULT_CHARACTER_SELECT_STATE, 2, 'wolf');
+      let state = setSlotCharacter(DEFAULT_CHARACTER_SELECT_STATE, 2, 'donkeykong');
       // Slot 2 default palette is 1 (slot index - 1), so the duplicate
       // is already on a distinct palette.
       state = joinSlot(state, 2);
@@ -485,13 +480,13 @@ describe('characterSelect — AC 13 Sub-AC 4 (palette previews + auto-distinct)'
       expect(same).toBe(state);
     });
 
-    it('repairs a (Wolf p0, Wolf p0) collision so slot 2 moves to a free palette', () => {
-      // Force the collision: slot 2 picks Wolf, then dials its
-      // palette down to 0 so both joined slots are on Wolf p0.
-      let state = setSlotCharacter(DEFAULT_CHARACTER_SELECT_STATE, 2, 'wolf');
+    it('repairs a (DK p0, DK p0) collision so slot 2 moves to a free palette', () => {
+      // Force the collision: slot 2 picks DK, then dials its
+      // palette down to 0 so both joined slots are on DK p0.
+      let state = setSlotCharacter(DEFAULT_CHARACTER_SELECT_STATE, 2, 'donkeykong');
       state = setSlotPalette(state, 2, 0);
       state = joinSlot(state, 2);
-      // Both slots on Wolf p0 — the collision the auto-pass exists to fix.
+      // Both slots on DK p0 — the collision the auto-pass exists to fix.
       expect(state.slots[0]?.paletteIndex).toBe(0);
       expect(state.slots[1]?.paletteIndex).toBe(0);
       const repaired = autoAssignDistinctPalettes(state);
@@ -505,8 +500,8 @@ describe('characterSelect — AC 13 Sub-AC 4 (palette previews + auto-distinct)'
       );
     });
 
-    it('repairs a four-Wolf collision so all four slots end on distinct palettes', () => {
-      // The most extreme case — four slots all on Wolf, all on
+    it('repairs a four-DK collision so all four slots end on distinct palettes', () => {
+      // The most extreme case — four slots all on DK, all on
       // palette 0. The auto-pass must spread them across four
       // distinct palette indices.
       let state: CharacterSelectState = DEFAULT_CHARACTER_SELECT_STATE;
@@ -514,11 +509,11 @@ describe('characterSelect — AC 13 Sub-AC 4 (palette previews + auto-distinct)'
       state = joinSlot(state, 3);
       state = joinSlot(state, 4);
       for (const i of [1, 2, 3, 4] as const) {
-        state = setSlotCharacter(state, i, 'wolf');
+        state = setSlotCharacter(state, i, 'donkeykong');
         state = setSlotPalette(state, i, 0);
       }
-      // All four slots locked onto Wolf p0.
-      expect(state.slots.every((s) => s.characterId === 'wolf')).toBe(true);
+      // All four slots locked onto DK p0.
+      expect(state.slots.every((s) => s.characterId === 'donkeykong')).toBe(true);
       expect(state.slots.every((s) => s.paletteIndex === 0)).toBe(true);
 
       const repaired = autoAssignDistinctPalettes(state);
@@ -535,10 +530,10 @@ describe('characterSelect — AC 13 Sub-AC 4 (palette previews + auto-distinct)'
     });
 
     it('leaves un-joined slots untouched (only joined-slot collisions count)', () => {
-      // Slot 2 is on Wolf p0 but un-joined — auto-pass must not
+      // Slot 2 is on DK p0 but un-joined — auto-pass must not
       // touch it. The lobby spectator's palette is preserved so when
       // they join later they see what they had.
-      let state = setSlotCharacter(DEFAULT_CHARACTER_SELECT_STATE, 2, 'wolf');
+      let state = setSlotCharacter(DEFAULT_CHARACTER_SELECT_STATE, 2, 'donkeykong');
       state = setSlotPalette(state, 2, 0);
       // Slot 2 is still un-joined.
       expect(state.slots[1]?.joined).toBe(false);
@@ -548,15 +543,15 @@ describe('characterSelect — AC 13 Sub-AC 4 (palette previews + auto-distinct)'
     });
 
     it('mixes joined and un-joined slots correctly', () => {
-      // Slots 1+3 joined (both Wolf p0). Slot 2 un-joined (also
-      // Wolf p0). Auto-pass should bump slot 3 — slot 2 stays
+      // Slots 1+3 joined (both DK p0). Slot 2 un-joined (also
+      // DK p0). Auto-pass should bump slot 3 — slot 2 stays
       // untouched because it's un-joined and doesn't compete for a
       // palette.
       let state: CharacterSelectState = DEFAULT_CHARACTER_SELECT_STATE;
-      state = setSlotCharacter(state, 2, 'wolf');
-      state = setSlotPalette(state, 2, 0); // slot 2 wolf p0, un-joined
-      state = setSlotCharacter(state, 3, 'wolf');
-      state = setSlotPalette(state, 3, 0); // slot 3 wolf p0
+      state = setSlotCharacter(state, 2, 'donkeykong');
+      state = setSlotPalette(state, 2, 0); // slot 2 donkeykong p0, un-joined
+      state = setSlotCharacter(state, 3, 'donkeykong');
+      state = setSlotPalette(state, 3, 0); // slot 3 donkeykong p0
       state = joinSlot(state, 3);
 
       const repaired = autoAssignDistinctPalettes(state);
@@ -571,9 +566,9 @@ describe('characterSelect — AC 13 Sub-AC 4 (palette previews + auto-distinct)'
       let state: CharacterSelectState = DEFAULT_CHARACTER_SELECT_STATE;
       state = joinSlot(state, 2);
       state = joinSlot(state, 3);
-      state = setSlotCharacter(state, 1, 'wolf');
-      state = setSlotCharacter(state, 2, 'wolf');
-      state = setSlotCharacter(state, 3, 'wolf');
+      state = setSlotCharacter(state, 1, 'donkeykong');
+      state = setSlotCharacter(state, 2, 'donkeykong');
+      state = setSlotCharacter(state, 3, 'donkeykong');
       state = setSlotPalette(state, 1, 0);
       state = setSlotPalette(state, 2, 0);
       state = setSlotPalette(state, 3, 0);
@@ -590,7 +585,7 @@ describe('characterSelect — AC 13 Sub-AC 4 (palette previews + auto-distinct)'
     it('returns a frozen state with frozen slots', () => {
       let state: CharacterSelectState = DEFAULT_CHARACTER_SELECT_STATE;
       state = joinSlot(state, 2);
-      state = setSlotCharacter(state, 2, 'wolf');
+      state = setSlotCharacter(state, 2, 'donkeykong');
       state = setSlotPalette(state, 2, 0);
       const repaired = autoAssignDistinctPalettes(state);
       expect(Object.isFrozen(repaired)).toBe(true);
@@ -606,11 +601,11 @@ describe('characterSelect — AC 13 Sub-AC 4 (palette previews + auto-distinct)'
       // palette gets bumped.
       let state: CharacterSelectState = DEFAULT_CHARACTER_SELECT_STATE;
       state = joinSlot(state, 2);
-      state = setSlotCharacter(state, 2, 'wolf');
+      state = setSlotCharacter(state, 2, 'donkeykong');
       state = setSlotPalette(state, 2, 0);
       const repaired = autoAssignDistinctPalettes(state);
-      expect(repaired.slots[0]?.characterId).toBe('wolf');
-      expect(repaired.slots[1]?.characterId).toBe('wolf');
+      expect(repaired.slots[0]?.characterId).toBe('donkeykong');
+      expect(repaired.slots[1]?.characterId).toBe('donkeykong');
     });
 
     it('hasSameCharacterPicks is still true after the repair (we fix the palette, not the character)', () => {
@@ -618,10 +613,10 @@ describe('characterSelect — AC 13 Sub-AC 4 (palette previews + auto-distinct)'
       // overriding the player's character pick. So
       // `hasSameCharacterPicks` continues to report the duplicate
       // even after the auto-pass has run — the players are still
-      // both playing Wolf, just in different colours.
+      // both playing DK, just in different colours.
       let state: CharacterSelectState = DEFAULT_CHARACTER_SELECT_STATE;
       state = joinSlot(state, 2);
-      state = setSlotCharacter(state, 2, 'wolf');
+      state = setSlotCharacter(state, 2, 'donkeykong');
       const repaired = autoAssignDistinctPalettes(state);
       expect(hasSameCharacterPicks(repaired)).toBe(true);
     });
@@ -633,13 +628,13 @@ describe('characterSelect — AC 13 Sub-AC 4 (palette previews + auto-distinct)'
       // repair, AC 13's promise to MatchScene fails.
       let state: CharacterSelectState = DEFAULT_CHARACTER_SELECT_STATE;
       state = joinSlot(state, 2);
-      state = setSlotCharacter(state, 2, 'wolf');
+      state = setSlotCharacter(state, 2, 'donkeykong');
       state = setSlotPalette(state, 2, 0);
       const repaired = autoAssignDistinctPalettes(state);
       const players = buildPlayerSlotsFromState(repaired);
       expect(players).toHaveLength(2);
-      expect(players[0]?.characterId).toBe('wolf');
-      expect(players[1]?.characterId).toBe('wolf');
+      expect(players[0]?.characterId).toBe('donkeykong');
+      expect(players[1]?.characterId).toBe('donkeykong');
       expect(players[0]?.paletteIndex).not.toBe(players[1]?.paletteIndex);
     });
   });
@@ -649,16 +644,10 @@ describe('characterSelect — AC 13 Sub-AC 4 (palette previews + auto-distinct)'
   // ---------------------------------------------------------------------
 
   describe('SELECTABLE_CHARACTER_SPECS (drives the scene character cycler)', () => {
-    it('includes every roster id the type system knows about', () => {
-      const ids = new Set(SELECTABLE_CHARACTER_SPECS.map((s) => s.id));
-      // The roster cycler the CharacterSelectScene wraps over must
-      // cover every id, otherwise pressing "next" on a placeholder
-      // character would jump back to playable specs and the
-      // grey-out grid logic can't trust the ordering.
-      expect(ids.has('wolf')).toBe(true);
-      expect(ids.has('cat')).toBe(true);
-      expect(ids.has('owl')).toBe(true);
-      expect(ids.has('bear')).toBe(true);
+    it('is exactly the active fighters, in active-list order (masked fighters are not selectable)', () => {
+      // The cycler the CharacterSelectScene wraps over covers the
+      // active fighters only, Donkey Kong first (the default pick).
+      expect(SELECTABLE_CHARACTER_SPECS.map((s) => s.id)).toEqual(['donkeykong', 'pikachu', 'link']);
     });
   });
 });
@@ -713,46 +702,42 @@ describe('buildCharacterPortraitGrid — AC 10303 Sub-AC 3 (portraits grid)', ()
   });
 
   it('selectedBySlots is empty for cells that no joined slot has picked', () => {
-    // Default state: only slot 1 is joined and on Wolf. Cat, Owl,
-    // Bear cells must report `selectedBySlots: []`.
+    // Default state: only slot 1 is joined and on DK. The Pikachu
+    // cell must report `selectedBySlots: []`.
     const grid = buildCharacterPortraitGrid(DEFAULT_CHARACTER_SELECT_STATE);
-    const cat = grid.find((c) => c.characterId === 'cat');
-    const owl = grid.find((c) => c.characterId === 'owl');
-    const bear = grid.find((c) => c.characterId === 'bear');
-    expect(cat?.selectedBySlots).toEqual([]);
-    expect(owl?.selectedBySlots).toEqual([]);
-    expect(bear?.selectedBySlots).toEqual([]);
+    const pikachu = grid.find((c) => c.characterId === 'pikachu');
+    expect(pikachu?.selectedBySlots).toEqual([]);
   });
 
   it('reports the joined slot index in selectedBySlots for the picked character', () => {
-    // Default: slot 1 joined on Wolf. Wolf cell must report `[1]`.
+    // Default: slot 1 joined on DK. DK cell must report `[1]`.
     const grid = buildCharacterPortraitGrid(DEFAULT_CHARACTER_SELECT_STATE);
-    const wolf = grid.find((c) => c.characterId === 'wolf');
-    expect(wolf?.selectedBySlots).toEqual([1]);
+    const donkeykong = grid.find((c) => c.characterId === 'donkeykong');
+    expect(donkeykong?.selectedBySlots).toEqual([1]);
   });
 
-  it('IGNORES un-joined slots — opening defaults do not light up Cat (slot 2 default but un-joined)', () => {
-    // The default state opens slot 2 on Cat *but un-joined*. Until
+  it('IGNORES un-joined slots — opening defaults do not light up Pikachu (slot 2 default but un-joined)', () => {
+    // The default state opens slot 2 on Pikachu *but un-joined*. Until
     // the player presses the join key, that pick must not show up
     // on the portraits grid — otherwise un-joined "spectator"
     // defaults visually hijack characters before the player has
     // committed.
     const grid = buildCharacterPortraitGrid(DEFAULT_CHARACTER_SELECT_STATE);
-    const cat = grid.find((c) => c.characterId === 'cat');
-    expect(cat?.selectedBySlots).toEqual([]);
+    const pikachu = grid.find((c) => c.characterId === 'pikachu');
+    expect(pikachu?.selectedBySlots).toEqual([]);
   });
 
   it('AC 13 cross-tie: same-character picks accumulate on a single cell', () => {
-    // Two joined slots on Wolf must produce one Wolf cell with
+    // Two joined slots on DK must produce one DK cell with
     // `selectedBySlots: [1, 2]` (sorted ascending). This is the
     // load-bearing reason the field is a list, not an Optional —
     // up to 4 slots can share a portrait.
     let state: CharacterSelectState = DEFAULT_CHARACTER_SELECT_STATE;
     state = joinSlot(state, 2);
-    state = setSlotCharacter(state, 2, 'wolf');
+    state = setSlotCharacter(state, 2, 'donkeykong');
     const grid = buildCharacterPortraitGrid(state);
-    const wolf = grid.find((c) => c.characterId === 'wolf');
-    expect(wolf?.selectedBySlots).toEqual([1, 2]);
+    const donkeykong = grid.find((c) => c.characterId === 'donkeykong');
+    expect(donkeykong?.selectedBySlots).toEqual([1, 2]);
   });
 
   it('AC 13 cross-tie: all 4 slots can pile on one portrait', () => {
@@ -764,17 +749,15 @@ describe('buildCharacterPortraitGrid — AC 10303 Sub-AC 3 (portraits grid)', ()
     state = joinSlot(state, 2);
     state = joinSlot(state, 3);
     state = joinSlot(state, 4);
-    state = setSlotCharacter(state, 1, 'bear');
-    state = setSlotCharacter(state, 2, 'bear');
-    state = setSlotCharacter(state, 3, 'bear');
-    state = setSlotCharacter(state, 4, 'bear');
+    state = setSlotCharacter(state, 1, 'pikachu');
+    state = setSlotCharacter(state, 2, 'pikachu');
+    state = setSlotCharacter(state, 3, 'pikachu');
+    state = setSlotCharacter(state, 4, 'pikachu');
     const grid = buildCharacterPortraitGrid(state);
-    const bear = grid.find((c) => c.characterId === 'bear');
-    expect(bear?.selectedBySlots).toEqual([1, 2, 3, 4]);
-    // And every other cell stays empty.
-    expect(grid.find((c) => c.characterId === 'wolf')?.selectedBySlots).toEqual([]);
-    expect(grid.find((c) => c.characterId === 'cat')?.selectedBySlots).toEqual([]);
-    expect(grid.find((c) => c.characterId === 'owl')?.selectedBySlots).toEqual([]);
+    const pikachu = grid.find((c) => c.characterId === 'pikachu');
+    expect(pikachu?.selectedBySlots).toEqual([1, 2, 3, 4]);
+    // And the other cell stays empty.
+    expect(grid.find((c) => c.characterId === 'donkeykong')?.selectedBySlots).toEqual([]);
   });
 
   it('selectedBySlots is sorted ascending regardless of join order', () => {
@@ -784,11 +767,11 @@ describe('buildCharacterPortraitGrid — AC 10303 Sub-AC 3 (portraits grid)', ()
     let state: CharacterSelectState = DEFAULT_CHARACTER_SELECT_STATE;
     state = joinSlot(state, 4);
     state = joinSlot(state, 2);
-    state = setSlotCharacter(state, 4, 'wolf');
-    state = setSlotCharacter(state, 2, 'wolf');
+    state = setSlotCharacter(state, 4, 'donkeykong');
+    state = setSlotCharacter(state, 2, 'donkeykong');
     const grid = buildCharacterPortraitGrid(state);
-    const wolf = grid.find((c) => c.characterId === 'wolf');
-    expect(wolf?.selectedBySlots).toEqual([1, 2, 4]);
+    const donkeykong = grid.find((c) => c.characterId === 'donkeykong');
+    expect(donkeykong?.selectedBySlots).toEqual([1, 2, 4]);
   });
 
   it('returns frozen cells AND a frozen array (deep-frozen)', () => {
@@ -817,11 +800,11 @@ describe('buildCharacterPortraitGrid — AC 10303 Sub-AC 3 (portraits grid)', ()
     // gallery looks unstable as players cycle palettes.
     let state: CharacterSelectState = DEFAULT_CHARACTER_SELECT_STATE;
     const before = buildCharacterPortraitGrid(state).find(
-      (c) => c.characterId === 'wolf',
+      (c) => c.characterId === 'donkeykong',
     );
     state = setSlotPalette(state, 1, 5);
     const after = buildCharacterPortraitGrid(state).find(
-      (c) => c.characterId === 'wolf',
+      (c) => c.characterId === 'donkeykong',
     );
     expect(after?.primaryColor).toBe(before?.primaryColor);
     expect(after?.accentColor).toBe(before?.accentColor);
@@ -949,7 +932,7 @@ describe('characterSelect — AC 10304 Sub-AC 4 (ready-up + conflict gating)', (
       // Readiness is a *gating* signal, not a *commit* signal — the
       // live selection is unchanged when the flag flips.
       let state = joinSlot(DEFAULT_CHARACTER_SELECT_STATE, 2);
-      state = setSlotCharacter(state, 2, 'bear');
+      state = setSlotCharacter(state, 2, 'donkeykong');
       state = setSlotPalette(state, 2, 4);
       const before = state.slots[1]!;
       const after = setSlotReady(state, 2, true).slots[1]!;
@@ -994,14 +977,14 @@ describe('characterSelect — AC 10304 Sub-AC 4 (ready-up + conflict gating)', (
 
   describe('selection changes invalidate ready-up', () => {
     it('setSlotCharacter on a ready slot drops ready back to false', () => {
-      // The player readied on Wolf, then bumped the character key. The
+      // The player readied on DK, then bumped the character key. The
       // ready flag must drop so they can't accidentally ship into the
       // match on a fighter they didn't confirm.
       let state = setSlotReady(DEFAULT_CHARACTER_SELECT_STATE, 1, true);
       expect(state.slots[0]?.ready).toBe(true);
-      state = setSlotCharacter(state, 1, 'cat');
+      state = setSlotCharacter(state, 1, 'pikachu');
       expect(state.slots[0]?.ready).toBe(false);
-      expect(state.slots[0]?.characterId).toBe('cat');
+      expect(state.slots[0]?.characterId).toBe('pikachu');
     });
 
     it('setSlotPalette on a ready slot drops ready back to false', () => {
@@ -1018,7 +1001,7 @@ describe('characterSelect — AC 10304 Sub-AC 4 (ready-up + conflict gating)', (
       // ready state from spurious key repeats / debouncing logic that
       // re-fires the same pick.
       const ready = setSlotReady(DEFAULT_CHARACTER_SELECT_STATE, 1, true);
-      const same = setSlotCharacter(ready, 1, 'wolf');
+      const same = setSlotCharacter(ready, 1, 'donkeykong');
       expect(same).toBe(ready);
       expect(same.slots[0]?.ready).toBe(true);
     });
@@ -1062,10 +1045,10 @@ describe('characterSelect — AC 10304 Sub-AC 4 (ready-up + conflict gating)', (
       // helper keeps the `(characterId, paletteIndex)` so they can
       // immediately rejoin and ready up.
       let state = joinSlot(DEFAULT_CHARACTER_SELECT_STATE, 2);
-      state = setSlotCharacter(state, 2, 'bear');
+      state = setSlotCharacter(state, 2, 'donkeykong');
       state = setSlotPalette(state, 2, 5);
       state = leaveSlot(state, 2);
-      expect(state.slots[1]?.characterId).toBe('bear');
+      expect(state.slots[1]?.characterId).toBe('donkeykong');
       expect(state.slots[1]?.paletteIndex).toBe(5);
     });
 
@@ -1154,10 +1137,10 @@ describe('characterSelect — AC 10304 Sub-AC 4 (ready-up + conflict gating)', (
     });
 
     it('returns false when two joined slots have distinct palettes (same character)', () => {
-      // Slot 1 Wolf p0, slot 2 Wolf p1 — same character but distinct
+      // Slot 1 DK p0, slot 2 DK p1 — same character but distinct
       // palettes → no visual collision.
       let state = joinSlot(DEFAULT_CHARACTER_SELECT_STATE, 2);
-      state = setSlotCharacter(state, 2, 'wolf');
+      state = setSlotCharacter(state, 2, 'donkeykong');
       // Slot 2 default palette is 1, so this is already non-colliding.
       expect(hasPaletteCollision(state)).toBe(false);
     });
@@ -1165,7 +1148,7 @@ describe('characterSelect — AC 10304 Sub-AC 4 (ready-up + conflict gating)', (
     it('returns true when two joined slots collide on (character, palette)', () => {
       // Same character + same palette = visual collision.
       let state = joinSlot(DEFAULT_CHARACTER_SELECT_STATE, 2);
-      state = setSlotCharacter(state, 2, 'wolf');
+      state = setSlotCharacter(state, 2, 'donkeykong');
       // Force the palette collision (would normally be auto-distinct'd
       // by the scene, but we exercise the predicate directly).
       state = setSlotPalette(state, 2, 0);
@@ -1173,9 +1156,9 @@ describe('characterSelect — AC 10304 Sub-AC 4 (ready-up + conflict gating)', (
     });
 
     it('IGNORES un-joined slots — a collision against a spectator is fine', () => {
-      // Slot 2 un-joined on Wolf p0 doesn't render in the match, so
-      // it doesn't collide with slot 1's Wolf p0.
-      let state = setSlotCharacter(DEFAULT_CHARACTER_SELECT_STATE, 2, 'wolf');
+      // Slot 2 un-joined on DK p0 doesn't render in the match, so
+      // it doesn't collide with slot 1's DK p0.
+      let state = setSlotCharacter(DEFAULT_CHARACTER_SELECT_STATE, 2, 'donkeykong');
       state = setSlotPalette(state, 2, 0);
       expect(state.slots[1]?.joined).toBe(false);
       expect(hasPaletteCollision(state)).toBe(false);
@@ -1184,14 +1167,14 @@ describe('characterSelect — AC 10304 Sub-AC 4 (ready-up + conflict gating)', (
     it('autoAssignDistinctPalettes always eliminates collisions for the joined lineup', () => {
       // The auto-distinct repair pass is the load-bearing path. After
       // running it, `hasPaletteCollision` must be false even for a
-      // four-Wolf lobby.
+      // four-DK lobby.
       let state: CharacterSelectState = DEFAULT_CHARACTER_SELECT_STATE;
       for (const i of [2, 3, 4] as const) state = joinSlot(state, i);
       for (const i of [1, 2, 3, 4] as const) {
-        state = setSlotCharacter(state, i, 'wolf');
+        state = setSlotCharacter(state, i, 'donkeykong');
         state = setSlotPalette(state, i, 0);
       }
-      // All four on Wolf p0 — collisions everywhere.
+      // All four on DK p0 — collisions everywhere.
       expect(hasPaletteCollision(state)).toBe(true);
       const repaired = autoAssignDistinctPalettes(state);
       expect(hasPaletteCollision(repaired)).toBe(false);
@@ -1226,9 +1209,9 @@ describe('characterSelect — AC 10304 Sub-AC 4 (ready-up + conflict gating)', (
       // state manually because `autoAssignDistinctPalettes` would
       // normally repair it.
       let state = joinSlot(DEFAULT_CHARACTER_SELECT_STATE, 2);
-      state = setSlotCharacter(state, 2, 'wolf');
+      state = setSlotCharacter(state, 2, 'donkeykong');
       state = setSlotPalette(state, 2, 0);
-      // Slot 2 is now Wolf p0 (collides with slot 1's Wolf p0).
+      // Slot 2 is now DK p0 (collides with slot 1's DK p0).
       // Force ready directly to skip the scene's auto-distinct pass.
       state = setSlotReady(state, 1, true);
       state = setSlotReady(state, 2, true);
@@ -1258,7 +1241,7 @@ describe('characterSelect — AC 10304 Sub-AC 4 (ready-up + conflict gating)', (
       // bumps a character key after readying.
       let state = setSlotReady(DEFAULT_CHARACTER_SELECT_STATE, 1, true);
       expect(canConfirmMatch(state)).toBe(true);
-      state = setSlotCharacter(state, 1, 'cat');
+      state = setSlotCharacter(state, 1, 'pikachu');
       expect(canConfirmMatch(state)).toBe(false);
     });
   });
@@ -1293,7 +1276,7 @@ describe('characterSelect — AC 10304 Sub-AC 4 (ready-up + conflict gating)', (
       const build = (): CharacterSelectState => {
         let s: CharacterSelectState = DEFAULT_CHARACTER_SELECT_STATE;
         s = joinSlot(s, 2);
-        s = setSlotCharacter(s, 2, 'wolf');
+        s = setSlotCharacter(s, 2, 'donkeykong');
         s = setSlotPalette(s, 2, 3);
         s = setSlotReady(s, 1, true);
         s = setSlotReady(s, 2, true);
@@ -1568,8 +1551,8 @@ describe('characterSelect — AC 10403 Sub-AC 3 (cursor navigation + lock-in)', 
     });
 
     it('opens the cursor on the same character the slot is committed to', () => {
-      // Slot 1 default characterId='wolf' → cursorIndex points at
-      // wolf's roster cell. Same for every slot. This means a player
+      // Slot 1 default characterId='donkeykong' → cursorIndex points at
+      // donkeykong's roster cell. Same for every slot. This means a player
       // who hits ENTER without moving their cursor confirms the
       // default pick, not an arbitrary "first roster cell".
       for (let i = 0; i < DEFAULT_CHARACTER_SELECT_STATE.slots.length; i += 1) {
@@ -1589,9 +1572,9 @@ describe('characterSelect — AC 10403 Sub-AC 3 (cursor navigation + lock-in)', 
   describe('setSlotCursor (absolute cursor index set)', () => {
     it('updates the slot cursor without touching characterId', () => {
       const before = DEFAULT_CHARACTER_SELECT_STATE.slots[0]!;
-      const next = setSlotCursor(DEFAULT_CHARACTER_SELECT_STATE, 1, 2);
+      const next = setSlotCursor(DEFAULT_CHARACTER_SELECT_STATE, 1, 1);
       const after = next.slots[0]!;
-      expect(after.cursorIndex).toBe(2);
+      expect(after.cursorIndex).toBe(1);
       // characterId must NOT change — that's the cursor / commit
       // distinction this AC is built around.
       expect(after.characterId).toBe(before.characterId);
@@ -1632,9 +1615,9 @@ describe('characterSelect — AC 10403 Sub-AC 3 (cursor navigation + lock-in)', 
     it('works on un-joined slots too (cursor is purely UI)', () => {
       // An un-joined "spectator" slot can still move its cursor — the
       // player is browsing before pressing JOIN.
-      const next = setSlotCursor(DEFAULT_CHARACTER_SELECT_STATE, 3, 2);
+      const next = setSlotCursor(DEFAULT_CHARACTER_SELECT_STATE, 3, 1);
       expect(next.slots[2]?.joined).toBe(false);
-      expect(next.slots[2]?.cursorIndex).toBe(2);
+      expect(next.slots[2]?.cursorIndex).toBe(1);
     });
 
     it('throws on out-of-range slot index', () => {
@@ -1735,15 +1718,15 @@ describe('characterSelect — AC 10403 Sub-AC 3 (cursor navigation + lock-in)', 
       // commit and the ready flag must update in the SAME state
       // snapshot — no intermediate "committed but un-ready" leak.
       let state: CharacterSelectState = DEFAULT_CHARACTER_SELECT_STATE;
-      // Cursor to slot 1 → 'cat' (index 1).
+      // Cursor to slot 1 → 'pikachu' (index 1).
       state = setSlotCursor(state, 1, 1);
-      // Mid-state: cursor on cat, characterId still 'wolf', not ready.
-      expect(state.slots[0]?.characterId).toBe('wolf');
+      // Mid-state: cursor on pikachu, characterId still 'donkeykong', not ready.
+      expect(state.slots[0]?.characterId).toBe('donkeykong');
       expect(state.slots[0]?.cursorIndex).toBe(1);
       expect(state.slots[0]?.ready).toBe(false);
       // Lock in.
       state = lockInSlotCharacter(state, 1);
-      expect(state.slots[0]?.characterId).toBe('cat');
+      expect(state.slots[0]?.characterId).toBe('pikachu');
       expect(state.slots[0]?.cursorIndex).toBe(1);
       expect(state.slots[0]?.ready).toBe(true);
     });
@@ -1803,20 +1786,20 @@ describe('characterSelect — AC 10403 Sub-AC 3 (cursor navigation + lock-in)', 
     });
 
     it('a re-lock after moving the cursor switches the committed character', () => {
-      // Lock in on default (wolf), then move cursor to cat, then lock
-      // in again. Final state: ready on cat. This is the SSB "I
+      // Lock in on default (donkeykong), then move cursor to pikachu, then lock
+      // in again. Final state: ready on pikachu. This is the SSB "I
       // changed my mind" flow — un-ready + cursor + lock-in all
       // happen with three keypresses (un-ready key → cursor key →
       // lock-in key).
       let state: CharacterSelectState = DEFAULT_CHARACTER_SELECT_STATE;
       state = lockInSlotCharacter(state, 1);
-      expect(state.slots[0]?.characterId).toBe('wolf');
+      expect(state.slots[0]?.characterId).toBe('donkeykong');
       expect(state.slots[0]?.ready).toBe(true);
       // Un-ready, move cursor, lock in again.
       state = setSlotReady(state, 1, false);
-      state = setSlotCursor(state, 1, 1); // cat
+      state = setSlotCursor(state, 1, 1); // pikachu
       state = lockInSlotCharacter(state, 1);
-      expect(state.slots[0]?.characterId).toBe('cat');
+      expect(state.slots[0]?.characterId).toBe('pikachu');
       expect(state.slots[0]?.ready).toBe(true);
     });
 
@@ -1891,13 +1874,13 @@ describe('characterSelect — AC 10403 Sub-AC 3 (cursor navigation + lock-in)', 
       const next = setSlotCharacter(
         DEFAULT_CHARACTER_SELECT_STATE,
         1,
-        'cat',
+        'pikachu',
       );
       const expectedIdx = SELECTABLE_CHARACTER_SPECS.findIndex(
-        (s) => s.id === 'cat',
+        (s) => s.id === 'pikachu',
       );
       expect(next.slots[0]?.cursorIndex).toBe(expectedIdx);
-      expect(next.slots[0]?.characterId).toBe('cat');
+      expect(next.slots[0]?.characterId).toBe('pikachu');
     });
 
     it('committing every roster character syncs cursor to that character', () => {
@@ -1928,10 +1911,10 @@ describe('characterSelect — AC 10403 Sub-AC 3 (cursor navigation + lock-in)', 
     });
 
     it('reflects cursor movement to a different character', () => {
-      const moved = setSlotCursor(DEFAULT_CHARACTER_SELECT_STATE, 1, 2);
+      const moved = setSlotCursor(DEFAULT_CHARACTER_SELECT_STATE, 1, 1);
       const slot = moved.slots[0]!;
       expect(getSlotCursorCharacterId(slot)).toBe(
-        SELECTABLE_CHARACTER_SPECS[2]!.id,
+        SELECTABLE_CHARACTER_SPECS[1]!.id,
       );
     });
   });
@@ -1951,13 +1934,13 @@ describe('characterSelect — AC 10403 Sub-AC 3 (cursor navigation + lock-in)', 
     });
 
     it('reports cursorOnCommittedCharacter=false after a cursor move', () => {
-      const moved = setSlotCursor(DEFAULT_CHARACTER_SELECT_STATE, 1, 2);
+      const moved = setSlotCursor(DEFAULT_CHARACTER_SELECT_STATE, 1, 1);
       const preview = buildSlotPreview(moved.slots[0]!);
       expect(preview.cursorOnCommittedCharacter).toBe(false);
       expect(preview.cursorCharacterId).toBe(
-        SELECTABLE_CHARACTER_SPECS[2]!.id,
+        SELECTABLE_CHARACTER_SPECS[1]!.id,
       );
-      expect(preview.characterId).toBe('wolf'); // commit unchanged
+      expect(preview.characterId).toBe('donkeykong'); // commit unchanged
     });
 
     it('cursorDisplayName / cursorRoleLabel / cursorPlayable mirror the spec', () => {
@@ -1984,7 +1967,7 @@ describe('characterSelect — AC 10403 Sub-AC 3 (cursor navigation + lock-in)', 
   describe('buildCharacterPortraitGrid populates hoveredBySlots', () => {
     it('reports an empty hoveredBySlots array when no cursor sits on the cell', () => {
       const grid = buildCharacterPortraitGrid(DEFAULT_CHARACTER_SELECT_STATE);
-      // Default cursors: P1→0 (wolf), P2→1 (cat), P3→2 (owl), P4→3 (bear).
+      // Default cursors: P1→0 (donkeykong), P2→1 (pikachu), P3→0, P4→1.
       // Every roster cell has at least one slot's cursor on it.
       // Verify the structure exists on every cell.
       for (const cell of grid) {
@@ -1993,54 +1976,54 @@ describe('characterSelect — AC 10403 Sub-AC 3 (cursor navigation + lock-in)', 
     });
 
     it('records the slot index whose cursor lands on the cell', () => {
-      // Slot 1 cursor is at index 0 by default → wolf cell hosts P1.
+      // Slot 1 cursor is at index 0 by default → donkeykong cell hosts P1.
       const grid = buildCharacterPortraitGrid(DEFAULT_CHARACTER_SELECT_STATE);
-      const wolf = grid.find((c) => c.characterId === 'wolf');
-      expect(wolf?.hoveredBySlots).toContain(1);
+      const donkeykong = grid.find((c) => c.characterId === 'donkeykong');
+      expect(donkeykong?.hoveredBySlots).toContain(1);
     });
 
     it('moves the hover badge when the cursor moves', () => {
-      // Move slot 1's cursor to cell 2 (owl). The wolf cell loses P1
-      // from its hoveredBySlots; the owl cell gains it.
-      const moved = setSlotCursor(DEFAULT_CHARACTER_SELECT_STATE, 1, 2);
+      // Move slot 1's cursor to cell 1 (pikachu). The donkeykong cell loses P1
+      // from its hoveredBySlots; the pikachu cell gains it.
+      const moved = setSlotCursor(DEFAULT_CHARACTER_SELECT_STATE, 1, 1);
       const grid = buildCharacterPortraitGrid(moved);
-      const wolf = grid.find((c) => c.characterId === 'wolf');
-      const owl = grid.find((c) => c.characterId === 'owl');
-      expect(wolf?.hoveredBySlots).not.toContain(1);
-      expect(owl?.hoveredBySlots).toContain(1);
+      const donkeykong = grid.find((c) => c.characterId === 'donkeykong');
+      const pikachu = grid.find((c) => c.characterId === 'pikachu');
+      expect(donkeykong?.hoveredBySlots).not.toContain(1);
+      expect(pikachu?.hoveredBySlots).toContain(1);
     });
 
     it('includes un-joined slots in hoveredBySlots (browse-before-join)', () => {
-      // Un-joined slot 3's cursor is at index 2 by default. The cell
-      // must still report P3 as hovering.
+      // Un-joined slot 4's cursor wraps to index 0 by default (the grid
+      // has three cells). The cell must still report P4 as hovering.
       const grid = buildCharacterPortraitGrid(DEFAULT_CHARACTER_SELECT_STATE);
-      const owl = grid.find((c) => c.characterId === 'owl');
-      expect(owl?.hoveredBySlots).toContain(3);
+      const donkeykong = grid.find((c) => c.characterId === 'donkeykong');
+      expect(donkeykong?.hoveredBySlots).toContain(4);
     });
 
     it('stacks multiple cursors on the same cell sorted ascending', () => {
-      // Move every slot's cursor to cell 0 (wolf) — all 4 cursors stack.
+      // Move every slot's cursor to cell 0 (donkeykong) — all 4 cursors stack.
       let state: CharacterSelectState = DEFAULT_CHARACTER_SELECT_STATE;
       for (const i of [1, 2, 3, 4] as const) state = setSlotCursor(state, i, 0);
       const grid = buildCharacterPortraitGrid(state);
-      const wolf = grid.find((c) => c.characterId === 'wolf');
-      expect(wolf?.hoveredBySlots).toEqual([1, 2, 3, 4]);
+      const donkeykong = grid.find((c) => c.characterId === 'donkeykong');
+      expect(donkeykong?.hoveredBySlots).toEqual([1, 2, 3, 4]);
     });
 
     it('hoveredBySlots is decoupled from selectedBySlots', () => {
-      // Slot 1 commits to wolf, then moves cursor to cat. Wolf cell
+      // Slot 1 commits to donkeykong, then moves cursor to pikachu. DK cell
       // should report `selectedBySlots: [1]` and `hoveredBySlots: []`;
-      // cat cell should report the inverse.
+      // pikachu cell should report the inverse.
       const moved = setSlotCursor(DEFAULT_CHARACTER_SELECT_STATE, 1, 1);
       const grid = buildCharacterPortraitGrid(moved);
-      const wolf = grid.find((c) => c.characterId === 'wolf');
-      const cat = grid.find((c) => c.characterId === 'cat');
-      expect(wolf?.selectedBySlots).toEqual([1]);
-      expect(wolf?.hoveredBySlots).not.toContain(1);
-      expect(cat?.hoveredBySlots).toContain(1);
-      // Un-joined slot 2 default cursor was at cat too, so cat's
-      // hoveredBySlots should also include 2 (sorted ascending).
-      expect(cat?.hoveredBySlots).toEqual([1, 2]);
+      const donkeykong = grid.find((c) => c.characterId === 'donkeykong');
+      const pikachu = grid.find((c) => c.characterId === 'pikachu');
+      expect(donkeykong?.selectedBySlots).toEqual([1]);
+      expect(donkeykong?.hoveredBySlots).not.toContain(1);
+      expect(pikachu?.hoveredBySlots).toContain(1);
+      // Un-joined slot 2 defaults its cursor to pikachu too, so
+      // pikachu's hoveredBySlots also includes it (sorted ascending).
+      expect(pikachu?.hoveredBySlots).toEqual([1, 2]);
     });
 
     it('hoveredBySlots is frozen (immutable cell projection)', () => {
@@ -2056,19 +2039,17 @@ describe('characterSelect — AC 10403 Sub-AC 3 (cursor navigation + lock-in)', 
   // ---------------------------------------------------------------------
 
   describe('end-to-end cursor → preview → lock-in flow', () => {
-    it('player-1 navigates to bear, locks in, lobby reports bear with ready=true', () => {
-      // Default state: slot 1 joined as Wolf, un-ready.
+    it('player-1 navigates to pikachu, locks in, lobby reports pikachu with ready=true', () => {
+      // Default state: slot 1 joined as DK, un-ready.
       let state: CharacterSelectState = DEFAULT_CHARACTER_SELECT_STATE;
-      // Player walks the cursor right 3 steps: wolf → cat → owl → bear.
+      // Player walks the cursor right one step: donkeykong → pikachu.
       state = moveSlotCursor(state, 1, +1);
-      state = moveSlotCursor(state, 1, +1);
-      state = moveSlotCursor(state, 1, +1);
-      // Mid-flow: cursor on bear, characterId still wolf.
-      expect(state.slots[0]?.cursorIndex).toBe(3);
-      expect(state.slots[0]?.characterId).toBe('wolf');
+      // Mid-flow: cursor on pikachu, characterId still donkeykong.
+      expect(state.slots[0]?.cursorIndex).toBe(1);
+      expect(state.slots[0]?.characterId).toBe('donkeykong');
       // Lock in.
       state = lockInSlotCharacter(state, 1);
-      expect(state.slots[0]?.characterId).toBe('bear');
+      expect(state.slots[0]?.characterId).toBe('pikachu');
       expect(state.slots[0]?.ready).toBe(true);
     });
 
@@ -2080,16 +2061,16 @@ describe('characterSelect — AC 10403 Sub-AC 3 (cursor navigation + lock-in)', 
     });
 
     it('un-ready then move cursor then re-lock switches the picked character', () => {
-      // Lock in on wolf, then change mind: un-ready, cursor →
-      // bear, lock-in. Final lineup carries bear.
+      // Lock in on donkeykong, then change mind: un-ready, cursor →
+      // pikachu, lock-in. Final lineup carries pikachu.
       let state: CharacterSelectState = DEFAULT_CHARACTER_SELECT_STATE;
       state = lockInSlotCharacter(state, 1);
       state = setSlotReady(state, 1, false);
-      state = setSlotCursor(state, 1, 3);
+      state = setSlotCursor(state, 1, 1);
       state = lockInSlotCharacter(state, 1);
       const players = buildPlayerSlotsFromState(state);
       expect(players).toHaveLength(1);
-      expect(players[0]?.characterId).toBe('bear');
+      expect(players[0]?.characterId).toBe('pikachu');
     });
 
     it('determinism: two identical cursor + lock-in sequences produce equal states', () => {
@@ -2108,22 +2089,22 @@ describe('characterSelect — AC 10403 Sub-AC 3 (cursor navigation + lock-in)', 
     });
 
     it('autoAssignDistinctPalettes still resolves a same-character lock-in', () => {
-      // P1 default Wolf p0; P2 joins, cursor on Wolf, locks in.
-      // After lock-in slot 2 is on Wolf p1 (default) — already distinct.
+      // P1 default DK p0; P2 joins, cursor on DK, locks in.
+      // After lock-in slot 2 is on DK p1 (default) — already distinct.
       // Force a collision: dial slot 2's palette down to 0 first.
       let state: CharacterSelectState = DEFAULT_CHARACTER_SELECT_STATE;
       state = joinSlot(state, 2);
       state = setSlotPalette(state, 2, 0);
-      state = setSlotCursor(state, 2, 0); // wolf
+      state = setSlotCursor(state, 2, 0); // donkeykong
       state = lockInSlotCharacter(state, 2);
-      // Lock-in produced (Wolf, p0) duplicate. The auto-distinct pass
+      // Lock-in produced (DK, p0) duplicate. The auto-distinct pass
       // (run by the scene's applyTransition wrapper) repairs it.
       expect(hasPaletteCollision(state)).toBe(true);
       const repaired = autoAssignDistinctPalettes(state);
       expect(hasPaletteCollision(repaired)).toBe(false);
-      // Both characters still wolf — only the palette moved.
-      expect(repaired.slots[0]?.characterId).toBe('wolf');
-      expect(repaired.slots[1]?.characterId).toBe('wolf');
+      // Both characters still donkeykong — only the palette moved.
+      expect(repaired.slots[0]?.characterId).toBe('donkeykong');
+      expect(repaired.slots[1]?.characterId).toBe('donkeykong');
     });
   });
 });

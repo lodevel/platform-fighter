@@ -12,7 +12,7 @@ any character can hold, swing, and throw. Adding one has two parts:
 2. **Per-character grip animations** — one animation set per fighter so each
    character's hands visually match the weapon they're holding
 
-Part 1 is self-contained. Part 2 calls the **`add-character` skill §3c** for
+Part 1 is self-contained. Part 2 follows the [character animation and art workflow](../../../.agents/skills/add-character/references/animation-art.md) for
 every fighter in the roster.
 
 ---
@@ -59,7 +59,7 @@ far edge = offsetX + width/2   (forward attacks)
 ```
 
 For a standard melee swing: `offsetX ≥ 38`, `width ≥ 40` → far edge ≥ 58 px.
-See `add-character` §1 hitbox table for full reference.
+See the [source and collision coverage reference](../../../.agents/skills/add-character/references/source-coverage.md) for geometry, coordinate, and source requirements.
 
 ---
 
@@ -152,7 +152,7 @@ wolf · cat · owl · bear · blaze · puff · aegis · volt · nova · bruno
 link · kirby · donkeykong
 ```
 
-For each character, follow **`add-character` skill §3c** (weapon grip and pose
+For each character, follow the [character animation and art workflow](../../../.agents/skills/add-character/references/animation-art.md) (weapon grip and pose
 reference table). Generate grip animation sprites via the ComfyUI pipeline
 (`gen-frames-cn.ts`) using the character's existing `identity` and `draftBody`
 from their `assets/gen/<id>-clips.json`.
@@ -162,11 +162,11 @@ Grip clip naming convention: `<weaponName>_held` (e.g. `axe_held`).
 **After generating art:**
 1. Pack the new clip into the character's animation strips:
    ```bash
-   node.exe tools/pack-clips.cjs <id>
+   node tools/pack-clips.cjs <id>      # node.exe from a Windows shell
    ```
 2. Run the cascade check — repacking ANY clip regenerates ALL 28 strips.
    Visually verify `idle`, `run`, `crouch`, `hurt` and the new weapon clip.
-   See `add-character` skill repack cascade checklist.
+   Follow its [packing and verification requirements](../../../.agents/skills/add-character/references/animation-art.md).
 3. Register the new sheet key in `spriteAnimationDriver.ts`'s `MOVE_SHEET_KEYS`
    for that character: `axe_held: ASSET_KEYS.charWolfAxeHeld`.
 4. Add the manifest key + preload entry (same pattern as other move sheets).

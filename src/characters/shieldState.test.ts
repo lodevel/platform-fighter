@@ -256,7 +256,8 @@ describe('shieldState — applyShieldHit', () => {
     expect(r.absorbed).toBe(true);
     expect(r.broke).toBe(false);
     expect(r.state.name).toBe('active');
-    expect(r.state.health).toBeCloseTo(active.health - 12, 6);
+    // SmashWiki Shield: Ultimate shields lose 1.19× the damage.
+    expect(r.state.health).toBeCloseTo(active.health - 12 * 1.19, 6);
     // framesSinceLastDamage resets to 0 on damage.
     expect(r.state.framesSinceLastDamage).toBe(0);
   });

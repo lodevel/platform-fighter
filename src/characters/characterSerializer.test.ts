@@ -1,59 +1,120 @@
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
-
 import { describe, expect, it } from 'vitest';
 
 import {
   type CharacterDataFile,
-  type CharacterDataSpec,
   parseCharacterDataFile,
   serializeCharacterDataSpec,
 } from './characterSerializer';
-import {
-  BEAR_MOVEMENT_PROFILE,
-  CAT_MOVEMENT_PROFILE,
-  OWL_MOVEMENT_PROFILE,
-  WOLF_MOVEMENT_PROFILE,
-} from './fighterMovementProfiles';
-import {
-  WOLF_DOWN_SPECIAL,
-  WOLF_JAB,
-  WOLF_NEUTRAL_SPECIAL,
-  WOLF_SIDE_SPECIAL,
-  WOLF_SMASH,
-  WOLF_TILT,
-  WOLF_UP_SPECIAL,
-} from './Wolf';
-import type { CharacterId } from '../types';
+import { getAuthorableCharacterSpec } from './authorableCharacterRegistry';
+import { PIKACHU_MOVEMENT_PROFILE } from './pikachuMovement';
+import { PIKACHU_FAIR, PIKACHU_JAB, PIKACHU_NAIR, PIKACHU_TILT } from './Pikachu';
+import { LEGACY_NAIR } from './legacyMoveFixtures';
 
-const DATA_DIR = resolve(__dirname, '../../data/characters');
-
-const loadDataFile = (id: CharacterId): CharacterDataSpec => {
-  const raw = JSON.parse(
-    readFileSync(resolve(DATA_DIR, `${id}.json`), 'utf-8'),
-  );
-  return parseCharacterDataFile(raw, `data/characters/${id}.json`);
+/** Pikachu's shipped spec as a saved file, without its moves block. */
+const validFixture = (): CharacterDataFile => {
+  const { moves: _moves, ...file } = serializeCharacterDataSpec(getAuthorableCharacterSpec('pikachu'));
+  return JSON.parse(JSON.stringify(file));
 };
 
-const validFixture = (): CharacterDataFile => ({
-  id: 'wolf',
-  displayName: 'Wolf',
-  role: 'bruiser',
-  body: { width: 45, height: 66, chamfer: 8 },
-  movement: {
-    maxRunSpeed: 7.5,
-    groundAccel: 0.65,
-    airAccel: 0.3,
-    groundDamping: 0.78,
-    airDamping: 0.95,
-    jumpImpulse: 12.5,
-    maxJumps: 2,
-    mass: 16,
-    fallAccel: 0.3,
-    maxFallSpeed: 11.0,
-    fastFallSpeed: 17.5,
-    jumpCutFactor: 0.4,
-  },
+describe('optional airborne movement tuning', () => {
+  const air = { riseAccel: 0.34, shortHopRiseAccel: 0.2022222222222222,
+    shortHopImpulse: 8.25529411764706, maxAirSpeed: 4.62,
+    airJumpImpulse: 12.04, airJumpRiseAccel: 0.2022222222222222 };
+
+  it('retains all arc and air-speed values through a JSON round trip', () => {
+    const spec = parseCharacterDataFile({ ...validFixture(), movement: { ...validFixture().movement, ...air } });
+    const loaded = parseCharacterDataFile(JSON.parse(JSON.stringify(serializeCharacterDataSpec(spec))));
+    expect(loaded.movement).toEqual(spec.movement);
+    expect(loaded.movement).toMatchObject(air);
+  });
+
+  it.each(['riseAccel', 'shortHopRiseAccel', 'shortHopImpulse', 'maxAirSpeed', 'airJumpImpulse', 'airJumpRiseAccel'] as const)('rejects invalid %s instead of dropping the field', (key) => {
+    for (const value of [-1, null, Infinity, NaN, '3']) {
+      expect(() => parseCharacterDataFile({ ...validFixture(), movement: { ...validFixture().movement, [key]: value } })).toThrow(key);
+    }
+    if (key === 'shortHopImpulse' || key === 'airJumpImpulse' || key === 'maxAirSpeed') {
+      expect(() => parseCharacterDataFile({ ...validFixture(), movement: { ...validFixture().movement, [key]: 0 } })).toThrow(key);
+    }
+  });
+});
+
+describe('ordinary landing tuning in saved characters', () => {
+  const landing = { softLandingFrames: 2, hardLandingFrames: 5, hardLandingSpeedFrames: 4 };
+
+  it('preserves edited landing timing across serialization and defaults omitted Link fields', () => {
+    const spec = parseCharacterDataFile({ ...validFixture(),
+      movement: { ...validFixture().movement, ...landing, hardLandingFrames: 7 } });
+    expect(parseCharacterDataFile(JSON.parse(JSON.stringify(serializeCharacterDataSpec(spec)))).movement)
+      .toMatchObject({ ...landing, hardLandingFrames: 7 });
+    const link = serializeCharacterDataSpec(getAuthorableCharacterSpec('link'));
+    const movement: Record<string, unknown> = { ...link.movement };
+    for (const key of Object.keys(landing)) delete movement[key];
+    expect(parseCharacterDataFile({ ...link, movement }).movement).toMatchObject(landing);
+  });
+
+  it.each(Object.keys(landing))('rejects invalid %s to keep simulation steps integral', (key) => {
+    for (const value of [-1, 1.5, null, Infinity, NaN, '3']) {
+      expect(() => parseCharacterDataFile({ ...validFixture(),
+        movement: { ...validFixture().movement, [key]: value } })).toThrow(key);
+    }
+  });
+});
+
+describe('legacy neutral aerial save compatibility', () => {
+  it('preserves a pre-AerialMove nair exactly without introducing landing or animation fields', () => {
+    const spec = parseCharacterDataFile({ ...validFixture(), moves: { nair: LEGACY_NAIR } });
+    const loaded = parseCharacterDataFile(JSON.parse(JSON.stringify(serializeCharacterDataSpec(spec))));
+    expect(loaded.moves?.nair).toEqual(LEGACY_NAIR);
+    for (const field of ['animation', 'aerialDirection', 'landingLagFrames', 'autoCancelWindows']) {
+      expect(Object.hasOwn(loaded.moves!.nair!, field)).toBe(false);
+    }
+  });
+
+  it('retains the fully authored aerial shape when explicitly supplied', () => {
+    const spec = parseCharacterDataFile({ ...validFixture(), moves: { nair: PIKACHU_NAIR } });
+    expect(parseCharacterDataFile(serializeCharacterDataSpec(spec)).moves?.nair).toEqual(PIKACHU_NAIR);
+  });
+
+  it.each([
+    { animation: { startupFrames: 1, activeFrames: 1, recoveryFrames: 1 } },
+    { aerialDirection: 'neutral' }, { landingLagFrames: 10 }, { autoCancelWindows: [] },
+  ])('rejects a partially authored aerial instead of erasing its metadata: %j', metadata => {
+    expect(() => parseCharacterDataFile({ ...validFixture(), moves: { nair: { ...LEGACY_NAIR, ...metadata } } })).toThrow();
+  });
+
+  it('limits compatibility to neutral aerials and rejects an incorrect move type', () => {
+    expect(() => parseCharacterDataFile({ ...validFixture(), moves: { fair: LEGACY_NAIR } })).toThrow();
+    expect(() => parseCharacterDataFile({ ...validFixture(), moves: { nair: { ...LEGACY_NAIR, type: 'light' } } })).toThrow(/must be 'aerial'/);
+  });
+});
+
+describe('sweet-spot move save compatibility', () => {
+  // No roster move ships a sweet spot; Lab saves can still author one.
+  const sweetSpot = { hitbox: { offsetX: 38, offsetY: -3, width: 12, height: 14 },
+    damageMultiplier: 1.35, knockbackMultiplier: 1.3 };
+  const SWEET_JAB = { ...PIKACHU_JAB, sweetSpot };
+  const SWEET_FAIR = { ...PIKACHU_FAIR, sweetSpot };
+  it.each([{ slot: 'jab', move: SWEET_JAB }, { slot: 'fair', move: SWEET_FAIR }])('preserves $move.id sweet-spot geometry and modifiers', ({ slot, move }) => {
+    const spec = parseCharacterDataFile({ ...validFixture(), moves: { [slot]: move } });
+    const loaded = parseCharacterDataFile(JSON.parse(JSON.stringify(serializeCharacterDataSpec(spec))));
+    expect(loaded.moves?.[slot as 'jab' | 'fair']).toEqual(move);
+  });
+
+  it('preserves omitted modifiers and does not add sweet spots to ordinary moves', () => {
+    const move = { ...SWEET_JAB, sweetSpot: { hitbox: sweetSpot.hitbox } };
+    const loaded = parseCharacterDataFile({ ...validFixture(), moves: { jab: move, tilt: PIKACHU_TILT } });
+    expect(loaded.moves?.jab?.sweetSpot).toEqual(move.sweetSpot);
+    expect(Object.hasOwn(loaded.moves!.tilt!, 'sweetSpot')).toBe(false);
+  });
+
+  it.each([
+    null, {}, { hitbox: { ...sweetSpot.hitbox, width: 0 } },
+    { hitbox: sweetSpot.hitbox, damageMultiplier: -1 },
+    { hitbox: sweetSpot.hitbox, knockbackMultiplier: '1.2' },
+    { hitbox: sweetSpot.hitbox, damageMultiplier: Number.POSITIVE_INFINITY },
+  ])('rejects malformed sweet-spot metadata: %j', malformed => {
+    expect(() => parseCharacterDataFile({ ...validFixture(), moves: { jab: { ...PIKACHU_JAB, sweetSpot: malformed } } })).toThrow(/sweetSpot/);
+  });
 });
 
 /**
@@ -63,10 +124,10 @@ const validFixture = (): CharacterDataFile => ({
  * registered movement profile.
  */
 const legacyMovementFixture = (): CharacterDataFile => ({
-  id: 'wolf',
-  displayName: 'Wolf',
-  role: 'bruiser',
-  body: { width: 45, height: 66, chamfer: 8 },
+  id: 'pikachu',
+  displayName: 'Pikachu',
+  role: 'speedster',
+  body: { width: 40, height: 50, chamfer: 8 },
   movement: {
     maxRunSpeed: 7.5,
     groundAccel: 0.65,
@@ -80,16 +141,6 @@ const legacyMovementFixture = (): CharacterDataFile => ({
 });
 
 describe('parseCharacterDataFile — happy path', () => {
-  it('parses every shipped data file', () => {
-    const ids: ReadonlyArray<CharacterId> = ['wolf', 'cat', 'owl', 'bear'];
-    for (const id of ids) {
-      const spec = loadDataFile(id);
-      expect(spec.id).toBe(id);
-      expect(spec.displayName.length).toBeGreaterThan(0);
-      expect(spec.role.length).toBeGreaterThan(0);
-    }
-  });
-
   it('returns a frozen spec', () => {
     const spec = parseCharacterDataFile(validFixture());
     expect(Object.isFrozen(spec)).toBe(true);
@@ -99,13 +150,13 @@ describe('parseCharacterDataFile — happy path', () => {
 
   it('defaults missing fall-shaping fields from the registered movement profile (legacy files)', () => {
     const spec = parseCharacterDataFile(legacyMovementFixture());
-    // Wolf's registered profile supplies the pack values when the
+    // Pikachu's registered profile supplies the pack values when the
     // file omits them — old saves keep parsing AND gain the new
     // mechanics at canonical tuning.
-    expect(spec.movement.fallAccel).toBe(0.3);
-    expect(spec.movement.maxFallSpeed).toBe(11.0);
-    expect(spec.movement.fastFallSpeed).toBe(17.5);
-    expect(spec.movement.jumpCutFactor).toBe(0.4);
+    expect(spec.movement.fallAccel).toBe(PIKACHU_MOVEMENT_PROFILE.fallAccel);
+    expect(spec.movement.maxFallSpeed).toBe(PIKACHU_MOVEMENT_PROFILE.maxFallSpeed);
+    expect(spec.movement.fastFallSpeed).toBe(PIKACHU_MOVEMENT_PROFILE.fastFallSpeed);
+    expect(spec.movement.jumpCutFactor).toBe(PIKACHU_MOVEMENT_PROFILE.jumpCutFactor);
   });
 
   it('materializes parse-time-defaulted fall-shaping fields on re-serialization', () => {
@@ -116,10 +167,10 @@ describe('parseCharacterDataFile — happy path', () => {
     // values.
     const spec = parseCharacterDataFile(legacyMovementFixture());
     const out = serializeCharacterDataSpec(spec);
-    expect(out.movement.fallAccel).toBe(0.3);
-    expect(out.movement.maxFallSpeed).toBe(11.0);
-    expect(out.movement.fastFallSpeed).toBe(17.5);
-    expect(out.movement.jumpCutFactor).toBe(0.4);
+    expect(out.movement.fallAccel).toBe(PIKACHU_MOVEMENT_PROFILE.fallAccel);
+    expect(out.movement.maxFallSpeed).toBe(PIKACHU_MOVEMENT_PROFILE.maxFallSpeed);
+    expect(out.movement.fastFallSpeed).toBe(PIKACHU_MOVEMENT_PROFILE.fastFallSpeed);
+    expect(out.movement.jumpCutFactor).toBe(PIKACHU_MOVEMENT_PROFILE.jumpCutFactor);
   });
 
   it('honours explicit fall-shaping overrides in the file', () => {
@@ -235,66 +286,22 @@ describe('parseCharacterDataFile — validation', () => {
 
   it('embeds the contextLabel in error messages', () => {
     expect(() =>
-      parseCharacterDataFile({ ...validFixture(), id: 'dragon' }, 'wolf.json'),
-    ).toThrow(/wolf\.json/);
+      parseCharacterDataFile({ ...validFixture(), id: 'dragon' }, 'custom.json'),
+    ).toThrow(/custom\.json/);
   });
 });
 
 describe('parseCharacterDataFile — moves block', () => {
   it('parses a file without a moves block (moves remains undefined)', () => {
     const fixture: CharacterDataFile = {
-      id: 'cat',
-      displayName: 'Cat',
-      role: 'ninja',
-      body: { width: 36, height: 56, chamfer: 6 },
-      movement: CAT_MOVEMENT_PROFILE,
+      id: 'pikachu',
+      displayName: 'Pikachu',
+      role: 'speedster',
+      body: { width: 40, height: 50, chamfer: 8 },
+      movement: PIKACHU_MOVEMENT_PROFILE,
     };
     const spec = parseCharacterDataFile(fixture);
     expect(spec.moves).toBeUndefined();
-  });
-
-  it('parses Wolf with a populated moves block', () => {
-    const spec = loadDataFile('wolf');
-    expect(spec.moves).toBeDefined();
-    expect(spec.moves?.jab).toBeDefined();
-    expect(spec.moves?.tilt).toBeDefined();
-    expect(spec.moves?.smash).toBeDefined();
-    expect(spec.moves?.grab).toBeDefined();
-  });
-
-  it('Wolf jab JSON matches WOLF_JAB constant', () => {
-    const spec = loadDataFile('wolf');
-    expect(spec.moves?.jab).toEqual(WOLF_JAB);
-  });
-
-  it('Wolf tilt JSON matches WOLF_TILT constant', () => {
-    const spec = loadDataFile('wolf');
-    expect(spec.moves?.tilt).toEqual(WOLF_TILT);
-  });
-
-  it('Wolf smash JSON matches WOLF_SMASH constant', () => {
-    const spec = loadDataFile('wolf');
-    expect(spec.moves?.smash).toEqual(WOLF_SMASH);
-  });
-
-  it('Wolf neutral special JSON matches WOLF_NEUTRAL_SPECIAL constant', () => {
-    const spec = loadDataFile('wolf');
-    expect(spec.moves?.neutralSpecial).toEqual(WOLF_NEUTRAL_SPECIAL);
-  });
-
-  it('Wolf side special JSON matches WOLF_SIDE_SPECIAL constant', () => {
-    const spec = loadDataFile('wolf');
-    expect(spec.moves?.sideSpecial).toEqual(WOLF_SIDE_SPECIAL);
-  });
-
-  it('Wolf up special JSON matches WOLF_UP_SPECIAL constant', () => {
-    const spec = loadDataFile('wolf');
-    expect(spec.moves?.upSpecial).toEqual(WOLF_UP_SPECIAL);
-  });
-
-  it('Wolf down special JSON matches WOLF_DOWN_SPECIAL constant', () => {
-    const spec = loadDataFile('wolf');
-    expect(spec.moves?.downSpecial).toEqual(WOLF_DOWN_SPECIAL);
   });
 
   it('rejects unknown upSpecialKind', () => {
@@ -401,7 +408,7 @@ describe('parseCharacterDataFile — moves block', () => {
       ...validFixture(),
       moves: {
         neutralSpecial: {
-          id: 'wolf.summon_pup',
+          id: 'fixture.summon',
           type: 'special',
           specialKind: 'summon',
           damage: 0,
@@ -413,7 +420,7 @@ describe('parseCharacterDataFile — moves block', () => {
           cooldownFrames: 60,
           animation: { startupFrames: 2, activeFrames: 1, recoveryFrames: 3 },
           summon: {
-            creatureId: 'wolfPup',
+            creatureId: 'fixtureCreature',
             spawnOffsetX: 30,
             spawnOffsetY: 0,
             maxConcurrent: 1,
@@ -427,7 +434,7 @@ describe('parseCharacterDataFile — moves block', () => {
     expect(
       (spec.moves?.neutralSpecial as { summon: { creatureId: string } }).summon
         .creatureId,
-    ).toBe('wolfPup');
+    ).toBe('fixtureCreature');
   });
 
   it("rejects 'summon' kind with empty creatureId", () => {
@@ -435,7 +442,7 @@ describe('parseCharacterDataFile — moves block', () => {
       ...validFixture(),
       moves: {
         neutralSpecial: {
-          id: 'wolf.bad_summon',
+          id: 'fixture.bad_summon',
           type: 'special',
           specialKind: 'summon',
           damage: 0,
@@ -534,22 +541,11 @@ describe('parseCharacterDataFile — moves block', () => {
     expect(() => parseCharacterDataFile(fixture)).toThrow(/special/);
   });
 
-  it('Wolf grab is fully populated and validates', () => {
-    const spec = loadDataFile('wolf');
-    const grab = spec.moves?.grab;
-    expect(grab).toBeDefined();
-    expect(grab!.id).toBe('wolf.grab');
-    expect(grab!.throws.forward.animationFrames).toBeGreaterThan(0);
-    expect(grab!.throws.back.animationFrames).toBeGreaterThan(0);
-    expect(grab!.throws.up.animationFrames).toBeGreaterThan(0);
-    expect(grab!.throws.down.animationFrames).toBeGreaterThan(0);
-  });
-
   it('rejects a malformed jab record', () => {
     const fixture = {
       ...validFixture(),
       moves: {
-        jab: { id: 'wolf.jab' /* missing every other field */ },
+        jab: { id: 'fixture.jab' /* missing every other field */ },
       },
     };
     expect(() => parseCharacterDataFile(fixture)).toThrow();
@@ -560,7 +556,7 @@ describe('parseCharacterDataFile — moves block', () => {
       ...validFixture(),
       moves: {
         grab: {
-          id: 'wolf.grab',
+          id: 'fixture.grab',
           hitbox: { offsetX: 20, offsetY: 0, width: 20, height: 20 },
           startupFrames: 5,
           activeFrames: 2,
@@ -584,7 +580,7 @@ describe('parseCharacterDataFile — moves block', () => {
       ...validFixture(),
       moves: {
         nair: {
-          id: 'wolf.nair',
+          id: 'fixture.nair',
           type: 'aerial',
           aerialDirection: 'neutral',
           damage: 5,
@@ -608,7 +604,7 @@ describe('parseCharacterDataFile — moves block', () => {
       ...validFixture(),
       moves: {
         fair: {
-          id: 'wolf.fair',
+          id: 'fixture.fair',
           type: 'aerial',
           aerialDirection: 'sideways',
           damage: 5,
@@ -626,11 +622,6 @@ describe('parseCharacterDataFile — moves block', () => {
     };
     expect(() => parseCharacterDataFile(fixture)).toThrow(/aerialDirection/);
   });
-
-  it('Wolf fair JSON includes aerialDirection: "forward"', () => {
-    const spec = loadDataFile('wolf');
-    expect(spec.moves?.fair?.aerialDirection).toBe('forward');
-  });
 });
 
 describe('parseCharacterDataFile — optional knockback components', () => {
@@ -643,7 +634,7 @@ describe('parseCharacterDataFile — optional knockback components', () => {
       ...validFixture(),
       moves: {
         jab: {
-          id: 'wolf.jab',
+          id: 'fixture.jab',
           type: 'jab',
           damage: 3,
           knockback,
@@ -712,31 +703,43 @@ describe('parseCharacterDataFile — optional knockback components', () => {
 
 describe('serializeCharacterDataSpec — round-trip with moves', () => {
   it('round-trips a spec with moves through serialize → parse', () => {
-    const original = loadDataFile('wolf');
+    const original = getAuthorableCharacterSpec('pikachu');
     const json = JSON.stringify(serializeCharacterDataSpec(original));
     const reparsed = parseCharacterDataFile(JSON.parse(json));
-    expect(reparsed.moves?.jab).toEqual(original.moves?.jab);
-    expect(reparsed.moves?.grab).toEqual(original.moves?.grab);
+    expect(reparsed.moves?.jab).toEqual(JSON.parse(JSON.stringify(original.moves?.jab)));
+    expect(reparsed.moves?.grab).toEqual(JSON.parse(JSON.stringify(original.moves?.grab)));
   });
 });
 
-describe('data files — kept honest against fighterMovementProfiles.ts', () => {
-  // The on-disk JSON is intended to BE the source of truth in the
-  // future. Until we wire the spec compile step to replace
-  // fighterMovementProfiles.ts, we lock down that the two stay in
-  // sync — a TS-side balance change without touching the JSON
-  // (or vice versa) fails this test and forces the author to
-  // reconcile.
-  it.each([
-    ['wolf', WOLF_MOVEMENT_PROFILE],
-    ['cat', CAT_MOVEMENT_PROFILE],
-    ['owl', OWL_MOVEMENT_PROFILE],
-    ['bear', BEAR_MOVEMENT_PROFILE],
-  ] as const)(
-    '%s data file matches the in-code movement profile constant',
-    (id, profile) => {
-      const spec = loadDataFile(id);
-      expect(spec.movement).toEqual(profile);
-    },
-  );
+describe('throw release source hit-stop transport', () => {
+  const throwSpec = { damage: 5, animationFrames: 20, recoveryFrames: 2, rootMotionX: Array.from({ length: 22 }, (_, age) => age === 0 ? 0 : -age), hitlagMultiplier: 0, electricCollision: false, invincibilityFrames: 21,
+    heldTargetHits: [{ frame: 13, damage: 0, hitlagDamage: 3, hitlagMultiplier: 1.2 }],
+    knockback: { x: 1, y: -1, scaling: 0 } };
+  const file = () => ({ ...validFixture(), moves: { grab: { id: 'fixture.grab', startupFrames: 1,
+    activeFrames: 1, whiffRecoveryFrames: 1, holdFramesMax: 90, throwRecoveryFrames: 24,
+    hitbox: { offsetX: 30, offsetY: 0, width: 20, height: 20 },
+    throws: { forward: { ...throwSpec }, back: { ...throwSpec }, up: { ...throwSpec }, down: { ...throwSpec } } } } });
+  it('preserves explicit zero and false through canonical save/load', () => {
+    const spec = parseCharacterDataFile(file());
+    const loaded = parseCharacterDataFile(JSON.parse(JSON.stringify(serializeCharacterDataSpec(spec))));
+    expect(loaded.moves?.grab?.throws.forward.rootMotionX).toEqual(throwSpec.rootMotionX);
+    expect(loaded.moves?.grab?.throws.forward).toMatchObject({ hitlagMultiplier: 0, electricCollision: false, invincibilityFrames: 21,
+      heldTargetHits: [{ frame: 13, damage: 0, hitlagDamage: 3, hitlagMultiplier: 1.2 }] });
+  });
+  it.each([-1, NaN, Infinity])('rejects invalid release hit-stop%s', value => {
+    const raw = file(); raw.moves.grab.throws.forward.hitlagMultiplier = value;
+    expect(() => parseCharacterDataFile(raw)).toThrow(/hitlagMultiplier/);
+  });
+  it.each([-1, 0.5, 22])('rejects invalid protection budget%s', value => {
+    const raw = file(); raw.moves.grab.throws.forward.invincibilityFrames = value;
+    expect(() => parseCharacterDataFile(raw)).toThrow(/invincibilityFrames/);
+  });
+  it('rejects invalid no-damage hit-stop magnitude', () => {
+    const raw = file(); raw.moves.grab.throws.forward.heldTargetHits[0]!.hitlagDamage = -1;
+    expect(() => parseCharacterDataFile(raw)).toThrow(/hitlagDamage/);
+  });
+  it('rejects malformed release electric flag', () => {
+    const raw = file(); (raw.moves.grab.throws.forward as any).electricCollision = 1;
+    expect(() => parseCharacterDataFile(raw)).toThrow(/electricCollision/);
+  });
 });

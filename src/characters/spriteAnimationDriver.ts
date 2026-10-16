@@ -73,7 +73,9 @@
  * apart on a future renaming pass.
  */
 
-import type Phaser from 'phaser';
+import donkeykongFrames from '../../assets/characters/donkeykong/frames.json';
+import pikachuFrames from '../../assets/characters/pikachu/frames.json';
+import linkFrames from '../../assets/characters/link/frames.json';
 import { CHARACTER_IDS, type CharacterId } from '../types';
 import { ASSET_KEYS } from '../assets/manifest';
 
@@ -147,9 +149,9 @@ export const RUN_INPUT_DEAD_ZONE = 0.15;
  * Per-character spritesheet texture key for a given sheet slot. Mirrors
  * the manifest constants so the renderer and registry agree.
  *
- * Falls back to `null` for characters without a loaded sheet (Owl /
- * Bear in M1 — their `placeholder.spriteKey` is also null, so the
- * MatchScene renderer skips the sprite track entirely for them).
+ * Falls back to `null` for characters without a loaded sheet (their
+ * `placeholder.spriteKey` is also null, so the MatchScene renderer skips
+ * the sprite track entirely for them).
  */
 export function getCharacterSpritesheetKey(
   characterId: CharacterId,
@@ -157,27 +159,13 @@ export function getCharacterSpritesheetKey(
 ): string | null {
   switch (characterId) {
     case 'link':
+      return getCharacterMoveSheetKey('link', sheet);
+    case 'pikachu':
       switch (sheet) {
-        case 'idle':
-          return ASSET_KEYS.charLinkIdle;
-        case 'run':
-          return ASSET_KEYS.charLinkRun;
-        case 'jump':
-          return ASSET_KEYS.charLinkJump;
-        case 'attack':
-          return ASSET_KEYS.charLinkAttack;
-      }
-      break;
-    case 'kirby':
-      switch (sheet) {
-        case 'idle':
-          return ASSET_KEYS.charKirbyIdle;
-        case 'run':
-          return ASSET_KEYS.charKirbyRun;
-        case 'jump':
-          return ASSET_KEYS.charKirbyJump;
-        case 'attack':
-          return ASSET_KEYS.charKirbyAttack;
+        case 'idle': return ASSET_KEYS.charPikachuIdle;
+        case 'run': return ASSET_KEYS.charPikachuRun;
+        case 'jump': return ASSET_KEYS.charPikachuJump;
+        case 'attack': return ASSET_KEYS.charPikachuAttack;
       }
       break;
     case 'donkeykong':
@@ -190,126 +178,6 @@ export function getCharacterSpritesheetKey(
           return ASSET_KEYS.charDonkeykongJump;
         case 'attack':
           return ASSET_KEYS.charDonkeykongAttack;
-      }
-      break;
-    case 'cat':
-      switch (sheet) {
-        case 'idle':
-          return ASSET_KEYS.charCatIdle;
-        case 'run':
-          return ASSET_KEYS.charCatRun;
-        case 'jump':
-          return ASSET_KEYS.charCatJump;
-        case 'attack':
-          return ASSET_KEYS.charCatAttack;
-      }
-      break;
-    case 'wolf':
-      switch (sheet) {
-        case 'idle':
-          return ASSET_KEYS.charWolfIdle;
-        case 'run':
-          return ASSET_KEYS.charWolfRun;
-        case 'jump':
-          return ASSET_KEYS.charWolfJump;
-        case 'attack':
-          return ASSET_KEYS.charWolfAttack;
-      }
-      break;
-    case 'owl':
-      switch (sheet) {
-        case 'idle':
-          return ASSET_KEYS.charOwlIdle;
-        case 'run':
-          return ASSET_KEYS.charOwlRun;
-        case 'jump':
-          return ASSET_KEYS.charOwlJump;
-        case 'attack':
-          return ASSET_KEYS.charOwlAttack;
-      }
-      break;
-    case 'bear':
-      switch (sheet) {
-        case 'idle':
-          return ASSET_KEYS.charBearIdle;
-        case 'run':
-          return ASSET_KEYS.charBearRun;
-        case 'jump':
-          return ASSET_KEYS.charBearJump;
-        case 'attack':
-          return ASSET_KEYS.charBearAttack;
-      }
-      break;
-    case 'blaze':
-      switch (sheet) {
-        case 'idle':
-          return ASSET_KEYS.charBlazeIdle;
-        case 'run':
-          return ASSET_KEYS.charBlazeRun;
-        case 'jump':
-          return ASSET_KEYS.charBlazeJump;
-        case 'attack':
-          return ASSET_KEYS.charBlazeAttack;
-      }
-      break;
-    case 'puff':
-      switch (sheet) {
-        case 'idle':
-          return ASSET_KEYS.charPuffIdle;
-        case 'run':
-          return ASSET_KEYS.charPuffRun;
-        case 'jump':
-          return ASSET_KEYS.charPuffJump;
-        case 'attack':
-          return ASSET_KEYS.charPuffAttack;
-      }
-      break;
-    case 'aegis':
-      switch (sheet) {
-        case 'idle':
-          return ASSET_KEYS.charAegisIdle;
-        case 'run':
-          return ASSET_KEYS.charAegisRun;
-        case 'jump':
-          return ASSET_KEYS.charAegisJump;
-        case 'attack':
-          return ASSET_KEYS.charAegisAttack;
-      }
-      break;
-    case 'volt':
-      switch (sheet) {
-        case 'idle':
-          return ASSET_KEYS.charVoltIdle;
-        case 'run':
-          return ASSET_KEYS.charVoltRun;
-        case 'jump':
-          return ASSET_KEYS.charVoltJump;
-        case 'attack':
-          return ASSET_KEYS.charVoltAttack;
-      }
-      break;
-    case 'nova':
-      switch (sheet) {
-        case 'idle':
-          return ASSET_KEYS.charNovaIdle;
-        case 'run':
-          return ASSET_KEYS.charNovaRun;
-        case 'jump':
-          return ASSET_KEYS.charNovaJump;
-        case 'attack':
-          return ASSET_KEYS.charNovaAttack;
-      }
-      break;
-    case 'bruno':
-      switch (sheet) {
-        case 'idle':
-          return ASSET_KEYS.charBrunoIdle;
-        case 'run':
-          return ASSET_KEYS.charBrunoRun;
-        case 'jump':
-          return ASSET_KEYS.charBrunoJump;
-        case 'attack':
-          return ASSET_KEYS.charBrunoAttack;
       }
       break;
   }
@@ -325,12 +193,11 @@ export function getCharacterSpritesheetKey(
  * spritesheet keys callable as textures and the animation keys callable
  * as animations.
  *
- *   getSpriteAnimationKey('wolf', 'run')    → 'wolf.run.anim'
- *   getSpriteAnimationKey('cat',  'attack') → 'cat.attack.anim'
- *   getSpriteAnimationKey('cat',  'fall')   → 'cat.jump.anim'  (collapsed)
- *   getSpriteAnimationKey('cat',  'hurt')   → 'cat.idle.anim'  (collapsed)
+ *   getSpriteAnimationKey('donkeykong', 'run')  → 'donkeykong.run.anim'
+ *   getSpriteAnimationKey('donkeykong', 'fall') → 'donkeykong.jump.anim'  (collapsed)
+ *   getSpriteAnimationKey('donkeykong', 'hurt') → 'donkeykong.idle.anim'  (collapsed)
  *
- * Returns `null` if the character has no source sheet (Owl / Bear in M1).
+ * Returns `null` if the character has no source sheet.
  */
 export function getSpriteAnimationKey(
   characterId: CharacterId,
@@ -452,7 +319,7 @@ interface SheetAnimSpec {
  *     ~0.33s — close to the median grounded-attack lockout (~20 frames
  *     @ 60fps gameplay = ~0.33s).
  *
- * The same spec table works for both Cat and Wolf — the per-character
+ * The same spec table works for every fighter — the per-character
  * frame counts come from the manifest entries, not this table.
  */
 export const SPRITE_ANIM_SPECS: ReadonlyArray<SheetAnimSpec> = Object.freeze([
@@ -501,6 +368,172 @@ export const MOVE_SHEET_SPECS: ReadonlyArray<{
   Object.freeze({ sheet: 'bthrow', frameRate: 16, repeat: 0,  hold: true }),
   Object.freeze({ sheet: 'uthrow', frameRate: 16, repeat: 0,  hold: true }),
   Object.freeze({ sheet: 'dthrow', frameRate: 16, repeat: 0,  hold: true }),
+  // Dedicated directional / dash normals and special variants. Only fighters
+  // that ship these strips register them; everyone else falls back through
+  // `attackMoveToSheets` to the shared tilt / smash / special sheets.
+  Object.freeze({ sheet: 'utilt', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'usmash', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'dsmash', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'dash_attack', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'up_special_ground', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'down_special_air', frameRate: 14, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'tilt_up', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'tilt_down', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'bair_landing', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'dair_landing', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'smash_charge', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'usmash_charge', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'dsmash_charge', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'up_special_first', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'up_special_second', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'up_special_end', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'down_special_hit', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'down_special_air_hit', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'neutral_special_air', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'up_special_start', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'up_special_air_start', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'up_special_air_end', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'side_special_start', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'side_special_air_start', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'side_special_hold', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'side_special_air_hold', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'side_special_ready', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'side_special_air_ready', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'side_special_hit', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'side_special_air_hit', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'side_special_end', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'side_special_air_miss_end', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'getup_attack', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'getup_attack_face_down', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'trip_attack', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'ledge_attack', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'air_dodge', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'airjump', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'airjump_back', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'captured', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'captured_hit', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'captured_release', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'crawl', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'crawl_back', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'crouch_end', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'crouch_start', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'dash', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'dash_grab', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'dash_turn', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'down_wait', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'down_wait_face_down', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'entry', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'fall', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'fall_special', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'footstool_fall', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'footstool_jump', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'footstool_pose', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'footstool_air_pose', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_carry', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_hammer_wait', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_heavy_get', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_heavy_walk', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_heavy_throw_f', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_heavy_throw_b', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_heavy_throw_hi', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_heavy_throw_lw', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'squat_wait_item', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'landing_heavy', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_light_eat', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_light_walk_eat', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_hammer_move', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_hammer_jump', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_pickup_stand', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_pickup_walk', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_throw_f', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_throw_b', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_throw_hi', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_throw_lw', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_throw_air_f', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_throw_air_b', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_throw_air_hi', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_throw_air_lw', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_throw_drop', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_bat_swing_1', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_bat_swing_3', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_bat_swing_4', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_bat_swing_dash', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_sword_swing_4', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_sword_swing_4_hold', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_lgun_shoot', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_lgun_shoot_air', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_lgun_shoot_upper', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_fflower_shoot_loop', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_fflower_shoot_loop_upper', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_fflower_shoot_air_loop', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_scope_start', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_scope_start_upper', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_scope_wait', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_scope_wait_upper', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_scope_rapid', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_scope_rapid_upper', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_scope_fire', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_scope_fire_upper', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_scope_end', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_scope_end_upper', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_scope_fall', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_scope_air_start', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_scope_air_rapid', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_scope_air_fire', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_scope_air_end', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_shoot_legs_walk_f', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_shoot_legs_walk_b', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_shoot_legs_jump_squat', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'item_shoot_legs_landing', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'getup', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'getup_face_down', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'getup_roll', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'getup_roll_back', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'getup_roll_back_face_down', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'getup_roll_face_down', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'grab_escape', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'grab_hold', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'grab_pull', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'hurt_air', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'jump_back', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'jumpsquat', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'landing_hard', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'landing_soft', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'landing_special', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'ledge', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'ledge_catch', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'ledge_getup', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'ledge_jump', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'ledge_jump_start', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'ledge_roll', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'parry', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'pivot_grab', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'roll', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'roll_back', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'run_brake', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'run_brake_left', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'run_turn', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'shield_break', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'shield_break_end', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'shield_end', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'shield_hit', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'shield_start', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'spot_dodge', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'taunt_down', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'taunt_side', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'taunt_up', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'tech', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'tech_back', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'tech_ceiling', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'tech_forward', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'tech_wall', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'trip', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'tumble', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'walk', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'walk_fast', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'walk_slow', frameRate: 16, repeat: 0, hold: true }),
+  Object.freeze({ sheet: 'wall_jump', frameRate: 16, repeat: 0, hold: true }),
+
 ]);
 
 /** All per-move sheet names (incl. crouch) — used to detect a leftover override clip. */
@@ -514,63 +547,198 @@ export const MOVE_SHEET_NAMES: ReadonlyArray<string> = Object.freeze(
  * by the same sheet names as MOVE_SHEET_SPECS.
  */
 const MOVE_SHEET_KEYS: Partial<Record<CharacterId, Readonly<Record<string, string>>>> = {
-  link: Object.freeze({
-    crouch: ASSET_KEYS.charLinkCrouch,
-    jab: ASSET_KEYS.charLinkJab,
-    jab2: ASSET_KEYS.charLinkJab2,
-    jab3: ASSET_KEYS.charLinkJab3,
-    tilt: ASSET_KEYS.charLinkTilt,
-    dtilt: ASSET_KEYS.charLinkDtilt,
-    smash: ASSET_KEYS.charLinkSmash,
-    nair: ASSET_KEYS.charLinkNair,
-    fair: ASSET_KEYS.charLinkFair,
-    bair: ASSET_KEYS.charLinkBair,
-    uair: ASSET_KEYS.charLinkUair,
-    dair: ASSET_KEYS.charLinkDair,
-    neutral_special: ASSET_KEYS.charLinkNeutralSpecial,
-    side_special: ASSET_KEYS.charLinkSideSpecial,
-    up_special: ASSET_KEYS.charLinkUpSpecial,
-    down_special: ASSET_KEYS.charLinkDownSpecial,
-    hurt:    ASSET_KEYS.charLinkHurt,
-    shield:  ASSET_KEYS.charLinkShield,
-    grab:    ASSET_KEYS.charLinkGrab,
-    pummel:  ASSET_KEYS.charLinkPummel,
-    fthrow:  ASSET_KEYS.charLinkFthrow,
-    bthrow:  ASSET_KEYS.charLinkBthrow,
-    uthrow:  ASSET_KEYS.charLinkUthrow,
-    dthrow:  ASSET_KEYS.charLinkDthrow,
-  }),
-  kirby: Object.freeze({
-    crouch: ASSET_KEYS.charKirbyCrouch,
-    jab: ASSET_KEYS.charKirbyJab,
-    jab2: ASSET_KEYS.charKirbyJab2,
-    jab3: ASSET_KEYS.charKirbyJab3,
-    tilt: ASSET_KEYS.charKirbyTilt,
-    dtilt: ASSET_KEYS.charKirbyDtilt,
-    smash: ASSET_KEYS.charKirbySmash,
-    nair: ASSET_KEYS.charKirbyNair,
-    fair: ASSET_KEYS.charKirbyFair,
-    bair: ASSET_KEYS.charKirbyBair,
-    neutral_special: ASSET_KEYS.charKirbyNeutralSpecial,
-    side_special: ASSET_KEYS.charKirbySideSpecial,
-    up_special: ASSET_KEYS.charKirbyUpSpecial,
-    down_special: ASSET_KEYS.charKirbyDownSpecial,
-    hurt: ASSET_KEYS.charKirbyHurt,
-    shield: ASSET_KEYS.charKirbyShield,
-    grab: ASSET_KEYS.charKirbyGrab,
-    pummel: ASSET_KEYS.charKirbyPummel,
-    fthrow: ASSET_KEYS.charKirbyFthrow,
-    bthrow: ASSET_KEYS.charKirbyBthrow,
-    uthrow: ASSET_KEYS.charKirbyUthrow,
-    dthrow: ASSET_KEYS.charKirbyDthrow,
-    uair: ASSET_KEYS.charKirbyUair,
-    dair: ASSET_KEYS.charKirbyDair,
+  pikachu: Object.freeze({
+    crouch: ASSET_KEYS.charPikachuCrouch,
+    jab: ASSET_KEYS.charPikachuJab,
+    tilt: ASSET_KEYS.charPikachuTilt,
+    tilt_up: ASSET_KEYS.charPikachuTiltUp,
+    tilt_down: ASSET_KEYS.charPikachuTiltDown,
+    utilt: ASSET_KEYS.charPikachuUtilt,
+    dtilt: ASSET_KEYS.charPikachuDtilt,
+    smash: ASSET_KEYS.charPikachuSmash,
+    smash_charge: ASSET_KEYS.charPikachuSmashCharge,
+    usmash_charge: ASSET_KEYS.charPikachuUsmashCharge,
+    dsmash_charge: ASSET_KEYS.charPikachuDsmashCharge,
+    usmash: ASSET_KEYS.charPikachuUsmash,
+    dsmash: ASSET_KEYS.charPikachuDsmash,
+    dash_attack: ASSET_KEYS.charPikachuDashAttack,
+    nair: ASSET_KEYS.charPikachuNair,
+    fair: ASSET_KEYS.charPikachuFair,
+    bair: ASSET_KEYS.charPikachuBair,
+    uair: ASSET_KEYS.charPikachuUair,
+    dair: ASSET_KEYS.charPikachuDair,
+    bair_landing: ASSET_KEYS.charPikachuBairLanding,
+    dair_landing: ASSET_KEYS.charPikachuDairLanding,
+    neutral_special: ASSET_KEYS.charPikachuNeutralSpecial,
+    neutral_special_air: ASSET_KEYS.charPikachuNeutralSpecialAir,
+    up_special_start: ASSET_KEYS.charPikachuUpSpecialStart,
+    up_special_air_start: ASSET_KEYS.charPikachuUpSpecialAirStart,
+    up_special_air_end: ASSET_KEYS.charPikachuUpSpecialAirEnd,
+    side_special_start: ASSET_KEYS.charPikachuSideSpecialStart,
+    side_special_air_start: ASSET_KEYS.charPikachuSideSpecialAirStart,
+    side_special_hold: ASSET_KEYS.charPikachuSideSpecialHold,
+    side_special_air_hold: ASSET_KEYS.charPikachuSideSpecialAirHold,
+    side_special_ready: ASSET_KEYS.charPikachuSideSpecialReady,
+    side_special_air_ready: ASSET_KEYS.charPikachuSideSpecialAirReady,
+    side_special_hit: ASSET_KEYS.charPikachuSideSpecialHit,
+    side_special_air_hit: ASSET_KEYS.charPikachuSideSpecialAirHit,
+    side_special_end: ASSET_KEYS.charPikachuSideSpecialEnd,
+    side_special_air_miss_end: ASSET_KEYS.charPikachuSideSpecialAirMissEnd,
+    side_special: ASSET_KEYS.charPikachuSideSpecial,
+    up_special: ASSET_KEYS.charPikachuUpSpecial,
+    up_special_first: ASSET_KEYS.charPikachuUpSpecialFirst,
+    up_special_second: ASSET_KEYS.charPikachuUpSpecialSecond,
+    up_special_end: ASSET_KEYS.charPikachuUpSpecialEnd,
+    down_special: ASSET_KEYS.charPikachuDownSpecial,
+    down_special_air: ASSET_KEYS.charPikachuDownSpecialAir,
+    down_special_hit: ASSET_KEYS.charPikachuDownSpecialHit,
+    down_special_air_hit: ASSET_KEYS.charPikachuDownSpecialAirHit,
+    hurt: ASSET_KEYS.charPikachuHurt,
+    shield: ASSET_KEYS.charPikachuShield,
+    grab: ASSET_KEYS.charPikachuGrab,
+    pummel: ASSET_KEYS.charPikachuPummel,
+    fthrow: ASSET_KEYS.charPikachuFthrow,
+    bthrow: ASSET_KEYS.charPikachuBthrow,
+    uthrow: ASSET_KEYS.charPikachuUthrow,
+    dthrow: ASSET_KEYS.charPikachuDthrow,
+    getup_attack: ASSET_KEYS.charPikachuGetupAttack,
+    getup_attack_face_down: ASSET_KEYS.charPikachuGetupAttackFaceDown,
+    trip_attack: ASSET_KEYS.charPikachuTripAttack,
+    ledge_attack: ASSET_KEYS.charPikachuLedgeAttack,
+    air_dodge: ASSET_KEYS.charPikachuAirDodge,
+    airjump: ASSET_KEYS.charPikachuAirjump,
+    airjump_back: ASSET_KEYS.charPikachuAirjumpBack,
+    captured: ASSET_KEYS.charPikachuCaptured,
+    captured_hit: ASSET_KEYS.charPikachuCapturedHit,
+    captured_release: ASSET_KEYS.charPikachuCapturedRelease,
+    crawl: ASSET_KEYS.charPikachuCrawl,
+    crawl_back: ASSET_KEYS.charPikachuCrawlBack,
+    crouch_end: ASSET_KEYS.charPikachuCrouchEnd,
+    crouch_start: ASSET_KEYS.charPikachuCrouchStart,
+    dash: ASSET_KEYS.charPikachuDash,
+    dash_grab: ASSET_KEYS.charPikachuDashGrab,
+    dash_turn: ASSET_KEYS.charPikachuDashTurn,
+    down_wait: ASSET_KEYS.charPikachuDownWait,
+    down_wait_face_down: ASSET_KEYS.charPikachuDownWaitFaceDown,
+    entry: ASSET_KEYS.charPikachuEntry,
+    fall: ASSET_KEYS.charPikachuFall,
+    fall_special: ASSET_KEYS.charPikachuFallSpecial,
+    footstool_fall: ASSET_KEYS.charPikachuFootstoolFall,
+    footstool_jump: ASSET_KEYS.charPikachuFootstoolJump,
+    footstool_pose: ASSET_KEYS.charPikachuFootstoolPose,
+    footstool_air_pose: ASSET_KEYS.charPikachuFootstoolAirPose,
+    item_carry: ASSET_KEYS.charPikachuItemCarry,
+    item_hammer_wait: ASSET_KEYS.charPikachuItemHammerWait,
+    item_heavy_get: ASSET_KEYS.charPikachuItemHeavyGet,
+    item_heavy_walk: ASSET_KEYS.charPikachuItemHeavyWalk,
+    item_heavy_throw_f: ASSET_KEYS.charPikachuItemHeavyThrowF,
+    item_heavy_throw_b: ASSET_KEYS.charPikachuItemHeavyThrowB,
+    item_heavy_throw_hi: ASSET_KEYS.charPikachuItemHeavyThrowHi,
+    item_heavy_throw_lw: ASSET_KEYS.charPikachuItemHeavyThrowLw,
+    squat_wait_item: ASSET_KEYS.charPikachuSquatWaitItem,
+    landing_heavy: ASSET_KEYS.charPikachuLandingHeavy,
+    item_light_eat: ASSET_KEYS.charPikachuItemLightEat,
+    item_light_walk_eat: ASSET_KEYS.charPikachuItemLightWalkEat,
+    item_hammer_move: ASSET_KEYS.charPikachuItemHammerMove,
+    item_hammer_jump: ASSET_KEYS.charPikachuItemHammerJump,
+    item_pickup_stand: ASSET_KEYS.charPikachuItemPickupStand,
+    item_pickup_walk: ASSET_KEYS.charPikachuItemPickupWalk,
+    item_throw_f: ASSET_KEYS.charPikachuItemThrowF,
+    item_throw_b: ASSET_KEYS.charPikachuItemThrowB,
+    item_throw_hi: ASSET_KEYS.charPikachuItemThrowHi,
+    item_throw_lw: ASSET_KEYS.charPikachuItemThrowLw,
+    item_throw_air_f: ASSET_KEYS.charPikachuItemThrowAirF,
+    item_throw_air_b: ASSET_KEYS.charPikachuItemThrowAirB,
+    item_throw_air_hi: ASSET_KEYS.charPikachuItemThrowAirHi,
+    item_throw_air_lw: ASSET_KEYS.charPikachuItemThrowAirLw,
+    item_throw_drop: ASSET_KEYS.charPikachuItemThrowDrop,
+    item_bat_swing_1: ASSET_KEYS.charPikachuItemBatSwing1,
+    item_bat_swing_3: ASSET_KEYS.charPikachuItemBatSwing3,
+    item_bat_swing_4: ASSET_KEYS.charPikachuItemBatSwing4,
+    item_bat_swing_dash: ASSET_KEYS.charPikachuItemBatSwingDash,
+    item_sword_swing_4: ASSET_KEYS.charPikachuItemSwordSwing4,
+    item_sword_swing_4_hold: ASSET_KEYS.charPikachuItemSwordSwing4Hold,
+    item_lgun_shoot: ASSET_KEYS.charPikachuItemLgunShoot,
+    item_lgun_shoot_air: ASSET_KEYS.charPikachuItemLgunShootAir,
+    item_lgun_shoot_upper: ASSET_KEYS.charPikachuItemLgunShootUpper,
+    item_fflower_shoot_loop: ASSET_KEYS.charPikachuItemFflowerShootLoop,
+    item_fflower_shoot_loop_upper: ASSET_KEYS.charPikachuItemFflowerShootLoopUpper,
+    item_fflower_shoot_air_loop: ASSET_KEYS.charPikachuItemFflowerShootAirLoop,
+    item_scope_start: ASSET_KEYS.charPikachuItemScopeStart,
+    item_scope_start_upper: ASSET_KEYS.charPikachuItemScopeStartUpper,
+    item_scope_wait: ASSET_KEYS.charPikachuItemScopeWait,
+    item_scope_wait_upper: ASSET_KEYS.charPikachuItemScopeWaitUpper,
+    item_scope_rapid: ASSET_KEYS.charPikachuItemScopeRapid,
+    item_scope_rapid_upper: ASSET_KEYS.charPikachuItemScopeRapidUpper,
+    item_scope_fire: ASSET_KEYS.charPikachuItemScopeFire,
+    item_scope_fire_upper: ASSET_KEYS.charPikachuItemScopeFireUpper,
+    item_scope_end: ASSET_KEYS.charPikachuItemScopeEnd,
+    item_scope_end_upper: ASSET_KEYS.charPikachuItemScopeEndUpper,
+    item_scope_fall: ASSET_KEYS.charPikachuItemScopeFall,
+    item_scope_air_start: ASSET_KEYS.charPikachuItemScopeAirStart,
+    item_scope_air_rapid: ASSET_KEYS.charPikachuItemScopeAirRapid,
+    item_scope_air_fire: ASSET_KEYS.charPikachuItemScopeAirFire,
+    item_scope_air_end: ASSET_KEYS.charPikachuItemScopeAirEnd,
+    item_shoot_legs_walk_f: ASSET_KEYS.charPikachuItemShootLegsWalkF,
+    item_shoot_legs_walk_b: ASSET_KEYS.charPikachuItemShootLegsWalkB,
+    item_shoot_legs_jump_squat: ASSET_KEYS.charPikachuItemShootLegsJumpSquat,
+    item_shoot_legs_landing: ASSET_KEYS.charPikachuItemShootLegsLanding,
+    getup: ASSET_KEYS.charPikachuGetup,
+    getup_face_down: ASSET_KEYS.charPikachuGetupFaceDown,
+    getup_roll: ASSET_KEYS.charPikachuGetupRoll,
+    getup_roll_back: ASSET_KEYS.charPikachuGetupRollBack,
+    getup_roll_back_face_down: ASSET_KEYS.charPikachuGetupRollBackFaceDown,
+    getup_roll_face_down: ASSET_KEYS.charPikachuGetupRollFaceDown,
+    grab_escape: ASSET_KEYS.charPikachuGrabEscape,
+    grab_hold: ASSET_KEYS.charPikachuGrabHold,
+    grab_pull: ASSET_KEYS.charPikachuGrabPull,
+    hurt_air: ASSET_KEYS.charPikachuHurtAir,
+    idle: ASSET_KEYS.charPikachuIdle,
+    jump: ASSET_KEYS.charPikachuJump,
+    jump_back: ASSET_KEYS.charPikachuJumpBack,
+    jumpsquat: ASSET_KEYS.charPikachuJumpsquat,
+    landing_hard: ASSET_KEYS.charPikachuLandingHard,
+    landing_soft: ASSET_KEYS.charPikachuLandingSoft,
+    landing_special: ASSET_KEYS.charPikachuLandingSpecial,
+    ledge: ASSET_KEYS.charPikachuLedge,
+    ledge_catch: ASSET_KEYS.charPikachuLedgeCatch,
+    ledge_getup: ASSET_KEYS.charPikachuLedgeGetup,
+    ledge_jump: ASSET_KEYS.charPikachuLedgeJump,
+    ledge_jump_start: ASSET_KEYS.charPikachuLedgeJumpStart,
+    ledge_roll: ASSET_KEYS.charPikachuLedgeRoll,
+    parry: ASSET_KEYS.charPikachuParry,
+    pivot_grab: ASSET_KEYS.charPikachuPivotGrab,
+    roll: ASSET_KEYS.charPikachuRoll,
+    roll_back: ASSET_KEYS.charPikachuRollBack,
+    run: ASSET_KEYS.charPikachuRun,
+    run_brake: ASSET_KEYS.charPikachuRunBrake,
+    run_brake_left: ASSET_KEYS.charPikachuRunBrakeLeft,
+    run_turn: ASSET_KEYS.charPikachuRunTurn,
+    shield_break: ASSET_KEYS.charPikachuShieldBreak,
+    shield_break_end: ASSET_KEYS.charPikachuShieldBreakEnd,
+    shield_end: ASSET_KEYS.charPikachuShieldEnd,
+    shield_hit: ASSET_KEYS.charPikachuShieldHit,
+    shield_start: ASSET_KEYS.charPikachuShieldStart,
+    spot_dodge: ASSET_KEYS.charPikachuSpotDodge,
+    taunt_down: ASSET_KEYS.charPikachuTauntDown,
+    taunt_side: ASSET_KEYS.charPikachuTauntSide,
+    taunt_up: ASSET_KEYS.charPikachuTauntUp,
+    tech: ASSET_KEYS.charPikachuTech,
+    tech_back: ASSET_KEYS.charPikachuTechBack,
+    tech_ceiling: ASSET_KEYS.charPikachuTechCeiling,
+    tech_forward: ASSET_KEYS.charPikachuTechForward,
+    tech_wall: ASSET_KEYS.charPikachuTechWall,
+    trip: ASSET_KEYS.charPikachuTrip,
+    tumble: ASSET_KEYS.charPikachuTumble,
+    walk: ASSET_KEYS.charPikachuWalk,
+    walk_fast: ASSET_KEYS.charPikachuWalkFast,
+    walk_slow: ASSET_KEYS.charPikachuWalkSlow,
+    wall_jump: ASSET_KEYS.charPikachuWallJump,
   }),
   donkeykong: Object.freeze({
     crouch: ASSET_KEYS.charDonkeykongCrouch,
     jab: ASSET_KEYS.charDonkeykongJab,
     jab2: ASSET_KEYS.charDonkeykongJab2,
-    jab3: ASSET_KEYS.charDonkeykongJab3,
     tilt: ASSET_KEYS.charDonkeykongTilt,
     dtilt: ASSET_KEYS.charDonkeykongDtilt,
     smash: ASSET_KEYS.charDonkeykongSmash,
@@ -591,37 +759,20 @@ const MOVE_SHEET_KEYS: Partial<Record<CharacterId, Readonly<Record<string, strin
     dthrow: ASSET_KEYS.charDonkeykongDthrow,
     uair: ASSET_KEYS.charDonkeykongUair,
     dair: ASSET_KEYS.charDonkeykongDair,
-  }),
-  aegis: Object.freeze({
-    crouch: ASSET_KEYS.charAegisCrouch,
-    jab: ASSET_KEYS.charAegisJab,
-    jab2: ASSET_KEYS.charAegisJab2,
-    jab3: ASSET_KEYS.charAegisJab3,
-    tilt: ASSET_KEYS.charAegisTilt,
-    dtilt: ASSET_KEYS.charAegisDtilt,
-    smash: ASSET_KEYS.charAegisSmash,
-    nair: ASSET_KEYS.charAegisNair,
-    fair: ASSET_KEYS.charAegisFair,
-    bair: ASSET_KEYS.charAegisBair,
-    neutral_special: ASSET_KEYS.charAegisNeutralSpecial,
-    side_special: ASSET_KEYS.charAegisSideSpecial,
-    up_special: ASSET_KEYS.charAegisUpSpecial,
-    down_special: ASSET_KEYS.charAegisDownSpecial,
-    hurt: ASSET_KEYS.charAegisHurt,
-    shield: ASSET_KEYS.charAegisShield,
-    grab: ASSET_KEYS.charAegisGrab,
-    pummel: ASSET_KEYS.charAegisPummel,
-    fthrow: ASSET_KEYS.charAegisFthrow,
-    bthrow: ASSET_KEYS.charAegisBthrow,
-    uthrow: ASSET_KEYS.charAegisUthrow,
-    dthrow: ASSET_KEYS.charAegisDthrow,
-    uair: ASSET_KEYS.charAegisUair,
-    dair: ASSET_KEYS.charAegisDair,
+    utilt: ASSET_KEYS.charDonkeykongUtilt,
+    usmash: ASSET_KEYS.charDonkeykongUsmash,
+    dsmash: ASSET_KEYS.charDonkeykongDsmash,
+    dash_attack: ASSET_KEYS.charDonkeykongDashAttack,
+    up_special_ground: ASSET_KEYS.charDonkeykongUpSpecialGround,
+    down_special_air: ASSET_KEYS.charDonkeykongDownSpecialAir,
   }),
 };
 
 /** Per-move texture key for a fighter+sheet, or null if it has no such per-move sheet. */
 export function getCharacterMoveSheetKey(id: CharacterId, sheet: string): string | null {
+  if (id === 'pikachu' && sheet.startsWith('final') && sheet in pikachuFrames.animations) return `char.pikachu.${sheet}`;
+  if (id === 'donkeykong' && sheet in donkeykongFrames.animations) return `char.donkeykong.${sheet}`;
+  if (id === 'link') return sheet in linkFrames.animations ? `char.link.${sheet}` : null;
   return MOVE_SHEET_KEYS[id]?.[sheet] ?? null;
 }
 
@@ -640,7 +791,7 @@ export function attackMoveToSheet(
       if (move.id?.endsWith('.jab2')) return 'jab2';
       return 'jab';
     case 'tilt':
-      if (move.id?.endsWith('.dtilt')) return 'dtilt';
+      if (move.id?.endsWith('.dtilt') || move.id?.endsWith('.down-tilt')) return 'dtilt';
       return 'tilt';
     case 'smash': return 'smash';
     case 'special': // neutral special
@@ -660,6 +811,44 @@ export function attackMoveToSheet(
   }
 }
 
+/**
+ * Ordered sheet candidates for a live move, most specific first. Adds the
+ * directional / dash normals (`utilt`, `usmash`, `dsmash`, `dash_attack`) and
+ * the airborne / grounded special variants (`<sheet>_air`, `<sheet>_ground`,
+ * from `AttackMove.sheetVariant`) that a full sprite pack can ship, each
+ * followed by the shared sheet `attackMoveToSheet` returns. Consumers try the
+ * names in order through `getMoveAnimKey`, so a fighter without the specific
+ * strip keeps its existing art.
+ */
+export function attackMoveToSheets(
+  move: { readonly type?: string; readonly aerialDirection?: string; readonly id?: string; readonly sheetVariant?: string }
+    | null | undefined,
+): string[] {
+  const base = attackMoveToSheet(move);
+  if (base === null) return [];
+  const id = move?.id ?? '';
+  let specific: string | null = null;
+  if (base === 'tilt' && id.endsWith('.getupAttack')) specific = 'getup_attack';
+  else if (base === 'tilt' && id.endsWith('.getupAttackFaceDown')) specific = 'getup_attack_face_down';
+  else if (base === 'tilt' && id.endsWith('.tripAttack')) specific = 'trip_attack';
+  else if (base === 'tilt' && id.endsWith('.ledgeAttack')) specific = 'ledge_attack';
+  else if (base === 'tilt' && id.endsWith('.back-air-landing')) specific = 'bair_landing';
+  else if (base === 'tilt' && id.endsWith('.down-air-landing')) specific = 'dair_landing';
+  else if (base === 'tilt' && (id.endsWith('.utilt') || id.endsWith('.up-tilt'))) specific = 'utilt';
+  else if (base === 'tilt' && (id.endsWith('.dashAttack') || id.endsWith('.dash-attack'))) specific = 'dash_attack';
+  else if (base === 'tilt' && id.endsWith('.forward-tilt-up')) specific = 'tilt_up';
+  else if (base === 'tilt' && id.endsWith('.forward-tilt-down')) specific = 'tilt_down';
+  else if (base === 'smash' && (id.endsWith('.usmash') || id.endsWith('.up-smash'))) specific = 'usmash';
+  else if (base === 'smash' && (id.endsWith('.dsmash') || id.endsWith('.down-smash'))) specific = 'dsmash';
+  const sourceVariant = move?.sheetVariant;
+  const variant = id === 'pikachu.down_special'
+    ? sourceVariant === 'ground-hit' ? 'hit' : sourceVariant === 'air-hit' ? 'air_hit' : sourceVariant
+    : sourceVariant;
+  const withVariant = (name: string): string[] => (variant ? [`${name}_${variant}`, name] : [name]);
+  const out = [...(specific ? withVariant(specific) : []), ...withVariant(base)];
+  return out.filter((name, i) => out.indexOf(name) === i);
+}
+
 /** Phaser anim key for a fighter+sheet IF the per-move sheet exists, else null. */
 export function getMoveAnimKey(id: CharacterId, sheet: string | null): string | null {
   if (!sheet) return null;
@@ -675,18 +864,16 @@ export function getMoveAnimKey(id: CharacterId, sheet: string | null): string | 
  * via the `Phaser` import above, but the helper takes the narrow
  * surface to keep the testing surface tight.
  */
+/** Registration descriptors shared by frame catalogs and sprite sinks. */
+export interface AnimationFrameDescriptor {readonly key:string;readonly frame?:number|string}
+export interface AnimationRegistration {
+  readonly key:string;readonly frames:readonly AnimationFrameDescriptor[];readonly frameRate:number;readonly repeat:number;
+  readonly showOnStart?:boolean;readonly hideOnComplete?:boolean;
+}
 export interface SceneAnimSurface {
-  readonly anims: {
-    exists(key: string): boolean;
-    create(
-      config: Phaser.Types.Animations.Animation,
-    ): Phaser.Animations.Animation | false;
-    generateFrameNumbers(
-      key: string,
-      config?: Phaser.Types.Animations.GenerateFrameNumbers,
-    ): Phaser.Types.Animations.AnimationFrame[];
-  };
-  textures: { exists(key: string): boolean };
+  readonly anims:{exists(key:string):boolean;create(config:AnimationRegistration):unknown;
+    generateFrameNumbers(key:string,config?:{readonly start?:number;readonly end?:number;readonly frames?:readonly number[]}):AnimationFrameDescriptor[]};
+  readonly textures:{exists(key:string):boolean};
 }
 
 /**
@@ -706,27 +893,54 @@ export interface SceneAnimSurface {
  *   • Always wires `hideOnComplete: false` so the sprite stays visible
  *     after a one-shot (`jump` / `attack`) finishes.
  */
+/** One animation the game registers for a fighter: every frame of `textureKey`. */
+export interface CharacterAnimationSheet {
+  readonly animKey: string;
+  readonly sheet: string;
+  readonly textureKey: string;
+  readonly frameRate: number;
+  readonly repeat: number;
+}
+
+/** The animations `registerCharacterSpriteAnimations` creates for a fighter, in its order. */
+export function characterAnimationSheets(characterId: CharacterId): CharacterAnimationSheet[] {
+  const out: CharacterAnimationSheet[] = [];
+  const add = (sheet: string, textureKey: string | null, frameRate: number, repeat: number) => {
+    const animKey = `${characterId}.${sheet}.anim`;
+    if (textureKey !== null && !out.some((a) => a.animKey === animKey)) out.push({ animKey, sheet, textureKey, frameRate, repeat });
+  };
+  for (const spec of SPRITE_ANIM_SPECS) add(spec.sheet, getCharacterSpritesheetKey(characterId, spec.sheet), spec.frameRate, spec.repeat);
+  const moveSheets = characterId === 'donkeykong'
+    ? Object.keys(donkeykongFrames.animations).map((sheet) => ({ sheet, frameRate: 6, repeat: 0 }))
+    : characterId === 'link'
+      ? Object.keys(linkFrames.animations).map((sheet) => ({ sheet, frameRate: 60, repeat: 0 }))
+      : characterId === 'pikachu'
+        ? [...MOVE_SHEET_SPECS, ...Object.keys(pikachuFrames.animations).filter(sheet => sheet.startsWith('final')).map(sheet => ({ sheet, frameRate: 60, repeat: 0 }))]
+        : MOVE_SHEET_SPECS;
+  for (const spec of moveSheets) add(spec.sheet, getCharacterMoveSheetKey(characterId, spec.sheet), spec.frameRate, spec.repeat);
+  return out;
+}
+
 export function registerCharacterSpriteAnimations(
   scene: SceneAnimSurface,
   characterId: CharacterId,
 ): ReadonlyArray<string> {
   const created: string[] = [];
-  for (const spec of SPRITE_ANIM_SPECS) {
-    const textureKey = getCharacterSpritesheetKey(characterId, spec.sheet);
-    if (textureKey === null) continue;
-    if (!scene.textures.exists(textureKey)) continue;
-    const animKey = `${characterId}.${spec.sheet}.anim`;
-    if (scene.anims.exists(animKey)) {
+  // Per-move clips (every attack its own animation + crouch) ride the same list; fighters
+  // without a per-move pack fall through to the collapsed `attack`. Sheets whose texture
+  // isn't loaded are skipped so a partial pack never blows up scene-create.
+  for (const sheet of characterAnimationSheets(characterId)) {
+    if (!scene.textures.exists(sheet.textureKey)) continue;
+    if (scene.anims.exists(sheet.animKey)) {
       // Idempotent — already registered (HMR, scene re-entry).
-      created.push(animKey);
+      created.push(sheet.animKey);
       continue;
     }
-    const frames = scene.anims.generateFrameNumbers(textureKey, {});
     const result = scene.anims.create({
-      key: animKey,
-      frames,
-      frameRate: spec.frameRate,
-      repeat: spec.repeat,
+      key: sheet.animKey,
+      frames: scene.anims.generateFrameNumbers(sheet.textureKey, {}),
+      frameRate: sheet.frameRate,
+      repeat: sheet.repeat,
       // `showOnStart` makes the sprite visible on play() — defensive
       // guard against an `setVisible(false)` from a parent overlay.
       showOnStart: true,
@@ -735,34 +949,7 @@ export function registerCharacterSpriteAnimations(
       // recovery pose).
       hideOnComplete: false,
     });
-    if (result !== false) {
-      created.push(animKey);
-    }
-  }
-  // Per-move clips (every attack its own animation + crouch). Only fighters that
-  // ship a per-move pack have these keys; others fall through to collapsed `attack`.
-  // Same skip-if-not-loaded guard so a partial pack never blows up scene-create.
-  for (const spec of MOVE_SHEET_SPECS) {
-    const textureKey = getCharacterMoveSheetKey(characterId, spec.sheet);
-    if (textureKey === null) continue;
-    if (!scene.textures.exists(textureKey)) continue;
-    const animKey = `${characterId}.${spec.sheet}.anim`;
-    if (scene.anims.exists(animKey)) {
-      created.push(animKey);
-      continue;
-    }
-    const moveFrames = scene.anims.generateFrameNumbers(textureKey, {});
-    const moveResult = scene.anims.create({
-      key: animKey,
-      frames: moveFrames,
-      frameRate: spec.frameRate,
-      repeat: spec.repeat,
-      showOnStart: true,
-      hideOnComplete: false,
-    });
-    if (moveResult !== false) {
-      created.push(animKey);
-    }
+    if (result !== false) created.push(sheet.animKey);
   }
   return created;
 }

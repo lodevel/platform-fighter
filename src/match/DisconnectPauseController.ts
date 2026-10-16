@@ -414,12 +414,10 @@ export class DisconnectPauseController {
     });
 
     let pauseEngaged = false;
-    if (!this.holdingPause) {
-      // The engine may already be paused by another subsystem (none
-      // currently, but the seam is here for a future user-pause).
-      // Either way we set the pause and remember WE are now also
-      // holding it — the matched `resume()` only fires when this
-      // flag is true.
+    if (!this.holdingPause && !this.simulation.isPaused()) {
+      // A pre-existing user/error pause belongs to that subsystem. Track
+      // the missing hardware, but never claim or release somebody else's
+      // pause when it reconnects.
       this.simulation.pause();
       this.holdingPause = true;
       pauseEngaged = true;

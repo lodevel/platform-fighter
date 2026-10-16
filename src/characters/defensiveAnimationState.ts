@@ -67,6 +67,7 @@
  */
 
 import type { CharacterId } from '../types';
+import { ANIMATED_MOVESET_IDS } from './animationState';
 import type { ShieldState, ShieldStateName } from './shieldState';
 import type { DodgeState, DodgeStateName, DodgeKind, ActiveDodge } from './dodgeState';
 import type { LedgeHangState, LedgeHangStateName } from './ledgeHangState';
@@ -241,8 +242,8 @@ export function shieldStateToAnimationPhase(
  * Build the canonical shield animation key for a character + phase +
  * art-frame index.
  *
- *   getShieldAnimationKey('wolf', 'hold', 0) → 'wolf.shield.hold.0'
- *   getShieldAnimationKey('cat',  'break', 2) → 'cat.shield.break.2'
+ *   getShieldAnimationKey('donkeykong', 'hold', 0) → 'donkeykong.shield.hold.0'
+ *   getShieldAnimationKey('pikachu',  'break', 2) → 'pikachu.shield.break.2'
  */
 export function getShieldAnimationKey(
   characterId: CharacterId,
@@ -339,9 +340,9 @@ export function dodgeStateToAnimationPhase(
  * Build the canonical dodge animation key for a character + variant +
  * phase + art-frame index.
  *
- *   getDodgeAnimationKey('wolf', 'spot', 'active', 0) → 'wolf.dodge.spot.active.0'
- *   getDodgeAnimationKey('cat',  'roll', 'recovery', 1) → 'cat.dodge.roll.recovery.1'
- *   getDodgeAnimationKey('owl',  'air', 'active', 3) → 'owl.dodge.air.active.3'
+ *   getDodgeAnimationKey('donkeykong', 'spot', 'active', 0) → 'donkeykong.dodge.spot.active.0'
+ *   getDodgeAnimationKey('pikachu',  'roll', 'recovery', 1) → 'pikachu.dodge.roll.recovery.1'
+ *   getDodgeAnimationKey('link',  'air', 'active', 3) → 'link.dodge.air.active.3'
  */
 export function getDodgeAnimationKey(
   characterId: CharacterId,
@@ -452,8 +453,8 @@ export function ledgeStateToAnimationPhase(
  * Build the canonical ledge animation key for a character + phase +
  * art-frame index.
  *
- *   getLedgeAnimationKey('wolf', 'hanging', 0) → 'wolf.ledge.hanging.0'
- *   getLedgeAnimationKey('cat',  'climbing', 2) → 'cat.ledge.climbing.2'
+ *   getLedgeAnimationKey('donkeykong', 'hanging', 0) → 'donkeykong.ledge.hanging.0'
+ *   getLedgeAnimationKey('pikachu',  'climbing', 2) → 'pikachu.ledge.climbing.2'
  */
 export function getLedgeAnimationKey(
   characterId: CharacterId,
@@ -509,7 +510,7 @@ export function resolveLedgeAnimation(
 /**
  * Build the canonical hurt animation key for a character.
  *
- *   getHurtAnimationKey('wolf') → 'wolf.hurt'
+ *   getHurtAnimationKey('donkeykong') → 'donkeykong.hurt'
  *
  * Hitstun has no sub-phase — it's a single pose held for the duration
  * of the hitstun timer. The renderer can optionally key off
@@ -576,7 +577,7 @@ export function enumerateDefensiveAnimationKeys(
  */
 export function enumerateAllDefensiveAnimationKeys(): ReadonlyArray<string> {
   const out: string[] = [];
-  for (const id of ['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno', 'link', 'kirby', 'donkeykong'] as const) {
+  for (const id of ANIMATED_MOVESET_IDS) {
     for (const k of enumerateDefensiveAnimationKeys(id)) out.push(k);
   }
   return Object.freeze(out);

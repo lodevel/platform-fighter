@@ -10,11 +10,13 @@ import {
   loadCharacter,
   saveCharacter,
 } from './characterStorage';
-import type { CharacterDataSpec } from '../characters/characterSerializer';
+import { serializeCharacterDataSpec, type CharacterDataSpec } from '../characters/characterSerializer';
+import { getAuthorableCharacterSpec } from '../characters/authorableCharacterRegistry';
+import { DONKEYKONG_MOVEMENT_PROFILE } from '../characters/fighterMovementProfiles';
 
 const sampleSpec = (): CharacterDataSpec => ({
-  id: 'wolf',
-  displayName: 'Wolf',
+  id: 'donkeykong',
+  displayName: 'Donkey Kong',
   role: 'bruiser',
   body: { width: 45, height: 66, chamfer: 8 },
   movement: {
@@ -59,7 +61,7 @@ describe('characterStorage — save / load round-trip', () => {
     const rec = saveCharacter('slot1', sampleSpec(), 12345, store);
     expect(rec.slotId).toBe('slot1');
     expect(rec.savedAtMs).toBe(12345);
-    expect(rec.spec.id).toBe('wolf');
+    expect(rec.spec.id).toBe('donkeykong');
     expect(store.raw().has(characterStorageKey('slot1'))).toBe(true);
   });
 
@@ -67,7 +69,7 @@ describe('characterStorage — save / load round-trip', () => {
     saveCharacter('slot1', sampleSpec(), 7, store);
     const loaded = loadCharacter('slot1', store);
     expect(loaded).not.toBeNull();
-    expect(loaded?.spec.id).toBe('wolf');
+    expect(loaded?.spec.id).toBe('donkeykong');
     expect(loaded?.savedAtMs).toBe(7);
   });
 
@@ -108,6 +110,13 @@ describe('characterStorage — index', () => {
     expect([...listCharacters(store)]).toEqual(['a']);
   });
 
+  it('moves a re-saved slot back to the front', () => {
+    saveCharacter('a', sampleSpec(), 1, store);
+    saveCharacter('b', sampleSpec(), 2, store);
+    saveCharacter('a', sampleSpec(), 3, store);
+    expect([...listCharacters(store)]).toEqual(['a', 'b']);
+  });
+
   it('deleteCharacter removes both the slot and the index entry', () => {
     saveCharacter('a', sampleSpec(), 1, store);
     saveCharacter('b', sampleSpec(), 2, store);
@@ -144,6 +153,21 @@ describe('characterStorage — slot id validation', () => {
   it('rejects empty slot id', () => {
     expect(() => saveCharacter('', sampleSpec(), 1, store)).toThrow(/slotId/);
   });
+
+  it('rejects reserved or unsafe slot ids', () => {
+    expect(() => saveCharacter('_index', sampleSpec(), 1, store)).toThrow(/slotId/);
+    expect(() => saveCharacter('spaces are bad', sampleSpec(), 1, store)).toThrow(/slotId/);
+    expect(store.raw().has(indexStorageKey())).toBe(false);
+  });
+
+  it('does not persist a spec that cannot be loaded again', () => {
+    const invalid = {
+      ...sampleSpec(),
+      body: { width: 0, height: 66, chamfer: 8 },
+    } as CharacterDataSpec;
+    expect(() => saveCharacter('broken', invalid, 1, store)).toThrow(/body.width/);
+    expect(store.raw().has(characterStorageKey('broken'))).toBe(false);
+  });
 });
 
 describe('characterStorage — record shape', () => {
@@ -154,7 +178,8 @@ describe('characterStorage — record shape', () => {
   });
 
   it('record retains the spec verbatim through save/load', () => {
-    const original = sampleSpec();
+    // A complete spec: a partial one gains its fighter's profile defaults on load.
+    const original: CharacterDataSpec = JSON.parse(JSON.stringify(getAuthorableCharacterSpec('donkeykong')));
     saveCharacter('a', original, 1, store);
     const loaded = loadCharacter('a', store);
     expect(loaded).not.toBeNull();
@@ -166,8 +191,8 @@ describe('characterStorage — record shape', () => {
 describe('characterStorage — schema version compatibility', () => {
   /** Spec shape as a v1 build would have persisted it — no fall-shaping fields. */
   const legacyV1Spec = () => ({
-    id: 'wolf',
-    displayName: 'Wolf',
+    id: 'donkeykong',
+    displayName: 'Donkey Kong',
     role: 'bruiser',
     body: { width: 45, height: 66, chamfer: 8 },
     movement: {
@@ -198,7 +223,7 @@ describe('characterStorage — schema version compatibility', () => {
     // The parser defaults the missing fall-shaping fields from the
     // registered movement profile, so the v1 record gains the new
     // mechanics at canonical tuning.
-    expect(loaded?.spec.movement.fallAccel).toBe(0.3);
+    expect(loaded?.spec.movement.fallAccel).toBe(DONKEYKONG_MOVEMENT_PROFILE.fallAccel);
   });
 
   it('loads a current v2 record', () => {
@@ -235,5 +260,18 @@ describe('characterStorage — schema version compatibility', () => {
       }),
     );
     expect(loadCharacter('bogus', store)).toBeNull();
+  });
+
+  it('drops a Link record saved before the Ultimate rebuild (no format marker)', () => {
+    const current = JSON.parse(JSON.stringify(serializeCharacterDataSpec(getAuthorableCharacterSpec('link'))));
+    expect(current.linkFormat).toBe('ultimate-rebuild-v1');
+    const { linkFormat, ...preRebuildLink } = current;
+    const record = (spec: object) => JSON.stringify({ schemaVersion: 2, slotId: 'link', savedAtMs: 5, spec });
+    store.setItem(characterStorageKey('link'), record(preRebuildLink));
+    expect(loadCharacter('link', store)).toBeNull();
+    store.setItem(characterStorageKey('link'), record({ ...preRebuildLink, linkFormat: 'legacy' }));
+    expect(loadCharacter('link', store)).toBeNull();
+    store.setItem(characterStorageKey('link'), record({ ...preRebuildLink, linkFormat }));
+    expect(loadCharacter('link', store)?.spec.id).toBe('link');
   });
 });

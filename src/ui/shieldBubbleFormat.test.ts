@@ -10,6 +10,7 @@ import {
   SHIELD_BUBBLE_FULL_PADDING,
   SHIELD_BUBBLE_HEALTH_COLOR_RAMP,
   SHIELD_BUBBLE_MIN_PADDING,
+  SHIELD_BUBBLE_PARRY_COLOR,
   computeShieldBubbleVisual,
   shieldBubbleActiveRadius,
   shieldBubbleBrokenStrobeOn,
@@ -352,5 +353,33 @@ describe('shieldBubbleFormat — determinism', () => {
       frame: 42,
     });
     expect(a).toEqual(b);
+  });
+});
+
+// Ultimate parry: the parrying fighter gets a much brighter flash than an
+// ordinary block (SmashWiki "Perfect shield"). The shield itself is already
+// lowered (idle) during the parry, so the flash is keyed on the parry state.
+describe('shieldBubbleFormat — parry flash', () => {
+  const idle = createShieldState(SHIELD_DEFAULTS);
+  const base = { state: idle, maxHealth: SHIELD_DEFAULTS.maxHealth, bodyRadius: 40, frame: 0 };
+
+  it('stays hidden for an idle shield without a parry', () => {
+    expect(computeShieldBubbleVisual(base).visible).toBe(false);
+  });
+
+  it('shows a bright full-size flash that fades over the parry', () => {
+    const start = computeShieldBubbleVisual({ ...base, parry: { framesElapsed: 0, totalFrames: 10 } });
+    const end = computeShieldBubbleVisual({ ...base, parry: { framesElapsed: 10, totalFrames: 10 } });
+    expect(start.visible).toBe(true);
+    expect(start.fillColor).toBe(SHIELD_BUBBLE_PARRY_COLOR);
+    expect(start.radius).toBeGreaterThanOrEqual(shieldBubbleActiveRadius(40, 1));
+    expect(start.fillAlpha).toBeGreaterThan(SHIELD_BUBBLE_ACTIVE_FILL_ALPHA);
+    expect(end.visible).toBe(true);
+    expect(end.fillAlpha).toBeLessThan(start.fillAlpha);
+  });
+
+  it('a parry with no counted frames still flashes at full strength', () => {
+    expect(computeShieldBubbleVisual({ ...base, parry: { framesElapsed: 0, totalFrames: 0 } }).fillAlpha)
+      .toBeGreaterThan(SHIELD_BUBBLE_ACTIVE_FILL_ALPHA);
   });
 });

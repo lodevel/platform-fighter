@@ -1,0 +1,44 @@
+# DonkeyKongDThrow — Down Throw
+
+Source: https://ultimateframedata.com/hitboxes/donkey_kong/DonkeyKongDThrow.gif | images: 54 | canvas: 672x710 | delays: 130ms uniform across all 54 frames
+UFD row: startup=19, totalframes=54, basedamage=7.0, notes="--"; UFD active frames: n/a (not published for throws)
+
+## Overlay observations
+| Index range | What is visible | Interpretation basis |
+|---|---|---|
+| 0-11 | DK crouched low, seen from a rear/side three-quarter angle, one fist raised near shoulder/head height, the other arm bent in close to the torso. Body covered by overlapping semi-transparent GREEN circular blobs (same undefined overlay color seen in the sibling Up Throw asset, not the pale purple/white called out in the brief). No second character visible. | Grouped as the opening grab-hold pose; the hunched back-view silhouette and raised-fist arm stay consistent across this span. |
+| 12-15 | Both hands raise up near head height, open with fingers spread, as if hoisting something overhead; body still hunched and viewed from behind. Green overlay continues. | Grouped as a distinct lift/hoist beat — silhouette changes from one-fist-raised to both-hands-raised-overhead. |
+| 16-18 | Body twists dramatically: one arm bends up near the head with a closed fist while the other swings down and across forcefully, torso rotating as if driving something downward; green overlay still present through 18. | Grouped as the slam/twist motion — a clear rotational silhouette change from the hoist pose. |
+| 19-31 | Overlay switches to pale, translucent WHITE/grey blobs (matches the brief's hurtbox description) and DK's true purple fur becomes fully visible. DK is curled into a compact, ball-like posture, viewed from an elevated/rotated angle, with both hands gripping and pressing down near his own chest/knees at what reads as ground level. A pink cloth strip with gold "DK" lettering (his necktie) is visible dangling near his hands. No red circles/crosses appear anywhere. | Grouped as the sustained "impact/press" pose — thumbnails 20-31 look near-identical to 19, indicating the animation holds this curled, ground-level hand position for a long real-time span. |
+| 32-35 | Still curled, but beginning to uncurl: one arm reaches up and outward with an open hand while the other stays bent near the chest; tie still visible; pale overlay continues. | Grouped as the start of the recovery unwind, distinct from the static hold in 19-31. |
+| 36-47 | DK opens into a low, wide crouch on all fours: both arms extend down and outward to brace against the ground, head turns forward/up, back arches, legs bent wide. Pale overlay persists throughout, gradually looking more like a resting stance by the end of the range. | Grouped as the rising/recovery-lean phase — a clear shift from a curled ball to a spread all-fours stance. |
+| 48-53 | DK settles into a compact, calm all-fours resting stance, arms reaching straight down to the ground on either side of a hunched torso, head held forward at a relaxed level. Pose is essentially static across these final 6 frames. | Grouped as the final neutral/idle settle, ending the clip. |
+
+## Mapping check
+- image_count vs UFD total: 54 vs 54 → equal
+- red-region image indices + 1 vs UFD active frames: none found (no red circles/crosses appear in any of the 54 frames) vs n/a (not published for throws) → n/a
+- Verdict: **partially verified** — frame count matches exactly (54 vs 54), and the overlay color change (green→pale white) together with the twisting slam motion both land in the index 18→19 transition, which lines up convincingly with UFD's startup=19. As with the sibling Up Throw asset, throws carry no published active-frame data and no red hitbox is ever drawn here, so the active-frame half of the check is not applicable — verification rests on count + timing alignment only.
+
+## Motion by phase (index ranges, right-facing)
+- Anticipation/windup 0-15: DK crouches low with one fist raised near his head, holding a compact hunched back-view posture, then raises both hands overhead with fingers spread as if hoisting something up above him.
+- Strike/throw 16-31: DK's body twists sharply, one fist-arm driving down and across while the other trails, then he curls into a compact ball-like posture with both hands pressing down near his own chest/knees at ground level, held there for an extended span. No victim character is rendered in any frame, so the exact carry point and release direction are inferred from DK's own body motion rather than observed on a second figure. The downward-driving twist followed by hands pressing down at a low, ground-level position (rather than any upward or outward fling) is consistent with a "Down Throw" that pins/presses the victim down at ground level in front of him rather than launching them far.
+- Recovery 32-53: DK uncurls, reaching one arm up and outward, then opens into a wide four-limbed crouch with arms braced against the ground and head lifted forward, finally settling into a calm, compact all-fours resting stance close to a neutral idle pose.
+
+## Contact part(s)
+n/a — no victim dummy is rendered in this asset. The implied contact/carry point is DK's own two hands, which press down near the ground/his own knee height during the curled hold (indices 19-31); release is inferred as downward, with the victim implied to end up at ground level in front of him rather than being launched.
+
+## Proposed drawings (pose keys)
+- `carry_crouch_hold` | source index 4 | A large cartoon gorilla crouched low viewed from a rear three-quarter angle, one fist raised up near shoulder/head height as though gripping something small pinned against his chest, the other arm bent in tight against his torso, knees deeply bent, back rounded, weight low.
+- `lift_overhead` | source index 12 | A large cartoon gorilla in a low crouch with both arms raised overhead, hands open and fingers spread as if hoisting something up above his head, torso leaning back slightly, head tucked down between the raised arms, knees bent.
+- `slam_dive_twist` | source index 17 | A large cartoon gorilla with his torso twisted dynamically, one arm swinging down and across with a closed fist leading the motion as though driving something toward the ground, the other arm trailing up and back, legs braced wide apart, head tucked low.
+- `ground_press_curl` | source index 24 | A large cartoon gorilla curled into a compact, low ball-like posture, both arms bent down in front of his chest with open hands pressed together near the ground as though pinning something flat against the floor, knees drawn up under him, head bowed forward looking down.
+- `rise_from_slam` | source index 32 | A large cartoon gorilla still curled low but beginning to open up, one arm reaching up and outward with an open hand, the other arm bent close against the torso, weight shifted onto one side, head turning to the side.
+- `spread_recover_lean` | source index 39 | A large cartoon gorilla in a low, wide crouch on all fours, both arms extended down and outward bracing against the ground, back arched, head turned forward and slightly up, legs bent wide for support.
+- `settle_all_fours` | source index 53 | A large cartoon gorilla resting in a compact all-fours stance, both arms reaching straight down to the ground on either side of a hunched torso, head held forward at a relaxed level, knees bent, calm and balanced.
+
+## Uncertainties
+- The green semi-transparent blob overlay in indices 0-18 is not covered by the brief's given color key (only red=hitbox and pale purple/white=hurtbox were defined). As with the Up Throw asset, it most likely represents a distinct hurtbox-display state before switching to the standard pale overlay at index 19, but this labeling is an inference.
+- No victim/dummy character is rendered in any of the 54 frames, contrary to the general expectation that a held opponent would be visible during a throw. All carry-position and release-direction statements above are inferred from DK's own arm/body motion (the twisting slam and the subsequent hands-pressed-down curl), not observed directly on a second figure.
+- Indices 19-31 are visually near-identical at contact-sheet thumbnail resolution; fine frame-to-frame differences (if any) could not be distinguished from the thumbnails or the full-size samples checked (19, 24, 32).
+- The pink/gold shape visible near DK's hands/chest from index ~19 onward is his necktie accessory (pink cloth, gold "DK" lettering), not a gameplay overlay — noted to avoid it being mistaken for a hitbox/hurtbox marker.
+- Because the "slam" and "press" beats are inferred from a single continuous figure rather than a visible victim, it is uncertain whether the true release point is the twist (16-18) or the moment the hands settle at ground level (19); both are plausible readings of "Down Throw" contact.

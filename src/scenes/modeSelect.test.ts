@@ -44,13 +44,13 @@ describe('modeSelect (pre-match Stock / Time mode select helper) — AC 11', () 
   // so each test only varies the mode-select state.
   const P1: PlayerSlot = Object.freeze({
     index: 1,
-    characterId: 'wolf',
+    characterId: 'donkeykong',
     paletteIndex: 0,
     inputType: 'keyboard_p1',
   });
   const P2: PlayerSlot = Object.freeze({
     index: 2,
-    characterId: 'cat',
+    characterId: 'pikachu',
     paletteIndex: 0,
     inputType: 'keyboard_p2',
   });

@@ -1,133 +1,68 @@
-/**
- * Item — Hammer (T3 items framework, open-closed extension).
- *
- * Melee weapon, the slow colossal KO tool of the item pool. Overrides
- * `jab`, `tilt`, `smash` slots while held — pressing any of those
- * buttons winds up a massive overhead smash and decrements durability.
- * Breaks after only 3 hits: the hammer trades everything (startup,
- * recovery, durability budget) for raw kill power.
- *
- * Design intent vs the bat:
- *
- *   • Damage 22 / scaling 0.38 — finisher-smash tier and beyond; a
- *     single connect at mid percent is a stock threat.
- *   • startupFrames 14 — heavily telegraphed, over twice a fighter
- *     smash. Opponents get a real reaction window; landing the hammer
- *     is a read, not a mash.
- *   • maxDurability 3 — three swings and it's debris. The bat is a
- *     sustained power-up; the hammer is three kill attempts.
- *
- * Open-closed extensibility: this file is the entire hammer
- * contribution. The framework reads `HAMMER_DEFINITION` off the
- * {@link ItemEntity}; no other module mentions `'hammer'` by name.
+/** Ultimate Hammer and Golden Hammer. Provenance and conflicts: phase-6/sources.json.
+ * SmashWiki wins: normal damage 22 (native 27), duration 8s (same page also says 7s),
+ * 1/8 headless, walking/one ground jump, no other actions/drop except tumble;
+ * Golden doubles native body cadence and floats with jump taps. Golden duration is native-derived920frames. Numeric
+ * growth, squeaky probability and float impulse are authored where native dumps are silent.
  */
+import { ASSET_KEYS } from '../assets/manifest';
+import type { ItemDefinition } from './ItemDefinition';
+import { ultimateItemThrowProfile } from './nativeItemThrow';
+import type { HitInfo } from '../characters/combat';
 
-import type { Character } from '../characters/Character';
-import type { AttackMove } from '../characters/attacks';
-import type {
-  ItemDefinition,
-  SlotOverrideContext,
-  ThrowBehavior,
-} from './ItemDefinition';
-import type { ItemEntity } from './ItemEntity';
-import type { AttackMovesetSlotName } from '../characters/movesetContract';
-
-/**
- * Authored smash move for the hammer. Registered on the holder at
- * pickup time (see `Inventory.pickup`), and fired by the slot
- * override below via `attemptAttack`. The frame data is deliberately
- * lopsided — 14 frames of telegraphed wind-up (over twice a fighter
- * smash) into a 4-frame live window, then 18 frames of whiffed-it
- * recovery. Huge hitbox, huge knockback: when it connects, it KOs.
- */
-export const HAMMER_SMASH_MOVE: AttackMove = Object.freeze({
-  id: 'item.hammer.smash',
-  type: 'jab',
-  damage: 22,
-  knockback: { x: 4.5, y: -2.0, scaling: 0.38 },
-  hitbox: {
-    offsetX: 34,
-    offsetY: -8,
-    width: 50,
-    height: 44,
-  },
-  // Telegraphed — over twice a fighter smash's startup. The wind-up
-  // is the hammer's entire counterplay surface.
-  startupFrames: 14,
-  activeFrames: 4,
-  recoveryFrames: 18,
-  cooldownFrames: 10,
-  animation: {
-    startupFrames: 2,
-    activeFrames: 1,
-    recoveryFrames: 2,
-  },
-});
-
-const HAMMER_THROW_BEHAVIOR: ThrowBehavior = Object.freeze({
-  forward: { velocityX: 12, velocityY: -2 },
-  back: { velocityX: -9, velocityY: -2 },
-  up: { velocityX: 0, velocityY: -14 },
-  down: { velocityX: 0, velocityY: 14 },
-  drop: { velocityX: 0, velocityY: 0 },
-  consumeOnImpact: false,
-});
-
-/**
- * Hammer per-slot fire callback. Same callback for jab / tilt / smash —
- * the hammer doesn't differentiate the swing per slot today; a future
- * polish pass could vary swing animation by slot. Returns `true` to
- * consume the press; on the last successful swing it also marks the
- * item broken in-place.
- *
- * The callback is intentionally minimal — a Phaser integration layer
- * spawns the actual hammer-smash hitbox by reading the holder's facing
- * + position. The deterministic data layer just tracks durability.
- */
-function buildHammerSlotOverride(
-  _slot: AttackMovesetSlotName,
-  ctx: SlotOverrideContext,
-): () => boolean {
-  const item = ctx.itemEntity as ItemEntity;
-  const holder = ctx.holder as Character;
-  return () => {
-    if (item.getDurability() <= 0) return false;
-    if (item.isBroken() || item.isDespawned()) return false;
-    // Fire the actual smash move — registered on the holder when the
-    // hammer was picked up. `attemptAttack` runs the canonical
-    // startup/active/recovery cycle, spawns a real hitbox during the
-    // active window, and routes damage through the standard combat
-    // pipeline. Without this, the override would silently consume
-    // the input press without any visible swing.
-    const fired = holder.attemptAttack(HAMMER_SMASH_MOVE.id);
-    if (!fired) return false;
-    item.consumeDurability();
-    if (item.getDurability() <= 0) {
-      // Last-use-broken transition. Drop the hammer at the holder's
-      // current position; the inventory layer detaches the slot
-      // override on the same path the natural drop would.
-      const pos = holder.getPosition();
-      item.markBroken(ctx.frame, { x: pos.x, y: pos.y });
-    }
-    return true;
-  };
+export const HAMMER_RNG_STREAM='item-hammer' as const;
+export const GOLDEN_HAMMER_RNG_STREAM='item-golden-hammer' as const;
+export interface HammerSpec {
+ readonly durationFrames:number; readonly swingRate:1|2; readonly rehitFrames:number;
+ readonly damage:number; readonly knockback:{readonly base:number;readonly growth:number;readonly fixed:number;readonly angle:number};
+ readonly hitlagMultiplier:number; readonly malfunctionChance:number; readonly golden:boolean;
+ readonly growthFrames:number; readonly floatVelocity:number;
 }
-
-export const HAMMER_DEFINITION: ItemDefinition = Object.freeze({
-  type: 'hammer',
-  category: 'melee-weapon',
-  // 3 hits before break — tiny budget by design. The hammer is three
-  // kill attempts, not a sustained power-up like the 5-hit bat.
-  maxDurability: 3,
-  // Unpicked grounded hammer lives ~8 seconds (480 frames @ 60 fps
-  // fixed-step) — shorter than the bat's 600; a free KO tool sitting
-  // on stage for too long warps the item economy.
-  ttlFrames: 480,
-  // Broken-debris stays for ~30 frames (~half a second) so the
-  // breakage reads visually before the entity reclaims.
-  brokenDespawnFrames: 30,
-  slotOverrides: Object.freeze(['jab', 'tilt', 'smash'] as AttackMovesetSlotName[]),
-  buildSlotOverride: buildHammerSlotOverride,
-  throwBehavior: HAMMER_THROW_BEHAVIOR,
-  attackMoves: Object.freeze([HAMMER_SMASH_MOVE]),
-});
+/** contactFrames are next allowed motionElapsed values per target. Hitlag cannot expire them. */
+export interface HammerState {readonly elapsed:number;readonly motionElapsed:number;readonly malfunction:'headless'|'squeaky'|null;readonly detached:boolean;readonly contactFrames:Readonly<Record<number,number>>}
+export function beginHammer(spec:HammerSpec,roll:number):HammerState {
+ return {elapsed:0,motionElapsed:0,malfunction:roll<spec.malfunctionChance?(spec.golden?'squeaky':'headless'):null,detached:false,contactFrames:{}};
+}
+export function stepHammer(spec:HammerSpec,state:HammerState):{state:HammerState;expired:boolean}{
+ const elapsed=state.elapsed+1;return {state:{...state,elapsed,motionElapsed:state.motionElapsed+1},expired:elapsed>=spec.durationFrames};
+}
+export function hammerMotion(spec:HammerSpec,state:HammerState,grounded:boolean,moveX:number){
+ return {sheet:!grounded?'item_hammer_jump':Math.abs(moveX)>.01?'item_hammer_move':'item_hammer_wait',age:state.motionElapsed*spec.swingRate%16};
+}
+/** Native HaveAttack spheres projected into the hand's Y/Z side-view axes (5 world px/native unit).
+ * The draw socket uses the registered hand rather than the unsampled native root: authored 2D retargeting.
+ */
+export function hammerAreas(spec:HammerSpec,socket:{x:number;y:number;angle:number|null;length:number;zAngle?:number;zLength?:number}){
+ const y=(socket.angle??0)*Math.PI/180,z=(socket.zAngle??(socket.angle??0)+90)*Math.PI/180;
+ const l=socket.length,zl=socket.zLength??1,depth=spec.golden?2.5:2.2;
+ return [{y:0,z:0,r:2},{y:4,z:0,r:2},{y:11,z:-depth,r:4},{y:11,z:depth,r:4}].map(p=>({
+  x:socket.x+5*(p.y*Math.sin(y)*l+p.z*Math.sin(z)*zl),
+  y:socket.y-5*(p.y*Math.cos(y)*l+p.z*Math.cos(z)*zl),radius:p.r*5}));
+}
+export function hammerHit(spec:HammerSpec,facing:1|-1,multiplier=1):HitInfo {
+ return {damage:spec.damage*multiplier,knockback:{x:0,y:0,scaling:0,reference:spec.knockback},facing,
+ hitlagMultiplier:spec.hitlagMultiplier,sdiMultiplier:1,direct:false};
+}
+export const HAMMER_SPEC:HammerSpec=Object.freeze({durationFrames:480,swingRate:1,rehitFrames:30,
+ damage:22,knockback:Object.freeze({base:105,growth:50,fixed:0,angle:75}),hitlagMultiplier:1.5,
+ malfunctionChance:.125,golden:false,growthFrames:0,floatVelocity:0});
+export const GOLDEN_HAMMER_SPEC:HammerSpec=Object.freeze({durationFrames:920,swingRate:2,rehitFrames:10,
+ damage:30,knockback:Object.freeze({base:80,growth:60,fixed:0,angle:45}),hitlagMultiplier:1.5,
+ malfunctionChance:.125,golden:true,growthFrames:60,floatVelocity:-2});
+const hammerKinetics=Object.freeze({gravity:.08,terminalFallSpeed:2.3,airBrakeX:.0025,maxSpeedX:Number.POSITIVE_INFINITY,
+ throwRebound:Object.freeze({mul:.12,addX:0,addY:1.9})});
+export const HAMMER_DEFINITION:ItemDefinition=Object.freeze({type:'hammer',itemClass:'locked',hammer:HAMMER_SPEC,
+ ttlFrames:960,brokenDespawnFrames:30,throwProfile:ultimateItemThrowProfile({damage:0,mapBottom:5,kinetics:hammerKinetics}),
+ visual:Object.freeze({spriteKey:ASSET_KEYS.itemHammer,width:42,height:70,restAngle:0})});
+export const GOLDEN_HAMMER_DEFINITION:ItemDefinition=Object.freeze({...HAMMER_DEFINITION,type:'goldenHammer',hammer:GOLDEN_HAMMER_SPEC,
+ throwProfile:ultimateItemThrowProfile({damage:0,mapBottom:5,kinetics:{...hammerKinetics,gravity:.074,terminalFallSpeed:2.2}}),
+ visual:Object.freeze({...HAMMER_DEFINITION.visual!,spriteKey:ASSET_KEYS.itemGoldenHammer})});
+/** Head detached from a bad Hammer; a powerful throwable, never a stage-spawn switch entry. */
+export const HAMMER_HEAD_DEFINITION:ItemDefinition=Object.freeze({type:'hammerHead',itemClass:'throwing',ttlFrames:960,brokenDespawnFrames:30,
+ throwProfile:ultimateItemThrowProfile({damage:25,mapBottom:4,attackRadius:4.2,kinetics:{...hammerKinetics,throwRebound:{mul:.05,addX:.2,addY:1.9}},
+ knockback:{base:30,growth:100,fixed:0,angle:361}}),
+ thrownHit:{damageByAction:{'throw-ground-forward-ordinary':38.7,'throw-ground-back-ordinary':38.7,'throw-ground-up-ordinary':37.8,
+ 'throw-ground-down-ordinary':24.3,'throw-ground-forward-strong':42.7,'throw-ground-back-strong':42.7,'throw-ground-up-strong':44.1,
+ 'throw-ground-down-strong':24.3,'dash-throw':41.7,'air-z-drop':39,'throw-air-forward-ordinary':39,'throw-air-back-ordinary':39,
+ 'throw-air-up-ordinary':40.8,'throw-air-down-ordinary':37.8,'throw-air-forward-strong':42.4,'throw-air-back-strong':42.4,
+ 'throw-air-up-strong':44.1,'throw-air-down-strong':37.8}},
+ visual:Object.freeze({spriteKey:ASSET_KEYS.itemHammerHead,width:40,height:26,restAngle:0})});

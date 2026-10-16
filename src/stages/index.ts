@@ -5,8 +5,8 @@
  *   - `stageDefinitions` exposes the built-in stage data records
  *     (Phaser-free, importable by tests / the stage builder / replay
  *     tooling).
- *   - `StageRenderer` turns a `StageLayout` into Matter bodies and
- *     Phaser visuals inside a live scene.
+ *   - `stageBodies` / `BaseStage` turn a `StageLayout` into Matter bodies
+ *     (Phaser-free); `StageRenderer` / `StageView` draw them.
  *
  * Built-in hazard stages (4 in M2) and the runtime that loads
  * custom stages from the builder will plug into this module.
@@ -23,6 +23,8 @@ export {
   CRUMBLING_STAGE_DEFAULTS,
   MOVING_PLATFORM_STAGE,
   MOVING_PLATFORM_STAGE_DEFAULTS,
+  INFERNO_STAGE,
+  INFERNO_PLATFORM_RAISE,
   STAGES,
   STAGE_DESIGN_WIDTH,
   STAGE_DESIGN_HEIGHT,
@@ -40,12 +42,11 @@ export {
 } from './stageDefinitions';
 
 export {
-  renderStage,
   PLATFORM_LABELS,
   BLAST_ZONE_LABELS,
-  type RenderedStage,
-  type StageRenderOptions,
-} from './StageRenderer';
+  createStageBodies,
+  type StageBodies,
+} from './stageBodies';
 
 // Themed parallax stage backgrounds. `backgroundThemes` is the pure
 // data registry (Phaser-free — gradient colours, parallax layer specs,
@@ -81,17 +82,11 @@ export {
   type StageBackgroundTheme,
   type StageBackgroundThemeId,
 } from './backgroundThemes';
-export {
-  renderStageBackground,
-  type RenderedBackgroundLayer,
-  type RenderedStageBackground,
-  type StageBackgroundViewport,
-} from './StageBackgroundRenderer';
 
 // AC 20101 Sub-AC 1 — `BaseStage` is the shared stage runtime contract
 // that consolidates geometry loading, platform colliders, spawn points,
 // blast zones, and hazard lifecycle hooks into a single class the
-// gameplay loop drives via `tickHazards`/`applyHazardEffects`/`updateRender`.
+// gameplay loop drives via `tickHazards`/`applyHazardEffects` (drawn by `StageView`).
 // See module header for the full design rationale.
 export {
   BaseStage,
@@ -137,38 +132,16 @@ export {
   type ToggleablePlatformBody,
 } from './platformCollisionToggle';
 
-// Sub-AC 3 of AC 9: lava hazard renderer — bridges StageHazard
-// authoring records → LavaHazard runtime entities → Matter sensor
-// bodies + Phaser visuals. Lives next to StageRenderer because it
-// is the second member of the "turn StageLayout data into live
-// scene actors" family.
+// Hazards: the simulation half (entities + sensor bodies, synced each step)
+// and the Phaser drawing of each family.
 export {
-  renderLavaHazard,
-  renderLavaHazards,
-  createLavaHazardFromStageHazard,
-  computeStageViewportTransform,
-  DEFAULT_LAVA_VISUAL_COLORS,
-  type RenderedLavaHazard,
-  type LavaHazardsRenderResult,
-  type LavaRenderOptions,
-  type LavaVisualOptions,
-} from './LavaHazardRenderer';
-
-// AC 10102 Sub-AC 2: wind hazard renderer — sister of the lava
-// renderer above. Bridges StageHazard 'wind' records → WindZoneHazard
-// runtime entities → Matter sensor bodies + Phaser visuals. The
-// owning scene composes this with `WindForceController` to apply the
-// per-frame gust force to overlapping fighters.
-export {
-  renderWindHazard,
-  renderWindHazards,
-  createWindHazardFromStageHazard,
-  DEFAULT_WIND_VISUAL_COLORS,
-  type RenderedWindHazard,
-  type WindHazardsRenderResult,
-  type WindRenderOptions,
-  type WindVisualOptions,
-} from './WindHazardRenderer';
+  createStageHazardBodies,
+  type StageHazardBodies,
+  type StageHazardBody,
+} from './hazardBodies';
+export { computeStageViewportTransform } from './stageViewport';
+export { createLavaHazardFromStageHazard } from '../entities/LavaHazard';
+export { createWindHazardFromStageHazard } from '../entities/WindZoneHazard';
 
 // Sub-AC 4 of AC 90304: platform visual-state computation +
 // Phaser-side binder. The pure module computes a `PlatformVisualState`
@@ -186,14 +159,6 @@ export {
   type PlatformVisualInput,
   type PlatformOutlineMode,
 } from './platformVisualState';
-export {
-  createPlatformVisualBinder,
-  bindPlatformRectangle,
-  PLATFORM_GHOST_STROKE_WIDTH,
-  PLATFORM_OVERLAY_STROKE_WIDTH,
-  type BindablePlatformVisual,
-  type PlatformVisualBinder,
-} from './PlatformVisualBinder';
 
 // AC 20104 Sub-AC 4 — saved-stage → runtime stage layout converter.
 // Wires the M3 builder's `CustomStageData` (loaded from localStorage

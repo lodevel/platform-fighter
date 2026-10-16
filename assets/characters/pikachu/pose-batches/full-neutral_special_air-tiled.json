@@ -1,0 +1,313 @@
+{
+  "state": "packed_cells_visually_reviewed_runtime_pending",
+  "coordinateContract": {
+    "canonicalCanvas": [
+      2048,
+      2048
+    ],
+    "canonicalRoot": [
+      1024,
+      1664
+    ],
+    "frameWidth": 512,
+    "frameHeight": 512,
+    "root": [
+      256,
+      416
+    ],
+    "scaleToWorld": 0.4666666666666667,
+    "bodyCentreFromRoot": [
+      0,
+      -25
+    ]
+  },
+  "clockContract": "docs/review/2026-10-06/pikachu-character/sources/special-body-runtime-clock-contract.json",
+  "clockContractSha256": "afa3d371760c55b27d6e910c9ac6beccbf26decad48271fd1339c69df6021b4a",
+  "animations": {
+    "neutral_special_air": {
+      "strip": "animations/neutral_special_air.png",
+      "frameCount": 8,
+      "sha256": "fc76b4312be0c97bff4bd6cb7626d05044ff92c0b6f2d66c838146b5ffdd56d1",
+      "columns": 8,
+      "rows": 1,
+      "frameWindows": [
+        {
+          "startFrame": 0,
+          "endFrame": 8,
+          "artFrameIndex": 0
+        },
+        {
+          "startFrame": 8,
+          "endFrame": 16,
+          "artFrameIndex": 1
+        },
+        {
+          "startFrame": 16,
+          "endFrame": 19,
+          "artFrameIndex": 2
+        },
+        {
+          "startFrame": 19,
+          "endFrame": 23,
+          "artFrameIndex": 3
+        },
+        {
+          "startFrame": 23,
+          "endFrame": 32,
+          "artFrameIndex": 4
+        },
+        {
+          "startFrame": 32,
+          "endFrame": 43,
+          "artFrameIndex": 5
+        },
+        {
+          "startFrame": 43,
+          "endFrame": 51,
+          "artFrameIndex": 6
+        }
+      ],
+      "loopDuration": null,
+      "nativeSampleIndices": [
+        0,
+        8,
+        16,
+        19,
+        24,
+        35,
+        50,
+        74
+      ],
+      "nativeWindows": [
+        {
+          "source_key": "full-thunder-jolt-air-sample0-source0",
+          "native_sample_index": 0,
+          "start_elapsed": 0,
+          "end_elapsed": 8
+        },
+        {
+          "source_key": "full-thunder-jolt-air-sample8-source8",
+          "native_sample_index": 8,
+          "start_elapsed": 8,
+          "end_elapsed": 16
+        },
+        {
+          "source_key": "full-thunder-jolt-air-sample16-source16",
+          "native_sample_index": 16,
+          "start_elapsed": 16,
+          "end_elapsed": 19
+        },
+        {
+          "source_key": "full-thunder-jolt-air-sample19-source19",
+          "native_sample_index": 19,
+          "start_elapsed": 19,
+          "end_elapsed": 23
+        },
+        {
+          "source_key": "full-thunder-jolt-air-sample24-source24",
+          "native_sample_index": 24,
+          "start_elapsed": 23,
+          "end_elapsed": 32
+        },
+        {
+          "source_key": "full-thunder-jolt-air-sample35-source35",
+          "native_sample_index": 35,
+          "start_elapsed": 32,
+          "end_elapsed": 43
+        },
+        {
+          "source_key": "full-thunder-jolt-air-sample50-source50",
+          "native_sample_index": 50,
+          "start_elapsed": 43,
+          "end_elapsed": 51
+        }
+      ],
+      "drawingFacingBinding": null,
+      "holdRule": null,
+      "specialPhase": "call",
+      "specialClockKind": "jolt",
+      "dynamicCutoff": null,
+      "playableEndExclusive": 51,
+      "runtimeBindingStatus": "qualified source-clock resolver; body runtime visual review pending"
+    }
+  },
+  "sources": [
+    {
+      "sourceKey": "full-thunder-jolt-air-sample0-source0",
+      "nativeSample": 0,
+      "sourceReferenceSha256": "3578186c192031b2029ca756b6ced628a22aea763973ba065f3a598b90be99e6",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-specials-batch002-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "3975bc280fa7431b56b826cbff85d830ad467b11ef3a5a46cf6e67e8d6496fd1",
+      "atlasCell": 0,
+      "cellOffset": [
+        0,
+        0
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-specials-batch002-bounded-source0-attempt1.review.json",
+      "reviewSha256": "dd17d13ccc7978f15283e55e4b91983daa32e4286e65d72758fe7545cf887a66"
+    },
+    {
+      "sourceKey": "full-thunder-jolt-air-sample8-source8",
+      "nativeSample": 8,
+      "sourceReferenceSha256": "ed6dd18c70154fe4f35fa4ec93910e8953befd44a02af3a9aa3c73e436cc3954",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-specials-batch002-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "3975bc280fa7431b56b826cbff85d830ad467b11ef3a5a46cf6e67e8d6496fd1",
+      "atlasCell": 1,
+      "cellOffset": [
+        1024,
+        0
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-specials-batch002-bounded-source0-attempt1.review.json",
+      "reviewSha256": "dd17d13ccc7978f15283e55e4b91983daa32e4286e65d72758fe7545cf887a66"
+    },
+    {
+      "sourceKey": "full-thunder-jolt-air-sample16-source16",
+      "nativeSample": 16,
+      "sourceReferenceSha256": "c66c7a56f968226f3cea1203128c8df4637c2802a1a5c4ea09600d16ef0f5597",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-specials-batch002-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "3975bc280fa7431b56b826cbff85d830ad467b11ef3a5a46cf6e67e8d6496fd1",
+      "atlasCell": 2,
+      "cellOffset": [
+        0,
+        1024
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-specials-batch002-bounded-source0-attempt1.review.json",
+      "reviewSha256": "dd17d13ccc7978f15283e55e4b91983daa32e4286e65d72758fe7545cf887a66"
+    },
+    {
+      "sourceKey": "full-thunder-jolt-air-sample19-source19",
+      "nativeSample": 19,
+      "sourceReferenceSha256": "61c75a02b41f82b702c398a49fbce50ddabe26d0c98952fea666427be01ae6bd",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-specials-batch002-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "3975bc280fa7431b56b826cbff85d830ad467b11ef3a5a46cf6e67e8d6496fd1",
+      "atlasCell": 3,
+      "cellOffset": [
+        1024,
+        1024
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-specials-batch002-bounded-source0-attempt1.review.json",
+      "reviewSha256": "dd17d13ccc7978f15283e55e4b91983daa32e4286e65d72758fe7545cf887a66"
+    },
+    {
+      "sourceKey": "full-thunder-jolt-air-sample24-source24",
+      "nativeSample": 24,
+      "sourceReferenceSha256": "1b3569fa9cf99bf97b16cb18ca1e47ad6a21ed8bb8b27786b774efe78c40e130",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-specials-batch003-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "657baa7513f906c1525954bf7983a6d68ddf6d5bec14bf277991df2e5e1e7846",
+      "atlasCell": 0,
+      "cellOffset": [
+        0,
+        0
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-specials-batch003-bounded-source0-attempt1.review.json",
+      "reviewSha256": "d15d97b068e1865e2e448fd06c9496411fc6c490812d07d1b72bb33b39efd562"
+    },
+    {
+      "sourceKey": "full-thunder-jolt-air-sample35-source35",
+      "nativeSample": 35,
+      "sourceReferenceSha256": "19325054712383e267890815c3e444acdcfc4f3ad393ab733e39218e66c96e4e",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-specials-batch003-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "657baa7513f906c1525954bf7983a6d68ddf6d5bec14bf277991df2e5e1e7846",
+      "atlasCell": 1,
+      "cellOffset": [
+        1024,
+        0
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-specials-batch003-bounded-source0-attempt1.review.json",
+      "reviewSha256": "d15d97b068e1865e2e448fd06c9496411fc6c490812d07d1b72bb33b39efd562"
+    },
+    {
+      "sourceKey": "full-thunder-jolt-air-sample50-source50",
+      "nativeSample": 50,
+      "sourceReferenceSha256": "66a0921417e2defb8b3e62bed5c814c3dd74bbc3bb8044160274b18730ad90e2",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-specials-batch003-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "657baa7513f906c1525954bf7983a6d68ddf6d5bec14bf277991df2e5e1e7846",
+      "atlasCell": 2,
+      "cellOffset": [
+        0,
+        1024
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-specials-batch003-bounded-source0-attempt1.review.json",
+      "reviewSha256": "d15d97b068e1865e2e448fd06c9496411fc6c490812d07d1b72bb33b39efd562"
+    },
+    {
+      "sourceKey": "full-thunder-jolt-air-sample74-source74",
+      "nativeSample": 74,
+      "sourceReferenceSha256": "149e2f79d21141d7f2d76b4d2e682a5f771ef340b63ef7688e1e2a310d6cd100",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-specials-batch003-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "657baa7513f906c1525954bf7983a6d68ddf6d5bec14bf277991df2e5e1e7846",
+      "atlasCell": 3,
+      "cellOffset": [
+        1024,
+        1024
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-specials-batch003-bounded-source0-attempt1.review.json",
+      "reviewSha256": "d15d97b068e1865e2e448fd06c9496411fc6c490812d07d1b72bb33b39efd562"
+    }
+  ],
+  "galleries": {
+    "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/neutral_special_air-cells-1.png": "6b04d18fda5d648f2a8562d47a1c38ceed22838209df4134b0a4a3d6aab19f1b",
+    "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/neutral_special_air-cells-2.png": "d835ba279ce83d527ec1ea6af914dd47a4a4fa4a512f7731012a9007a7da7c0f"
+  },
+  "limits": [
+    "Actual packed-cell inspection required before aggregate registration.",
+    "Authored beta presentation windows do not establish native status rate parity.",
+    "Actual running-game qualification remains separate."
+  ],
+  "packedVisualReview": {
+    "reviewer": "pikachu_art_motion",
+    "state": "actual_saved_packed_cells_reviewed",
+    "inspectedGalleries": {
+      "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/neutral_special_air-cells-1.png": "6b04d18fda5d648f2a8562d47a1c38ceed22838209df4134b0a4a3d6aab19f1b",
+      "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/neutral_special_air-cells-2.png": "d835ba279ce83d527ec1ea6af914dd47a4a4fa4a512f7731012a9007a7da7c0f"
+    },
+    "observations": [
+      "Actually inspected both saved packed light/dark galleries all8 cells. Native0 folded right/down aerial,8upright suspended,16hunched,19/24/35horizontal head-first,50inverted tucked recover with edge-on tail and ears belowhead,74right airborne open limbs post-action. Fixedroot/source orientation and identity preserved; native50 belowroot art retained. Roughoutline grain and sparse authored drawing holds remain. Seven playable windows cut51/native74 excluded."
+    ]
+  },
+  "runtimeEvidence": {
+    "reviewer": "pikachu_integration",
+    "receipt": "docs/review/2026-10-06/pikachu-character/integration/jolt-fall-corrected/visual-review.json",
+    "receiptSha256": "611c85ab2acf020e4d246c3a68a11d14332cfc11e28ef6706244304e4039bb55",
+    "bundle": "http://127.0.0.1:4228/platform-fighter/assets/index-Bu5NFNh0.js",
+    "bundleSha256": "a70e143ad50bce50a73829d71caca5ca20e4bca5e51b1b650092bd573c858a02",
+    "state": "actual_visual_review_completed_partial_fidelity",
+    "scope": "Actually inspected all28 real-Match ground/high-air source Jolt body captures,7playable pose windows eachcase/bothfacings; all51actionsteps body12caps/7.75terminal/.475gravity numericalPASS.",
+    "findings": [
+      "Ground crouch/forward mouth-release and distinct horizontal airborne call poses visibly render in bothfacings; native50 air curled/downward pose retained.",
+      "Detached yellow/blue article is visible near release and travels away; born18 and actor-ending persistence pass actual traces.",
+      "Body pixels are visible on all28 captures; high-air native50 pose clears stage in this clear-column fixture.",
+      "Initial crop gallery used pre-screenshot camera values and omitted CSS scale/viewport origin; regenerated screenshot-only connected-component crops show actual source captures without modifying assets."
+    ],
+    "limits": [
+      "High-air fixture only; native lowfloor situation/motion transitions and air50 clearance elsewhere notproved.",
+      "Sparse posed2D capsules retain native projected-radius overhang and distal ear/tailtip exclusions; no silhouette-tight/native3D parity.",
+      "Shared startup telegraph rings and simple article graphics remain authored presentation rather than nativeFX parity.",
+      "Native ordinaryFALL energy initialization remains unknown; authored project rising/force policies retained."
+    ],
+    "precedingFailureRecords": [
+      "integration/jolt-bodies-initial/jolt-body-match-observations.json",
+      "integration/jolt-bodies-retry/jolt-body-match-observations.json"
+    ],
+    "immutableAssetSnapshot": {
+      "sheets": 83,
+      "cells": 582
+    }
+  }
+}

@@ -97,6 +97,8 @@
 import type { AttackMove, HitboxPlugin } from './attacks';
 import type { ChargeSpec } from './chargeSchema';
 import type { HitInfo, KnockbackResult } from './combat';
+import { posedCapsule, type CollisionCapsule } from './capsuleGeometry';
+import { capsuleIntersectsBounds } from './attackCollisionShapes';
 
 // ---------------------------------------------------------------------------
 // Geometry primitives
@@ -142,10 +144,12 @@ export interface Hitbox {
  * see identical hurtboxes for identical (move, frame) pairs.
  */
 export interface Hurtbox {
+  /** Anatomical source/retargeted bone identity used by partial protection. */
+  readonly region?: string;
   /**
    * Stable identifier, unique within a fighter's hurtbox set. The
    * default body hurtbox uses `'body'`; per-move hurtboxes prefix
-   * with the move id (e.g. `'wolf.smash.windup'`). The collision
+   * with the move id (e.g. `'donkeykong.smash.windup'`). The collision
    * handler logs hurtbox ids in damage events so post-match analysis
    * can answer "did Cat's smash trade with Wolf's body or with his
    * windup hurtbox?".
@@ -159,8 +163,14 @@ export interface Hurtbox {
   readonly width: number;
   /** Height in design pixels. */
   readonly height: number;
+  /** Optional exact posed capsule, relative to the defender body centre and
+   * authored facing right. Endpoints include their local offsets; rectangle
+   * offsetX/Y are not added again. Runtime derives capsule bounds separately,
+   * so width/height remain legacy/tooling fields rather than damage geometry.
+   * Native matrices/radius conversion must be acquired/authored separately. */
+  readonly capsule?: CollisionCapsule;
   /**
-   * If `true`, this hurtbox is **invincible / intangible** for as long
+   * If `true`, this hurtbox is **intangible** for as long
    * as it's active — overlapping hitboxes deal no damage, no
    * knockback, no hitstun. Used by dodge windows, smash super-armour
    * frames, and (M-future) edge-grab i-frames. Defaults to `false`
@@ -223,10 +233,16 @@ export function hitboxOverlapsHurtbox(
   attackerFacing: 1 | -1,
   defender: { readonly x: number; readonly y: number },
   hurtbox: Hurtbox,
+  defenderFacing: 1 | -1 = 1,
 ): boolean {
   const hcx = attacker.x + hitbox.offsetX * attackerFacing;
   const hcy = attacker.y + hitbox.offsetY;
-  const dcx = defender.x + hurtbox.offsetX;
+  if (hurtbox.capsule) {
+    return capsuleIntersectsBounds(posedCapsule(hurtbox.capsule, defender, defenderFacing), { x: 0, y: 0 }, 1,
+      { min: { x: hcx - hitbox.width / 2, y: hcy - hitbox.height / 2 },
+        max: { x: hcx + hitbox.width / 2, y: hcy + hitbox.height / 2 } });
+  }
+  const dcx = defender.x + hurtbox.offsetX * defenderFacing;
   const dcy = defender.y + hurtbox.offsetY;
 
   const hHalfW = hitbox.width / 2;
@@ -376,7 +392,7 @@ export function knockbackToAngleMagnitude(
  * `{ x: 1, y: -1 }`.
  *
  * Use this in move tables when authoring is more natural in polar
- * form — e.g., `WOLF_SMASH.knockback = angleMagnitudeToKnockback({
+ * form — e.g., `DONKEYKONG_SMASH.knockback = angleMagnitudeToKnockback({
  * angleDegrees: 45, magnitude: 4.5, scaling: 0.45 })`.
  *
  * The optional Smash-style components (`baseMagnitude`,
@@ -544,6 +560,14 @@ export interface MoveAnimation {
   readonly activeFrames: number;
   /** Number of art frames covering the recovery phase. ≥ 1. */
   readonly recoveryFrames: number;
+  /** Optional complete half-open gameplay timeline. Indices address the
+   * entire authored strip; shared rendering uses attack elapsed, including
+   * harmless gaps and hit-stop, instead of interpolating phase counts. */
+  readonly frameWindows?: readonly {
+    readonly startFrame: number;
+    readonly endFrame: number;
+    readonly artFrameIndex: number;
+  }[];
 }
 
 /**
@@ -553,6 +577,14 @@ export interface MoveAnimation {
  * default and the gameplay loop keeps running unaffected.
  */
 export interface AttackMoveWithAnimation extends AttackMove {
+  /** Optional elapsed startup frame where a held smash pauses to charge. */
+  readonly chargeStartFrame?: number;
+  /** Optional second strike selected by a fresh light or heavy press. */
+  readonly followUp?: {
+    readonly nextId: string;
+    readonly windowStart: number;
+    readonly windowEnd: number;
+  };
   readonly animation?: MoveAnimation;
   /**
    * Optional per-move hurtbox modifiers — replace the body-default
@@ -586,11 +618,19 @@ export interface AttackMoveWithAnimation extends AttackMove {
     readonly nextId: string;
     /**
      * Earliest `framesElapsed` at which a re-press may advance the chain.
+     * For an opted-in complete paired DK jab with
+     * `continuationWindowEndFrame`, this is canonical source-animation age
+     * under edited gameplay phases, with the paired source startup default.
      * Defaults to this stage's `startupFrames` (advance once the hitbox is
      * out) — pressing during pure startup is ignored so a single mash
      * can't skip the active window.
      */
     readonly advanceWindowStart?: number;
+    /** Opt-in DK complete paired jab: source-age end-exclusive continuation,
+     * including the actionable tail after commitment. Both chain endpoints
+     * then use canonical source ages under Lab phase edits. Absent preserves
+     * the existing gameplay-clock behavior on every other move/fighter. */
+    readonly continuationWindowEndFrame?: number;
   };
   /**
    * Optional CHARGE ramp. On a SMASH move it makes the smash hold-to-charge:
@@ -629,6 +669,10 @@ export interface AttackMoveWithAnimation extends AttackMove {
 export interface MoveHurtboxModifier {
   /** Phase(s) this modifier is active for; `undefined` = whole move. */
   readonly phase?: LiveAttackPhase | ReadonlyArray<LiveAttackPhase>;
+  /** Optional fixed-step attack clock interval [startFrame,endFrame). Intersects
+   * phase when both are supplied. Uses the same elapsed clock as contact/pose
+   * selection, so hit-stop freezes geometry too. Omitted keeps legacy behavior. */
+  readonly frameWindow?: { readonly startFrame: number; readonly endFrame: number };
   /** Replacement hurtbox geometry / flags. */
   readonly hurtbox: Hurtbox;
   /**
@@ -667,7 +711,13 @@ export interface MoveHurtboxModifier {
 export function isHurtboxModifierActive(
   modifier: MoveHurtboxModifier,
   phase: LiveAttackPhase,
+  framesElapsed?: number,
 ): boolean {
+  if (modifier.frameWindow !== undefined) {
+    const { startFrame, endFrame } = modifier.frameWindow;
+    if (framesElapsed === undefined || !Number.isInteger(framesElapsed)
+      || framesElapsed < startFrame || framesElapsed >= endFrame) return false;
+  }
   if (modifier.phase === undefined) return true;
   if (typeof modifier.phase === 'string') return modifier.phase === phase;
   return modifier.phase.includes(phase);
@@ -711,7 +761,7 @@ export function selectActiveHurtboxes(
   const matched: Hurtbox[] = [];
   let suppressBody = false;
   for (const m of mods) {
-    if (!isHurtboxModifierActive(m, phase)) continue;
+    if (!isHurtboxModifierActive(m, phase, framesElapsed)) continue;
     matched.push(m.hurtbox);
     if (m.replaceBody === true) suppressBody = true;
   }
@@ -806,6 +856,14 @@ export function resolveHurtboxDamageMultiplier(
  */
 export function getMoveBusyFrames(move: AttackMove): number {
   return move.startupFrames + move.activeFrames + move.recoveryFrames;
+}
+
+/** Validate optional landing timing shared by every special family. */
+export function validateSpecialLandingLagFrames(move: AttackMove): void {
+  if (move.specialLandingLagFrames !== undefined
+    && (!Number.isInteger(move.specialLandingLagFrames) || move.specialLandingLagFrames < 0)) {
+    throw new Error(`Move '${move.id}': specialLandingLagFrames must be a non-negative integer`);
+  }
 }
 
 /**

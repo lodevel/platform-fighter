@@ -24,12 +24,7 @@
  *   2. Lets unit tests assert the contract is uniform across the cast
  *      without instantiating four Matter scenes — every fighter exposes
  *      the same 10 keys with the same value shapes.
- *   3. Lets the (later sub-AC) item framework declare its slot overrides
- *      ({@link MovesetSlotOverride}) against the same canonical slot
- *      names — the slotOverride concept in the Seed's ontology slots in
- *      via the {@link AttackMovesetSlotName} union with no per-category
- *      special cases (open-closed for items).
- *   4. Lets the AI bot decision framework, the replay tooling, the
+ *   3. Lets the AI bot decision framework, the replay tooling, the
  *      damage-HUD legend, and the (later sub-AC) move-editor surface
  *      iterate the canonical slot list once instead of restating it.
  *
@@ -96,6 +91,9 @@ import type { UpSpecialMove } from './upSpecialSchema';
 import type { DownSpecialMove } from './downSpecialSchema';
 import type { ShieldTuning, ResolvedShieldTuning } from './shieldState';
 import type { DodgeTuning, ResolvedDodgeTuning } from './dodgeState';
+import type { ReferenceLaunchProfile } from './referenceLaunchEnergy';
+import type { LocomotionTuning } from './locomotionState';
+import type { LedgeHangTuning } from './ledgeHangState';
 
 // ---------------------------------------------------------------------------
 // Slot-name unions and ordered lists
@@ -375,11 +373,60 @@ export interface FighterMoveset
  * Identical movement profiles always produce identical physics
  * trajectories — the property the replay system requires.
  */
-export interface FighterMovementProfile {
+export interface AirMovementTuning {
+  /** Optional airborne horizontal target speed; defaults to maxRunSpeed. */
+  readonly maxAirSpeed?: number;
+  /** Extra downward acceleration during a normal rise, in physical px/step². */
+  readonly riseAccel?: number;
+  /** Optional short-hop rise acceleration; defaults to riseAccel. */
+  readonly shortHopRiseAccel?: number;
+  /** Explicit short-hop speed, chosen during squat; disables a later jump cut. */
+  readonly shortHopImpulse?: number;
+  /** Optional air-jump speed; defaults to jumpImpulse. An authored value cannot be short-hopped. */
+  readonly airJumpImpulse?: number;
+  /** Extra downward acceleration during an air-jump rise; defaults to riseAccel. */
+  readonly airJumpRiseAccel?: number;
+}
+
+/** Optional ordinary landing commitment; omitted profiles retain zero lag. */
+export interface LandingTuning {
+  softLandingFrames?: number;
+  hardLandingFrames?: number;
+  /** Consecutive physics steps at normal terminal speed before a hard landing. */
+  hardLandingSpeedFrames?: number;
+  /** Landing commitment when a neutral air dodge touches down before ending. */
+  airDodgeLandingFrames?: number;
+  /** Landing commitment when a directional air dodge touches down before
+   * ending; with the late value it is the touchdown on the dodge's first frame. */
+  directionalAirDodgeLandingFrames?: number;
+  /** Directional landing commitment at the dodge's last frame. When set, the
+   * commitment is interpolated over the dodge's progress (Ultimate: earlier
+   * touchdowns cost more); omitted keeps the flat directional value. */
+  directionalAirDodgeLateLandingFrames?: number;
+}
+
+/** DK-only ordinary gravity and authored full-hop opening, in world units.
+ * Samples are signed post-Matter velocities/displacements on takeoff steps0..3.
+ * This does not describe native common-status acceleration or special kinetics.
+ */
+export interface DonkeyKongOrdinaryVerticalProfile {
+  readonly totalGravity: number;
+  readonly fullHopStepVelocitiesY: readonly number[];
+}
+
+export interface FighterMovementProfile extends AirMovementTuning, LandingTuning {
+  readonly donkeykongOrdinaryVertical?: DonkeyKongOrdinaryVerticalProfile;
+  /** Optional sourced ledge-option clocks; absent profiles retain shared policy. */
+  readonly ledge?: LedgeHangTuning;
+  /** Authored walk/dash/run behavior; omitted profiles retain relative defaults. */
+  readonly locomotion?: LocomotionTuning;
+  /** Optional authored defensive timings; omitted profiles keep generic defaults. */
+  readonly dodge?: DodgeTuning;
   /** Top horizontal speed in px per fixed step (8 ≈ 480 px/s). */
   readonly maxRunSpeed: number;
   /** Horizontal accel applied per step while grounded. */
   readonly groundAccel: number;
+  readonly shieldPushTraction?: number;
   /** Horizontal accel applied per step while airborne. */
   readonly airAccel: number;
   /**
@@ -407,6 +454,10 @@ export interface FighterMovementProfile {
    * realised launch velocity.
    */
   readonly mass: number;
+  /** Weight used by authored reference knockback; independent of Matter mass. */
+  readonly referenceWeight?: number;
+  /** Reference-launch gravity and fall caps in native game units. */
+  readonly referenceLaunch?: ReferenceLaunchProfile;
   /**
    * Extra downward acceleration (px per step²) applied while airborne
    * AND falling (vy > 0), on top of the engine's global Matter
@@ -476,46 +527,6 @@ export interface FighterContract {
 }
 
 // ---------------------------------------------------------------------------
-// Slot overrides — extension point for the T3 item framework
-// ---------------------------------------------------------------------------
-
-/**
- * Temporary replacement an item declares for a fighter's
- * {@link AttackMovesetSlotName} slot while the item is held. The Seed's
- * ontology calls this `slotOverride`; we surface it here on the
- * contract module so the (later sub-AC) item framework declares
- * overrides through one canonical type — no per-item-category special
- * cases.
- *
- * Why attack slots only: items replace ATTACK behaviours, not the
- * defensive shield / dodge state machines. The shield button never
- * "fires the bat's swing"; it always raises the shield. Constraining
- * the slot field to {@link AttackMovesetSlotName} encodes that rule at
- * the type level — an item author who tries to override
- * `'shield'` gets a TypeScript error.
- *
- * The override carries an `AttackMoveWithAnimation` (the broadest
- * attack-shape — every more-specific aerial / special record extends
- * it) so an item can substitute for any attack slot uniformly. An item
- * author who wants the override to satisfy a more specific shape
- * (e.g. ship a `fair` override that's a real `AerialMove` with
- * landing-lag fields) can declare a more-specific override type
- * locally; the contract here is the LOWEST common ground for the
- * runtime resolver.
- *
- * Open-closed extensibility: adding a hypothetical 4th item kind
- * requires only authoring its move record; the resolver, the inventory
- * framework, and the spawn manager never know which item provided
- * the override — they read off this stable contract.
- */
-export interface MovesetSlotOverride {
-  /** Which slot this override replaces. */
-  readonly slot: AttackMovesetSlotName;
-  /** The replacement move data — same shape every fighter slot uses. */
-  readonly move: AttackMoveWithAnimation;
-}
-
-// ---------------------------------------------------------------------------
 // Slot category / type-guard helpers (pure)
 // ---------------------------------------------------------------------------
 
@@ -549,10 +560,8 @@ export function getMovesetSlotCategory(
 
 /**
  * Type-guard narrowing a {@link MovesetSlotName} to the
- * {@link AttackMovesetSlotName} subset. Used by the T3 item framework
- * (`item.slotOverrides[].slot satisfies AttackMovesetSlotName`) and by
- * tests that iterate the full slot list and want to branch on
- * category.
+ * {@link AttackMovesetSlotName} subset. Used by tests that iterate the
+ * full slot list and want to branch on category.
  */
 export function isAttackMovesetSlot(
   slot: MovesetSlotName,

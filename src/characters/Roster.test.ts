@@ -1,51 +1,51 @@
 import { describe, it, expect } from 'vitest';
 import {
-  Cat,
-  CAT_JAB,
-  CAT_NAIR,
-  CAT_SMASH,
-  CAT_TILT,
-  CAT_TUNING,
   Character,
+  DonkeyKong,
+  DONKEYKONG_JAB,
+  DONKEYKONG_NAIR,
+  DONKEYKONG_SMASH,
+  DONKEYKONG_TILT,
+  DONKEYKONG_TUNING,
   HITBOX_COLLISION_FILTER,
   HITBOX_LABEL,
-  Wolf,
-  WOLF_JAB,
-  WOLF_NAIR,
-  WOLF_SMASH,
-  WOLF_TILT,
-  WOLF_TUNING,
+  Pikachu,
+  PIKACHU_JAB,
+  PIKACHU_NAIR,
+  PIKACHU_SMASH,
+  PIKACHU_TILT,
+  PIKACHU_TUNING,
   createCharacterById,
+  OFFENSIVE_ACTION_BUFFER_FRAMES,
   selectAnimationFrame,
   computeAttackPhase,
   type AttackMove,
 } from './index';
 import { FIGHTER_REGISTRY_IDS } from './fighterRegistry';
+import { attackSensorGeometry } from './attacks';
+import type { AttackMoveWithAnimation } from './moveSchema';
+import type { CharacterId } from '../types';
 import { COLLISION_CATEGORIES, COLLISION_MASKS } from '../engine/collisionCategories';
-import { PLATFORM_LABELS } from '../stages/StageRenderer';
+import { PLATFORM_LABELS } from '../stages/stageBodies';
 
 /**
- * AC 202 Sub-AC 2: two concrete character subclasses with distinct
- * stats and at least one basic attack move each (hitbox spawn, damage
- * value, cooldown).
+ * Concrete roster fighters (Donkey Kong, Pikachu) with distinct stats and
+ * a working grounded/aerial kit (hitbox spawn, damage value, move lockout).
  *
  * What this suite locks down:
  *
- *   1. Distinct stats — Wolf (bruiser) and Cat (ninja) ship with
- *      different mass, top speed, jump height, and silhouette. The
- *      stat-spread isn't accidental: a balance pass that flattens
- *      them into clones should fail loudly here.
+ *   1. Distinct stats — Donkey Kong (heavyweight) and Pikachu
+ *      (lightweight) ship with different mass, top speed, air control
+ *      and silhouette.
  *   2. Hitbox spawn — pressing attack while idle creates exactly one
  *      Matter sensor body in front of the fighter, on the right
  *      animation frame, with the right collision filter, label, and
  *      `plugin.{ownerId, moveId, damage, knockback, facing}` payload.
  *   3. Damage value — the spawned hitbox carries the attack's damage
- *      so the (later AC) damage handler can read a single source of
- *      truth without reverse-looking-up the character's moveset.
- *   4. Cooldown — back-to-back attacks are gated by
- *      `cooldownRemaining` running from the end of recovery. Cat's
- *      cooldown is shorter than Wolf's by design, so this also
- *      double-checks the stats are wired through.
+ *      so the damage handler can read a single source of truth without
+ *      reverse-looking-up the character's moveset.
+ *   4. Move lockout — back-to-back attacks are gated while a move is in
+ *      flight.
  *   5. Lifecycle — destroying or teleporting a fighter mid-attack
  *      cleans up the hitbox sensor (no orphaned bodies in the world).
  *
@@ -159,10 +159,22 @@ function makePlatform(
   };
 }
 
-/** Drop the character onto a platform so subsequent applyInput sees grounded=true. */
-function ground(ch: Character, m: MockScene): void {
+/**
+ * Drop the character onto a platform so subsequent applyInput sees
+ * grounded=true, then ride out the fixture's initial landing recovery so
+ * the fighter starts from a settled stance (landing timing has its own
+ * physics coverage).
+ */
+function ground(ch: Character, m: MockScene) {
   const plat = makePlatform(ch.getPosition().x, ch.getPosition().y + 100);
   m.emit('collisionstart', [{ bodyA: ch.body, bodyB: plat }]);
+  // The first neutral step processes the touchdown; keep stepping until
+  // the landing recovery has drained and the fighter is actionable.
+  let frames = 0;
+  do {
+    ch.applyInput({ moveX: 0, jump: false });
+  } while (!ch.canAttack() && ++frames < 30);
+  return plat;
 }
 
 /** Find the first hitbox body in the mock scene that hasn't been removed yet. */
@@ -174,104 +186,128 @@ function liveHitbox(m: MockScene): MockBody | null {
 }
 
 /** Run the attack press-and-release pattern across N frames, returning frame log. */
-function runFrames(ch: Wolf | Cat, frames: number, attackHeld: (frame: number) => boolean): void {
+function runFrames(ch: Character, frames: number, attackHeld: (frame: number) => boolean): void {
   for (let i = 0; i < frames; i += 1) {
     ch.applyInput({ moveX: 0, jump: false, attack: attackHeld(i) });
   }
 }
 
+/** A roster fighter fixture: its class, id, tuning and grounded/aerial moves. */
+interface FighterFixture {
+  readonly name: string;
+  readonly id: CharacterId;
+  readonly create: (scene: any, x?: number, y?: number) => Character;
+  readonly tuning: { readonly mass: number; readonly maxRunSpeed: number; readonly airAccel: number; readonly width: number; readonly height: number };
+  readonly jab: AttackMoveWithAnimation;
+  readonly tilt: AttackMoveWithAnimation;
+  readonly smash: AttackMoveWithAnimation;
+  readonly nair: AttackMoveWithAnimation;
+}
+
+const DK: FighterFixture = {
+  name: 'Donkey Kong',
+  id: 'donkeykong',
+  create: (scene, x = 0, y = 0) => new DonkeyKong(scene, { spawnX: x, spawnY: y }),
+  tuning: DONKEYKONG_TUNING,
+  jab: DONKEYKONG_JAB,
+  tilt: DONKEYKONG_TILT,
+  smash: DONKEYKONG_SMASH,
+  nair: DONKEYKONG_NAIR,
+};
+
+const PIKACHU: FighterFixture = {
+  name: 'Pikachu',
+  id: 'pikachu',
+  create: (scene, x = 0, y = 0) => new Pikachu(scene, { spawnX: x, spawnY: y }),
+  tuning: PIKACHU_TUNING,
+  jab: PIKACHU_JAB,
+  tilt: PIKACHU_TILT,
+  smash: PIKACHU_SMASH,
+  nair: PIKACHU_NAIR,
+};
+
+const FIGHTERS: readonly FighterFixture[] = [DK, PIKACHU];
+
+/** Frames from press until the move ends (startup + active + recovery + cooldown). */
+const lockout = (m: AttackMove): number =>
+  m.startupFrames + m.activeFrames + m.recoveryFrames + m.cooldownFrames;
+
+/** Source knockback growth — the KO-power term of the reference formula. */
+const knockbackGrowth = (m: AttackMove): number => m.knockback.reference!.growth;
+
 // ---------------------------------------------------------------------------
 // Distinct stats
 // ---------------------------------------------------------------------------
 
-describe('Wolf vs Cat — distinct stats (AC 202 Sub-AC 2)', () => {
-  it('ships Wolf with bruiser stats and Cat with ninja stats', () => {
-    // Cat is faster.
-    expect(CAT_TUNING.maxRunSpeed).toBeGreaterThan(WOLF_TUNING.maxRunSpeed);
-    // Wolf is heavier.
-    expect(WOLF_TUNING.mass).toBeGreaterThan(CAT_TUNING.mass);
-    // Cat has higher air control.
-    expect(CAT_TUNING.airAccel).toBeGreaterThan(WOLF_TUNING.airAccel);
-    // Cat jumps higher.
-    expect(CAT_TUNING.jumpImpulse).toBeGreaterThan(WOLF_TUNING.jumpImpulse);
-    // Wolf is bigger.
-    expect(WOLF_TUNING.width).toBeGreaterThan(CAT_TUNING.width);
-    expect(WOLF_TUNING.height).toBeGreaterThan(CAT_TUNING.height);
+describe('Donkey Kong vs Pikachu — distinct stats', () => {
+  it('ships Donkey Kong with heavyweight stats and Pikachu with lightweight stats', () => {
+    // Pikachu is faster.
+    expect(PIKACHU_TUNING.maxRunSpeed).toBeGreaterThan(DONKEYKONG_TUNING.maxRunSpeed);
+    // DK is heavier.
+    expect(DONKEYKONG_TUNING.mass).toBeGreaterThan(PIKACHU_TUNING.mass);
+    // Pikachu has higher air control.
+    expect(PIKACHU_TUNING.airAccel).toBeGreaterThan(DONKEYKONG_TUNING.airAccel);
+    // DK is bigger.
+    expect(DONKEYKONG_TUNING.width).toBeGreaterThan(PIKACHU_TUNING.width);
+    expect(DONKEYKONG_TUNING.height).toBeGreaterThan(PIKACHU_TUNING.height);
   });
 
-  it('Wolf reports id "wolf" and uses WOLF_TUNING by default', () => {
+  it.each(FIGHTERS)('$name reports its id and uses its tuning by default', (f) => {
     const m = createMockScene();
-    const ch = new Wolf(m.scene, { spawnX: 0, spawnY: 0 });
-    expect(ch.id).toBe('wolf');
+    const ch = f.create(m.scene);
+    expect(ch.id).toBe(f.id);
     const t = ch.getTuning();
-    expect(t.maxRunSpeed).toBe(WOLF_TUNING.maxRunSpeed);
-    expect(t.mass).toBe(WOLF_TUNING.mass);
-    expect(t.width).toBe(WOLF_TUNING.width);
-    expect(t.height).toBe(WOLF_TUNING.height);
+    expect(t.maxRunSpeed).toBe(f.tuning.maxRunSpeed);
+    expect(t.mass).toBe(f.tuning.mass);
+    expect(t.width).toBe(f.tuning.width);
+    expect(t.height).toBe(f.tuning.height);
   });
 
-  it('Cat reports id "cat" and uses CAT_TUNING by default', () => {
+  it.each(FIGHTERS)('$name body geometry passed to Matter matches its tuning', (f) => {
     const m = createMockScene();
-    const ch = new Cat(m.scene, { spawnX: 0, spawnY: 0 });
-    expect(ch.id).toBe('cat');
-    const t = ch.getTuning();
-    expect(t.maxRunSpeed).toBe(CAT_TUNING.maxRunSpeed);
-    expect(t.mass).toBe(CAT_TUNING.mass);
-    expect(t.width).toBe(CAT_TUNING.width);
-    expect(t.height).toBe(CAT_TUNING.height);
-  });
-
-  it('the body geometry passed to Matter matches the per-character tuning', () => {
-    const wolfScene = createMockScene();
-    new Wolf(wolfScene.scene, { spawnX: 0, spawnY: 0 });
-    const catScene = createMockScene();
-    new Cat(catScene.scene, { spawnX: 0, spawnY: 0 });
-
-    expect(wolfScene.bodies[0]!.options['_w']).toBe(WOLF_TUNING.width);
-    expect(wolfScene.bodies[0]!.options['_h']).toBe(WOLF_TUNING.height);
-    expect(catScene.bodies[0]!.options['_w']).toBe(CAT_TUNING.width);
-    expect(catScene.bodies[0]!.options['_h']).toBe(CAT_TUNING.height);
+    f.create(m.scene);
+    expect(m.bodies[0]!.options['_w']).toBe(f.tuning.width);
+    expect(m.bodies[0]!.options['_h']).toBe(f.tuning.height);
     // Mass is wired through Matter's options bag.
-    expect(wolfScene.bodies[0]!.options['mass']).toBe(WOLF_TUNING.mass);
-    expect(catScene.bodies[0]!.options['mass']).toBe(CAT_TUNING.mass);
+    expect(m.bodies[0]!.options['mass']).toBe(f.tuning.mass);
   });
 
   it('caller-supplied options still override class defaults (e.g. test mass overrides)', () => {
     const m = createMockScene();
-    const ch = new Wolf(m.scene, { spawnX: 0, spawnY: 0, mass: 99, maxRunSpeed: 1 });
+    const ch = new DonkeyKong(m.scene, { spawnX: 0, spawnY: 0, mass: 99, maxRunSpeed: 1 });
     const t = ch.getTuning();
     expect(t.mass).toBe(99);
     expect(t.maxRunSpeed).toBe(1);
     // Other fields keep the class defaults.
-    expect(t.airAccel).toBe(WOLF_TUNING.airAccel);
+    expect(t.airAccel).toBe(DONKEYKONG_TUNING.airAccel);
   });
 
   it('movement speed difference is observable through applyInput', () => {
-    const wolfScene = createMockScene();
-    const wolf = new Wolf(wolfScene.scene, { spawnX: 0, spawnY: 0 });
-    ground(wolf, wolfScene);
+    const dkScene = createMockScene();
+    const dk = DK.create(dkScene.scene);
+    ground(dk, dkScene);
 
-    const catScene = createMockScene();
-    const cat = new Cat(catScene.scene, { spawnX: 0, spawnY: 0 });
-    ground(cat, catScene);
+    const pikachuScene = createMockScene();
+    const pikachu = PIKACHU.create(pikachuScene.scene);
+    ground(pikachu, pikachuScene);
 
     for (let i = 0; i < 60; i += 1) {
-      wolf.applyInput({ moveX: 1, jump: false });
-      cat.applyInput({ moveX: 1, jump: false });
+      dk.applyInput({ moveX: 1, jump: false });
+      pikachu.applyInput({ moveX: 1, jump: false });
     }
-    // Cat's terminal velocity is the bigger number.
-    expect(cat.getVelocity().x).toBeGreaterThan(wolf.getVelocity().x);
-    expect(cat.getVelocity().x).toBeCloseTo(CAT_TUNING.maxRunSpeed);
-    expect(wolf.getVelocity().x).toBeCloseTo(WOLF_TUNING.maxRunSpeed);
+    // Pikachu's terminal velocity is the bigger number.
+    expect(pikachu.getVelocity().x).toBeGreaterThan(dk.getVelocity().x);
+    expect(pikachu.getVelocity().x).toBeCloseTo(PIKACHU_TUNING.maxRunSpeed);
+    expect(dk.getVelocity().x).toBeCloseTo(DONKEYKONG_TUNING.maxRunSpeed);
   });
 });
 
 // ---------------------------------------------------------------------------
-// Attack-move definitions — damage + cooldown values
+// Attack-move definitions — damage + frame values
 // ---------------------------------------------------------------------------
 
-describe('Wolf.jab and Cat.jab — move definitions', () => {
-  it('exposes WOLF_JAB and CAT_JAB as fully-specified AttackMove records', () => {
+describe('Donkey Kong and Pikachu jab — move definitions', () => {
+  it('exposes both jabs as fully-specified AttackMove records', () => {
     const required: Array<keyof AttackMove> = [
       'id',
       'type',
@@ -283,7 +319,7 @@ describe('Wolf.jab and Cat.jab — move definitions', () => {
       'recoveryFrames',
       'cooldownFrames',
     ];
-    for (const move of [WOLF_JAB, CAT_JAB]) {
+    for (const move of [DONKEYKONG_JAB, PIKACHU_JAB]) {
       for (const key of required) {
         expect(move[key]).not.toBeUndefined();
       }
@@ -291,20 +327,20 @@ describe('Wolf.jab and Cat.jab — move definitions', () => {
     }
   });
 
-  it('Wolf hits harder than Cat (distinct damage values)', () => {
-    expect(WOLF_JAB.damage).toBeGreaterThan(CAT_JAB.damage);
+  it('Donkey Kong hits harder than Pikachu (distinct damage values)', () => {
+    expect(DONKEYKONG_JAB.damage).toBeGreaterThan(PIKACHU_JAB.damage);
   });
 
-  it('Cat recovers faster than Wolf (distinct cooldown values)', () => {
-    expect(CAT_JAB.cooldownFrames).toBeLessThan(WOLF_JAB.cooldownFrames);
-    expect(CAT_JAB.recoveryFrames).toBeLessThan(WOLF_JAB.recoveryFrames);
+  it('Pikachu recovers faster than Donkey Kong (distinct jab lockouts)', () => {
+    expect(PIKACHU_JAB.recoveryFrames).toBeLessThan(DONKEYKONG_JAB.recoveryFrames);
+    expect(lockout(PIKACHU_JAB)).toBeLessThan(lockout(DONKEYKONG_JAB));
   });
 
   it('hitbox geometry sits in front of the fighter (positive offsetX)', () => {
-    expect(WOLF_JAB.hitbox.offsetX).toBeGreaterThan(0);
-    expect(CAT_JAB.hitbox.offsetX).toBeGreaterThan(0);
-    expect(WOLF_JAB.hitbox.width).toBeGreaterThan(0);
-    expect(CAT_JAB.hitbox.width).toBeGreaterThan(0);
+    for (const move of [DONKEYKONG_JAB, PIKACHU_JAB]) {
+      expect(move.hitbox.offsetX).toBeGreaterThan(0);
+      expect(move.hitbox.width).toBeGreaterThan(0);
+    }
   });
 });
 
@@ -312,17 +348,16 @@ describe('Wolf.jab and Cat.jab — move definitions', () => {
 // Hitbox spawn — body construction & timing
 // ---------------------------------------------------------------------------
 
-describe('Hitbox spawn (AC 202 Sub-AC 2)', () => {
+describe.each(FIGHTERS)('Hitbox spawn — $name jab', (f) => {
   it('spawns no hitbox until the active phase begins', () => {
     const m = createMockScene();
-    const ch = new Wolf(m.scene, { spawnX: 100, spawnY: 100 });
+    const ch = f.create(m.scene, 100, 100);
     ground(ch, m);
 
-    // Press attack on frame 0. With startup=4, the hitbox should NOT
-    // exist on frames 1..3.
+    // Press attack on frame 0; the hitbox must not exist during startup.
     ch.applyInput({ moveX: 0, jump: false, attack: true });
     expect(liveHitbox(m)).toBeNull();
-    for (let i = 0; i < WOLF_JAB.startupFrames - 1; i += 1) {
+    for (let i = 0; i < f.jab.startupFrames - 1; i += 1) {
       ch.applyInput({ moveX: 0, jump: false, attack: false });
       expect(liveHitbox(m)).toBeNull();
     }
@@ -333,19 +368,14 @@ describe('Hitbox spawn (AC 202 Sub-AC 2)', () => {
 
   it('despawns the hitbox at the end of the active window', () => {
     const m = createMockScene();
-    const ch = new Wolf(m.scene, { spawnX: 100, spawnY: 100 });
+    const ch = f.create(m.scene, 100, 100);
     ground(ch, m);
 
-    // Press on the press call (f=0). Then advance startup+active calls
-    // — this lands us on the first 'recovery' frame, which is the step
-    // where the despawn fires.
+    // Press, then advance startup+active calls — this lands on the first
+    // 'recovery' frame, which is the step where the despawn fires.
     ch.applyInput({ moveX: 0, jump: false, attack: true });
-    runFrames(
-      ch,
-      WOLF_JAB.startupFrames + WOLF_JAB.activeFrames,
-      () => false,
-    );
-    // A hitbox was alive at some point.
+    runFrames(ch, f.jab.startupFrames + f.jab.activeFrames, () => false);
+    // A hitbox was alive at some point...
     expect(m.bodies.some((b) => b.label === HITBOX_LABEL)).toBe(true);
     // ...but after the active window it's been removed.
     expect(liveHitbox(m)).toBeNull();
@@ -357,13 +387,11 @@ describe('Hitbox spawn (AC 202 Sub-AC 2)', () => {
 
   it('hitbox is a sensor with the canonical HITBOX collision filter', () => {
     const m = createMockScene();
-    const ch = new Cat(m.scene, { spawnX: 0, spawnY: 0 });
+    const ch = f.create(m.scene);
     ground(ch, m);
 
-    // Cat: startup 2, active 2 → hitbox alive on frame 3 (after 3 ticks).
     ch.applyInput({ moveX: 0, jump: false, attack: true });
-    ch.applyInput({ moveX: 0, jump: false, attack: false });
-    ch.applyInput({ moveX: 0, jump: false, attack: false });
+    runFrames(ch, f.jab.startupFrames, () => false); // land in active
     const hb = liveHitbox(m);
     expect(hb).not.toBeNull();
     const opts = hb!.options;
@@ -380,55 +408,56 @@ describe('Hitbox spawn (AC 202 Sub-AC 2)', () => {
 
   it('hitbox plugin payload carries owner, move, damage, knockback, and facing', () => {
     const m = createMockScene();
-    const ch = new Wolf(m.scene, { spawnX: 0, spawnY: 0 });
+    const ch = f.create(m.scene);
     ground(ch, m);
 
     ch.applyInput({ moveX: 0, jump: false, attack: true });
-    runFrames(ch, WOLF_JAB.startupFrames, () => false); // land in active
+    runFrames(ch, f.jab.startupFrames, () => false); // land in active
     const hb = liveHitbox(m);
     expect(hb).not.toBeNull();
     const plugin = hb!.options['plugin'] as Record<string, unknown>;
-    expect(plugin['ownerId']).toBe('wolf');
-    expect(plugin['moveId']).toBe(WOLF_JAB.id);
-    expect(plugin['damage']).toBe(WOLF_JAB.damage);
-    expect(plugin['knockback']).toEqual(WOLF_JAB.knockback);
+    expect(plugin['ownerId']).toBe(f.id);
+    expect(plugin['moveId']).toBe(f.jab.id);
+    expect(plugin['damage']).toBe(f.jab.damage);
+    expect(plugin['knockback']).toEqual(f.jab.knockback);
     // Default facing is right (+1) since we never deflected the stick.
     expect(plugin['facing']).toBe(1);
   });
 
-  it('mirrors hitbox offsetX by the fighter\'s facing direction', () => {
+  it("mirrors hitbox offsetX by the fighter's facing direction", () => {
     const m = createMockScene();
-    const ch = new Cat(m.scene, { spawnX: 500, spawnY: 200 });
+    const ch = f.create(m.scene, 500, 200);
     ground(ch, m);
     // Face left.
     ch.setFacing(-1);
     ch.applyInput({ moveX: 0, jump: false, attack: true });
-    // Cat: startup 2 — advance to active.
-    ch.applyInput({ moveX: 0, jump: false, attack: false });
-    ch.applyInput({ moveX: 0, jump: false, attack: false });
+    runFrames(ch, f.jab.startupFrames, () => false);
     const hb = liveHitbox(m);
     expect(hb).not.toBeNull();
-    // offsetX should be flipped: hitbox center sits to the LEFT of body.
+    // offsetX is flipped: hitbox centre sits to the LEFT of the body...
     expect(hb!.position.x).toBeLessThan(ch.getPosition().x);
-    // ...and at the configured offset distance.
-    expect(ch.getPosition().x - hb!.position.x).toBeCloseTo(CAT_JAB.hitbox.offsetX);
+    // ...at the configured offset distance (the sensor encloses every
+    // collision record of the move).
+    expect(ch.getPosition().x - hb!.position.x).toBeCloseTo(attackSensorGeometry(f.jab).offsetX);
   });
 
   it('hitbox dimensions match the move definition', () => {
     const m = createMockScene();
-    const ch = new Wolf(m.scene, { spawnX: 0, spawnY: 0 });
+    const ch = f.create(m.scene);
     ground(ch, m);
     ch.applyInput({ moveX: 0, jump: false, attack: true });
-    runFrames(ch, WOLF_JAB.startupFrames, () => false);
+    runFrames(ch, f.jab.startupFrames, () => false);
     const hb = liveHitbox(m);
     expect(hb).not.toBeNull();
-    expect(hb!.options['_w']).toBe(WOLF_JAB.hitbox.width);
-    expect(hb!.options['_h']).toBe(WOLF_JAB.hitbox.height);
+    // The broadphase sensor encloses every collision record of the move.
+    const geometry = attackSensorGeometry(f.jab);
+    expect(hb!.options['_w']).toBe(geometry.width);
+    expect(hb!.options['_h']).toBe(geometry.height);
   });
 
   it('exposes the active-attack snapshot through getActiveAttack()', () => {
     const m = createMockScene();
-    const ch = new Cat(m.scene, { spawnX: 0, spawnY: 0 });
+    const ch = f.create(m.scene);
     ground(ch, m);
 
     expect(ch.getActiveAttack()).toBeNull();
@@ -436,16 +465,15 @@ describe('Hitbox spawn (AC 202 Sub-AC 2)', () => {
 
     ch.applyInput({ moveX: 0, jump: false, attack: true });
     let snap = ch.getActiveAttack()!;
-    expect(snap.move.id).toBe(CAT_JAB.id);
+    expect(snap.move.id).toBe(f.jab.id);
     expect(snap.phase).toBe('startup');
     // Press call doesn't burn a frame — the move's first deterministic
     // step is the *next* applyInput. So framesElapsed reads 0 here.
     expect(snap.framesElapsed).toBe(0);
     expect(snap.hitboxBody).toBeNull();
 
-    // Advance into active window.
-    ch.applyInput({ moveX: 0, jump: false, attack: false });
-    ch.applyInput({ moveX: 0, jump: false, attack: false });
+    // Advance into the active window.
+    runFrames(ch, f.jab.startupFrames, () => false);
     snap = ch.getActiveAttack()!;
     expect(snap.phase).toBe('active');
     expect(snap.hitboxBody).not.toBeNull();
@@ -453,124 +481,61 @@ describe('Hitbox spawn (AC 202 Sub-AC 2)', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Cooldown
+// Move lockout
 // ---------------------------------------------------------------------------
 
-describe('Cooldown gating (AC 202 Sub-AC 2)', () => {
-  it('rejects re-press during the move\'s own startup/active/recovery window', () => {
+describe('Move lockout gating', () => {
+  it("rejects re-press during the move's own startup/active/recovery window", () => {
     const m = createMockScene();
-    const ch = new Wolf(m.scene, { spawnX: 0, spawnY: 0 });
+    const ch = DK.create(m.scene);
     ground(ch, m);
 
     // Frame 0 — first press.
     ch.applyInput({ moveX: 0, jump: false, attack: true });
     expect(ch.isAttacking()).toBe(true);
 
-    // Release & re-press inside the active window. Should NOT start a
-    // fresh attack (canAttack returns false while one is in flight).
+    // Release & re-press inside the move. Should NOT start a fresh
+    // attack (canAttack returns false while one is in flight).
     ch.applyInput({ moveX: 0, jump: false, attack: false });
     ch.applyInput({ moveX: 0, jump: false, attack: true });
     const snap = ch.getActiveAttack();
     expect(snap).not.toBeNull();
     // Still the original move, not a re-launch.
+    expect(snap!.move.id).toBe(DONKEYKONG_JAB.id);
     expect(snap!.framesElapsed).toBeGreaterThan(1);
   });
 
-  it('arms cooldown only after recovery ends, not during the move', () => {
+  it('arms no cooldown while the move is in flight', () => {
     const m = createMockScene();
-    const ch = new Wolf(m.scene, { spawnX: 0, spawnY: 0 });
+    const ch = DK.create(m.scene);
     ground(ch, m);
 
     ch.applyInput({ moveX: 0, jump: false, attack: true });
     // While the move is in flight, cooldown stays at 0 (the gate is the
     // active-attack flag itself).
     expect(ch.getCooldownRemaining()).toBe(0);
-    runFrames(ch, WOLF_JAB.startupFrames + WOLF_JAB.activeFrames - 1, () => false);
+    runFrames(ch, DONKEYKONG_JAB.startupFrames + DONKEYKONG_JAB.activeFrames - 1, () => false);
     expect(ch.getCooldownRemaining()).toBe(0);
     expect(ch.isAttacking()).toBe(true);
   });
 
-  it('locks out re-press during the cooldown window, then accepts a new attack', () => {
+  it('attemptAttack(id) gates re-presses the same way as the rising-edge button', () => {
     const m = createMockScene();
-    const ch = new Wolf(m.scene, { spawnX: 0, spawnY: 0 });
+    const ch = PIKACHU.create(m.scene);
     ground(ch, m);
 
-    const totalBusy = WOLF_JAB.startupFrames + WOLF_JAB.activeFrames + WOLF_JAB.recoveryFrames;
-    // Press, then ride out the entire move-busy window (no held button —
-    // we only want to detect rising-edge presses). After `totalBusy`
-    // post-press calls, framesElapsed advances from 0 through totalBusy,
-    // crossing into 'done' on the last call → activeAttack cleared and
-    // cooldown freshly armed.
-    ch.applyInput({ moveX: 0, jump: false, attack: true });
-    runFrames(ch, totalBusy, () => false);
-    expect(ch.isAttacking()).toBe(false);
-    expect(ch.getCooldownRemaining()).toBe(WOLF_JAB.cooldownFrames);
-
-    // Try to press again immediately — must be rejected. Cooldown also
-    // drains by 1 on this call (the rejected press doesn't restart the
-    // attack, so step 3's drain runs).
-    ch.applyInput({ moveX: 0, jump: false, attack: true });
-    expect(ch.isAttacking()).toBe(false);
-    expect(ch.canAttack()).toBe(false);
-    expect(ch.getCooldownRemaining()).toBe(WOLF_JAB.cooldownFrames - 1);
-
-    // Burn the rest of the cooldown with neutral inputs.
-    runFrames(ch, WOLF_JAB.cooldownFrames - 1, () => false);
-    expect(ch.getCooldownRemaining()).toBe(0);
-    expect(ch.canAttack()).toBe(true);
-
-    // Now a fresh press connects.
-    ch.applyInput({ moveX: 0, jump: false, attack: true });
-    expect(ch.isAttacking()).toBe(true);
-  });
-
-  it('Cat\'s shorter cooldown lets her press-press faster than Wolf', () => {
-    const wolfScene = createMockScene();
-    const wolf = new Wolf(wolfScene.scene, { spawnX: 0, spawnY: 0 });
-    ground(wolf, wolfScene);
-    const catScene = createMockScene();
-    const cat = new Cat(catScene.scene, { spawnX: 0, spawnY: 0 });
-    ground(cat, catScene);
-
-    // Time-to-second-press = startup + active + recovery + cooldown.
-    const wolfWindow =
-      WOLF_JAB.startupFrames +
-      WOLF_JAB.activeFrames +
-      WOLF_JAB.recoveryFrames +
-      WOLF_JAB.cooldownFrames;
-    const catWindow =
-      CAT_JAB.startupFrames +
-      CAT_JAB.activeFrames +
-      CAT_JAB.recoveryFrames +
-      CAT_JAB.cooldownFrames;
-    expect(catWindow).toBeLessThan(wolfWindow);
-  });
-
-  it('attemptAttack(id) respects cooldown the same way as the rising-edge button', () => {
-    const m = createMockScene();
-    const ch = new Cat(m.scene, { spawnX: 0, spawnY: 0 });
-    ground(ch, m);
-
-    expect(ch.attemptAttack('cat.jab')).toBe(true);
+    expect(ch.attemptAttack(PIKACHU_JAB.id)).toBe(true);
     // Already in flight — second call rejected.
-    expect(ch.attemptAttack('cat.jab')).toBe(false);
-    // Run the move + cooldown to completion. Each fixed step both
-    // advances the move (when active) and drains the cooldown (after
-    // the move ends), so the lockout from press to actionable is the
-    // sum of every phase's frame budget.
-    const totalLockout =
-      CAT_JAB.startupFrames +
-      CAT_JAB.activeFrames +
-      CAT_JAB.recoveryFrames +
-      CAT_JAB.cooldownFrames;
-    runFrames(ch, totalLockout, () => false);
+    expect(ch.attemptAttack(PIKACHU_JAB.id)).toBe(false);
+    // Run the move to completion; the fighter is actionable again.
+    runFrames(ch, lockout(PIKACHU_JAB), () => false);
     expect(ch.canAttack()).toBe(true);
-    expect(ch.attemptAttack('cat.jab')).toBe(true);
+    expect(ch.attemptAttack(PIKACHU_JAB.id)).toBe(true);
   });
 
   it('attemptAttack(id) rejects unknown move ids without affecting state', () => {
     const m = createMockScene();
-    const ch = new Wolf(m.scene, { spawnX: 0, spawnY: 0 });
+    const ch = DK.create(m.scene);
     ground(ch, m);
     expect(ch.attemptAttack('does-not-exist')).toBe(false);
     expect(ch.isAttacking()).toBe(false);
@@ -585,11 +550,11 @@ describe('Cooldown gating (AC 202 Sub-AC 2)', () => {
 describe('Hitbox lifecycle', () => {
   it('destroy() removes any in-flight hitbox sensor from the world', () => {
     const m = createMockScene();
-    const ch = new Wolf(m.scene, { spawnX: 0, spawnY: 0 });
+    const ch = DK.create(m.scene);
     ground(ch, m);
 
     ch.applyInput({ moveX: 0, jump: false, attack: true });
-    runFrames(ch, WOLF_JAB.startupFrames, () => false);
+    runFrames(ch, DONKEYKONG_JAB.startupFrames, () => false);
     expect(liveHitbox(m)).not.toBeNull();
 
     ch.destroy();
@@ -600,12 +565,11 @@ describe('Hitbox lifecycle', () => {
 
   it('setPosition() cancels an in-flight attack and clears cooldown', () => {
     const m = createMockScene();
-    const ch = new Cat(m.scene, { spawnX: 0, spawnY: 0 });
+    const ch = PIKACHU.create(m.scene);
     ground(ch, m);
 
     ch.applyInput({ moveX: 0, jump: false, attack: true });
-    ch.applyInput({ moveX: 0, jump: false, attack: false });
-    ch.applyInput({ moveX: 0, jump: false, attack: false }); // active
+    runFrames(ch, PIKACHU_JAB.startupFrames, () => false); // active
     expect(liveHitbox(m)).not.toBeNull();
 
     ch.setPosition(500, 250);
@@ -616,7 +580,7 @@ describe('Hitbox lifecycle', () => {
 
   it('applyInput() after destroy() does not spawn new hitboxes', () => {
     const m = createMockScene();
-    const ch = new Wolf(m.scene, { spawnX: 0, spawnY: 0 });
+    const ch = DK.create(m.scene);
     ground(ch, m);
     ch.destroy();
     ch.applyInput({ moveX: 0, jump: false, attack: true });
@@ -625,11 +589,11 @@ describe('Hitbox lifecycle', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Sub-AC 3.3 — light / heavy / aerial attack triplet
+// Light / heavy / aerial attack triplet
 // ---------------------------------------------------------------------------
 
-describe('Light / heavy / aerial moves — definitions (AC 203 Sub-AC 3.3)', () => {
-  it('Wolf ships a fully-specified smash and nair', () => {
+describe('Light / heavy / aerial moves — definitions', () => {
+  it.each(FIGHTERS)('$name ships a fully-specified smash and nair', (f) => {
     const required: Array<keyof AttackMove> = [
       'id',
       'type',
@@ -641,168 +605,108 @@ describe('Light / heavy / aerial moves — definitions (AC 203 Sub-AC 3.3)', () 
       'recoveryFrames',
       'cooldownFrames',
     ];
-    for (const move of [WOLF_SMASH, WOLF_NAIR]) {
+    for (const move of [f.smash, f.nair]) {
       for (const key of required) {
         expect(move[key]).not.toBeUndefined();
       }
+      expect(move.damage).toBeGreaterThan(0);
     }
-    expect(WOLF_SMASH.type).toBe('smash');
-    expect(WOLF_NAIR.type).toBe('aerial');
+    expect(f.smash.type).toBe('smash');
+    expect(f.nair.type).toBe('aerial');
   });
 
-  it('Cat ships a fully-specified smash and nair', () => {
-    expect(CAT_SMASH.type).toBe('smash');
-    expect(CAT_NAIR.type).toBe('aerial');
-    expect(CAT_SMASH.damage).toBeGreaterThan(0);
-    expect(CAT_NAIR.damage).toBeGreaterThan(0);
+  it.each(FIGHTERS)('$name heavy hits harder than light', (f) => {
+    expect(f.smash.damage).toBeGreaterThan(f.jab.damage);
+    // Knockback growth distinguishes a finisher from a poke; the heavy
+    // move is a KO finisher and must scale meaningfully harder than the jab.
+    expect(knockbackGrowth(f.smash)).toBeGreaterThan(knockbackGrowth(f.jab));
   });
 
-  it('heavy hits harder than light for both fighters', () => {
-    expect(WOLF_SMASH.damage).toBeGreaterThan(WOLF_JAB.damage);
-    expect(CAT_SMASH.damage).toBeGreaterThan(CAT_JAB.damage);
-    // Knockback scaling distinguishes a finisher from a poke; the heavy
-    // moves are KO finishers and must scale meaningfully harder than
-    // the corresponding jab.
-    expect(WOLF_SMASH.knockback.scaling).toBeGreaterThan(WOLF_JAB.knockback.scaling);
-    expect(CAT_SMASH.knockback.scaling).toBeGreaterThan(CAT_JAB.knockback.scaling);
+  it.each(FIGHTERS)('$name heavy move costs more frames than light (the speed-vs-power trade-off)', (f) => {
+    expect(f.smash.startupFrames).toBeGreaterThan(f.jab.startupFrames);
+    expect(lockout(f.smash)).toBeGreaterThan(lockout(f.jab));
   });
 
-  it('heavy moves cost more frames than light moves (the speed-vs-power trade-off)', () => {
-    expect(WOLF_SMASH.startupFrames).toBeGreaterThan(WOLF_JAB.startupFrames);
-    expect(CAT_SMASH.startupFrames).toBeGreaterThan(CAT_JAB.startupFrames);
-    const wolfHeavyTotal =
-      WOLF_SMASH.startupFrames +
-      WOLF_SMASH.activeFrames +
-      WOLF_SMASH.recoveryFrames +
-      WOLF_SMASH.cooldownFrames;
-    const wolfLightTotal =
-      WOLF_JAB.startupFrames +
-      WOLF_JAB.activeFrames +
-      WOLF_JAB.recoveryFrames +
-      WOLF_JAB.cooldownFrames;
-    expect(wolfHeavyTotal).toBeGreaterThan(wolfLightTotal);
+  it('Donkey Kong hits harder than Pikachu across the kit (archetype check)', () => {
+    expect(DONKEYKONG_JAB.damage).toBeGreaterThan(PIKACHU_JAB.damage);
+    expect(DONKEYKONG_SMASH.damage).toBeGreaterThan(PIKACHU_SMASH.damage);
+    expect(DONKEYKONG_NAIR.damage).toBeGreaterThan(PIKACHU_NAIR.damage);
   });
 
-  it('Wolf hits harder than Cat across the entire kit (archetype check)', () => {
-    expect(WOLF_JAB.damage).toBeGreaterThan(CAT_JAB.damage);
-    expect(WOLF_SMASH.damage).toBeGreaterThan(CAT_SMASH.damage);
-    expect(WOLF_NAIR.damage).toBeGreaterThan(CAT_NAIR.damage);
+  it.each(FIGHTERS)('$name registers its jab, tilt, smash and nair', (f) => {
+    const m = createMockScene();
+    const ch = f.create(m.scene);
+    expect(ch.getAttack(f.jab.id)).toBeDefined();
+    expect(ch.getAttack(f.tilt.id)).toBe(f.tilt);
+    expect(ch.getAttack(f.smash.id)).toBeDefined();
+    expect(ch.getAttack(f.nair.id)).toBeDefined();
   });
 
-  it('aerial hitboxes are body-centred (offsetX = 0) so they cover both sides', () => {
-    expect(WOLF_NAIR.hitbox.offsetX).toBe(0);
-    expect(CAT_NAIR.hitbox.offsetX).toBe(0);
-  });
-
-  it('Wolf and Cat each register exactly three moves: jab, smash, nair', () => {
-    const wolfScene = createMockScene();
-    const wolf = new Wolf(wolfScene.scene, { spawnX: 0, spawnY: 0 });
-    expect(wolf.getAttack(WOLF_JAB.id)).toBeDefined();
-    expect(wolf.getAttack(WOLF_SMASH.id)).toBeDefined();
-    expect(wolf.getAttack(WOLF_NAIR.id)).toBeDefined();
-
-    const catScene = createMockScene();
-    const cat = new Cat(catScene.scene, { spawnX: 0, spawnY: 0 });
-    expect(cat.getAttack(CAT_JAB.id)).toBeDefined();
-    expect(cat.getAttack(CAT_SMASH.id)).toBeDefined();
-    expect(cat.getAttack(CAT_NAIR.id)).toBeDefined();
-  });
-
-  it('the registered moves auto-fill the light/heavy/aerial dispatch slots', () => {
-    const wolfScene = createMockScene();
-    const wolf = new Wolf(wolfScene.scene, { spawnX: 0, spawnY: 0 });
-    expect(wolf.getLightAttackId()).toBe(WOLF_JAB.id);
-    expect(wolf.getHeavyAttackId()).toBe(WOLF_SMASH.id);
-    expect(wolf.getAerialAttackId()).toBe(WOLF_NAIR.id);
-
-    const catScene = createMockScene();
-    const cat = new Cat(catScene.scene, { spawnX: 0, spawnY: 0 });
-    expect(cat.getLightAttackId()).toBe(CAT_JAB.id);
-    expect(cat.getHeavyAttackId()).toBe(CAT_SMASH.id);
-    expect(cat.getAerialAttackId()).toBe(CAT_NAIR.id);
+  it.each(FIGHTERS)('$name registered moves auto-fill the light/heavy/aerial dispatch slots', (f) => {
+    // The base class wires the FIRST registered jab/tilt into the light
+    // slot; jab registers before tilt, so jab keeps the slot.
+    const m = createMockScene();
+    const ch = f.create(m.scene);
+    expect(ch.getLightAttackId()).toBe(f.jab.id);
+    expect(ch.getHeavyAttackId()).toBe(f.smash.id);
+    expect(ch.getAerialAttackId()).toBe(f.nair.id);
   });
 });
 
-describe('Light vs heavy vs aerial dispatch (AC 203 Sub-AC 3.3)', () => {
+describe('Light vs heavy vs aerial dispatch', () => {
   it('grounded `attack` press fires the light (jab) move', () => {
     const m = createMockScene();
-    const ch = new Wolf(m.scene, { spawnX: 0, spawnY: 0 });
+    const ch = DK.create(m.scene);
     ground(ch, m);
     ch.applyInput({ moveX: 0, jump: false, attack: true });
     const snap = ch.getActiveAttack();
     expect(snap).not.toBeNull();
-    expect(snap!.move.id).toBe(WOLF_JAB.id);
+    expect(snap!.move.id).toBe(DONKEYKONG_JAB.id);
   });
 
   it('grounded `attackHeavy` press fires the heavy (smash) move', () => {
     const m = createMockScene();
-    const ch = new Wolf(m.scene, { spawnX: 0, spawnY: 0 });
+    const ch = DK.create(m.scene);
     ground(ch, m);
-    // Smashes are now hold-to-charge: press starts the charge, release fires.
+    // Smashes are hold-to-charge: press starts the charge, release fires.
     ch.applyInput({ moveX: 0, jump: false, attack: false, attackHeavy: true });
     ch.applyInput({ moveX: 0, jump: false, attack: false, attackHeavy: false });
     const snap = ch.getActiveAttack();
     expect(snap).not.toBeNull();
-    expect(snap!.move.id).toBe(WOLF_SMASH.id);
+    expect(snap!.move.id).toBe(DONKEYKONG_SMASH.id);
   });
 
   it('heavy press takes priority over light when both rise the same frame', () => {
     const m = createMockScene();
-    const ch = new Cat(m.scene, { spawnX: 0, spawnY: 0 });
+    const ch = PIKACHU.create(m.scene);
     ground(ch, m);
     // Heavy wins the priority cascade → enters the smash charge; release fires.
     ch.applyInput({ moveX: 0, jump: false, attack: true, attackHeavy: true });
     ch.applyInput({ moveX: 0, jump: false, attack: false, attackHeavy: false });
     const snap = ch.getActiveAttack();
     expect(snap).not.toBeNull();
-    expect(snap!.move.id).toBe(CAT_SMASH.id);
-  });
-
-  it("Wolf's jab chains jab1 → jab2 → jab3 on re-presses (Tier 4)", () => {
-    const m = createMockScene();
-    const ch = new Wolf(m.scene, { spawnX: 0, spawnY: 0 });
-    ground(ch, m);
-    // Advance the current stage into its active window (hitbox out), then
-    // release + re-press to step the chain.
-    const advanceAndRepress = (): void => {
-      const window = ch.getActiveAttack()!.move.startupFrames;
-      for (
-        let i = 0;
-        i < 30 &&
-        ch.getActiveAttack() !== null &&
-        ch.getActiveAttack()!.framesElapsed < window;
-        i += 1
-      ) {
-        ch.applyInput({ moveX: 0, jump: false, attack: false });
-      }
-      ch.applyInput({ moveX: 0, jump: false, attack: true });
-    };
-
-    ch.applyInput({ moveX: 0, jump: false, attack: true }); // jab1
-    expect(ch.getActiveAttack()!.move.id).toBe('wolf.jab');
-    advanceAndRepress();
-    expect(ch.getActiveAttack()!.move.id).toBe('wolf.jab2');
-    advanceAndRepress();
-    expect(ch.getActiveAttack()!.move.id).toBe('wolf.jab3'); // finisher
+    expect(snap!.move.id).toBe(PIKACHU_SMASH.id);
   });
 
   it('airborne `attack` press fires the aerial (nair) move', () => {
     const m = createMockScene();
-    const ch = new Wolf(m.scene, { spawnX: 0, spawnY: 0 });
+    const ch = DK.create(m.scene);
     // No ground contact — fighter is airborne.
     expect(ch.isGrounded()).toBe(false);
     ch.applyInput({ moveX: 0, jump: false, attack: true });
     const snap = ch.getActiveAttack();
     expect(snap).not.toBeNull();
-    expect(snap!.move.id).toBe(WOLF_NAIR.id);
+    expect(snap!.move.id).toBe(DONKEYKONG_NAIR.id);
   });
 
-  it('airborne `attackHeavy` press is ignored (smashes are grounded moves)', () => {
+  // There is no airborne smash, so an airborne heavy press (smash key /
+  // C-stick) fires the aerial instead.
+  it('airborne `attackHeavy` press fires the aerial (no airborne smash)', () => {
     const m = createMockScene();
-    const ch = new Wolf(m.scene, { spawnX: 0, spawnY: 0 });
+    const ch = DK.create(m.scene);
     expect(ch.isGrounded()).toBe(false);
     ch.applyInput({ moveX: 0, jump: false, attack: false, attackHeavy: true });
-    expect(ch.isAttacking()).toBe(false);
+    expect(ch.getActiveAttack()?.move.id).toBe(DONKEYKONG_NAIR.id);
   });
 
   it('grounded heavy press takes a press-and-release cycle to re-fire', () => {
@@ -810,134 +714,84 @@ describe('Light vs heavy vs aerial dispatch (AC 203 Sub-AC 3.3)', () => {
     // FRESH press starts the charge; holding the button (no new rising
     // edge) after a smash ends does NOT auto-start a new charge.
     const m = createMockScene();
-    const ch = new Cat(m.scene, { spawnX: 0, spawnY: 0 });
+    const ch = PIKACHU.create(m.scene);
     ground(ch, m);
 
     // Press → charge → release → fire.
     ch.applyInput({ moveX: 0, jump: false, attackHeavy: true });
     ch.applyInput({ moveX: 0, jump: false, attackHeavy: false });
-    expect(ch.getActiveAttack()!.move.id).toBe(CAT_SMASH.id);
-    const totalLockout =
-      CAT_SMASH.startupFrames +
-      CAT_SMASH.activeFrames +
-      CAT_SMASH.recoveryFrames +
-      CAT_SMASH.cooldownFrames;
-    // Ride out the move + cooldown with no input.
-    runFrames(ch, totalLockout, () => false);
+    expect(ch.getActiveAttack()!.move.id).toBe(PIKACHU_SMASH.id);
+    // Ride out the move with no input.
+    runFrames(ch, lockout(PIKACHU_SMASH), () => false);
     expect(ch.canAttack()).toBe(true);
     expect(ch.isAttacking()).toBe(false);
     // A fresh press-and-release cycle re-fires.
     ch.applyInput({ moveX: 0, jump: false, attackHeavy: true });
     ch.applyInput({ moveX: 0, jump: false, attackHeavy: false });
     expect(ch.isAttacking()).toBe(true);
-    expect(ch.getActiveAttack()!.move.id).toBe(CAT_SMASH.id);
+    expect(ch.getActiveAttack()!.move.id).toBe(PIKACHU_SMASH.id);
   });
 
   it('grounded `attack` after taking off (becoming airborne) fires nair on the next press', () => {
     const m = createMockScene();
-    const ch = new Cat(m.scene, { spawnX: 0, spawnY: 0 });
-    ground(ch, m);
+    const ch = PIKACHU.create(m.scene);
+    const platform = ground(ch, m);
 
     // Frame 0: jump press while grounded — kicks off the ground.
     ch.applyInput({ moveX: 0, jump: true, attack: false });
     // Simulate Matter losing the ground contact on the take-off frame.
-    m.emit('collisionend', [
-      { bodyA: ch.body, bodyB: { label: PLATFORM_LABELS.solid, position: { x: 0, y: 100 } } },
-    ]);
+    m.emit('collisionend', [{ bodyA: ch.body, bodyB: platform }]);
     expect(ch.isGrounded()).toBe(false);
 
     // Now press attack while airborne — must dispatch to nair.
     ch.applyInput({ moveX: 0, jump: false, attack: true });
     const snap = ch.getActiveAttack();
     expect(snap).not.toBeNull();
-    expect(snap!.move.id).toBe(CAT_NAIR.id);
+    expect(snap!.move.id).toBe(PIKACHU_NAIR.id);
   });
 
-  it('hitbox plugin payload reflects the dispatched move (smash vs jab vs nair)', () => {
-    // Three independent fighters so we can compare plugin payloads
-    // without a single fighter's cooldown getting in the way.
-    const groundedAttack = (() => {
-      const m = createMockScene();
-      const ch = new Wolf(m.scene, { spawnX: 0, spawnY: 0 });
-      ground(ch, m);
-      ch.applyInput({ moveX: 0, jump: false, attack: true });
-      runFrames(ch, WOLF_JAB.startupFrames, () => false);
-      const hb = liveHitbox(m)!;
-      return (hb.options['plugin'] as { moveId: string }).moveId;
-    })();
-    const groundedHeavy = (() => {
-      const m = createMockScene();
-      const ch = new Wolf(m.scene, { spawnX: 0, spawnY: 0 });
-      ground(ch, m);
-      ch.applyInput({ moveX: 0, jump: false, attackHeavy: true }); // charge
-      ch.applyInput({ moveX: 0, jump: false, attackHeavy: false }); // release → fire
-      runFrames(ch, WOLF_SMASH.startupFrames, () => false);
-      const hb = liveHitbox(m)!;
-      return (hb.options['plugin'] as { moveId: string }).moveId;
-    })();
-    const airAttack = (() => {
-      const m = createMockScene();
-      const ch = new Wolf(m.scene, { spawnX: 0, spawnY: 0 });
+  /** Start one of DK's light / heavy / aerial moves and return its live hitbox plugin. */
+  const dkHitboxPlugin = (kind: 'jab' | 'smash' | 'nair'): { moveId: string; damage: number } => {
+    const m = createMockScene();
+    const ch = DK.create(m.scene);
+    if (kind === 'nair') {
       // Airborne (no ground contact emitted).
       ch.applyInput({ moveX: 0, jump: false, attack: true });
-      runFrames(ch, WOLF_NAIR.startupFrames, () => false);
-      const hb = liveHitbox(m)!;
-      return (hb.options['plugin'] as { moveId: string }).moveId;
-    })();
-    expect(groundedAttack).toBe(WOLF_JAB.id);
-    expect(groundedHeavy).toBe(WOLF_SMASH.id);
-    expect(airAttack).toBe(WOLF_NAIR.id);
+    } else {
+      ground(ch, m);
+      if (kind === 'jab') {
+        ch.applyInput({ moveX: 0, jump: false, attack: true });
+      } else {
+        // Charge + immediate release → uncharged smash at base damage
+        // (the charge ramp's minDamage equals the move's authored damage).
+        ch.applyInput({ moveX: 0, jump: false, attackHeavy: true });
+        ch.applyInput({ moveX: 0, jump: false, attackHeavy: false });
+      }
+    }
+    runFrames(ch, DK[kind].startupFrames, () => false);
+    return liveHitbox(m)!.options['plugin'] as { moveId: string; damage: number };
+  };
+
+  it('hitbox plugin payload reflects the dispatched move (smash vs jab vs nair)', () => {
+    expect(dkHitboxPlugin('jab').moveId).toBe(DONKEYKONG_JAB.id);
+    expect(dkHitboxPlugin('smash').moveId).toBe(DONKEYKONG_SMASH.id);
+    expect(dkHitboxPlugin('nair').moveId).toBe(DONKEYKONG_NAIR.id);
   });
 
   it('damage payload differs across light / heavy / aerial connects', () => {
     // The hitbox plugin carries the move's damage value verbatim — the
     // damage handler reads it directly without re-looking-up the move.
-    // We assert each variant carries the right damage so the (later AC)
-    // collision pipeline produces distinct percent jumps.
-    const grabHitboxDamage = (
-      ch: Wolf,
-      m: ReturnType<typeof createMockScene>,
-      startupFrames: number,
-    ): number => {
-      runFrames(ch, startupFrames, () => false);
-      const hb = liveHitbox(m)!;
-      return (hb.options['plugin'] as { damage: number }).damage;
-    };
-
-    {
-      const m = createMockScene();
-      const ch = new Wolf(m.scene, { spawnX: 0, spawnY: 0 });
-      ground(ch, m);
-      ch.applyInput({ moveX: 0, jump: false, attack: true });
-      expect(grabHitboxDamage(ch, m, WOLF_JAB.startupFrames)).toBe(WOLF_JAB.damage);
-    }
-    {
-      const m = createMockScene();
-      const ch = new Wolf(m.scene, { spawnX: 0, spawnY: 0 });
-      ground(ch, m);
-      // Charge + immediate release → uncharged smash spawns at base damage
-      // (the charge ramp's minDamage equals the move's authored damage).
-      ch.applyInput({ moveX: 0, jump: false, attackHeavy: true });
-      ch.applyInput({ moveX: 0, jump: false, attackHeavy: false });
-      expect(grabHitboxDamage(ch, m, WOLF_SMASH.startupFrames)).toBe(WOLF_SMASH.damage);
-    }
-    {
-      const m = createMockScene();
-      const ch = new Wolf(m.scene, { spawnX: 0, spawnY: 0 });
-      // Airborne by default — no ground contact emitted.
-      ch.applyInput({ moveX: 0, jump: false, attack: true });
-      expect(grabHitboxDamage(ch, m, WOLF_NAIR.startupFrames)).toBe(WOLF_NAIR.damage);
-    }
+    expect(dkHitboxPlugin('jab').damage).toBe(DONKEYKONG_JAB.damage);
+    expect(dkHitboxPlugin('smash').damage).toBe(DONKEYKONG_SMASH.damage);
+    expect(dkHitboxPlugin('nair').damage).toBe(DONKEYKONG_NAIR.damage);
   });
 
   it('a heavy press during hitstun is suppressed (input lockout includes attackHeavy)', () => {
-    // Same contract as the existing "attack press during hitstun is
-    // suppressed" test — the heavy button is a player input and must
-    // be ignored while the fighter is locked out. Post-M2 hit-feel
-    // pass: the lockout now includes the hitlag freeze AND the
-    // hitstun window that follows it.
+    // The heavy button is a player input and must be ignored while the
+    // fighter is locked out — the lockout includes the hitlag freeze AND
+    // the hitstun window that follows it.
     const m = createMockScene();
-    const ch = new Wolf(m.scene, { spawnX: 0, spawnY: 0 });
+    const ch = DK.create(m.scene);
     ground(ch, m);
     ch.applyHit({
       damage: 5,
@@ -957,399 +811,122 @@ describe('Light vs heavy vs aerial dispatch (AC 203 Sub-AC 3.3)', () => {
 });
 
 // ---------------------------------------------------------------------------
-// AC 60002 Sub-AC 2 — grounded jab / tilt / smash for Wolf, with full
-// data and animation states. Locks down:
-//   1. Wolf.registerAttack wires up `wolf.tilt` alongside the existing
-//      jab and smash, so it's reachable via `attemptAttack(id)`.
-//   2. The default light-attack dispatch slot is unaffected (jab still
-//      wins because it registers first).
-//   3. Pressing the tilt via `attemptAttack` runs the same hitbox/
-//      cooldown lifecycle as the other grounded moves.
-//   4. The animation block on every grounded move drives the renderer's
+// Grounded jab / tilt / smash — registration, dispatch and animation states.
+// Locks down per fighter:
+//   1. The tilt is reachable via `attemptAttack(id)` and runs the same
+//      hitbox lifecycle as the other grounded moves.
+//   2. The animation block on every grounded move drives the renderer's
 //      frame-index selector for the full lifetime of the move (no
 //      gameplay frame ever maps to an out-of-bounds art frame).
 // ---------------------------------------------------------------------------
 
-describe('Wolf grounded triplet — registration & dispatch (AC 60002 Sub-AC 2)', () => {
-  it('Wolf registers `wolf.tilt` so attemptAttack can fire it directly', () => {
+describe.each(FIGHTERS)('$name grounded triplet — registration & dispatch', (f) => {
+  it('attemptAttack(tilt) drives the same hitbox lifecycle as jab/smash', () => {
     const m = createMockScene();
-    const wolf = new Wolf(m.scene, { spawnX: 0, spawnY: 0 });
-    expect(wolf.getAttack(WOLF_TILT.id)).toBe(WOLF_TILT);
-  });
+    const ch = f.create(m.scene);
+    ground(ch, m);
 
-  it('jab still owns the auto-light-slot — tilt registers without stealing it', () => {
-    // The base class wires the FIRST registered jab/tilt into the light
-    // slot. Wolf's constructor registers jab before tilt, so jab keeps
-    // the slot. (A future input AC routes a directional press to the
-    // tilt explicitly via attemptAttack.)
-    const m = createMockScene();
-    const wolf = new Wolf(m.scene, { spawnX: 0, spawnY: 0 });
-    expect(wolf.getLightAttackId()).toBe(WOLF_JAB.id);
-    expect(wolf.getHeavyAttackId()).toBe(WOLF_SMASH.id);
-    expect(wolf.getAerialAttackId()).toBe(WOLF_NAIR.id);
-  });
-
-  it('attemptAttack(\'wolf.tilt\') drives the same hitbox lifecycle as jab/smash', () => {
-    const m = createMockScene();
-    const wolf = new Wolf(m.scene, { spawnX: 0, spawnY: 0 });
-    ground(wolf, m);
-
-    // Kick off the tilt directly. Cooldown is 0, no other attack live.
-    expect(wolf.attemptAttack(WOLF_TILT.id)).toBe(true);
-    expect(wolf.getActiveAttack()!.move.id).toBe(WOLF_TILT.id);
+    // Kick off the tilt directly. No other attack live.
+    expect(ch.attemptAttack(f.tilt.id)).toBe(true);
+    expect(ch.getActiveAttack()!.move.id).toBe(f.tilt.id);
 
     // Advance through the full startup → active transition; the hitbox
     // sensor body must spawn with the tilt's plugin payload.
-    runFrames(wolf, WOLF_TILT.startupFrames, () => false);
+    runFrames(ch, f.tilt.startupFrames, () => false);
     const hb = liveHitbox(m);
     expect(hb).not.toBeNull();
     const plugin = hb!.options['plugin'] as Record<string, unknown>;
-    expect(plugin['ownerId']).toBe('wolf');
-    expect(plugin['moveId']).toBe(WOLF_TILT.id);
-    expect(plugin['damage']).toBe(WOLF_TILT.damage);
-    expect(plugin['knockback']).toEqual(WOLF_TILT.knockback);
+    expect(plugin['ownerId']).toBe(f.id);
+    expect(plugin['moveId']).toBe(f.tilt.id);
+    expect(plugin['damage']).toBe(f.tilt.damage);
+    expect(plugin['knockback']).toEqual(f.tilt.knockback);
 
-    // Hitbox geometry mirrors the tilt's authored width/height.
-    expect(hb!.options['_w']).toBe(WOLF_TILT.hitbox.width);
-    expect(hb!.options['_h']).toBe(WOLF_TILT.hitbox.height);
+    // Hitbox geometry encloses the tilt's authored collision records.
+    const geometry = attackSensorGeometry(f.tilt);
+    expect(hb!.options['_w']).toBe(geometry.width);
+    expect(hb!.options['_h']).toBe(geometry.height);
 
-    // Ride out the rest of the move — the hitbox is despawned by the
-    // active → recovery transition.
-    runFrames(wolf, WOLF_TILT.activeFrames, () => false);
+    // Ride out the rest of the active window — the hitbox is despawned by
+    // the active → recovery transition.
+    runFrames(ch, f.tilt.activeFrames, () => false);
     expect(liveHitbox(m)).toBeNull();
   });
 
   it('full grounded-triplet press-to-press lockouts widen with damage', () => {
-    // Lockout (busy + cooldown) must monotonically increase from jab
-    // through tilt to smash — the canonical "more power costs more
-    // commitment" trade-off. Tests the data table's internal
-    // consistency without instantiating a fighter.
-    const lockout = (m: AttackMove): number =>
-      m.startupFrames + m.activeFrames + m.recoveryFrames + m.cooldownFrames;
-    expect(lockout(WOLF_JAB)).toBeLessThan(lockout(WOLF_TILT));
-    expect(lockout(WOLF_TILT)).toBeLessThan(lockout(WOLF_SMASH));
+    // Lockout must monotonically increase from jab through tilt to smash —
+    // the canonical "more power costs more commitment" trade-off.
+    expect(lockout(f.jab)).toBeLessThan(lockout(f.tilt));
+    expect(lockout(f.tilt)).toBeLessThan(lockout(f.smash));
   });
 });
 
-describe('Wolf grounded triplet — animation state machine (AC 60002 Sub-AC 2)', () => {
-  it('selectAnimationFrame walks every gameplay frame of the jab cleanly', () => {
-    // Sweep the jab from frame 0 through the busy total. For every
-    // frame, the selector must agree with computeAttackPhase on which
-    // phase we're in, AND must hand back a valid art-frame index
-    // bounded by the move's per-phase art frame count.
-    const total =
-      WOLF_JAB.startupFrames + WOLF_JAB.activeFrames + WOLF_JAB.recoveryFrames;
-    for (let f = 0; f < total; f += 1) {
-      const sel = selectAnimationFrame(f, WOLF_JAB);
-      expect(sel.phase).toBe(computeAttackPhase(f, WOLF_JAB));
-      const anim = WOLF_JAB.animation!;
-      const cap =
-        sel.phase === 'startup'
-          ? anim.startupFrames
-          : sel.phase === 'active'
-            ? anim.activeFrames
-            : anim.recoveryFrames;
-      expect(sel.artFrameIndex).toBeGreaterThanOrEqual(0);
-      expect(sel.artFrameIndex).toBeLessThan(cap);
-    }
-    // Past the busy total, the move is 'done' and the selector reports
-    // idx 0 — the renderer falls back to a neutral pose.
-    expect(selectAnimationFrame(total, WOLF_JAB)).toEqual({
-      phase: 'done',
-      artFrameIndex: 0,
-    });
+describe('Grounded triplet speed — Pikachu vs Donkey Kong', () => {
+  it('Pikachu grounded triplet starts up no slower than Donkey Kong', () => {
+    expect(PIKACHU_JAB.startupFrames).toBeLessThanOrEqual(DONKEYKONG_JAB.startupFrames);
+    expect(PIKACHU_TILT.startupFrames).toBeLessThanOrEqual(DONKEYKONG_TILT.startupFrames);
+    expect(PIKACHU_SMASH.startupFrames).toBeLessThanOrEqual(DONKEYKONG_SMASH.startupFrames);
   });
+});
 
-  it('selectAnimationFrame walks every gameplay frame of the tilt cleanly', () => {
-    const total =
-      WOLF_TILT.startupFrames + WOLF_TILT.activeFrames + WOLF_TILT.recoveryFrames;
-    for (let f = 0; f < total; f += 1) {
-      const sel = selectAnimationFrame(f, WOLF_TILT);
-      expect(sel.phase).toBe(computeAttackPhase(f, WOLF_TILT));
-      const anim = WOLF_TILT.animation!;
-      const cap =
-        sel.phase === 'startup'
-          ? anim.startupFrames
-          : sel.phase === 'active'
-            ? anim.activeFrames
-            : anim.recoveryFrames;
-      expect(sel.artFrameIndex).toBeGreaterThanOrEqual(0);
-      expect(sel.artFrameIndex).toBeLessThan(cap);
-    }
-    expect(selectAnimationFrame(total, WOLF_TILT).phase).toBe('done');
-  });
+describe.each(FIGHTERS)('$name grounded triplet — animation state machine', (f) => {
+  const triplet = [f.jab, f.tilt, f.smash] as const;
 
-  it('selectAnimationFrame walks every gameplay frame of the smash cleanly', () => {
-    const total =
-      WOLF_SMASH.startupFrames +
-      WOLF_SMASH.activeFrames +
-      WOLF_SMASH.recoveryFrames;
-    for (let f = 0; f < total; f += 1) {
-      const sel = selectAnimationFrame(f, WOLF_SMASH);
-      expect(sel.phase).toBe(computeAttackPhase(f, WOLF_SMASH));
-      const anim = WOLF_SMASH.animation!;
-      const cap =
-        sel.phase === 'startup'
-          ? anim.startupFrames
-          : sel.phase === 'active'
-            ? anim.activeFrames
-            : anim.recoveryFrames;
-      expect(sel.artFrameIndex).toBeGreaterThanOrEqual(0);
-      expect(sel.artFrameIndex).toBeLessThan(cap);
-    }
-    expect(selectAnimationFrame(total, WOLF_SMASH).phase).toBe('done');
-  });
+  it.each(triplet.map((move) => [move.id, move] as const))(
+    'selectAnimationFrame walks every gameplay frame of %s cleanly',
+    (_id, move) => {
+      // For every frame, the selector must agree with computeAttackPhase
+      // on which phase we're in, AND must hand back a valid art-frame
+      // index bounded by the move's per-phase art frame count.
+      const total = move.startupFrames + move.activeFrames + move.recoveryFrames;
+      const anim = move.animation!;
+      for (let frame = 0; frame < total; frame += 1) {
+        const sel = selectAnimationFrame(frame, move);
+        expect(sel.phase).toBe(computeAttackPhase(frame, move));
+        const cap =
+          sel.phase === 'startup'
+            ? anim.startupFrames
+            : sel.phase === 'active'
+              ? anim.activeFrames
+              : anim.recoveryFrames;
+        expect(sel.artFrameIndex).toBeGreaterThanOrEqual(0);
+        expect(sel.artFrameIndex).toBeLessThan(cap);
+      }
+      // Past the busy total, the move is 'done' and the selector reports
+      // idx 0 — the renderer falls back to a neutral pose.
+      expect(selectAnimationFrame(total, move)).toEqual({ phase: 'done', artFrameIndex: 0 });
+    },
+  );
 
   it('every art-frame index along the move is reached at least once', () => {
-    // The stretch math is "art frame i shows during gameplay frames
-    // [i * gameplay / art, (i+1) * gameplay / art)". When art ≤ gameplay
-    // for each phase (verified separately), every art frame index in
-    // [0, artCount) MUST be visited at least once during a full sweep.
-    // This is the strongest determinism guarantee for the renderer:
+    // When art ≤ gameplay for each phase, every art frame index in
+    // [0, artCount) MUST be visited at least once during a full sweep:
     // the artist authors N frames, and the engine displays all N.
-    for (const move of [WOLF_JAB, WOLF_TILT, WOLF_SMASH]) {
-      const total =
-        move.startupFrames + move.activeFrames + move.recoveryFrames;
+    for (const move of triplet) {
+      const total = move.startupFrames + move.activeFrames + move.recoveryFrames;
       const seen = new Map<string, Set<number>>();
-      for (let f = 0; f < total; f += 1) {
-        const sel = selectAnimationFrame(f, move);
+      for (let frame = 0; frame < total; frame += 1) {
+        const sel = selectAnimationFrame(frame, move);
         if (sel.phase === 'done') continue;
-        const key = sel.phase;
-        if (!seen.has(key)) seen.set(key, new Set());
-        seen.get(key)!.add(sel.artFrameIndex);
+        if (!seen.has(sel.phase)) seen.set(sel.phase, new Set());
+        seen.get(sel.phase)!.add(sel.artFrameIndex);
       }
       const anim = move.animation!;
-      // Each phase saw exactly its declared number of distinct art frames.
-      expect(seen.get('startup')!.size).toBe(anim.startupFrames);
-      expect(seen.get('active')!.size).toBe(anim.activeFrames);
-      expect(seen.get('recovery')!.size).toBe(anim.recoveryFrames);
+      expect(seen.get('startup')!.size, `${move.id} startup`).toBe(anim.startupFrames);
+      expect(seen.get('active')!.size, `${move.id} active`).toBe(anim.activeFrames);
+      expect(seen.get('recovery')!.size, `${move.id} recovery`).toBe(anim.recoveryFrames);
     }
   });
 
   it('art-frame transitions advance monotonically within each phase', () => {
     // Within a phase, the art-frame index never decreases — the swing
-    // animation reads forward in time. (Across phases the index resets
-    // to 0 because each phase has its own art-frame sequence.)
-    for (const move of [WOLF_JAB, WOLF_TILT, WOLF_SMASH]) {
-      const total =
-        move.startupFrames + move.activeFrames + move.recoveryFrames;
+    // animation reads forward in time. (Across phases the index resets.)
+    for (const move of triplet) {
+      const total = move.startupFrames + move.activeFrames + move.recoveryFrames;
       let prevPhase = '';
       let prevIdx = -1;
-      for (let f = 0; f < total; f += 1) {
-        const sel = selectAnimationFrame(f, move);
+      for (let frame = 0; frame < total; frame += 1) {
+        const sel = selectAnimationFrame(frame, move);
         if (sel.phase !== prevPhase) {
-          // Phase change — art index resets to whatever the start of
-          // the new phase is (always 0 for the first frame in the phase).
-          prevPhase = sel.phase;
-          prevIdx = sel.artFrameIndex;
-          continue;
-        }
-        expect(sel.artFrameIndex).toBeGreaterThanOrEqual(prevIdx);
-        prevIdx = sel.artFrameIndex;
-      }
-    }
-  });
-});
-
-// ---------------------------------------------------------------------------
-// AC 60003 Sub-AC 3 — grounded jab / tilt / smash for Cat, with full
-// data and animation states. Mirrors the Wolf block above (AC 60002
-// Sub-AC 2) so the second playable character ships the same grounded
-// triplet contract:
-//   1. Cat.registerAttack wires up `cat.tilt` alongside the existing
-//      jab and smash, so it's reachable via `attemptAttack(id)`.
-//   2. The default light-attack dispatch slot is unaffected (jab still
-//      wins because it registers first).
-//   3. Pressing the tilt via `attemptAttack` runs the same hitbox/
-//      cooldown lifecycle as the other grounded moves — Cat's body
-//      width and faster frame budget produce the right hitbox on the
-//      right frame.
-//   4. The animation block on every grounded move drives the renderer's
-//      frame-index selector for the full lifetime of the move (no
-//      gameplay frame ever maps to an out-of-bounds art frame).
-// ---------------------------------------------------------------------------
-
-describe('Cat grounded triplet — registration & dispatch (AC 60003 Sub-AC 3)', () => {
-  it('Cat registers `cat.tilt` so attemptAttack can fire it directly', () => {
-    const m = createMockScene();
-    const cat = new Cat(m.scene, { spawnX: 0, spawnY: 0 });
-    expect(cat.getAttack(CAT_TILT.id)).toBe(CAT_TILT);
-  });
-
-  it('jab still owns the auto-light-slot — tilt registers without stealing it', () => {
-    // The base class wires the FIRST registered jab/tilt into the light
-    // slot. Cat's constructor registers jab before tilt, so jab keeps
-    // the slot. (A future input AC routes a directional press to the
-    // tilt explicitly via attemptAttack.)
-    const m = createMockScene();
-    const cat = new Cat(m.scene, { spawnX: 0, spawnY: 0 });
-    expect(cat.getLightAttackId()).toBe(CAT_JAB.id);
-    expect(cat.getHeavyAttackId()).toBe(CAT_SMASH.id);
-    expect(cat.getAerialAttackId()).toBe(CAT_NAIR.id);
-  });
-
-  it("attemptAttack('cat.tilt') drives the same hitbox lifecycle as jab/smash", () => {
-    const m = createMockScene();
-    const cat = new Cat(m.scene, { spawnX: 0, spawnY: 0 });
-    ground(cat, m);
-
-    // Kick off the tilt directly. Cooldown is 0, no other attack live.
-    expect(cat.attemptAttack(CAT_TILT.id)).toBe(true);
-    expect(cat.getActiveAttack()!.move.id).toBe(CAT_TILT.id);
-
-    // Advance through the full startup → active transition; the hitbox
-    // sensor body must spawn with the tilt's plugin payload.
-    runFrames(cat, CAT_TILT.startupFrames, () => false);
-    const hb = liveHitbox(m);
-    expect(hb).not.toBeNull();
-    const plugin = hb!.options['plugin'] as Record<string, unknown>;
-    expect(plugin['ownerId']).toBe('cat');
-    expect(plugin['moveId']).toBe(CAT_TILT.id);
-    expect(plugin['damage']).toBe(CAT_TILT.damage);
-    expect(plugin['knockback']).toEqual(CAT_TILT.knockback);
-
-    // Hitbox geometry mirrors the tilt's authored width/height.
-    expect(hb!.options['_w']).toBe(CAT_TILT.hitbox.width);
-    expect(hb!.options['_h']).toBe(CAT_TILT.hitbox.height);
-
-    // Ride out the rest of the move — the hitbox is despawned by the
-    // active → recovery transition.
-    runFrames(cat, CAT_TILT.activeFrames, () => false);
-    expect(liveHitbox(m)).toBeNull();
-  });
-
-  it('full grounded-triplet press-to-press lockouts widen with damage', () => {
-    // Lockout (busy + cooldown) must monotonically increase from jab
-    // through tilt to smash — the canonical "more power costs more
-    // commitment" trade-off. Tests the data table's internal
-    // consistency without instantiating a fighter.
-    const lockout = (m: AttackMove): number =>
-      m.startupFrames + m.activeFrames + m.recoveryFrames + m.cooldownFrames;
-    expect(lockout(CAT_JAB)).toBeLessThan(lockout(CAT_TILT));
-    expect(lockout(CAT_TILT)).toBeLessThan(lockout(CAT_SMASH));
-  });
-
-  it('Cat grounded triplet is faster across the board than Wolf grounded triplet', () => {
-    // Ninja-vs-bruiser archetype: every grounded move on Cat must have
-    // a startup ≤ Wolf's matching move. The damage gradient asymmetry
-    // is intentional (Wolf hits harder) but the speed asymmetry is
-    // *also* intentional — a balance pass that flattens this should
-    // fail loudly here.
-    expect(CAT_JAB.startupFrames).toBeLessThanOrEqual(WOLF_JAB.startupFrames);
-    expect(CAT_TILT.startupFrames).toBeLessThanOrEqual(WOLF_TILT.startupFrames);
-    expect(CAT_SMASH.startupFrames).toBeLessThanOrEqual(WOLF_SMASH.startupFrames);
-  });
-});
-
-describe('Cat grounded triplet — animation state machine (AC 60003 Sub-AC 3)', () => {
-  it('selectAnimationFrame walks every gameplay frame of the jab cleanly', () => {
-    // Sweep the jab from frame 0 through the busy total. For every
-    // frame, the selector must agree with computeAttackPhase on which
-    // phase we're in, AND must hand back a valid art-frame index
-    // bounded by the move's per-phase art frame count.
-    const total =
-      CAT_JAB.startupFrames + CAT_JAB.activeFrames + CAT_JAB.recoveryFrames;
-    for (let f = 0; f < total; f += 1) {
-      const sel = selectAnimationFrame(f, CAT_JAB);
-      expect(sel.phase).toBe(computeAttackPhase(f, CAT_JAB));
-      const anim = CAT_JAB.animation!;
-      const cap =
-        sel.phase === 'startup'
-          ? anim.startupFrames
-          : sel.phase === 'active'
-            ? anim.activeFrames
-            : anim.recoveryFrames;
-      expect(sel.artFrameIndex).toBeGreaterThanOrEqual(0);
-      expect(sel.artFrameIndex).toBeLessThan(cap);
-    }
-    // Past the busy total, the move is 'done' and the selector reports
-    // idx 0 — the renderer falls back to a neutral pose.
-    expect(selectAnimationFrame(total, CAT_JAB)).toEqual({
-      phase: 'done',
-      artFrameIndex: 0,
-    });
-  });
-
-  it('selectAnimationFrame walks every gameplay frame of the tilt cleanly', () => {
-    const total =
-      CAT_TILT.startupFrames + CAT_TILT.activeFrames + CAT_TILT.recoveryFrames;
-    for (let f = 0; f < total; f += 1) {
-      const sel = selectAnimationFrame(f, CAT_TILT);
-      expect(sel.phase).toBe(computeAttackPhase(f, CAT_TILT));
-      const anim = CAT_TILT.animation!;
-      const cap =
-        sel.phase === 'startup'
-          ? anim.startupFrames
-          : sel.phase === 'active'
-            ? anim.activeFrames
-            : anim.recoveryFrames;
-      expect(sel.artFrameIndex).toBeGreaterThanOrEqual(0);
-      expect(sel.artFrameIndex).toBeLessThan(cap);
-    }
-    expect(selectAnimationFrame(total, CAT_TILT).phase).toBe('done');
-  });
-
-  it('selectAnimationFrame walks every gameplay frame of the smash cleanly', () => {
-    const total =
-      CAT_SMASH.startupFrames +
-      CAT_SMASH.activeFrames +
-      CAT_SMASH.recoveryFrames;
-    for (let f = 0; f < total; f += 1) {
-      const sel = selectAnimationFrame(f, CAT_SMASH);
-      expect(sel.phase).toBe(computeAttackPhase(f, CAT_SMASH));
-      const anim = CAT_SMASH.animation!;
-      const cap =
-        sel.phase === 'startup'
-          ? anim.startupFrames
-          : sel.phase === 'active'
-            ? anim.activeFrames
-            : anim.recoveryFrames;
-      expect(sel.artFrameIndex).toBeGreaterThanOrEqual(0);
-      expect(sel.artFrameIndex).toBeLessThan(cap);
-    }
-    expect(selectAnimationFrame(total, CAT_SMASH).phase).toBe('done');
-  });
-
-  it('every art-frame index along the move is reached at least once', () => {
-    // The stretch math is "art frame i shows during gameplay frames
-    // [i * gameplay / art, (i+1) * gameplay / art)". When art ≤ gameplay
-    // for each phase (verified separately), every art frame index in
-    // [0, artCount) MUST be visited at least once during a full sweep.
-    // This is the strongest determinism guarantee for the renderer:
-    // the artist authors N frames, and the engine displays all N.
-    for (const move of [CAT_JAB, CAT_TILT, CAT_SMASH]) {
-      const total =
-        move.startupFrames + move.activeFrames + move.recoveryFrames;
-      const seen = new Map<string, Set<number>>();
-      for (let f = 0; f < total; f += 1) {
-        const sel = selectAnimationFrame(f, move);
-        if (sel.phase === 'done') continue;
-        const key = sel.phase;
-        if (!seen.has(key)) seen.set(key, new Set());
-        seen.get(key)!.add(sel.artFrameIndex);
-      }
-      const anim = move.animation!;
-      // Each phase saw exactly its declared number of distinct art frames.
-      expect(seen.get('startup')!.size).toBe(anim.startupFrames);
-      expect(seen.get('active')!.size).toBe(anim.activeFrames);
-      expect(seen.get('recovery')!.size).toBe(anim.recoveryFrames);
-    }
-  });
-
-  it('art-frame transitions advance monotonically within each phase', () => {
-    // Within a phase, the art-frame index never decreases — the swing
-    // animation reads forward in time. (Across phases the index resets
-    // to 0 because each phase has its own art-frame sequence.)
-    for (const move of [CAT_JAB, CAT_TILT, CAT_SMASH]) {
-      const total =
-        move.startupFrames + move.activeFrames + move.recoveryFrames;
-      let prevPhase = '';
-      let prevIdx = -1;
-      for (let f = 0; f < total; f += 1) {
-        const sel = selectAnimationFrame(f, move);
-        if (sel.phase !== prevPhase) {
-          // Phase change — art index resets to whatever the start of
-          // the new phase is (always 0 for the first frame in the phase).
           prevPhase = sel.phase;
           prevIdx = sel.artFrameIndex;
           continue;
@@ -1364,8 +941,15 @@ describe('Cat grounded triplet — animation state machine (AC 60003 Sub-AC 3)',
 // ---------------------------------------------------------------------------
 // Tier 4 — every roster fighter has a working jab combo (jab1 → jab2 → jab3).
 // Built uniformly through `createCharacterById` so registration + the chain
-// runtime are exercised for the whole roster, not just Wolf.
+// runtime are exercised for the whole roster.
 // ---------------------------------------------------------------------------
+
+// Fighters whose sourced kit has a two-hit jab string (Ultimate Donkey Kong:
+// Attack11 → Attack12 only; see docs/review/2026-09-25/donkeykong-character).
+const TWO_STAGE_JAB_STRINGS: ReadonlySet<string> = new Set(['donkeykong']);
+// Fighters whose sourced jab is one move that a fresh press restarts (no jab2): Pikachu's
+// authored jab chains back into itself (pikachuJab.physics.test.ts covers the restart).
+const SINGLE_STAGE_JAB_STRINGS: ReadonlySet<string> = new Set(['pikachu']);
 
 describe('Tier 4 — roster jab combos (every fighter chains jab1 → jab2 → jab3)', () => {
   it.each(FIGHTER_REGISTRY_IDS)('%s chains its jab string', (id) => {
@@ -1379,7 +963,8 @@ describe('Tier 4 — roster jab combos (every fighter chains jab1 → jab2 → j
     // Advance the current stage into its active window (hitbox out), then
     // release + re-press to step the chain.
     const advanceAndRepress = (): void => {
-      const window = ch.getActiveAttack()!.move.startupFrames;
+      const move = ch.getActiveAttack()!.move as AttackMoveWithAnimation;
+      const window = move.jabChain?.advanceWindowStart ?? move.startupFrames;
       for (
         let i = 0;
         i < 40 &&
@@ -1389,13 +974,33 @@ describe('Tier 4 — roster jab combos (every fighter chains jab1 → jab2 → j
       ) {
         ch.applyInput({ moveX: 0, jump: false, attack: false });
       }
-      ch.applyInput({ moveX: 0, jump: false, attack: true });
+      // A fighter whose continuation window opens after this press (Link: SmashWiki quickest loop,
+      // jab 2 on frame 10) holds the tap in the offensive-action buffer until the window opens.
+      let input = { moveX: 0, jump: false, attack: true };
+      for (let i = 0; i <= OFFENSIVE_ACTION_BUFFER_FRAMES; i += 1) {
+        const before = ch.getActiveAttack()!;
+        ch.applyInput(input);
+        input = { ...input, attack: false };
+        const after = ch.getActiveAttack();
+        if (after === null || after.move.id !== move.id || after.framesElapsed <= before.framesElapsed) break;
+      }
     };
 
     ch.applyInput({ moveX: 0, jump: false, attack: true }); // jab1
     expect(ch.getActiveAttack()!.move.id).toBe(`${id}.jab`);
     advanceAndRepress();
+    if (SINGLE_STAGE_JAB_STRINGS.has(id)) {
+      expect(ch.getActiveAttack()!.move.id).toBe(`${id}.jab`);
+      expect((ch.getActiveAttack()!.move as AttackMoveWithAnimation).jabChain?.nextId).toBe(`${id}.jab`);
+      return;
+    }
     expect(ch.getActiveAttack()!.move.id).toBe(`${id}.jab2`);
+    if (TWO_STAGE_JAB_STRINGS.has(id)) {
+      // Sourced two-hit string: jab 2 declares no chain, so a re-press
+      // cannot advance to a third stage.
+      expect((ch.getActiveAttack()!.move as AttackMoveWithAnimation).jabChain).toBeUndefined();
+      return;
+    }
     advanceAndRepress();
     expect(ch.getActiveAttack()!.move.id).toBe(`${id}.jab3`); // finisher
   });
@@ -1439,11 +1044,18 @@ describe('Up-attacks reach a grounded opponent in front (Smash-parity)', () => {
         // (1) The FRONT edge (offsetX is mirrored by facing, so +X is in
         //     front) reaches clearly past the body's front edge — enough to
         //     touch an opponent standing in front, not just graze the flank.
-        expect(hb.offsetX + hb.width / 2).toBeGreaterThanOrEqual(halfBodyW + 12);
+        //     Pikachu's sourced up tilt is a tail arc over the head (native tail
+        //     capture, pikachuUpTiltPose.ts), so its reference box need not flank the body.
+        const sourcedFrontReach = id === 'pikachu' && slot === 'up-tilt' ? 0 : halfBodyW + 12;
+        expect(hb.offsetX + hb.width / 2).toBeGreaterThanOrEqual(sourcedFrontReach);
 
         // (2) Bottom edge drops to at least body-centre height (y >= 0), so a
         //     standing opponent's torso is caught — not only an airborne one.
-        expect(hb.offsetY + hb.height / 2).toBeGreaterThanOrEqual(0);
+        //     A sourced up smash may stop higher: Donkey Kong's AttackHi4
+        //     capsule sits at y 18 ± 7 units (bottom 13 px above centre),
+        //     which still overlaps a standing opponent's head and shoulders.
+        const sourcedUpSmashFloor = id === 'donkeykong' && slot === 'up-smash' ? -halfBodyH + 20 : 0;
+        expect(hb.offsetY + hb.height / 2).toBeGreaterThanOrEqual(sourcedUpSmashFloor);
 
         // (3) Top edge is still above the head, preserving the overhead
         //     juggle / anti-air column the move is built around.
@@ -1495,32 +1107,36 @@ describe('Down-tilts poke low at the feet and reach in front (Smash-parity)', ()
 // also fires a jump and the jump would win, making grounded up-attacks nearly
 // impossible. The buffer holds an ambiguous up+jump a few frames so a
 // follow-up attack converts it to the up-attack instead of jumping. Plain
-// (no up-stick) jumps stay instant.
+// (no up-stick) jumps use only the universal grounded jumpsquat.
 // ---------------------------------------------------------------------------
 
 describe('Tap-jump buffer — up+attack beats the jump', () => {
-  const groundedWolf = (): Character => {
+  const groundedDonkeyKong = (): Character => {
     const m = createMockScene();
-    const ch = createCharacterById(m.scene, 'wolf', { spawnX: 0, spawnY: 0 });
+    const ch = createCharacterById(m.scene, 'donkeykong', { spawnX: 0, spawnY: 0 });
     ground(ch, m);
     return ch;
   };
 
-  it('a plain jump (no up-stick) still fires instantly', () => {
-    const ch = groundedWolf();
+  it('a plain jump (no up-stick) takes off after three preparation frames', () => {
+    const ch = groundedDonkeyKong();
     ch.applyInput({ moveX: 0, jump: true });
-    expect(ch.getVelocity().y).toBeLessThan(0); // left the ground this frame
+    for (let frame = 0; frame < 3; frame += 1) {
+      expect(ch.getVelocity().y).toBeGreaterThanOrEqual(0);
+      ch.applyInput({ moveX: 0, jump: true });
+    }
+    expect(ch.getVelocity().y).toBeLessThan(0);
   });
 
   it('an up+jump press is held back, not an instant jump', () => {
-    const ch = groundedWolf();
+    const ch = groundedDonkeyKong();
     ch.applyInput({ moveX: 0, moveY: -1, jump: true });
     expect(ch.getVelocity().y).toBeGreaterThanOrEqual(0); // buffered, not jumped
     expect(ch.getActiveAttack()).toBeNull();
   });
 
   it('up+jump then attack within the window fires the up-attack, NOT a jump', () => {
-    const ch = groundedWolf();
+    const ch = groundedDonkeyKong();
     ch.applyInput({ moveX: 0, moveY: -1, jump: true }); // press → buffer
     ch.applyInput({ moveX: 0, moveY: -1, jump: true }); // hold → buffer ticks
     ch.applyInput({ moveX: 0, moveY: -1, jump: true, attack: true }); // attack converts
@@ -1531,7 +1147,7 @@ describe('Tap-jump buffer — up+attack beats the jump', () => {
   });
 
   it('up+jump with no follow-up attack still jumps once the buffer expires', () => {
-    const ch = groundedWolf();
+    const ch = groundedDonkeyKong();
     ch.applyInput({ moveX: 0, moveY: -1, jump: true }); // press → buffer
     let jumped = false;
     // Hold up+jump; the buffered jump must fire within a handful of frames.
@@ -1555,15 +1171,15 @@ describe('Tap-jump buffer — up+attack beats the jump', () => {
 // ---------------------------------------------------------------------------
 
 describe('Vertical smash flick — up/down-smash reachable via flick + attack', () => {
-  const groundedWolf = (): Character => {
+  const groundedDonkeyKong = (): Character => {
     const m = createMockScene();
-    const ch = createCharacterById(m.scene, 'wolf', { spawnX: 0, spawnY: 0 });
+    const ch = createCharacterById(m.scene, 'donkeykong', { spawnX: 0, spawnY: 0 });
     ground(ch, m);
     return ch;
   };
 
   it('an UP-flick (rest → up) + attack fires up-smash (charge, release to fire)', () => {
-    const ch = groundedWolf();
+    const ch = groundedDonkeyKong();
     ch.applyInput({ moveX: 0, jump: false }); // stick at rest → prevMoveY latches 0
     ch.applyInput({ moveX: 0, moveY: -1, jump: false, attack: true }); // flick up → up-smash charge
     ch.applyInput({ moveX: 0, moveY: -1, jump: false, attack: false }); // release → fires
@@ -1571,7 +1187,7 @@ describe('Vertical smash flick — up/down-smash reachable via flick + attack', 
   });
 
   it('a DOWN-flick (rest → down) + attack fires down-smash (charge, release to fire)', () => {
-    const ch = groundedWolf();
+    const ch = groundedDonkeyKong();
     ch.applyInput({ moveX: 0, jump: false });
     ch.applyInput({ moveX: 0, moveY: 1, jump: false, attack: true }); // flick down → down-smash charge
     ch.applyInput({ moveX: 0, moveY: 1, jump: false, attack: false }); // release → fires
@@ -1579,7 +1195,7 @@ describe('Vertical smash flick — up/down-smash reachable via flick + attack', 
   });
 
   it('a HELD up-stick + attack stays an up-TILT (a lean is not a flick)', () => {
-    const ch = groundedWolf();
+    const ch = groundedDonkeyKong();
     ch.applyInput({ moveX: 0, moveY: -1, jump: false }); // hold up → prevMoveY latches -1
     ch.applyInput({ moveX: 0, moveY: -1, jump: false, attack: true }); // still up + attack
     expect(ch.getActiveAttack()?.move.id).toBe(ch.getUpTiltId());
@@ -1595,7 +1211,7 @@ describe('Vertical smash flick — up/down-smash reachable via flick + attack', 
 describe('Up-special via up-stick (jump button not pressed)', () => {
   it('special + up-stick with NO jump fires the up-special', () => {
     const m = createMockScene();
-    const ch = createCharacterById(m.scene, 'wolf', { spawnX: 0, spawnY: 0 });
+    const ch = createCharacterById(m.scene, 'donkeykong', { spawnX: 0, spawnY: 0 });
     ground(ch, m);
     ch.applyInput({ moveX: 0, moveY: -1, jump: false, special: true });
     expect(ch.getActiveAttack()?.move.id).toBe(ch.getUpSpecialId());

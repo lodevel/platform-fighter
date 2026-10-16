@@ -2,20 +2,17 @@ import { describe, it, expect } from 'vitest';
 import {
   CHARACTER_PALETTES,
   PALETTES_PER_CHARACTER,
-  WOLF_PALETTES,
-  CAT_PALETTES,
-  OWL_PALETTES,
-  BEAR_PALETTES,
+  LINK_PALETTES,
+  DONKEYKONG_PALETTES,
+  PIKACHU_PALETTES,
   applyPaletteToPlaceholder,
   getCharacterPalette,
   getCharacterPalettes,
   type CharacterPalette,
 } from './palettes';
 import {
-  WOLF_PLACEHOLDER,
-  CAT_PLACEHOLDER,
-  OWL_PLACEHOLDER,
-  BEAR_PLACEHOLDER,
+  LINK_PLACEHOLDER,
+  DONKEYKONG_PLACEHOLDER,
 } from './roster';
 import type { CharacterId } from '../types';
 
@@ -70,10 +67,9 @@ describe('palettes — AC 13 Sub-AC 2 (per-character palette colour data)', () =
   // -----------------------------------------------------------------------
 
   const ALL_CHARACTERS: ReadonlyArray<readonly [CharacterId, ReadonlyArray<CharacterPalette>]> = [
-    ['wolf', WOLF_PALETTES],
-    ['cat', CAT_PALETTES],
-    ['owl', OWL_PALETTES],
-    ['bear', BEAR_PALETTES],
+    ['link', LINK_PALETTES],
+    ['donkeykong', DONKEYKONG_PALETTES],
+    ['pikachu', PIKACHU_PALETTES],
   ];
 
   describe.each(ALL_CHARACTERS)('%s palette ladder', (id, ladder) => {
@@ -125,10 +121,8 @@ describe('palettes — AC 13 Sub-AC 2 (per-character palette colour data)', () =
 
   describe('palette 0 mirrors the canonical CharacterPlaceholderVisual', () => {
     it.each([
-      ['wolf', WOLF_PALETTES, WOLF_PLACEHOLDER],
-      ['cat', CAT_PALETTES, CAT_PLACEHOLDER],
-      ['owl', OWL_PALETTES, OWL_PLACEHOLDER],
-      ['bear', BEAR_PALETTES, BEAR_PLACEHOLDER],
+      ['link', LINK_PALETTES, LINK_PLACEHOLDER],
+      ['donkeykong', DONKEYKONG_PALETTES, DONKEYKONG_PLACEHOLDER],
     ] as const)(
       '%s palette 0 matches the placeholder primary/accent colours',
       (_id, ladder, placeholder) => {
@@ -145,7 +139,7 @@ describe('palettes — AC 13 Sub-AC 2 (per-character palette colour data)', () =
 
   describe('CHARACTER_PALETTES', () => {
     it('is exhaustive over the CharacterId union', () => {
-      const ids: CharacterId[] = ['wolf', 'cat', 'owl', 'bear'];
+      const ids: CharacterId[] = ['link', 'donkeykong', 'pikachu'];
       for (const id of ids) {
         expect(CHARACTER_PALETTES[id]).toBeDefined();
         expect(CHARACTER_PALETTES[id]).toHaveLength(PALETTES_PER_CHARACTER);
@@ -157,11 +151,11 @@ describe('palettes — AC 13 Sub-AC 2 (per-character palette colour data)', () =
     });
 
     it('supports a full four-player same-character lineup with distinct palettes', () => {
-      // The headline AC 13 use case: four slots all pick Wolf, each
+      // The headline AC 13 use case: four slots all pick Donkey Kong, each
       // takes a different palette. Picking palette indices 0..3 must
       // yield four distinct primaryColor values so the renderer can
       // tell them apart on-screen.
-      const lineup = [0, 1, 2, 3].map((i) => getCharacterPalette('wolf', i));
+      const lineup = [0, 1, 2, 3].map((i) => getCharacterPalette('donkeykong', i));
       const primaries = lineup.map((p) => p.primaryColor);
       expect(new Set(primaries).size).toBe(4);
     });
@@ -173,35 +167,35 @@ describe('palettes — AC 13 Sub-AC 2 (per-character palette colour data)', () =
 
   describe('getCharacterPalette', () => {
     it('returns the matching palette for an in-range index', () => {
-      const p = getCharacterPalette('cat', 3);
-      expect(p).toBe(CAT_PALETTES[3]);
+      const p = getCharacterPalette('pikachu', 3);
+      expect(p).toBe(PIKACHU_PALETTES[3]);
       expect(p.index).toBe(3);
     });
 
     it('wraps an index past the last palette back to the start', () => {
-      const p = getCharacterPalette('wolf', PALETTES_PER_CHARACTER);
-      expect(p).toBe(WOLF_PALETTES[0]);
+      const p = getCharacterPalette('donkeykong', PALETTES_PER_CHARACTER);
+      expect(p).toBe(DONKEYKONG_PALETTES[0]);
     });
 
     it('wraps a negative index to a valid palette', () => {
-      const p = getCharacterPalette('wolf', -1);
-      expect(p).toBe(WOLF_PALETTES[PALETTES_PER_CHARACTER - 1]);
+      const p = getCharacterPalette('donkeykong', -1);
+      expect(p).toBe(DONKEYKONG_PALETTES[PALETTES_PER_CHARACTER - 1]);
     });
 
     it('normalises NaN / Infinity to palette 0 instead of crashing', () => {
-      expect(getCharacterPalette('cat', NaN)).toBe(CAT_PALETTES[0]);
-      expect(getCharacterPalette('cat', Infinity)).toBe(CAT_PALETTES[0]);
-      expect(getCharacterPalette('cat', -Infinity)).toBe(CAT_PALETTES[0]);
+      expect(getCharacterPalette('pikachu', NaN)).toBe(PIKACHU_PALETTES[0]);
+      expect(getCharacterPalette('pikachu', Infinity)).toBe(PIKACHU_PALETTES[0]);
+      expect(getCharacterPalette('pikachu', -Infinity)).toBe(PIKACHU_PALETTES[0]);
     });
 
     it('truncates fractional indices toward zero', () => {
       // 2.9 → 2 (truncate, not round) so cycling is predictable.
-      expect(getCharacterPalette('owl', 2.9)).toBe(OWL_PALETTES[2]);
+      expect(getCharacterPalette('pikachu', 2.9)).toBe(PIKACHU_PALETTES[2]);
     });
 
     it('is deterministic — repeated calls return the same frozen object', () => {
-      const a = getCharacterPalette('bear', 5);
-      const b = getCharacterPalette('bear', 5);
+      const a = getCharacterPalette('donkeykong', 5);
+      const b = getCharacterPalette('donkeykong', 5);
       expect(a).toBe(b);
     });
   });
@@ -212,14 +206,13 @@ describe('palettes — AC 13 Sub-AC 2 (per-character palette colour data)', () =
 
   describe('getCharacterPalettes', () => {
     it('returns the full ladder for a character', () => {
-      expect(getCharacterPalettes('wolf')).toBe(WOLF_PALETTES);
-      expect(getCharacterPalettes('cat')).toBe(CAT_PALETTES);
-      expect(getCharacterPalettes('owl')).toBe(OWL_PALETTES);
-      expect(getCharacterPalettes('bear')).toBe(BEAR_PALETTES);
+      expect(getCharacterPalettes('link')).toBe(LINK_PALETTES);
+      expect(getCharacterPalettes('donkeykong')).toBe(DONKEYKONG_PALETTES);
+      expect(getCharacterPalettes('pikachu')).toBe(PIKACHU_PALETTES);
     });
 
     it('returns a frozen array of length 8', () => {
-      const ladder = getCharacterPalettes('wolf');
+      const ladder = getCharacterPalettes('donkeykong');
       expect(ladder).toHaveLength(PALETTES_PER_CHARACTER);
       expect(Object.isFrozen(ladder)).toBe(true);
     });
@@ -231,32 +224,32 @@ describe('palettes — AC 13 Sub-AC 2 (per-character palette colour data)', () =
 
   describe('applyPaletteToPlaceholder', () => {
     it('substitutes the palette colours into the placeholder', () => {
-      const palette = getCharacterPalette('wolf', 1); // Cobalt
-      const out = applyPaletteToPlaceholder(WOLF_PLACEHOLDER, palette);
+      const palette = getCharacterPalette('donkeykong', 1); 
+      const out = applyPaletteToPlaceholder(DONKEYKONG_PLACEHOLDER, palette);
       expect(out.primaryColor).toBe(palette.primaryColor);
       expect(out.accentColor).toBe(palette.accentColor);
       expect(out.labelColor).toBe(palette.labelColor);
     });
 
     it('preserves geometry (width, height) and spriteKey', () => {
-      const palette = getCharacterPalette('cat', 4);
-      const out = applyPaletteToPlaceholder(CAT_PLACEHOLDER, palette);
-      expect(out.width).toBe(CAT_PLACEHOLDER.width);
-      expect(out.height).toBe(CAT_PLACEHOLDER.height);
-      expect(out.spriteKey).toBe(CAT_PLACEHOLDER.spriteKey);
+      const palette = getCharacterPalette('pikachu', 4);
+      const out = applyPaletteToPlaceholder(DONKEYKONG_PLACEHOLDER, palette);
+      expect(out.width).toBe(DONKEYKONG_PLACEHOLDER.width);
+      expect(out.height).toBe(DONKEYKONG_PLACEHOLDER.height);
+      expect(out.spriteKey).toBe(DONKEYKONG_PLACEHOLDER.spriteKey);
     });
 
     it('does not mutate the input placeholder', () => {
-      const before = { ...WOLF_PLACEHOLDER };
-      applyPaletteToPlaceholder(WOLF_PLACEHOLDER, getCharacterPalette('wolf', 2));
-      expect(WOLF_PLACEHOLDER.primaryColor).toBe(before.primaryColor);
-      expect(WOLF_PLACEHOLDER.accentColor).toBe(before.accentColor);
+      const before = { ...DONKEYKONG_PLACEHOLDER };
+      applyPaletteToPlaceholder(DONKEYKONG_PLACEHOLDER, getCharacterPalette('donkeykong', 2));
+      expect(DONKEYKONG_PLACEHOLDER.primaryColor).toBe(before.primaryColor);
+      expect(DONKEYKONG_PLACEHOLDER.accentColor).toBe(before.accentColor);
     });
 
     it('returns a frozen visual', () => {
       const out = applyPaletteToPlaceholder(
-        OWL_PLACEHOLDER,
-        getCharacterPalette('owl', 3),
+        DONKEYKONG_PLACEHOLDER,
+        getCharacterPalette('pikachu', 3),
       );
       expect(Object.isFrozen(out)).toBe(true);
     });
@@ -266,10 +259,8 @@ describe('palettes — AC 13 Sub-AC 2 (per-character palette colour data)', () =
       // the same primary/accent colours — that's the "default consumer
       // sees no change" guarantee from invariant #3.
       for (const [id, ladder, placeholder] of [
-        ['wolf', WOLF_PALETTES, WOLF_PLACEHOLDER],
-        ['cat', CAT_PALETTES, CAT_PLACEHOLDER],
-        ['owl', OWL_PALETTES, OWL_PLACEHOLDER],
-        ['bear', BEAR_PALETTES, BEAR_PLACEHOLDER],
+        ['link', LINK_PALETTES, LINK_PLACEHOLDER],
+        ['donkeykong', DONKEYKONG_PALETTES, DONKEYKONG_PLACEHOLDER],
       ] as const) {
         const out = applyPaletteToPlaceholder(placeholder, ladder[0]!);
         expect(out.primaryColor, `${id} primary`).toBe(placeholder.primaryColor);

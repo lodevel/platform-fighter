@@ -89,73 +89,40 @@ export interface ItemSpawnInterval {
 /**
  * Frequency-dial → spawn-interval mapping.
  *
- * Tuning rationale (60 Hz fixed-step; 60 frames = 1 s):
- *
- *   • `'off'`  : `null` — items disabled. The spawn manager checks
- *     for `null` and short-circuits without ever scheduling a spawn.
- *     Distinct from a "very long interval" so the off path is also
- *     `MatchRng`-free (no roll consumed) and the saved replay header
- *     records "no items" unambiguously.
- *   • `'low'`  : 12–20 s (720–1200 frames). Sparse — players notice
- *     individual spawns; rounds rarely see more than a handful.
- *   • `'med'`  : 6–12 s (360–720 frames). Default — items are a
- *     regular feature of the round without dominating it.
- *   • `'high'` : 2–5 s (120–300 frames). Chaotic — items are part of
- *     every exchange; bombers and ray guns are the headline event.
- *
- * The windows overlap intentionally at neither extreme so a player
- * stepping the dial up always perceives a frequency change (`high`'s
- * worst case is faster than `med`'s best case).
+ * `'off'` is `null` (Ultimate "None"): the spawn manager short-circuits without a roll, so the
+ * 1v1 damage rule's items-off condition stays exact. The other dials draw each interval from the
+ * SmashWiki Ultimate ranges below.
  */
 export const ITEM_SPAWN_FREQUENCY_TABLE: Readonly<
   Record<ItemFrequency, ItemSpawnInterval | null>
 > = Object.freeze({
   off: null,
-  low: Object.freeze({ minIntervalFrames: 720, maxIntervalFrames: 1200 }),
-  med: Object.freeze({ minIntervalFrames: 360, maxIntervalFrames: 720 }),
-  high: Object.freeze({ minIntervalFrames: 120, maxIntervalFrames: 300 }),
+  // SmashWiki Item_Switch: "Ultimate uses the same rates and ranges as Smash 4" — Low 1200–1500,
+  // Med 500–800, High 300–500 frames (universal-rules.json spawn.frequencyTimerFrames).
+  low: Object.freeze({ minIntervalFrames: 1200, maxIntervalFrames: 1500 }),
+  med: Object.freeze({ minIntervalFrames: 500, maxIntervalFrames: 800 }),
+  high: Object.freeze({ minIntervalFrames: 300, maxIntervalFrames: 500 }),
 });
 
 // ---------------------------------------------------------------------------
 // Max-items-on-field cap
 // ---------------------------------------------------------------------------
 
-/**
- * Hard upper bound on simultaneous live items, regardless of dial
- * position. The per-frequency caps below are validated against this
- * constant by `assertItemSpawnSettingsInvariants` so a future tuning
- * pass can't accidentally raise a single dial above what the rest of
- * the framework — pickup proximity probes, replay snapshot cost, the
- * 4-fighter HUD — was designed to handle.
- *
- * Tuned conservatively for a 4-player FFA on a Battlefield-shaped
- * stage: even at the cap, every live fighter has at most one item
- * within a short pickup hop, and the snapshot system stays well below
- * its per-frame budget.
- */
-export const MAX_ITEMS_ON_FIELD_HARD_LIMIT = 8;
+/** SmashWiki Item: "In Ultimate, there is a universal item limit where no more than 64 items can appear on a
+ * stage at once" (universal-rules.json spawn.maxItems); spawning at the cap silently fails. */
+export const MAX_ITEMS_ON_FIELD_HARD_LIMIT = 64;
 
 /**
- * Per-frequency cap on the number of items the spawn manager will
- * keep live on the stage at once. When the field is full the manager
- * idles — it does NOT roll a delay only to skip the spawn — so the
- * `MatchRng` consumption pattern stays deterministic regardless of
- * how items are picked up or destroyed.
- *
- *   • `'off'`  : 0 — items disabled; cap matches.
- *   • `'low'`  : 1 — one item at a time keeps the round paced.
- *   • `'med'`  : 2 — small cap; the stage feels lively without
- *     turning into a litter pile.
- *   • `'high'` : 4 — chaotic-but-manageable; matches the 4-player
- *     FFA cap so every fighter can plausibly hold an item at once.
+ * Live-item cap per dial: 0 when off, otherwise the Ultimate stage limit. At the cap the manager
+ * idles without rolling, so `MatchRng` consumption stays independent of pickups.
  */
 export const MAX_ITEMS_ON_FIELD_BY_FREQUENCY: Readonly<
   Record<ItemFrequency, number>
 > = Object.freeze({
   off: 0,
-  low: 1,
-  med: 2,
-  high: 4,
+  low: MAX_ITEMS_ON_FIELD_HARD_LIMIT,
+  med: MAX_ITEMS_ON_FIELD_HARD_LIMIT,
+  high: MAX_ITEMS_ON_FIELD_HARD_LIMIT,
 });
 
 // ---------------------------------------------------------------------------

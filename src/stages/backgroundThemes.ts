@@ -49,7 +49,8 @@ export type StageBackgroundThemeId =
   | 'wind-canyon'
   | 'crumbling-temple'
   | 'sky-ferry'
-  | 'midnight';
+  | 'midnight'
+  | 'inferno';
 
 /**
  * Silhouette families the procedural fallback can draw. Each maps to
@@ -541,6 +542,8 @@ export const STAGE_BACKGROUND_THEMES: Readonly<
   'crumbling-temple': CRUMBLING_TEMPLE_THEME,
   'sky-ferry': SKY_FERRY_THEME,
   midnight: MIDNIGHT_THEME,
+  // The lava cave's layers under a darker, redder sky (themes must differ).
+  inferno: Object.freeze({ ...LAVA_CAVERN_THEME, id: 'inferno' as const, gradientTop: 0x0e0306, gradientBottom: 0x5c1608 }),
 });
 
 /**

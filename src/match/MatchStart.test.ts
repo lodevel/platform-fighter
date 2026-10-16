@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { SIMULATION_BUILD_ID } from '../engine/buildIdentity';
 import {
   initialiseMatch,
   buildMatchStartMetadata,
@@ -37,7 +38,7 @@ import type { MatchConfig, PlayerSlot } from '../types';
 // ---------------------------------------------------------------------------
 
 function makePlayerSlots(count: number): PlayerSlot[] {
-  const ids = ['wolf', 'cat', 'owl', 'bear'] as const;
+  const ids = ['donkeykong', 'pikachu', 'donkeykong', 'pikachu'] as const;
   return Array.from({ length: count }, (_, i) => ({
     index: (i + 1) as PlayerSlot['index'],
     characterId: ids[i]!,
@@ -223,7 +224,7 @@ describe('initialiseMatch — metadata population', () => {
       matchConfig: config,
       nowFactory: fixedNow,
     });
-    expect(ctx.metadata.characterIds).toEqual(['wolf', 'cat', 'owl', 'bear']);
+    expect(ctx.metadata.characterIds).toEqual(['donkeykong', 'pikachu', 'donkeykong', 'pikachu']);
   });
 
   it('populates stageId from matchConfig.stageId', () => {
@@ -274,7 +275,7 @@ describe('initialiseMatch — metadata population', () => {
       matchConfig: makeMatchConfig(),
       nowFactory: fixedNow,
     });
-    expect(def.metadata.engineVersion).toBe(UNKNOWN_ENGINE_VERSION);
+    expect(def.metadata.engineVersion).toBe(SIMULATION_BUILD_ID);
 
     const custom = initialiseMatch({
       matchConfig: makeMatchConfig(),
@@ -290,7 +291,7 @@ describe('initialiseMatch — metadata population', () => {
       engineVersion: '',
       nowFactory: fixedNow,
     });
-    expect(ctx.metadata.engineVersion).toBe(UNKNOWN_ENGINE_VERSION);
+    expect(ctx.metadata.engineVersion).toBe(SIMULATION_BUILD_ID);
   });
 });
 
@@ -372,7 +373,7 @@ describe('initialiseMatch — input validation', () => {
             // simulate corrupt input.
             {
               index: 4,
-              characterId: 'wolf',
+              characterId: 'donkeykong',
               paletteIndex: 0,
               inputType: 'ai',
               aiDifficulty: 'easy',
@@ -489,7 +490,7 @@ describe('initialiseMatch — replay structure integration', () => {
     expect(ctx.metadata.engineVersion).toBe('0.3.1');
     expect(ctx.metadata.fixedTimestepMs).toBeCloseTo(1000 / 60, 6);
     expect(ctx.metadata.stageId).toBe('flatlands');
-    expect(ctx.metadata.characterIds).toEqual(['wolf', 'cat']);
+    expect(ctx.metadata.characterIds).toEqual(['donkeykong', 'pikachu']);
   });
 
   it('matchConfig is suitable for direct use in serializeReplay (seed survives JSON round-trip)', () => {

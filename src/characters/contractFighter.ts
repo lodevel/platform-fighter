@@ -5,7 +5,7 @@
  *
  * Before this class, each per-fighter subclass (Wolf / Cat / Owl /
  * Bear) hand-wrote ten structurally identical `executeXxx` stubs —
- * `executeJab() { return this.attemptAttack(WOLF_JAB.id); }` and
+ * `executeJab() { return this.attemptAttack(DONKEYKONG_JAB.id); }` and
  * friends — ~110 lines of boilerplate per fighter whose ONLY
  * per-fighter content was which move constant the slot pins. Adding a
  * new slot meant editing four files in lockstep; adding a fifth
@@ -13,8 +13,8 @@
  *
  * The insight that collapses the duplication: every fighter already
  * publishes the slot ↔ move mapping as data — its frozen
- * `moveset: FighterMoveset` property (`WOLF_MOVESET.jab` IS
- * `WOLF_JAB`). So the execute hooks can be written ONCE against the
+ * `moveset: FighterMoveset` property (`DONKEYKONG_MOVESET.jab` IS
+ * `DONKEYKONG_JAB`). So the execute hooks can be written ONCE against the
  * abstract contract: `executeJab` fires `this.moveset.jab.id`,
  * whatever fighter that happens to be. Per-fighter ownership is
  * preserved — the fighter still authors its `*_MOVESET` table and
@@ -23,13 +23,12 @@
  *
  * Hook semantics (identical to the per-fighter stubs this replaces):
  *
- *   • Held-item slot overrides are consulted FIRST (AC 4 T3 items) —
- *     if a held weapon consumed the press, the native move does not
- *     run.
- *   • The hooks fire the fighter's AUTHORED slot move directly,
- *     deliberately ignoring the base dispatcher's cascade-resolved id
- *     — a fully-declared fighter owns its mapping (the cascade exists
- *     for partial test movesets on the raw `Character` base).
+ *   • A held item's uses are resolved before these hooks run
+ *     (Character dispatch + resolveItemInput); the hooks only fire the
+ *     fighter's own moves.
+ *   • Grounded normals and forward aerial use the resolved runtime slot,
+ *     including saved moves with new IDs. Direct calls read the wired slot
+ *     and retain the compiled declaration as a fallback.
  *   • `executeUpSpecial` routes through {@link Character.attemptUpSpecial}
  *     so the recovery's vertical physics integrate on the press frame.
  *   • `executeShield` / `executeDodge` remain no-op surface stubs —
@@ -48,44 +47,38 @@ import type { FighterMoveset } from './movesetContract';
 export abstract class ContractFighter extends Character {
   /**
    * The fighter's frozen 10-slot moveset declaration. Each concrete
-   * fighter assigns its `*_MOVESET` table (Wolf → `WOLF_MOVESET`,
+   * fighter assigns its `*_MOVESET` table (DK → `DONKEYKONG_MOVESET`,
    * etc.); the execute hooks below read the slot ids off it.
    */
   abstract readonly moveset: FighterMoveset;
 
   /** Fire the declared jab. Returns `true` iff the move started. */
-  override executeJab(): boolean {
-    if (this.runSlotOverride('jab')) return true;
-    return this.attemptAttack(this.moveset.jab.id);
+  override executeJab(resolvedId: string | null = this.getLightAttackId()): boolean {
+    return this.attemptAttack(resolvedId ?? this.moveset.jab.id);
   }
 
   /** Fire the declared tilt. */
-  override executeTilt(): boolean {
-    if (this.runSlotOverride('tilt')) return true;
-    return this.attemptAttack(this.moveset.tilt.id);
+  override executeTilt(resolvedId: string | null = this.getTiltAttackId()): boolean {
+    return this.attemptAttack(resolvedId ?? this.moveset.tilt.id);
   }
 
   /** Fire the declared smash. */
-  override executeSmash(): boolean {
-    if (this.runSlotOverride('smash')) return true;
-    return this.attemptAttack(this.moveset.smash.id);
+  override executeSmash(resolvedId: string | null = this.getHeavyAttackId()): boolean {
+    return this.attemptAttack(resolvedId ?? this.moveset.smash.id);
   }
 
-  /** Fire the declared forward aerial. */
-  override executeFair(): boolean {
-    if (this.runSlotOverride('fair')) return true;
-    return this.attemptAttack(this.moveset.fair.id);
+  /** Fire the routed forward aerial, including a saved move with a new ID. */
+  override executeFair(resolvedId: string | null = this.getAerialForwardId()): boolean {
+    return this.attemptAttack(resolvedId ?? this.moveset.fair.id);
   }
 
   /** Fire the declared neutral special. */
   override executeNeutralSpecial(): boolean {
-    if (this.runSlotOverride('neutralSpecial')) return true;
     return this.attemptAttack(this.moveset.neutralSpecial.id);
   }
 
   /** Fire the declared side special. */
   override executeSideSpecial(): boolean {
-    if (this.runSlotOverride('sideSpecial')) return true;
     return this.attemptAttack(this.moveset.sideSpecial.id);
   }
 
@@ -95,13 +88,11 @@ export abstract class ContractFighter extends Character {
    * canonical no-stick recovery press.
    */
   override executeUpSpecial(stickX: number = 0, stickY: number = -1): boolean {
-    if (this.runSlotOverride('upSpecial')) return true;
     return this.attemptUpSpecial(stickX, stickY);
   }
 
   /** Fire the declared down special. */
   override executeDownSpecial(): boolean {
-    if (this.runSlotOverride('downSpecial')) return true;
     return this.attemptAttack(this.moveset.downSpecial.id);
   }
 

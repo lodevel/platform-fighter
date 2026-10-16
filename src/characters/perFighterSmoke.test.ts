@@ -1,8 +1,8 @@
 /**
  * Sub-AC 2.3 of the T2 per-fighter refactor track — smoke tests.
  *
- * Goal: verify that all 4 per-fighter subclasses (Wolf, Cat, Owl, Bear)
- * compile and behave identically against the shared {@link Character}
+ * Goal: verify that every per-fighter subclass (Link, Donkey Kong,
+ * Pikachu) compiles and behaves identically against the shared {@link Character}
  * base after Sub-AC 2.1's per-slot `executeXxx()` extraction and Sub-AC
  * 2.2's per-fighter movement-profile extraction.
  *
@@ -47,19 +47,9 @@
 import { describe, it, expect } from 'vitest';
 
 import { Character } from './Character';
-import { Wolf, WOLF_FIGHTER_CONTRACT } from './Wolf';
-import { Cat, CAT_FIGHTER_CONTRACT } from './Cat';
-import { Owl, OWL_FIGHTER_CONTRACT } from './Owl';
-import { Bear, BEAR_FIGHTER_CONTRACT } from './Bear';
-import { Blaze, BLAZE_FIGHTER_CONTRACT } from './Blaze';
-import { Puff, PUFF_FIGHTER_CONTRACT } from './Puff';
-import { Aegis, AEGIS_FIGHTER_CONTRACT } from './Aegis';
-import { Volt, VOLT_FIGHTER_CONTRACT } from './Volt';
-import { Nova, NOVA_FIGHTER_CONTRACT } from './Nova';
-import { Bruno, BRUNO_FIGHTER_CONTRACT } from './Bruno';
 import { Link, LINK_FIGHTER_CONTRACT } from './Link';
-import { Kirby, KIRBY_FIGHTER_CONTRACT } from './Kirby';
 import { DonkeyKong, DONKEYKONG_FIGHTER_CONTRACT } from './DonkeyKong';
+import { Pikachu, PIKACHU_FIGHTER_CONTRACT } from './Pikachu';
 import {
   ATTACK_MOVESET_SLOT_NAMES,
   MOVESET_SLOT_NAMES,
@@ -158,10 +148,7 @@ function createMockScene(): {
       position: { x: charBody.position.x, y: (platformY ?? charBody.position.y + 80) },
     };
     const pair: SupportPair = {
-      bodyA: {
-        label: charBody.label,
-        position: { x: charBody.position.x, y: charBody.position.y },
-      },
+      bodyA: charBody,
       bodyB: platform,
     };
     for (const l of listeners) {
@@ -198,26 +185,9 @@ interface FighterUnderTest {
 }
 
 const FIGHTERS: ReadonlyArray<FighterUnderTest> = [
-  { id: 'wolf', displayName: 'Wolf', Ctor: Wolf, contract: WOLF_FIGHTER_CONTRACT },
-  { id: 'cat', displayName: 'Cat', Ctor: Cat, contract: CAT_FIGHTER_CONTRACT },
-  { id: 'owl', displayName: 'Owl', Ctor: Owl, contract: OWL_FIGHTER_CONTRACT },
-  { id: 'bear', displayName: 'Bear', Ctor: Bear, contract: BEAR_FIGHTER_CONTRACT },
-  // Post-M5 roster expansion — the three Smash-inspired fighters run
-  // the identical smoke gauntlet so the cast stays uniform: every
-  // fighter constructs against the shared base, exposes the 10-slot
-  // contract surface, fires every slot's authored move, and honours
-  // its movement profile.
-  { id: 'blaze', displayName: 'Blaze (Captain Falcon)', Ctor: Blaze, contract: BLAZE_FIGHTER_CONTRACT },
-  { id: 'puff', displayName: 'Puff (Jigglypuff)', Ctor: Puff, contract: PUFF_FIGHTER_CONTRACT },
-  { id: 'aegis', displayName: 'Aegis (Marth)', Ctor: Aegis, contract: AEGIS_FIGHTER_CONTRACT },
-  // Post-batch-2 + batch-3 roster expansion — the remaining cast runs the
-  // identical smoke gauntlet so coverage stays exhaustive over the roster.
-  { id: 'volt', displayName: 'Volt (Pikachu)', Ctor: Volt, contract: VOLT_FIGHTER_CONTRACT },
-  { id: 'nova', displayName: 'Nova (Samus)', Ctor: Nova, contract: NOVA_FIGHTER_CONTRACT },
-  { id: 'bruno', displayName: 'Bruno (Mario)', Ctor: Bruno, contract: BRUNO_FIGHTER_CONTRACT },
   { id: 'link', displayName: 'Link (Zelda)', Ctor: Link, contract: LINK_FIGHTER_CONTRACT },
-  { id: 'kirby', displayName: 'Kirby', Ctor: Kirby, contract: KIRBY_FIGHTER_CONTRACT },
   { id: 'donkeykong', displayName: 'Donkey Kong', Ctor: DonkeyKong, contract: DONKEYKONG_FIGHTER_CONTRACT },
+  { id: 'pikachu', displayName: 'Pikachu', Ctor: Pikachu, contract: PIKACHU_FIGHTER_CONTRACT },
 ];
 
 // ---------------------------------------------------------------------------
@@ -261,8 +231,8 @@ describe('Sub-AC 2.3 smoke — per-fighter compiles + behaves identically agains
       // Every attack slot's per-fighter executeXxx() override must light
       // up `activeAttack` with the move id authored on the contract.
       // This is the per-fighter "fire WHICH move" ownership the T2
-      // refactor delivers — Wolf alone decides executeJab fires WOLF_JAB,
-      // Cat alone decides executeJab fires CAT_JAB, etc. Driven through
+      // refactor delivers — DK alone decides executeJab fires
+      // DONKEYKONG_JAB, Pikachu alone decides executeJab fires PIKACHU_JAB. Driven through
       // the canonical attack-slot list so adding a 9th attack slot in the
       // future surfaces a missing-override regression here.
       it.each(ATTACK_MOVESET_SLOT_NAMES)(
@@ -283,8 +253,8 @@ describe('Sub-AC 2.3 smoke — per-fighter compiles + behaves identically agains
           expect(ch.getActiveAttack()).toBeNull();
 
           // Map slot literal → method invocation. The per-slot
-          // executeXxx is a public override on every fighter (Wolf.ts /
-          // Cat.ts / Owl.ts / Bear.ts) — call through the typed instance.
+          // executeXxx is a public override on every fighter
+          // (ContractFighter) — call through the typed instance.
           let started: boolean;
           switch (slot) {
             case 'jab':
@@ -354,27 +324,41 @@ describe('Sub-AC 2.3 smoke — per-fighter compiles + behaves identically agains
       // grounded jump press leaves the ground (consumes a jump from
       // the budget). These are the two minimal "fighter is alive in
       // the world" properties every movement profile must guarantee.
-      it('horizontal stick input accelerates the body in the stick direction', () => {
+      it('air drift accelerates in the stick direction while retaining facing', () => {
         const m = createMockScene();
         const ch = new Ctor(m.scene, { spawnX: 0, spawnY: 0 });
         // Drive the fighter right for a handful of fixed steps. The
         // body starts at rest; after acceleration it must read a
-        // positive horizontal velocity — the per-fighter movement
-        // profile applies the right ground / air accel for the stick
-        // direction.
+        // positive horizontal velocity. This fixture has no platform, so
+        // the fighter uses its authored air acceleration.
+        expect(ch.isGrounded()).toBe(false);
         for (let i = 0; i < 4; i++) {
           ch.applyInput({ moveX: 1, jump: false });
         }
         expect(ch.getVelocity().x).toBeGreaterThan(0);
         expect(ch.getFacing()).toBe(1);
 
-        // Reverse — the same fighter accepts the opposite stick and
-        // its velocity flips sign within a few frames. Mirrors the
-        // canonical "press right then press left, fighter changes
-        // direction" gameplay invariant.
+        // Reverse travel while preserving orientation, so a subsequent
+        // backward attack remains a back air even after sustained drift.
         for (let i = 0; i < 12; i++) {
           ch.applyInput({ moveX: -1, jump: false });
         }
+        expect(ch.getVelocity().x).toBeLessThan(0);
+        expect(ch.getFacing()).toBe(1);
+      });
+
+      it('grounded horizontal movement turns the fighter toward travel', () => {
+        const m = createMockScene();
+        const ch = new Ctor(m.scene, { spawnX: 0, spawnY: 0 });
+        m.fireGroundContact(m.bodies[m.bodies.length - 1]!);
+        // Finish any authored ordinary landing recovery before moving.
+        for (let frame = 0; frame < 3; frame++) ch.applyInput({ moveX: 0, jump: false });
+        expect(ch.isGrounded()).toBe(true);
+        for (let frame = 0; frame < 4; frame++) ch.applyInput({ moveX: 1, jump: false });
+        expect(ch.getVelocity().x).toBeGreaterThan(0);
+        expect(ch.getFacing()).toBe(1);
+        // Allow the authored pivot and acceleration to finish.
+        for (let frame = 0; frame < 30; frame++) ch.applyInput({ moveX: -1, jump: false });
         expect(ch.getVelocity().x).toBeLessThan(0);
         expect(ch.getFacing()).toBe(-1);
       });
@@ -391,10 +375,10 @@ describe('Sub-AC 2.3 smoke — per-fighter compiles + behaves identically agains
         // jump still works because the budget allows multi-jump, but
         // we simulate the canonical "grounded → jump" path.)
         m.fireGroundContact(charBody, charBody.position.y + 80);
-        // Apply a single jump press (rising edge: prevJumpHeld was
-        // false on construction). Velocity must read negative-y (up)
-        // afterwards — the body just got an upward impulse.
-        ch.applyInput({ moveX: 0, jump: true });
+        for (let frame = 0; frame < 3; frame++) ch.applyInput({ moveX: 0, jump: false });
+        expect(ch.isGrounded()).toBe(true);
+        // Press and hold through the shared three-frame jumpsquat.
+        for (let frame = 0; frame < 4; frame++) ch.applyInput({ moveX: 0, jump: true });
         expect(ch.getVelocity().y).toBeLessThan(0);
         // The jump consumed a slot from the budget — proves the
         // per-fighter movement profile's `maxJumps` parameter is wired

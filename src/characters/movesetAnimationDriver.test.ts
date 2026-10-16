@@ -14,7 +14,7 @@ import {
   resolveMovesetAnimationKey,
   resolveMovesetAnimationState,
 } from './movesetAnimationDriver';
-import { ANIMATION_CANCEL_RULES, getIdleAnimationKey } from './animationState';
+import { ANIMATED_MOVESET_IDS, ANIMATION_CANCEL_RULES, getIdleAnimationKey } from './animationState';
 import { getMoveBusyFrames } from './moveSchema';
 import type { CharacterId } from '../types';
 
@@ -31,13 +31,13 @@ import type { CharacterId } from '../types';
  *   4. Phase progression — keys advance startup → active → recovery →
  *      idle in lockstep with the gameplay state machine.
  *   5. Determinism — same inputs always produce the same key string
- *      across all 40 (character × slot) combos.
+ *      across every (character × slot) combo.
  *   6. Cancel rule alignment — the same five canonical rules apply.
  *   7. Slot reverse-lookup — `findMovesetSlot` finds every slot from
  *      its move id and returns null on misses.
  */
 
-const ALL_CHARACTERS: ReadonlyArray<CharacterId> = ['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno', 'link', 'kirby', 'donkeykong'];
+const ALL_CHARACTERS: ReadonlyArray<CharacterId> = ANIMATED_MOVESET_IDS;
 
 describe('AC 10003 Sub-AC 3 — full-moveset animation driver', () => {
   describe('Slot taxonomy', () => {
@@ -88,8 +88,8 @@ describe('AC 10003 Sub-AC 3 — full-moveset animation driver', () => {
       }
     });
 
-    it('flat MOVESET_ENTRIES has 130 entries (13 chars × 10 slots)', () => {
-      expect(MOVESET_ENTRIES).toHaveLength(130);
+    it('flat MOVESET_ENTRIES has one entry per (animated character, slot)', () => {
+      expect(MOVESET_ENTRIES).toHaveLength(ALL_CHARACTERS.length * MOVESET_SLOTS.length);
     });
 
     it('every entry carries a non-empty move id with the right character prefix', () => {
@@ -115,14 +115,15 @@ describe('AC 10003 Sub-AC 3 — full-moveset animation driver', () => {
       }
     });
 
-    it('total art frames per move sit in the Seed-mandated 6-8 range (or 5-9 for specials)', () => {
+    it('total art frames per move sit inside the UFD-sourced clip budget (3-12)', () => {
       for (const entry of MOVESET_ENTRIES) {
         const a = entry.move.animation!;
         const total = a.startupFrames + a.activeFrames + a.recoveryFrames;
-        // Allow specials to extend slightly past 8 (some span 9-10 for charges);
-        // grounded normals + aerials should stay in 6-8.
-        expect(total).toBeGreaterThanOrEqual(5);
-        expect(total).toBeLessThanOrEqual(11);
+        // Both animated fighters ship native-sampled clips: Link's short
+        // jabs pack 3 drawings, Donkey Kong's clips go up to 12 cells
+        // (clip-plan cap, DonkeyKong.test.ts).
+        expect(total, `${entry.move.id} total art frames`).toBeGreaterThanOrEqual(3);
+        expect(total, `${entry.move.id} total art frames`).toBeLessThanOrEqual(12);
       }
     });
   });
@@ -152,78 +153,75 @@ describe('AC 10003 Sub-AC 3 — full-moveset animation driver', () => {
     });
 
     it('progresses through startup → active → recovery → idle for a representative slot', () => {
-      // Pick wolf.fair: 8 startup / 4 active / 14 recovery.
-      const move = MOVESET_TABLE.wolf.fair;
+      const move = MOVESET_TABLE.donkeykong.fair;
 
-      const k0 = resolveMovesetAnimationKey('wolf', 'fair', 0);
-      expect(k0).toMatch(/^wolf\.fair\.startup\.\d+$/);
+      const k0 = resolveMovesetAnimationKey('donkeykong', 'fair', 0);
+      expect(k0).toMatch(/^donkeykong\.fair\.startup\.\d+$/);
 
-      const kActive = resolveMovesetAnimationKey('wolf', 'fair', move.startupFrames);
-      expect(kActive).toMatch(/^wolf\.fair\.active\.\d+$/);
+      const kActive = resolveMovesetAnimationKey('donkeykong', 'fair', move.startupFrames);
+      expect(kActive).toMatch(/^donkeykong\.fair\.active\.\d+$/);
 
       const kRecovery = resolveMovesetAnimationKey(
-        'wolf',
+        'donkeykong',
         'fair',
         move.startupFrames + move.activeFrames,
       );
-      expect(kRecovery).toMatch(/^wolf\.fair\.recovery\.\d+$/);
+      expect(kRecovery).toMatch(/^donkeykong\.fair\.recovery\.\d+$/);
 
-      const kIdle = resolveMovesetAnimationKey('wolf', 'fair', getMoveBusyFrames(move));
-      expect(kIdle).toBe('wolf.idle');
+      const kIdle = resolveMovesetAnimationKey('donkeykong', 'fair', getMoveBusyFrames(move));
+      expect(kIdle).toBe('donkeykong.idle');
     });
   });
 
   describe('Animation state resolution', () => {
     it('resolveMovesetAnimationState returns full AnimationState with correct facing', () => {
-      const state = resolveMovesetAnimationState('cat', 'sideSpecial', 0, -1);
-      expect(state.characterId).toBe('cat');
+      const state = resolveMovesetAnimationState('link', 'sideSpecial', 0, -1);
+      expect(state.characterId).toBe('link');
       expect(state.facing).toBe(-1);
       expect(state.phase).toBe('startup');
       expect(state.artFrameIndex).toBe(0);
-      // movePartId is the bit after the 'cat.' prefix.
-      expect(state.key).toBe(`cat.${state.movePartId}.startup.0`);
+      // movePartId is the bit after the 'link.' prefix.
+      expect(state.key).toBe(`link.${state.movePartId}.startup.0`);
     });
 
     it('resolveMovesetAnimationState returns idle state once the move ends', () => {
-      const move = MOVESET_TABLE.bear.neutralSpecial;
+      const move = MOVESET_TABLE.link.neutralSpecial;
       const state = resolveMovesetAnimationState(
-        'bear',
+        'link',
         'neutralSpecial',
         getMoveBusyFrames(move),
         1,
       );
       expect(state.phase).toBe('idle');
       expect(state.movePartId).toBeNull();
-      expect(state.key).toBe('bear.idle');
+      expect(state.key).toBe('link.idle');
     });
   });
 
   describe('Enumeration helpers', () => {
     it('enumerateMovesetSlotAnimationKeys returns one key per art frame', () => {
-      const move = MOVESET_TABLE.wolf.jab;
-      const keys = enumerateMovesetSlotAnimationKeys('wolf', 'jab');
-      // Wolf jab: 2 startup + 1 active + 3 recovery = 6 art frames.
-      expect(keys).toHaveLength(6);
-      expect(keys[0]).toBe('wolf.jab.startup.0');
-      expect(keys[1]).toBe('wolf.jab.startup.1');
-      expect(keys[2]).toBe('wolf.jab.active.0');
-      expect(keys[3]).toBe('wolf.jab.recovery.0');
-      expect(keys[4]).toBe('wolf.jab.recovery.1');
-      expect(keys[5]).toBe('wolf.jab.recovery.2');
-      // Drive away unused-variable warnings.
-      expect(move.id).toBe('wolf.jab');
+      const move = MOVESET_TABLE.donkeykong.jab;
+      const { startupFrames, activeFrames, recoveryFrames } = move.animation!;
+      const keys = enumerateMovesetSlotAnimationKeys('donkeykong', 'jab');
+      const part = move.id.slice('donkeykong.'.length);
+      const expected = [
+        ...Array.from({ length: startupFrames }, (_, i) => `donkeykong.${part}.startup.${i}`),
+        ...Array.from({ length: activeFrames }, (_, i) => `donkeykong.${part}.active.${i}`),
+        ...Array.from({ length: recoveryFrames }, (_, i) => `donkeykong.${part}.recovery.${i}`),
+      ];
+      expect(keys).toEqual(expected);
     });
 
     it('enumerateMovesetSlotAnimationStates produces busy+1 entries (lifecycle + idle tail)', () => {
-      const move = MOVESET_TABLE.cat.tilt;
+      const move = MOVESET_TABLE.link.tilt;
       const busy = getMoveBusyFrames(move);
-      const states = enumerateMovesetSlotAnimationStates('cat', 'tilt', 1);
+      const states = enumerateMovesetSlotAnimationStates('link', 'tilt', 1);
       expect(states).toHaveLength(busy + 1);
       const tail = states[states.length - 1]!;
       const head = states[0]!;
       // Last state is idle.
       expect(tail.phase).toBe('idle');
-      expect(tail.key).toBe('cat.idle');
+      expect(tail.key).toBe('link.idle');
       // First state is startup.0.
       expect(head.phase).toBe('startup');
       expect(head.artFrameIndex).toBe(0);
@@ -274,11 +272,11 @@ describe('AC 10003 Sub-AC 3 — full-moveset animation driver', () => {
     });
 
     it('returns null for a move id that belongs to a different character', () => {
-      expect(findMovesetSlot('wolf', MOVESET_TABLE.cat.jab.id)).toBeNull();
+      expect(findMovesetSlot('donkeykong', MOVESET_TABLE.link.jab.id)).toBeNull();
     });
 
     it('returns null for an unknown move id', () => {
-      expect(findMovesetSlot('owl', 'nonexistent.move')).toBeNull();
+      expect(findMovesetSlot('donkeykong', 'nonexistent.move')).toBeNull();
     });
   });
 
@@ -311,8 +309,8 @@ describe('AC 10003 Sub-AC 3 — full-moveset animation driver', () => {
     });
 
     it('the same (character, slot, frame, facing) tuple always produces the same state', () => {
-      const a = resolveMovesetAnimationState('owl', 'upSpecial', 4, 1);
-      const b = resolveMovesetAnimationState('owl', 'upSpecial', 4, 1);
+      const a = resolveMovesetAnimationState('donkeykong', 'upSpecial', 4, 1);
+      const b = resolveMovesetAnimationState('donkeykong', 'upSpecial', 4, 1);
       expect(a).toEqual(b);
     });
   });

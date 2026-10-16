@@ -8,7 +8,9 @@ import {
   cycleSlotAiDifficulty,
   cycleSlotMode,
   joinNextEmptySlot,
+  keyboardInputTypeForSlot,
   participatingSlotCount,
+  restoreKeyboardSlotDefaults,
   cycleSlotPalette,
   moveHand,
   nextFreePaletteIndex,
@@ -35,6 +37,57 @@ const BOUNDS: HandCursorBounds = Object.freeze({
   maxX: 100,
   minY: 0,
   maxY: 100,
+});
+
+describe('keyboard ownership with CPU or empty player slots', () => {
+  it.each(['empty', 'bot', 'human'] as const)('P2 keeps its keyboard profile when P1 is %s', mode => {
+    const state = setSlotMode(DEFAULT_HAND_CURSOR_STATE, 1, mode);
+    expect(keyboardInputTypeForSlot(state, 2)).toBe('keyboard_p2');
+  });
+
+  it('joining P2 first still leaves P1 its own keys', () => {
+    const p2 = setSlotMode(DEFAULT_HAND_CURSOR_STATE, 2, 'human');
+    expect(keyboardInputTypeForSlot(p2, 1)).toBe('keyboard_p1');
+    const rejoin = unselectSlot(p2, 2);
+    expect(keyboardInputTypeForSlot(rejoin, 2)).toBe('keyboard_p2');
+  });
+
+  it('does not substitute P1 keys when another human owns P2 keys', () => {
+    const state = setSlotMode(setSlotInputType(DEFAULT_HAND_CURSOR_STATE, 3, 'keyboard_p2'), 3, 'human');
+    expect(keyboardInputTypeForSlot(state, 2)).toBeNull();
+    expect(keyboardInputTypeForSlot(state, 1)).toBe('keyboard_p1');
+  });
+
+  it('keeps extra-slot keyboard joins available without sharing a layout', () => {
+    let state = setSlotMode(DEFAULT_HAND_CURSOR_STATE, 1, 'human');
+    expect(keyboardInputTypeForSlot(state, 3)).toBe('keyboard_p2');
+    state = setSlotMode(setSlotInputType(state, 3, 'keyboard_p2'), 3, 'human');
+    expect(keyboardInputTypeForSlot(state, 4)).toBeNull();
+  });
+
+  it('lets an extra slot rejoin with the free layout when its old one is taken', () => {
+    let state = setSlotInputType(DEFAULT_HAND_CURSOR_STATE, 3, 'keyboard_p1');
+    state = unselectSlot(setSlotMode(state, 3, 'human'), 3);
+    state = setSlotMode(state, 1, 'human');
+    expect(keyboardInputTypeForSlot(state, 3)).toBe('keyboard_p2');
+  });
+
+  it('repairs the old P1 CPU / P2 P1-keys lobby when it is restored', () => {
+    let state = setSlotMode(DEFAULT_HAND_CURSOR_STATE, 1, 'bot');
+    state = setSlotMode(setSlotInputType(state, 2, 'keyboard_p1'), 2, 'human');
+    const restored = restoreKeyboardSlotDefaults(state);
+    expect(restored.slots[0]).toEqual(state.slots[0]);
+    expect(restored.slots[1]).toEqual({ ...state.slots[1], inputType: 'keyboard_p2' });
+    expect(restoreKeyboardSlotDefaults(restored)).toBe(restored);
+  });
+
+  it('does not take a connected controller or another human\'s keyboard layout during restoration', () => {
+    let state = setSlotMode(setSlotInputType(DEFAULT_HAND_CURSOR_STATE, 2, 'gamepad'), 2, 'human');
+    expect(restoreKeyboardSlotDefaults(state)).toBe(state);
+    state = setSlotInputType(state, 2, 'keyboard_p1');
+    state = setSlotMode(setSlotInputType(state, 3, 'keyboard_p2'), 3, 'human');
+    expect(restoreKeyboardSlotDefaults(state)).toBe(state);
+  });
 });
 
 function withSlotPicked(
@@ -178,13 +231,13 @@ describe('selectAtCursor — light-attack dispatch', () => {
   });
 
   it('picks the hovered character and promotes empty → human', () => {
-    const wolfIdx = SELECTABLE_CHARACTER_SPECS.findIndex((s) => s.id === 'wolf');
+    const dkIdx = SELECTABLE_CHARACTER_SPECS.findIndex((s) => s.id === 'donkeykong');
     const hovered = setHoveredTarget(DEFAULT_HAND_CURSOR_STATE, 1, {
       kind: 'portrait',
-      portraitIndex: wolfIdx,
+      portraitIndex: dkIdx,
     });
     const picked = selectAtCursor(hovered, 1);
-    expect(picked.slots[0]?.pickedCharacterId).toBe('wolf');
+    expect(picked.slots[0]?.pickedCharacterId).toBe('donkeykong');
     expect(picked.slots[0]?.mode).toBe('human');
   });
 
@@ -193,14 +246,14 @@ describe('selectAtCursor — light-attack dispatch', () => {
       cycleSlotMode(DEFAULT_HAND_CURSOR_STATE, 1),
       1,
     ); // empty → human → bot
-    const wolfIdx = SELECTABLE_CHARACTER_SPECS.findIndex((s) => s.id === 'wolf');
+    const dkIdx = SELECTABLE_CHARACTER_SPECS.findIndex((s) => s.id === 'donkeykong');
     const hovered = setHoveredTarget(asBot, 1, {
       kind: 'portrait',
-      portraitIndex: wolfIdx,
+      portraitIndex: dkIdx,
     });
     const picked = selectAtCursor(hovered, 1);
     expect(picked.slots[0]?.mode).toBe('bot');
-    expect(picked.slots[0]?.pickedCharacterId).toBe('wolf');
+    expect(picked.slots[0]?.pickedCharacterId).toBe('donkeykong');
   });
 
   it('routes a slot-tile-mode press to cycleSlotMode for the target slot', () => {
@@ -236,7 +289,7 @@ describe('selectAtCursor — light-attack dispatch', () => {
 
 describe('unselectSlot — special-attack REMOVE player', () => {
   it('resets the slot to Empty (clears pick + mode), per the symmetric add/remove model', () => {
-    const picked = withSlotPicked(DEFAULT_HAND_CURSOR_STATE, 1, 'wolf', 3);
+    const picked = withSlotPicked(DEFAULT_HAND_CURSOR_STATE, 1, 'donkeykong', 3);
     const removed = unselectSlot(picked, 1);
     expect(removed.slots[0]?.pickedCharacterId).toBeNull();
     expect(removed.slots[0]?.mode).toBe('empty');
@@ -283,8 +336,8 @@ describe('cycleSlotMode — Empty → Human → Bot → Empty', () => {
   });
 
   it('clears pickedCharacterId on transition to empty (a non-participating slot keeps no stale pick)', () => {
-    const picked = withSlotPicked(DEFAULT_HAND_CURSOR_STATE, 1, 'wolf', 0);
-    expect(picked.slots[0]?.pickedCharacterId).toBe('wolf');
+    const picked = withSlotPicked(DEFAULT_HAND_CURSOR_STATE, 1, 'donkeykong', 0);
+    expect(picked.slots[0]?.pickedCharacterId).toBe('donkeykong');
     // Picked slot is human → cycle twice (human → bot → empty)
     let s = cycleSlotMode(picked, 1); // bot
     s = cycleSlotMode(s, 1); // empty
@@ -292,10 +345,10 @@ describe('cycleSlotMode — Empty → Human → Bot → Empty', () => {
   });
 
   it('keeps the pick when transitioning human ↔ bot', () => {
-    const picked = withSlotPicked(DEFAULT_HAND_CURSOR_STATE, 1, 'wolf', 0);
+    const picked = withSlotPicked(DEFAULT_HAND_CURSOR_STATE, 1, 'donkeykong', 0);
     const asBot = cycleSlotMode(picked, 1); // human → bot
     expect(asBot.slots[0]?.mode).toBe('bot');
-    expect(asBot.slots[0]?.pickedCharacterId).toBe('wolf');
+    expect(asBot.slots[0]?.pickedCharacterId).toBe('donkeykong');
   });
 });
 
@@ -315,27 +368,28 @@ describe('setSlotMode (direct setter, lobby-handoff path)', () => {
   it('auto-picks the slot-keyed default character on a human join (join = valid pick)', () => {
     const s = setSlotMode(DEFAULT_HAND_CURSOR_STATE, 2, 'human');
     expect(s.slots[1]?.mode).toBe('human');
-    expect(s.slots[1]?.pickedCharacterId).toBe('cat');
+    expect(s.slots[1]?.pickedCharacterId).toBe('pikachu');
   });
 
   it('auto-picks the slot-keyed default character on a bot join', () => {
+    // Slot index maps onto ACTIVE_FIGHTER_IDS (donkeykong, pikachu, link).
     const s = setSlotMode(DEFAULT_HAND_CURSOR_STATE, 3, 'bot');
-    expect(s.slots[2]?.pickedCharacterId).toBe('owl');
+    expect(s.slots[2]?.pickedCharacterId).toBe('link');
   });
 
   it('keeps an existing pick when re-joining (auto-pick only fills a null pick)', () => {
-    let s = withSlotPicked(DEFAULT_HAND_CURSOR_STATE, 1, 'cat', 3);
+    let s = withSlotPicked(DEFAULT_HAND_CURSOR_STATE, 1, 'pikachu', 3);
     s = setSlotMode(s, 1, 'bot');
-    expect(s.slots[0]?.pickedCharacterId).toBe('cat');
+    expect(s.slots[0]?.pickedCharacterId).toBe('pikachu');
     expect(s.slots[0]?.paletteIndex).toBe(3);
   });
 
   it('auto-pick shifts the palette off another slot already on the same character', () => {
-    // Slot 2 joins on its default (cat). A second slot picking cat on
+    // Slot 2 joins on its default (pikachu). A second slot picking pikachu on
     // the same default palette must land on a different palette.
     let s = setSlotMode(DEFAULT_HAND_CURSOR_STATE, 2, 'human');
     const slot2Palette = s.slots[1]?.paletteIndex;
-    s = withSlotPicked(s, 1, 'cat', slot2Palette ?? 0);
+    s = withSlotPicked(s, 1, 'pikachu', slot2Palette ?? 0);
     expect(s.slots[0]?.paletteIndex).not.toBe(slot2Palette);
   });
 });
@@ -349,7 +403,7 @@ describe('joinNextEmptySlot / addCpuToNextEmptySlot — device-driven join', () 
     expect(slotIndex).toBe(1);
     expect(s.slots[0]?.mode).toBe('human');
     expect(s.slots[0]?.inputType).toBe('gamepad');
-    expect(s.slots[0]?.pickedCharacterId).toBe('wolf');
+    expect(s.slots[0]?.pickedCharacterId).toBe('donkeykong');
   });
 
   it('is idempotent for a keyboard half that already drives a slot', () => {
@@ -380,7 +434,7 @@ describe('joinNextEmptySlot / addCpuToNextEmptySlot — device-driven join', () 
     expect(slotIndex).toBe(2);
     expect(s.slots[1]?.mode).toBe('bot');
     expect(s.slots[1]?.aiDifficulty).toBe('medium');
-    expect(s.slots[1]?.pickedCharacterId).toBe('cat');
+    expect(s.slots[1]?.pickedCharacterId).toBe('pikachu');
   });
 });
 
@@ -435,36 +489,36 @@ describe('cycleSlotPalette / setSlotPalette', () => {
 
 describe('nextFreePaletteIndex — palette auto-differentiation (Phase 3)', () => {
   it('returns the preferred palette when no other slot has picked the same character', () => {
-    expect(nextFreePaletteIndex(DEFAULT_HAND_CURSOR_STATE, 1, 'wolf', 4)).toBe(4);
+    expect(nextFreePaletteIndex(DEFAULT_HAND_CURSOR_STATE, 1, 'donkeykong', 4)).toBe(4);
   });
 
   it('shifts to the next free palette when another slot already locked the preferred one', () => {
-    const slot2Wolf = withSlotPicked(DEFAULT_HAND_CURSOR_STATE, 2, 'wolf', 0);
-    expect(nextFreePaletteIndex(slot2Wolf, 1, 'wolf', 0)).toBe(1);
+    const slot2Dk = withSlotPicked(DEFAULT_HAND_CURSOR_STATE, 2, 'donkeykong', 0);
+    expect(nextFreePaletteIndex(slot2Dk, 1, 'donkeykong', 0)).toBe(1);
   });
 
   it('walks forward modulo PALETTE_COUNT past taken palettes in sequence', () => {
-    let s = withSlotPicked(DEFAULT_HAND_CURSOR_STATE, 2, 'wolf', 0);
-    s = withSlotPicked(s, 3, 'wolf', 1);
-    s = withSlotPicked(s, 4, 'wolf', 2);
-    expect(nextFreePaletteIndex(s, 1, 'wolf', 0)).toBe(3);
+    let s = withSlotPicked(DEFAULT_HAND_CURSOR_STATE, 2, 'donkeykong', 0);
+    s = withSlotPicked(s, 3, 'donkeykong', 1);
+    s = withSlotPicked(s, 4, 'donkeykong', 2);
+    expect(nextFreePaletteIndex(s, 1, 'donkeykong', 0)).toBe(3);
   });
 
   it('ignores empty slots when computing taken palettes', () => {
-    let s = withSlotPicked(DEFAULT_HAND_CURSOR_STATE, 2, 'wolf', 0);
+    let s = withSlotPicked(DEFAULT_HAND_CURSOR_STATE, 2, 'donkeykong', 0);
     // Toggle slot 2 back to empty — its pick should no longer reserve palette 0.
     s = setSlotMode(s, 2, 'empty');
-    expect(nextFreePaletteIndex(s, 1, 'wolf', 0)).toBe(0);
+    expect(nextFreePaletteIndex(s, 1, 'donkeykong', 0)).toBe(0);
   });
 
   it('selectAtCursor auto-shifts palette when picking a character another slot already locked', () => {
-    let s = withSlotPicked(DEFAULT_HAND_CURSOR_STATE, 2, 'wolf', 0);
+    let s = withSlotPicked(DEFAULT_HAND_CURSOR_STATE, 2, 'donkeykong', 0);
     s = setSlotPalette(s, 1, 0); // ask for the same palette explicitly
-    const wolfIdx = SELECTABLE_CHARACTER_SPECS.findIndex((s) => s.id === 'wolf');
-    s = setHoveredTarget(s, 1, { kind: 'portrait', portraitIndex: wolfIdx });
+    const dkIdx = SELECTABLE_CHARACTER_SPECS.findIndex((s) => s.id === 'donkeykong');
+    s = setHoveredTarget(s, 1, { kind: 'portrait', portraitIndex: dkIdx });
     s = selectAtCursor(s, 1);
     // Slot 1's palette is auto-shifted off the colliding 0.
-    expect(s.slots[0]?.pickedCharacterId).toBe('wolf');
+    expect(s.slots[0]?.pickedCharacterId).toBe('donkeykong');
     expect(s.slots[0]?.paletteIndex).not.toBe(0);
   });
 });
@@ -496,60 +550,60 @@ describe('toCharacterSelectState / buildPlayerSlotsFromHandCursor — legacy pro
   });
 
   it('projects a picked slot as joined + ready with the right characterId / paletteIndex', () => {
-    const picked = withSlotPicked(DEFAULT_HAND_CURSOR_STATE, 1, 'cat', 5);
+    const picked = withSlotPicked(DEFAULT_HAND_CURSOR_STATE, 1, 'pikachu', 5);
     const projected = toCharacterSelectState(picked);
     expect(projected.slots[0]?.joined).toBe(true);
     expect(projected.slots[0]?.ready).toBe(true);
-    expect(projected.slots[0]?.characterId).toBe('cat');
+    expect(projected.slots[0]?.characterId).toBe('pikachu');
     expect(projected.slots[0]?.paletteIndex).toBe(5);
   });
 
   it('projects bot slots as inputType=ai with their aiDifficulty preserved', () => {
     let s = setSlotMode(DEFAULT_HAND_CURSOR_STATE, 2, 'bot');
     s = setSlotAiDifficulty(s, 2, 'hard');
-    s = withSlotPicked(s, 2, 'wolf', 0);
+    s = withSlotPicked(s, 2, 'donkeykong', 0);
     const projected = toCharacterSelectState(s);
     expect(projected.slots[1]?.inputType).toBe('ai');
     expect(projected.slots[1]?.aiDifficulty).toBe('hard');
   });
 
   it('drops aiDifficulty from human slots in the projection', () => {
-    const picked = withSlotPicked(DEFAULT_HAND_CURSOR_STATE, 1, 'wolf', 0);
+    const picked = withSlotPicked(DEFAULT_HAND_CURSOR_STATE, 1, 'donkeykong', 0);
     const projected = toCharacterSelectState(picked);
     expect(projected.slots[0]?.aiDifficulty).toBeUndefined();
   });
 
   it('buildPlayerSlotsFromHandCursor emits a valid entry for a slot joined via setSlotMode (join = auto-picked default)', () => {
-    let s = withSlotPicked(DEFAULT_HAND_CURSOR_STATE, 1, 'wolf', 0);
+    let s = withSlotPicked(DEFAULT_HAND_CURSOR_STATE, 1, 'donkeykong', 0);
     // Smash-style contract: joining a slot as human auto-picks its
-    // slot-keyed default (slot 2 → cat), so the lineup includes it
+    // slot-keyed default (slot 2 → pikachu), so the lineup includes it
     // immediately — no separate "confirm pick" step exists.
     s = setSlotMode(s, 2, 'human');
     const lineup = buildPlayerSlotsFromHandCursor(s);
     expect(lineup.length).toBe(2);
     expect(lineup[0]?.index).toBe(1);
-    expect(lineup[0]?.characterId).toBe('wolf');
+    expect(lineup[0]?.characterId).toBe('donkeykong');
     expect(lineup[1]?.index).toBe(2);
-    expect(lineup[1]?.characterId).toBe('cat');
+    expect(lineup[1]?.characterId).toBe('pikachu');
   });
 
   it('buildPlayerSlotsFromHandCursor preserves duplicate characters with distinct palettes', () => {
-    let s = withSlotPicked(DEFAULT_HAND_CURSOR_STATE, 1, 'wolf', 0);
-    s = withSlotPicked(s, 2, 'wolf', 0); // palette auto-shifts to 1
+    let s = withSlotPicked(DEFAULT_HAND_CURSOR_STATE, 1, 'donkeykong', 0);
+    s = withSlotPicked(s, 2, 'donkeykong', 0); // palette auto-shifts to 1
     const lineup = buildPlayerSlotsFromHandCursor(s);
     expect(lineup.length).toBe(2);
-    expect(lineup[0]?.characterId).toBe('wolf');
-    expect(lineup[1]?.characterId).toBe('wolf');
+    expect(lineup[0]?.characterId).toBe('donkeykong');
+    expect(lineup[1]?.characterId).toBe('donkeykong');
     expect(lineup[0]?.paletteIndex).not.toBe(lineup[1]?.paletteIndex);
   });
 
   it('cursorIndex on the projection mirrors the hovered portrait when present', () => {
-    const catIdx = SELECTABLE_CHARACTER_SPECS.findIndex((s) => s.id === 'cat');
+    const pikachuIdx = SELECTABLE_CHARACTER_SPECS.findIndex((s) => s.id === 'pikachu');
     const hovered = setHoveredTarget(DEFAULT_HAND_CURSOR_STATE, 1, {
       kind: 'portrait',
-      portraitIndex: catIdx,
+      portraitIndex: pikachuIdx,
     });
     const projected = toCharacterSelectState(hovered);
-    expect(projected.slots[0]?.cursorIndex).toBe(catIdx);
+    expect(projected.slots[0]?.cursorIndex).toBe(pikachuIdx);
   });
 });

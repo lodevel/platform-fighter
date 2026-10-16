@@ -246,6 +246,28 @@ export interface DodgeResolverContext {
   readonly grab: boolean;
   /** Raw held bitmap from the dispatcher — for resolvers that need legacy actions. */
   readonly held: ActionHeldMap;
+  /**
+   * Whether a smash (heavy) press starts this frame — the rising edge of
+   * the `attackHeavy` the fighter receives (a smash key going down, or a
+   * smash stick leaving neutral). Supplied by callers that track edges
+   * ({@link InputResolver}); when omitted, resolvers fall back to
+   * `held.smash`.
+   */
+  readonly smashPressed?: boolean;
+  /**
+   * Whether a smash key / button is held this frame — the `smash` action
+   * minus a held smash stick (a deflected right stick is not a button).
+   * Supplied by {@link InputResolver}; when omitted, resolvers fall back
+   * to `held.smash`.
+   */
+  readonly smashButtonHeld?: boolean;
+  /**
+   * 4-way direction of a smash-stick press starting this frame (canvas Y:
+   * -1 = up), the direction the fighter's smash takes. Omitted or (0, 0)
+   * when this frame's smash press, if any, has no stick direction and so
+   * aims with the left stick ({@link move}).
+   */
+  readonly smashStick?: MoveVector;
 }
 
 /**
@@ -284,11 +306,18 @@ export type DodgeResolver = (ctx: DodgeResolverContext) => boolean;
 export const DODGE_DIRECTIONAL_THRESHOLD = 0.5;
 
 /**
- * Default {@link DodgeResolver}. Returns `true` iff:
+ * Default {@link DodgeResolver}. Returns `true` iff either:
  *
- *   • The shield action is currently held, AND
- *   • Either component of the move vector exceeds
- *     {@link DODGE_DIRECTIONAL_THRESHOLD} in magnitude.
+ *   • The direct dodge button (the legacy `taunt` slot) is held with no
+ *     other action held (jump, attack, special, shield, grab, a smash
+ *     key / button) and no smash press starting this frame — a right
+ *     stick left deflected is not a smash key and does not block it, OR
+ *   • The shield action is held AND either component of the move vector
+ *     reaches {@link DODGE_DIRECTIONAL_THRESHOLD} in magnitude — except
+ *     an up-dominant chord on a frame where an UP-aimed smash press starts
+ *     ({@link DodgeResolverContext.smashPressed}; aimed by its smash stick
+ *     direction, else by the left stick), which is left to the fighter as
+ *     the out-of-shield up smash.
  *
  * The shield-held requirement preserves the "shield is the gateway to
  * defensive options" mental model from Smash Bros — players can hold
@@ -300,10 +329,48 @@ export const DODGE_DIRECTIONAL_THRESHOLD = 0.5;
  * binding is held once that lands") can call this as the fallback.
  */
 export function defaultDodgeResolver(ctx: DodgeResolverContext): boolean {
+  // The active binding store predates the canonical `dodge` action. Its
+  // reserved `taunt` slot is the backwards-compatible direct dodge button
+  // until the persisted schema can be migrated without invalidating profiles.
+  // Any other action held with it wins (a smash key / button, or a smash
+  // press starting this frame, included), so a mashed dodge + action frame
+  // is the action, not a dodge. Callers without the smash split (edge,
+  // button vs. stick) fall back to the whole held smash.
+  const smashPress = ctx.smashPressed ?? ctx.held.smash;
+  const smashButton = ctx.smashButtonHeld ?? ctx.held.smash;
+  if (
+    ctx.held.taunt &&
+    !ctx.jump &&
+    !ctx.attack &&
+    !ctx.special &&
+    !ctx.shield &&
+    !ctx.grab &&
+    !smashButton &&
+    !smashPress
+  ) {
+    return true;
+  }
   if (!ctx.shield) return false;
+  // Held Shield+Special is the real shield-shift modifier. Movement remains
+  // available to the fighter's tilt/bubble consumer; its fresh up-special,
+  // jump and up-smash edges still own normal out-of-shield admission.
+  if(ctx.special)return false;
   const xMag = ctx.move.x < 0 ? -ctx.move.x : ctx.move.x;
   const yMag = ctx.move.y < 0 ? -ctx.move.y : ctx.move.y;
-  return xMag >= DODGE_DIRECTIONAL_THRESHOLD || yMag >= DODGE_DIRECTIONAL_THRESHOLD;
+  if (xMag < DODGE_DIRECTIONAL_THRESHOLD && yMag < DODGE_DIRECTIONAL_THRESHOLD) return false;
+  // Shield + up + an up-aimed smash press on the same frame is the
+  // out-of-shield up smash (on keyboard, shield + W + the smash key), not
+  // an up dodge: the fighter only takes the smash if this frame carries no
+  // dodge press. A smash stick press aims with its own direction (shield +
+  // left stick up + right stick forward is still a dodge); any other smash
+  // press aims with the left stick, which is up here.
+  const upChord = ctx.move.y < 0 && yMag >= xMag;
+  if (upChord && smashPress) {
+    const stick = ctx.smashStick;
+    const aimedUp = stick !== undefined && (stick.x !== 0 || stick.y !== 0) ? stick.y < 0 : true;
+    if (aimedUp) return false;
+  }
+  return true;
 }
 
 // ---------------------------------------------------------------------------
@@ -676,10 +743,9 @@ export class InputService {
     // and this legacy single-call adapter produce identical records.
     // `special` and `grab` flow through as their own fields so the
     // (later sub-AC) dedicated handlers branch on the unaliased
-    // press; `attackHeavy` stays empty here because there is no
-    // dedicated heavy-button binding yet (the smash dispatch latches
-    // on `attack` + a fast stick flick today, and the future C-stick
-    // / heavy-button binding will populate this slot directly).
+    // press; `attackHeavy` stays empty in this legacy adapter — the
+    // match path routes the dedicated `smash` binding (key or right
+    // stick) through `buildCharacterInputFromResolver` instead.
     return Object.freeze({
       moveX: unified.move.x,
       jump: unified.jump,

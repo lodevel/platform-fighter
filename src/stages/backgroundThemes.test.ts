@@ -38,7 +38,7 @@ import { STAGES } from './stageDefinitions';
 const ALL_THEME_IDS = Object.keys(STAGE_BACKGROUND_THEMES) as StageBackgroundThemeId[];
 
 describe('STAGE_BACKGROUND_THEMES — registry shape', () => {
-  it('registers exactly the five built-in themes', () => {
+  it('registers exactly the six built-in themes', () => {
     expect(new Set(ALL_THEME_IDS)).toEqual(
       new Set([
         'lava-cavern',
@@ -46,6 +46,7 @@ describe('STAGE_BACKGROUND_THEMES — registry shape', () => {
         'crumbling-temple',
         'sky-ferry',
         'midnight',
+        'inferno',
       ]),
     );
   });

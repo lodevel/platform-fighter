@@ -1,5 +1,6 @@
-export { GAME_CONFIG, SCENES, createPhaserGameConfig } from './GameConfig';
-export type { GameConstants } from './GameConfig';
+export { GAME_CONFIG } from './constants';
+export type { GameConstants } from './constants';
+
 export { GameLoop } from './GameLoop';
 export type { UpdateFn, RenderFn, GameLoopOptions } from './GameLoop';
 export { PhysicsEngine } from './PhysicsEngine';

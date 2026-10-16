@@ -27,9 +27,7 @@ import {
 import type { ShieldState } from './shieldState';
 import type { DodgeState } from './dodgeState';
 import type { LedgeHangState } from './ledgeHangState';
-import type { CharacterId } from '../types';
-
-const ALL_CHARACTERS: ReadonlyArray<CharacterId> = ['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno', 'link', 'kirby', 'donkeykong'];
+import { ANIMATED_MOVESET_IDS as ALL_CHARACTERS } from './animationState';
 
 describe('AC 10003 Sub-AC 3 — defensive animation state', () => {
   describe('Constants', () => {
@@ -69,9 +67,9 @@ describe('AC 10003 Sub-AC 3 — defensive animation state', () => {
     });
 
     it('builds canonical keys for all phases', () => {
-      expect(getShieldAnimationKey('wolf', 'hold', 0)).toBe('wolf.shield.hold.0');
-      expect(getShieldAnimationKey('cat', 'break', 2)).toBe('cat.shield.break.2');
-      expect(getShieldAnimationKey('owl', 'raise', 1)).toBe('owl.shield.raise.1');
+      expect(getShieldAnimationKey('donkeykong', 'hold', 0)).toBe('donkeykong.shield.hold.0');
+      expect(getShieldAnimationKey('link', 'break', 2)).toBe('link.shield.break.2');
+      expect(getShieldAnimationKey('donkeykong', 'raise', 1)).toBe('donkeykong.shield.raise.1');
     });
 
     it('selectShieldArtFrame clamps to the phase frame count', () => {
@@ -90,7 +88,7 @@ describe('AC 10003 Sub-AC 3 — defensive animation state', () => {
         blockStunRemaining: 0,
         framesSinceLastDamage: 0,
       };
-      expect(resolveShieldAnimation('wolf', idle)).toBeNull();
+      expect(resolveShieldAnimation('donkeykong', idle)).toBeNull();
     });
 
     it('resolveShieldAnimation produces hold key when active', () => {
@@ -101,11 +99,11 @@ describe('AC 10003 Sub-AC 3 — defensive animation state', () => {
         blockStunRemaining: 0,
         framesSinceLastDamage: 0,
       };
-      const a = resolveShieldAnimation('cat', active, 0);
+      const a = resolveShieldAnimation('link', active, 0);
       expect(a).not.toBeNull();
       expect(a!.kind).toBe('shield');
       expect(a!.phase).toBe('hold');
-      expect(a!.key).toBe('cat.shield.hold.0');
+      expect(a!.key).toBe('link.shield.hold.0');
     });
 
     it('resolveShieldAnimation produces break keys when broken, ramping with elapsed', () => {
@@ -117,10 +115,10 @@ describe('AC 10003 Sub-AC 3 — defensive animation state', () => {
         framesSinceLastDamage: 0,
       };
       for (let elapsed = 0; elapsed <= 10; elapsed++) {
-        const a = resolveShieldAnimation('bear', broken, elapsed);
+        const a = resolveShieldAnimation('link', broken, elapsed);
         expect(a).not.toBeNull();
         expect(a!.phase).toBe('break');
-        expect(a!.key.startsWith('bear.shield.break.')).toBe(true);
+        expect(a!.key.startsWith('link.shield.break.')).toBe(true);
       }
     });
   });
@@ -134,14 +132,14 @@ describe('AC 10003 Sub-AC 3 — defensive animation state', () => {
     });
 
     it('builds canonical keys for every variant × phase', () => {
-      expect(getDodgeAnimationKey('wolf', 'spot', 'active', 0)).toBe(
-        'wolf.dodge.spot.active.0',
+      expect(getDodgeAnimationKey('donkeykong', 'spot', 'active', 0)).toBe(
+        'donkeykong.dodge.spot.active.0',
       );
-      expect(getDodgeAnimationKey('cat', 'roll', 'recovery', 1)).toBe(
-        'cat.dodge.roll.recovery.1',
+      expect(getDodgeAnimationKey('link', 'roll', 'recovery', 1)).toBe(
+        'link.dodge.roll.recovery.1',
       );
-      expect(getDodgeAnimationKey('owl', 'air', 'active', 3)).toBe(
-        'owl.dodge.air.active.3',
+      expect(getDodgeAnimationKey('donkeykong', 'air', 'active', 3)).toBe(
+        'donkeykong.dodge.air.active.3',
       );
     });
 
@@ -160,7 +158,7 @@ describe('AC 10003 Sub-AC 3 — defensive animation state', () => {
         iframesRemaining: 0,
         cooldownRemaining: 0,
       };
-      expect(resolveDodgeAnimation('wolf', idle)).toBeNull();
+      expect(resolveDodgeAnimation('donkeykong', idle)).toBeNull();
     });
 
     it('resolveDodgeAnimation returns null when on cooldown', () => {
@@ -170,7 +168,7 @@ describe('AC 10003 Sub-AC 3 — defensive animation state', () => {
         iframesRemaining: 0,
         cooldownRemaining: 5,
       };
-      expect(resolveDodgeAnimation('wolf', cooldown)).toBeNull();
+      expect(resolveDodgeAnimation('donkeykong', cooldown)).toBeNull();
     });
 
     it('resolveDodgeAnimation produces correct key for each kind × phase', () => {
@@ -182,10 +180,10 @@ describe('AC 10003 Sub-AC 3 — defensive animation state', () => {
           iframesRemaining: 14,
           cooldownRemaining: 0,
         };
-        const a = resolveDodgeAnimation('cat', active, 0);
+        const a = resolveDodgeAnimation('link', active, 0);
         expect(a).not.toBeNull();
         expect(a!.kind).toBe('dodge');
-        expect(a!.key).toBe(`cat.dodge.${kind}.active.0`);
+        expect(a!.key).toBe(`link.dodge.${kind}.active.0`);
       }
     });
 
@@ -196,7 +194,7 @@ describe('AC 10003 Sub-AC 3 — defensive animation state', () => {
         iframesRemaining: 0,
         cooldownRemaining: 0,
       };
-      expect(resolveDodgeAnimation('owl', corrupt)).toBeNull();
+      expect(resolveDodgeAnimation('donkeykong', corrupt)).toBeNull();
     });
 
     it('computeDodgeFramesInPhase returns 0 for null inputs', () => {
@@ -226,9 +224,9 @@ describe('AC 10003 Sub-AC 3 — defensive animation state', () => {
     });
 
     it('builds canonical keys for every phase', () => {
-      expect(getLedgeAnimationKey('wolf', 'hanging', 0)).toBe('wolf.ledge.hanging.0');
-      expect(getLedgeAnimationKey('cat', 'climbing', 2)).toBe('cat.ledge.climbing.2');
-      expect(getLedgeAnimationKey('owl', 'rolling', 1)).toBe('owl.ledge.rolling.1');
+      expect(getLedgeAnimationKey('donkeykong', 'hanging', 0)).toBe('donkeykong.ledge.hanging.0');
+      expect(getLedgeAnimationKey('link', 'climbing', 2)).toBe('link.ledge.climbing.2');
+      expect(getLedgeAnimationKey('donkeykong', 'rolling', 1)).toBe('donkeykong.ledge.rolling.1');
     });
 
     it('selectLedgeArtFrame clamps to phase frame count', () => {
@@ -243,7 +241,7 @@ describe('AC 10003 Sub-AC 3 — defensive animation state', () => {
         cooldownRemaining: 0,
         hangIframesRemaining: 0,
       } as LedgeHangState;
-      expect(resolveLedgeAnimation('wolf', idle)).toBeNull();
+      expect(resolveLedgeAnimation('donkeykong', idle)).toBeNull();
 
       const cooldown: LedgeHangState = {
         name: 'cooldown',
@@ -251,7 +249,7 @@ describe('AC 10003 Sub-AC 3 — defensive animation state', () => {
         cooldownRemaining: 5,
         hangIframesRemaining: 0,
       } as LedgeHangState;
-      expect(resolveLedgeAnimation('wolf', cooldown)).toBeNull();
+      expect(resolveLedgeAnimation('donkeykong', cooldown)).toBeNull();
     });
 
     it('resolveLedgeAnimation produces correct keys for each ledge phase', () => {
@@ -267,27 +265,27 @@ describe('AC 10003 Sub-AC 3 — defensive animation state', () => {
           cooldownRemaining: 0,
           hangIframesRemaining: 0,
         } as LedgeHangState;
-        const a = resolveLedgeAnimation('bear', state, 0);
+        const a = resolveLedgeAnimation('link', state, 0);
         expect(a).not.toBeNull();
         expect(a!.kind).toBe('ledge');
         expect(a!.phase).toBe(animPhase);
-        expect(a!.key).toBe(`bear.ledge.${animPhase}.0`);
+        expect(a!.key).toBe(`link.ledge.${animPhase}.0`);
       }
     });
   });
 
   describe('Hurt key', () => {
     it('builds the canonical hurt key per character', () => {
-      expect(getHurtAnimationKey('wolf')).toBe('wolf.hurt');
-      expect(getHurtAnimationKey('cat')).toBe('cat.hurt');
-      expect(getHurtAnimationKey('owl')).toBe('owl.hurt');
-      expect(getHurtAnimationKey('bear')).toBe('bear.hurt');
+      expect(getHurtAnimationKey('donkeykong')).toBe('donkeykong.hurt');
+      expect(getHurtAnimationKey('link')).toBe('link.hurt');
+      expect(getHurtAnimationKey('donkeykong')).toBe('donkeykong.hurt');
+      expect(getHurtAnimationKey('link')).toBe('link.hurt');
     });
   });
 
   describe('Enumeration', () => {
     it('enumerateDefensiveAnimationKeys covers every shield/dodge/ledge/hurt key for one character', () => {
-      const keys = enumerateDefensiveAnimationKeys('wolf');
+      const keys = enumerateDefensiveAnimationKeys('donkeykong');
       // Shield: 2+1+4 = 7 raise/hold/break keys.
       let expected = SHIELD_ANIMATION_FRAMES.raise + SHIELD_ANIMATION_FRAMES.hold + SHIELD_ANIMATION_FRAMES.break;
       // Dodge: 3 variants × 2 phases × varying frame counts.
@@ -303,19 +301,19 @@ describe('AC 10003 Sub-AC 3 — defensive animation state', () => {
       // Plus 1 hurt key.
       expected += 1;
       expect(keys).toHaveLength(expected);
-      // Every key starts with `wolf.`.
+      // Every key starts with `donkeykong.`.
       for (const k of keys) {
-        expect(k.startsWith('wolf.')).toBe(true);
+        expect(k.startsWith('donkeykong.')).toBe(true);
       }
       // Hurt key is included.
-      expect(keys).toContain('wolf.hurt');
+      expect(keys).toContain('donkeykong.hurt');
     });
 
-    it('enumerateAllDefensiveAnimationKeys covers all 13 characters in canonical order', () => {
+    it('enumerateAllDefensiveAnimationKeys covers every animated moveset character in canonical order', () => {
       const all = enumerateAllDefensiveAnimationKeys();
-      const perChar = enumerateDefensiveAnimationKeys('wolf').length;
+      const perChar = enumerateDefensiveAnimationKeys('donkeykong').length;
       expect(all).toHaveLength(perChar * ALL_CHARACTERS.length);
-      // Hurt keys for all 10 characters present.
+      // Hurt keys for every animated character present.
       for (const id of ALL_CHARACTERS) {
         expect(all).toContain(`${id}.hurt`);
       }
@@ -328,7 +326,7 @@ describe('AC 10003 Sub-AC 3 — defensive animation state', () => {
     });
 
     it('all enumerated defensive keys for a single character are unique', () => {
-      const keys = enumerateDefensiveAnimationKeys('cat');
+      const keys = enumerateDefensiveAnimationKeys('link');
       const set = new Set(keys);
       expect(set.size).toBe(keys.length);
     });

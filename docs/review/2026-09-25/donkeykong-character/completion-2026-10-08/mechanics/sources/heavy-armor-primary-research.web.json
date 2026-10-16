@@ -1,0 +1,40 @@
+{
+  "checked_date": "2026-10-09",
+  "method": "web.run retrieved primary researcher pages; bounded paraphrase of inspected sections, not a native binary function implementation",
+  "sources": [
+    {
+      "url": "https://w.atwiki.jp/smashsp_kensyou/pages/61.html",
+      "title": "Hitstun, Smash SPECIAL research wiki",
+      "source_page_updated": "2019-09-29",
+      "inspected_sections": [
+        "Virtual hitstun versus accelerated actual duration",
+        "Hitstun calculation",
+        "Additional hitstun frames"
+      ],
+      "facts": [
+        "Virtual ordinary hitstun is INT(KB*0.4)-1; actual duration can be shorter under Ultimate damage speed-up.",
+        "Additional hitstun cannot independently change an attack into tumble.",
+        "Playable hitstun begins after hitlag."
+      ]
+    },
+    {
+      "url": "https://w.atwiki.jp/smashsp_kensyou/pages/82.html",
+      "title": "Armor, Smash SPECIAL research wiki",
+      "source_page_updated": "2022-01-02",
+      "inspected_sections": [
+        "Armor overview",
+        "Heavy armor thresholds",
+        "DK lifting table"
+      ],
+      "facts": [
+        "DK lifting while holding is listed with 80KB armor.",
+        "Armor accepts damage and hitlag while resisting launch; grabs and wind are distinct.",
+        "General heavy-armor threshold prose describes inclusive equality; the retained DK native strict reaction comparison is more specific and must control its exact boundary."
+      ]
+    }
+  ],
+  "limits": [
+    "Research pages do not expose DamageTransactorImpl::calc_reaction_frame implementation or reaction_max_ producer.",
+    "Research page patch dating, workbook13.0.1 and engine13.0.4 remain separate provenance."
+  ]
+}

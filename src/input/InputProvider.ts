@@ -211,28 +211,12 @@ export const NEUTRAL_INPUT_SNAPSHOT: Readonly<Required<Pick<CharacterInput,
  * defensively because it accepts inputs from arbitrary providers.
  */
 export function closeCharacterInput(input: CharacterInput): CharacterInput {
-  let moveX = input.moveX;
-  if (typeof moveX !== 'number' || !Number.isFinite(moveX)) {
-    moveX = 0;
-  } else if (moveX < -1) {
-    moveX = -1;
-  } else if (moveX > 1) {
-    moveX = 1;
-  }
-  // Vertical stick — same clamp as moveX. Consumed by the fast-fall
-  // latch, DI, and the item-throw direction; closed to 0 so the sim
-  // never branches on `undefined`.
-  let moveY = input.moveY ?? 0;
-  if (typeof moveY !== 'number' || !Number.isFinite(moveY)) {
-    moveY = 0;
-  } else if (moveY < -1) {
-    moveY = -1;
-  } else if (moveY > 1) {
-    moveY = 1;
-  }
   return Object.freeze({
-    moveX,
-    moveY,
+    moveX: closeAxis(input.moveX),
+    // Vertical stick — same clamp as moveX. Consumed by the fast-fall
+    // latch, DI, and the item-throw direction; closed to 0 so the sim
+    // never branches on `undefined`.
+    moveY: closeAxis(input.moveY),
     jump: input.jump === true,
     attack: input.attack === true,
     attackHeavy: input.attackHeavy === true,
@@ -251,7 +235,16 @@ export function closeCharacterInput(input: CharacterInput): CharacterInput {
     dodge: input.dodge === true,
     dropThrough: input.dropThrough === true,
     ledgeRelease: input.ledgeRelease ?? null,
+    // Right-stick attack direction (read only on a heavy press).
+    attackStickX: closeAxis(input.attackStickX),
+    attackStickY: closeAxis(input.attackStickY),
   });
+}
+
+/** Clamp an analog channel to [-1, 1]; missing or non-finite closes to 0. */
+function closeAxis(value: number | undefined): number {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return 0;
+  return value < -1 ? -1 : value > 1 ? 1 : value;
 }
 
 // ---------------------------------------------------------------------------
@@ -547,7 +540,7 @@ export function createBindingsKeyboardInputProvider(
   // mutation of the underlying store) is observed on the very next
   // sample. The bindings are NEVER cached on the adapter.
   function held(profile: PlayerBindings, action: LogicalAction): boolean {
-    return isKeyboardActionHeld(profile.bindings[action], keyboard);
+    return isKeyboardActionHeld((profile.bindings[action] ?? []), keyboard);
   }
 
   return {
@@ -1004,10 +997,10 @@ export function createBindingsGamepadInputProvider(
   // mutation of the underlying store) is observed on the very next
   // sample. Bindings are NEVER cached on the adapter.
   function held(profile: PlayerBindings, action: LogicalAction): boolean {
-    return isGamepadActionHeld(profile.bindings[action], gamepad);
+    return isGamepadActionHeld((profile.bindings[action] ?? []), gamepad);
   }
   function magnitude(profile: PlayerBindings, action: LogicalAction): number {
-    return gamepadActionMagnitude(profile.bindings[action], gamepad);
+    return gamepadActionMagnitude((profile.bindings[action] ?? []), gamepad);
   }
 
   return {

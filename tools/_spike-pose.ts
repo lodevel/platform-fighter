@@ -46,7 +46,7 @@ async function main() {
   const client = new ComfyClient();
   if (!(await client.isUp())) throw new Error('ComfyUI not up');
   await mkdir('assets/gen/_spike', { recursive: true });
-  const { bytes } = await client.render(graph('running fast mid-stride', 777));
+  const { bytes } = await client.render(graph('running fast mid-stride', 777), '45');
   await writeFile('assets/gen/_spike/pose-run.png', bytes);
   console.log(`[spike-pose] -> assets/gen/_spike/pose-run.png (${(bytes.length / 1024) | 0}KB)`);
 }

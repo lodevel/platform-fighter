@@ -59,7 +59,7 @@ function makeFighter(
 ): StateFighterSnapshot {
   return {
     playerIndex: 0,
-    characterId: 'wolf',
+    characterId: 'donkeykong',
     paletteIndex: 0,
     stocks: 3,
     stocksLost: 0,
@@ -82,7 +82,7 @@ function makeSnapshot(
 ): MatchStateSnapshot {
   return {
     frame: 0,
-    fighters: [makeFighter({ playerIndex: 0 }), makeFighter({ playerIndex: 1, characterId: 'cat' })],
+    fighters: [makeFighter({ playerIndex: 0 }), makeFighter({ playerIndex: 1, characterId: 'pikachu' })],
     ...overrides,
   };
 }
@@ -143,74 +143,74 @@ describe('computeStateChecksum — field sensitivity', () => {
     ],
     [
       'characterId',
-      makeSnapshot({ fighters: [makeFighter({ characterId: 'cat' }), makeFighter({ playerIndex: 1, characterId: 'cat' })] }),
+      makeSnapshot({ fighters: [makeFighter({ characterId: 'pikachu' }), makeFighter({ playerIndex: 1, characterId: 'pikachu' })] }),
     ],
     [
       'paletteIndex',
-      makeSnapshot({ fighters: [makeFighter({ paletteIndex: 1 }), makeFighter({ playerIndex: 1, characterId: 'cat' })] }),
+      makeSnapshot({ fighters: [makeFighter({ paletteIndex: 1 }), makeFighter({ playerIndex: 1, characterId: 'pikachu' })] }),
     ],
     [
       'stocks',
-      makeSnapshot({ fighters: [makeFighter({ stocks: 2 }), makeFighter({ playerIndex: 1, characterId: 'cat' })] }),
+      makeSnapshot({ fighters: [makeFighter({ stocks: 2 }), makeFighter({ playerIndex: 1, characterId: 'pikachu' })] }),
     ],
     [
       'stocksLost',
-      makeSnapshot({ fighters: [makeFighter({ stocksLost: 1 }), makeFighter({ playerIndex: 1, characterId: 'cat' })] }),
+      makeSnapshot({ fighters: [makeFighter({ stocksLost: 1 }), makeFighter({ playerIndex: 1, characterId: 'pikachu' })] }),
     ],
     [
       'kos',
-      makeSnapshot({ fighters: [makeFighter({ kos: 1 }), makeFighter({ playerIndex: 1, characterId: 'cat' })] }),
+      makeSnapshot({ fighters: [makeFighter({ kos: 1 }), makeFighter({ playerIndex: 1, characterId: 'pikachu' })] }),
     ],
     [
       'damagePercent',
-      makeSnapshot({ fighters: [makeFighter({ damagePercent: 0.0001 }), makeFighter({ playerIndex: 1, characterId: 'cat' })] }),
+      makeSnapshot({ fighters: [makeFighter({ damagePercent: 0.0001 }), makeFighter({ playerIndex: 1, characterId: 'pikachu' })] }),
     ],
     [
       'position.x',
-      makeSnapshot({ fighters: [makeFighter({ position: { x: 100.0001, y: 200 } }), makeFighter({ playerIndex: 1, characterId: 'cat' })] }),
+      makeSnapshot({ fighters: [makeFighter({ position: { x: 100.0001, y: 200 } }), makeFighter({ playerIndex: 1, characterId: 'pikachu' })] }),
     ],
     [
       'position.y',
-      makeSnapshot({ fighters: [makeFighter({ position: { x: 100, y: 199.9999 } }), makeFighter({ playerIndex: 1, characterId: 'cat' })] }),
+      makeSnapshot({ fighters: [makeFighter({ position: { x: 100, y: 199.9999 } }), makeFighter({ playerIndex: 1, characterId: 'pikachu' })] }),
     ],
     [
       'velocity.x',
-      makeSnapshot({ fighters: [makeFighter({ velocity: { x: 0.0001, y: 0 } }), makeFighter({ playerIndex: 1, characterId: 'cat' })] }),
+      makeSnapshot({ fighters: [makeFighter({ velocity: { x: 0.0001, y: 0 } }), makeFighter({ playerIndex: 1, characterId: 'pikachu' })] }),
     ],
     [
       'velocity.y',
-      makeSnapshot({ fighters: [makeFighter({ velocity: { x: 0, y: 0.0001 } }), makeFighter({ playerIndex: 1, characterId: 'cat' })] }),
+      makeSnapshot({ fighters: [makeFighter({ velocity: { x: 0, y: 0.0001 } }), makeFighter({ playerIndex: 1, characterId: 'pikachu' })] }),
     ],
     [
       'facing',
-      makeSnapshot({ fighters: [makeFighter({ facing: -1 }), makeFighter({ playerIndex: 1, characterId: 'cat' })] }),
+      makeSnapshot({ fighters: [makeFighter({ facing: -1 }), makeFighter({ playerIndex: 1, characterId: 'pikachu' })] }),
     ],
     [
       'grounded',
-      makeSnapshot({ fighters: [makeFighter({ grounded: false }), makeFighter({ playerIndex: 1, characterId: 'cat' })] }),
+      makeSnapshot({ fighters: [makeFighter({ grounded: false }), makeFighter({ playerIndex: 1, characterId: 'pikachu' })] }),
     ],
     [
       'jumpsUsed',
-      makeSnapshot({ fighters: [makeFighter({ jumpsUsed: 1 }), makeFighter({ playerIndex: 1, characterId: 'cat' })] }),
+      makeSnapshot({ fighters: [makeFighter({ jumpsUsed: 1 }), makeFighter({ playerIndex: 1, characterId: 'pikachu' })] }),
     ],
     [
       'inHitstun',
-      makeSnapshot({ fighters: [makeFighter({ inHitstun: true }), makeFighter({ playerIndex: 1, characterId: 'cat' })] }),
+      makeSnapshot({ fighters: [makeFighter({ inHitstun: true }), makeFighter({ playerIndex: 1, characterId: 'pikachu' })] }),
     ],
     [
       'invincible',
-      makeSnapshot({ fighters: [makeFighter({ invincible: true }), makeFighter({ playerIndex: 1, characterId: 'cat' })] }),
+      makeSnapshot({ fighters: [makeFighter({ invincible: true }), makeFighter({ playerIndex: 1, characterId: 'pikachu' })] }),
     ],
     [
       'eliminated',
-      makeSnapshot({ fighters: [makeFighter({ eliminated: true }), makeFighter({ playerIndex: 1, characterId: 'cat' })] }),
+      makeSnapshot({ fighters: [makeFighter({ eliminated: true }), makeFighter({ playerIndex: 1, characterId: 'pikachu' })] }),
     ],
     [
       'second-fighter field (P2 damage)',
       makeSnapshot({
         fighters: [
-          makeFighter({ playerIndex: 0, characterId: 'wolf' }),
-          makeFighter({ playerIndex: 1, characterId: 'cat', damagePercent: 5 }),
+          makeFighter({ playerIndex: 0, characterId: 'donkeykong' }),
+          makeFighter({ playerIndex: 1, characterId: 'pikachu', damagePercent: 5 }),
         ],
       }),
     ],
@@ -225,8 +225,8 @@ describe('computeStateChecksum — field sensitivity', () => {
     const swapped = computeStateChecksum(
       makeSnapshot({
         fighters: [
-          makeFighter({ playerIndex: 1, characterId: 'cat' }),
-          makeFighter({ playerIndex: 0, characterId: 'wolf' }),
+          makeFighter({ playerIndex: 1, characterId: 'pikachu' }),
+          makeFighter({ playerIndex: 0, characterId: 'donkeykong' }),
         ],
       }),
     );
@@ -244,7 +244,7 @@ describe('computeStateChecksum — float edge cases', () => {
       makeSnapshot({
         fighters: [
           makeFighter({ velocity: { x: 0, y: 0 } }),
-          makeFighter({ playerIndex: 1, characterId: 'cat' }),
+          makeFighter({ playerIndex: 1, characterId: 'pikachu' }),
         ],
       }),
     );
@@ -252,7 +252,7 @@ describe('computeStateChecksum — float edge cases', () => {
       makeSnapshot({
         fighters: [
           makeFighter({ velocity: { x: -0, y: -0 } }),
-          makeFighter({ playerIndex: 1, characterId: 'cat' }),
+          makeFighter({ playerIndex: 1, characterId: 'pikachu' }),
         ],
       }),
     );
@@ -265,7 +265,7 @@ describe('computeStateChecksum — float edge cases', () => {
         makeSnapshot({
           fighters: [
             makeFighter({ damagePercent: NaN }),
-            makeFighter({ playerIndex: 1, characterId: 'cat' }),
+            makeFighter({ playerIndex: 1, characterId: 'pikachu' }),
           ],
         }),
       ),
@@ -278,7 +278,7 @@ describe('computeStateChecksum — float edge cases', () => {
         makeSnapshot({
           fighters: [
             makeFighter({ position: { x: NaN, y: 0 } }),
-            makeFighter({ playerIndex: 1, characterId: 'cat' }),
+            makeFighter({ playerIndex: 1, characterId: 'pikachu' }),
           ],
         }),
       ),
@@ -291,7 +291,7 @@ describe('computeStateChecksum — float edge cases', () => {
         makeSnapshot({
           fighters: [
             makeFighter({ velocity: { x: Infinity, y: 0 } }),
-            makeFighter({ playerIndex: 1, characterId: 'cat' }),
+            makeFighter({ playerIndex: 1, characterId: 'pikachu' }),
           ],
         }),
       ),
@@ -304,7 +304,7 @@ describe('computeStateChecksum — float edge cases', () => {
         makeSnapshot({
           fighters: [
             makeFighter({ position: { x: -Infinity, y: 0 } }),
-            makeFighter({ playerIndex: 1, characterId: 'cat' }),
+            makeFighter({ playerIndex: 1, characterId: 'pikachu' }),
           ],
         }),
       ),
@@ -350,7 +350,7 @@ describe('computeStateChecksum — type validation', () => {
         makeSnapshot({
           fighters: [
             makeFighter({ characterId: 42 as unknown as string }),
-            makeFighter({ playerIndex: 1, characterId: 'cat' }),
+            makeFighter({ playerIndex: 1, characterId: 'pikachu' }),
           ],
         }),
       ),
@@ -362,8 +362,8 @@ describe('computeStateChecksum — type validation', () => {
       computeStateChecksum(
         makeSnapshot({
           fighters: [
-            makeFighter({ characterId: 'wolf|cat' }),
-            makeFighter({ playerIndex: 1, characterId: 'cat' }),
+            makeFighter({ characterId: 'donkeykong|pikachu' }),
+            makeFighter({ playerIndex: 1, characterId: 'pikachu' }),
           ],
         }),
       ),
@@ -376,7 +376,7 @@ describe('computeStateChecksum — type validation', () => {
         makeSnapshot({
           fighters: [
             makeFighter({ grounded: 1 as unknown as boolean }),
-            makeFighter({ playerIndex: 1, characterId: 'cat' }),
+            makeFighter({ playerIndex: 1, characterId: 'pikachu' }),
           ],
         }),
       ),
@@ -389,7 +389,7 @@ describe('computeStateChecksum — type validation', () => {
         makeSnapshot({
           fighters: [
             makeFighter({ position: null as unknown as { x: number; y: number } }),
-            makeFighter({ playerIndex: 1, characterId: 'cat' }),
+            makeFighter({ playerIndex: 1, characterId: 'pikachu' }),
           ],
         }),
       ),
@@ -402,7 +402,7 @@ describe('computeStateChecksum — type validation', () => {
         makeSnapshot({
           fighters: [
             makeFighter({ velocity: null as unknown as { x: number; y: number } }),
-            makeFighter({ playerIndex: 1, characterId: 'cat' }),
+            makeFighter({ playerIndex: 1, characterId: 'pikachu' }),
           ],
         }),
       ),
@@ -441,8 +441,8 @@ describe('serializeStateForChecksum', () => {
     expect(slotsPart.split('|')).toHaveLength(2);
     // Each slot has the documented field prefixes.
     expect(slotsPart).toMatch(/pi=0/);
-    expect(slotsPart).toMatch(/ci=wolf/);
-    expect(slotsPart).toMatch(/ci=cat/);
+    expect(slotsPart).toMatch(/ci=donkeykong/);
+    expect(slotsPart).toMatch(/ci=pikachu/);
   });
 
   it('produces identical output for identical snapshots', () => {

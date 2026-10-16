@@ -1,0 +1,15 @@
+
+> platform-fighter@0.1.0 test
+> vitest run port/src/arena/presenter.check.ts port/src/engine/presentation/submission.check.ts
+
+
+ RUN  v1.6.1 /home/lombet/Workspace/platform-fighter
+
+ ✓ port/src/engine/presentation/submission.check.ts  (5 tests) 9ms
+ ✓ port/src/arena/presenter.check.ts  (2 tests) 2ms
+
+ Test Files  2 passed (2)
+      Tests  7 passed (7)
+   Start at  11:03:50
+   Duration  2.35s (transform 1.46s, setup 0ms, collect 2.08s, tests 11ms, environment 0ms, prepare 132ms)
+

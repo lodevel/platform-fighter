@@ -49,7 +49,6 @@
  * refuses any caller that asks the keyboard handler for player 3 or 4.
  */
 
-import type Phaser from 'phaser';
 import type { CharacterInput } from '../characters/Character';
 import { KEY_CODE } from './keyCodes';
 
@@ -283,42 +282,6 @@ export class LocalInputHandler {
       dropThrough: down && jump,
     };
   }
-}
-
-// ---------------------------------------------------------------------------
-// Phaser adapter
-// ---------------------------------------------------------------------------
-
-/**
- * Wrap a Phaser scene's keyboard plugin behind the {@link KeyboardSource}
- * contract. `addKey` is lazily called on first read for each keyCode so
- * we don't allocate Phaser `Key` instances for actions a player never
- * presses.
- *
- * Phaser's `addKey` enables capture by default — that means arrow keys
- * won't scroll the page and Tab won't move browser focus during a match.
- * The cache prevents re-registering the same key on every poll (which
- * would still work but allocates a wrapper each time).
- */
-export function createPhaserKeyboardSource(scene: Phaser.Scene): KeyboardSource {
-  const keyboard = scene.input.keyboard;
-  if (!keyboard) {
-    throw new Error(
-      'createPhaserKeyboardSource: scene.input.keyboard is unavailable — ' +
-        'did the game config disable keyboard input?',
-    );
-  }
-  const cache = new Map<number, Phaser.Input.Keyboard.Key>();
-  return {
-    isDown(keyCode: number): boolean {
-      let key = cache.get(keyCode);
-      if (!key) {
-        key = keyboard.addKey(keyCode, /* enableCapture */ true);
-        cache.set(keyCode, key);
-      }
-      return key.isDown;
-    },
-  };
 }
 
 // ---------------------------------------------------------------------------

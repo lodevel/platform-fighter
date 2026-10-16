@@ -20,6 +20,7 @@
 export const KEY_CODE = {
   // ---- Letters --------------------------------------------------------------
   A: 65,
+  B: 66,
   D: 68,
   F: 70,
   G: 71,
@@ -27,6 +28,7 @@ export const KEY_CODE = {
   R: 82,
   S: 83,
   T: 84,
+  V: 86,
   W: 87,
 
   // ---- Arrow keys -----------------------------------------------------------
@@ -35,13 +37,18 @@ export const KEY_CODE = {
   ARROW_RIGHT: 39,
   ARROW_DOWN: 40,
 
-  // ---- Numpad (default P2 attack cluster) -----------------------------------
+  // ---- Numpad (default P2 attack cluster; Numpad 0 is P2's smash) ----------
   NUMPAD_0: 96,
   NUMPAD_1: 97,
   NUMPAD_2: 98,
   NUMPAD_3: 99,
   NUMPAD_4: 100,
   NUMPAD_5: 101,
+  NUMPAD_6: 102,
+  // 7-9 are bound by no default: rebind targets that stay on the P2 half.
+  NUMPAD_7: 103,
+  NUMPAD_8: 104,
+  NUMPAD_9: 105,
 
   // ---- Modifiers / common ---------------------------------------------------
   SHIFT: 16,
@@ -59,3 +66,30 @@ export const KEY_CODE = {
 
 /** Numeric `KeyboardEvent.keyCode` value type. */
 export type KeyCode = (typeof KEY_CODE)[keyof typeof KEY_CODE];
+
+/**
+ * Keys that mark a binding set as the P2 keyboard half (arrow cluster +
+ * numpad). Shared by the Controls device inference and the smash
+ * back-fill so both agree on which half a saved layout uses.
+ */
+const P2_KEYBOARD_HALF_KEY_CODES: ReadonlySet<number> = new Set<number>([
+  KEY_CODE.ARROW_UP,
+  KEY_CODE.ARROW_DOWN,
+  KEY_CODE.ARROW_LEFT,
+  KEY_CODE.ARROW_RIGHT,
+  KEY_CODE.NUMPAD_0,
+  KEY_CODE.NUMPAD_1,
+  KEY_CODE.NUMPAD_2,
+  KEY_CODE.NUMPAD_3,
+  KEY_CODE.NUMPAD_4,
+  KEY_CODE.NUMPAD_5,
+  KEY_CODE.NUMPAD_6,
+  KEY_CODE.NUMPAD_7,
+  KEY_CODE.NUMPAD_8,
+  KEY_CODE.NUMPAD_9,
+]);
+
+/** True when `keyCode` belongs to the P2 keyboard half; anything else is P1. */
+export function isP2KeyboardHalfKey(keyCode: number): boolean {
+  return P2_KEYBOARD_HALF_KEY_CODES.has(keyCode);
+}

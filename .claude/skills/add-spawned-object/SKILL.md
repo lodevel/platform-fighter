@@ -74,4 +74,4 @@ player can see how far it reaches.
 - Schemas: `downSpecialSchema.ts` (`trap`, `stallAndFall`, `groundPound`),
   `specialSchema.ts` (`projectile`, `summon`).
 
-See also `add-character` §0 (entity-spawning specials need a renderer).
+See the [character integration and runtime verification workflow](../../../.agents/skills/add-character/references/integration-verification.md) for spawned-object visuals and runtime evidence.

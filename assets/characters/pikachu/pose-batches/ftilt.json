@@ -1,0 +1,177 @@
+{
+  "state": "packed_output_visual_and_runtime_review_required",
+  "scope": "Reviewed original rough attack drawings; runtime registration qualification separate",
+  "coordinateContract": {
+    "canonicalCanvas": [
+      2048,
+      2048
+    ],
+    "canonicalRoot": [
+      1024,
+      1664
+    ],
+    "frameWidth": 512,
+    "frameHeight": 512,
+    "root": [
+      256,
+      416
+    ],
+    "scaleToWorld": 0.4666666666666667,
+    "bodyCentreFromRoot": [
+      0,
+      -25
+    ]
+  },
+  "approvalSha256": "b32809e7ed94bfaffb9f4f7748fc2df8e388082b397c33584737113ab6d9a1f1",
+  "sources": [
+    {
+      "file": "docs/review/2026-10-06/pikachu-character/art/ftilt-startup-attempt1-cutout.png",
+      "sha256": "126db2e12e723b7b6eb49cd0cd84a312daf2e5b083f6b5c89e09b3afd37aa556",
+      "translation": [
+        256,
+        784
+      ],
+      "scale": 0.25,
+      "crop": null
+    },
+    {
+      "file": "docs/review/2026-10-06/pikachu-character/art/ftilt-turn-low-source4-attempt1-cutout.png",
+      "sha256": "ca27811d40da2564f6dcf4d8952dfb6c9ad8814b9f3250cb7635f2c715c27cac",
+      "translation": [
+        256,
+        784
+      ],
+      "scale": 0.25,
+      "crop": null
+    },
+    {
+      "file": "docs/review/2026-10-06/pikachu-character/art/ftilt-active-source5-attempt1-cutout.png",
+      "sha256": "16ab2e48bf401a7230ba2542598774ca6f1b3013371b40c8532bc2f9238570dd",
+      "translation": [
+        256,
+        784
+      ],
+      "scale": 0.25,
+      "crop": null
+    },
+    {
+      "file": "docs/review/2026-10-06/pikachu-character/art/ftilt-active-source6-attempt1-cutout.png",
+      "sha256": "76ca8e923505be3e88e843fcec3b750f79ecc809e52429ebc09bd7f4e06abaa0",
+      "translation": [
+        256,
+        784
+      ],
+      "scale": 0.25,
+      "crop": null
+    },
+    {
+      "file": "docs/review/2026-10-06/pikachu-character/art/ftilt-active-source7-attempt1-cutout.png",
+      "sha256": "2f190454d225d0ec39c370f836791e2d0203d3fe16578e0aae3f4db6c8becbb7",
+      "translation": [
+        256,
+        784
+      ],
+      "scale": 0.25,
+      "crop": null
+    },
+    {
+      "file": "docs/review/2026-10-06/pikachu-character/art/ftilt-extended-recovery-source10-attempt1-cutout.png",
+      "sha256": "e890cbc4df97589c9939fe7c3bf1a0cbed2a5d15a9f84a69fc9e835e6f3583aa",
+      "translation": [
+        256,
+        784
+      ],
+      "scale": 0.25,
+      "crop": null
+    },
+    {
+      "file": "docs/review/2026-10-06/pikachu-character/art/ftilt-recovery-attempt2-cutout.png",
+      "sha256": "ebe68042c7a1bc638381be289cf746df6985fc84dd9592b6513751942d0d7143",
+      "translation": [
+        256,
+        784
+      ],
+      "scale": 0.25,
+      "crop": null
+    },
+    {
+      "file": "docs/review/2026-10-06/pikachu-character/art/ftilt-ready-return-source28-attempt1-cutout.png",
+      "sha256": "59d3b259834000615b65ce134c7f866e2f25c59b03a7f7b95b1c0ad90bba0184",
+      "translation": [
+        256,
+        784
+      ],
+      "scale": 0.25,
+      "crop": null
+    }
+  ],
+  "animations": {
+    "ftilt": {
+      "strip": "animations/ftilt.png",
+      "frameCount": 8,
+      "sha256": "45642a215a17f5437466f80708f7560355476a200c1ca0430c6e24f1c31d0260",
+      "frameWindows": [
+        {
+          "pose": "startup",
+          "sourceIndex": 0,
+          "startFrame": 0,
+          "endFrame": 2,
+          "artFrameIndex": 0
+        },
+        {
+          "pose": "turn-low",
+          "sourceIndex": 4,
+          "startFrame": 2,
+          "endFrame": 5,
+          "artFrameIndex": 1
+        },
+        {
+          "pose": "contact-6",
+          "sourceIndex": 5,
+          "startFrame": 5,
+          "endFrame": 6,
+          "artFrameIndex": 2
+        },
+        {
+          "pose": "contact-7",
+          "sourceIndex": 6,
+          "startFrame": 6,
+          "endFrame": 7,
+          "artFrameIndex": 3
+        },
+        {
+          "pose": "contact-8",
+          "sourceIndex": 7,
+          "startFrame": 7,
+          "endFrame": 8,
+          "artFrameIndex": 4
+        },
+        {
+          "pose": "extended-recovery",
+          "sourceIndex": 10,
+          "startFrame": 8,
+          "endFrame": 16,
+          "artFrameIndex": 5
+        },
+        {
+          "pose": "recovery",
+          "sourceIndex": 21,
+          "startFrame": 16,
+          "endFrame": 22,
+          "artFrameIndex": 6
+        },
+        {
+          "pose": "ready-return",
+          "sourceIndex": 28,
+          "startFrame": 22,
+          "endFrame": 29,
+          "artFrameIndex": 7
+        }
+      ]
+    }
+  },
+  "galleries": {
+    "docs/review/2026-10-06/pikachu-character/motion-eight-pose/packed-preparation/ftilt-cells-1.png": "9ceb8082d0ffc306fc939d987afcb8163d7e502a05b24dd083fbd70fd04adf10",
+    "docs/review/2026-10-06/pikachu-character/motion-eight-pose/packed-preparation/ftilt-cells-2.png": "9c4cb2903d37855d5e1e5ef225f479172c8b88811b48fdaa810d7505903479e6"
+  }
+}

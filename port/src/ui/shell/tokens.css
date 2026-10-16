@@ -1,0 +1,25 @@
+/* Design tokens shared by the menus and the in-match HUD. */
+:root {
+  --bg: #0a0714;
+  --ink: #fbf7ff;
+  --ink-2: #cfc6ea;
+  --ink-3: #8f86ad;
+  --panel: rgba(14, 9, 30, 0.72);
+  --panel-solid: #150f2b;
+  --edge: rgba(255, 255, 255, 0.14);
+  --edge-strong: rgba(255, 255, 255, 0.32);
+  --gold: #ffc94a;
+  --gold-ink: #2a1a00;
+  --hot: #ff5d73;
+  --ok: #6cf0a6;
+  --p1: #ff4d5e;
+  --p2: #3fa7ff;
+  --p3: #ffd23f;
+  --p4: #4cd97b;
+  --cpu: #a3a3b8;
+  --display: 'Bungee', Impact, 'Arial Black', sans-serif;
+  --ui: 'Chakra Petch', system-ui, sans-serif;
+  --skew: -8deg;
+  --gutter: clamp(16px, 3vw, 48px);
+  color-scheme: dark;
+}

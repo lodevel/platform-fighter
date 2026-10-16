@@ -88,6 +88,8 @@ export interface LocomotionInput {
 
 /** Tunable locomotion parameters. All optional; resolved against {@link LOCOMOTION_DEFAULTS}. */
 export interface LocomotionTuning {
+  /** Start an initial dash at its authored speed instead of accelerating from rest. */
+  readonly initialDashInstantStart?: boolean;
   /** Burst target speed during the initial dash. Default `0.9 × runMaxSpeed`. */
   readonly initialDashSpeed?: number;
   /** Top speed while walking (partial tilt). Default `0.45 × runMaxSpeed`. */
@@ -108,10 +110,17 @@ export interface LocomotionTuning {
   readonly crouchStickThreshold?: number;
   /** Whether crouch is enabled. Default true. */
   readonly crouchEnabled?: boolean;
+  /**
+   * Ultimate jumpsquat rule: the fighter cannot turn during jumpsquat, so a
+   * stick held away from facing produces a backward jump that keeps facing.
+   * Default false (the stick turns the fighter before takeoff).
+   */
+  readonly jumpsquatKeepsFacing?: boolean;
 }
 
 /** Fully-defaulted locomotion tuning. */
 export interface ResolvedLocomotionTuning {
+  readonly initialDashInstantStart: boolean;
   readonly initialDashSpeed: number;
   readonly walkMaxSpeed: number;
   readonly runMaxSpeed: number;
@@ -122,6 +131,7 @@ export interface ResolvedLocomotionTuning {
   readonly dashStickThreshold: number;
   readonly crouchStickThreshold: number;
   readonly crouchEnabled: boolean;
+  readonly jumpsquatKeepsFacing: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -142,6 +152,7 @@ const INITIAL_DASH_SPEED_FRACTION = 0.9;
 const WALK_MAX_SPEED_FRACTION = 0.45;
 
 export const LOCOMOTION_DEFAULTS: ResolvedLocomotionTuning = Object.freeze({
+  initialDashInstantStart: false,
   runMaxSpeed: DEFAULT_RUN_MAX_SPEED,
   initialDashSpeed: DEFAULT_RUN_MAX_SPEED * INITIAL_DASH_SPEED_FRACTION,
   walkMaxSpeed: DEFAULT_RUN_MAX_SPEED * WALK_MAX_SPEED_FRACTION,
@@ -152,6 +163,7 @@ export const LOCOMOTION_DEFAULTS: ResolvedLocomotionTuning = Object.freeze({
   dashStickThreshold: DEFAULT_DASH_STICK_THRESHOLD,
   crouchStickThreshold: DEFAULT_CROUCH_STICK_THRESHOLD,
   crouchEnabled: true,
+  jumpsquatKeepsFacing: false,
 });
 
 // ---------------------------------------------------------------------------
@@ -188,6 +200,7 @@ export function resolveLocomotionTuning(
   );
   return Object.freeze({
     runMaxSpeed,
+    initialDashInstantStart: overrides?.initialDashInstantStart ?? false,
     initialDashSpeed: nonNegativeFinite(
       overrides?.initialDashSpeed,
       runMaxSpeed * INITIAL_DASH_SPEED_FRACTION,
@@ -217,6 +230,7 @@ export function resolveLocomotionTuning(
       overrides?.crouchStickThreshold ?? DEFAULT_CROUCH_STICK_THRESHOLD,
     ),
     crouchEnabled: overrides?.crouchEnabled ?? true,
+    jumpsquatKeepsFacing: overrides?.jumpsquatKeepsFacing ?? false,
   });
 }
 

@@ -1,0 +1,247 @@
+{
+  "checked_date": "2026-10-09",
+  "scope": "Expanded helper, source producers and coordinated shared consumers authored; all new verification remains pending",
+  "helper": "src/characters/donkeykongHeavyArmor.ts",
+  "tests": "src/characters/donkeykongHeavyArmor.test.ts",
+  "api": {
+    "function": "classifyDonkeyKongReferenceCarryDamage",
+    "input": [
+      "sourceCarryActive:boolean",
+      "referenceKnockback?:number",
+      "nativeCollisionAttribute?:string",
+      "nativeForceReaction?:boolean"
+    ],
+    "output": "inactive | unsupported(reason) | resist(proxy) | launch(proxy,reason:threshold|sleep|forced-reaction)"
+  },
+  "native": "Nine captured carry callbacks compare converted reaction strictly with32 and explicitly exclude sleep/sleep_ex. Native float conversion and reaction_max_ producer remain unavailable.",
+  "selected_proxy": "Final modified raw source-reference KB*.4 as source-backed threshold classification calibration; neither playable hitstun nor exact native reaction function.",
+  "supported_attributes": {
+    "eligible_non_sleep": [
+      "collision_attr_normal",
+      "collision_attr_elec",
+      "collision_attr_rush",
+      "collision_attr_bury"
+    ],
+    "eligibility_gate": "Explicit nativeForceReaction:false required; true launches, absent unsupported. Known sleep and sleep_ex already require launch.",
+    "exceptions": [
+      "collision_attr_sleep",
+      "collision_attr_sleep_ex"
+    ],
+    "proof_record": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/heavy-armor-attribute-source-proposal.json",
+    "unknown_policy": "No unknown attr or force flag defaults; no legacy vector-to-native-KB inference."
+  },
+  "caller_requirements": [
+    "Source carry state predicate excludes pickup/throw actions and other fighters.",
+    "Known ordinary reference-hit domain; unsupported native armor-piercing/grab/wind/abnormal flags remain a caller gate.",
+    "Compute rawKB at prospective post-hit percent after rage/stale/weight/crouch/item modifiers once and before destructive reset/trip/launch/clock changes.",
+    "Resistance commits confirmed flesh damage/hitlag/stale/stats once without scheduled launch or ownership drop.",
+    "Launch emits unsolicited native90degree/speed0 inventory drop; never synthesize a throw request.",
+    "Inactive/unsupported keeps existing authored damage behavior, including legacy missing-reference hits."
+  ],
+  "source_records": [
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftFall/check_dmg.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftFall/check_dmg.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftFall/check_dmg.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "aa6150706eafbd3c165fc9671de8ef5965c016476b60219a83eca5657106787b",
+      "git_blob_sha": "21dcb1d46f6f92241f612ce261bfa23c1ec69525"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftJump/check_dmg.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftJump/check_dmg.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftJump/check_dmg.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "aa6150706eafbd3c165fc9671de8ef5965c016476b60219a83eca5657106787b",
+      "git_blob_sha": "21dcb1d46f6f92241f612ce261bfa23c1ec69525"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftJumpSquat/check_dmg.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftJumpSquat/check_dmg.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftJumpSquat/check_dmg.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "aa6150706eafbd3c165fc9671de8ef5965c016476b60219a83eca5657106787b",
+      "git_blob_sha": "21dcb1d46f6f92241f612ce261bfa23c1ec69525"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftJumpSquatB/check_dmg.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftJumpSquatB/check_dmg.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftJumpSquatB/check_dmg.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "aa6150706eafbd3c165fc9671de8ef5965c016476b60219a83eca5657106787b",
+      "git_blob_sha": "21dcb1d46f6f92241f612ce261bfa23c1ec69525"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftLanding/check_dmg.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftLanding/check_dmg.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftLanding/check_dmg.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "aa6150706eafbd3c165fc9671de8ef5965c016476b60219a83eca5657106787b",
+      "git_blob_sha": "21dcb1d46f6f92241f612ce261bfa23c1ec69525"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftPass/check_dmg.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftPass/check_dmg.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftPass/check_dmg.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "aa6150706eafbd3c165fc9671de8ef5965c016476b60219a83eca5657106787b",
+      "git_blob_sha": "21dcb1d46f6f92241f612ce261bfa23c1ec69525"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftTurn/check_dmg.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftTurn/check_dmg.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftTurn/check_dmg.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "aa6150706eafbd3c165fc9671de8ef5965c016476b60219a83eca5657106787b",
+      "git_blob_sha": "21dcb1d46f6f92241f612ce261bfa23c1ec69525"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftWait/check_dmg.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftWait/check_dmg.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftWait/check_dmg.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "aa6150706eafbd3c165fc9671de8ef5965c016476b60219a83eca5657106787b",
+      "git_blob_sha": "21dcb1d46f6f92241f612ce261bfa23c1ec69525"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftWalk/check_dmg.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftWalk/check_dmg.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftWalk/check_dmg.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "aa6150706eafbd3c165fc9671de8ef5965c016476b60219a83eca5657106787b",
+      "git_blob_sha": "21dcb1d46f6f92241f612ce261bfa23c1ec69525"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-armor-primary-research.web.json",
+      "sha256": "49cb5284ec08e9a73f90eca6b12c67f7c0ddd51ba8bf9c85d6f0cef9ca214b96"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/ultimate-13.0.1-params.xlsx",
+      "sha256": "90ffc428a0377d43bfbf1a7d1806d18d08edbe735bfef5deb4696e8178f00748"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/native-string-dump.txt",
+      "sha256": "3caa24f890d122dbedcc79130d7421effdcf7d39860c298cbbdc8dc02d1c8738"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/heavy-action-rate-source-availability.json",
+      "sha256": "1d71a7ed8128efe43804fd483e71a28f75c231abc16a608f7b7d1cc2c3a196ee"
+    },
+    {
+      "motion": "Attack11",
+      "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/Attack11.txt",
+      "sha256": "f38d10fc7bcfc5785d3b35bd17329fa91f5a866740719115af56c3c2b5333e1e",
+      "matchesPriorCapture": true,
+      "path": "docs/review/2026-10-06/dk-all-attack-values/sources/Attack11.txt"
+    },
+    {
+      "motion": "SpecialHi",
+      "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/SpecialHi.txt",
+      "sha256": "716ad4d453cda9703b2104bdee76a9ade606238cbdb5cde1d320d1ea95aadfb2",
+      "matchesPriorCapture": true,
+      "path": "docs/review/2026-10-06/dk-all-attack-values/sources/SpecialHi.txt"
+    },
+    {
+      "motion": "SpecialS",
+      "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/SpecialS.txt",
+      "sha256": "0c3ef1e548ebdf27a74a5ea94832b8119096ae20b87907c9d8de6708c37413aa",
+      "matchesPriorCapture": true,
+      "path": "docs/review/2026-10-06/dk-all-attack-values/sources/SpecialS.txt"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_pikachu/pikachu/AttackAirN.txt",
+      "path": "docs/review/2026-10-06/pikachu-character/sources/scripts/pikachu/AttackAirN.txt",
+      "sha256": "4c1cdafc1ae982e7c1c5698a63c65385aeed3d6cdde97c024663d2e83b6dbbc3",
+      "bytes": 4182
+    },
+    {
+      "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_pikachu/pikachu/AttackAirB.txt",
+      "path": "docs/review/2026-10-06/pikachu-character/sources/scripts/pikachu/AttackAirB.txt",
+      "sha256": "25e068e37aae8df818e24cc95ab2a08f051b3fcff85c41df2740c7ae15d2f95a",
+      "bytes": 5342
+    },
+    {
+      "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_pikachu/pikachu/SpecialHi1.txt",
+      "path": "docs/review/2026-10-06/pikachu-character/sources/scripts/pikachu/SpecialHi1.txt",
+      "sha256": "c04186cfee00d3d55eafd6f6e6d88a841353fc852bcca05841da8c289eb8d17f",
+      "bytes": 597
+    },
+    {
+      "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_pikachu/pikachu/Final2.txt",
+      "path": "docs/review/2026-10-06/pikachu-character/sources/scripts/pikachu/Final2.txt",
+      "sha256": "9e818492a0c1edcaba7796ce0ae3eb1ed516ecbe40faaadf22e35b9f71b6ea6f",
+      "bytes": 3484
+    },
+    {
+      "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_pikachu/pikachu/FinalAir2.txt",
+      "path": "docs/review/2026-10-06/pikachu-character/sources/scripts/pikachu/FinalAir2.txt",
+      "sha256": "e711ad8fc77a83afc3a282cc626e128e9c370a1a9ac6d295468e02b7fadff525",
+      "bytes": 3496
+    },
+    {
+      "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_pikachu/pikachu_dengeki/Regular.txt",
+      "path": "docs/review/2026-10-06/pikachu-character/sources/scripts/pikachu_dengeki/Regular.txt",
+      "sha256": "e192a00599f7b4d85528b658fb619550fd7612cb338ed89952e40e32b351be68",
+      "bytes": 2859
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/native-crate/game.lua",
+      "sha256": "4c1b731f77f4c9d37ff2a232f9ef6c04835781c67dd34c2e1510ddbda3b5913a",
+      "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/luas/item/box/script/animcmd/body/game.lua",
+      "revision": "59004685238a3f6f93bae905d3a4e079701c40b4"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-armor-attribute-research.web.json",
+      "sha256": "3dd0d3db3e75737b034c23d83794c8f8cadd84ab4b0866c3a8ecd0b553e7f447"
+    }
+  ],
+  "prepared_test_cases": 10,
+  "test_scope": [
+    "Pinned primary caller/workbook/attribute source comparison",
+    "Strict source80KB boundary versus virtual31 counterexample",
+    "Additional/minimum hitstun independence",
+    "Rage/stale/item multiplier and fixed-rage exclusions",
+    "Both sleep attributes below threshold",
+    "Unknown attributes and legacy/invalidKB unsupported",
+    "Inactive source status guard",
+    "Explicit force true/false/unknown per eligible attribute",
+    "Weak pinned ordinary PK electric versus native per-ID forced Final",
+    "Bury weight100 source query threshold crossing"
+  ],
+  "integration": "Runtime reports shared metadata transport and pre-reset Character classifier consumer authored, with landed+reactionResisted and supported-launch heavyItemDrop metadata. Root Scene/Inventory integration is separate. All expanded helper/producer/schema/consumer tests remain unrun pending unloaded resource checkpoint; no acceptance claim.",
+  "production_leaf_receipts": [
+    {
+      "path": "src/characters/donkeykongHeavyArmor.ts",
+      "sha256": "8d89042daf620fa4a1d9ec7817175dde2ab79c54a350f7df2642d3ffa1a67078"
+    },
+    {
+      "path": "src/characters/donkeykongHeavyArmor.test.ts",
+      "sha256": "6946d73c6d675d4f3418dc9fdef52562123c9fd706048347ed398815697b9a30"
+    },
+    {
+      "path": "src/characters/donkeykongAttackReactionMetadata.ts",
+      "sha256": "02ec770fafeda106df608d7f609048b7f3ce65076f6978aa1e8c12c594b6529d"
+    },
+    {
+      "path": "src/characters/donkeykongAttackReactionMetadata.test.ts",
+      "sha256": "a2051f426d08e2ee3eb79976ece814eca547a1de2d04cc58887e3d5bf4df5e55"
+    },
+    {
+      "path": "src/characters/pikachuAttackForceReaction.ts",
+      "sha256": "93ee3b8beb04672360ed05c33a6d0648bcd66093e29c6a48ec6c31338953798f"
+    },
+    {
+      "path": "src/characters/donkeykongSourceMoves.ts",
+      "sha256": "2a602d1fdfa41e18b5a5cde0eeee6ef807faf16ca698b8c87180a7e24649ec3f"
+    },
+    {
+      "path": "src/characters/pikachuSourceMoves.ts",
+      "sha256": "bea14d907afb634b56634e906758e1b9bb95fb64a7090395c11228a04f00ea33"
+    }
+  ],
+  "attribute_contract": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/heavy-armor-attribute-source-proposal.json",
+  "producer_test_cases": 6,
+  "producer_test_scope": "Prepared, unrun independent source-packet metadata/clock comparisons and actual DK/PK regional producer selection; neither runtime nor art acceptance",
+  "source_schema_owner": "dk_runtime; shared types now authored while serializer/Character integration remains coordinated separately",
+  "item_drop_contract": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/heavy-armor-item-drop-source-contract.json"
+}

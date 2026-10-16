@@ -1,3 +1,4 @@
+import { Pikachu, PIKACHU_FIGHTER_CONTRACT } from './Pikachu';
 /**
  * Fighter registry — Sub-AC 3 of the T2 per-fighter refactor track.
  *
@@ -8,13 +9,13 @@
  * dispatch off this registry instead of carrying its own `switch (id)`
  * statement so:
  *
- *   • Adding a 5th roster slot ("a Fox archetype") only requires
+ *   • Adding a roster slot ("a Fox archetype") only requires
  *     authoring its `Fox.ts` subclass + appending one entry here.
  *     `characterFactory.ts` and `Fighter.ts` keep working with no edit.
  *   • The runtime dispatch path becomes selectable in place of the
- *     base `Character` class — every code path that wants "the Wolf
+ *     base `Character` class — every code path that wants "the Pikachu
  *     fighter" goes through the registry's `ctor` (which constructs a
- *     `Wolf extends Character`), never `new Character({ id: 'wolf' })`.
+ *     `Pikachu extends Character`), never `new Character({ id: 'pikachu' })`.
  *     The base Character is reserved for tests / lower-level fixtures.
  *   • Consumers that just want the per-fighter declaration data (AI
  *     predictors, replay HUD, balance tooling, the move-editor surface
@@ -33,8 +34,8 @@
  *
  * "Without changing runtime behavior yet" — this module does NOT
  * introduce new wiring into the per-frame tick. It is dispatch-only:
- *   1. The `ctor` field invokes the same `new Wolf(scene, opts)` /
- *      `new Cat(scene, opts)` / etc. that `characterFactory.ts` and
+ *   1. The `ctor` field invokes the same `new Pikachu(scene, opts)` /
+ *      `new DonkeyKong(scene, opts)` / etc. that `characterFactory.ts` and
  *      `Fighter.ts` already invoke today.
  *   2. The `contract` field exposes the same `*_FIGHTER_CONTRACT`
  *      records the per-fighter modules already export.
@@ -48,22 +49,11 @@
  * subclasses do once instantiated.
  */
 
-import type Phaser from 'phaser';
-import type { CharacterId } from '../types';
+import type { PhysicsHost } from '../physics/PhysicsWorld';
+import { CHARACTER_IDS, type CharacterId } from '../types';
 import type { Character, CharacterTuning } from './Character';
 import type { FighterContract } from './movesetContract';
-import { Wolf, WOLF_FIGHTER_CONTRACT } from './Wolf';
-import { Cat, CAT_FIGHTER_CONTRACT } from './Cat';
-import { Owl, OWL_FIGHTER_CONTRACT } from './Owl';
-import { Bear, BEAR_FIGHTER_CONTRACT } from './Bear';
-import { Blaze, BLAZE_FIGHTER_CONTRACT } from './Blaze';
-import { Puff, PUFF_FIGHTER_CONTRACT } from './Puff';
-import { Aegis, AEGIS_FIGHTER_CONTRACT } from './Aegis';
-import { Volt, VOLT_FIGHTER_CONTRACT } from './Volt';
-import { Nova, NOVA_FIGHTER_CONTRACT } from './Nova';
-import { Bruno, BRUNO_FIGHTER_CONTRACT } from './Bruno';
 import { Link, LINK_FIGHTER_CONTRACT } from './Link';
-import { Kirby, KIRBY_FIGHTER_CONTRACT } from './Kirby';
 import { DonkeyKong, DONKEYKONG_FIGHTER_CONTRACT } from './DonkeyKong';
 
 /**
@@ -100,7 +90,7 @@ export interface FighterRegistryConstructionOptions extends Partial<CharacterTun
  * import that subclass directly.
  */
 export type FighterConstructor = new (
-  scene: Phaser.Scene,
+  scene: PhysicsHost,
   options: FighterRegistryConstructionOptions,
 ) => Character;
 
@@ -127,89 +117,19 @@ export interface FighterRegistryEntry {
 }
 
 /**
- * The frozen registry — one entry per playable `CharacterId`. Order in
- * the entries list mirrors the canonical roster authoring order
- * (wolf → cat → owl → bear) so iteration produces stable, replay-
- * deterministic output.
- *
- * # Open-closed extensibility
- *
- * Adding a 5th roster slot is intentionally a one-line edit here:
- *
- *     export const FIGHTER_REGISTRY = Object.freeze({
- *       wolf: { id: 'wolf', ctor: Wolf, contract: WOLF_FIGHTER_CONTRACT },
- *       cat:  { id: 'cat',  ctor: Cat,  contract: CAT_FIGHTER_CONTRACT },
- *       owl:  { id: 'owl',  ctor: Owl,  contract: OWL_FIGHTER_CONTRACT },
- *       bear: { id: 'bear', ctor: Bear, contract: BEAR_FIGHTER_CONTRACT },
- *       fox:  { id: 'fox',  ctor: Fox,  contract: FOX_FIGHTER_CONTRACT }, // new
- *     }) satisfies Readonly<Record<CharacterId, FighterRegistryEntry>>;
- *
- * The `satisfies` clause guarantees that omitting an entry for any
- * `CharacterId` union member fails at compile time — no risk of
- * silently shipping a roster slot with no dispatch.
+ * The frozen registry — one entry per playable `CharacterId`. Iteration
+ * goes through {@link FIGHTER_REGISTRY_IDS} (= `CHARACTER_IDS`) so the
+ * order is stable and replay-deterministic. The `Record<CharacterId, …>`
+ * type makes omitting an entry for any `CharacterId` a compile error.
  */
 export const FIGHTER_REGISTRY: Readonly<Record<CharacterId, FighterRegistryEntry>> =
   Object.freeze({
-    wolf: Object.freeze({
-      id: 'wolf',
-      ctor: Wolf as unknown as FighterConstructor,
-      contract: WOLF_FIGHTER_CONTRACT,
-    }),
-    cat: Object.freeze({
-      id: 'cat',
-      ctor: Cat as unknown as FighterConstructor,
-      contract: CAT_FIGHTER_CONTRACT,
-    }),
-    owl: Object.freeze({
-      id: 'owl',
-      ctor: Owl as unknown as FighterConstructor,
-      contract: OWL_FIGHTER_CONTRACT,
-    }),
-    bear: Object.freeze({
-      id: 'bear',
-      ctor: Bear as unknown as FighterConstructor,
-      contract: BEAR_FIGHTER_CONTRACT,
-    }),
-    blaze: Object.freeze({
-      id: 'blaze',
-      ctor: Blaze as unknown as FighterConstructor,
-      contract: BLAZE_FIGHTER_CONTRACT,
-    }),
-    puff: Object.freeze({
-      id: 'puff',
-      ctor: Puff as unknown as FighterConstructor,
-      contract: PUFF_FIGHTER_CONTRACT,
-    }),
-    aegis: Object.freeze({
-      id: 'aegis',
-      ctor: Aegis as unknown as FighterConstructor,
-      contract: AEGIS_FIGHTER_CONTRACT,
-    }),
-    volt: Object.freeze({
-      id: 'volt',
-      ctor: Volt as unknown as FighterConstructor,
-      contract: VOLT_FIGHTER_CONTRACT,
-    }),
-    nova: Object.freeze({
-      id: 'nova',
-      ctor: Nova as unknown as FighterConstructor,
-      contract: NOVA_FIGHTER_CONTRACT,
-    }),
-    bruno: Object.freeze({
-      id: 'bruno',
-      ctor: Bruno as unknown as FighterConstructor,
-      contract: BRUNO_FIGHTER_CONTRACT,
-    }),
     link: Object.freeze({
       id: 'link',
       ctor: Link as unknown as FighterConstructor,
       contract: LINK_FIGHTER_CONTRACT,
     }),
-    kirby: Object.freeze({
-      id: 'kirby',
-      ctor: Kirby as unknown as FighterConstructor,
-      contract: KIRBY_FIGHTER_CONTRACT,
-    }),
+    pikachu: Object.freeze({ id: 'pikachu', ctor: Pikachu, contract: PIKACHU_FIGHTER_CONTRACT }),
     donkeykong: Object.freeze({
       id: 'donkeykong',
       ctor: DonkeyKong as unknown as FighterConstructor,
@@ -217,29 +137,8 @@ export const FIGHTER_REGISTRY: Readonly<Record<CharacterId, FighterRegistryEntry
     }),
   });
 
-/**
- * Frozen ordered list of every registered fighter id, in canonical
- * roster order. Same iteration order as the `FIGHTER_REGISTRY` keys —
- * surfaced as a constant so consumers don't have to call
- * `Object.keys(FIGHTER_REGISTRY)` (which historically was ordering-
- * unsafe across JS engines, even though every modern engine now
- * preserves insertion order).
- */
-export const FIGHTER_REGISTRY_IDS: ReadonlyArray<CharacterId> = Object.freeze([
-  'wolf',
-  'cat',
-  'owl',
-  'bear',
-  'blaze',
-  'puff',
-  'aegis',
-  'volt',
-  'nova',
-  'bruno',
-  'link',
-  'kirby',
-  'donkeykong',
-]);
+/** Every registered fighter id, in canonical roster order (`CHARACTER_IDS`). */
+export const FIGHTER_REGISTRY_IDS: ReadonlyArray<CharacterId> = CHARACTER_IDS;
 
 /**
  * Frozen ordered list of every registered fighter entry. Same iteration
@@ -305,8 +204,7 @@ export function isRegisteredFighterId(value: string): value is CharacterId {
 
 /**
  * Instantiate a fighter through the registry. Centralised dispatch
- * replacement for the legacy `switch (characterId) { case 'wolf': new
- * Wolf(...); ... }` block. Forwards `(scene, options)` verbatim to the
+ * replacement for a per-id `switch (characterId)` block. Forwards `(scene, options)` verbatim to the
  * registered constructor; the constructor's per-fighter spread merge
  * handles tuning overrides.
  *
@@ -316,7 +214,7 @@ export function isRegisteredFighterId(value: string): value is CharacterId {
  * use the per-class constructor directly.
  */
 export function instantiateFighter(
-  scene: Phaser.Scene,
+  scene: PhysicsHost,
   characterId: CharacterId,
   options: FighterRegistryConstructionOptions,
 ): Character {

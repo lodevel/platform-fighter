@@ -3,6 +3,9 @@ dist/
 dist-ssr/
 .vite/
 *.local
+.tmp/
+__pycache__/
+*.pyc
 
 # Editor
 .vscode/*
@@ -46,3 +49,6 @@ assets/gen/*
 # Decoupled-equipment source sprites (composited into character strips at build
 # time by tools/composite-shield.cjs) — track so the composite is reproducible.
 !assets/gen/link-shield.png
+
+# Reproducible GPU texture cache; retain the source PNG banks and build recipe.
+assets/generated/ktx2/

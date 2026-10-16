@@ -1,8 +1,13 @@
 # Anatomy of a Complete Fighter
 
-The authoritative list of everything a roster fighter needs in this codebase,
-from a multi-agent audit re-verified against the live code. Use it with the
-verifier:
+> **Current workflow:** use the [canonical add-character skill](../.agents/skills/add-character/SKILL.md)
+> for source coverage, art, collision, integration, and runtime verification.
+> The tiers, roster counts, and implementation snapshots below are historical.
+> The legacy shell verifier reports static wiring hints; passing it does not
+> establish character completeness or reference accuracy.
+
+This historical checklist records earlier roster integration requirements,
+from an earlier audit. These commands are retained for historical context:
 
 ```bash
 bash .claude/skills/add-character/verify-character.sh <id>

@@ -144,6 +144,15 @@ export type DodgeStateName = 'idle' | 'active' | 'recovery' | 'cooldown';
  *     their fall; the long i-frame window compensates.
  */
 export interface DodgeVariantTuning {
+  /** Optional zero-based action frame that reverses a forward roll's facing. */
+  readonly reverseFacingFrame?: number;
+  /** Zero-based first intangible step; omitted preserves immediate legacy i-frames. */
+  readonly iframeStartFrame?: number;
+  /**
+   * Fully-stale intangibility end (zero-based exclusive = one-based last intangible frame), from a
+   * fighter's SmashWiki "Fully stale" column. Omitted keeps the fresh end (see {@link staleDodgeVariant}).
+   */
+  readonly fullyStaleIframeEndFrame?: number;
   /**
    * Total length of the `'active'` phase in fixed-step frames. The
    * fighter is locked out of movement / attacks for this whole window,
@@ -191,8 +200,16 @@ export interface DodgeTuning {
   readonly spot?: Partial<DodgeVariantTuning>;
   /** Roll tuning. Defaults to `DODGE_DEFAULTS.roll`. */
   readonly roll?: Partial<DodgeVariantTuning>;
+  /** Optional backward roll, classified relative to facing before the press. */
+  readonly backwardRoll?: Partial<DodgeVariantTuning>;
   /** Air-dodge tuning. Defaults to `DODGE_DEFAULTS.air`. */
   readonly air?: Partial<DodgeVariantTuning>;
+  /** Optional separate timing for a deflected-stick air dodge. */
+  readonly directionalAir?: Partial<DodgeVariantTuning>;
+  readonly directionalAirUpRecoveryFrames?: number;
+  readonly directionalAirDownRecoveryFrames?: number;
+  readonly directionalAirUpDiagonalRecoveryFrames?: number;
+  readonly directionalAirDownDiagonalRecoveryFrames?: number;
   /**
    * Stick-deflection magnitude required for a grounded dodge press to
    * pick the `'roll'` variant rather than `'spot'`. Mirrors the
@@ -215,7 +232,13 @@ export interface DodgeTuning {
 export interface ResolvedDodgeTuning {
   readonly spot: DodgeVariantTuning;
   readonly roll: DodgeVariantTuning;
+  readonly backwardRoll?: DodgeVariantTuning;
   readonly air: DodgeVariantTuning;
+  readonly directionalAir?: DodgeVariantTuning;
+  readonly directionalAirUpRecoveryFrames?: number;
+  readonly directionalAirDownRecoveryFrames?: number;
+  readonly directionalAirUpDiagonalRecoveryFrames?: number;
+  readonly directionalAirDownDiagonalRecoveryFrames?: number;
   readonly stickThreshold: number;
 }
 
@@ -227,6 +250,12 @@ export interface ResolvedDodgeTuning {
  * tuning record on every read.
  */
 export interface ActiveDodge {
+  readonly backward?: true;
+  /** Dodges counted by {@link DodgeStaleness} when this one started; omitted = fresh. */
+  readonly staleCount?: number;
+  /** Captured on entry; subsequent stick changes cannot change the action's timing. */
+  readonly directional?: true;
+  readonly directionalRecoveryFrames?: number;
   /** Which variant this dodge resolved to. Picked at the press frame. */
   readonly kind: DodgeKind;
   /**
@@ -283,6 +312,8 @@ export interface DodgeState {
  * Per-frame input that drives the dodge state machine.
  */
 export interface DodgeInput {
+  /** Screen coordinates: negative points up. Optional for legacy callers. */
+  readonly moveY?: number;
   /** True iff the dodge button is held this fixed step. */
   readonly held: boolean;
   /**
@@ -310,6 +341,8 @@ export interface DodgeInput {
    * case). `1` = right, `-1` = left.
    */
   readonly facing: 1 | -1;
+  /** {@link DodgeStaleness.count} at the press; times the new dodge (default 0 = fresh). */
+  readonly staleCount?: number;
 }
 
 // ---------------------------------------------------------------------------
@@ -400,7 +433,26 @@ export function resolveDodgeTuning(overrides?: DodgeTuning): ResolvedDodgeTuning
   const air = resolveVariant(AIR_DEFAULTS, overrides?.air);
   const rawThreshold = overrides?.stickThreshold ?? DODGE_DEFAULTS_STICK_THRESHOLD;
   const stickThreshold = clamp01(rawThreshold);
-  return Object.freeze({ spot, roll, air, stickThreshold });
+  return Object.freeze({ spot, roll, air, stickThreshold,
+    ...(overrides?.backwardRoll === undefined ? {} : {
+      backwardRoll: resolveVariant(roll, overrides.backwardRoll),
+    }),
+    ...(overrides?.directionalAir === undefined ? {} : {
+      directionalAir: resolveVariant(air, overrides.directionalAir),
+    }),
+    ...(overrides?.directionalAirUpRecoveryFrames === undefined ? {} : {
+      directionalAirUpRecoveryFrames: nonNegativeInt(overrides.directionalAirUpRecoveryFrames, air.recoveryFrames),
+    }),
+    ...(overrides?.directionalAirDownRecoveryFrames === undefined ? {} : {
+      directionalAirDownRecoveryFrames: nonNegativeInt(overrides.directionalAirDownRecoveryFrames, air.recoveryFrames),
+    }),
+    ...(overrides?.directionalAirUpDiagonalRecoveryFrames === undefined ? {} : {
+      directionalAirUpDiagonalRecoveryFrames: nonNegativeInt(overrides.directionalAirUpDiagonalRecoveryFrames, air.recoveryFrames),
+    }),
+    ...(overrides?.directionalAirDownDiagonalRecoveryFrames === undefined ? {} : {
+      directionalAirDownDiagonalRecoveryFrames: nonNegativeInt(overrides.directionalAirDownDiagonalRecoveryFrames, air.recoveryFrames),
+    }),
+  });
 }
 
 function resolveVariant(
@@ -409,11 +461,13 @@ function resolveVariant(
 ): DodgeVariantTuning {
   if (!overrides) return defaults;
   const activeFrames = nonNegativeInt(overrides.activeFrames, defaults.activeFrames);
+  const iframeStartFrame = Math.min(activeFrames,
+    nonNegativeInt(overrides.iframeStartFrame, defaults.iframeStartFrame ?? 0));
   // Clamp i-frames to never exceed the active window — protects the
   // runtime from a tuning typo that would otherwise leave the fighter
   // permanently invincible until the recovery tail finished draining.
   const rawIframes = nonNegativeInt(overrides.iframeFrames, defaults.iframeFrames);
-  const iframeFrames = rawIframes > activeFrames ? activeFrames : rawIframes;
+  const iframeFrames = Math.min(rawIframes, activeFrames - iframeStartFrame);
   const recoveryFrames = nonNegativeInt(overrides.recoveryFrames, defaults.recoveryFrames);
   const cooldownFrames = nonNegativeInt(overrides.cooldownFrames, defaults.cooldownFrames);
   const slideSpeed = nonNegativeFinite(overrides.slideSpeed, defaults.slideSpeed);
@@ -423,6 +477,13 @@ function resolveVariant(
     recoveryFrames,
     cooldownFrames,
     slideSpeed,
+    ...(overrides.iframeStartFrame === undefined && defaults.iframeStartFrame === undefined
+      ? {} : { iframeStartFrame }),
+    ...(overrides.reverseFacingFrame === undefined && defaults.reverseFacingFrame === undefined
+      ? {} : { reverseFacingFrame: nonNegativeInt(overrides.reverseFacingFrame, defaults.reverseFacingFrame ?? 0) }),
+    ...(overrides.fullyStaleIframeEndFrame === undefined && defaults.fullyStaleIframeEndFrame === undefined
+      ? {} : { fullyStaleIframeEndFrame: nonNegativeInt(overrides.fullyStaleIframeEndFrame,
+        defaults.fullyStaleIframeEndFrame ?? 0) }),
   });
 }
 
@@ -551,7 +612,16 @@ export function tickDodge(
   if (input.justPressed && input.held && state.name === 'idle') {
     const kind = classifyDodgeKind(input.grounded, input.moveX, tuning.stickThreshold);
     const facing = classifyDodgeFacing(kind, input.moveX, input.facing, tuning.stickThreshold);
-    const variant = pickVariant(kind, tuning);
+    const directional = kind === 'air' && tuning.directionalAir !== undefined &&
+      Math.hypot(input.moveX, input.moveY ?? 0) >= tuning.stickThreshold;
+    const backward = kind === 'roll' && tuning.backwardRoll !== undefined && facing !== input.facing;
+    const staleCount = Math.max(0, Math.trunc(input.staleCount ?? 0));
+    const directionalRecoveryFrames = directional
+      ? directionalAirRecoveryFrames(input.moveX, input.moveY ?? 0, tuning) : undefined;
+    const variant = pickActiveVariant({ kind, facing, framesElapsed: 0,
+      ...(backward ? { backward: true as const } : {}),
+      ...(directional ? { directional: true as const, directionalRecoveryFrames } : {}),
+      ...(staleCount > 0 ? { staleCount } : {}) }, tuning);
     // Edge case: a fully zeroed-out variant (activeFrames === 0) skips
     // straight to cooldown. Authoring mistake, but we handle it cleanly.
     if (variant.activeFrames <= 0) {
@@ -559,17 +629,21 @@ export function tickDodge(
     }
     return Object.freeze({
       name: 'active',
-      active: Object.freeze({ kind, facing, framesElapsed: 0 }),
-      iframesRemaining: variant.iframeFrames,
+      active: Object.freeze({ kind, facing, framesElapsed: 0,
+        ...(backward ? { backward: true as const } : {}),
+        ...(directional ? { directional: true as const, directionalRecoveryFrames } : {}),
+        ...(staleCount > 0 ? { staleCount } : {}),
+      }),
+      iframesRemaining: dodgeIframesAt(variant, 0),
       cooldownRemaining: 0,
     });
   }
 
   // ---- 2. Active tick ----------------------------------------------------
   if (state.name === 'active' && state.active !== null) {
-    const variant = pickVariant(state.active.kind, tuning);
+    const variant = pickActiveVariant(state.active, tuning);
     const nextFrames = state.active.framesElapsed + 1;
-    const nextIframes = state.iframesRemaining > 0 ? state.iframesRemaining - 1 : 0;
+    const nextIframes = dodgeIframesAt(variant, nextFrames);
 
     if (nextFrames >= variant.activeFrames) {
       // Active window has drained — transition to recovery (or skip
@@ -580,8 +654,7 @@ export function tickDodge(
       return Object.freeze({
         name: 'recovery',
         active: Object.freeze({
-          kind: state.active.kind,
-          facing: state.active.facing,
+          ...state.active,
           framesElapsed: nextFrames,
         }),
         // i-frames are forced to 0 the moment we leave the active phase
@@ -594,8 +667,7 @@ export function tickDodge(
     return Object.freeze({
       name: 'active',
       active: Object.freeze({
-        kind: state.active.kind,
-        facing: state.active.facing,
+        ...state.active,
         framesElapsed: nextFrames,
       }),
       iframesRemaining: nextIframes,
@@ -605,7 +677,7 @@ export function tickDodge(
 
   // ---- 3. Recovery tick --------------------------------------------------
   if (state.name === 'recovery' && state.active !== null) {
-    const variant = pickVariant(state.active.kind, tuning);
+    const variant = pickActiveVariant(state.active, tuning);
     const nextFrames = state.active.framesElapsed + 1;
     if (nextFrames >= variant.activeFrames + variant.recoveryFrames) {
       return rollIntoCooldownOrIdle(variant, state.active);
@@ -613,8 +685,7 @@ export function tickDodge(
     return Object.freeze({
       name: 'recovery',
       active: Object.freeze({
-        kind: state.active.kind,
-        facing: state.active.facing,
+        ...state.active,
         framesElapsed: nextFrames,
       }),
       iframesRemaining: 0,
@@ -667,6 +738,125 @@ function pickVariant(kind: DodgeKind, tuning: ResolvedDodgeTuning): DodgeVariant
   return tuning.air;
 }
 
+/** Elapsed share of the running dodge's total (active + recovery), 0..1. */
+export function dodgeProgress(active: ActiveDodge, tuning: ResolvedDodgeTuning): number {
+  const variant = pickActiveVariant(active, tuning);
+  const total = variant.activeFrames + variant.recoveryFrames;
+  return total > 0 ? Math.min(1, active.framesElapsed / total) : 1;
+}
+
+function pickActiveVariant(active: ActiveDodge, tuning: ResolvedDodgeTuning): DodgeVariantTuning {
+  const variant = active.directional ? tuning.directionalAir ?? tuning.air
+    : active.backward ? tuning.backwardRoll ?? tuning.roll : pickVariant(active.kind, tuning);
+  const timed = active.directionalRecoveryFrames === undefined ? variant
+    : { ...variant, recoveryFrames: active.directionalRecoveryFrames };
+  return staleDodgeVariant(timed, active.backward ? 'backwardRoll' : active.kind, active.staleCount ?? 0);
+}
+
+// ---------------------------------------------------------------------------
+// Dodge staleness (Ultimate)
+// ---------------------------------------------------------------------------
+//
+// SmashWiki Spot dodge: "The formula to determine a spot dodge's duration before it can be
+// interrupted is D * (1 + P), plus one frame if stale ... P is a penalty value that increases by
+// 0.06 for every spot dodge, capping at 0.3 ... The penalty is reset per each spot dodge used every
+// time the player spends roughly one second without using any kind of dodge. When fully stale, all
+// spot dodges grant intangibility three frames later."
+// SmashWiki Roll: "P ... increases by 0.06 for every forward roll, and 0.1 for every back roll. The
+// penalty value caps at 0.3 for forward rolls, and 0.5 for back rolls ... When fully stale, all
+// rolls grant intangibility four frames later." (Its tables carry the same +1 frame.)
+// SmashWiki Air dodge: staleness applies "if any kind of dodge is used repeatedly ... unlike rolls
+// and spot dodges, their ending lag is not increased"; "both types grant intangibility three frames
+// later if fully stale"; "All directional air dodges have their distance reduced by roughly 33.3%
+// when fully stale."
+// One shared use count (any dodge) therefore drives every kind; a kind's penalty is its rate ×
+// min(count, 5). Partial staleness changes only the duration (SmashWiki gives intangibility only for
+// the fully stale case). "Roughly one second" is read as 60 frames.
+
+export type DodgeStaleKind = DodgeKind | 'backwardRoll';
+export const DODGE_STALE_MAX_COUNT = 5;
+export const DODGE_STALE_DECAY_FRAMES = 60;
+const DODGE_STALE_RATE: Readonly<Record<DodgeStaleKind, number>> = { spot: 0.06, roll: 0.06, backwardRoll: 0.1, air: 0 };
+const FULLY_STALE_IFRAME_DELAY: Readonly<Record<DodgeStaleKind, number>> = { spot: 3, roll: 4, backwardRoll: 4, air: 3 };
+/** Directional air-dodge travel when fully stale ("reduced by roughly 33.3%"). */
+export const FULLY_STALE_AIR_DODGE_DISTANCE_SCALE = 2 / 3;
+/** SmashWiki Spot dodge: "can now be canceled 5 frames earlier than usual into any ground attack". */
+export const SPOT_DODGE_EARLY_CANCEL_FRAMES = 5;
+
+/** Shared dodge-use counter; lives beside (not inside) {@link DodgeState} so landing resets keep it. */
+export interface DodgeStaleness { readonly count: number; readonly clock: number }
+export function createDodgeStaleness(): DodgeStaleness { return Object.freeze({ count: 0, clock: 0 }); }
+export function isDodgeFullyStale(count: number): boolean { return count >= DODGE_STALE_MAX_COUNT; }
+
+/** One fixed step: a started dodge adds a use; each second with no dodge acting forgives one. */
+export function tickDodgeStaleness(state: DodgeStaleness, step: { readonly started: boolean; readonly acting: boolean }): DodgeStaleness {
+  if (step.started) return Object.freeze({ count: Math.min(DODGE_STALE_MAX_COUNT, state.count + 1), clock: 0 });
+  if (step.acting || state.count === 0) return state.clock === 0 ? state : Object.freeze({ count: state.count, clock: 0 });
+  const clock = state.clock + 1;
+  return Object.freeze(clock >= DODGE_STALE_DECAY_FRAMES ? { count: state.count - 1, clock: 0 } : { count: state.count, clock });
+}
+
+function stalePenaltyFrames(frames: number, kind: DodgeStaleKind, count: number): number {
+  const penalty = DODGE_STALE_RATE[kind] * Math.min(count, DODGE_STALE_MAX_COUNT);
+  return penalty > 0 ? Math.floor(frames * (1 + penalty)) + 1 : frames;
+}
+
+/** A variant timed for a dodge started with `count` prior uses (identity when fresh). */
+export function staleDodgeVariant(variant: DodgeVariantTuning, kind: DodgeStaleKind, count: number): DodgeVariantTuning {
+  if (count <= 0) return variant;
+  const total = stalePenaltyFrames(variant.activeFrames + variant.recoveryFrames, kind, count);
+  if (!isDodgeFullyStale(count)) return { ...variant, recoveryFrames: total - variant.activeFrames };
+  const start = variant.iframeStartFrame ?? 0;
+  const end = variant.fullyStaleIframeEndFrame ?? start + variant.iframeFrames;
+  const staleStart = Math.min(variant.activeFrames, start + FULLY_STALE_IFRAME_DELAY[kind]);
+  return { ...variant, recoveryFrames: total - variant.activeFrames, iframeStartFrame: staleStart,
+    iframeFrames: Math.max(0, Math.min(end, variant.activeFrames) - staleStart) };
+}
+
+/** Elapsed frame from which a spot dodge started with `count` prior uses may cancel into a ground attack. */
+export function spotDodgeCancelFrame(spot: DodgeVariantTuning, count: number): number {
+  return stalePenaltyFrames(spot.activeFrames + spot.recoveryFrames - SPOT_DODGE_EARLY_CANCEL_FRAMES, 'spot', count);
+}
+
+/** True iff the running dodge is a spot dodge past its attack-cancel frame. */
+export function canCancelSpotDodge(state: DodgeState, tuning: ResolvedDodgeTuning): boolean {
+  const active = state.active;
+  return isDodgeActing(state) && active !== null && active.kind === 'spot' &&
+    active.framesElapsed >= spotDodgeCancelFrame(tuning.spot, active.staleCount ?? 0);
+}
+
+/** End the running dodge early (its spot-dodge attack cancel). */
+export function cancelDodge(state: DodgeState, tuning: ResolvedDodgeTuning): DodgeState {
+  return state.active === null ? state : rollIntoCooldownOrIdle(pickActiveVariant(state.active, tuning), state.active);
+}
+
+function dodgeIframesAt(variant: DodgeVariantTuning, frame: number): number {
+  const start = variant.iframeStartFrame ?? 0;
+  return frame < start ? 0 : Math.max(0, start + variant.iframeFrames - frame);
+}
+
+/**
+ * Cardinal/diagonal durations can be authored from measured frame counts.
+ * Between these knots this is a local analog-input adapter, not a claim to
+ * reconstruct native animation-rate interpolation. Fractional durations lock
+ * until their next integer step. See combat-parity/defense/README.md.
+ */
+export function directionalAirRecoveryFrames(
+  moveX: number, moveY: number, tuning: ResolvedDodgeTuning,
+): number {
+  const sideways = (tuning.directionalAir ?? tuning.air).recoveryFrames;
+  const vertical = moveY < 0 ? tuning.directionalAirUpRecoveryFrames
+    : tuning.directionalAirDownRecoveryFrames;
+  const diagonal = moveY < 0 ? tuning.directionalAirUpDiagonalRecoveryFrames
+    : tuning.directionalAirDownDiagonalRecoveryFrames;
+  const ratio = Math.abs(Math.atan2(moveY, Math.abs(moveX))) / (Math.PI / 2);
+  if (diagonal !== undefined) {
+    return ratio <= 0.5 ? sideways + (diagonal - sideways) * ratio * 2
+      : diagonal + ((vertical ?? sideways) - diagonal) * (Math.min(1, ratio) * 2 - 1);
+  }
+  return sideways + ((vertical ?? sideways) - sideways) * Math.min(1, ratio);
+}
+
 /**
  * Transition out of the active / recovery phases. If the variant
  * authored a positive cooldown, enter the `'cooldown'` state with the
@@ -709,7 +899,7 @@ export function getDodgeSlideVelocity(
 ): number | null {
   if (state.name !== 'active' || state.active === null) return null;
   if (state.active.kind !== 'roll') return null;
-  const variant = pickVariant(state.active.kind, tuning);
+  const variant = pickActiveVariant(state.active, tuning);
   if (variant.slideSpeed <= 0) return null;
   return variant.slideSpeed * state.active.facing;
 }

@@ -18,19 +18,9 @@
  * one edit here and it can never be silently omitted from a downstream loop.
  */
 export const CHARACTER_IDS = [
-  'wolf',
-  'cat',
-  'owl',
-  'bear',
-  'blaze',
-  'puff',
-  'aegis',
-  'volt',
-  'nova',
-  'bruno',
   'link',
-  'kirby',
   'donkeykong',
+  'pikachu',
 ] as const;
 
 export type CharacterId = (typeof CHARACTER_IDS)[number];
@@ -70,15 +60,34 @@ export type InputType = 'keyboard_p1' | 'keyboard_p2' | 'gamepad' | 'ai';
 
 export type AiDifficulty = 'easy' | 'medium' | 'hard';
 
+/** Physical ownership is independent of lobby position and runtime spawn order. */
+export type ParticipantInputDevice =
+  | { readonly kind: 'keyboard'; readonly layout: 'keyboard_p1' | 'keyboard_p2' }
+  | { readonly kind: 'gamepad'; readonly gamepadIndex: number; readonly gamepadId?: string }
+  | { readonly kind: 'ai' };
+
+export interface CustomCharacterSnapshot {
+  readonly slotId: string;
+  readonly spec: import('../characters/characterSerializer').CharacterDataSpec;
+}
+
 export interface PlayerSlot {
+  /** Original lobby slot, including gaps left by players who leave. */
   readonly index: 1 | 2 | 3 | 4;
   readonly characterId: CharacterId;
   readonly paletteIndex: number; // 0-7
   readonly inputType: InputType;
   readonly aiDifficulty?: AiDifficulty;
+  readonly participantId?: string;
+  readonly inputDevice?: ParticipantInputDevice;
+  readonly bindingProfileIndex?: 1 | 2 | 3 | 4;
+  /** Reusable input mapping; physical ownership remains in inputDevice. */
+  readonly bindingProfileId?: string;
+  /** Complete selected tune, captured before the match; never reread storage during play. */
+  readonly customCharacter?: CustomCharacterSnapshot;
 }
 
-export type HazardType = 'lava' | 'wind' | 'crusher' | 'spikes' | 'moving_platform';
+export type HazardType = 'lava' | 'wind' | 'crusher' | 'spikes' | 'moving_platform' | 'gaze';
 
 /**
  * Authoring record for a single stage hazard placement. Common
@@ -140,6 +149,8 @@ export interface StageHazard {
    * (per touch). Default per-renderer (lava: 8%/tick).
    */
   readonly damagePerTick?: number;
+  /** For gaze (the Inferno head): its timeline. Default `GAZE_DEFAULTS`. */
+  readonly gaze?: import('../entities/GazeHazard').GazeTimeline;
   /**
    * For lava: cycle-fraction (0..1) above which the hazard's height
    * is "active" (lethal). Below the threshold the lava is inert and
@@ -492,6 +503,9 @@ export type ItemFrequency = 'off' | 'low' | 'med' | 'high';
 export const DEFAULT_ITEM_FREQUENCY: ItemFrequency = 'med';
 
 export interface MatchConfig {
+  /** Initial presentation clock, excluded from gameplay/replay input frames. */
+  readonly linkIntroPolicy?: 'source-entry-121'|'none';
+  readonly finalSmashRules?: import('../finalSmash/finalSmashSchema').FinalSmashRules;
   readonly mode: MatchMode;
   readonly stockCount: number;
   readonly timeLimitSeconds?: number;
@@ -512,6 +526,11 @@ export interface MatchConfig {
    * resolved value round-trips through replay metadata.
    */
   readonly itemFrequency?: ItemFrequency;
+  /**
+   * Ultimate Item Switch: item type → enabled (`src/items/itemCatalog.ts` ITEM_SPAWN_TABLE). Absent
+   * entries (and an absent switch, e.g. replays recorded before the switch existed) mean "on".
+   */
+  readonly itemSwitch?: Readonly<Record<string, boolean>>;
 }
 
 // ---------------------------------------------------------------------------

@@ -1,0 +1,136 @@
+{
+  "state": "packed_cells_visually_reviewed_runtime_pending",
+  "coordinateContract": {
+    "canonicalCanvas": [
+      2048,
+      2560
+    ],
+    "canonicalRoot": [
+      1024,
+      1664
+    ],
+    "frameWidth": 512,
+    "frameHeight": 640,
+    "root": [
+      256,
+      416
+    ],
+    "scaleToWorld": 0.4666666666666667,
+    "bodyCentreFromRoot": [
+      0,
+      -25
+    ]
+  },
+  "clockContract": "docs/review/2026-10-06/pikachu-character/sources/state-runtime-clock-contract.json",
+  "clockContractSha256": "5181aab5af783ef602c56c37583cd7acab8db0f08e7f7cee5405fbde486b9a17",
+  "clockContractSnapshot": "docs/review/2026-10-06/pikachu-character/sources/clock-contract-snapshots/5181aab5af783ef602c56c37583cd7acab8db0f08e7f7cee5405fbde486b9a17.json",
+  "animations": {
+    "footstool_jump": {
+      "strip": "animations/footstool_jump.png",
+      "frameCount": 3,
+      "sha256": "15e638455120dd41376281dbc9c3db9c5d8d390e4c18900e506ef9f2a33c526e",
+      "columns": 3,
+      "rows": 1,
+      "frameWindows": [],
+      "loopDuration": null,
+      "nativeSampleIndices": [
+        0,
+        4,
+        8
+      ],
+      "nativeWindows": [
+        {
+          "nativeStart": 0,
+          "nativeEnd": 4,
+          "artFrameIndex": 0
+        },
+        {
+          "nativeStart": 4,
+          "nativeEnd": 8,
+          "artFrameIndex": 1
+        },
+        {
+          "nativeStart": 8,
+          "nativeEnd": 9,
+          "artFrameIndex": 2
+        }
+      ],
+      "drawingFacingBinding": "actor entry basis; source orientation and both-facing qualified rendering required",
+      "holdRule": "Retain all source samples; native loop endpoint is not gameplay commitment. Unsupported runtime status stays pending.",
+      "specialPhase": null,
+      "specialClockKind": null,
+      "dynamicCutoff": null,
+      "playableEndExclusive": null,
+      "runtimeBindingStatus": "missing or generic runtime state; native status/clock/source movement binding required"
+    }
+  },
+  "sources": [
+    {
+      "sourceKey": "full-footstool-jump-sample0-source0",
+      "nativeSample": 0,
+      "sourceReferenceSha256": "fbfdc46d5c64dc4a83d918f535511d6ef2b18ca10b3ae196204f13cc9e08afc5",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-reactions-misc-batch012-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "9bf581ca3f16f8ede154ddd33fc6e3da379c62d29a483cf917f24c03e0495a00",
+      "atlasCell": 2,
+      "cellOffset": [
+        0,
+        1280
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-reactions-misc-batch012-bounded-source0-attempt1.review.json",
+      "reviewSha256": "ad692553ccbb5ab4339d2120256a01c216cb7db3600bffbedc9f97f878d69a86"
+    },
+    {
+      "sourceKey": "full-footstool-jump-sample4-source4",
+      "nativeSample": 4,
+      "sourceReferenceSha256": "8895faaf57212ed7c399f786e17334a899abfa307b6cdb5a255dc6bc4d84b729",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-reactions-misc-batch012-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "9bf581ca3f16f8ede154ddd33fc6e3da379c62d29a483cf917f24c03e0495a00",
+      "atlasCell": 3,
+      "cellOffset": [
+        1024,
+        1280
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-reactions-misc-batch012-bounded-source0-attempt1.review.json",
+      "reviewSha256": "ad692553ccbb5ab4339d2120256a01c216cb7db3600bffbedc9f97f878d69a86"
+    },
+    {
+      "sourceKey": "full-footstool-jump-sample8-source8",
+      "nativeSample": 8,
+      "sourceReferenceSha256": "f41e0038ab49d159bbd20d6d6f72070708ef739e31a4b260bfb5d8de02eeaaf6",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-reactions-misc-batch013-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "91be352bbdf2c5f1b0ba59ac4c3e5cc31dd59111806c798399f1ac0f5e4f3115",
+      "atlasCell": 0,
+      "cellOffset": [
+        0,
+        0
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-reactions-misc-batch013-bounded-source0-attempt1.review.json",
+      "reviewSha256": "598a24023d750ee76b7aeab615a6101fcba453794bfdb4bcdc1e9163eec172a5"
+    }
+  ],
+  "galleries": {
+    "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/footstool_jump-cells-1.png": "70e3e2c95e9de5e5bbdb739258d1cd54f78d2e9cb98d1a1d6d760dab2052a41e"
+  },
+  "limits": [
+    "Actual packed-cell inspection required before aggregate registration.",
+    "Authored beta presentation windows do not establish native status rate parity.",
+    "Actual running-game qualification remains separate."
+  ],
+  "packedVisualReview": {
+    "reviewer": "pikachu_art_motion",
+    "state": "actual_saved_packed_cells_reviewed",
+    "inspectedGalleries": {
+      "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/footstool_jump-cells-1.png": "70e3e2c95e9de5e5bbdb739258d1cd54f78d2e9cb98d1a1d6d760dab2052a41e"
+    },
+    "observations": [
+      "Actually inspected all three saved512x640 cells on light/dark backgrounds: head-down bow with tall tail, low head-right compression, upward stretch with rear stripes and tail-left. Source root/scale/palette/native occluded facial features preserved, contour fringe remains rough beta.",
+      "Source-only footstool bodies; no actual gameplay footstool mechanic/status/input commitment or native rate qualification."
+    ]
+  }
+}

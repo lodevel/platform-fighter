@@ -1,0 +1,558 @@
+{
+  "checked_date": "2026-10-09",
+  "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+  "files": [
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/ItemHeavyPickup/exit.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/ItemHeavyPickup/exit.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/ItemHeavyPickup/exit.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "41b1b219830a7e66fd8df1d1fae5f0d32ee9f9e7f9b0d4617d90fbdbfc0ab47c",
+      "git_blob_sha": "6a59073231ac8ab368f956f840295dec175da1c3"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/ItemHeavyPickup/init.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/ItemHeavyPickup/init.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/ItemHeavyPickup/init.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "fd4cf1ae3b8f732501c707f75cab51293a640cea91ca38877465da07041a719c",
+      "git_blob_sha": "2d517a9aa137d0c52f741437caac72eaba136eef"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/ItemHeavyPickup/main.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/ItemHeavyPickup/main.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/ItemHeavyPickup/main.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "ca00ec3af64cbbb0113ea2e05dca657ff9fb4a888e6929a7602ed091382f9714",
+      "git_blob_sha": "016a22764704a035de2a1af5a3388c2849d301f4"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/ItemHeavyPickup/main_loop.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/ItemHeavyPickup/main_loop.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/ItemHeavyPickup/main_loop.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "36b4c42852b1810acb1a5883ab02f0c9099111689842d8d681a011a8ec9ec986",
+      "git_blob_sha": "f37f17d6b06615659c3b560ca665693ca63194ec"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftFall/check_dmg.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftFall/check_dmg.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftFall/check_dmg.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "aa6150706eafbd3c165fc9671de8ef5965c016476b60219a83eca5657106787b",
+      "git_blob_sha": "21dcb1d46f6f92241f612ce261bfa23c1ec69525"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftFall/end.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftFall/end.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftFall/end.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "212c84b2d7a16efad8b02f5d8ef43b1bf104c10b031ea9286c1ee9ddff749471",
+      "git_blob_sha": "b139e4ded7ff319489d0f86655dd718d40a83580"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftFall/exit.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftFall/exit.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftFall/exit.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "7ca99ab7af95f9de3dda91be85294bc08700d8354d77b15d7ce1f5c70f88d08f",
+      "git_blob_sha": "b15ed371a5712c92953178b99067d5cc870a0d84"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftFall/main.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftFall/main.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftFall/main.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "5145caed44051f279ae0e7fec6dda75b8f6a9617b01f9e21e2c48eb44a06725a",
+      "git_blob_sha": "792b87fe452f8b0b0c0f2b2f79c1ad59275a486c"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftFall/pre.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftFall/pre.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftFall/pre.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "6b8338616c0c28c9d1fe9fd421b54ad2de44433747064717143be167f84941a1",
+      "git_blob_sha": "aaf4728ea8f226125bfa14a43f9baa862b868507"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftJump/check_dmg.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftJump/check_dmg.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftJump/check_dmg.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "aa6150706eafbd3c165fc9671de8ef5965c016476b60219a83eca5657106787b",
+      "git_blob_sha": "21dcb1d46f6f92241f612ce261bfa23c1ec69525"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftJump/end.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftJump/end.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftJump/end.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "799f3829dc814b0c7d363cdfedf90a97b21543b94fb1fb9e4552061ad33d346b",
+      "git_blob_sha": "8ba9f9f8c66a872e07f5413686430eed98e0c593"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftJump/exit.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftJump/exit.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftJump/exit.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "7ca99ab7af95f9de3dda91be85294bc08700d8354d77b15d7ce1f5c70f88d08f",
+      "git_blob_sha": "b15ed371a5712c92953178b99067d5cc870a0d84"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftJump/main.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftJump/main.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftJump/main.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "edb9b5a77e0b80c9c87045549e405e802b47f775ccd6b3e6554d3c487e49f249",
+      "git_blob_sha": "55b43c460da5b82595f904263ccbc7c513519d36"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftJump/main_loop.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftJump/main_loop.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftJump/main_loop.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "de3183a874993f16e4ed9e0e5497cfc2b34abdb871cdc55fc6ca0604c4262453",
+      "git_blob_sha": "81367e00f93a8b7be107c5378cc1dfca88f4b2f4"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftJump/pre.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftJump/pre.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftJump/pre.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "2d1f60fd3d23e3056094a4bc94cd7534703ada791a8cbf76cb00a3f9c9fb2a04",
+      "git_blob_sha": "7c12b9782f7a4c8af9df466730a0e1c1d5b8be77"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftJumpSquat/check_dmg.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftJumpSquat/check_dmg.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftJumpSquat/check_dmg.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "aa6150706eafbd3c165fc9671de8ef5965c016476b60219a83eca5657106787b",
+      "git_blob_sha": "21dcb1d46f6f92241f612ce261bfa23c1ec69525"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftJumpSquat/end.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftJumpSquat/end.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftJumpSquat/end.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "da50040515688f030d29f9e827f144f24199eabae381417faaea7736e43205db",
+      "git_blob_sha": "df31e2657c713454888ef835f79108b7736ee666"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftJumpSquat/exit.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftJumpSquat/exit.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftJumpSquat/exit.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "7ca99ab7af95f9de3dda91be85294bc08700d8354d77b15d7ce1f5c70f88d08f",
+      "git_blob_sha": "b15ed371a5712c92953178b99067d5cc870a0d84"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftJumpSquat/main.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftJumpSquat/main.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftJumpSquat/main.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "4b3201f4e8c81dad3f85b908d652b5a00c64e3c3ad18006af8de28112e260aa2",
+      "git_blob_sha": "f899f4733395c9ba4278d942051d9edc2e212912"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftJumpSquat/pre.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftJumpSquat/pre.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftJumpSquat/pre.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "d2d695e85c10b71001d290705b5b104f7b2003a401f28565f7059ee7b9147a55",
+      "git_blob_sha": "beabd7608b38df4c17d7e62ba108797ade9774b1"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftJumpSquatB/check_dmg.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftJumpSquatB/check_dmg.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftJumpSquatB/check_dmg.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "aa6150706eafbd3c165fc9671de8ef5965c016476b60219a83eca5657106787b",
+      "git_blob_sha": "21dcb1d46f6f92241f612ce261bfa23c1ec69525"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftJumpSquatB/end.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftJumpSquatB/end.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftJumpSquatB/end.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "b50eac807a672c5daadabc2a8eab033e672935e564a7ce8baefe6db78c09a4be",
+      "git_blob_sha": "e822deda8bc9004699aba2ea4e5bd015a7799697"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftJumpSquatB/exit.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftJumpSquatB/exit.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftJumpSquatB/exit.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "7ca99ab7af95f9de3dda91be85294bc08700d8354d77b15d7ce1f5c70f88d08f",
+      "git_blob_sha": "b15ed371a5712c92953178b99067d5cc870a0d84"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftJumpSquatB/main.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftJumpSquatB/main.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftJumpSquatB/main.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "08e311ad836426542d266883c474981173a294dd4e12dbcbe3520a5ac58881a1",
+      "git_blob_sha": "73ac176b89a0832ba3405e9db822a1f3c84a3755"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftJumpSquatB/pre.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftJumpSquatB/pre.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftJumpSquatB/pre.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "23abd701fa5c8deb842ffb8d1846118554a1b2fc5cd781844b7351d1fd85b5ef",
+      "git_blob_sha": "ed9a94f76b0d5e7cd66088291d6efd0c60d9b15f"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftLanding/check_dmg.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftLanding/check_dmg.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftLanding/check_dmg.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "aa6150706eafbd3c165fc9671de8ef5965c016476b60219a83eca5657106787b",
+      "git_blob_sha": "21dcb1d46f6f92241f612ce261bfa23c1ec69525"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftLanding/end.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftLanding/end.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftLanding/end.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "152419d95574e668494d4f7a1cd64eee988d9978268a01efe49d42e57dfc3eab",
+      "git_blob_sha": "e5ac426ed74e27d97547528721cbc3f90891350b"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftLanding/exit.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftLanding/exit.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftLanding/exit.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "7ca99ab7af95f9de3dda91be85294bc08700d8354d77b15d7ce1f5c70f88d08f",
+      "git_blob_sha": "b15ed371a5712c92953178b99067d5cc870a0d84"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftLanding/main.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftLanding/main.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftLanding/main.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "c46cd85d673d6be7c5f2ebcaaacf4bd897bf6a9dba7c877d6212d881deb01652",
+      "git_blob_sha": "ae69093de95fc592567b2ed1d8534a7a66d4c4b4"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftLanding/main_loop.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftLanding/main_loop.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftLanding/main_loop.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "7d18268a2cae8a3072f0147400dbca550fc6b9e50677389f5fb04ec19a17fb9a",
+      "git_blob_sha": "0508696c49b92cf0ae15316eeef62ec574c0c5a0"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftLanding/pre.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftLanding/pre.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftLanding/pre.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "ff91ef1569d2b7494114105007af6ad5e7d3c3bf6099ed9b007bbc389bcf88e6",
+      "git_blob_sha": "1dff366a7fa05558081955843355a0817eafdf89"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftPass/check_dmg.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftPass/check_dmg.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftPass/check_dmg.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "aa6150706eafbd3c165fc9671de8ef5965c016476b60219a83eca5657106787b",
+      "git_blob_sha": "21dcb1d46f6f92241f612ce261bfa23c1ec69525"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftPass/end.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftPass/end.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftPass/end.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "4dee1fe1d19e398b7be878e65ac660c4a6fee040b15707768e09d38bfb5c769d",
+      "git_blob_sha": "0cfbc0a53aebf996d723891610f1e527cd42c275"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftPass/exit.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftPass/exit.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftPass/exit.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "7ca99ab7af95f9de3dda91be85294bc08700d8354d77b15d7ce1f5c70f88d08f",
+      "git_blob_sha": "b15ed371a5712c92953178b99067d5cc870a0d84"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftPass/main.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftPass/main.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftPass/main.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "b14230e47f4d3ad754e2ce06347ec6654df66079952c44e5c3a1e5a636dbebfe",
+      "git_blob_sha": "59525d379726266d6cba13d0dea0db57067deac1"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftPass/pre.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftPass/pre.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftPass/pre.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "f4d5c81a6ef35a0d8c33edc63f7e348b935ba72b115c08bf2f93a858c2035a57",
+      "git_blob_sha": "062d851495c960be3b148a6ef2eb457d4840eb32"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftTurn/check_dmg.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftTurn/check_dmg.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftTurn/check_dmg.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "aa6150706eafbd3c165fc9671de8ef5965c016476b60219a83eca5657106787b",
+      "git_blob_sha": "21dcb1d46f6f92241f612ce261bfa23c1ec69525"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftTurn/end.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftTurn/end.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftTurn/end.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "ae8f0e3bfec1526cb8c75ccf9441f48585ea248fb5e3580911ac4340cf473189",
+      "git_blob_sha": "1de1c17c58406fa8f27dd21fc60f0b7d24e6a387"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftTurn/exit.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftTurn/exit.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftTurn/exit.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "7ca99ab7af95f9de3dda91be85294bc08700d8354d77b15d7ce1f5c70f88d08f",
+      "git_blob_sha": "b15ed371a5712c92953178b99067d5cc870a0d84"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftTurn/main.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftTurn/main.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftTurn/main.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "42bf9dee0ba903e4c828dbc6d9f759cb05dd4a8dcd88e7a96cb2ffb06fda1c59",
+      "git_blob_sha": "1e6c138e87304e4e8c9b222d9def2aa7bb264d55"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftTurn/main_loop.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftTurn/main_loop.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftTurn/main_loop.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "fb4c85cf9d2c602b963d702d9648c2844f40ff038f7bdd5b55c4a32af66b352e",
+      "git_blob_sha": "1f944d901168603861106d0057b9702aec476eaf"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftTurn/pre.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftTurn/pre.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftTurn/pre.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "c15d236252e838c14c6e3cc69ea6634d1adc6e8a228d35b205c55d63dcc27b18",
+      "git_blob_sha": "b38c7eddde062059f91709f457b867240063d0db"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftWait/check_dmg.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftWait/check_dmg.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftWait/check_dmg.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "aa6150706eafbd3c165fc9671de8ef5965c016476b60219a83eca5657106787b",
+      "git_blob_sha": "21dcb1d46f6f92241f612ce261bfa23c1ec69525"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftWait/end.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftWait/end.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftWait/end.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "1d944a066183554035784a63e64575c143fbadbcb764eb83c3601540df860534",
+      "git_blob_sha": "56ce56edfb45f7ec26fb6964e7dcbd779107bd59"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftWait/exit.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftWait/exit.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftWait/exit.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "7ca99ab7af95f9de3dda91be85294bc08700d8354d77b15d7ce1f5c70f88d08f",
+      "git_blob_sha": "b15ed371a5712c92953178b99067d5cc870a0d84"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftWait/main.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftWait/main.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftWait/main.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "95d59ac12b14fc05dc2465bdf91c75ec5a611fc6baee0ef3d81a1efc14720ac3",
+      "git_blob_sha": "cd7938537a4e48083f7fce237a8d3158af663961"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftWait/main_loop.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftWait/main_loop.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftWait/main_loop.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "6d6f6634b58847c2328e526e87b4a25c0e674f67c186c4d3e61330ef5027996d",
+      "git_blob_sha": "8638e41d39ace5a89c9a0306c6934d2b98bf84e1"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftWait/pre.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftWait/pre.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftWait/pre.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "d89c01432d0b39ceaa91ae68aa31758ff3dead4a4c80885b57683a4627ef9af1",
+      "git_blob_sha": "4a10f936a57ada64a59c7fda1929a101acac137e"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftWalk/check_dmg.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftWalk/check_dmg.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftWalk/check_dmg.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "aa6150706eafbd3c165fc9671de8ef5965c016476b60219a83eca5657106787b",
+      "git_blob_sha": "21dcb1d46f6f92241f612ce261bfa23c1ec69525"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftWalk/end.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftWalk/end.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftWalk/end.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "877734d98ec67d787831fcfe4376e4cd66df318b1b0624cadfab4272528d29fb",
+      "git_blob_sha": "57e9e354297a587f1029bfead485dc13ca53b36d"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftWalk/exec.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftWalk/exec.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftWalk/exec.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "4bf1d9f66741030045dccad5ee1ff28fc911d046dc386ba7aedf6cb7b7312611",
+      "git_blob_sha": "3da12ff79c84c10b0e24d54cf404d98b5665cb5d"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftWalk/exit.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftWalk/exit.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftWalk/exit.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "7ca99ab7af95f9de3dda91be85294bc08700d8354d77b15d7ce1f5c70f88d08f",
+      "git_blob_sha": "b15ed371a5712c92953178b99067d5cc870a0d84"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftWalk/init.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftWalk/init.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftWalk/init.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "9a8ceed7add42aa934bcd211d534e1f9040bb0c1d1f6ba1828fde0016f7c3701",
+      "git_blob_sha": "48cb60f1e680cee3132db92b35b98fd256862d49"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftWalk/main.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftWalk/main.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftWalk/main.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "35add34d6816c796f874dcfab652fb23628f2b5e3bb5598bba3a6b2ad4769e33",
+      "git_blob_sha": "091b23130e017b2e2f8aebf523506e6e2ddc3e6e"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftWalk/main_loop.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftWalk/main_loop.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftWalk/main_loop.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "916d4c568ce8d6c7ec9845227f85eaa618f3add1c6a0fbf2e8f6a58c52e1628f",
+      "git_blob_sha": "cb825d7ba9ee7990830896dcc6aa12437997ed21"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/SuperLiftWalk/pre.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftWalk/pre.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/SuperLiftWalk/pre.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "42a4a896997324b017a61c7343cc59d205dd2a47424f4d9415a5043f06140d20",
+      "git_blob_sha": "fec5a346c64475643d62a2128179a6fe330c5344"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/README.md",
+      "native_path": "README.md",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/README.md",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "b9c3eef2df754c099063016cc880d0b133e872620f2834154674ba20ab2b16e5",
+      "git_blob_sha": "7c70821dcdd90052812dc3557190726493def178"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/ItemThrowHeavy/main.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/ItemThrowHeavy/main.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/ItemThrowHeavy/main.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "bbd50372905d6b7533f68dc337783d0386a05f98aa8611d65959c34ebdbed6e7",
+      "git_blob_sha": "cbe724afb6e3faf68ddb7a3ff8b2092fde115625"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/ItemThrowHeavy/main_loop.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/ItemThrowHeavy/main_loop.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/ItemThrowHeavy/main_loop.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "2f6a92c7416defba558dc67c4fb3ef92017bf67e601c5a6fac0437bc183da843",
+      "git_blob_sha": "5e043b381bf0f0a80e98b7cf87c1a2f55e88b5ae"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/ItemThrowHeavy/pre.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/ItemThrowHeavy/pre.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/ItemThrowHeavy/pre.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "e0a2b8b8dfbc37958428e1a5e25a0c7d39a81d65b0284c6ffb459122c00c8d34",
+      "git_blob_sha": "938db26b36b5cf37ce7b494b383f4dc95d106b3d"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/functions/FUN_7100025890.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/functions/FUN_7100025890.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/functions/FUN_7100025890.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "c0ef7014f0729df1e285a843c8546183d853c56f8e8508d6be1d430ebbaf8664",
+      "git_blob_sha": "80e08fbd7e8617e205b94d13871e66c50aa2cefe"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/functions/FUN_7100026010.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/functions/FUN_7100026010.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/functions/FUN_7100026010.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "46f0228303ba45a1075f13786910bbf170944387ba82eadb76d3a2ca95a047e5",
+      "git_blob_sha": "5de58d02dd72d912e4ef8827604fc64abf54ebd3"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/functions/FUN_7100024fc0.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/functions/FUN_7100024fc0.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/functions/FUN_7100024fc0.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "e22b188da1d50730292201033900781f2b1274db93113e385603d844ac93e097",
+      "git_blob_sha": "5cd1664ff4fd0d9077ff4b1f6c16d3c15be4dc75"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/functions/FUN_7100025af0.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/functions/FUN_7100025af0.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/functions/FUN_7100025af0.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "a94699b8ba6c926f5f8f095b286b8747d1af138d716b56a5fd43aba6563e3b78",
+      "git_blob_sha": "e634372a60536141926935a1465edb1055b178fd"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/functions/FUN_7100025150.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/functions/FUN_7100025150.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/functions/FUN_7100025150.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "04483ae719b4267aa8ff10d85ec268e1f39559dd011834da5c735053c4d44fb7",
+      "git_blob_sha": "26d77a7f74c3347460dfd079f3e7d1b15b721853"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/functions/FUN_7100026230.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/functions/FUN_7100026230.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/functions/FUN_7100026230.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "3d0400953100e689d43b3b62ce54253169466486e419a276f5e77a46fccb5aa3",
+      "git_blob_sha": "385db63c1b738d0c7737511dc5046423f67217b5"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/functions/FUN_7100025d10.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/functions/FUN_7100025d10.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/functions/FUN_7100025d10.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "42a7172f457b7eac1911c362aaf4031713cdec0a2b1b0b11253cf14eb7aa39e3",
+      "git_blob_sha": "dbb68ae4379c46c371dd6cc31e7432ba64e5cfc3"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/functions/FUN_7100025d70.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/functions/FUN_7100025d70.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/functions/FUN_7100025d70.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "9c519d70e2626168d25a27745e91916fb540dbcee19dd7dde492de5dce24a668",
+      "git_blob_sha": "695bcf2fe637278a59ac5b66ac3e32b33c0058d8"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/functions/FUN_7100027240.c",
+      "native_path": "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/functions/FUN_7100027240.c",
+      "url": "https://raw.githubusercontent.com/Coolsonickirby/SSBU-Dumped-Status-Scripts/413d42149b8a4d74c71bf9bd955d747b496e7577/ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/functions/FUN_7100027240.c",
+      "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+      "sha256": "4b998baa3f7ac03958182296ab50f4c7a93ff48d988bb90519e4567ae37f079b",
+      "git_blob_sha": "3169eecd0fe43c2139a4271e647eab01d1d28839"
+    }
+  ]
+}

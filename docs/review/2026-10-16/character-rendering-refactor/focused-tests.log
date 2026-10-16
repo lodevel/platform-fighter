@@ -1,0 +1,73 @@
+
+> platform-fighter@0.1.0 test
+> vitest run src/characterPresentation scripts/check-character-presentation.test.ts src/assets/packedFrames.test.ts src/characters/artFrameSelector.test.ts src/characters/simulationSpriteAnimation.test.ts src/characters/spriteAnimationDriver.test.ts src/characters/heldItemSocket.test.ts src/characters/upperBodyLayer.test.ts src/sim/importGraph.test.ts src/sim/MatchSim.test.ts src/sim/goldenReplays.test.ts port/src/fighters port/src/engine/presentation port/src/engine/sprites/spriteLayer.check.ts port/src/engine/sprites/textureStore.check.ts port/src/engine/prepareShaders.check.ts port/src/match/preloadMatchArt.check.ts port/src/match/matchView.check.ts port/src/ui/assets/fighterArt.check.ts
+
+
+ RUN  v1.6.1 /home/lombet/Workspace/platform-fighter
+
+ ✓ port/src/ui/assets/fighterArt.check.ts  (3 tests) 7ms
+ ✓ port/src/fighters/resources.check.ts  (5 tests) 11ms
+ ✓ src/characterPresentation/registry.test.ts  (4 tests) 14ms
+ ✓ src/assets/packedFrames.test.ts  (11 tests) 128ms
+ ✓ port/src/engine/prepareShaders.check.ts  (7 tests) 53ms
+ ✓ port/src/match/preloadMatchArt.check.ts  (4 tests) 26ms
+ ✓ port/src/engine/presentation/submission.check.ts  (3 tests) 12ms
+ ✓ port/src/engine/sprites/spriteLayer.check.ts  (5 tests) 195ms
+ ✓ src/characters/upperBodyLayer.test.ts  (3 tests) 17ms
+stderr | port/src/engine/sprites/textureStore.check.ts > match texture lifetime > releases old fighter GPU textures and decoded bitmaps, while retaining selected fighter and idle menu cards
+THREE.ImageBitmapLoader: createImageBitmap() not supported.
+
+stderr | port/src/engine/sprites/textureStore.check.ts > match texture lifetime > does not resurrect an obsolete in-flight fighter texture after roster changes
+THREE.ImageBitmapLoader: createImageBitmap() not supported.
+
+stderr | port/src/engine/sprites/textureStore.check.ts > match texture lifetime > records a failed decode and permits an explicit preload retry
+THREE.ImageBitmapLoader: createImageBitmap() not supported.
+
+ ✓ port/src/engine/sprites/textureStore.check.ts  (3 tests) 15ms
+ ✓ src/characters/spriteAnimationDriver.test.ts  (34 tests) 42ms
+ ✓ scripts/check-character-presentation.test.ts  (1 test) 66ms
+ ✓ src/characterPresentation/legacy/selector.test.ts  (8 tests) 148ms
+ ✓ src/characters/heldItemSocket.test.ts  (3 tests) 5ms
+stderr | new ImageBitmapLoader (file:/home/lombet/Workspace/platform-fighter/port/node_modules/three/build/three.module.js:48198:12)
+THREE.ImageBitmapLoader: createImageBitmap() not supported.
+
+stderr | new ImageBitmapLoader (file:/home/lombet/Workspace/platform-fighter/port/node_modules/three/build/three.module.js:48198:12)
+THREE.ImageBitmapLoader: createImageBitmap() not supported.
+
+ ✓ port/src/fighters/poses.check.ts  (11 tests) 21ms
+ ✓ port/src/match/matchView.check.ts  (4 tests) 32ms
+ ✓ src/sim/importGraph.test.ts  (1 test) 1948ms
+ ✓ src/characters/artFrameSelector.test.ts  (15 tests) 138ms
+ ✓ src/characters/simulationSpriteAnimation.test.ts  (62 tests) 57ms
+ ✓ src/sim/goldenReplays.test.ts  (1 test) 8317ms
+stderr | new ImageBitmapLoader (file:/home/lombet/Workspace/platform-fighter/port/node_modules/three/build/three.module.js:48198:12)
+THREE.ImageBitmapLoader: createImageBitmap() not supported.
+
+stderr | new ImageBitmapLoader (file:/home/lombet/Workspace/platform-fighter/port/node_modules/three/build/three.module.js:48198:12)
+THREE.ImageBitmapLoader: createImageBitmap() not supported.
+
+stderr | port/src/fighters/appearance.check.ts > appearance capability boundary > replaces stored art with real geometry, mixes both capabilities, then returns to the original drawing and attachment
+THREE.ImageBitmapLoader: createImageBitmap() not supported.
+
+stderr | port/src/fighters/appearance.check.ts > appearance capability boundary > holds computed motion on freeze/hitlag and restores deterministically while keeping screen pass explicit
+THREE.ImageBitmapLoader: createImageBitmap() not supported.
+
+stderr | port/src/fighters/appearance.check.ts > appearance capability boundary > keeps the hidden legacy selector on authoritative freeze/hitlag ticks across route transitions
+THREE.ImageBitmapLoader: createImageBitmap() not supported.
+
+stderr | port/src/fighters/appearance.check.ts > appearance capability boundary > cancels stale preparation on replacement and disposes owned geometry exactly once without touching shared textures
+THREE.ImageBitmapLoader: createImageBitmap() not supported.
+
+stderr | port/src/fighters/appearance.check.ts > appearance capability boundary > validates backend support before preparation and includes visual revision/capability in preview identities
+THREE.ImageBitmapLoader: createImageBitmap() not supported.
+THREE.ImageBitmapLoader: createImageBitmap() not supported.
+
+ ✓ port/src/fighters/appearance.check.ts  (8 tests) 72ms
+ ✓ src/characterPresentation/legacy/poseProvider.test.ts  (1 test) 1760ms
+ ✓ src/sim/MatchSim.test.ts  (8 tests) 4770ms
+
+ Test Files  23 passed (23)
+      Tests  205 passed (205)
+   Start at  10:55:54
+   Duration  16.67s (transform 28.79s, setup 4ms, collect 109.75s, tests 17.85s, environment 13ms, prepare 4.39s)
+

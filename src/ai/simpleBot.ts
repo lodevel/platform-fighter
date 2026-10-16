@@ -19,7 +19,7 @@
  */
 
 import type { CharacterInput } from '../characters/Character';
-import type { ItemCategory } from '../items/ItemDefinition';
+import type { ItemClass } from '../items/ItemDefinition';
 
 /**
  * Tier multiplies the simple bot's attack frequency + reaction speed.
@@ -47,29 +47,25 @@ interface FighterSnapshot {
 /**
  * T3 (AC 18) — minimal item snapshot the bot reads. Indexed by the
  * Phaser-side AI integration via `ItemRegistry.getActive()` mapped
- * through `def.category`.
+ * through `def.itemClass`.
  */
 export interface ItemSnapshot {
   readonly position: { readonly x: number; readonly y: number };
-  readonly category: ItemCategory;
+  readonly itemClass: ItemClass;
   readonly pickable: boolean;
 }
 
 /**
  * T3 (AC 18) — held-item snapshot. The bot reads this to switch
  * behaviour from "walk to opponent and jab" → "use item or throw at
- * opponent." The category drives ranged-vs-melee decisions: a held
- * `'ranged-weapon'` is the highest-priority press because it hits at
+ * opponent." The item class drives ranged-vs-melee decisions: a held
+ * shooting item is the highest-priority press because it hits at
  * range without committing to a melee approach.
  */
 export interface HeldItemSnapshot {
-  readonly category: ItemCategory;
-  /**
-   * Slots the held item replaces. Tells the bot which press button
-   * fires the item — `['jab', 'tilt', 'smash']` for a bat, just
-   * `['neutralSpecial']` for ray gun / bomb.
-   */
-  readonly slotOverrides: ReadonlyArray<string>;
+  /** Shooting items fire and battering items swing on attack (resolveItemInput's
+   * jab use); throwing items are thrown with grab. */
+  readonly itemClass: ItemClass;
 }
 
 const TIER_PARAMS: Record<SimpleBotTier, {
@@ -148,7 +144,7 @@ export function simpleBotInput(
   //
   // Behaviour layering (highest priority first):
   //
-  //   1. **Hold a ranged weapon** → keep distance, fire neutralSpecial
+  //   1. **Hold a shooting item** → keep distance, fire with attack
   //      whenever the opponent is in line of sight. Ranged weapons
   //      (ray gun) take precedence because they hit at distance
   //      without committing the bot to a melee approach.
@@ -184,12 +180,11 @@ export function simpleBotInput(
   let jump = false;
 
   // ---- Branch 1: held ranged weapon ----------------------------------
-  if (heldItem && heldItem.category === 'ranged-weapon') {
+  if (heldItem && heldItem.itemClass === 'shooting') {
     if (horizDist <= RANGED_FIRE_RANGE && Math.abs(dy) < 120) {
-      // In range — fire (special slot is the ray-gun trigger; the
-      // neutralSpecial override consumes the press).
+      // In range — fire: attack is the shooting item's use (resolveItemInput).
       if (state.itemUseCooldownFrames === 0) {
-        special = true;
+        attack = true;
         state.itemUseCooldownFrames = Math.max(15, params.attackCooldown / 2);
       }
       // Stand still while firing — the canonical "ranged stance".
@@ -197,7 +192,7 @@ export function simpleBotInput(
     }
   }
   // ---- Branch 2: held throwable --------------------------------------
-  else if (heldItem && heldItem.category === 'throwable') {
+  else if (heldItem && heldItem.itemClass === 'throwing') {
     if (horizDist <= THROWABLE_FIRE_RANGE && state.throwCooldownFrames === 0) {
       // Throw at the opponent — `grab` is the dedicated throw key.
       grab = true;
@@ -205,7 +200,7 @@ export function simpleBotInput(
     }
   }
   // ---- Branch 3: held melee weapon -----------------------------------
-  else if (heldItem && heldItem.category === 'melee-weapon') {
+  else if (heldItem && heldItem.itemClass === 'battering') {
     if (
       horizDist <= params.attackRange + 20 &&
       Math.abs(dy) < 80 &&
@@ -233,7 +228,7 @@ export function simpleBotInput(
     }
     if (nearestItem !== null) {
       // Walk toward the item; the jab press triggers pickup when in
-      // range (PickupController reads the rising-edge attack press).
+      // range (the match picks up on the rising-edge attack press).
       const idx = nearestItem.position.x - self.position.x;
       moveX = Math.abs(idx) > 8 ? Math.sign(idx) * params.moveAggression : 0;
       if (nearestItemDist <= PICKUP_RADIUS && state.attackCooldownFrames === 0) {

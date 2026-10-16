@@ -357,8 +357,8 @@ export function resetSpecialCooldowns(
  *     one `resolveSpecialMove(config, direction)` rather than three
  *     conditional `findMoveByType(spec, '<direction>Special')` calls.
  *   • Authoring clarity: a roster file can declare a fighter's full
- *     special kit as one literal — `{ neutral: WOLF_NEUTRAL_SPECIAL,
- *     side: WOLF_SIDE_SPECIAL, up: WOLF_UP_SPECIAL }`.
+ *     special kit as one literal — `{ neutral: DONKEYKONG_NEUTRAL_SPECIAL,
+ *     side: DONKEYKONG_SIDE_SPECIAL, up: DONKEYKONG_UP_SPECIAL }`.
  *   • Test ergonomics: a unit test can build a partial-fighter
  *     `CharacterSpecialConfig` with stub moves to drive the framework
  *     without instantiating a full Character.

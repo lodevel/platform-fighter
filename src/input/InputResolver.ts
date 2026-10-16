@@ -236,6 +236,44 @@ export const NEUTRAL_ACTION_STATE: ActionState = Object.freeze({
   justReleased: false,
 });
 
+/**
+ * Per-frame state of the `smash` action, returned by
+ * {@link InputResolver.getSmash}. `smash` is not part of the canonical
+ * {@link ActionName} vocabulary (that list also drives the dead
+ * BINDING_ACTIONS profile stack), so the resolver carries it beside the
+ * action records.
+ *
+ * `held` / `justPressed` / `justReleased` describe the action as a whole
+ * (any smash binding). The key / button source and the stick source are
+ * also tracked on their own, because they feed the fighter differently
+ * (see {@link buildCharacterInputFromResolver}) and can be held together:
+ *
+ *   • `buttonHeld` — a smash key / button is held.
+ *   • `fromStick` — a smash stick binding is held; `stickJustPressed` is
+ *     its own rising edge (stick-held history only, so a key held across
+ *     it neither masks nor fakes it). `x` / `y` are this frame's 4-way
+ *     stick direction (see `DeviceInputDispatcher.sampleSmash`).
+ */
+export interface SmashState extends ActionState {
+  readonly buttonHeld: boolean;
+  readonly fromStick: boolean;
+  readonly stickJustPressed: boolean;
+  readonly x: number;
+  readonly y: number;
+}
+
+/** Frozen "smash released, no edges" {@link SmashState}. */
+export const NEUTRAL_SMASH_STATE: SmashState = Object.freeze({
+  held: false,
+  justPressed: false,
+  justReleased: false,
+  buttonHeld: false,
+  fromStick: false,
+  stickJustPressed: false,
+  x: 0,
+  y: 0,
+});
+
 // ---------------------------------------------------------------------------
 // Construction options
 // ---------------------------------------------------------------------------
@@ -318,6 +356,7 @@ function makeNeutralHeldRecord(): ActionHeldRecord {
  * flag so the first `update()` produces no phantom edges.
  */
 interface SlotState {
+  appealHeld: boolean;
   current: ActionHeldRecord;
   previous: ActionHeldRecord;
   hasUpdated: boolean;
@@ -325,15 +364,40 @@ interface SlotState {
   moveX: number;
   /** Cached analog Y axis from the most recent update. */
   moveY: number;
+  /** Smash key / button held this update / the previous one. */
+  smashButtonHeld: boolean;
+  prevSmashButtonHeld: boolean;
+  /** Smash stick binding held this update / the previous one. */
+  smashStickHeld: boolean;
+  prevSmashStickHeld: boolean;
+  /** Stick direction of this update's smash sample (0, 0 when no stick is held). */
+  smashX: number;
+  smashY: number;
+  /**
+   * The `attackHeavy` value {@link buildCharacterInputFromResolver} sends
+   * this update / the previous one (key held, or a fresh stick push). Its
+   * rising edge is the fighter's heavy press; the dodge resolver reads it.
+   */
+  heavy: boolean;
+  prevHeavy: boolean;
 }
 
 function makeNeutralSlotState(): SlotState {
   return {
+    appealHeld: false,
     current: makeNeutralHeldRecord(),
     previous: makeNeutralHeldRecord(),
     hasUpdated: false,
     moveX: 0,
     moveY: 0,
+    smashButtonHeld: false,
+    prevSmashButtonHeld: false,
+    smashStickHeld: false,
+    prevSmashStickHeld: false,
+    smashX: 0,
+    smashY: 0,
+    heavy: false,
+    prevHeavy: false,
   };
 }
 
@@ -452,6 +516,7 @@ export class InputResolver {
       slotState.current.special = held.special;
       slotState.current.shield = held.shield;
       slotState.current.grab = held.grab;
+      slotState.appealHeld = held.appeal === true;
 
       // Cache the analog axes for `getMoveVector`. The dispatcher
       // produces digital `-1 | 0 | +1` for keyboard slots and analog
@@ -462,6 +527,20 @@ export class InputResolver {
       slotState.moveX = moveX;
       slotState.moveY = moveY;
 
+      // Smash: key / button and stick tracked apart (the first update
+      // is its own baseline, so nothing already held reads as a press).
+      const smash = this.dispatcher.sampleSmash(slot);
+      const baseline = !slotState.hasUpdated;
+      slotState.prevSmashButtonHeld = baseline ? smash.buttonHeld : slotState.smashButtonHeld;
+      slotState.prevSmashStickHeld = baseline ? smash.fromStick : slotState.smashStickHeld;
+      slotState.smashButtonHeld = smash.buttonHeld;
+      slotState.smashStickHeld = smash.fromStick;
+      slotState.smashX = smash.x;
+      slotState.smashY = smash.y;
+      const heavy = smash.buttonHeld || (smash.fromStick && !slotState.prevSmashStickHeld);
+      slotState.prevHeavy = baseline ? heavy : slotState.heavy;
+      slotState.heavy = heavy;
+
       // Resolve dodge through the configured resolver, using the
       // freshly-sampled directional + shield state. The resolver
       // receives the same {@link DodgeResolverContext} shape the
@@ -469,6 +548,10 @@ export class InputResolver {
       // written for one consumer drops in here unchanged.
       const move: MoveVector =
         moveX === 0 && moveY === 0 ? MOVE_NEUTRAL : Object.freeze({ x: moveX, y: moveY });
+      // The smash split the fighter sees: a key / button held, and the
+      // stick direction only on the stick's own press frame (the frame
+      // `attackStickX / Y` carry it; see buildCharacterInputFromResolver).
+      const smashStickPressed = slotState.smashStickHeld && !slotState.prevSmashStickHeld;
       slotState.current.dodge = this.dodgeResolver({
         slot,
         move,
@@ -478,6 +561,9 @@ export class InputResolver {
         shield: slotState.current.shield,
         grab: slotState.current.grab,
         held,
+        smashPressed: slotState.heavy && !slotState.prevHeavy,
+        smashButtonHeld: slotState.smashButtonHeld,
+        smashStick: smashStickPressed ? Object.freeze({ x: smash.x, y: smash.y }) : MOVE_NEUTRAL,
       });
 
       // First update establishes the baseline: copy the freshly-sampled
@@ -522,10 +608,40 @@ export class InputResolver {
         slotState.previous[action] = false;
       }
       slotState.hasUpdated = false;
+      slotState.appealHeld = false;
       slotState.moveX = 0;
       slotState.moveY = 0;
+      slotState.smashButtonHeld = false;
+      slotState.prevSmashButtonHeld = false;
+      slotState.smashStickHeld = false;
+      slotState.prevSmashStickHeld = false;
+      slotState.smashX = 0;
+      slotState.smashY = 0;
+      slotState.heavy = false;
+      slotState.prevHeavy = false;
     }
     this.lastFrame = -1;
+    resolverDropThroughLatches.delete(this);
+  }
+
+  /** Actual cached device edges at an authoritative checkpoint. Rebuilding
+   * resolved fighter inputs alone cannot reconstruct C-stick/down-tap edges. */
+  captureHistoryState(): InputResolverHistoryState {
+    const latches = resolverDropThroughLatches.get(this);
+    return parseInputResolverHistoryState({schema:'input-resolver-history/1',lastFrame:this.lastFrame,
+      slots:[...this.state].map(([slot,state])=>({slot,state:{...state,current:{...state.current},previous:{...state.previous}},
+        dropThrough:latches?.has(slot)?{...latches.get(slot)!,lastDownPressFrame:
+          Number.isFinite(latches.get(slot)!.lastDownPressFrame)?latches.get(slot)!.lastDownPressFrame:null}:null}))});
+  }
+
+  restoreHistoryState(value:unknown):void {
+    const snapshot=parseInputResolverHistoryState(value);
+    if(snapshot.slots.length!==this.slots.length||snapshot.slots.some((row,index)=>row.slot!==this.slots[index]))
+      throw new TypeError('Input history must match the actual resolver slot order');
+    const latches=new Map<PlayerIndex,ResolverDropThroughLatch>();
+    for(const row of snapshot.slots){this.state.set(row.slot,{...row.state,current:{...row.state.current},previous:{...row.state.previous}});
+      if(row.dropThrough)latches.set(row.slot,{...row.dropThrough,lastDownPressFrame:row.dropThrough.lastDownPressFrame??-Infinity});}
+    resolverDropThroughLatches.set(this,latches);this.lastFrame=snapshot.lastFrame;
   }
 
   // -------------------------------------------------------------------------
@@ -628,6 +744,35 @@ export class InputResolver {
     if (slotState === undefined || !slotState.hasUpdated) return MOVE_NEUTRAL;
     if (slotState.moveX === 0 && slotState.moveY === 0) return MOVE_NEUTRAL;
     return Object.freeze({ x: slotState.moveX, y: slotState.moveY });
+  }
+
+  /**
+   * Read the slot's `smash` action: held / edge state like
+   * {@link getAction}, plus the key / button and stick sources on their
+   * own and the 4-way stick direction (see {@link SmashState}). Same
+   * baseline rule — no edges before the second `update()`, neutral for
+   * untracked slots.
+   */
+  getAppeal(playerIndex: PlayerIndex): boolean {
+    return this.state.get(playerIndex)?.appealHeld ?? false;
+  }
+
+  getSmash(playerIndex: PlayerIndex): SmashState {
+    const slotState = this.state.get(playerIndex);
+    if (slotState === undefined || !slotState.hasUpdated) return NEUTRAL_SMASH_STATE;
+    const held = slotState.smashButtonHeld || slotState.smashStickHeld;
+    const wasHeld = slotState.prevSmashButtonHeld || slotState.prevSmashStickHeld;
+    if (!held && !wasHeld) return NEUTRAL_SMASH_STATE;
+    return Object.freeze({
+      held,
+      justPressed: held && !wasHeld,
+      justReleased: !held && wasHeld,
+      buttonHeld: slotState.smashButtonHeld,
+      fromStick: slotState.smashStickHeld,
+      stickJustPressed: slotState.smashStickHeld && !slotState.prevSmashStickHeld,
+      x: slotState.smashX,
+      y: slotState.smashY,
+    });
   }
 
   // -------------------------------------------------------------------------
@@ -789,11 +934,8 @@ export type { PlayerBindingsIndex };
  */
 /**
  * Per-slot edge-history for the double-tap-down drop-through detector.
- * Module-level Map (keyed on playerIndex) because
- * `buildCharacterInputFromResolver` is a free function — adding the
- * state to the {@link InputResolver} class would require threading
- * the resolver instance through callers that currently pass it
- * positionally, and the state we need is one frame deep.
+ * Resolver-owned weak registry because the translator is a free function.
+ * Reset and authoritative checkpoint transport retain the same ownership.
  *
  * Same window length as `DeviceInputDispatcher`'s detector so the two
  * input paths produce identical drop-through gestures.
@@ -804,7 +946,47 @@ interface ResolverDropThroughLatch {
   lastDownPressFrame: number;
   frameCounter: number;
 }
-const resolverDropThroughLatches = new Map<PlayerIndex, ResolverDropThroughLatch>();
+const resolverDropThroughLatches = new WeakMap<InputResolver, Map<PlayerIndex, ResolverDropThroughLatch>>();
+
+export interface InputResolverHistoryState {
+  readonly schema:'input-resolver-history/1';readonly lastFrame:number;
+  readonly slots:readonly {readonly slot:PlayerIndex;readonly state:SlotState;
+    readonly dropThrough:{readonly prevDown:boolean;readonly lastDownPressFrame:number|null;readonly frameCounter:number}|null}[];
+}
+const historyBooleanFields=['appealHeld','hasUpdated','smashButtonHeld','prevSmashButtonHeld','smashStickHeld','prevSmashStickHeld','heavy','prevHeavy'] as const;
+const historyAxisFields=['moveX','moveY','smashX','smashY'] as const;
+function historyClosed(value:unknown,keys:readonly string[]):Record<string,unknown>{
+  if(!value||typeof value!=='object'||Array.isArray(value)||Object.keys(value).length!==keys.length||keys.some(key=>!Object.hasOwn(value,key)))
+    throw new TypeError('Invalid closed actual input history');
+  return value as Record<string,unknown>;
+}
+export function parseInputResolverHistoryState(value:unknown):InputResolverHistoryState {
+  const root=historyClosed(value,['schema','lastFrame','slots']);
+  if(root.schema!=='input-resolver-history/1'||typeof root.lastFrame!=='number'||!Number.isSafeInteger(root.lastFrame)||root.lastFrame< -1||
+    !Array.isArray(root.slots)||!root.slots.length||root.slots.length>4)throw new TypeError('Invalid actual input frame/slots');
+  const slots=root.slots.map(value=>{const row=historyClosed(value,['slot','state','dropThrough']);
+    if(![1,2,3,4].includes(row.slot as number))throw new TypeError('Invalid actual input slot');
+    const state=historyClosed(row.state,['current','previous',...historyBooleanFields,...historyAxisFields]);
+    for(const key of historyBooleanFields)if(typeof state[key]!=='boolean')throw new TypeError('Invalid input held history');
+    for(const key of historyAxisFields)if(typeof state[key]!=='number'||!Number.isFinite(state[key])||Math.abs(state[key] as number)>1)
+      throw new TypeError('Invalid input axis history');
+    const action=(value:unknown)=>{const r=historyClosed(value,ACTION_NAMES);for(const key of ACTION_NAMES)if(typeof r[key]!=='boolean')
+      throw new TypeError('Invalid action edge history');return {...r} as ActionHeldRecord;};
+    let dropThrough:InputResolverHistoryState['slots'][number]['dropThrough']=null;
+    if(row.dropThrough!==null){const d=historyClosed(row.dropThrough,['prevDown','lastDownPressFrame','frameCounter']);
+      if(typeof d.prevDown!=='boolean'||typeof d.frameCounter!=='number'||!Number.isSafeInteger(d.frameCounter)||d.frameCounter<1||
+        (d.lastDownPressFrame!==null&&(typeof d.lastDownPressFrame!=='number'||!Number.isSafeInteger(d.lastDownPressFrame)||
+          d.lastDownPressFrame<0||d.lastDownPressFrame>=d.frameCounter)))throw new TypeError('Invalid down-tap history');
+      dropThrough={prevDown:d.prevDown,lastDownPressFrame:d.lastDownPressFrame as number|null,frameCounter:d.frameCounter};}
+    const normalized={...state,current:action(state.current),previous:action(state.previous)} as unknown as SlotState;
+    if(normalized.heavy!==(normalized.smashButtonHeld||(normalized.smashStickHeld&&!normalized.prevSmashStickHeld))||
+      (!normalized.hasUpdated&&(historyBooleanFields.some(key=>key!=='hasUpdated'&&normalized[key])||
+        historyAxisFields.some(key=>normalized[key]!==0)||ACTION_NAMES.some(key=>normalized.current[key]||normalized.previous[key])||dropThrough!==null)))
+      throw new TypeError('Inconsistent actual input edge baseline');
+    return {slot:row.slot as PlayerIndex,state:normalized,dropThrough};});
+  if(new Set(slots.map(row=>row.slot)).size!==slots.length)throw new TypeError('Duplicate actual input history slot');
+  return {schema:'input-resolver-history/1',lastFrame:root.lastFrame,slots};
+}
 
 export function buildCharacterInputFromResolver(
   resolver: InputResolver,
@@ -822,8 +1004,10 @@ export function buildCharacterInputFromResolver(
   // prior `down + jump` chord clobbered ordinary fast-falls. A held-
   // down (no rising edge) never fires, so a player crouching can't
   // accidentally drop through.
+  const latches=resolverDropThroughLatches.get(resolver)??new Map<PlayerIndex,ResolverDropThroughLatch>();
+  resolverDropThroughLatches.set(resolver,latches);
   const dropLatch =
-    resolverDropThroughLatches.get(playerIndex) ??
+    latches.get(playerIndex) ??
     { prevDown: false, lastDownPressFrame: -Infinity, frameCounter: 0 };
   const downRisingEdge = moveDown && !dropLatch.prevDown;
   const sinceLastDownPress = dropLatch.frameCounter - dropLatch.lastDownPressFrame;
@@ -834,16 +1018,22 @@ export function buildCharacterInputFromResolver(
   }
   dropLatch.prevDown = moveDown;
   dropLatch.frameCounter += 1;
-  resolverDropThroughLatches.set(playerIndex, dropLatch);
-  // AC 50202 Sub-AC 2 — every action category the Seed names is exposed
-  // verbatim through the resolver's action-state API so gameplay
-  // consumers branch on the unaliased press. The `attackHeavy` smash-
-  // button slot stays separate from `special`: the existing smash-flick
-  // detector latches on `attack` + a fast stick flick, and a future
-  // sub-AC will wire a dedicated heavy-button binding (e.g. C-stick)
-  // into this slot. Aliasing `special` → `attackHeavy` here would
-  // mis-fire the smash dispatch on a special press for movesets that
-  // ship a smash but no neutral special.
+  latches.set(playerIndex, dropLatch);
+  // The dedicated `smash` action feeds `attackHeavy` (never `special`,
+  // which has its own dispatch). A key / button smash is sent HELD so
+  // holding it charges the smash like holding attack does. A stick
+  // smash is Ultimate's C-stick: one press on the frame the stick
+  // leaves neutral (the charge releases next frame, uncharged) with its
+  // snapped direction in `attackStickX/Y`. The direction travels in its
+  // own fields so moveX / moveY stay the left stick — writing the right
+  // stick there would also drive dash, drift, fast-fall and DI.
+  // The two sources combine as `buttonHeld || stickJustPressed`, the
+  // stick edge coming from stick history alone: pushing the stick while
+  // the key charges neither drops the held value (an early release) nor,
+  // when the stick returns, re-raises it (a phantom second press).
+  const smash = resolver.getSmash(playerIndex);
+  const stickSmashStart = smash.stickJustPressed;
+  const attackHeavy = smash.buttonHeld || stickSmashStart;
   return Object.freeze({
     moveX: move.x,
     // Vertical stick — consumed by the fast-fall latch, DI, and the
@@ -853,9 +1043,13 @@ export function buildCharacterInputFromResolver(
     jump,
     attack,
     special,
+    appeal: resolver.getAppeal(playerIndex),
     grab,
     shield,
     dodge,
     dropThrough: isDoubleTapDown,
+    attackHeavy,
+    attackStickX: stickSmashStart ? smash.x : 0,
+    attackStickY: stickSmashStart ? smash.y : 0,
   });
 }

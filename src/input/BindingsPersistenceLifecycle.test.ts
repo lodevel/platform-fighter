@@ -18,6 +18,8 @@ import {
   DEFAULT_KEYBOARD_P1_BINDINGS,
   InputBindingsStore,
 } from './InputBindingsStore';
+import { serializeBindingsSnapshot } from './InputBindingsSerializer';
+import { InputProfileStore } from './InputProfileStore';
 import { KEY_CODE } from './keyCodes';
 import type {
   KeyboardBinding,
@@ -279,6 +281,48 @@ describe('BindingsPersistenceLifecycle — schema migration', () => {
     for (const slot of ALL_SLOTS) {
       expect(lifecycle.getBindings(slot)).toEqual(DEFAULT_PLAYER_BINDINGS[slot]);
     }
+  });
+
+  it('hydrates a v1 snapshot saved before the smash action existed, keeping every customisation', () => {
+    const storage = new InMemoryStorage();
+    const rightStick = (axisIndex: number, direction: -1 | 1) => [{ kind: 'gamepad' as const, gamepadIndex: 0,
+      source: { type: 'axis' as const, axisIndex, direction, threshold: 0.5 } }];
+    const custom = {
+      ...DEFAULT_PLAYER_BINDINGS,
+      1: makeCustomP1(),
+      3: { playerIndex: 3 as const, bindings: { ...DEFAULT_PLAYER_BINDINGS[3].bindings,
+        left: rightStick(2, -1), right: rightStick(2, 1) } },
+    };
+    // Exactly what an older build wrote: same key, schemaVersion 1, no `smash`.
+    const envelope = JSON.parse(serializeBindingsSnapshot(custom)) as {
+      schemaVersion: number; data: Record<string, { bindings: Record<string, unknown> }> };
+    for (const slot of Object.values(envelope.data)) delete slot.bindings['smash'];
+    expect(snapshotStorageKey()).toBe('platformfighter.bindings.v1.snapshot');
+    storage.setItem(snapshotStorageKey(), JSON.stringify(envelope, null, 2));
+
+    const lifecycle = new BindingsPersistenceLifecycle({ storage });
+    expect(lifecycle.boot().source).toBe('storage');
+    expect(lifecycle.getAction(1, 'attack')).toEqual([{ kind: 'keyboard', keyCode: KEY_CODE.SPACE }]);
+    expect(lifecycle.getAction(1, 'smash')).toEqual([{ kind: 'keyboard', keyCode: KEY_CODE.V }]);
+    // Slot 3 already walks on the right stick, so smash stays unbound there.
+    expect(lifecycle.getAction(3, 'left')).toEqual(rightStick(2, -1));
+    expect(lifecycle.getAction(3, 'smash')).toEqual([]);
+    // Untouched slots come back byte-identical to the defaults (key order included).
+    for (const slot of [2, 4] as const) {
+      expect(JSON.stringify(lifecycle.getBindings(slot))).toBe(JSON.stringify(DEFAULT_PLAYER_BINDINGS[slot]));
+    }
+    // So the named-profile import sees only the two genuinely customised slots.
+    const imported = new InputProfileStore(lifecycle.getStore(), null).list().filter(profile => !profile.builtin);
+    expect(imported.map(profile => profile.id).sort()).toEqual(['custom-imported-1-keyboard', 'custom-imported-3-gamepad']);
+
+    // The next save keeps schema version 1 and the key, now with smash.
+    expect(lifecycle.save().ok).toBe(true);
+    const saved = JSON.parse(storage.raw(snapshotStorageKey())!) as {
+      schemaVersion: number; data: Record<string, { bindings: Record<string, unknown> }> };
+    expect(saved.schemaVersion).toBe(BINDINGS_SCHEMA_VERSION);
+    expect(saved.schemaVersion).toBe(1);
+    expect(saved.data['1']!.bindings['smash']).toEqual([{ kind: 'keyboard', keyCode: KEY_CODE.V }]);
+    expect(saved.data['3']!.bindings['smash']).toEqual([]);
   });
 
   it('rejects a future-schema (too-new) blob and falls back to defaults', () => {

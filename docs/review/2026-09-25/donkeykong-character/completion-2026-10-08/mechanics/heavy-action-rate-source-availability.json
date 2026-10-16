@@ -1,0 +1,52 @@
+{
+  "checked_date": "2026-10-09",
+  "scope": "Independent heavy action rate and inherited pickup guard source availability audit; no runtime or source-parity promotion",
+  "status_tree": {
+    "revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+    "url": "https://api.github.com/repos/Coolsonickirby/SSBU-Dumped-Status-Scripts/git/trees/413d42149b8a4d74c71bf9bd955d747b496e7577",
+    "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/status-tree-413d4214.json.gz",
+    "sha256": "2ef1bf9aef94bba3cc4510b7c0bb00628c389b8c8cf74a6d3377492e7a123af6",
+    "uncompressed_sha256": "bba7c246b0898db8e6113eb94cf5852349b239110e2930ee979f5ef0005130af",
+    "truncated": false,
+    "entries": 33085,
+    "common_nro_entries": [],
+    "ItemThrowHeavyCommon_entries": [],
+    "dk_pickup_overrides": [
+      "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/ItemHeavyPickup/exit.c",
+      "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/ItemHeavyPickup/init.c",
+      "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/ItemHeavyPickup/main.c",
+      "ghidra_scripts/lua2cpp_donkey.nro/donkey/donkey/status/ItemHeavyPickup/main_loop.c"
+    ]
+  },
+  "engine_decomp": {
+    "revision": "d55c91c94d18ee476bd7ffb596cedc3259c5e9f0",
+    "declared_patch": "13.0.4",
+    "cache_entries": 100,
+    "target_cache_bodies_present": {
+      "0x710068e1c0": false,
+      "0x71015aba90": false,
+      "0x7100404ec0": false
+    },
+    "function_csv_records": [
+      "0x0000007100404ec0,U,000152,calc_reaction_frame",
+      "0x000000710068e1c0,U,000296,FUN_710068e1c0",
+      "0x00000071015aba90,U,001464,FUN_71015aba90"
+    ],
+    "retained_sources": [
+      {
+        "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/engine-ghidra-cache-d55c91c9.json",
+        "sha256": "dd3610acdafa659abb2b8562693a5ab4c7cbbe8c993a26d63e20df6f876c0154"
+      },
+      {
+        "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/engine-functions-d55c91c9.csv",
+        "sha256": "0e6aa534be04bdea35a19516dceec1d744c943cfbe72c41cbaf661c69fd95f36"
+      }
+    ]
+  },
+  "results": {
+    "pickup_rate": "Exact DK init application is native util query multiplied by common parameter2; query algorithm remains unavailable. Selected unit-rate action remains authored.",
+    "throw_rate": "DK calls missing common ItemThrowHeavyCommon; workbook1.33 remains retained parameter with unresolved exact application.",
+    "pickup_pre": "DK has no override pre. Inherited common TREADED and CLIFF policy remains unknown; do not apply source-proven carry/throw NO_REAC and CLIFF_NONE to pre-attachment pickup.",
+    "armor_conversion": "reaction_max_ field decoded by CRC/hash40 and original string dump; native calc_reaction_frame body remains U/152 bytes and unavailable."
+  }
+}

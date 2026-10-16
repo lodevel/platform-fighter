@@ -22,6 +22,7 @@
 import {
   CRUMBLING_STAGE,
   FLAT_STAGE,
+  INFERNO_STAGE,
   LAVA_STAGE,
   MOVING_PLATFORM_STAGE,
   WIND_STAGE,
@@ -59,7 +60,7 @@ export type StageSelectEntry = BuiltInStageEntry | CustomStageEntry;
 /**
  * Canonical built-in stage roster. Mirrors the `STAGES` registry
  * order from `stageDefinitions.ts` (flat → lava → wind → crumbling
- * → moving platform). Decoupled from the registry so the menu can
+ * → moving platform → inferno). Decoupled from the registry so the menu can
  * present a friendly label without forcing every stage definition
  * to declare its presentation name.
  */
@@ -94,6 +95,12 @@ export const BUILT_IN_STAGE_ENTRIES: ReadonlyArray<BuiltInStageEntry> =
       id: MOVING_PLATFORM_STAGE.id,
       displayName: 'MOVING PLATFORM',
       subtitle: 'Ferries across a wide pit.',
+    }),
+    Object.freeze({
+      kind: 'built-in' as const,
+      id: INFERNO_STAGE.id,
+      displayName: 'INFERNO',
+      subtitle: 'The head rises every minute. Crouch when it flashes.',
     }),
   ]);
 

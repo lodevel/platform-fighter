@@ -23,6 +23,11 @@
  *     t            = clamp((heldFrames - minChargeFrames) /
  *                          (maxChargeFrames - minChargeFrames), 0, 1)
  *
+ * Opt-in `knockbackMode: 'damage-only'` keeps the move's reference
+ * base/growth/angle fixed until an optional fullChargeKnockback switches the
+ * record at completion. Charged damage feeds the reference formula;
+ * the legacy knockback endpoints are inactive in that mode.
+ *
  * Releasing before `minChargeFrames` is a runtime decision (the
  * runtime can either cancel the swing or fire it at `t = 0`); this
  * module just clamps the math to `[0, 1]`. Holding past
@@ -48,7 +53,27 @@ import type { KnockbackSpec } from './moveSchema';
  * `NeutralSpecialChargeSpec`. The shape is identical — only the home
  * module and the documentation generality have changed.
  */
+/** SmashWiki Smash attack (Ultimate): a smash charges for 1 s (60 frames) and "can also be
+ * held for an additional 2 seconds after that, not increasing their power any further". */
+export const ULTIMATE_SMASH_MAX_HOLD_FRAMES = 180;
+
 export interface ChargeSpec {
+  /** Opt-in source-style automatic wind; another press fires instead of release. */
+  readonly inputBehavior?:'press-wind-fire';
+  /** Total permitted hold, including time spent at full power. Omitted preserves legacy cap-fire. */
+  readonly maxHoldFrames?: number;
+  readonly entryFrames?: number;
+  readonly cancelFrames?: number;
+  readonly airCharge?: boolean;
+  /** Integer source power-add steps and separate incomplete-charge ceiling. */
+  readonly partialMaxDamage?: number;
+  readonly damageStep?: number;
+  /** Preserve the move's reference launch; charged damage alone feeds its growth.
+   * Omitted retains legacy endpoint interpolation. */
+  readonly knockbackMode?: 'damage-only';
+  /** Separate launch record at full charge; requires damage-only mode.
+   * Partial charges retain the owning move's reference record. */
+  readonly fullChargeKnockback?: KnockbackSpec;
   /**
    * Minimum hold duration before a release produces ANY swing. A
    * release before this many frames is treated as a cancel by most
@@ -67,9 +92,9 @@ export interface ChargeSpec {
   readonly minDamage: number;
   /** Damage at `t = 1` (released at or after `maxChargeFrames`). */
   readonly maxDamage: number;
-  /** Knockback vector at `t = 0`. */
+  /** Knockback vector at `t = 0`; inactive in damage-only mode. */
   readonly minKnockback: KnockbackSpec;
-  /** Knockback vector at `t = 1`. */
+  /** Knockback vector at `t = 1`; inactive in damage-only mode. */
   readonly maxKnockback: KnockbackSpec;
 }
 
@@ -103,7 +128,10 @@ export function computeChargedDamageFromSpec(
   heldFrames: number,
 ): number {
   const t = computeChargeTFromSpec(spec, heldFrames);
-  return spec.minDamage + (spec.maxDamage - spec.minDamage) * t;
+  if (heldFrames >= spec.maxChargeFrames) return spec.maxDamage;
+  const max = spec.partialMaxDamage ?? spec.maxDamage;
+  const damage = spec.minDamage + (max - spec.minDamage + (spec.partialMaxDamage === undefined ? 0 : spec.damageStep ?? 0)) * t;
+  return spec.damageStep ? Math.min(max, spec.minDamage + Math.floor((damage - spec.minDamage) / spec.damageStep) * spec.damageStep) : damage;
 }
 
 /**
@@ -123,11 +151,25 @@ export function computeChargedDamageFromSpec(
  * (toward min). The field is omitted from the result only when BOTH
  * endpoints omit it — legacy 3-field charge specs keep producing
  * byte-identical results (no keys gained).
+ *
+   * Damage-only mode instead requires the owning move's uncharged reference
+ * record as the third argument and returns it unchanged. Requiring it avoids
+ * silently substituting an inactive legacy endpoint for the real launch.
  */
 export function computeChargedKnockbackFromSpec(
   spec: ChargeSpec,
   heldFrames: number,
+  unchargedKnockback?: KnockbackSpec,
 ): KnockbackSpec {
+  if (spec.knockbackMode === 'damage-only') {
+    if (!unchargedKnockback?.reference) {
+      throw new Error('damage-only charge requires the move\'s reference knockback');
+    }
+    // Damage has already been charged separately; scaling BKB/KBG here would
+    // apply charge twice and discard the distinct inner/tip launch records.
+    return heldFrames >= spec.maxChargeFrames
+      ? spec.fullChargeKnockback ?? unchargedKnockback : unchargedKnockback;
+  }
   const t = computeChargeTFromSpec(spec, heldFrames);
   const a = spec.minKnockback;
   const b = spec.maxKnockback;
@@ -168,6 +210,30 @@ export function validateChargeSpec(
   spec: ChargeSpec,
   contextLabel: string,
 ): ChargeSpec {
+  if(spec.inputBehavior!==undefined&&spec.inputBehavior!=='press-wind-fire')throw new Error(`${contextLabel}: unsupported charge inputBehavior`);
+  for (const key of ['entryFrames', 'cancelFrames'] as const) {
+    if (spec[key] !== undefined && (!Number.isInteger(spec[key]) || spec[key]! < 0)) {
+      throw new Error(`${contextLabel}: ${key} must be a nonnegative integer`);
+    }
+  }
+  if (spec.airCharge !== undefined && typeof spec.airCharge !== 'boolean') throw new Error(`${contextLabel}: airCharge must be boolean`);
+  if (spec.maxHoldFrames !== undefined && (!Number.isInteger(spec.maxHoldFrames) || spec.maxHoldFrames < spec.maxChargeFrames)) {
+    throw new Error(`${contextLabel}: maxHoldFrames must be an integer at least maxChargeFrames`);
+  }
+  if (spec.partialMaxDamage !== undefined && (!Number.isFinite(spec.partialMaxDamage)
+    || spec.partialMaxDamage < spec.minDamage || spec.partialMaxDamage > spec.maxDamage)) {
+    throw new Error(`${contextLabel}: partialMaxDamage must lie between minDamage and maxDamage`);
+  }
+  if (spec.damageStep !== undefined && (!Number.isFinite(spec.damageStep) || spec.damageStep <= 0)) {
+    throw new Error(`${contextLabel}: damageStep must be positive`);
+  }
+  if (spec.fullChargeKnockback !== undefined &&
+    (spec.knockbackMode !== 'damage-only' || !spec.fullChargeKnockback.reference)) {
+    throw new Error(`${contextLabel}: fullChargeKnockback requires damage-only mode and reference knockback`);
+  }
+  if (spec.knockbackMode !== undefined && spec.knockbackMode !== 'damage-only') {
+    throw new Error(`${contextLabel}: charge.knockbackMode must be damage-only when present`);
+  }
   if (!Number.isInteger(spec.minChargeFrames) || spec.minChargeFrames < 0) {
     throw new Error(
       `${contextLabel}: charge.minChargeFrames must be non-negative integer, got ${spec.minChargeFrames}`,

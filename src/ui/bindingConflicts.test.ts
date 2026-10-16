@@ -10,7 +10,9 @@ import {
   detectInterPlayerKeyboardConflictsForSlots,
   detectIntraPlayerConflicts,
   formatConflictBannerLines,
+  formatConflictEntryPrompt,
   formatConflictResolutionPrompt,
+  groupConflictsForBanner,
   isAllowedOverlap,
   type BindingConflict,
 } from './bindingConflicts';
@@ -94,7 +96,7 @@ function gpAxisBinding(
  */
 function defaultsForSlot(
   slot: PlayerBindingsIndex,
-): Record<LogicalAction, ReadonlyArray<unknown>> {
+): Partial<Record<LogicalAction, ReadonlyArray<unknown>>> {
   if (slot === 1) {
     return {
       left: [kbBinding(KEY_CODE.A)],
@@ -107,6 +109,7 @@ function defaultsForSlot(
       shield: [kbBinding(KEY_CODE.H)],
       grab: [kbBinding(KEY_CODE.T)],
       taunt: [kbBinding(KEY_CODE.R)],
+      smash: [kbBinding(KEY_CODE.V)],
     };
   }
   if (slot === 2) {
@@ -121,6 +124,7 @@ function defaultsForSlot(
       shield: [kbBinding(KEY_CODE.NUMPAD_3)],
       grab: [kbBinding(KEY_CODE.NUMPAD_4)],
       taunt: [kbBinding(KEY_CODE.NUMPAD_5)],
+      smash: [kbBinding(KEY_CODE.NUMPAD_0)],
     };
   }
   // Slots 3+4 default to gamepad — pinned to pad 0 / pad 1.
@@ -136,6 +140,14 @@ function defaultsForSlot(
     shield: [gpButtonBinding(padIdx, 5)],
     grab: [gpButtonBinding(padIdx, 4)],
     taunt: [gpButtonBinding(padIdx, 1)],
+    // Right stick as four half-axes (threshold differs from the default
+    // but conflict identity ignores thresholds).
+    smash: [
+      gpAxisBinding(padIdx, 2, -1),
+      gpAxisBinding(padIdx, 2, 1),
+      gpAxisBinding(padIdx, 3, -1),
+      gpAxisBinding(padIdx, 3, 1),
+    ],
   };
 }
 
@@ -274,6 +286,20 @@ describe('detectIntraPlayerConflicts', () => {
     expect(conflicts).toEqual([]);
   });
 
+  it('returns an empty list for every default preset, including the four right-stick smash half-axes', () => {
+    for (const slot of [1, 2, 3, 4] as const) {
+      expect(detectIntraPlayerConflicts(DEFAULT_PLAYER_BINDINGS[slot])).toEqual([]);
+    }
+    expect(detectAllConflicts(DEFAULT_PLAYER_BINDINGS).conflicts).toEqual([]);
+  });
+
+  it('flags a right-stick smash half-axis that is also bound to movement', () => {
+    const pb = buildPlayerBindings(3, { left: [gpAxisBinding(0, 2, -1)] });
+    const conflicts = detectIntraPlayerConflicts(pb);
+    expect(conflicts).toHaveLength(1);
+    expect(conflicts[0]!.locations.map(location => location.action)).toEqual(['left', 'smash']);
+  });
+
   it('returns one conflict when two unrelated actions share a key', () => {
     const pb = buildPlayerBindings(1, {
       shield: [kbBinding(KEY_CODE.F)],   // F now conflicts with attack=F
@@ -347,6 +373,7 @@ describe('detectIntraPlayerConflicts', () => {
         shield: [gpButtonBinding(0, 5)],
         grab: [gpButtonBinding(0, 4)],
         taunt: [gpButtonBinding(0, 8)],
+        smash: [],
       }),
     };
     const conflicts = detectIntraPlayerConflicts(pb);
@@ -594,6 +621,68 @@ describe('formatConflictBannerLines', () => {
     const r1 = detectAllConflicts(store.snapshot());
     const r2 = detectAllConflicts(store.snapshot());
     expect(formatConflictBannerLines(r1)).toEqual(formatConflictBannerLines(r2));
+  });
+});
+
+describe('groupConflictsForBanner / formatConflictEntryPrompt', () => {
+  const stick = (pad: number | null, xAxis: number) => [
+    [xAxis, -1], [xAxis, 1], [xAxis + 1, -1], [xAxis + 1, 1],
+  ].map(([axis, direction]) => ({ ...gpAxisBinding(pad ?? 0, axis!, direction as -1 | 1), gamepadIndex: pad }));
+
+  it('merges the four half-axis clashes of a stick on Smash into one entry', () => {
+    const store = new InputBindingsStore();
+    store.setAction(3, 'smash', stick(0, 0)); // Left stick on Smash, pad 0.
+    const report = detectAllConflicts(store.snapshot());
+    expect(report.conflicts).toHaveLength(4);
+    const entries = groupConflictsForBanner(report.conflicts);
+    expect(entries).toHaveLength(1);
+    expect(formatConflictEntryPrompt(entries[0]!))
+      .toBe("  • '[1] Left Stick' is shared by P3 Left/Right/Up/Down & Smash — unbind one or pick a new input");
+    expect(formatConflictBannerLines(report)).toEqual([
+      '⚠ 1 binding conflict — click a highlighted row to rebind it',
+      formatConflictEntryPrompt(entries[0]!),
+    ]);
+  });
+
+  it('merges a partial overlap and names an any-pad stick', () => {
+    const store = new InputBindingsStore();
+    store.setAction(4, 'left', [gpAxisBinding(1, 2, -1)]);
+    store.setAction(4, 'right', [gpAxisBinding(1, 2, 1)]);
+    // Slot 4's default smash is already the right stick on pad 1.
+    const entries = groupConflictsForBanner(detectAllConflicts(store.snapshot()).conflicts);
+    expect(entries).toHaveLength(1);
+    expect(formatConflictEntryPrompt(entries[0]!)).toContain("'[2] Right Stick' is shared by P4 Left/Right & Smash");
+    const anyPad = new InputBindingsStore();
+    anyPad.setAction(3, 'smash', stick(null, 0));
+    anyPad.setAction(3, 'left', [{ ...gpAxisBinding(0, 0, -1), gamepadIndex: null }]);
+    anyPad.setAction(3, 'right', [{ ...gpAxisBinding(0, 0, 1), gamepadIndex: null }]);
+    const anyEntries = groupConflictsForBanner(detectAllConflicts(anyPad.snapshot()).conflicts);
+    expect(anyEntries.map(formatConflictEntryPrompt)).toEqual([
+      "  • '[any] Left Stick' is shared by P3 Left/Right & Smash — unbind one or pick a new input",
+    ]);
+  });
+
+  it('keeps single conflicts, other slots, other sticks and unrelated clashes as separate entries', () => {
+    const store = new InputBindingsStore();
+    store.setAction(1, 'shield', [kbBinding(KEY_CODE.F)]); // keyboard clash
+    store.setAction(3, 'smash', stick(0, 0)); // 4 clashes → 1 entry
+    store.setAction(4, 'taunt', [gpAxisBinding(1, 0, -1)]); // Dodge on one half-axis of slot 4's left stick
+    store.setAction(4, 'grab', [gpAxisBinding(1, 1, 1)]); // Grab on another; no action in common
+    const report = detectAllConflicts(store.snapshot());
+    const entries = groupConflictsForBanner(report.conflicts);
+    expect(entries.map(entry => entry.length).sort()).toEqual([1, 1, 1, 4]);
+    expect(entries.filter(entry => entry.length === 1).map(entry => formatConflictEntryPrompt(entry)))
+      .toEqual(entries.filter(entry => entry.length === 1).map(entry => formatConflictResolutionPrompt(entry[0]!)));
+    expect(formatConflictBannerLines(report)[0]).toContain('4 binding conflicts');
+  });
+
+  it('does not merge half-axes of a non-stick axis', () => {
+    const store = new InputBindingsStore();
+    store.setAction(3, 'smash', [gpAxisBinding(0, 4, -1), gpAxisBinding(0, 4, 1)]);
+    store.setAction(3, 'shield', [gpAxisBinding(0, 4, -1)]);
+    store.setAction(3, 'grab', [gpAxisBinding(0, 4, 1)]);
+    expect(groupConflictsForBanner(detectAllConflicts(store.snapshot()).conflicts).map(entry => entry.length))
+      .toEqual([1, 1]);
   });
 });
 

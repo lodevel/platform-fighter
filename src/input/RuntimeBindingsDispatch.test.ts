@@ -331,6 +331,8 @@ describe('runtime bindings dispatch — gamepad rebind drives slot 3/4 controls'
     gamepad.connect(0);
     // Re-bind slot 3 left/right onto the right stick (axis 2). Same
     // half-axis shape the default emits, just on a different axis index.
+    // The right stick is the default smash, so unbind that first.
+    lifecycle.setAction(3, 'smash', []);
     lifecycle.setAction(3, 'left', [
       {
         kind: 'gamepad',

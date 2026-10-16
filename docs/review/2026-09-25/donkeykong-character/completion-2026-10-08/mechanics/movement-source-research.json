@@ -1,0 +1,51 @@
+{
+  "checked": "2026-10-08",
+  "native_decomp_revision": "d55c91c94d18ee476bd7ffb596cedc3259c5e9f0",
+  "native_decomp_target": "13.0.4 README; acquired DK script patch binding unresolved",
+  "hdr_lead_revision": "a8f98eace1c6a7b45c88cb3f0ac1ef05426624dc",
+  "files": [
+    {
+      "url": "https://www.ssbwiki.com/Footstool_Jump",
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/wiki-footstool-jump.html",
+      "checked": "2026-10-08",
+      "sha256": "16dd0add0f96bdab3edb5ccdc88878f7fb3bdfa8fb258b55827d0338e8a7edbd",
+      "scope": "Published research; not native common function-body verification"
+    },
+    {
+      "url": "https://w.atwiki.jp/smashsp_kensyou/pages/94.html",
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/research-native-movement.html",
+      "checked": "2026-10-08",
+      "sha256": "0324b425d3a7803c4211da705f166d110e6f142e4c837a0ee4182560dbef233b",
+      "scope": "Published research; not native common function-body verification"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/native-control-setters.cpp",
+      "sha256": "0379847a812774e9eb9b208ce7290f005afd1735ca3d201e4919f7ef82a0e6b2",
+      "scope": "Native controller setter bodies only, not update/setup"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/hdr-walk-mod-lead.rs",
+      "sha256": "e01afa88decc20d2663dfdbbd012b2b8235fe2705353378f956e4e4c69cdbc8a",
+      "scope": "HDR mod lead; not vanilla movement equation"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/hdr-run-mod-lead.rs",
+      "sha256": "21e1c6d4aa37cbbd57b880d6b6e26858250b34dea4aeb8b8368c84826139155d",
+      "scope": "HDR mod lead; not vanilla movement equation"
+    }
+  ],
+  "findings": {
+    "native_controller_body": "Pinned full source search finds matched setter/getter bodies at0x710211f330..3e0 only. No ordinary walk/run setup or update formula retained.",
+    "run": "Original experimental research page gives additive .044 + abs(stick)*.07337 native units per frame; same-direction dash overspeed subtracts ground_brake.123. These may become measured-research source adapter, not native decomp parity.",
+    "neutral_brake": "Ground .123 and air .015 constant decrease per frame, research parameter explanation.",
+    "walk": "Research explicitly says walk parameters describe acceleration amounts and omits complex formula. HDR Walk_Main_common adds modded motion/CONTROL energy then calls original; not valid vanilla reconstruction.",
+    "air": "Experimental equation air_add+abs(stick)*air_mul, neutral air_brake. Exact overspeed/common energy interactions unresolved.",
+    "calibration_limits": [
+      "Signed symmetric extrapolation from positive research equation",
+      "Fixed-step two-dimensional velocity basis,5pixels/nativeunit",
+      "Ordinary walking remains authored until common root-motion formula independently resolved",
+      "Matter residual drag or acceleration must not apply a second brake"
+    ]
+  },
+  "runtime_verified": false
+}

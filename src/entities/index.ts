@@ -29,12 +29,13 @@ export type {
 // Stage hazards — Sub-AC 1 of AC 9 (M2 hazard stages). The lava
 // hazard owns no Phaser objects; the renderer / collision adapter
 // reads from it each fixed step.
-export { LavaHazard, LAVA_DEFAULTS, lavaHeightNorm } from './LavaHazard';
+export { LavaHazard, LAVA_DEFAULTS, lavaHeightNorm, createLavaHazardFromStageHazard } from './LavaHazard';
 export type {
   LavaHazardOptions,
   LavaHazardState,
   LavaBounds,
   LavaPhase,
+  LavaStageHazardLike,
 } from './LavaHazard';
 
 // Stage hazards — Sub-AC 1 of AC 10 (M2 hazard stages). The crumbling

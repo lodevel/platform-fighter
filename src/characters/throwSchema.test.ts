@@ -96,9 +96,9 @@ describe('validateThrowSpec — invariants', () => {
     expect(() =>
       validateThrowSpec(
         { ...validSpec(), damage: -1 },
-        "wolf.throws.forward",
+        "donkeykong.throws.forward",
       ),
-    ).toThrow(/wolf\.throws\.forward/);
+    ).toThrow(/donkeykong\.throws\.forward/);
   });
 });
 
@@ -124,5 +124,19 @@ describe('getThrowByDirection', () => {
     expect(getThrowByDirection(set, 'back').animationFrames).toBe(26);
     expect(getThrowByDirection(set, 'up').animationFrames).toBe(14);
     expect(getThrowByDirection(set, 'down').animationFrames).toBe(16);
+  });
+});
+
+
+describe('authored throw trajectory invariants', () => {
+  const spec = { ...validSpec(), animationFrames: 2, recoveryFrames: 1, rootMotionX: [0, -2, -3] };
+  it('accepts finite normalized samples through the existing action only', () => {
+    expect(validateThrowSpec(spec, 'root')).toBe(spec);
+  });
+  it.each([[1, -2, -3], [0, -2], [0, -2, Infinity], [0, -2, NaN]].map(rootMotionX => ({ rootMotionX })))('rejects invalid samples$rootMotionX', ({ rootMotionX }) => {
+    expect(() => validateThrowSpec({ ...spec, rootMotionX }, 'root')).toThrow(/rootMotionX/);
+  });
+  it('requires explicit recovery so shared default timing cannot silently stretch samples', () => {
+    expect(() => validateThrowSpec({ ...spec, recoveryFrames: undefined }, 'root')).toThrow(/rootMotionX/);
   });
 });

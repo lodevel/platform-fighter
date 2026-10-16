@@ -23,18 +23,17 @@ import {
   type FighterMoveset,
   type MovesetSlotCategory,
   type MovesetSlotName,
-  type MovesetSlotOverride,
 } from './movesetContract';
 import {
-  WOLF_JAB,
-  WOLF_TILT,
-  WOLF_SMASH,
-  WOLF_FAIR,
-  WOLF_NEUTRAL_SPECIAL,
-  WOLF_SIDE_SPECIAL,
-  WOLF_UP_SPECIAL,
-  WOLF_DOWN_SPECIAL,
-} from './Wolf';
+  DONKEYKONG_JAB,
+  DONKEYKONG_TILT,
+  DONKEYKONG_SMASH,
+  DONKEYKONG_FAIR,
+  DONKEYKONG_NEUTRAL_SPECIAL,
+  DONKEYKONG_SIDE_SPECIAL,
+  DONKEYKONG_UP_SPECIAL,
+  DONKEYKONG_DOWN_SPECIAL,
+} from './DonkeyKong';
 import { SHIELD_DEFAULTS } from './shieldState';
 import { DODGE_DEFAULTS } from './dodgeState';
 
@@ -55,19 +54,19 @@ import { DODGE_DEFAULTS } from './dodgeState';
  * Pure / Phaser-free / Matter-free — runs under Node alone.
  */
 
-// A reusable well-formed moveset built from Wolf's authored records.
-// Wolf already exposes the canonical 8 attack records + we plug in the
+// A reusable well-formed moveset built from Donkey Kong's authored records.
+// DK already exposes the canonical 8 attack records + we plug in the
 // shared shield/dodge defaults for the defensive slots.
-function buildWolfMoveset(): FighterMoveset {
+function buildDonkeyKongMoveset(): FighterMoveset {
   return {
-    jab: WOLF_JAB,
-    tilt: WOLF_TILT,
-    smash: WOLF_SMASH,
-    fair: WOLF_FAIR,
-    neutralSpecial: WOLF_NEUTRAL_SPECIAL,
-    sideSpecial: WOLF_SIDE_SPECIAL,
-    upSpecial: WOLF_UP_SPECIAL,
-    downSpecial: WOLF_DOWN_SPECIAL,
+    jab: DONKEYKONG_JAB,
+    tilt: DONKEYKONG_TILT,
+    smash: DONKEYKONG_SMASH,
+    fair: DONKEYKONG_FAIR,
+    neutralSpecial: DONKEYKONG_NEUTRAL_SPECIAL,
+    sideSpecial: DONKEYKONG_SIDE_SPECIAL,
+    upSpecial: DONKEYKONG_UP_SPECIAL,
+    downSpecial: DONKEYKONG_DOWN_SPECIAL,
     shield: SHIELD_DEFAULTS,
     dodge: DODGE_DEFAULTS,
   };
@@ -185,19 +184,19 @@ describe('isMovesetSlotName', () => {
 
 describe('getMovesetSlot', () => {
   it('returns the typed move for each attack slot', () => {
-    const ms = buildWolfMoveset();
-    expect(getMovesetSlot(ms, 'jab')).toBe(WOLF_JAB);
-    expect(getMovesetSlot(ms, 'tilt')).toBe(WOLF_TILT);
-    expect(getMovesetSlot(ms, 'smash')).toBe(WOLF_SMASH);
-    expect(getMovesetSlot(ms, 'fair')).toBe(WOLF_FAIR);
-    expect(getMovesetSlot(ms, 'neutralSpecial')).toBe(WOLF_NEUTRAL_SPECIAL);
-    expect(getMovesetSlot(ms, 'sideSpecial')).toBe(WOLF_SIDE_SPECIAL);
-    expect(getMovesetSlot(ms, 'upSpecial')).toBe(WOLF_UP_SPECIAL);
-    expect(getMovesetSlot(ms, 'downSpecial')).toBe(WOLF_DOWN_SPECIAL);
+    const ms = buildDonkeyKongMoveset();
+    expect(getMovesetSlot(ms, 'jab')).toBe(DONKEYKONG_JAB);
+    expect(getMovesetSlot(ms, 'tilt')).toBe(DONKEYKONG_TILT);
+    expect(getMovesetSlot(ms, 'smash')).toBe(DONKEYKONG_SMASH);
+    expect(getMovesetSlot(ms, 'fair')).toBe(DONKEYKONG_FAIR);
+    expect(getMovesetSlot(ms, 'neutralSpecial')).toBe(DONKEYKONG_NEUTRAL_SPECIAL);
+    expect(getMovesetSlot(ms, 'sideSpecial')).toBe(DONKEYKONG_SIDE_SPECIAL);
+    expect(getMovesetSlot(ms, 'upSpecial')).toBe(DONKEYKONG_UP_SPECIAL);
+    expect(getMovesetSlot(ms, 'downSpecial')).toBe(DONKEYKONG_DOWN_SPECIAL);
   });
 
   it('returns the typed tuning for each defensive slot', () => {
-    const ms = buildWolfMoveset();
+    const ms = buildDonkeyKongMoveset();
     expect(getMovesetSlot(ms, 'shield')).toBe(SHIELD_DEFAULTS);
     expect(getMovesetSlot(ms, 'dodge')).toBe(DODGE_DEFAULTS);
   });
@@ -205,25 +204,25 @@ describe('getMovesetSlot', () => {
 
 describe('listAttackMoves', () => {
   it('returns 8 moves in the canonical attack-slot order', () => {
-    const ms = buildWolfMoveset();
+    const ms = buildDonkeyKongMoveset();
     const moves = listAttackMoves(ms);
     expect(moves).toHaveLength(8);
     expect(moves).toEqual([
-      WOLF_JAB,
-      WOLF_TILT,
-      WOLF_SMASH,
-      WOLF_FAIR,
-      WOLF_NEUTRAL_SPECIAL,
-      WOLF_SIDE_SPECIAL,
-      WOLF_UP_SPECIAL,
-      WOLF_DOWN_SPECIAL,
+      DONKEYKONG_JAB,
+      DONKEYKONG_TILT,
+      DONKEYKONG_SMASH,
+      DONKEYKONG_FAIR,
+      DONKEYKONG_NEUTRAL_SPECIAL,
+      DONKEYKONG_SIDE_SPECIAL,
+      DONKEYKONG_UP_SPECIAL,
+      DONKEYKONG_DOWN_SPECIAL,
     ]);
   });
 });
 
 describe('forEachMovesetSlot', () => {
   it('visits every slot exactly once in the canonical order', () => {
-    const ms = buildWolfMoveset();
+    const ms = buildDonkeyKongMoveset();
     const visits: Array<{ slot: MovesetSlotName; cat: MovesetSlotCategory }> = [];
     forEachMovesetSlot(ms, (slot, _value, category) => {
       visits.push({ slot, cat: category });
@@ -232,20 +231,20 @@ describe('forEachMovesetSlot', () => {
   });
 
   it('reports the right category alongside each slot', () => {
-    const ms = buildWolfMoveset();
+    const ms = buildDonkeyKongMoveset();
     forEachMovesetSlot(ms, (slot, _value, category) => {
       expect(category).toBe(getMovesetSlotCategory(slot));
     });
   });
 
   it('passes the moveset value through for the typed slot', () => {
-    const ms = buildWolfMoveset();
+    const ms = buildDonkeyKongMoveset();
     const seen: Record<string, unknown> = {};
     forEachMovesetSlot(ms, (slot, value) => {
       seen[slot] = value;
     });
-    expect(seen.jab).toBe(WOLF_JAB);
-    expect(seen.fair).toBe(WOLF_FAIR);
+    expect(seen.jab).toBe(DONKEYKONG_JAB);
+    expect(seen.fair).toBe(DONKEYKONG_FAIR);
     expect(seen.shield).toBe(SHIELD_DEFAULTS);
     expect(seen.dodge).toBe(DODGE_DEFAULTS);
   });
@@ -256,74 +255,74 @@ describe('forEachMovesetSlot', () => {
 // ---------------------------------------------------------------------------
 
 describe('assertFighterMoveset', () => {
-  it('accepts a well-formed Wolf moveset', () => {
-    expect(() => assertFighterMoveset('wolf', buildWolfMoveset())).not.toThrow();
+  it('accepts a well-formed Donkey Kong moveset', () => {
+    expect(() => assertFighterMoveset('donkeykong', buildDonkeyKongMoveset())).not.toThrow();
   });
 
   it('rejects a moveset with a wrong-typed jab', () => {
-    const ms = { ...buildWolfMoveset(), jab: WOLF_TILT } as FighterMoveset;
-    expect(() => assertFighterMoveset('wolf', ms)).toThrow(/jab/);
+    const ms = { ...buildDonkeyKongMoveset(), jab: DONKEYKONG_TILT } as FighterMoveset;
+    expect(() => assertFighterMoveset('donkeykong', ms)).toThrow(/jab/);
   });
 
   it('rejects a moveset with a wrong-typed smash', () => {
-    const ms = { ...buildWolfMoveset(), smash: WOLF_JAB } as FighterMoveset;
-    expect(() => assertFighterMoveset('wolf', ms)).toThrow(/smash/);
+    const ms = { ...buildDonkeyKongMoveset(), smash: DONKEYKONG_JAB } as FighterMoveset;
+    expect(() => assertFighterMoveset('donkeykong', ms)).toThrow(/smash/);
   });
 
   it('rejects a fair slot whose direction is not forward', () => {
     // Synthesise an aerial move that claims direction 'back' — the
     // contract requires the fair slot to be a forward aerial.
-    const wrongFair = { ...WOLF_FAIR, aerialDirection: 'back' as const };
-    const ms = { ...buildWolfMoveset(), fair: wrongFair };
-    expect(() => assertFighterMoveset('wolf', ms)).toThrow(/aerialDirection/);
+    const wrongFair = { ...DONKEYKONG_FAIR, aerialDirection: 'back' as const };
+    const ms = { ...buildDonkeyKongMoveset(), fair: wrongFair };
+    expect(() => assertFighterMoveset('donkeykong', ms)).toThrow(/aerialDirection/);
   });
 
   it('rejects a fair slot whose type is not "aerial"', () => {
-    const wrongFair = { ...WOLF_FAIR, type: 'jab' as const };
-    const ms = { ...buildWolfMoveset(), fair: wrongFair } as unknown as FighterMoveset;
-    expect(() => assertFighterMoveset('wolf', ms)).toThrow(/fair/);
+    const wrongFair = { ...DONKEYKONG_FAIR, type: 'jab' as const };
+    const ms = { ...buildDonkeyKongMoveset(), fair: wrongFair } as unknown as FighterMoveset;
+    expect(() => assertFighterMoveset('donkeykong', ms)).toThrow(/fair/);
   });
 
   it('rejects a moveset with a wrong-typed neutralSpecial', () => {
     const ms = {
-      ...buildWolfMoveset(),
-      neutralSpecial: WOLF_SIDE_SPECIAL,
+      ...buildDonkeyKongMoveset(),
+      neutralSpecial: DONKEYKONG_SIDE_SPECIAL,
     } as unknown as FighterMoveset;
-    expect(() => assertFighterMoveset('wolf', ms)).toThrow(/neutralSpecial/);
+    expect(() => assertFighterMoveset('donkeykong', ms)).toThrow(/neutralSpecial/);
   });
 
   it('rejects a moveset with a wrong-typed sideSpecial', () => {
     const ms = {
-      ...buildWolfMoveset(),
-      sideSpecial: WOLF_NEUTRAL_SPECIAL,
+      ...buildDonkeyKongMoveset(),
+      sideSpecial: DONKEYKONG_NEUTRAL_SPECIAL,
     } as unknown as FighterMoveset;
-    expect(() => assertFighterMoveset('wolf', ms)).toThrow(/sideSpecial/);
+    expect(() => assertFighterMoveset('donkeykong', ms)).toThrow(/sideSpecial/);
   });
 
   it('rejects a moveset with a wrong-typed upSpecial', () => {
     const ms = {
-      ...buildWolfMoveset(),
-      upSpecial: WOLF_DOWN_SPECIAL,
+      ...buildDonkeyKongMoveset(),
+      upSpecial: DONKEYKONG_DOWN_SPECIAL,
     } as unknown as FighterMoveset;
-    expect(() => assertFighterMoveset('wolf', ms)).toThrow(/upSpecial/);
+    expect(() => assertFighterMoveset('donkeykong', ms)).toThrow(/upSpecial/);
   });
 
   it('rejects a moveset with a wrong-typed downSpecial', () => {
     const ms = {
-      ...buildWolfMoveset(),
-      downSpecial: WOLF_UP_SPECIAL,
+      ...buildDonkeyKongMoveset(),
+      downSpecial: DONKEYKONG_UP_SPECIAL,
     } as unknown as FighterMoveset;
-    expect(() => assertFighterMoveset('wolf', ms)).toThrow(/downSpecial/);
+    expect(() => assertFighterMoveset('donkeykong', ms)).toThrow(/downSpecial/);
   });
 
   it('rejects a moveset with a missing shield tuning', () => {
-    const ms = { ...buildWolfMoveset(), shield: null as unknown } as FighterMoveset;
-    expect(() => assertFighterMoveset('wolf', ms)).toThrow(/shield/);
+    const ms = { ...buildDonkeyKongMoveset(), shield: null as unknown } as FighterMoveset;
+    expect(() => assertFighterMoveset('donkeykong', ms)).toThrow(/shield/);
   });
 
   it('rejects a moveset with a missing dodge tuning', () => {
-    const ms = { ...buildWolfMoveset(), dodge: null as unknown } as FighterMoveset;
-    expect(() => assertFighterMoveset('wolf', ms)).toThrow(/dodge/);
+    const ms = { ...buildDonkeyKongMoveset(), dodge: null as unknown } as FighterMoveset;
+    expect(() => assertFighterMoveset('donkeykong', ms)).toThrow(/dodge/);
   });
 });
 
@@ -343,23 +342,6 @@ describe('slot-count invariants', () => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// MovesetSlotOverride — type-only smoke test
-// ---------------------------------------------------------------------------
-
-describe('MovesetSlotOverride', () => {
-  it('accepts an override targeting any attack slot', () => {
-    const overrides: ReadonlyArray<MovesetSlotOverride> = [
-      { slot: 'jab', move: WOLF_JAB },
-      { slot: 'smash', move: WOLF_SMASH },
-      { slot: 'sideSpecial', move: WOLF_SIDE_SPECIAL },
-    ];
-    expect(overrides).toHaveLength(3);
-    for (const o of overrides) {
-      expect(isAttackMovesetSlot(o.slot)).toBe(true);
-    }
-  });
-});
 
 // ---------------------------------------------------------------------------
 // Type-level assertions (verified by the compiler)

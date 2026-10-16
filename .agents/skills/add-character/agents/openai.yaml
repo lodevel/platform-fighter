@@ -1,0 +1,6 @@
+interface:
+  display_name: "Create or Complete a Fighter"
+  short_description: "Source, animate, integrate and verify playable fighters"
+  default_prompt: "Use $add-character to create or complete this fighter with sourced mechanics, consistent animation and collision, and verification in the running game."
+policy:
+  allow_implicit_invocation: true

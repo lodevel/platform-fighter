@@ -500,6 +500,7 @@ describe('migrationAwareDeserializeBindingsSnapshot', () => {
           shield: [],
           grab: [],
           taunt: [],
+          smash: [],
         },
       },
       '2': DEFAULT_PLAYER_BINDINGS[2],
@@ -544,6 +545,17 @@ describe('migrationAwareDeserializePlayerBindings', () => {
     if (result.ok) {
       expect(result.migratedFrom).toBe(0);
       expect(result.value.playerIndex).toBe(2);
+    }
+  });
+
+  it('fills smash after the v0 → v1 step for a blob older than the smash action', () => {
+    const { smash: _smash, ...withoutSmash } = DEFAULT_PLAYER_BINDINGS[2].bindings;
+    const v0 = JSON.stringify({ schemaVersion: 0, playerIndex: 2, bindings: withoutSmash });
+    const result = migrationAwareDeserializePlayerBindings(v0, 2);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.migratedFrom).toBe(0);
+      expect(JSON.stringify(result.value)).toBe(JSON.stringify(DEFAULT_PLAYER_BINDINGS[2]));
     }
   });
 

@@ -1,0 +1,178 @@
+{
+  "state": "packed_cells_visually_reviewed_runtime_pending",
+  "scope": "Accepted rough Thunder body only; electrical effects and running-match verification separate",
+  "coordinateContract": {
+    "canonicalCanvas": [
+      2048,
+      2048
+    ],
+    "canonicalRoot": [
+      1024,
+      1664
+    ],
+    "frameWidth": 512,
+    "frameHeight": 512,
+    "root": [
+      256,
+      416
+    ],
+    "scaleToWorld": 0.4666666666666667,
+    "bodyCentreFromRoot": [
+      0,
+      -25
+    ]
+  },
+  "clockContract": "docs/review/2026-10-06/pikachu-character/sources/special-runtime-clock-contract.json",
+  "clockContractSha256": "d647ffaa5d46cb3250ead662629b6007b44af6cd430f4a81adce4dc39a5511ae",
+  "animations": {
+    "down_special": {
+      "strip": "animations/down_special.png",
+      "frameCount": 7,
+      "sha256": "7ba570dbd481fe8ab4ce37f351b77240b956b1eeeb2bbb3037c274199e6a8cbd",
+      "frameWindows": [
+        {
+          "startFrame": 0,
+          "endFrame": 4,
+          "artFrameIndex": 0
+        },
+        {
+          "startFrame": 4,
+          "endFrame": 12,
+          "artFrameIndex": 1
+        },
+        {
+          "startFrame": 12,
+          "endFrame": 16,
+          "artFrameIndex": 2
+        },
+        {
+          "startFrame": 16,
+          "endFrame": 24,
+          "artFrameIndex": 3
+        },
+        {
+          "startFrame": 24,
+          "endFrame": 32,
+          "artFrameIndex": 4
+        },
+        {
+          "startFrame": 32,
+          "endFrame": 46,
+          "artFrameIndex": 5
+        },
+        {
+          "startFrame": 46,
+          "endFrame": 86,
+          "artFrameIndex": 6
+        }
+      ]
+    }
+  },
+  "sources": [
+    {
+      "sourceKey": "thunder-ground-sample0-source0",
+      "nativeSample": 0,
+      "file": "docs/review/2026-10-06/pikachu-character/art/thunder-ground-sample0-source0-attempt1-cutout.png",
+      "sha256": "36a7cabea07f9d5a2120333066485720ae57180536bf2bf5054992ed00497b1e",
+      "review": "docs/review/2026-10-06/pikachu-character/art/thunder-body-pilot-output-review.json",
+      "reviewSha256": "52f051e8fcee12b08b9df01687055ea1c64a7029b95229e2df18bbb6475489d3",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null
+    },
+    {
+      "sourceKey": "thunder-ground-sample4-source4",
+      "nativeSample": 4,
+      "file": "docs/review/2026-10-06/pikachu-character/art/thunder-ground-sample4-source4-attempt1-cutout.png",
+      "sha256": "dba7232aacca8a5c7c8fb2e1da7f54117de0358396cb9419877fde81683c76d1",
+      "review": "docs/review/2026-10-06/pikachu-character/art/thunder-ground-sample4-source4-attempt1.review.json",
+      "reviewSha256": "3a71726aff283c76bfaf3f1700c94187539b3706d93f13b9531cce794f1b042c",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null
+    },
+    {
+      "sourceKey": "thunder-ground-sample12-source12",
+      "nativeSample": 12,
+      "file": "docs/review/2026-10-06/pikachu-character/art/thunder-ground-sample12-source12-attempt1-cutout.png",
+      "sha256": "c752e950d87c5c4c385e711044aa5d7d031e23841dc1e556b784f38b8ac830a9",
+      "review": "docs/review/2026-10-06/pikachu-character/art/thunder-ground-sample12-source12-attempt1.review.json",
+      "reviewSha256": "4ba7be1f7d25ef9419faad431cbb206a87177e5788c11b9aeea8f5853ea3b6c6",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null
+    },
+    {
+      "sourceKey": "thunder-ground-sample16-source16",
+      "nativeSample": 16,
+      "file": "docs/review/2026-10-06/pikachu-character/art/thunder-ground-sample16-source16-attempt1-cutout.png",
+      "sha256": "cf9799bfa274680b463a9fd3740dc79481db5648634c0c627aeeacfc60b0c4d3",
+      "review": "docs/review/2026-10-06/pikachu-character/art/thunder-ground-sample16-source16-attempt1.review.json",
+      "reviewSha256": "a7f1ecfa81dbac401eaeccb4ae38d4aa32ca77880624b9276c18dc5a3eec213a",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null
+    },
+    {
+      "sourceKey": "thunder-ground-sample24-source24",
+      "nativeSample": 24,
+      "file": "docs/review/2026-10-06/pikachu-character/art/thunder-ground-sample24-source24-attempt1-cutout.png",
+      "sha256": "741aa79973de81641d2831d87a8a16164a5c7ed036a291555461f50e9119b013",
+      "review": "docs/review/2026-10-06/pikachu-character/art/thunder-ground-sample24-source24-attempt1.review.json",
+      "reviewSha256": "2aac38c629c2a8917c6806a06135378a53b42ea93113b88f3fa0be47ac571939",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null
+    },
+    {
+      "sourceKey": "thunder-ground-sample32-source32",
+      "nativeSample": 32,
+      "file": "docs/review/2026-10-06/pikachu-character/art/thunder-ground-sample32-source32-attempt1-cutout.png",
+      "sha256": "5dff5014988fd6942e96e9e6f8e9bac2dbb41deab975457f14702cb5d060b56c",
+      "review": "docs/review/2026-10-06/pikachu-character/art/thunder-ground-sample32-source32-attempt1.review.json",
+      "reviewSha256": "817002962c41a2181315e83603fb586f561543232e0eb9c88db4ea1c23a2fcbb",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null
+    },
+    {
+      "sourceKey": "thunder-ground-sample46-source46",
+      "nativeSample": 46,
+      "file": "docs/review/2026-10-06/pikachu-character/art/thunder-ground-sample46-source46-attempt1-cutout.png",
+      "sha256": "6c81131cbe45a3c85133fb2908015fccc4830e3f72c5d7b86d33c79cda7d3199",
+      "review": "docs/review/2026-10-06/pikachu-character/art/thunder-ground-sample46-source46-attempt1.review.json",
+      "reviewSha256": "03ae380d954b2605d27eec49f642af4c18242b4bc2e6a0336d3dbc82425c6f2d",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null
+    }
+  ],
+  "galleries": {
+    "docs/review/2026-10-06/pikachu-character/thunder-body/packed-preparation/down_special-cells-1.png": "6daed419012fc8d7e3fb7679dc5fa8f783f4a353ff460ac47ae0dfeb7bfe1ece",
+    "docs/review/2026-10-06/pikachu-character/thunder-body/packed-preparation/down_special-cells-2.png": "0d53035e2cba2e07601beba95ed0f1edd3324ede4e5c5170a20199f7efed8561"
+  },
+  "discardedPostActionNativeSamples": [
+    92
+  ]
+}

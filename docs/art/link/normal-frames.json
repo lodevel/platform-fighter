@@ -1,0 +1,1107 @@
+{
+  "schemaVersion": 1,
+  "kind": "deferred-art-instructions",
+  "fighter": "link",
+  "status": "generation-deferred-by-user",
+  "generatedAssets": [],
+  "checkedOn": "2026-09-23",
+  "source": "https://ultimateframedata.com/link",
+  "implementation": "src/characters/Link.ts",
+  "timingStatus": "Normal active intervals and total durations compared with UFD and current definitions. This is planning data, not runtime-loaded configuration.",
+  "poseStatus": "Authored 2D pose proposals. Source GIF URLs are recorded, but full motion/handedness review is required per batch before generation; no native skeletal reconstruction is claimed.",
+  "frameConvention": "One-based inclusive from/to; charge holds, hitlag, landing and conditional branches are outside the uninterrupted base timeline.",
+  "delivery": {
+    "format": "individual RGBA PNG",
+    "canvasWidth": 512,
+    "canvasHeight": 512,
+    "root": [
+      256,
+      256
+    ],
+    "standingBodyHeight": 144,
+    "neutralFeet": [
+      256,
+      328
+    ],
+    "intendedWorldScale": 0.5,
+    "calibrationStatus": "proposed; pilot inspection required",
+    "facing": "fighter faces right; rear attacks extend left",
+    "filePattern": "link-<clip>-<pose-number>.png",
+    "registration": "Fixed simulation origin; pelvis and feet may move intentionally with the pose. Do not auto-center alpha bounds or rescale individual poses."
+  },
+  "globals": {
+    "identityReferences": [
+      "assets/characters/link/animations/idle.png",
+      "assets/characters/link/animations/tilt.png",
+      "assets/characters/link/animations/uair.png"
+    ],
+    "poseReferences": "Use each clip's sourceAnimationUrl for motion, not costume/style.",
+    "invariants": [
+      "Match current green tunic, dark green cape, blond hair, pointed ears, boots, silver sword with blue/gold hilt, and blue shield identity.",
+      "Preserve body proportions and equipment length across poses.",
+      "No baked collision overlays, projectiles, text, labels, scenery, floor shadows or checkerboard transparency.",
+      "Do not change damage, active windows, charge timing or collision to accommodate drawings."
+    ]
+  },
+  "clips": [
+    {
+      "moveId": "link.jab",
+      "label": "Jab 1",
+      "currentSheet": "jab",
+      "proposedClip": "jab",
+      "sourceAnimationUrl": "https://ultimateframedata.com/hitboxes/link/LinkJab1.gif",
+      "totalFrames": 23,
+      "contacts": [
+        {
+          "from": 7,
+          "to": 8,
+          "group": "strike"
+        }
+      ],
+      "poses": [
+        {
+          "key": "jab-01",
+          "from": 1,
+          "to": 3,
+          "instruction": "Right-facing guard; load the first short forward sword strike with a small shoulder turn."
+        },
+        {
+          "key": "jab-02",
+          "from": 4,
+          "to": 6,
+          "instruction": "Draw the sword hand back into the first strike's anticipation; keep the planted stance readable."
+        },
+        {
+          "key": "jab-03",
+          "from": 7,
+          "to": 8,
+          "instruction": "First forward sword contact; extend the weapon clearly beyond the body without changing its length."
+        },
+        {
+          "key": "jab-04",
+          "from": 9,
+          "to": 11,
+          "instruction": "Release the first strike and begin retracting the arm; no contact remains."
+        },
+        {
+          "key": "jab-05",
+          "from": 12,
+          "to": 17,
+          "instruction": "Reach a distinct chain-ready guard that can connect to jab 2, with or without a new input."
+        },
+        {
+          "key": "jab-06",
+          "from": 18,
+          "to": 23,
+          "instruction": "Settle toward idle if no follow-up starts; do not draw an automatic second strike."
+        }
+      ],
+      "conditionalEvents": [
+        {
+          "frame": 12,
+          "event": "Earliest jab-2 transition if input accepted; interrupt recovery."
+        }
+      ]
+    },
+    {
+      "moveId": "link.jab2",
+      "label": "Jab 2",
+      "currentSheet": "jab2",
+      "proposedClip": "jab2",
+      "sourceAnimationUrl": "https://ultimateframedata.com/hitboxes/link/LinkJab2.gif",
+      "totalFrames": 25,
+      "contacts": [
+        {
+          "from": 5,
+          "to": 6,
+          "group": "strike"
+        }
+      ],
+      "poses": [
+        {
+          "key": "jab2-01",
+          "from": 1,
+          "to": 2,
+          "instruction": "Begin from the first jab's handoff pose; prepare a visibly different second sword motion."
+        },
+        {
+          "key": "jab2-02",
+          "from": 3,
+          "to": 4,
+          "instruction": "Compact second-strike anticipation with consistent weapon grip and body scale."
+        },
+        {
+          "key": "jab2-03",
+          "from": 5,
+          "to": 6,
+          "instruction": "Second forward sword contact, distinct in shoulder and blade silhouette from jab 1."
+        },
+        {
+          "key": "jab2-04",
+          "from": 7,
+          "to": 7,
+          "instruction": "Release the second strike; no hitbox is active."
+        },
+        {
+          "key": "jab2-05",
+          "from": 8,
+          "to": 16,
+          "instruction": "Chain-ready pose for jab 3; keep the sword available for the finishing motion."
+        },
+        {
+          "key": "jab2-06",
+          "from": 17,
+          "to": 25,
+          "instruction": "Recover to guard if the chain ends."
+        }
+      ],
+      "conditionalEvents": [
+        {
+          "frame": 8,
+          "event": "Earliest jab-3 transition if input accepted; interrupt recovery."
+        }
+      ]
+    },
+    {
+      "moveId": "link.jab3",
+      "label": "Jab 3",
+      "currentSheet": "jab3",
+      "proposedClip": "jab3",
+      "sourceAnimationUrl": "https://ultimateframedata.com/hitboxes/link/LinkJab3.gif",
+      "totalFrames": 34,
+      "contacts": [
+        {
+          "from": 6,
+          "to": 7,
+          "group": "strike"
+        }
+      ],
+      "poses": [
+        {
+          "key": "jab3-01",
+          "from": 1,
+          "to": 2,
+          "instruction": "Continue from jab 2 with a stronger finisher preparation."
+        },
+        {
+          "key": "jab3-02",
+          "from": 3,
+          "to": 5,
+          "instruction": "Load the finishing sword strike with an identifiable silhouette; preserve stance/root registration."
+        },
+        {
+          "key": "jab3-03",
+          "from": 6,
+          "to": 7,
+          "instruction": "Finishing sword contact with full readable extension; confirm the exact blade path from the linked motion before generation."
+        },
+        {
+          "key": "jab3-04",
+          "from": 8,
+          "to": 15,
+          "instruction": "Follow through after contact; do not repeat the impact pose as another strike."
+        },
+        {
+          "key": "jab3-05",
+          "from": 16,
+          "to": 25,
+          "instruction": "Retract the sword and unwind the torso."
+        },
+        {
+          "key": "jab3-06",
+          "from": 26,
+          "to": 34,
+          "instruction": "Return to a stable guard and match the idle proportions."
+        }
+      ]
+    },
+    {
+      "moveId": "link.tilt",
+      "label": "Forward tilt",
+      "currentSheet": "tilt",
+      "proposedClip": "tilt",
+      "sourceAnimationUrl": "https://ultimateframedata.com/hitboxes/link/LinkFTilt.gif",
+      "totalFrames": 39,
+      "contacts": [
+        {
+          "from": 15,
+          "to": 19,
+          "group": "strike"
+        }
+      ],
+      "poses": [
+        {
+          "key": "tilt-01",
+          "from": 1,
+          "to": 7,
+          "instruction": "Begin a deliberate sword raise from grounded guard."
+        },
+        {
+          "key": "tilt-02",
+          "from": 8,
+          "to": 14,
+          "instruction": "Prepare an overhead-to-forward sword sweep; shoulders and blade clearly above the initial guard."
+        },
+        {
+          "key": "tilt-03",
+          "from": 15,
+          "to": 15,
+          "instruction": "Overhead contact pose: the blade must visibly threaten above the body."
+        },
+        {
+          "key": "tilt-04",
+          "from": 16,
+          "to": 17,
+          "instruction": "Move the blade through the forward portion of the same sweep."
+        },
+        {
+          "key": "tilt-05",
+          "from": 18,
+          "to": 19,
+          "instruction": "Finish the forward contact arc without creating a second strike."
+        },
+        {
+          "key": "tilt-06",
+          "from": 20,
+          "to": 29,
+          "instruction": "Follow through and retract, with no contact."
+        },
+        {
+          "key": "tilt-07",
+          "from": 30,
+          "to": 39,
+          "instruction": "Settle back into guard."
+        }
+      ]
+    },
+    {
+      "moveId": "link.utilt",
+      "label": "Up tilt",
+      "currentSheet": "tilt",
+      "proposedClip": "utilt",
+      "sourceAnimationUrl": "https://ultimateframedata.com/hitboxes/link/LinkUTilt.gif",
+      "totalFrames": 35,
+      "contacts": [
+        {
+          "from": 8,
+          "to": 12,
+          "group": "strike"
+        }
+      ],
+      "poses": [
+        {
+          "key": "utilt-01",
+          "from": 1,
+          "to": 4,
+          "instruction": "Grounded right-facing guard; soften the knees and prepare an upward sword sweep. Shield remains on the off arm."
+        },
+        {
+          "key": "utilt-02",
+          "from": 5,
+          "to": 7,
+          "instruction": "Raise the sword into anticipation beside the shoulder; feet remain planted and the weapon arc has clear overhead space."
+        },
+        {
+          "key": "utilt-03",
+          "from": 8,
+          "to": 8,
+          "instruction": "First active key of the overhead sweep. Match the blade direction at source frame 8; do not substitute a horizontal forward jab."
+        },
+        {
+          "key": "utilt-04",
+          "from": 9,
+          "to": 9,
+          "instruction": "Next distinct active key, advancing the blade smoothly along the reference arc with unchanged sword length."
+        },
+        {
+          "key": "utilt-05",
+          "from": 10,
+          "to": 10,
+          "instruction": "Middle active key: strong readable overhead silhouette; keep the face, shoulder and hilt identifiable."
+        },
+        {
+          "key": "utilt-06",
+          "from": 11,
+          "to": 11,
+          "instruction": "Next active key beyond the middle of the arc, with continuous shoulder and wrist motion."
+        },
+        {
+          "key": "utilt-07",
+          "from": 12,
+          "to": 12,
+          "instruction": "Last active key at the sweep exit; preserve the reference's front/rear ordering rather than guessing it."
+        },
+        {
+          "key": "utilt-08",
+          "from": 13,
+          "to": 24,
+          "instruction": "Recover from the overhead sweep and bring the sword toward guard; no attack region remains."
+        },
+        {
+          "key": "utilt-09",
+          "from": 25,
+          "to": 35,
+          "instruction": "Settle into the same body proportions and grounded anchor as idle."
+        }
+      ],
+      "priority": "pilot",
+      "proposedPhaseArtCounts": {
+        "startup": 2,
+        "active": 5,
+        "recovery": 2
+      },
+      "posePathStatus": "Timing checked; source GIF motion direction must be visually checked before submitting the pilot."
+    },
+    {
+      "moveId": "link.dtilt",
+      "label": "Down tilt",
+      "currentSheet": "dtilt",
+      "proposedClip": "dtilt",
+      "sourceAnimationUrl": "https://ultimateframedata.com/hitboxes/link/LinkDTilt.gif",
+      "totalFrames": 30,
+      "contacts": [
+        {
+          "from": 10,
+          "to": 11,
+          "group": "strike"
+        }
+      ],
+      "poses": [
+        {
+          "key": "dtilt-01",
+          "from": 1,
+          "to": 4,
+          "instruction": "Lower into a grounded stance while retaining the same registered root and body scale."
+        },
+        {
+          "key": "dtilt-02",
+          "from": 5,
+          "to": 9,
+          "instruction": "Prepare a low sword sweep; keep the blade and hands clear of the shins."
+        },
+        {
+          "key": "dtilt-03",
+          "from": 10,
+          "to": 11,
+          "instruction": "Sweep low and forward near ground level; use the reference for the diagonal blade path."
+        },
+        {
+          "key": "dtilt-04",
+          "from": 12,
+          "to": 21,
+          "instruction": "Retract from the low strike without drawing an aerial plunge."
+        },
+        {
+          "key": "dtilt-05",
+          "from": 22,
+          "to": 30,
+          "instruction": "Rise toward the normal grounded guard."
+        }
+      ]
+    },
+    {
+      "moveId": "link.dashAttack",
+      "label": "Dash attack",
+      "currentSheet": "tilt",
+      "proposedClip": "dashAttack",
+      "sourceAnimationUrl": "https://ultimateframedata.com/hitboxes/link/LinkDashAttack.gif",
+      "totalFrames": 56,
+      "contacts": [
+        {
+          "from": 20,
+          "to": 23,
+          "group": "strike"
+        }
+      ],
+      "poses": [
+        {
+          "key": "dashAttack-01",
+          "from": 1,
+          "to": 9,
+          "instruction": "Running approach pose transitioning into a committed sword attack; translation belongs to the simulation."
+        },
+        {
+          "key": "dashAttack-02",
+          "from": 10,
+          "to": 19,
+          "instruction": "Load the running/lunging strike with a different silhouette from stationary forward tilt."
+        },
+        {
+          "key": "dashAttack-03",
+          "from": 20,
+          "to": 21,
+          "instruction": "First part of running sword contact; readable forward reach and stable weapon proportions."
+        },
+        {
+          "key": "dashAttack-04",
+          "from": 22,
+          "to": 23,
+          "instruction": "Finish the same contact arc; preserve one strike identity."
+        },
+        {
+          "key": "dashAttack-05",
+          "from": 24,
+          "to": 35,
+          "instruction": "Forward momentum in the body pose, with the root still registered to its fixed canvas origin."
+        },
+        {
+          "key": "dashAttack-06",
+          "from": 36,
+          "to": 46,
+          "instruction": "Recover balance and retract the sword."
+        },
+        {
+          "key": "dashAttack-07",
+          "from": 47,
+          "to": 56,
+          "instruction": "Return to guard; do not slide the artwork across its canvas to mimic travel."
+        }
+      ]
+    },
+    {
+      "moveId": "link.smash",
+      "label": "Forward smash 1",
+      "currentSheet": "smash",
+      "proposedClip": "smash",
+      "sourceAnimationUrl": "https://ultimateframedata.com/hitboxes/link/LinkFSmash1.gif",
+      "totalFrames": 50,
+      "contacts": [
+        {
+          "from": 17,
+          "to": 18,
+          "group": "strike"
+        }
+      ],
+      "poses": [
+        {
+          "key": "smash-01",
+          "from": 1,
+          "to": 8,
+          "instruction": "Load a strong grounded forward sword swing."
+        },
+        {
+          "key": "smash-02",
+          "from": 9,
+          "to": 9,
+          "instruction": "Reusable charge-hold pose: visibly loaded and stable for a variable duration."
+        },
+        {
+          "key": "smash-03",
+          "from": 10,
+          "to": 16,
+          "instruction": "Release from the hold into the strike anticipation."
+        },
+        {
+          "key": "smash-04",
+          "from": 17,
+          "to": 18,
+          "instruction": "Strong forward sword contact with a readable blade tip; do not bake a sword beam into the body image."
+        },
+        {
+          "key": "smash-05",
+          "from": 19,
+          "to": 21,
+          "instruction": "Follow through and begin preparing the optional second swing."
+        },
+        {
+          "key": "smash-06",
+          "from": 22,
+          "to": 36,
+          "instruction": "Recovery/handoff posture that can transition to the separately generated smash2 sequence."
+        },
+        {
+          "key": "smash-07",
+          "from": 37,
+          "to": 50,
+          "instruction": "Finish recovery to idle when no second swing occurs."
+        }
+      ],
+      "chargeHoldFrame": 9,
+      "conditionalEvents": [
+        {
+          "frame": 22,
+          "event": "Earliest optional smash2 transition. Current closing frame 36 is project calibration."
+        },
+        {
+          "frame": 17,
+          "event": "Sword beam is a separate conditional entity at 0% damage; keep it out of body art."
+        }
+      ]
+    },
+    {
+      "moveId": "link.smash2",
+      "label": "Forward smash 2",
+      "currentSheet": "smash",
+      "proposedClip": "smash2",
+      "sourceAnimationUrl": "https://ultimateframedata.com/hitboxes/link/LinkFSmash2.gif",
+      "totalFrames": 60,
+      "contacts": [
+        {
+          "from": 10,
+          "to": 11,
+          "group": "strike"
+        }
+      ],
+      "poses": [
+        {
+          "key": "smash2-01",
+          "from": 1,
+          "to": 4,
+          "instruction": "Begin from the first swing's handoff, never from an unrelated idle pose."
+        },
+        {
+          "key": "smash2-02",
+          "from": 5,
+          "to": 9,
+          "instruction": "Prepare the distinct follow-up sword swing."
+        },
+        {
+          "key": "smash2-03",
+          "from": 10,
+          "to": 11,
+          "instruction": "Second swing contact, clearly different from forward smash 1."
+        },
+        {
+          "key": "smash2-04",
+          "from": 12,
+          "to": 27,
+          "instruction": "Large finishing follow-through with no additional contact."
+        },
+        {
+          "key": "smash2-05",
+          "from": 28,
+          "to": 43,
+          "instruction": "Retract and regain balance."
+        },
+        {
+          "key": "smash2-06",
+          "from": 44,
+          "to": 60,
+          "instruction": "Long final recovery toward guard."
+        }
+      ],
+      "entryCondition": "Only after an accepted follow-up input during smash1; never append automatically."
+    },
+    {
+      "moveId": "link.usmash",
+      "label": "Up smash",
+      "currentSheet": "smash",
+      "proposedClip": "usmash",
+      "sourceAnimationUrl": "https://ultimateframedata.com/hitboxes/link/LinkUSmash.gif",
+      "totalFrames": 77,
+      "contacts": [
+        {
+          "from": 10,
+          "to": 15,
+          "group": "first"
+        },
+        {
+          "from": 25,
+          "to": 30,
+          "group": "second"
+        },
+        {
+          "from": 41,
+          "to": 45,
+          "group": "finish"
+        }
+      ],
+      "poses": [
+        {
+          "key": "usmash-01",
+          "from": 1,
+          "to": 4,
+          "instruction": "Prepare a grounded upward multi-sweep attack."
+        },
+        {
+          "key": "usmash-02",
+          "from": 5,
+          "to": 5,
+          "instruction": "Stable charge-hold pose for the overhead attack."
+        },
+        {
+          "key": "usmash-03",
+          "from": 6,
+          "to": 9,
+          "instruction": "Release into the first overhead sweep."
+        },
+        {
+          "key": "usmash-04",
+          "from": 10,
+          "to": 13,
+          "instruction": "First overhead contact arc, with a distinctive blade angle."
+        },
+        {
+          "key": "usmash-05",
+          "from": 14,
+          "to": 15,
+          "instruction": "Exit the first contact arc; retain the same strike identity."
+        },
+        {
+          "key": "usmash-06",
+          "from": 16,
+          "to": 24,
+          "instruction": "Harmless transition into the second sweep; no active hitbox."
+        },
+        {
+          "key": "usmash-07",
+          "from": 25,
+          "to": 28,
+          "instruction": "Second overhead contact arc, visibly distinct from the first."
+        },
+        {
+          "key": "usmash-08",
+          "from": 29,
+          "to": 30,
+          "instruction": "Exit the second contact arc."
+        },
+        {
+          "key": "usmash-09",
+          "from": 31,
+          "to": 40,
+          "instruction": "Harmless transition and preparation for the finishing sweep."
+        },
+        {
+          "key": "usmash-10",
+          "from": 41,
+          "to": 45,
+          "instruction": "Third, finishing overhead contact arc with a stronger extension."
+        },
+        {
+          "key": "usmash-11",
+          "from": 46,
+          "to": 61,
+          "instruction": "Lower the sword and recover from the finisher."
+        },
+        {
+          "key": "usmash-12",
+          "from": 62,
+          "to": 77,
+          "instruction": "Return to guard."
+        }
+      ],
+      "chargeHoldFrame": 5,
+      "requiresExplicitPoseKeys": true
+    },
+    {
+      "moveId": "link.dsmash",
+      "label": "Down smash",
+      "currentSheet": "smash",
+      "proposedClip": "dsmash",
+      "sourceAnimationUrl": "https://ultimateframedata.com/hitboxes/link/LinkDSmash.gif",
+      "totalFrames": 56,
+      "contacts": [
+        {
+          "from": 12,
+          "to": 13,
+          "group": "front"
+        },
+        {
+          "from": 24,
+          "to": 25,
+          "group": "back"
+        }
+      ],
+      "poses": [
+        {
+          "key": "dsmash-01",
+          "from": 1,
+          "to": 3,
+          "instruction": "Crouch and load a grounded low sweep."
+        },
+        {
+          "key": "dsmash-02",
+          "from": 4,
+          "to": 4,
+          "instruction": "Stable low charge-hold pose."
+        },
+        {
+          "key": "dsmash-03",
+          "from": 5,
+          "to": 11,
+          "instruction": "Prepare the front sweep, keeping the physical root registered."
+        },
+        {
+          "key": "dsmash-04",
+          "from": 12,
+          "to": 13,
+          "instruction": "Low front contact: sword extends toward screen-right for a right-facing fighter."
+        },
+        {
+          "key": "dsmash-05",
+          "from": 14,
+          "to": 18,
+          "instruction": "Release front contact and begin turning the torso."
+        },
+        {
+          "key": "dsmash-06",
+          "from": 19,
+          "to": 23,
+          "instruction": "Harmless transition toward the rear sweep; no hitbox."
+        },
+        {
+          "key": "dsmash-07",
+          "from": 24,
+          "to": 25,
+          "instruction": "Low rear contact: sword extends screen-left relative to the same right-facing fighter reference."
+        },
+        {
+          "key": "dsmash-08",
+          "from": 26,
+          "to": 40,
+          "instruction": "Recover from the rear sweep with continuous torso motion."
+        },
+        {
+          "key": "dsmash-09",
+          "from": 41,
+          "to": 56,
+          "instruction": "Return to grounded guard."
+        }
+      ],
+      "chargeHoldFrame": 4,
+      "requiresExplicitPoseKeys": true,
+      "facingNote": "New sequence uses fighter-facing coordinates. Current rear-window sprite flip must be reconciled during integration to avoid mirroring twice."
+    },
+    {
+      "moveId": "link.nair",
+      "label": "Neutral air",
+      "currentSheet": "nair",
+      "proposedClip": "nair",
+      "sourceAnimationUrl": "https://ultimateframedata.com/hitboxes/link/LinkNAir.gif",
+      "totalFrames": 38,
+      "contacts": [
+        {
+          "from": 7,
+          "to": 8,
+          "group": "kick",
+          "variant": "early"
+        },
+        {
+          "from": 9,
+          "to": 31,
+          "group": "kick",
+          "variant": "late"
+        }
+      ],
+      "poses": [
+        {
+          "key": "nair-01",
+          "from": 1,
+          "to": 3,
+          "instruction": "Airborne preparation for a kick; sword is carried safely and is not the striking limb."
+        },
+        {
+          "key": "nair-02",
+          "from": 4,
+          "to": 6,
+          "instruction": "Extend the kicking leg while bending the supporting leg for a readable airborne silhouette."
+        },
+        {
+          "key": "nair-03",
+          "from": 7,
+          "to": 8,
+          "instruction": "Clear initial extended-kick contact; foot/leg is the striking region."
+        },
+        {
+          "key": "nair-04",
+          "from": 9,
+          "to": 20,
+          "instruction": "Sustain the kick with consistent limb length and body orientation."
+        },
+        {
+          "key": "nair-05",
+          "from": 21,
+          "to": 31,
+          "instruction": "Continue the same late kick, allowing restrained cloth motion without a new impact."
+        },
+        {
+          "key": "nair-06",
+          "from": 32,
+          "to": 38,
+          "instruction": "Retract the leg into airborne recovery."
+        }
+      ]
+    },
+    {
+      "moveId": "link.fair",
+      "label": "Forward air",
+      "currentSheet": "fair",
+      "proposedClip": "fair",
+      "sourceAnimationUrl": "https://ultimateframedata.com/hitboxes/link/LinkFAir.gif",
+      "totalFrames": 51,
+      "contacts": [
+        {
+          "from": 16,
+          "to": 17,
+          "group": "first"
+        },
+        {
+          "from": 24,
+          "to": 25,
+          "group": "finish"
+        }
+      ],
+      "poses": [
+        {
+          "key": "fair-01",
+          "from": 1,
+          "to": 7,
+          "instruction": "Airborne sword preparation with a stable registered root."
+        },
+        {
+          "key": "fair-02",
+          "from": 8,
+          "to": 15,
+          "instruction": "Load the first forward slash."
+        },
+        {
+          "key": "fair-03",
+          "from": 16,
+          "to": 17,
+          "instruction": "First forward sword contact."
+        },
+        {
+          "key": "fair-04",
+          "from": 18,
+          "to": 20,
+          "instruction": "Release the first slash with no contact."
+        },
+        {
+          "key": "fair-05",
+          "from": 21,
+          "to": 23,
+          "instruction": "Prepare the second slash during the harmless gap."
+        },
+        {
+          "key": "fair-06",
+          "from": 24,
+          "to": 25,
+          "instruction": "Distinct second forward sword contact."
+        },
+        {
+          "key": "fair-07",
+          "from": 26,
+          "to": 38,
+          "instruction": "Follow through after the second slash."
+        },
+        {
+          "key": "fair-08",
+          "from": 39,
+          "to": 51,
+          "instruction": "Retract into airborne guard; landing may interrupt this sequence."
+        }
+      ],
+      "requiresExplicitPoseKeys": true
+    },
+    {
+      "moveId": "link.bair",
+      "label": "Back air",
+      "currentSheet": "bair",
+      "proposedClip": "bair",
+      "sourceAnimationUrl": "https://ultimateframedata.com/hitboxes/link/LinkBAir.gif",
+      "totalFrames": 30,
+      "contacts": [
+        {
+          "from": 6,
+          "to": 8,
+          "group": "first"
+        },
+        {
+          "from": 15,
+          "to": 17,
+          "group": "finish"
+        }
+      ],
+      "poses": [
+        {
+          "key": "bair-01",
+          "from": 1,
+          "to": 2,
+          "instruction": "Airborne preparation for a rear kick; fighter reference remains facing screen-right."
+        },
+        {
+          "key": "bair-02",
+          "from": 3,
+          "to": 5,
+          "instruction": "Load the first kick behind the body; do not turn it into a forward sword attack."
+        },
+        {
+          "key": "bair-03",
+          "from": 6,
+          "to": 8,
+          "instruction": "First rear kick extending toward screen-left."
+        },
+        {
+          "key": "bair-04",
+          "from": 9,
+          "to": 11,
+          "instruction": "Retract the first kick during the harmless gap."
+        },
+        {
+          "key": "bair-05",
+          "from": 12,
+          "to": 14,
+          "instruction": "Load the distinct second rear kick."
+        },
+        {
+          "key": "bair-06",
+          "from": 15,
+          "to": 17,
+          "instruction": "Second rear kick toward screen-left, with a distinct leg/hip silhouette."
+        },
+        {
+          "key": "bair-07",
+          "from": 18,
+          "to": 24,
+          "instruction": "Retract the leg and recover airborne balance."
+        },
+        {
+          "key": "bair-08",
+          "from": 25,
+          "to": 30,
+          "instruction": "Return to airborne guard."
+        }
+      ],
+      "requiresExplicitPoseKeys": true,
+      "facingNote": "Author in fighter-facing coordinates; current reversed aerial attack axis must not mirror the new rear-kick art twice."
+    },
+    {
+      "moveId": "link.uair",
+      "label": "Up air",
+      "currentSheet": "uair",
+      "proposedClip": "uair",
+      "sourceAnimationUrl": "https://ultimateframedata.com/hitboxes/link/LinkUAir.gif",
+      "totalFrames": 59,
+      "contacts": [
+        {
+          "from": 11,
+          "to": 13,
+          "group": "thrust",
+          "variant": "early"
+        },
+        {
+          "from": 14,
+          "to": 40,
+          "group": "thrust",
+          "variant": "late"
+        }
+      ],
+      "poses": [
+        {
+          "key": "uair-01",
+          "from": 1,
+          "to": 5,
+          "instruction": "Prepare the sword above the airborne body."
+        },
+        {
+          "key": "uair-02",
+          "from": 6,
+          "to": 10,
+          "instruction": "Align the blade for an upward thrust, with hands and hilt below its point."
+        },
+        {
+          "key": "uair-03",
+          "from": 11,
+          "to": 13,
+          "instruction": "Initial upward thrust; blade points upward rather than lying horizontally across the head."
+        },
+        {
+          "key": "uair-04",
+          "from": 14,
+          "to": 27,
+          "instruction": "Sustain the overhead thrust as the body moves with the simulation."
+        },
+        {
+          "key": "uair-05",
+          "from": 28,
+          "to": 40,
+          "instruction": "Continue the same late thrust with restrained cloth/limb adjustment and no extra attack."
+        },
+        {
+          "key": "uair-06",
+          "from": 41,
+          "to": 50,
+          "instruction": "Retract the sword from overhead."
+        },
+        {
+          "key": "uair-07",
+          "from": 51,
+          "to": 59,
+          "instruction": "Recover into airborne guard."
+        }
+      ]
+    },
+    {
+      "moveId": "link.dair",
+      "label": "Down air",
+      "currentSheet": "dair",
+      "proposedClip": "dair",
+      "sourceAnimationUrl": "https://ultimateframedata.com/hitboxes/link/LinkDAir.gif",
+      "totalFrames": 79,
+      "contacts": [
+        {
+          "from": 14,
+          "to": 19,
+          "group": "thrust",
+          "variant": "early"
+        },
+        {
+          "from": 20,
+          "to": 64,
+          "group": "thrust",
+          "variant": "late"
+        }
+      ],
+      "poses": [
+        {
+          "key": "dair-01",
+          "from": 1,
+          "to": 6,
+          "instruction": "Prepare the sword underneath the airborne body."
+        },
+        {
+          "key": "dair-02",
+          "from": 7,
+          "to": 13,
+          "instruction": "Aim the blade downward, bringing limbs clear of the plunge."
+        },
+        {
+          "key": "dair-03",
+          "from": 14,
+          "to": 19,
+          "instruction": "Initial downward sword plunge; blade is visibly beneath the body."
+        },
+        {
+          "key": "dair-04",
+          "from": 20,
+          "to": 42,
+          "instruction": "Sustain the downward thrust; simulation supplies movement, not canvas translation."
+        },
+        {
+          "key": "dair-05",
+          "from": 43,
+          "to": 64,
+          "instruction": "Continue the late downward thrust as one strike identity."
+        },
+        {
+          "key": "dair-06",
+          "from": 65,
+          "to": 72,
+          "instruction": "Retract the blade when ordinary recovery begins."
+        },
+        {
+          "key": "dair-07",
+          "from": 73,
+          "to": 79,
+          "instruction": "Recover to airborne guard; landing or rebound can branch earlier."
+        }
+      ],
+      "conditionalEvents": [
+        {
+          "event": "Successful rebound uses a separate branch/return pose; do not play it unconditionally or infer it from elapsed time."
+        }
+      ]
+    }
+  ],
+  "contactGroupConvention": "Explicit hitWindows group names match Link.ts. For moves without explicit windows, strike labels the single ordinary hit for planning only."
+}

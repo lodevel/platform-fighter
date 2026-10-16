@@ -1,0 +1,223 @@
+{
+  "state": "packed_cells_visually_reviewed_runtime_pending",
+  "coordinateContract": {
+    "canonicalCanvas": [
+      2048,
+      2048
+    ],
+    "canonicalRoot": [
+      1024,
+      1664
+    ],
+    "frameWidth": 512,
+    "frameHeight": 512,
+    "root": [
+      256,
+      416
+    ],
+    "scaleToWorld": 0.4666666666666667,
+    "bodyCentreFromRoot": [
+      0,
+      -25
+    ]
+  },
+  "clockContract": "docs/review/2026-10-06/pikachu-character/sources/special-body-runtime-clock-contract.json",
+  "clockContractSha256": "afa3d371760c55b27d6e910c9ac6beccbf26decad48271fd1339c69df6021b4a",
+  "animations": {
+    "side_special_air_hit": {
+      "strip": "animations/side_special_air_hit.png",
+      "frameCount": 5,
+      "sha256": "c64a9f7e930edcdfe246f5b07aff1ceb2f23c9acb8512d7856cce804c1a6b950",
+      "columns": 5,
+      "rows": 1,
+      "frameWindows": [
+        {
+          "startFrame": 0,
+          "endFrame": 10,
+          "artFrameIndex": 0
+        },
+        {
+          "startFrame": 10,
+          "endFrame": 20,
+          "artFrameIndex": 1
+        },
+        {
+          "startFrame": 20,
+          "endFrame": 22,
+          "artFrameIndex": 2
+        }
+      ],
+      "loopDuration": null,
+      "nativeSampleIndices": [
+        0,
+        10,
+        20,
+        35,
+        46
+      ],
+      "nativeWindows": [
+        {
+          "source_key": "full-skull-bash-air-end-sample0-source0",
+          "native_sample_index": 0,
+          "start_elapsed": 0,
+          "end_elapsed": 10
+        },
+        {
+          "source_key": "full-skull-bash-air-end-sample10-source10",
+          "native_sample_index": 10,
+          "start_elapsed": 10,
+          "end_elapsed": 20
+        },
+        {
+          "source_key": "full-skull-bash-air-end-sample20-source20",
+          "native_sample_index": 20,
+          "start_elapsed": 20,
+          "end_elapsed": 22
+        }
+      ],
+      "drawingFacingBinding": null,
+      "holdRule": null,
+      "specialPhase": "hit",
+      "specialClockKind": "identity",
+      "dynamicCutoff": null,
+      "playableEndExclusive": 22,
+      "runtimeBindingStatus": "qualified source-clock resolver; body runtime visual review pending"
+    }
+  },
+  "sources": [
+    {
+      "sourceKey": "full-skull-bash-air-end-sample0-source0",
+      "nativeSample": 0,
+      "sourceReferenceSha256": "8e6cd014bbd8867e3ffdc57fbdced6cb0d7cc73b4432fa08752da0a1114b03b6",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-specials-batch013-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "d51023e9b09dde2348b65363cffc8700aebabc2ea745d0835f72248ef26bd855",
+      "atlasCell": 1,
+      "cellOffset": [
+        1024,
+        0
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-specials-batch013-bounded-source0-attempt1.review.json",
+      "reviewSha256": "6e7577bd32eb41e8093b44c1b05675054f728ac5ae05e0f4242f2636d7a8da52"
+    },
+    {
+      "sourceKey": "full-skull-bash-air-end-sample10-source10",
+      "nativeSample": 10,
+      "sourceReferenceSha256": "257467f3a6bcf65e3a0094837c84f2333e2991c511ce17e7bd2edc31f0cad408",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-specials-batch013-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "d51023e9b09dde2348b65363cffc8700aebabc2ea745d0835f72248ef26bd855",
+      "atlasCell": 2,
+      "cellOffset": [
+        0,
+        1024
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-specials-batch013-bounded-source0-attempt1.review.json",
+      "reviewSha256": "6e7577bd32eb41e8093b44c1b05675054f728ac5ae05e0f4242f2636d7a8da52"
+    },
+    {
+      "sourceKey": "full-skull-bash-air-end-sample20-source20",
+      "nativeSample": 20,
+      "sourceReferenceSha256": "e40308946a147895d369916f7956ef19829ba743ae87dee5382124b8f261e9be",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-specials-batch013-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "d51023e9b09dde2348b65363cffc8700aebabc2ea745d0835f72248ef26bd855",
+      "atlasCell": 3,
+      "cellOffset": [
+        1024,
+        1024
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-specials-batch013-bounded-source0-attempt1.review.json",
+      "reviewSha256": "6e7577bd32eb41e8093b44c1b05675054f728ac5ae05e0f4242f2636d7a8da52"
+    },
+    {
+      "sourceKey": "full-skull-bash-air-end-sample35-source35",
+      "nativeSample": 35,
+      "sourceReferenceSha256": "dc834a1d821b29ac7421099803dd1c2238590c3e1ef58b024d7de06b7f38f41c",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-specials-batch014-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "120b9e0e3deee00198c8cd08dc5c53c2625a6144512cf38a419236317121f047",
+      "atlasCell": 0,
+      "cellOffset": [
+        0,
+        0
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-specials-batch014-bounded-source0-attempt1.review.json",
+      "reviewSha256": "c9a7c214462979f6b8b27f2546afc72e069d3a37c5342c0a2279442bb048d23e"
+    },
+    {
+      "sourceKey": "full-skull-bash-air-end-sample46-source46",
+      "nativeSample": 46,
+      "sourceReferenceSha256": "454a3acb3a919aa1803d3b4fd5c6ebc4ba3afc5e273da6316a6fd35da430dcda",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-specials-batch014-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "120b9e0e3deee00198c8cd08dc5c53c2625a6144512cf38a419236317121f047",
+      "atlasCell": 1,
+      "cellOffset": [
+        1024,
+        0
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-specials-batch014-bounded-source0-attempt1.review.json",
+      "reviewSha256": "c9a7c214462979f6b8b27f2546afc72e069d3a37c5342c0a2279442bb048d23e"
+    }
+  ],
+  "galleries": {
+    "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/side_special_air_hit-cells-1.png": "0bbfca6ecd38e00f9e78f06e6c3291e222432a39f64596ef5b0f0ea0142f7fb1",
+    "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/side_special_air_hit-cells-2.png": "5f968a6588bba250d7c13bda8d102cf98ceb9d935a2db804a7d7d992ddebe4cd"
+  },
+  "limits": [
+    "Actual packed-cell inspection required before aggregate registration.",
+    "Authored beta presentation windows do not establish native status rate parity.",
+    "Actual running-game qualification remains separate."
+  ],
+  "packedVisualReview": {
+    "reviewer": "pikachu_art_motion",
+    "state": "actual_saved_packed_cells_reviewed",
+    "inspectedGalleries": {
+      "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/side_special_air_hit-cells-1.png": "0bbfca6ecd38e00f9e78f06e6c3291e222432a39f64596ef5b0f0ea0142f7fb1",
+      "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/side_special_air_hit-cells-2.png": "5f968a6588bba250d7c13bda8d102cf98ceb9d935a2db804a7d7d992ddebe4cd"
+    },
+    "observations": [
+      "Actually inspected all five saved packed cells on light/dark. Source0/10 supine right-facing,20 raised-leg diagonal,35 right head-down,46 upright suspended settle preserve original registration, one attached tail and original occluded limbs. Red cheeks/black ear tips and source eyes preserved. Rough isolated body acceptance; actual runtime floor/phase remains pending.",
+      "Per frozen contract only initial0/10/20 cells are playable in22-step hit recovery;35/46 remain retained source-only, never stretched into the action."
+    ]
+  },
+  "runtimeEvidence": {
+    "reviewer": "pikachu_integration",
+    "receipt": "docs/review/2026-10-06/pikachu-character/integration/skull-bodies-qualified/visual-review.json",
+    "receiptSha256": "5e702578394abd85e03777982a1ecd5b58e8a75494ab503beaa0bc77f9def70e",
+    "bundle": "http://127.0.0.1:4231/platform-fighter/assets/index-XKDonEXs.js",
+    "bundleSha256": "b045101dde696ce5221ed9a3b0c52940199d303a21cbe64991dc5f9988e8699c",
+    "state": "actual_match_natural_branches_pass_remaining_branches_pending",
+    "scope": "Integration actually inspected128 original MatchScene images across eight both-facing ground/air charge80 miss and charge20 hit branches. Natural startup/hold/ready/release/miss endings and airborne rebound-hit endings/body/twelve capsules/source windows pass. Dedicated grounded-hit ending and production slopes unobserved.",
+    "findings": [
+      "Both-facing grounded and airborne startup/held native6-loop/ready/release/miss-END and actual hit-rebound body routes visible. Reviewed strip roots and all12 receiving capsules match independently selected source clocks for every actual observed step.",
+      "Charge80 pure-air clear-column misses stay airborne and do not KO/respawn; grounded misses naturally transition air near floor departure then return groundEND.",
+      "Charge20 real physical receivers take source10\u00d7sharedfresh1.05=10.5 and select source airborne hit-rebound22-step route, from both ground and air launches.",
+      "Releasewindup13..16 has no contact,17opens source Neck contact; native release vertical cap5.5 consumed.",
+      "Native body inversions in release/ending are preserved without additional actor-facing flip. Ground floor silhouettes remain visible above floor in inspected cases; no systematic root-shrink/recenter used."
+    ],
+    "limits": [
+      "No production slope/body/contact rotation qualification yet; native source slope transform is separately physics-tested.",
+      "Both actual grounded hits immediately rebound airborne, so dedicated grounded-hit sheet side_special_hit is unobserved rather than claimed accepted in these natural branches.",
+      "Observed charge20 ready elapsed covers only native0 cell; charge80 long release delay covers all three ready cells.",
+      "Native common AIR_STOP initialization and END gravity-limit algorithms remain unresolved; exact authored source field execution does not prove all native trajectory parity.",
+      "Charge rings, bars and impact sparks are authored presentation, native electric FX not qualified.",
+      "Tiny conservative source receiving capsule overhang and sparse pose reconstruction limits remain.",
+      "Injected InputResolver probes do not validate human controller feel."
+    ],
+    "immutableAssetSnapshot": {
+      "sheets": 97,
+      "cells": 644
+    },
+    "precedingFailureRecords": [
+      "integration/skull-bodies-initial/skull-body-match-observations.json",
+      "integration/skull-bodies-retry/skull-body-match-observations.json"
+    ]
+  }
+}

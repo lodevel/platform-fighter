@@ -1,3 +1,8 @@
+import {beginGrabDamageTransaction,grabDamageTransactionMatches,commitGrabDamageTransaction,type GrabDamageTransaction} from './grabDamageTransaction';
+import {parseAttackMoveSnapshot} from './characterSerializer';
+import {beginShieldBreak,stepShieldBreak,selectShieldBreakPresentation,shieldBreakControlsLocked,shieldBreakProtection,parseShieldBreakState,shieldBreakPopPlan,type ShieldBreakState} from './shieldBreak';
+import {parseSourceDamagePresentationReceipt,type SourceDamagePresentationReceipt} from './sourceDamagePresentationReceipt';
+import { ultimateCaptureFrames, initialCaptureMash, tickCaptureMash, reducedCaptureFrames, SHIELD_BREAK_MASH_WEIGHTS, ULTIMATE_GRAB_RELEASE_FRAMES, ULTIMATE_POST_RELEASE_GRAB_IMMUNITY_FRAMES, type CaptureMashState } from './ultimateCapture';
 /**
  * Base `Character` class — Sub-AC 1 of AC 201.
  *
@@ -42,19 +47,64 @@
  * physics state.
  */
 
-import type Phaser from 'phaser';
+import { validateLedgeRootMotion } from './ledgeRootMotionSchema';
+import { validateTauntSet, type TauntSet, type TauntKind, type TauntPresentationState } from './tauntSchema';
+import {applyRegionalProtection} from './regionalProtection';
+import {applyDonkeyKongMoveProtection,resolveDonkeyKongProtectionClock} from './donkeykongPairedProtectionClock';
+import {donkeyKongJabCanAdvance,donkeyKongRetainedJabCanAdvance,retainDonkeyKongJabContinuation,
+ tickDonkeyKongJabContinuation,type DonkeyKongJabContinuation} from './donkeykongJabContinuability';
+import { nextPackedBodyTail, packedBodyCandidate, packedBodyProfile, type PackedBodyState } from './packedBodyPresentation';
+import {beginItemAction as createItemAction,tickItemAction,getItemActionPlan,eligibleItemThrowContext,fighterItemProfile,itemActionSheet,type ItemAction,type ItemActionState,type ItemActionEvent,type ItemActionPlan,type ItemDirection} from '../items/itemActions';
+import type {ItemCatchContext} from '../items/itemCatch';
+import {stepDonkeyKongGroundVelocity} from './donkeykongGroundMovement';
+import {DONKEYKONG_JUMP_TAKEOFF_PARAMETERS,stepDonkeyKongAirVelocity} from './donkeykongAirMovement';
+import {groundJumpTakeoffVelocityX} from './jumpTakeoffVelocity';
+import {donkeyKongFullHopCarriedVelocityY,donkeyKongVerticalPrePhysicsVelocity,DONKEYKONG_FOOTSTOOL_BETA_JUMP_BASIS,DONKEYKONG_VERTICAL_PARAMETERS} from './donkeykongVerticalMovement';
+import {tickDonkeyKongTurnBrake,donkeyKongTurnBrakeFacing,donkeyKongTurnBrakeVelocity,donkeyKongTurnBrakeNativeMarkers,type DonkeyKongTurnBrakeState} from './donkeykongTurnBrake';
+import {beginDonkeyKongHeavyItemAction as createDonkeyKongHeavyItemAction,fighterHeavyItemProfile,stepGroundOnlyHeavyCarry,tickDonkeyKongHeavyItemAction,getDonkeyKongHeavyCarryMotion,selectDonkeyKongHeavyWalkGait,type DonkeyKongHeavyItemAction,type DonkeyKongHeavyItemState,type DonkeyKongHeavyItemEvent,type DonkeyKongHeavyItemPlan} from './donkeykongHeavyItems';
+import {classifyDonkeyKongReferenceCarryDamage} from './donkeykongHeavyArmor';
+import {beginDonkeyKongHeavyCarry,tickDonkeyKongHeavyCarry,type DonkeyKongHeavyCarryState} from './donkeykongHeavyCarry';
+import { SURFACE_TECH_PROFILES } from './surfaceTechProfiles';
+import { beginSurfaceTech, tickSurfaceTech, surfaceTechProtected, surfaceTechActionable, selectSurfaceTech, surfaceTechEntryVelocity, surfaceTechCeilingDisplacement, advanceTechInputWindow, classifySurfaceTechContact, type SurfaceTechState } from './surfaceTech';
+import { DonkeyKongAttackCollisionPoseConsumer } from './donkeykongAttackCollisionPose';
+import {DonkeyKongCatchCollisionPoseConsumer,type DonkeyKongCatchCollisionDiagnostic} from './donkeykongCatchCollisionPose';
+import { DONKEYKONG_FOOTSTOOL_PARAMETERS, DONKEYKONG_FOOTSTOOL_REPEAT_RULES, canDonkeyKongFootstoolJump, donkeyKongFootstoolJumpVelocity,type SourceFootstoolParticipant } from './donkeykongFootstool';
+import {LINK_FOOTSTOOL_SOURCE,canLinkFootstoolJump,linkFootstoolJumpVelocity,selectLinkFootstoolRecipientSide,selectLinkFootstoolBodyRoute,type LinkFootstoolBodyPresentation} from './linkFootstool';
+import { captureSimulationAnimation } from './simulationSpriteAnimation';
+import { resolveGameplayAction as resolveSimulationAction, selectCapturePoseSource, selectPackedBodyReceiving, selectPackedHeadContact, getPackedBodyRootDelta, getPackedAttackCollisionPose, getPackedCatchCollisionPose } from '../characterPresentation/legacy/poseProvider';
+import {resolveDonkeyKongCaptureAttachment,sameAttachmentAuthoredPoseIdentity,type CaptureAttachmentResult,type CaptureAttachmentRequest,type CaptureAttachmentAnchor,type AttachmentContext} from './donkeykongCaptureAttachment';
+import {parseCaptureAttachmentCalibration,captureAttachmentContextFromBody,selectCaptureAttachmentAnchor,type CaptureAttachmentCalibration} from './captureAttachmentCalibration';
+import {ultimateCargoFrames,reducedCargoFrames,selectCargoThrow,canCargoJump} from './donkeykongCargoRules';
+import {beginDonkeyKongPunch,tickDonkeyKongPunch,type DonkeyKongPunchState} from './donkeykongPunchControls';
+import {getNativeShieldPushTraction} from './nativeShieldTraction';
+import {computeShieldPushback,decayShieldPushback} from './shieldPushback';
+import {createBuriedState,tickBuriedState,receiveBuriedHit,ultimateBuryFrames,type BuriedState} from './buriedState';
+import {buriedEffects,buriedSinkDepth,sinkHurtboxes} from './buriedPresentation';
+import {REVIVAL_PLATFORM_MAX_FRAMES,REVIVAL_DISMOUNT_INVINCIBILITY_MAX_FRAMES,isRevivalDismountInput,revivalDismountInvincibilityFrames} from '../match/revivalPlatform';
+import type { PhysicsHost } from '../physics/PhysicsWorld';
+import { isVerticalReferenceLaunch, referenceGravityBoost, stepReferenceGravity } from './referenceLaunchEnergy';
+import { isFixedReferenceKnockback } from './referenceKnockback';
+import { referenceTripProbability } from './referenceTrip';
+import { getReferenceDamageSpeedUpGroups } from './referenceDamageSpeedUp';
+import { applyReferenceLaunchInfluence } from './referenceLaunchInfluence';
+import { referenceAutolinkVelocity, validReferenceAutolinkContext } from './referenceAutolink';
+import { createReferenceSdiState, stepReferenceSdi } from './referenceSdi';
+export { SDI_NUDGE_PX, SDI_STICK_THRESHOLD } from './referenceSdi';
+import { attackHitWindowIndex, resolveAttackHitWindow } from './attackHitWindows';
+import {realizeLinkSmashFollowupCharge} from './linkSmashFollowupCharge';
+import { scaleAttackCollisionHitDamage } from './attacks';
 import type { CharacterId } from '../types';
+import type { DownSpecialShockwaveSpec, DownSpecialTrapSpec } from './downSpecialSchema';
 import {
   CHARACTER_SLOT_BITS,
   COLLISION_CATEGORIES,
   COLLISION_MASKS,
   MAX_FIGHTER_SLOTS,
 } from '../engine/collisionCategories';
-import { PLATFORM_LABELS } from '../stages/StageRenderer';
+import { PLATFORM_LABELS } from '../stages/stageBodies';
 import {
   type ActiveAttack,
   type AttackMove,
-  type HitboxScene,
   despawnHitbox,
   spawnGrabHitbox,
   spawnHitbox,
@@ -64,22 +114,30 @@ import {
   accumulateDamage,
   applyDIToLaunchAngle,
   computeHitlag,
+  computeShieldHitlag,
+  computeShieldParryHitlag,
+  computeShieldstun,
   computeKnockback,
+  computeStaleMultiplier,
+  decayLaunchVelocity,
   STALE_QUEUE_SIZE,
   type HitInfo,
   type KnockbackResult,
+  type StaleEntry,
 } from './combat';
 import { getCurrentAnimation, type AnimationState } from './animationState';
 import {
   type AttackMoveWithAnimation,
   type Hurtbox,
   makeBodyHurtbox,
+  isAllHurtboxesIntangible,
   selectActiveHurtboxes,
 } from './moveSchema';
 import {
   type AerialDirection,
   type AerialMove,
   getLandingLagFrames,
+  validateAerialLandingAttack,
 } from './aerialSchema';
 import {
   applyShieldHit,
@@ -89,13 +147,23 @@ import {
   isShieldRaised,
   resolveShieldTuning,
   resetShieldState,
+  shieldBreakStunFrames,
   tickShield,
   type ResolvedShieldTuning,
   type ShieldState,
   type ShieldTuning,
 } from './shieldState';
 import {
+  cancelDodge,
+  canCancelSpotDodge,
+  createDodgeStaleness,
   createDodgeState,
+  dodgeProgress,
+  FULLY_STALE_AIR_DODGE_DISTANCE_SCALE,
+  isDodgeFullyStale,
+  tickDodgeStaleness,
+  type DodgeInput,
+  type DodgeStaleness,
   getDodgeSlideVelocity,
   isDodgeActing,
   isDodgeInvincible,
@@ -130,10 +198,14 @@ import {
   canPummel,
   resetGrabState,
   tickGrab,
+  stepGrabWithEvents,
   type GrabInput,
   type GrabState,
 } from './grabState';
+import {beginGrabSourcePresentation,stepGrabSourcePresentation,type GrabSourcePresentation} from './grabSourcePresentation';
+type BoundGrabSourcePresentation=GrabSourcePresentation&{target:Character;captureId:number;targetGeneration:number;cargo:boolean};
 import { validateGrabSpec, type GrabSpec } from './grabSchema';
+import {parseAuthoredCaptureMotionFamily,type AuthoredCaptureMotionFamily} from './authoredCaptureMotionFamily';
 import { getThrowByDirection, type ThrowDirection } from './throwSchema';
 import {
   computeChargedDamageFromSpec,
@@ -142,6 +214,7 @@ import {
 } from './chargeSchema';
 import {
   classifyGroundedAttack,
+  isSmashFlick,
   DEFAULT_NEUTRAL_THRESHOLD,
   type GroundedAttackSlots,
 } from './groundedAttackInput';
@@ -160,6 +233,7 @@ import {
   type TeleportUpSpecialMove,
   type TetherUpSpecialMove,
   type UpSpecialMove,
+  type UpSpecialSustainedRiseSpec,
 } from './upSpecialSchema';
 import {
   detectLedgeGrab,
@@ -189,6 +263,8 @@ import {
   isLedgeHangInvincible,
   isLedgeLockingInput,
   ledgeRecoverySmoothstep,
+  ledgeHangPresentationClock,
+  ledgeRegrabEntry,
   resetLedgeHangState,
   resolveLedgeHangTuning,
   tickLedgeHang,
@@ -199,7 +275,34 @@ import {
   type ResolvedLedgeHangTuning,
 } from './ledgeHangState';
 import { getFighterMovementProfile } from './fighterMovementProfiles';
-import type { AttackMovesetSlotName } from './movesetContract';
+import { PikachuSpecialRuntime, type SpecialSurface, type SpecialProjectileTarget } from './pikachuSpecialRuntime';
+import { selectPikachuSpecialHurtboxes } from './pikachuSpecialHurtboxes';
+import { selectPikachuSpecialPhaseHurtboxes } from './pikachuSpecialPhaseHurtboxes';
+import { resolvePikachuSpecialBodyClock } from './pikachuSpecialPresentation';
+import { rotatePikachuSpecialHurtboxes, PIKACHU_QUICK_ROT_PIVOT } from './pikachuSpecialTransforms';
+import { pikachuSpecialContact } from './pikachuSpecialContactData';
+import { selectPikachuLedgeAttachment } from './pikachuLedgeAttachment';
+import { tickPikachuTurnBrake, pikachuTurnBrakeVelocity, type PikachuTurnBrakeState } from './pikachuTurnBrake';
+import { pikachuDirectionalDodgePhase } from './pikachuDirectionalDodge';
+import { tickPikachuCrouchCrawl, pikachuCrouchCrawlVelocity, type PikachuCrouchCrawlState } from './pikachuCrouchCrawl';
+import { getPikachuCapturedBodyBottomEnvelope } from './pikachuCaptureBodyClearance';
+import { selectPikachuSurfaceTechBody, pikachuSurfaceTechPresentation } from './pikachuSurfaceTech';
+import { GROUND_RECOVERY_ROWS, getupRollRow, type GroundRecoveryRow } from './groundRecovery';
+import { beginPikachuGroundRecovery, advancePikachuGroundRecovery, pikachuGroundRecoveryVelocity, type PikachuGroundRecovery, type PikachuGroundRecoverySheet } from './pikachuRecoveryRuntime';
+import {beginPikachuLedgeJump,advancePikachuLedgeJump,pikachuLedgeJumpStartOffset,pikachuLedgeJumpBetaImpulse,PIKACHU_LEDGE_JUMP_SOURCE_TRAVEL,type PikachuLedgeJump} from './pikachuLedgeJumpRuntime';
+import {heldItemMuzzle, selectHeldItemSocket} from './heldItemSocket';
+import {computeHeldItemPosition} from './handAnchors';
+import { PIKACHU_AUXILIARY_SOURCE_PARAMETERS, pikachuAuxiliaryBodyEndExclusive, selectPikachuAuxiliaryBody } from './pikachuAuxiliaryBody';
+import type { AirMovementTuning, LandingTuning, DonkeyKongOrdinaryVerticalProfile } from './movesetContract';
+import { resolveItemInput } from '../items/resolveItemInput';
+import { itemUsesFor } from '../items/ItemDefinition';
+import type { HeldItemHandle } from '../items/ItemDefinition';
+import {stepHammer,hammerMotion,hammerAreas,type HammerSpec} from '../items/Hammer';
+import { startShooting, stepShooting, shootingMotion, type ShootingSpec, type ShootingState } from '../items/itemShooting';
+import { itemMotionClip } from '../items/itemMotionClips';
+import {beginEating,stepEating,beginHealing,stepHealing,type HealingState,type RecoverySpec} from '../items/itemHealing';
+import {validRecoverySpec,parseRecoveryTransactionEvent,parseRecoveryEatingState,parseRecoveryHealingState,type RecoveryTransactionEvent,type RecoveryEatingState} from '../items/recoveryTransaction';
+import type { ItemShot } from './attacks';
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -216,6 +319,8 @@ import type { AttackMovesetSlotName } from './movesetContract';
  * intuition (e.g. `maxRunSpeed: 8` ≈ 480 px/s).
  */
 export interface CharacterTuning {
+  /** Natural gravity during and after reference launches, in native game units. */
+  readonly referenceLaunch?: import('./referenceLaunchEnergy').ReferenceLaunchProfile;
   /** Top horizontal speed in px per fixed step (8 ≈ 480 px/s). */
   readonly maxRunSpeed?: number;
   /** Horizontal accel applied per step while grounded. */
@@ -267,6 +372,8 @@ export interface CharacterTuning {
   readonly chamfer?: number;
   /** Mass override; lets heavier characters resist knockback. */
   readonly mass?: number;
+  /** Reference knockback weight, independent of Matter mass; unauthored fighters use 100. */
+  readonly referenceWeight?: number;
   /**
    * AC 60301 Sub-AC 1 — per-character shield-mechanic tuning. Optional
    * because every roster slot can fall back to the canonical
@@ -309,8 +416,38 @@ export interface CharacterTuning {
   readonly ledgeDetection?: LedgeDetectionTuning;
 }
 
+export type CharacterHitOutcome =
+  | 'landed'
+  | 'shielded'
+  | 'parried'
+  | 'invincible'
+  | 'invulnerable'
+  | 'intangible'
+  | 'dodged'
+  | 'ledge-invincible'
+  | 'armored'
+  | 'destroyed';
+
+export interface CharacterCombatPercentReceipt {
+  readonly damageApplied:number;readonly attackerSlotIndex:number|null;
+  readonly recoil:boolean;readonly viaSceneResolver:boolean;
+}
+export interface CharacterHitApplication {
+  readonly outcome: CharacterHitOutcome;
+  readonly knockback: KnockbackResult;
+  readonly damageApplied: number;
+  readonly parryKind?: 'shield' | 'counter';
+  /** Flesh contact confirmed, damage/freeze applied, carry reaction resisted. */
+  readonly reactionResisted?: true;
+  /** Per-hit source carry loss, consumed against the Scene's pre-hit identity. */
+  readonly heavyItemDrop?: { readonly reason:'threshold'|'sleep'|'forced-reaction'; readonly referenceKnockback:number };
+}
+
 /** Constructor options. `id`, `spawnX`, `spawnY` are required. */
-export interface CharacterOptions extends CharacterTuning {
+export interface CharacterOptions extends CharacterTuning, AirMovementTuning, LandingTuning {
+  readonly donkeykongOrdinaryVertical?: DonkeyKongOrdinaryVerticalProfile;
+  /** Explicit authored shield-push decay when this identity has no native donor. */
+  readonly shieldPushTraction?:number;
   readonly id: CharacterId;
   readonly spawnX: number;
   readonly spawnY: number;
@@ -357,6 +494,8 @@ export interface CharacterOptions extends CharacterTuning {
  * the keyboard layer.
  */
 export interface CharacterInput {
+  /** Real taunt input. The persisted logical action named taunt remains Dodge. */
+  readonly appeal?: boolean;
   /**
    * Horizontal stick. -1 = full left, 0 = neutral, 1 = full right.
    * Analog values in [-1, 1] are supported for gamepads.
@@ -365,7 +504,7 @@ export interface CharacterInput {
   /**
    * Vertical stick. -1 = full up, 0 = neutral, 1 = full down. Used by
    * Directional Influence (DI) at hitlag-end to rotate the queued
-   * launch angle by up to ±18° (post-M2 hit-feel pass). Optional so
+   * eligible tumble launch angle by up to 0.17 radians. Optional so
    * existing call sites that don't yet wire a vertical analog stick
    * continue compiling — the DI math reads `moveY ?? 0` and a missing
    * value collapses to "no DI from the vertical axis".
@@ -392,18 +531,33 @@ export interface CharacterInput {
    */
   readonly attack?: boolean;
   /**
-   * Heavy-attack button held this frame. Sub-AC 3.3 — dedicated slot for
-   * the smash-class move (more startup, larger knockback scaling, KO
-   * finisher). Rising-edge detected like `attack`. Only fires while
-   * grounded; pressed in the air the input is ignored (smashes are
-   * grounded moves; aerials own the airborne kit).
+   * Heavy-attack (smash) button held this frame. Sub-AC 3.3 — dedicated
+   * slot for the smash-class move (more startup, larger knockback
+   * scaling, KO finisher). Rising-edge detected like `attack`; holding it
+   * keeps a chargeable smash charging. On the ground the direction picks
+   * up / down / forward smash, and an up-aimed press during jumpsquat
+   * cancels the jump into the up smash; once airborne the press fires the
+   * aerial for the attack direction, like an `attack` press (Ultimate's
+   * C-stick).
    *
    * Optional for the same backward-compatibility reason as `attack`:
    * existing call sites and tests that only wire neutral-attack keep
-   * compiling unchanged. The (later) input-mapping AC will route the
-   * dispatcher's `special` / dedicated heavy-button to this field.
+   * compiling unchanged. Human input routes the dedicated `smash`
+   * binding here; the CPU sends it for its smash decisions.
    */
   readonly attackHeavy?: boolean;
+  /**
+   * Direction of a right-stick (C-stick) attack, snapped by the input
+   * layer to a 4-way unit vector (canvas Y: -1 = up). Read only on an
+   * `attackHeavy` press: a non-zero value replaces moveX / moveY (and the
+   * short vertical leniency window) when choosing the smash or aerial,
+   * and a forward smash turns to face `sign(attackStickX)`. Never feeds
+   * movement, dash, drift, fast-fall, ledge, DI/SDI or dodge, so the
+   * left stick keeps full control of the body. Omitted means 0.
+   */
+  readonly attackStickX?: number;
+  /** Vertical half of {@link attackStickX}. Omitted means 0. */
+  readonly attackStickY?: number;
   /**
    * Reserved for the drop-through-platform implementation that lands
    * with the input AC. Kept on the shape now so the input layer can
@@ -441,15 +595,10 @@ export interface CharacterInput {
    *
    * The unified action-state API ({@link PlayerInputController}) reads
    * the player's bound `special` action through the rebindable binding
-   * layer and routes the result here. The Character runtime currently
-   * treats a `special` press the same way it treats a heavy press —
-   * the move resolver dispatches to the registered neutral / up / down
-   * special slot based on the stick direction at press time — so the
-   * input layer composites `attackHeavy || special` into the
-   * {@link attackHeavy} field. Carrying `special` as its own optional
-   * field keeps the action surface complete for replay payloads and
-   * for a future sub-AC that wires a first-class special-press
-   * handler.
+   * layer and routes the result here. A rising edge dispatches to the
+   * registered neutral / side / up / down special slot from the stick
+   * direction at press time; it is never folded into
+   * {@link attackHeavy}.
    *
    * Falsy / omitted means "no special button held this frame" —
    * backwards-compatible with every existing call site.
@@ -552,6 +701,21 @@ export const JUMP_CUT_WINDOW_FRAMES = 8;
  */
 export const TAP_JUMP_BUFFER_FRAMES = 4;
 
+/** Ultimate-style standard input buffer for offensive actions. */
+export const OFFENSIVE_ACTION_BUFFER_FRAMES = 9;
+/** SmashWiki Shieldstun (Ultimate): "shield grabbing after shieldstun has increased startup by 4 frames". */
+export const SHIELD_GRAB_POST_SHIELDSTUN_DELAY_FRAMES = 4;
+/** Universal grounded jump-squat duration used by Ultimate's roster. */
+export const JUMPSQUAT_FRAMES = 3;
+/** fighter_param shoot_back_speed_mul (ultimate-13.0.1 item sheet): walking backward while shooting. */
+const SHOOT_BACK_SPEED_MUL = .87;
+/** Below this ground speed (px/step) the shooting legs stand (authored presentation threshold). */
+const SHOOT_LEGS_WALK_MIN_SPEED = .2;
+/** item_shoot_legs_landing: 16 native frames (motion length, both fighters). */
+const SHOOT_LEGS_LANDING_FRAMES = 16;
+/** Standard window for a jump press made shortly before the fighter is free. */
+export const JUMP_INPUT_BUFFER_FRAMES = 9;
+
 /**
  * Frames a down-special dive LANDING SHOCKWAVE sensor lives in the world.
  * Long enough for Matter's `collisionstart` to fire against any fighter
@@ -580,28 +744,28 @@ const TRAP_MAX_FALL = 14;
  * knockdown). ~7 px/step separates jab-tier pokes from real launches.
  */
 export const TUMBLE_KNOCKBACK_THRESHOLD = 7;
-/**
- * Frames a shield/dodge press buffers a TECH. Press within this window of
- * touching a surface while tumbling and you tech (cancel the knockdown
- * with brief intangibility); miss it and you hit the floor in a knockdown.
- */
-export const TECH_WINDOW_FRAMES = 8;
-/** Intangibility frames granted by a successful tech (tech-in-place). */
-export const TECH_IFRAME_FRAMES = 20;
-/** Frames a missed-tech KNOCKDOWN (prone, vulnerable) lasts before auto get-up. */
-export const KNOCKDOWN_FRAMES = 26;
+/** Missed-tech KNOCKDOWN (prone, vulnerable): frames lain before the automatic neutral getup, the landing frame
+ * included, and the frames during which no floor getup option is accepted. SmashWiki Lucario (SSBU)/Floor getups
+ * (front, back): "When missing the tech, Lucario can choose a floor getup option after 25 frames. However, when an
+ * option isn't selected, Lucario will be prone for 245 frames(including missed tech tumble) before automatically doing
+ * a neutral getup from the floor." The general Floor getup page gives no Ultimate figure ("automatically stand up in a
+ * few seconds"); the per-fighter page's values are applied to every fighter. */
+export const KNOCKDOWN_FRAMES = 245;
+export const KNOCKDOWN_OPTION_LOCK_FRAMES = 25;
+/** Hard trip (an attack's trip chance; the engine has no slip/soft trip). SmashWiki Lucario (SSBU)/Floor getups (trip):
+ * "can choose a floor getup option right after 39 frames. However, when an option isn't selected, Lucario will be prone
+ * for 99 frames(including the trip effect) before automatically doing a neutral getup on the 100th frame." */
+export const TRIP_KNOCKDOWN_FRAMES = 99;
+/** Native slip / slip_down xlu 1..6 (DK, Link and Pikachu rows): a trip is intangible on frames 1-5. */
+export const TRIP_FALL_INTANGIBLE_FRAMES = 5;
+export const TRIP_OPTION_LOCK_FRAMES = 39;
+/** Soft trip (the slip attribute: Banana Peel). SmashWiki Tripping: "attacks have the "slip" effect and cause soft trips
+ * that immobilize for around 30 frames" (SSB4 list; the Ultimate list says tripping "has largely been unchanged"). The
+ * auto-getup timer is the hard trip's. */
+export const SLIP_OPTION_LOCK_FRAMES = 30;
 /** Intangibility frames granted on a get-up from knockdown. */
 export const GETUP_IFRAME_FRAMES = 14;
-/**
- * Frames a mistimed TECH locks you out of teching. Press shield/dodge while
- * tumbling but too early (the buffer drains before you touch a surface) and
- * you're locked out — a re-press won't tech the real landing. The anti-mash
- * rule that punishes panic-teching, mirroring Smash's tech-lockout.
- */
-export const TECH_LOCKOUT_FRAMES = 24;
-/** Frames a directional tech-roll / get-up-roll lasts (intangible, moving). */
-export const GETUP_ROLL_FRAMES = 16;
-/** Horizontal speed (px/step) of a tech-roll / get-up-roll. */
+/** Horizontal speed (px/step) of a ground recovery roll without packed root motion. */
 export const GETUP_ROLL_SPEED = 6;
 /** Active frames of a get-up attack's double-sided sweep hitbox. */
 export const GETUP_ATTACK_FRAMES = 6;
@@ -624,18 +788,6 @@ export const LEDGE_TRUMP_KNOCKOFF_VX = 3;
 export const LEDGE_TRUMP_KNOCKOFF_VY = 1.5;
 
 /**
- * Smash Directional Influence (SDI) — each fresh stick flick during the
- * hitlag freeze nudges the launched fighter's POSITION (not trajectory)
- * by this many px. Lets a victim drift out of a multi-hit move or toward
- * safety. Distinct from DI (which rotates the launch ANGLE at freeze-end).
- */
-export const SDI_NUDGE_PX = 3;
-/** Cap on TOTAL SDI displacement across one hitlag freeze — keeps it a nudge, not a teleport. */
-export const SDI_MAX_TOTAL_PX = 18;
-/** Stick magnitude at/above which a flick counts as an SDI input. */
-export const SDI_STICK_THRESHOLD = 0.5;
-
-/**
  * Fraction of `maxRunSpeed` above which a fighter counts as "running"
  * for dash-sensitive inputs: a light attack press becomes a DASH-ATTACK
  * (not a forward-tilt-from-standstill), and a grab press becomes a
@@ -646,11 +798,10 @@ export const DASH_SPEED_FRACTION = 0.55;
 /**
  * CROUCH-CANCEL — a grounded crouching fighter absorbs part of an
  * incoming hit's launch, multiplying the knockback (and tumble check) by
- * this factor. Mirrors the Melee crouch-cancel: crouching is a real
- * defensive option (survive a finisher longer, break a weak combo). 0.82
- * ≈ an ~18% launch reduction — meaningful but not a hard counter.
+ * this factor. The ordinary Ultimate reference calculator uses 0.85;
+ * crouching also applies its separate 0.67 hit-stop multiplier.
  */
-export const CROUCH_KNOCKBACK_REDUCTION = 0.82;
+export const CROUCH_KNOCKBACK_REDUCTION = 0.85;
 /**
  * While crouching, the body hurtbox shrinks to this fraction of its
  * height (bottom-anchored — the fighter ducks their head down). Surfaced
@@ -729,6 +880,7 @@ export const DEFAULT_CHARACTER_TUNING: Required<
     | 'fastFallSpeed'
     | 'jumpCutFactor'
     | 'locomotion'
+    | 'referenceLaunch'
   >
 > & {
   shield: ResolvedShieldTuning;
@@ -739,6 +891,7 @@ export const DEFAULT_CHARACTER_TUNING: Required<
   width: 90,
   height: 130,
   chamfer: 12,
+  referenceWeight: 100,
   // AC 60301 Sub-AC 1 — canonical shield tuning. Per-character roster
   // overrides land via the `shield: { ... }` slot on `CharacterOptions`
   // and re-resolve through `resolveShieldTuning`.
@@ -764,6 +917,11 @@ function clamp(value: number, min: number, max: number): number {
   return value;
 }
 
+/** Optional stick channel → [-1, 1]; missing or non-finite reads as 0. */
+function finiteClamp(value: number | undefined): number {
+  return value === undefined || !Number.isFinite(value) ? 0 : clamp(value, -1, 1);
+}
+
 function isPlatformLabel(label: string | undefined | null): boolean {
   return label === PLATFORM_LABELS.solid || label === PLATFORM_LABELS.passThrough;
 }
@@ -772,19 +930,28 @@ function isPlatformLabel(label: string | undefined | null): boolean {
  * Minimal shape of a Matter collision pair we care about. Lets the
  * unit test suite construct fake events without a Matter import — the
  * real Phaser/Matter pair carries a lot more (slop, normal, etc.) but
- * we only read body identity, label, and centre Y.
+ * we read body identity, collision eligibility, and the live contact normal.
  */
 interface SupportPair {
   readonly bodyA: {
+    id?:number;
     label?: string | null;
+    isSensor?: boolean;
+    collisionFilter?: { mask?: number };
     position: { x: number; y: number };
     bounds?: { min: { x: number; y: number }; max: { x: number; y: number } };
   };
   readonly bodyB: {
+    id?:number;
     label?: string | null;
+    isSensor?: boolean;
+    collisionFilter?: { mask?: number };
     position: { x: number; y: number };
     bounds?: { min: { x: number; y: number }; max: { x: number; y: number } };
   };
+  readonly isActive?: boolean;
+  isSensor?: boolean;
+  readonly collision?: { readonly normal: { readonly x: number; readonly y: number } };
 }
 
 interface CollisionEventLike {
@@ -808,7 +975,532 @@ interface CollisionEventLike {
  *   // teardown (scene shutdown / replay reset):
  *   ch.destroy();
  */
+/** Capture attachment/event observations; no native reaction commitment implied. */
+export interface CapturePresentationState {
+  captureId: number;
+  active: boolean;
+  framesElapsed: number;
+  facing: 1 | -1;
+  groundedAtEntry: boolean;
+  captor: { characterId: CharacterId; bodyId: number; entryFacing: 1 | -1; facing: 1 | -1 };
+  event: { sequence: number; kind: 'entry' | 'damage' | 'release'; framesElapsed: number;
+    damage?: number; damageSource?: 'pummel' | 'throw-pre-hit' | 'external';
+    releaseReason?: 'throw' | 'hold-expired' | 'break' | 'reset' | 'external' };
+}
+
+/** Actual shield outcomes/counters, not native startup/end motion timing. */
+export interface ShieldPresentationState {
+  kind: 'hold' | 'release' | 'block' | 'parry' | 'broken';
+  framesElapsed: number;
+  totalFrames: number | null;
+  remainingFrames: number | null;
+  facing: 1 | -1;
+  phase: 'hitlag' | 'active';
+}
+
+/** Observed framework states only; native reaction selectors/rates remain unqualified. */
+export interface ReactionPresentationState {
+  kind: 'damage' | 'tumble' | 'trip' | 'prone' | 'getup-roll' | 'getup-attack' | 'stand' | 'tech-in-place';
+  origin: 'trip' | 'face-up' | 'face-down' | 'tech' | null;
+  framesElapsed: number;
+  facing: 1 | -1;
+  phase?: 'hitlag' | 'hitstun';
+  travelDirection?: 1 | -1;
+  moveId?: string;
+}
+
+export interface CaptureAttachmentLink {
+  readonly target:Character;readonly captureId:number;readonly captorReset:number;readonly recipientReset:number;readonly context:AttachmentContext;
+}
+import { beginFinalOpponentSlow, stepFinalOpponentSlow, type FinalOpponentSlowState } from '../finalSmash/FinalOpponentSlow';
+import {parseFinalVictimPresentationState,stepFinalImpactVictimPresentation,selectFinalVictimPresentation,type FinalVictimPresentationState} from '../finalSmash/finalVictimPresentation';
+import {finalVictimBodyPose} from '../finalSmash/finalVictimBodyPose';
+import { finalBodyPose } from '../finalSmash/finalBodyPose';
+import type { FinalSmashActorControl } from '../finalSmash/finalSmashActorControl';
+import {transformPikachuFinalOrientationPoint} from '../finalSmash/pikachuFinalOrientation';
+
 export class Character {
+  private captureAttachmentCalibration: CaptureAttachmentCalibration | null = null;
+  private captureAttachmentEntry: {captor:Character;captureId:number;captorReset:number;recipientReset:number}|null = null;
+  private captureAttachmentBypass: {link:CaptureAttachmentLink;legacyOffset:{x:number;y:number}} | null = null;
+  private captureAttachmentDiagnostic: CaptureAttachmentResult | {status:'fallback';reason:string} | null = null;
+
+  /** Explicit data transport only; never marks art/native constraints accepted. */
+  setCaptureAttachmentCalibration(raw: CaptureAttachmentCalibration | null): void {
+    this.captureAttachmentCalibration=raw===null?null:parseCaptureAttachmentCalibration(raw,'captureAttachmentCalibration');
+    this.captureAttachmentDiagnostic=null;
+  }
+  getCaptureAttachmentCalibration(): CaptureAttachmentCalibration | null {
+    return this.captureAttachmentCalibration?parseCaptureAttachmentCalibration(this.captureAttachmentCalibration,'captureAttachmentCalibration'):null;
+  }
+  getCaptureAttachmentDiagnostic() { return this.captureAttachmentDiagnostic; }
+  recordCaptureAttachmentFallback(reason:string): void { this.captureAttachmentDiagnostic={status:'fallback',reason}; }
+
+  /** Actual capture ownership is independent of attachment opt-in/native identity. */
+  hasCaptureAttachmentNestedTarget():boolean {
+    return this.grabTarget!==null||['holding','throwing'].includes(this.grabState.name);
+  }
+  private getCaptureAttachmentActualLink(): CaptureAttachmentLink | null {
+    const target=this.grabTarget,entry=target?.captureAttachmentEntry;
+    if(this.destroyed||!target||target.destroyed||target.grabbedBy!==this||!entry||entry.captor!==this||
+      !target.capturePresentation?.state.active||entry.captureId!==target.captureSequence||
+      entry.captorReset!==this.positionResetGeneration||entry.recipientReset!==target.positionResetGeneration||
+      !['holding','throwing'].includes(this.grabState.name))return null;
+    const targetBody=resolveSimulationAction(captureSimulationAnimation(target,target.simulationInputFrame,false));
+    const context=captureAttachmentContextFromBody(Boolean(this.grabState.active?.cargo),this.grabState.name==='throwing',targetBody.state);
+    return {target,captureId:entry.captureId,captorReset:entry.captorReset,recipientReset:entry.recipientReset,context};
+  }
+  getCaptureAttachmentLink():CaptureAttachmentLink|null {
+    if(this.id!=='donkeykong'||this.grabSpec?.attachmentPolicy!=='pose-anchors-beta-v1')return null;
+    return this.getCaptureAttachmentActualLink();
+  }
+  getCaptureAttachmentPendingLegacyRestore():CaptureAttachmentLink|null {
+    const pending=this.captureAttachmentBypass,live=this.getCaptureAttachmentActualLink();
+    if(!pending)return null;
+    if(!live||live.target!==pending.link.target||live.captureId!==pending.link.captureId||
+      live.captorReset!==pending.link.captorReset||live.recipientReset!==pending.link.recipientReset){
+      this.captureAttachmentBypass=null;return null;
+    }
+    return live;
+  }
+  private rememberCaptureAttachmentBypass(link:CaptureAttachmentLink):void {
+    if(!this.grabSpec)return;
+    const cargo=Boolean(this.grabState.active?.cargo);
+    this.captureAttachmentBypass={link,legacyOffset:{
+      x:cargo?this.grabSpec.cargo?.offsetX??this.grabSpec.hitbox.offsetX:this.grabSpec.hitbox.offsetX,
+      y:cargo?this.grabSpec.cargo?.offsetY??this.grabSpec.hitbox.offsetY:this.grabSpec.hitbox.offsetY}};
+  }
+
+  /** Pose selection is simulation-owned; null art selection remains an explicit gap. */
+  private getCaptureAttachmentPose(context:AttachmentContext) {
+    const s=captureSimulationAnimation(this,this.simulationInputFrame,false);
+    const {action,clip,native,art:sourceArt}=selectCapturePoseSource(s);
+    const calibration=this.captureAttachmentCalibration,size={width:this.tuning.width,height:this.tuning.height};
+    const profileKey=calibration?`${calibration.profileKey}@${calibration.revision}`:`missing-calibration:${this.id}`;
+    let art=sourceArt;
+    const poseKey=action.state;
+    const matches=(r:CaptureAttachmentAnchor)=>r.poseKey===poseKey&&r.profileKey===calibration?.profileKey&&
+      r.artFrameIndex===art&&r.nativeSample===native;
+    // Clip JSON is untrusted optional metadata; invalid/sparse rows never bypass to another grip.
+    const rawClipGrips:unknown=clip?.clip.captureGripPoses;
+    let clipGrips:import('./donkeykongCaptureAttachment').CaptureAttachmentGrip[]=[],gripMetadataInvalid=false;
+    if(rawClipGrips!==undefined){
+      try{
+        if(!Array.isArray(rawClipGrips))throw new Error('Invalid grip array');
+        clipGrips=Array.from(rawClipGrips).map(raw=>{
+          if(!raw||typeof raw!=='object'||typeof raw.profileKey!=='string')throw new Error('Invalid grip row');
+          return parseCaptureAttachmentCalibration({profileKey:raw.profileKey,revision:'clip-row-validation',grips:[raw]},'captureGripPoses').grips![0]!;
+        });
+      }catch{gripMetadataInvalid=true;}
+    }
+    const grips=gripMetadataInvalid?[]:[...(calibration?.grips??[]),...clipGrips].filter(r=>r.context===context&&matches(r));
+    const normalize=<T extends CaptureAttachmentAnchor>(r:T):T=>({...r,profileKey});
+    const grip=grips.length===1?normalize(grips[0]!):undefined;
+    const selection=selectCaptureAttachmentAnchor(calibration,{context,poseKey,artFrameIndex:art,nativeSample:native,dimensions:size});
+    const anchor=selection.status==='explicit'||selection.status==='physical-centre'?normalize(selection.anchor):undefined;
+    if(selection.status==='physical-centre'&&art===undefined)art=0;
+    return {poseKey,profileKey,dimensions:size,artFrameIndex:art??0,nativeSample:native,
+      sourceSampleBasis:calibration?.sourceSampleBasis ?? 'one-based-native-frame' as const,
+      authoredPoseIdentity:undefined,
+      facing:action.facing??this.facing,grip,anchor,gripMetadataInvalid,anchorFailure:selection.status==='invalid'?selection.reason:null,
+      review:calibration?.supportingFloor};
+  }
+
+  resolveCaptureAttachmentCandidate(liveBodyIds:readonly number[],solvedCentre:{x:number;y:number}):CaptureAttachmentResult|null {
+    const link=this.getCaptureAttachmentLink();if(!link){this.captureAttachmentDiagnostic=null;return null;}
+    const own=this.getCaptureAttachmentPose(link.context),other=link.target.getCaptureAttachmentPose(link.context);
+    if(own.gripMetadataInvalid){this.recordCaptureAttachmentFallback('invalid-captor-grip-metadata');return null;}
+    if(other.anchorFailure){this.recordCaptureAttachmentFallback(other.anchorFailure);return null;}
+    let floor:Pick<CaptureAttachmentRequest,'floorY'|'recipientReviewedBottom'|'clearance'|'floorReviewKey'>={};
+    if(this.isGrounded()){
+      const supports=[...this.contactPairs.values()].filter(p=>this.isSupportPair(p)&&p.isActive!==false&&
+        !p.isSensor&&p.collision&&Math.abs(p.collision.normal.x)<1e-6).map(p=>p.bodyA===this.body?p.bodyB:p.bodyA);
+      const support=supports.find(p=>{const angle=(p as typeof p & {angle?:unknown}).angle;return isPlatformLabel(p.label)&&!p.isSensor&&typeof angle==='number'&&Number.isFinite(angle)&&Math.abs(angle)<1e-6&&p.bounds;});
+      if(!support?.bounds||other.review===undefined){this.recordCaptureAttachmentFallback('missing-flat-support-or-recipient-floor-review');return null;}
+      if(other.review!==null)floor={floorY:support.bounds.min.y,recipientReviewedBottom:Math.max(other.review.recipientReviewedBottom,link.target.tuning.height/2),
+        clearance:other.review.clearance,floorReviewKey:other.review.reviewKey};
+    }
+    const result=resolveDonkeyKongCaptureAttachment({enabled:this.id==='donkeykong'&&this.grabSpec?.attachmentPolicy==='pose-anchors-beta-v1',
+      active:true,reciprocal:link.target.grabbedBy===this,context:link.context,currentContext:this.getCaptureAttachmentLink()?.context??link.context,
+      captorBodyId:this.body.id,recipientBodyId:link.target.body.id,liveCaptorBodyId:this.body.id,liveRecipientBodyId:link.target.body.id,liveBodyIds,
+      captureId:link.captureId,currentCaptureId:link.target.captureSequence,
+      expectedCaptorReset:link.captorReset,currentCaptorReset:this.positionResetGeneration,
+      expectedRecipientReset:link.recipientReset,currentRecipientReset:link.target.positionResetGeneration,
+      captorSolvedCentre:solvedCentre,captorDrawingFacing:own.facing,recipientCapturedFacing:other.facing,
+      captorPoseKey:own.poseKey,captorProfileKey:own.profileKey,captorDimensions:own.dimensions,
+      recipientPoseKey:other.poseKey,recipientProfileKey:other.profileKey,recipientDimensions:other.dimensions,
+      captorArtFrameIndex:own.artFrameIndex,captorNativeSample:own.nativeSample,
+      captorSourceSampleBasis:own.sourceSampleBasis,recipientSourceSampleBasis:other.sourceSampleBasis,
+      captorAuthoredPoseIdentity:own.authoredPoseIdentity,recipientAuthoredPoseIdentity:other.authoredPoseIdentity,
+      recipientArtFrameIndex:other.artFrameIndex,recipientNativeSample:other.nativeSample,grip:own.grip,anchor:other.anchor,...floor});
+    this.captureAttachmentDiagnostic=result;return result;
+  }
+  /** Rendering/observation freshness only; never resolves floor, writes bodies or diagnostics. */
+  isCaptureAttachmentResultCurrent(result:Extract<CaptureAttachmentResult,{status:'paired'}>):boolean {
+    try{
+      const link=this.getCaptureAttachmentLink();
+      if(!link||link.captureId!==result.captureId||link.context!==result.context||
+        this.body.id!==result.captorBodyId||link.target.body.id!==result.recipientBodyId||
+        link.captorReset!==result.selection.captorResetGeneration||link.recipientReset!==result.selection.recipientResetGeneration)return false;
+      const own=this.getCaptureAttachmentPose(link.context),other=link.target.getCaptureAttachmentPose(link.context);
+      if(own.gripMetadataInvalid||!own.grip||!other.anchor)return false;
+      const same=(a:CaptureAttachmentAnchor,b:CaptureAttachmentAnchor)=>a.poseKey===b.poseKey&&a.profileKey===b.profileKey&&
+        a.dimensions.width===b.dimensions.width&&a.dimensions.height===b.dimensions.height&&
+        a.artFrameIndex===b.artFrameIndex&&a.nativeSample===b.nativeSample&&a.sourceSampleBasis===b.sourceSampleBasis&&
+        sameAttachmentAuthoredPoseIdentity(a.authoredPoseIdentity,b.authoredPoseIdentity)&&a.point.x===b.point.x&&a.point.y===b.point.y&&a.provenance===b.provenance;
+      return same(own.grip,result.selection.grip)&&same(other.anchor,result.selection.anchor)&&
+        own.grip.context===result.selection.grip.context&&own.grip.facingPolicy===result.selection.grip.facingPolicy&&
+        own.grip.occlusion===result.selection.grip.occlusion&&result.occlusion===own.grip.occlusion&&own.facing===result.selection.captorDrawingFacing&&
+        other.facing===result.selection.recipientPoseFacing;
+    }catch{return false;}
+  }
+
+  private bypassCaptureAttachmentLegacyPin():boolean {
+    const link=this.getCaptureAttachmentLink();if(!link)return false;
+    const result=this.resolveCaptureAttachmentCandidate([this.body.id,link.target.body.id],this.getPosition());
+    if(result?.status!=='paired')return false;
+    this.rememberCaptureAttachmentBypass(link);return true;
+  }
+  restoreCaptureAttachmentLegacyPosition(link:CaptureAttachmentLink):void {
+    const live=this.getCaptureAttachmentPendingLegacyRestore(),pending=this.captureAttachmentBypass;
+    if(!pending||!live||live.target!==link.target||live.captureId!==link.captureId||
+      live.captorReset!==link.captorReset||live.recipientReset!==link.recipientReset)return;
+    const cargo=Boolean(this.grabState.active?.cargo),spec=this.grabSpec;
+    const offset=spec?{x:cargo?spec.cargo?.offsetX??spec.hitbox.offsetX:spec.hitbox.offsetX,
+      y:cargo?spec.cargo?.offsetY??spec.hitbox.offsetY:spec.hitbox.offsetY}:pending.legacyOffset;
+    const x=this.body.position.x+offset.x*this.facing;
+    const y=link.target.clearedCaptiveY(this,this.body.position.y+offset.y);
+    this.scene.matter.body.setPosition(link.target.body,{x,y});this.scene.matter.body.setVelocity(link.target.body,{x:0,y:0});
+    if(link.target.hitlagRemaining>0)link.target.hitlagPosition={x,y};
+    this.captureAttachmentBypass=null;
+  }
+  commitCaptureAttachmentCandidate(link:CaptureAttachmentLink,result:Extract<CaptureAttachmentResult,{status:'paired'}>):boolean {
+    // Re-resolve metadata and the live link at commit, not only at collection.
+    const live=this.getCaptureAttachmentLink();
+    if(!live||live.target!==link.target||live.captureId!==link.captureId||live.context!==link.context||
+      live.captorReset!==link.captorReset||live.recipientReset!==link.recipientReset)return false;
+    const fresh=this.resolveCaptureAttachmentCandidate([this.body.id,live.target.body.id],this.getPosition());
+    if(!fresh||fresh.status!=='paired'||JSON.stringify(fresh)!==JSON.stringify(result))return false;
+    this.scene.matter.body.setPosition(live.target.body,result.stage.recipientCentre);
+    this.scene.matter.body.setVelocity(live.target.body,{x:0,y:0});
+    if(live.target.hitlagRemaining>0)live.target.hitlagPosition={...result.stage.recipientCentre};
+    live.target.facing=result.exact.recipientFacing;
+    if(live.target.capturePresentation?.state.active)live.target.capturePresentation.state.facing=result.exact.recipientFacing;
+    this.rememberCaptureAttachmentBypass(live);this.captureAttachmentDiagnostic=result;return true;
+  }
+
+  private donkeykongPunchConsumedFrame=-1;
+  private donkeykongPunchFireFrame=-1;
+  private sourcedGroundFrictionBackup:number|null=null;
+  private restoreSourcedGroundFriction():void {
+    if(this.sourcedGroundFrictionBackup!==null){this.body.friction=this.sourcedGroundFrictionBackup;this.sourcedGroundFrictionBackup=null;}
+  }
+  private authoredShieldPushTraction=0.65; // explicit beta calibration for identities without native donor
+  private sourcedShieldPush:{speed:number;attacker:boolean}|null=null;
+  private shieldPushApplied=0;
+  /** Recoil for a sourced ordinary shield block; caller excludes parry/break. */
+  armShieldBlockRecoil(damage:number,kind:import('./combat').ShieldAttackKind|undefined,targetX:number):void {
+    const speed=computeShieldPushback({damage,kind}).attackerSpeed;
+    this.sourcedShieldPush={speed:Math.sign(this.body.position.x-targetX)*speed,attacker:true};
+  }
+  private buriedState:BuriedState<NonNullable<Character['pendingKnockback']>>|null=null;
+  getBuriedPresentationState(){const state=this.buriedState;return state?{phase:state.phase,framesElapsed:state.phase==='escaping'?12-state.escapeRemaining:state.age,facing:this.facing}:null;}
+  /** Mash shake, dirt splashes and yellow flash while buried (render only; buriedPresentation.ts). */
+  getBuriedEffects(){const state=this.buriedState;if(state?.phase!=='buried')return null;const last=state.mash.lastAccepted;
+    return buriedEffects({initialFrames:state.initialFrames,age:state.age,mashReduction:state.mash.reduction,framesSinceMash:last?state.age-last.frame:null});}
+  private pinBuriedLaunch(){this.pendingKnockback=null;this.launchVelocity=null;this.referenceLaunch=null;this.hitstunRemaining=0;this.tumbling=false;this.attackerHitlagVelocity={x:0,y:0};this.scene.matter.body.setVelocity(this.body,{x:0,y:0});}
+  private packedBodyClock: PackedBodyState['clock'] = null;
+  /** Presentation only: a finished action's remaining drawings while the fighter stays at rest (nextPackedBodyTail). */
+  private packedBodyTail:PackedBodyState['tail']=null;
+  /** The shared wall / wall-jump / ceiling tech (surfaceTech.ts). */
+  private surfaceTech:SurfaceTechState|null=null;
+  /** The shared committed ground recovery (stand, trip stand, techs, getup rolls); Pikachu runs pikachuGroundRecovery. */
+  private groundRecovery:(NonNullable<PackedBodyState['committed']>&{duration:number;protectionFrames:number;travelDirection?:1|-1})|null=null;
+  private packedCrouchPhase:PackedBodyState['crouchPhase']=null;
+  private donkeykongTurnBrake:DonkeyKongTurnBrakeState|null=null;
+  private donkeykongFootstoolPerformer:{framesElapsed:number;facing:1|-1;mini:boolean;entryFrame:number}|null=null;
+  private donkeykongFootstoolRepeatCount=0;
+  private donkeykongFootstoolCooldown=0;
+  private donkeykongFootstoolCooldownEntryFrame=-1;
+  private donkeykongLastAttackEndFrame=-1000;
+  private pendingFootstoolPhantom=false;
+  private itemAction:(ItemActionState&{entryFrame:number;entryFacing:1|-1})|null=null;
+  private itemActionEntryFrame:number|null=null;
+  private itemEating:RecoveryEatingState|null=null;
+  private itemHealing:HealingState|null=null;
+  private recoveryEvents:RecoveryTransactionEvent[]=[];
+  private itemLockedInput:CharacterInput|null=null;
+  private itemActionEvents:(ItemActionEvent&{action:ItemAction;plan:ItemActionPlan;entryFacing:1|-1;entryFrame:number})[]=[];
+  private itemActionCompletions:{readonly plan:ItemActionPlan;readonly entryFacing:1|-1;readonly entryFrame:number;readonly exitFrame:number}[]=[];
+  private lastDonkeyKongCarryHit: Pick<CharacterHitApplication,'reactionResisted'|'heavyItemDrop'> = {};
+  private donkeykongHeavyItemHeld=false;
+  private donkeykongHeavyCarry:DonkeyKongHeavyCarryState|null=null;
+  private donkeykongHeavyCarryEntryFrame=-1;
+  private donkeykongHeavyCarryStickX=0;
+  private donkeykongHeavyDownFlickAge:number|null=null;
+  private donkeykongHeavyDownHeld=false;
+  private pendingDonkeyKongHeavyJump:{mini:boolean}|null=null;
+  private donkeykongHeavyItemAction:(DonkeyKongHeavyItemState&{entryFrame:number})|null=null;
+  private donkeykongHeavyItemEvents:(DonkeyKongHeavyItemEvent&{plan:DonkeyKongHeavyItemPlan;entryFacing:1|-1;entryFrame:number})[]=[];
+  private clearDonkeyKongHeavyItemAction():void {this.donkeykongHeavyItemAction=null;this.donkeykongHeavyItemEvents=[];}
+  private hasDonkeyKongHeavyAirPolicy():boolean {
+    // NO_REAC/CLIFF_NONE is captured for SuperLift and ItemThrowHeavy. The
+    // inherited ItemHeavyPickup pre body remains unavailable before attachment.
+    return this.id==='donkeykong'&&(this.donkeykongHeavyItemHeld || (this.donkeykongHeavyItemAction!==null&&this.donkeykongHeavyItemAction.plan.action!=='pickup'));
+  }
+  private stepDonkeyKongHeavyCarryInput(input:CharacterInput):CharacterInput {
+    if(!this.donkeykongHeavyItemHeld||this.donkeykongHeavyItemAction)return input;
+    // A source resistance decision is not inferred from raw damage here. The
+    // Scene owns held-item loss; reaction/capture still owns its input clock.
+    if(this.hitstunRemaining>0||this.grabbedBy||this.buriedState)return input;
+    if(!this.donkeykongHeavyCarry){this.donkeykongHeavyCarry=beginDonkeyKongHeavyCarry(this.isGrounded(),this.facing);this.donkeykongHeavyCarryEntryFrame=this.simulationInputFrame;}
+    const down=(input.moveY??0)>=.6875;
+    this.donkeykongHeavyDownFlickAge=down?(this.donkeykongHeavyDownHeld?(this.donkeykongHeavyDownFlickAge??0)+1:0):null;
+    this.donkeykongHeavyDownHeld=down;this.donkeykongHeavyCarryStickX=input.moveX;
+    if(fighterHeavyItemProfile(this.id).carry.groundOnly){
+      this.donkeykongHeavyCarry=stepGroundOnlyHeavyCarry(this.donkeykongHeavyCarry,input.moveX);
+    }else if(this.donkeykongHeavyCarryEntryFrame!==this.simulationInputFrame){
+      const passableFloor=[...this.contactPairs.values()].some(pair=>this.isSupportPair(pair)&&
+        (pair.bodyA===this.body?pair.bodyB:pair.bodyA).label===PLATFORM_LABELS.passThrough);
+      const step=tickDonkeyKongHeavyCarry(this.donkeykongHeavyCarry,{holdingHeavy:true,grounded:this.isGrounded(),
+        nativeStickX:input.moveX,nativeStickY:-(input.moveY??0),downFlickAge:this.donkeykongHeavyDownFlickAge,
+        passableFloor,freshJump:input.jump&&!this.prevJumpHeld,jumpHeld:input.jump});
+      this.donkeykongHeavyCarry=step.state;
+      for(const event of step.events){
+        if(event.kind==='reverse-facing')this.facing=event.facing;
+        if(event.kind==='ground-jump')this.pendingDonkeyKongHeavyJump={mini:event.mini};
+        if(event.kind==='pass-platform')this.dropThroughFramesRemaining=9;
+      }
+    }
+    this.itemLockedInput=input;
+    this.jumpInputBufferFrames=0;this.tapJumpBufferFrames=0;this.offensiveActionBuffer=null;
+    return {...input,moveX:0,moveY:0,jump:false,attack:false,attackHeavy:false,special:false,grab:false,shield:false,dodge:false,appeal:false,dropThrough:false};
+  }
+  private stepDonkeyKongHeavyItemInput(input:CharacterInput):CharacterInput {
+    const before=this.donkeykongHeavyItemAction;
+    if(before){
+      if(before.plan.action==='pickup'&&!this.isGrounded())this.clearDonkeyKongHeavyItemAction();
+      else if(before.entryFrame!==this.simulationInputFrame){
+        const step=tickDonkeyKongHeavyItemAction(before);
+        this.donkeykongHeavyItemAction=step.state?{...step.state,entryFrame:before.entryFrame}:null;
+        for(const event of step.events){
+          if(event.kind==='reverse-facing')this.facing=event.facing;
+          this.donkeykongHeavyItemEvents.push({...event,plan:before.plan,entryFacing:before.entryFacing,entryFrame:before.entryFrame});
+        }
+      }
+    }
+    if(!this.donkeykongHeavyItemAction)return input;
+    this.itemLockedInput=input;
+    // Jump intent was buffered from raw input before this action lock. An
+    // up-throw keyboard press also contains jump (W); retire that intent here
+    // so it cannot enter ordinary jumpsquat while the heavy callback is pending.
+    this.jumpInputBufferFrames=0;this.tapJumpBufferFrames=0;this.offensiveActionBuffer=null;
+    return {...input,moveX:this.isGrounded()?0:input.moveX,moveY:0,jump:false,attack:false,attackHeavy:false,special:false,grab:false,shield:false,dodge:false,appeal:false,dropThrough:false};
+  }
+  private clearItemAction():void {
+    this.itemAction=null;this.itemActionEntryFrame=null;this.itemActionEvents=[];this.itemActionCompletions=[];this.clearDonkeyKongHeavyItemAction();
+    this.donkeykongHeavyCarry=null;this.pendingDonkeyKongHeavyJump=null;
+  }
+  private stepItemInput(input:CharacterInput):CharacterInput {
+    const before=this.itemAction;
+    if(before){
+      const airAction=before.plan.action.startsWith('throw-air-');
+      const groundAction=before.plan.action!=='air-z-drop'&&!airAction;
+      if((airAction&&this.isGrounded())||(groundAction&&!this.isGrounded()))this.clearItemAction();
+      else if(before.entryFrame!==this.simulationInputFrame){
+        const step=tickItemAction(before);
+        this.itemAction=step.state?{...step.state,entryFrame:before.entryFrame,entryFacing:before.entryFacing}:null;
+        if(!step.state){
+          const plan=Object.freeze({...before.plan,
+            ...(before.plan.throwParameters?{throwParameters:Object.freeze({...before.plan.throwParameters})}:{})});
+          this.itemActionCompletions.push(Object.freeze({plan,entryFacing:before.entryFacing,entryFrame:before.entryFrame,exitFrame:this.simulationInputFrame}));
+        }
+        for(const event of step.events){
+          if(event.kind==='reverse-facing')this.facing=event.facing;
+          this.itemActionEvents.push({...event,action:before.plan.action,plan:before.plan,entryFacing:before.entryFacing,entryFrame:before.entryFrame});
+        }
+      }
+    }
+    if(this.itemActionEntryFrame!==null&&this.itemActionEntryFrame<this.simulationInputFrame)this.itemActionEntryFrame=null;
+    if(!this.itemAction&&this.itemActionEntryFrame!==this.simulationInputFrame)return input;
+    this.itemLockedInput=input;
+    // The item action owns the body: a jump buffered from this step's raw input (a keyboard W is up
+    // and jump) does not start a jump squat under the toss.
+    this.jumpInputBufferFrames=0;this.tapJumpBufferFrames=0;this.offensiveActionBuffer=null;
+    const walking=this.itemAction?.plan.action==='pickup-walking';
+    return {...input,jump:false,attack:false,attackHeavy:false,special:false,grab:false,shield:false,dodge:false,appeal:false,
+      moveX:this.isGrounded()&&!walking?0:input.moveX,moveY:0,dropThrough:false};
+  }
+  private isSurfaceTechLocking():boolean {
+    return this.surfaceTech!==null&&!surfaceTechActionable(this.surfaceTech);
+  }
+  private readonly donkeykongAttackPoseConsumer=new DonkeyKongAttackCollisionPoseConsumer();
+  /** Fresh intrinsic leaf hook; null means an explicit missing posed profile.
+   * Existing fighters keep their current contact consumers and data. */
+  protected notifySourceAerialLandingAdmitted(_receipt:{readonly frame:number;readonly generation:number;
+    readonly moveId:string;readonly sourcePoseId:string|null;readonly facing:1|-1;readonly landingLagFrames:number}):void {}
+  /** Source-owned intrinsic controllers may reserve raw input while using
+   * ordinary shared movement. The raw latch is restored after the shared step
+   * so a held button does not become a new press when the controller exits. */
+  protected filterSourceIntrinsicInput(input:CharacterInput,_frame:number):CharacterInput { return input; }
+  /** Narrow source arbitration after real landing/taunt counters advance.
+   * No reducer clock is replayed here; legacy input is unchanged. */
+  protected reserveSourceUpdatedControlInput(input:CharacterInput,_frame:number):CharacterInput{return input;}
+  protected sourceSpecialJustPressed(input:CharacterInput):boolean {return input.special===true&&!this.prevSpecialHeld;}
+  protected lockSourceIntrinsicInput(input:CharacterInput,airSteering=false):CharacterInput {
+    this.itemLockedInput=input;this.jumpInputBufferFrames=0;this.tapJumpBufferFrames=0;this.offensiveActionBuffer=null;
+    return {...input,moveX:airSteering?input.moveX:0,moveY:0,jump:false,attack:false,attackHeavy:false,
+      special:false,shield:false,dodge:false,grab:false,appeal:false,dropThrough:false};
+  }
+  protected advanceSourceChainedAttack(nextId:string,preserveCharge=false):boolean {
+    const previous=this.activeAttack;
+    const accepted=this.advanceChainedAttack(nextId,preserveCharge);
+    if(accepted&&preserveCharge&&previous&&this.activeAttack)
+      this.activeAttack={...this.activeAttack,move:realizeLinkSmashFollowupCharge(previous.move,previous.chargeHeldFrames,this.activeAttack.move)};
+    if(accepted)this.deferSourceAttackInitialTick();
+    return accepted;
+  }
+  protected inheritSourceSmashFollowupCharge(previous:AttackMove,heldFrames:number|null):void {
+    if(this.activeAttack)this.activeAttack={...this.activeAttack,
+      move:realizeLinkSmashFollowupCharge(previous,heldFrames,this.activeAttack.move),chargeHeldFrames:heldFrames};
+  }
+  /** Fresh pre-tick continuation owns real age0 for this advancing input.
+   * Generic after-tick chain transitions retain their existing clock. */
+  protected deferSourceAttackInitialTick():void {if(this.activeAttack)this.activeAttack.holdInitialFrame=true;}
+  protected moveIntrinsicSourceRoot(delta:{x:number;y:number}):void {
+    if(![delta.x,delta.y].every(Number.isFinite))throw new Error('Intrinsic root displacement must be finite');
+    const p=this.body.position,position={x:p.x+delta.x,y:p.y+delta.y};this.scene.matter.body.setPosition(this.body,position);
+    if(this.hitlagPosition)this.hitlagPosition={...position};
+  }
+  private intrinsicSourceHitbox:MatterJS.BodyType|null=null;
+  protected getIntrinsicSourceHitbox():MatterJS.BodyType|null {return this.intrinsicSourceHitbox;}
+  protected clearIntrinsicSourceHitbox():void {
+    if(this.intrinsicSourceHitbox)despawnHitbox(this.scene,this.intrinsicSourceHitbox);
+    this.intrinsicSourceHitbox=null;
+  }
+  protected onIntrinsicSourceInterrupted():void {}
+  protected getIntrinsicSourceLandingFrames():number|null {return null;}
+  protected enterIntrinsicSourceHelpless(landingFrames:number):void {this.helpless=true;this.specialFallLandingFrames=landingFrames;}
+  /** A fighter-owned action started: like any started action it ends tumble. */
+  protected noteIntrinsicSourceActionStarted():void {this.clearTumbleForStartedAction();}
+  /** An intrinsic action that owns the body's velocity replaces any retained launch, as an ordinary velocity-owning move does. */
+  protected setIntrinsicSourceVelocity(velocity:{x:number;y:number}):void {this.clearReferenceLaunch();this.scene.matter.body.setVelocity(this.body,velocity);}
+  protected syncIntrinsicSourceHitbox(move:AttackMove,hits:readonly import('./attacks').AttackCollisionHit[],facing:1|-1,
+    attackInstance:object,hitGroup:object,rectangle:AttackMove['hitbox']|null=null):void {
+    this.clearIntrinsicSourceHitbox();if(!rectangle&&!hits.length)return;
+    const body=spawnHitbox(this.scene,{id:this.id,bodyId:this.body.id,position:this.body.position},
+      rectangle?{...move,hitbox:rectangle,collisionHits:undefined}:{...move,collisionHits:hits},facing);
+    body.plugin={...body.plugin,attackInstance,hitGroup,ownerAnchoredContact:true,postPhysicsContactOnly:true};
+    this.intrinsicSourceHitbox=body;
+  }
+  notifyIntrinsicSourceContact(_moveId:string,_outcome:CharacterHitOutcome,_targetIndex?:number,_attackInstance?:object):void {}
+  mayResolveIntrinsicSourceContact(_targetIndex:number,_attackInstance?:object):boolean {return true;}
+  captureIntrinsicRuntimeState():unknown {return null;}
+  restoreIntrinsicRuntimeState(_state:unknown):void {}
+  private syncDonkeyKongAttackCollisionPose():void {
+    const active=this.activeAttack;
+    if(this.id!=='donkeykong'||!active?.hitboxBody)return;
+    const pose=getPackedAttackCollisionPose(captureSimulationAnimation(this,0,false));
+    this.donkeykongAttackPoseConsumer.sync(this.scene,active.hitboxBody,active.move,this.body.position,pose);
+  }
+
+  private readonly donkeykongCatchPoseConsumer=new DonkeyKongCatchCollisionPoseConsumer();
+  private donkeykongCatchCollisionDiagnostic:DonkeyKongCatchCollisionDiagnostic|null=null;
+  private syncDonkeyKongCatchCollisionPose():void {
+    const sensor=this.grabHitboxBody;
+    if(this.id!=='donkeykong'||!sensor||this.grabState.name!=='whiffActive'){
+      this.donkeykongCatchCollisionDiagnostic=null;return;
+    }
+    const selection=getPackedCatchCollisionPose(captureSimulationAnimation(this,0,false));
+    if(!selection)return;
+    this.donkeykongCatchCollisionDiagnostic=this.donkeykongCatchPoseConsumer.sync(
+      this.scene,sensor,this.grabVariantSpec??this.grabSpec!,this.body.position,selection);
+  }
+  /** Geometry/fallback observations only; reading never advances a source clock. */
+  getDonkeyKongCatchCollisionDiagnostic():DonkeyKongCatchCollisionDiagnostic|null {
+    const d=this.donkeykongCatchCollisionDiagnostic;
+    return d?{...d,sourceRegionIds:[...d.sourceRegionIds],providedRegionIds:[...d.providedRegionIds]}:null;
+  }
+
+  /** Where a DK recipient is in its captor's Cargo Throw: carried (past the cargo lift) or through a throw until its release. */
+  private getCargoRecipientState(): PackedBodyState['cargoRecipient'] {
+    const captor=this.grabbedBy;
+    if(!captor||!this.capturePresentation?.state.active||!captor.grabState.active?.cargo)return null;
+    if(captor.grabState.name==='throwing'){const t=captor.getThrowPresentationState();return t?.phase==='throwing'?{throw:{direction:t.direction,age:t.framesElapsed},age:t.framesElapsed}:null;}
+    if(captor.grabState.name!=='holding'||captor.sourceCargoEntry||captor.grabState.active.cargoStartupRemaining)return null;
+    // Carried age = the captor's cargo hold age past its entry motion (the lift keeps the recipient on `captured`, which runs on the capture
+    // age; a captured body's own clock does not run). The hold age counts from the end of the startup, the entry motion spans startup + lift.
+    const cargo=captor.grabSpec?.cargo,lift=cargo?.entryMotionFrames===undefined?0:cargo.entryMotionFrames-cargo.startupFrames;
+    return {throw:null,age:Math.max(0,captor.grabState.active.framesElapsed-lift)};
+  }
+
+  getPackedBodyState(): PackedBodyState {
+    const punch=this.chargingSpecial?.donkeykongPunch;
+    const carry=this.donkeykongHeavyCarry;
+    // Native common gait consumer is unavailable. Retained native .5/.75
+    // parameter ratios support this adapter, not native gait/rate parity.
+    const heavyPhase=carry?.phase==='walk'?selectDonkeyKongHeavyWalkGait(this.body.velocity.x,this.resolvedLocomotionTuning.walkMaxSpeed*(this.grabSpec?.cargo?.walkMultiplier??1)):carry?.phase==='pass'?'fall':carry?.phase;
+    const heavyItem=this.donkeykongHeavyItemAction?{sheet:this.donkeykongHeavyItemAction.plan.motion,age:this.donkeykongHeavyItemAction.framesElapsed,facing:this.donkeykongHeavyItemAction.facing}:
+      carry&&heavyPhase?{sheet:getDonkeyKongHeavyCarryMotion(heavyPhase).motion,age:carry.age,facing:carry.facing}:null;
+    return {pummel:this.sourceGrabPummel&&this.sourceGrabLinkValid(this.sourceGrabPummel.target,this.sourceGrabPummel.captureId,this.sourceGrabPummel.targetGeneration)?{framesElapsed:this.sourceGrabPummel.framesElapsed,facing:this.sourceGrabPummel.facing}:null,
+      heldAfterPummel:this.sourceGrabHeld&&this.sourceGrabLinkValid(this.sourceGrabHeld.target,this.sourceGrabHeld.captureId,this.sourceGrabHeld.targetGeneration)?{facing:this.sourceGrabHeld.facing}:null,
+      cargoRecipient:this.getCargoRecipientState(),cargoEntry:this.sourceCargoEntry&&this.sourceGrabLinkValid(this.sourceCargoEntry.target,this.sourceCargoEntry.captureId,this.sourceCargoEntry.targetGeneration)?{framesElapsed:this.sourceCargoEntry.framesElapsed,facing:this.sourceCargoEntry.facing}:null,heavyItem,clock:this.packedBodyClock,tail:this.packedBodyTail,committed:this.groundRecovery,footstoolPerformer:this.donkeykongFootstoolPerformer,surfaceTech:this.surfaceTech?{...this.surfaceTech,protected:surfaceTechProtected(this.surfaceTech)}:null,punch:punch?{phase:punch.state.phase,age:punch.state.phase==='cancel'?punch.state.phaseAge-1:punch.state.phaseAge,grounded:punch.sourceGrounded,facing:punch.facing,jumpCancel:punch.state.cancelIntent==='air-jump'}:null,
+      crouchPhase:this.packedCrouchPhase,turnBrake:this.donkeykongTurnBrake?{...this.donkeykongTurnBrake,facing:donkeyKongTurnBrakeFacing(this.donkeykongTurnBrake)}:null,
+      itemCue:this.getRecoveryPresentation()??this.getHammerPresentation()??(this.itemAction?{sheet:itemActionSheet(this.itemAction.plan),age:this.itemAction.framesElapsed,facing:this.itemAction.facing}:
+        packedBodyProfile(this.id)!==null&&this.equippedItem!==null&&this.isGrounded()&&this.locomotionState.name==='standing'&&this.canPresentUncommittedBody()?{sheet:'item_carry',age:this.heldItemCarryAge,facing:this.facing}:null),
+      airDodgeDirection:this.airDodgeBurst??{x:0,y:0},fastFall:this.fastFallLatched,stickX:this.prevMoveX,intrinsic:this.getPackedIntrinsicBody()};
+  }
+  /** A fighter-owned special's phase motion for the packed body (none by default). */
+  protected getPackedIntrinsicBody():PackedBodyState['intrinsic']{return null;}
+  private beginGroundRecovery(sheet:string,row:GroundRecoveryRow,travelDirection?:1|-1):void {
+    this.groundRecovery={sheet,duration:row.duration,protectionFrames:row.intangibleFrames,framesElapsed:0,facing:this.facing,...(travelDirection===undefined?{}:{travelDirection})};
+    this.reactionPresentation=null;this.tripped=false;this.jumpInputBufferFrames=0;this.tapJumpBufferFrames=0;this.offensiveActionBuffer=null;
+    this.scene.matter.body.setVelocity(this.body,{x:0,y:0});
+  }
+  private pikachuSpecialRuntime: PikachuSpecialRuntime | null = null;
+  private pikachuSpecialStick = { x: 0, y: 0 };
+  private pikachuSpecialHeld = false;
+
+  private getPikachuSpecialRuntime(): PikachuSpecialRuntime {
+    return this.pikachuSpecialRuntime ??= new PikachuSpecialRuntime({ id: this.id, body: this.body,
+      scene: this.scene, grounded: () => this.isGrounded(),
+      setVelocity: vector => this.scene.matter.body.setVelocity(this.body, vector),
+      facing: value => { this.facing = value; },
+      finish: (helpless, landingFrames) => {
+        this.specialFallAirSpeedMultiplier = helpless && this.activeAttack?.move.pikachuSpecial?.kind === 'quickAttack' ? 0.4 : 1;
+        this.activeAttack = null; this.cooldownRemaining = 0;
+        if (helpless) { this.helpless = true; this.specialFallLandingFrames = landingFrames ?? null; }
+      },
+      replace: (move, frame) => { if (this.activeAttack) { this.activeAttack.move = move; this.activeAttack.framesElapsed = frame; } return this.activeAttack; },
+    });
+  }
+
+  /** Detached source objects tick with the match clock, independently of owner hitlag. */
+  tickPikachuSpecialEntities(surfaces: readonly SpecialSurface[], targets: readonly SpecialProjectileTarget[] = []): void {
+    this.pikachuSpecialRuntime?.tickEntities(kind => {
+      const move = [...this.attacks.values()].find(m => m.pikachuSpecial?.kind === kind);
+      if (!move) throw new Error(`Missing registered Pikachu entity owner ${kind}`);
+      return move;
+    }, surfaces, targets);
+  }
+  getPikachuSpecialVisuals() { return this.pikachuSpecialRuntime?.visuals() ?? []; }
+  /** Stop the lost-stock actor status; detached entities retain their own lifetime. */
+  interruptPikachuSpecialAction(): void {
+    if (this.activeAttack?.move.pikachuSpecial) this.cancelAttack();
+  }
+  getPikachuSpecialState() { return this.pikachuSpecialRuntime?.snapshot() ?? null; }
+  isSourceIntrinsicJostleDisabled():boolean{return false;}
+  protected sourceIntrinsicLedgePolicy():{front:boolean;back:boolean;allowRise:boolean}|null{return null;}
+  isPikachuSpecialJostleDisabled(): boolean {
+    const a = this.getPikachuSpecialState();
+    if (a?.kind === 'quickAttack') return a.frame >= 14 && a.frame < a.firstBurstEnd
+      || a.second && a.frame >= a.secondBurstStart && a.frame < a.secondBurstEnd;
+    if (a?.kind === 'skullBash') return this.activeAttack !== null && this.activeAttack.framesElapsed >= 17 && this.activeAttack.framesElapsed <= 51;
+    return false;
+  }
+  notifyPikachuSpecialContact(token: object | undefined, outcome: string): void {
+    this.pikachuSpecialRuntime?.notifyContact(token, outcome);
+  }
   readonly id: CharacterId;
   readonly body: MatterJS.BodyType;
   /**
@@ -830,7 +1522,7 @@ export class Character {
    * slot through its respective `resolve…` helper so partial records
    * merge cleanly over the existing tuning.
    */
-  private tuning: Required<Omit<CharacterTuning, 'locomotion'>> & {
+  private tuning: Required<Omit<CharacterTuning, 'locomotion' | 'referenceLaunch'>> & Pick<CharacterTuning, 'referenceLaunch'> & AirMovementTuning & LandingTuning & {
     shield: ResolvedShieldTuning;
     dodge: ResolvedDodgeTuning;
     ledge: ResolvedLedgeHangTuning;
@@ -857,6 +1549,13 @@ export class Character {
    * shieldstun). Reset on respawn.
    */
   private shieldActiveFrames = 0;
+  private shieldPresentation: { kind: ShieldPresentationState['kind']; totalFrames: number | null; facing: 1 | -1; holdEntryAge: number } | null = null;
+  /** Guard-off commitment, including its initial five-step parry window. */
+  private shieldReleaseRemaining = 0;
+  private shieldReleaseCanParry = false;
+  private shieldParryBlockRemaining = 0;
+  private shieldParryStunRemaining = 0;
+  private shieldParryProtected = false;
 
   /**
    * STALE-MOVE queue — the ids of this fighter's most-recently-LANDED
@@ -867,7 +1566,7 @@ export class Character {
    * the occurrence count via {@link registerLandedMove} the instant a hit
    * connects. Attacker-side state; reset on respawn.
    */
-  private staleMoveQueue: string[] = [];
+  private staleMoveQueue: StaleEntry[] = [];
 
   /**
    * AC 60302 Sub-AC 2 — live dodge / roll state machine. Initialised
@@ -882,6 +1581,12 @@ export class Character {
    */
   private dodgeState: DodgeState;
 
+  /** Shared dodge-use count behind Ultimate dodge staleness (`dodgeState.ts`); per life. */
+  private dodgeStaleness: DodgeStaleness = createDodgeStaleness();
+
+  /** Frames airborne since last grounded (SmashWiki Edge airtime `a`); 0 on the ground. */
+  private airtimeFrames = 0;
+
   /**
    * Tier 5 — live ground-locomotion state machine (standing / walk /
    * initialDash / run / pivot / crouch). Advanced once per fixed step by
@@ -892,7 +1597,7 @@ export class Character {
    */
   private locomotionState: LocomotionState;
   /** Resolved locomotion tuning (speeds derived from `maxRunSpeed`). */
-  private readonly resolvedLocomotionTuning: ResolvedLocomotionTuning;
+  private resolvedLocomotionTuning: ResolvedLocomotionTuning;
   /** Previous frame's POST-lockout moveX — feeds the locomotion flick-edge detector. */
   private prevLocoMoveX = 0;
 
@@ -904,6 +1609,18 @@ export class Character {
    * shield-break stun does NOT auto-fire a dodge on the recovery frame.
    */
   private prevDodgeHeld = false;
+  private prevAppealHeld = false;
+  private simulationInputFrame = 0;
+  private sourceGrabAdmissionFrame=0;private sourceCaptureAdmissionFrame=0;private sourceCutAdmissionFrame=0;private sourceHeldAdmissionFrame=0;
+  private lastCaptureInput: CharacterInput = {moveX: 0, jump: false};
+  private ultimateCaptureBudget: {entryPercent: number; initialFrames: number; mash: CaptureMashState}|null = null;
+  private ultimateCargoBudget: {initialFrames:number;mash:CaptureMashState}|null = null;
+  private postReleaseGrabImmunity = {remaining: 0, lastFrame: -1};
+  private grabReleasePresentation: {role: 'captor'|'target'; framesElapsed: number; lastFrame: number;
+    facing: 1|-1; groundedAtEntry: boolean}|null = null;
+
+  private tauntSpec: TauntSet | null = null;
+  private tauntPresentation: {kind: TauntKind; framesElapsed: number; facing: 1 | -1; entryFrame:number} | null = null;
 
   /**
    * Live grab-machine state (post-M2 grab/throw subsystem). Drives the
@@ -919,6 +1636,80 @@ export class Character {
    * state machine ticks but no hitbox actually fires.
    */
   private grabState: GrabState = createGrabState();
+  private grabVariantSpec: GrabSpec | null = null;
+  private grabPresentationVariant: 'standing' | 'dash' | 'pivot' = 'standing';
+  private pendingPummelFrames: number | null = null;
+  private pummelDamageTransaction:GrabDamageTransaction|null=null;
+  private sourceGrabPummel:(BoundGrabSourcePresentation&{damageDelivered:boolean})|null=null;
+  private sourceGrabHeld:BoundGrabSourcePresentation|null=null;
+  private sourceCargoEntry:BoundGrabSourcePresentation|null=null;
+  private clearGrabSourcePresentation():void {
+    this.sourceGrabPummel=null;this.sourceGrabHeld=null;this.sourceCargoEntry=null;
+    this.pendingPummelFrames=null;this.pummelDamageTransaction=null;
+  }
+  private sourceGrabLinkValid(target:Character,captureId:number,targetGeneration:number):boolean {
+    return this.grabTarget===target&&target.grabbedBy===this&&target.captureSequence===captureId&&
+      target.positionResetGeneration===targetGeneration;
+  }
+  private advanceGrabSourcePresentation():void {
+    const p=this.sourceGrabPummel;
+    if(p){
+      if(this.grabState.name!=='holding'||this.grabState.active?.cargo||!this.sourceGrabLinkValid(p.target,p.captureId,p.targetGeneration))this.sourceGrabPummel=null;
+      else {
+        const clock=stepGrabSourcePresentation(p,this.simulationInputFrame,this.grabSpec!.pummel!.motionFrames!);
+        this.sourceGrabPummel=clock?{...p,...clock}:null;
+        if(!clock){this.pummelDamageTransaction=null;this.sourceHeldAdmissionFrame=this.simulationInputFrame;this.sourceGrabHeld={...p,...beginGrabSourcePresentation(this.simulationInputFrame,p.facing)};}
+      }
+    }
+    if(this.sourceGrabHeld){const p=this.sourceGrabHeld;const clock=this.grabState.name==='holding'&&Boolean(this.grabState.active?.cargo)===p.cargo&&this.sourceGrabLinkValid(p.target,p.captureId,p.targetGeneration)?stepGrabSourcePresentation(p,this.simulationInputFrame,Number.MAX_SAFE_INTEGER):null;this.sourceGrabHeld=clock?{...p,...clock}:null;}
+    if(this.sourceCargoEntry){
+      const before=this.sourceCargoEntry;
+      const valid=this.grabState.name==='holding'&&this.grabState.active?.cargo&&this.sourceGrabLinkValid(before.target,before.captureId,before.targetGeneration);
+      const clock=valid?stepGrabSourcePresentation(before,this.simulationInputFrame,this.grabSpec!.cargo!.entryMotionFrames!):null;
+      this.sourceCargoEntry=clock?{...before,...clock}:null;
+      if(valid&&!clock)this.sourceGrabHeld={...before,...beginGrabSourcePresentation(this.simulationInputFrame,before.facing)};
+    }
+  }
+  private beginCapturedDamageTransaction(queueMoveId:string,kind:string):GrabDamageTransaction|null {
+    const target=this.grabTarget;
+    if(!target||target.grabbedBy!==this)return null;
+    return beginGrabDamageTransaction({queueMoveId,staleMultiplier:this.getStaleMultiplier(queueMoveId),
+      transactionKey:`${this.slotIndex}:${this.positionResetGeneration}:${target.slotIndex}:${target.positionResetGeneration}:${target.captureSequence}:${kind}:${this.simulationInputFrame}`,
+      actorGeneration:this.positionResetGeneration,targetGeneration:target.positionResetGeneration,
+      captureId:target.captureSequence,entryFrame:this.simulationInputFrame});
+  }
+  private capturedDamageTransactionValid(transaction:GrabDamageTransaction|null,target:Character):transaction is GrabDamageTransaction {
+    return target.grabbedBy===this&&grabDamageTransactionMatches(transaction,{actorGeneration:this.positionResetGeneration,
+      targetGeneration:target.positionResetGeneration,captureId:target.captureSequence});
+  }
+  private commitCapturedDamageTransaction(transaction:GrabDamageTransaction,damageApplied:number):GrabDamageTransaction {
+    const commit=commitGrabDamageTransaction(transaction,damageApplied);
+    if(commit.enqueue)this.registerLandedMove(transaction.queueMoveId);
+    return commit.state;
+  }
+  getCapturedDamageSource(reason:'pummel'|'throw-pre-hit'){
+    const target=this.grabTarget,transaction=reason==='pummel'?this.pummelDamageTransaction:this.throwPresentation?.damageTransaction??null;
+    if(!target||!this.capturedDamageTransactionValid(transaction,target)||!this.grabSpec||
+      reason==='pummel'&&this.sourceGrabPummel===null&&this.pendingPummelFrames===null)return null;
+    const direction=this.grabState.active?.throwDirection;
+    const baseDamage=reason==='pummel'?this.grabSpec.pummel?.damage:direction?
+      getThrowByDirection(this.getCurrentThrowSet(this.grabState),direction).heldTargetHits?.find(row=>row.frame===this.grabState.active?.framesElapsed)?.damage:undefined;
+    return baseDamage===undefined?null:{baseDamage,staleMultiplier:transaction.staleMultiplier,queueMoveId:transaction.queueMoveId,
+      transactionKey:transaction.transactionKey,captureId:transaction.captureId,entryFrame:transaction.entryFrame};
+  }
+  private deliverSourcePummel():void {
+    const p=this.sourceGrabPummel,spec=this.grabSpec?.pummel;
+    if(!p||!spec||p.damageDelivered||p.framesElapsed<(spec.startupFrames??0)||!this.sourceGrabLinkValid(p.target,p.captureId,p.targetGeneration))return;
+    const transaction=this.pummelDamageTransaction;
+    if(!this.capturedDamageTransactionValid(transaction,p.target))return;
+    p.damageDelivered=true;
+    const beforeDamage=p.target.getDamagePercent();
+    const freeze=spec.hitlagFrames??computeHitlag({damage:spec.damage*transaction.staleMultiplier,targetPercent:p.target.getDamagePercent(),multiplier:spec.hitlagMultiplier,electricCollision:spec.electricCollision});
+    p.target.addDamage(spec.damage*transaction.staleMultiplier,'pummel',this.slotIndex);
+    this.pummelDamageTransaction=this.commitCapturedDamageTransaction(transaction,p.target.getDamagePercent()-beforeDamage);
+    p.target.armAttackerHitlag(freeze);this.armAttackerHitlag(freeze);
+    if(this.grabState.active)this.grabState={...this.grabState,active:{...this.grabState.active,pummelCooldownRemaining:Math.max(0,spec.cooldownFrames-freeze)}};
+  }
 
   /**
    * Per-fighter grab specification. `null` when no grab is registered
@@ -958,6 +1749,11 @@ export class Character {
    * grabber transitions out of `'holding'` (release / throw / break).
    */
   private grabbedBy: Character | null = null;
+  private throwReleaseInvincible = false;
+  private captureSequence = 0;
+  private captureEventSequence = 0;
+  private capturePresentation: { state: CapturePresentationState; captor: Character } | null = null;
+  private sourceCaptureMotionFamily:(AuthoredCaptureMotionFamily&{captureId:number;generation:number;captorGeneration:number})|null=null;
 
   /** Reference to the live target this character is grabbing (mirror of `grabbedBy`). */
   private grabTarget: Character | null = null;
@@ -969,6 +1765,25 @@ export class Character {
    * inside {@link applyInput}.
    */
   private ledgeHangState: LedgeHangState;
+  isSourceTerrainBypassControlled(){return this.finalSmashControl?.terrainBypass===true||this.ledgeJumpClearance!==null;}
+  /** Ledge jump (cliff_jump): the body rises through the corner it hung from, so
+   * terrain is ignored until its bottom clears that corner, it falls, or it is
+   * interrupted. Shared by every fighter that uses the generic ledge jump. */
+  private ledgeJumpClearance:{originalMask:number;cornerY:number}|null=null;
+  private beginLedgeJumpClearance(cornerY:number):void {
+    this.endLedgeJumpClearance();
+    this.ledgeJumpClearance={originalMask:this.body.collisionFilter.mask,cornerY};
+    this.body.collisionFilter.mask&=~(COLLISION_CATEGORIES.PLATFORM_SOLID|COLLISION_CATEGORIES.PLATFORM_PASS_THROUGH);
+  }
+  private endLedgeJumpClearance():void {
+    const clearance=this.ledgeJumpClearance;if(!clearance)return;
+    this.body.collisionFilter.mask=clearance.originalMask;this.ledgeJumpClearance=null;
+  }
+  private tickLedgeJumpClearance():void {
+    const clearance=this.ledgeJumpClearance;if(!clearance)return;
+    if(this.body.position.y+this.tuning.height/2<=clearance.cornerY||this.body.velocity.y>=0||this.hitstunRemaining>0||this.pendingKnockback||
+      this.grabbedBy||this.finalSmashControl)this.endLedgeJumpClearance();
+  }
 
   /**
    * AC 60403 Sub-AC 3 — live ledge candidates the runtime feeds in via
@@ -988,17 +1803,10 @@ export class Character {
    */
   private pendingLedgeForceRelease = false;
 
-  private readonly scene: Phaser.Scene;
+  private readonly scene: PhysicsHost;
 
-  /** -1 = facing left, 1 = facing right. Updated whenever input has direction. */
+  /** -1 = left, 1 = right. Ground turns and explicit actions own facing. */
   private facing: 1 | -1 = 1;
-
-  /**
-   * Active "support contacts" — incremented on `collisionstart` with
-   * a platform body whose centre sits below ours, decremented on
-   * `collisionend`. `isGrounded()` returns `count > 0`.
-   */
-  private groundContacts = 0;
 
   /**
    * Directional AIR-DODGE state. `airDodgeBurst` is the (decaying) velocity
@@ -1008,6 +1816,7 @@ export class Character {
    * chained into infinite recovery. See {@link AIRDODGE_BURST_SPEED}.
    */
   private airDodgeBurst: { x: number; y: number } | null = null;
+  private airDodgeGravityVelocityY = 0;
   private airDodgeUsed = false;
 
   /**
@@ -1017,6 +1826,31 @@ export class Character {
    * is dropped to 0 the moment an attack press (or a state change) pre-empts it.
    */
   private tapJumpBufferFrames = 0;
+  private jumpInputBufferFrames = 0;
+  private jumpsquatRemaining = 0;
+  private jumpsquatShortHop = false;
+  /** Pikachu beta jump entry orientation; stick direction is sampled at takeoff. */
+  private jumpsquatFacing: 1 | -1 | null = null;
+  /**
+   * Input frame of the latest takeoff impulse (ground jump, air jump, wall
+   * bounce, footstool). On that step Matter has not yet separated the body
+   * from its support, so {@link isGrounded} still reads true; an action
+   * started that step must start airborne (see {@link isGroundedForActionStart}).
+   */
+  private takeoffInputFrame: number | null = null;
+  private shortHopRising = false;
+  /** A fresh air jump can have a different rise arc from the ground jump. */
+  private airJumpRising = false;
+  private readonly donkeykongOrdinaryVertical: DonkeyKongOrdinaryVerticalProfile | null;
+  /** Only normal input ticks consume an opening sample; hitlag pauses it. */
+  private donkeykongFullHopStep: number | null = null;
+  /** applyInput supplied total DK gravity; cancel the actual world dose once. */
+  private donkeykongOrdinaryVerticalTick = false;
+  /** Set when this tick prescribed an opening sample: the ordinary velocity the
+   * body carries out of it (samples are displacements, not inheritable speed). */
+  private donkeykongOpeningCarryY:number|null=null;
+  /** Entry scaling must precede this tick's ordinary gravity/curve shaping. */
+  private donkeykongOrdinaryEntryVelocityY:number|null=null;
 
   /**
    * Set by the scene's pass-through-platform driver (via
@@ -1037,6 +1871,55 @@ export class Character {
    * first frame the character is grounded with non-rising velocity.
    */
   private jumpsUsed = 0;
+  private jumpPresentation: {
+    kind: 'ground' | 'air' | 'ledge'; facing: 1 | -1; moveX: number;velocityX:number; shortHop: boolean; framesElapsed: number;
+  } | null = null;
+  private ordinaryPresentation: {
+    sheet: 'idle' | 'walk' | 'fall' | 'fall_special'; framesElapsed: number;
+  } | null = null;
+  private pikachuTurnBrake: PikachuTurnBrakeState | null = null;
+  private crouchPresentation: { framesElapsed: number; facing: 1 | -1 } | null = null;
+  private pikachuCrouchCrawl: PikachuCrouchCrawlState | null = null;
+  private reactionPresentation: ReactionPresentationState | null = null;
+  private recoveryReaction: { origin: Exclude<ReactionPresentationState['origin'], null>; facing: 1 | -1 } | null = null;
+  private reactionCue: ReactionPresentationState | null = null;
+  private pikachuGroundRecovery: PikachuGroundRecovery | null = null;
+  private surfaceTechGravityRestore: boolean | null = null;
+  private pikachuAuxiliaryAir: {sheet:'wall_jump'|'footstool_jump';framesElapsed:number;facing:1|-1} | null = null;
+  private pikachuLedgeJump: (PikachuLedgeJump & {candidate:LedgeCandidate;previousOffset:{x:number;y:number};previousCorner:{x:number;y:number}})|null=null;
+  private pikachuLastGravityDose=0;
+  private pikachuLedgeFlightHitlagRelease=false;
+  /** WaitItem loop age while an item is held (resets on pickup). */
+  private heldItemCarryAge=0;
+  private pikachuRespawnPresentation: {framesElapsed:number;facing:1|-1} | null = null;
+  /** Ultimate revival platform: held at the spawn point until a dismount input or REVIVAL_PLATFORM_MAX_FRAMES. */
+  private revivalPlatform: {framesElapsed:number;x:number;y:number} | null = null;
+  private pikachuWallBounceContact: object | null = null;
+  private pendingFootstoolJump = false;
+  private footstoolRecipient: {framesElapsed:number;grounded:boolean;facing:1|-1;entryFrame:number} | null = null;
+  private footstoolMini: {basis:number;framesElapsed:number;cut:boolean} | null = null;
+  private sourceLinkFootstool:{presentation:LinkFootstoolBodyPresentation;entryFrame:number;lastFrame:number;generation:number;mini:boolean;phantom:boolean;
+    contact:{jumperIndex:number;jumperGeneration:number;recipientIndex:number;recipientGeneration:number}|null}|null=null;
+  private sourceLinkFootstoolPendingContact:{jumperIndex:number;jumperGeneration:number;recipientIndex:number;recipientGeneration:number}|null=null;
+  private sourceLinkFootstoolRepeatCount=0;
+  private sourceLinkFootstoolCooldown=0;
+  private sourceLinkFootstoolCooldownEntryFrame=-1;
+  private sourceLinkFootstoolRecipientSide:'front'|'back'|null=null;
+  private pikachuFootstoolVisual: {x:number;y:number;age:number;entryFrame:number} | null = null;
+  private throwRootMotionApplied = false;
+  private pikachuLedgeAttachment: {
+    candidate: LedgeCandidate; attached: boolean;
+    ignoredPairs: Map<SupportPair, boolean | undefined>;
+  } | null = null;
+  private ledgeAttackAttachment: {
+    move: AttackMove; candidate: LedgeCandidate; facing: 1 | -1;
+    frame: number; attached: boolean; corner: {x: number; y: number};
+    ignoredPairs: Map<SupportPair, boolean | undefined>;
+  } | null = null;
+  private throwPresentation: {
+    direction: ThrowDirection; facing: 1 | -1; entryFrame:number|null; releaseElapsed: number | null; recoveryAtRelease: number;
+    cargo?:boolean;airborne?:boolean;damageTransaction:GrabDamageTransaction|null;
+  } | null = null;
 
   /** Latch for rising-edge jump detection. */
   private prevJumpHeld = false;
@@ -1138,27 +2021,22 @@ export class Character {
   protected readonly attacks: Map<string, AttackMove> = new Map();
 
   /**
-   * AC 4 (T2 refactor) — per-attack-slot override map for the T3 item
-   * framework. While an item is held, its declared overrides install
-   * a temporary callback into this map for each {@link AttackMovesetSlotName}
-   * the item replaces; on drop / break / despawn the callbacks are
-   * cleared. The {@link executeJab} / {@link executeTilt} / etc. hooks
-   * consult this map BEFORE firing the per-fighter authored move so a
-   * held bat's swing fires from the bat-supplied callback rather than
-   * the fighter's native jab.
-   *
-   * The callback returns `boolean` — `true` iff it consumed the press
-   * (the override "fired"). Returning `false` signals the override
-   * declined the press (e.g. the item is on cooldown) and the fighter's
-   * authored slot move runs as a fallback. This contract keeps the
-   * single-slot inventory invariant compatible with partial-override
-   * items that decline some presses (e.g. a held ray gun that ignores
-   * jab-while-empty-clip and lets the fighter's native jab run).
+   * The held item, as its use table plus the ammo/lifecycle gate. Set by the
+   * inventory on pickup and cleared on every release. The attack dispatch
+   * asks {@link resolveItemInput} whether it replaces the classified press.
    */
-  private readonly slotOverrides: Map<
-    AttackMovesetSlotName,
-    () => boolean
-  > = new Map();
+  private equippedItem: HeldItemHandle | null = null;
+
+  /**
+   * A shooting item's fire session (itemShooting.ts): the upper body fires while the legs keep walking / jumping
+   * (SmashWiki: shooting items can be used while running and jumping). Not an attack: no melee hitbox, no attack lock.
+   */
+  private itemShooting: { readonly spec: ShootingSpec; state: ShootingState } | null = null;
+  /** Steps on the shooting legs' walk loop / since landing while shooting (presentation clocks). */
+  private shootLegsWalkAge = 0;
+  private shootLandingAge: number | null = null;
+  /** Item shots this step (Star Rod stars, shooting items' shots); MatchScene spawns and drains them. */
+  private pendingItemShots: { shot: ItemShot; x: number; y: number; facing: 1 | -1 }[] = [];
 
   /**
    * Default attack id selected when the `attack` button rises with no
@@ -1237,6 +2115,8 @@ export class Character {
    * override / inspect the slot independently.
    */
   private neutralSpecialId: string | null = null;
+  /** Explicit saved source-slot identity; existing subclass side routes remain owned by their class. */
+  private sideSpecialId:string|null=null;
 
   /**
    * AC 60202 Sub-AC 2 — up-special dispatch slot. Populated by the
@@ -1332,6 +2212,10 @@ export class Character {
     move: AttackMove;
     facing: 1 | -1;
     framesElapsed: number;
+    /** Source option budget latched from the grab count, independent of later ground contact. */
+    ledgeProtectionFrames?: number;
+    /** A source ledge action starts before tickAttack in the same input call. */
+    holdInitialFrame?: boolean;
     hitboxBody: MatterJS.BodyType | null;
     /**
      * Charge-special payload — the number of frames the special button
@@ -1371,6 +2255,55 @@ export class Character {
     } | null;
   } | null = null;
 
+  private offensiveActionBuffer: {
+    readonly kind: 'attack' | 'heavy' | 'special';
+    remaining: number;
+    readonly moveX: number;
+    readonly moveY: number;
+    readonly facing: 1 | -1;
+    /** moveX / moveY hold a right-stick attack direction, not the left stick. */
+    readonly fromStick: boolean;
+  } | null = null;
+
+  private donkeykongJabContinuation:DonkeyKongJabContinuation|null=null;
+  private donkeykongJabContinuationEligibleStep=false;
+  private donkeykongJabContinuationFreshAttackStep=false;
+
+  private canAdvanceJab(move:AttackMoveWithAnimation,elapsed:number):boolean{
+    const source=this.id==='donkeykong'?donkeyKongJabCanAdvance(move,elapsed):null;
+    return source===null?elapsed>=(move.jabChain?.advanceWindowStart??move.startupFrames)
+      :source&&this.donkeykongJabContinuationEligibleStep;
+  }
+
+  /** Observation only: no sensor or input lock belongs to this source tail. */
+  getDonkeyKongJabContinuation(){
+    const s=this.donkeykongJabContinuation;
+    return s?{sourceMoveId:s.move.id,nextId:s.move.jabChain!.nextId,sourceAge:s.sourceAge,
+      entryFacing:s.entryFacing,resetGeneration:s.resetGeneration,lastFrame:s.lastFrame}:null;
+  }
+
+  private prepareDonkeyKongJabContinuation(input:CharacterInput):void{
+    if(this.id!=='donkeykong')return;
+    this.donkeykongJabContinuationFreshAttackStep=input.attack===true&&!this.prevAttackHeld;
+    // Neutral-only continuation is deliberately separate from directional
+    // normal dispatch. Any other intent/status retires the tail, even frozen.
+    this.donkeykongJabContinuationEligibleStep=this.isGrounded()&&
+      input.moveX===0&&(input.moveY??0)===0&&!input.jump&&!input.attackHeavy&&!input.special&&
+      !input.shield&&!input.dodge&&!input.grab&&!input.appeal&&!input.dropThrough&&
+      this.grabbedBy===null&&this.hitstunRemaining===0&&!this.buriedState&&!this.helpless&&
+      !this.donkeykongHeavyItemHeld&&!this.donkeykongHeavyItemAction&&!this.itemAction&&
+      this.equippedItem===null&&this.chargingSpecial===null&&this.chargingSmash===null&&
+      this.shieldState.name==='idle'&&this.shieldReleaseRemaining===0&&!this.shieldParryProtected&&
+      !isGrabActing(this.grabState)&&!isDodgeActing(this.dodgeState)&&!isLedgeLockingInput(this.ledgeHangState)&&
+      !this.surfaceTech&&!this.groundRecovery&&!this.footstoolRecipient&&!this.tauntPresentation&&
+      this.jumpsquatRemaining===0&&!this.jumpPresentation&&!this.pendingFootstoolJump;
+    this.donkeykongJabContinuation=tickDonkeyKongJabContinuation(this.donkeykongJabContinuation,{
+      frame:this.simulationInputFrame,resetGeneration:this.positionResetGeneration,
+      interrupted:!this.donkeykongJabContinuationEligibleStep||this.activeAttack!==null,
+      frozen:this.hitlagRemaining>0,
+    });
+  }
+
   /**
    * Active hold-to-charge state for a `specialKind: 'charge'` neutral
    * special (Samus cannon / DK punch). Non-null between the press that
@@ -1386,6 +2319,14 @@ export class Character {
     moveId: string;
     framesHeld: number;
     maxFrames: number;
+    entryRemaining?: number;
+    donkeykongPunch?:{state:DonkeyKongPunchState;facing:1|-1;sourceGrounded:boolean;cancelInput:{x:number;y:number}|null};
+    groundedUpSpecial?: {
+      move: AttackMoveWithAnimation;
+      facing: 1 | -1;
+      startupElapsed: number;
+      holdFrame: number;
+    };
   } | null = null;
 
   /**
@@ -1401,9 +2342,12 @@ export class Character {
   private chargingSmash: {
     moveId: string;
     pattern: 'smash' | 'usmash' | 'dsmash';
+    startupElapsed?: number;
+    holdFrame?: number;
     facing: 1 | -1;
     framesHeld: number;
     maxFrames: number;
+    maxHoldFrames?: number;
   } | null = null;
 
   /**
@@ -1419,6 +2363,12 @@ export class Character {
    * that "the charge is kept". Mutually exclusive with
    * {@link chargingSpecial}: at most one is non-null at a time.
    */
+  /**
+   * Mash-repeat bookkeeping for a `'shockwave'` down special (Hand Slap):
+   * one entry per activation, reset when the move starts.
+   */
+  private shockwaveRepeat: { moveId: string; queued: number; repeats: number } | null = null;
+
   private storedSpecialCharge: { moveId: string; framesHeld: number } | null =
     null;
 
@@ -1443,6 +2393,7 @@ export class Character {
    * so {@link tickTraps} runs every frame. `maxActive` FIFO-evicts.
    */
   private activeTraps: Array<{
+    objectId: number;
     x: number;
     y: number;
     facing: 1 | -1;
@@ -1469,7 +2420,12 @@ export class Character {
     // True once a fused bomb has detonated + applied its self-bounce, so the
     // bounce is a one-shot even if the blast sensor lingers a few frames.
     detonated: boolean;
+    vx: number;
+    launchAwayFromSource?: boolean;
+    hitlagMultiplier?: number;
+    sdiMultiplier?: number;
   }> = [];
+  private nextTrapObjectId = 0;
 
   /**
    * Whether the in-flight down-special dive has already fired its landing
@@ -1511,9 +2467,13 @@ export class Character {
    * `stallAndFall.helplessAfterFall`). While true the fighter cannot
    * attack / special / jump — only drift — until it touches the ground (or
    * a ledge), matching the Smash "you're in special-fall, get back to the
-   * stage" lockout. Cleared on ground contact and on respawn.
+   * stage" lockout. Cleared on landing, ledge catch, damage, and respawn.
    */
   private helpless = false;
+  /** Source special-fall limit; ordinary recoveries retain the default multiplier. */
+  private specialFallAirSpeedMultiplier = 1;
+  /** Authored recovery retained after an aerial special ends in special fall. */
+  private specialFallLandingFrames: number | null = null;
 
   /**
    * One-shot RENDER signal: set the frame a down-special dive lands (at
@@ -1533,6 +2493,24 @@ export class Character {
    */
   private cooldownRemaining = 0;
 
+  /** Aerial landing recovery locks all actions; touchdown is its first step. */
+  private landingRecovery = false;
+  // Separate from attack cooldown: a normal or dodge landing must not prolong defense
+  // commitment to the cooldown of an already completed move.
+  private ordinaryLandingRemaining = 0;
+  private terminalFallFrames = 0;
+  private pendingOrdinaryLandingFrames: number | null = null;
+  private pendingOrdinaryLandingKind: 'soft' | 'hard' | null = null;
+  private landingPresentation: { kind: 'soft' | 'hard' | 'special' | 'air-dodge' | 'directional-air-dodge' | 'aerial';
+    totalFrames: number; moveId?: string;sourcePoseId?:string;entryFrame?:number;facing?:1|-1 } | null = null;
+
+  /** An actionable aerial animation may retain its landing flag briefly. */
+  private aerialLandingContext: { move: AerialMove; framesElapsed: number; facing: 1 | -1 } | null = null;
+  /** Identity of the automatic nested action; landing recovery owns its exit. */
+  private landingAttackInstance: object | null = null;
+  /** Its first active step is elapsed0 rather than a pre-incremented frame1. */
+  private landingAttackActivationPending = false;
+
   /**
    * Accumulated damage percent (Sub-AC 4.1). Starts at 0; each hit
    * pushes it up by the move's `damage` value (clamped at
@@ -1540,6 +2518,25 @@ export class Character {
    * land harder when the target's percent is already high.
    */
   private damagePercent = 0;
+
+  /**
+   * Multiplier on percent damage this fighter takes. The match sets Ultimate's 1v1 multiplier
+   * (`match/oneOnOneDamage.ts`); knockback, hitlag, hitstun and status durations keep reading the
+   * unmultiplied damage (SmashWiki 1v1 multiplier). Healing is never scaled.
+   */
+  private damageTakenMultiplier = 1;
+
+  /** Mash inputs read while shield-break stunned; null outside the broken state. */
+  private shieldBreakMash: CaptureMashState | null = null;
+
+  /**
+   * Post-shieldstun shield-grab delay. SmashWiki Shield grab (Ultimate): "forcing characters to
+   * shield for 4 additional frames before they are executed"; UFD "Shield Grab (Grab,
+   * post-Shieldstun)" = grab startup + 4 (DK 12 vs 8). Armed when shieldstun ends with the shield up.
+   */
+  private shieldGrabLockRemaining = 0;
+  /** A shield-grab press made during shieldstun or the delay, released when the delay ends. */
+  private shieldGrabPending = false;
 
   /**
    * Frames the fighter is locked out of player control (Sub-AC 4.1).
@@ -1557,16 +2554,22 @@ export class Character {
    * frame and on respawn.
    */
   private tumbling = false;
-  /** Frames a buffered tech press is still live (see {@link TECH_WINDOW_FRAMES}). */
+  /** Frames a buffered tech press is still live (surfaceTech.ts TECH_INPUT_FRAMES). */
   private techBufferRemaining = 0;
-  /** Frames a mistimed tech locks out further teching (see {@link TECH_LOCKOUT_FRAMES}). */
+  /** Frames a mistimed tech locks out further teching (surfaceTech.ts TECH_LOCKOUT_FRAMES). */
   private techLockoutRemaining = 0;
   /** Frames of a missed-tech KNOCKDOWN (prone lockout) remaining; 0 = not knocked down. */
   private knockdownRemaining = 0;
-  /** Frames of an active tech-roll / get-up-roll remaining; 0 = not rolling. */
-  private getupRollRemaining = 0;
-  /** Horizontal direction of the active get-up roll. */
-  private getupRollDir: 1 | -1 = 1;
+  private knockdownFaceDown = false;
+  private tripped = false;
+  /** Option lock of the current trip: hard (attack trip chance) or soft (slip). */
+  private tripOptionLockFrames = TRIP_OPTION_LOCK_FRAMES;
+  private tripRandomSource: (() => number) | null = null;
+  private attackClankRemaining = 0;
+  private attackClankTotal = 0;
+  private attackClankLockedStep = false;
+  private attackClankInterrupted: Pick<ActiveAttack, 'move' | 'framesElapsed' | 'facing' | 'chargeHeldFrames'> | null = null;
+  private attackClankReceiving: ReadonlyArray<Hurtbox> | null = null;
 
   /**
    * Smash-style fast-fall latch. Set when the stick is pushed down
@@ -1612,6 +2615,9 @@ export class Character {
    */
   private hitlagRemaining = 0;
 
+  /** Frozen impact/SDI position restored after Matter adds gravity and solves contacts. */
+  private hitlagPosition: { readonly x: number; readonly y: number } | null = null;
+
   /**
    * Knockback queued by `applyHit` that will be applied when
    * `hitlagRemaining` drains to zero. Storing `vector` and
@@ -1620,14 +2626,60 @@ export class Character {
    * whole release. `null` outside an active hitlag window.
    */
   private pendingKnockback: {
+    readonly trip?: boolean;
+    readonly softTrip?: boolean;
+    readonly autolink?: import('./referenceAutolink').ReferenceAutolinkContext;
     readonly vector: { readonly x: number; readonly y: number };
     readonly hitstunFrames: number;
+    readonly launchDecayPerFrame?: number;
+    readonly tumble?: boolean;
+    readonly referenceLaunch?: {
+      readonly profile: import('./referenceLaunchEnergy').ReferenceLaunchProfile;
+      readonly vertical: boolean;
+      readonly groups: readonly number[];
+    };
+    readonly velocityCarry?: { readonly x: number; readonly y: number };
   } | null = null;
 
-  /** SDI displacement (px) spent this hitlag freeze; capped at {@link SDI_MAX_TOTAL_PX}. Reset per hit. */
-  private sdiSpentPx = 0;
-  /** Whether the stick was beyond the SDI threshold last freeze frame — rising-edge gate so each flick nudges once. */
-  private sdiPrevBeyond = false;
+  /** Velocity restored after attacker-only hitlag; victims use pendingKnockback. */
+  private attackerHitlagVelocity: {
+    readonly x: number;
+    readonly y: number;
+  } | null = null;
+
+  /** Controller-authored Y velocity captured immediately before Matter steps. */
+  private prePhysicsVelocityY: number | null = null;
+
+  /** Knockback-only velocity tracked separately from Matter gravity. */
+  private launchVelocity: { readonly x: number; readonly y: number } | null = null;
+  private launchDecayPerFrame: number | undefined;
+  private referenceLaunch: {
+    readonly profile: import('./referenceLaunchEnergy').ReferenceLaunchProfile;
+    readonly vertical: boolean;
+    readonly groups: readonly number[];
+    groupIndex: number;
+    interrupted: boolean;
+    gravityY: number;
+    firstStep: boolean;
+  } | null = null;
+  /** Input ownership before its timer drains, including the final locked step. */
+  private referenceStunnedStep = false;
+  /** Temporary collision transport; public velocity remains in reference-step units. */
+  private referenceTransport: {
+    token: object; multiplier: number; residual: { x: number; y: number };
+  } | null = null;
+  /** Only gravity supplied by the physics step, excluding launch/carry/hazards. */
+  private hitstunGravityVelocityY = 0;
+  /** One-use gravity correction, captured after the final stunned integration. */
+  private pendingHitstunGravityCorrection = 0;
+
+  /** Live Matter pair references; normals/isActive update in place each step. */
+  private readonly contactPairs = new Map<SupportPair['bodyA'], SupportPair>();
+
+  /** Victim-only pulse/cooldown state, reset by each incoming hit. */
+  private sdiState = createReferenceSdiState();
+  /** Selected source hitbox's SDI scale, captured once at contact. */
+  private sdiMultiplier = 1;
 
   /**
    * Respawn-grace invincibility frames (Sub-AC 4.2 of AC 302).
@@ -1645,9 +2697,447 @@ export class Character {
    * mid-knockback when they spawn.
    */
   private invincibilityRemaining = 0;
+  private timerProtection: 'legacy' | 'invincible' = 'legacy';
 
   /** Set on `destroy()` so listeners and removed bodies don't double-fire. */
   private destroyed = false;
+  private combatPercentReceiptSink: ((event:CharacterCombatPercentReceipt)=>void)|null=null;
+  setCombatPercentReceiptSink(sink:((event:CharacterCombatPercentReceipt)=>void)|null):void {this.combatPercentReceiptSink=sink;}
+  private noteCombatPercentApplied(before:number,hit:HitInfo):void {
+    const damageApplied=this.damagePercent-before;
+    if(damageApplied>0)this.combatPercentReceiptSink?.({damageApplied,attackerSlotIndex:hit.combatAttackerSlotIndex??null,
+      recoil:hit.recoil===true,viaSceneResolver:hit.combatViaSceneResolver===true});
+  }
+  private shieldBreak:ShieldBreakState|null=null;
+  private shieldBreakVelocityY:number|null=null;private shieldBreakPhysicsFrame=-1;
+  private shieldBreakLastFiveSeconds=false;
+  /** The shield pop under the fighter's own gravity (its native launch gravity, else its fall acceleration). */
+  private shieldBreakPop(){return shieldBreakPopPlan(this.id,this.tuning.referenceLaunch?this.tuning.referenceLaunch.gravity*5:this.tuning.fallAccel);}
+  setSourceShieldBreakLastFiveSeconds(value:boolean):void {this.shieldBreakLastFiveSeconds=value;}
+  isSourceVelocityControlled():boolean{return this.finalSmashControl?.velocity!==null&&this.finalSmashControl!==null||
+    this.shieldBreak!==null&&shieldBreakControlsLocked(this.shieldBreak);}
+  getSourceShieldBreakPresentationState(){return this.shieldBreak?.generation===this.positionResetGeneration?
+    selectShieldBreakPresentation(this.shieldBreak):null;}
+  getSourceShieldBreakReceivingState(){return this.shieldBreak?.generation===this.positionResetGeneration?
+    structuredClone(this.shieldBreak):null;}
+  private clearSourceShieldBreak(ownedLease=false):void {
+    if(!this.shieldBreak&&!ownedLease)return;
+    this.shieldBreak=null;this.shieldBreakVelocityY=null;this.shieldBreakPhysicsFrame=-1;this.shieldBreakMash=null;
+    if(isShieldBroken(this.shieldState))this.shieldState=tickShield({...this.shieldState,stunRemaining:0},{held:false},this.tuning.shield);
+  }
+  private beginSourceShieldBreak():void {
+    if(this.shieldBreak)return;
+    this.cancelAttack();this.clearReferenceLaunch();this.pendingKnockback=null;this.hitstunRemaining=0;this.tumbling=false;
+    this.linkPassiveGuard=null;this.reactionCue=null;this.reactionPresentation=null;
+    const frame=Math.max(0,this.simulationInputFrame);
+    this.shieldBreak=beginShieldBreak({frame,generation:this.positionResetGeneration,facing:this.facing,stunFrames:shieldBreakStunFrames(this.damagePercent,this.tuning.shield)});
+    const plan=this.shieldBreakPop();this.shieldBreakVelocityY=plan.initialVelocityY;this.shieldBreakPhysicsFrame=frame-1;
+    // Actual HP break may be installed after this step's Matter solve. The next
+    // prephysics call owns the first source gravity dose; no position teleport.
+    this.scene.matter.body.setVelocity(this.body,{x:0,y:this.hitlagRemaining>0?0:plan.initialVelocityY});
+    this.jumpPresentation=null;this.jumpInputBufferFrames=0;this.tapJumpBufferFrames=0;this.offensiveActionBuffer=null;
+    this.shortHopRising=false;this.airJumpRising=false;this.fastFallLatched=false;this.jumpCutArmed=false;this.shieldBreakMash=null;
+  }
+  private detailedHitApplicationDepth=0;
+  private sourceDamagePresentation:SourceDamagePresentationReceipt|null=null;private sourceDamageEventSerial=0;private sourceDamageOwnStop=false;private sourceJumpEventSerial=0;private sourcePresentationClockAdvances=true;
+  getSourceDamagePresentationReceipt(){return this.sourceDamagePresentation?.generation===this.positionResetGeneration&&
+    (this.hitstunRemaining>0||this.pendingKnockback!==null||this.tumbling||this.sourceDamageOwnStop&&this.isInHitlag())?structuredClone(this.sourceDamagePresentation):null;}
+  /** Global-step presentation adapter for an actual positive electric flinch.
+   * Native stop-motion rate is unrecovered; this never changes hitlag/physics.
+   * Scene calls it even when a slow lease skips the actor's local input step. */
+  advanceSourceGlobalPresentationClock(frame:number):void {
+    if(!Number.isSafeInteger(frame)||frame<0)throw new TypeError('Invalid source presentation global frame');
+    const receipt=this.sourceDamagePresentation;if(!receipt)return;
+    if(receipt.generation!==this.positionResetGeneration){this.sourceDamagePresentation=null;return;}
+    const owns=this.sourceDamageOwnStop&&this.hitlagRemaining>0&&receipt.electric;
+    if(!owns){if(receipt.ownElectricStop)this.sourceDamagePresentation={...receipt,ownElectricStop:false,electricStopFramesElapsed:0};return;}
+    if(frame<=receipt.electricStopLastAdvancedFrame)return;
+    this.sourceDamagePresentation={...receipt,ownElectricStop:true,electricStopFramesElapsed:Math.min(70,receipt.electricStopFramesElapsed+1),electricStopLastAdvancedFrame:frame};
+  }
+  protected retireSourceDamagePresentationIfUnowned():void {
+    if(this.hitlagRemaining===0){this.sourceDamageOwnStop=false;
+      if(this.sourceDamagePresentation?.ownElectricStop)this.sourceDamagePresentation={...this.sourceDamagePresentation,ownElectricStop:false,electricStopFramesElapsed:0};}
+    if(this.sourceDamagePresentation&&(this.sourceDamagePresentation.generation!==this.positionResetGeneration||
+      this.hitstunRemaining===0&&this.pendingKnockback===null&&!this.tumbling&&!(this.sourceDamageOwnStop&&this.isInHitlag())))this.sourceDamagePresentation=null;
+  }
+  getSourceAirPresentationReceipt(){return{grounded:this.isGrounded(),helpless:this.isHelpless(),tumbling:this.tumbling,jumpsUsed:this.jumpsUsed,
+    jump:this.getJumpPresentationState(),velocity:this.getVelocity(),framesElapsed:this.jumpPresentation?.framesElapsed??this.ordinaryPresentation?.framesElapsed??0,
+    facing:this.facing,jumpEventSerial:this.sourceJumpEventSerial,frame:this.simulationInputFrame,generation:this.positionResetGeneration,clockAdvances:this.sourcePresentationClockAdvances,fallOwner:this.footstoolRecipient||this.sourceLinkFootstool?.presentation.role==='performer'?'footstool' as const:this.tumbling?'tumble' as const:
+      this.isHelpless()?'source-helpless' as const:'ordinary' as const};}
+  protected sourceIntrinsicActionCommitted():boolean{return false;}
+  private linkPassiveGuard:{entryFrame:number;lastFrame:number;framesElapsed:number;facing:1|-1;crouchedAtEntry:boolean;
+    duration:number;generation:number}|null=null;
+  getLinkPassiveShieldPresentationState(){const state=this.linkPassiveGuard;return state?{
+    framesElapsed:state.framesElapsed,facing:state.facing,crouchedAtEntry:state.crouchedAtEntry,
+    guardFrames:state.framesElapsed,stopped:this.hitlagRemaining>0}:null;}
+  protected getSourcePassiveGuardExtent():number{return 20;}
+  notifyLinkPassiveShieldContact(hit:HitInfo):void {
+    const crouchedAtEntry=this.isCrouching();
+    this.linkPassiveGuard={entryFrame:this.simulationInputFrame,lastFrame:this.simulationInputFrame,framesElapsed:0,
+      facing:this.facing,crouchedAtEntry,duration:crouchedAtEntry?4:this.getSourcePassiveGuardExtent(),
+      generation:this.positionResetGeneration};
+    // Explicit coordinator adapter: reuse ordinary sourced guard's stop and
+    // horizontal defender recoil, without HP/percent/stun or native parity claim.
+    this.sourcedShieldPush={speed:hit.facing*computeShieldPushback({damage:hit.damage,kind:hit.shieldKind,
+      setoffMultiplier:hit.shieldSetoffMultiplier}).defenderSpeed,attacker:false};
+    this.armAttackerHitlag(computeShieldHitlag({damage:hit.damage,targetPercent:this.damagePercent,
+      multiplier:hit.hitlagMultiplier,players:hit.hitlagPlayers,electricCollision:hit.electricCollision,
+      projectile:hit.hitlagProjectile}));
+  }
+  interruptSourceReceivingOnStockLoss():void {this.endLedgeJumpClearance();this.sourceLinkFootstool=null;this.sourceLinkFootstoolPendingContact=null;this.sourceLinkFootstoolRepeatCount=0;this.sourceLinkFootstoolCooldown=0;this.sourceLinkFootstoolCooldownEntryFrame=-1;this.sourceLinkFootstoolRecipientSide=null;this.pendingFootstoolJump=false;this.footstoolMini=null;this.footstoolRecipient=null;this.clearSourceShieldBreak();this.sourceDamagePresentation=null;this.sourceDamageOwnStop=false;this.sourceCaptureMotionFamily=null;this.linkPassiveGuard=null;}
+  private finalSmashControl: FinalSmashActorControl | null = null;
+  private finalVictimPresentation:FinalVictimPresentationState|null=null;
+  setFinalVictimPresentation(state:FinalVictimPresentationState|null):void {
+    if(state){const parsed=parseFinalVictimPresentationState(state);
+      if(parsed.victimGeneration!==this.positionResetGeneration||parsed.victimFighter!==this.id)
+        throw new Error('Final cinematic pose requires actual recipient generation and fighter');
+      this.finalVictimPresentation=parsed;
+    }else this.finalVictimPresentation=null;
+  }
+  getFinalVictimPresentationState():FinalVictimPresentationState|null {
+    const state=this.finalVictimPresentation;
+    if(!state||state.victimGeneration!==this.positionResetGeneration)return null;
+    if(state.kind==='impact-stop')return this.isInHitlag()&&this.lastFinalReactionRun===state.runId?state:null;
+    return this.finalSmashControl?.role==='captured'&&this.finalSmashControl.runId===state.runId?state:null;
+  }
+  getFinalVictimBodyPose(){const selection=this.getFinalVictimPresentationSelection();return selection?finalVictimBodyPose(selection):null;}
+  getFinalVictimPresentationDependencies():readonly string[]{const selection=this.getFinalVictimPresentationSelection();
+    return selection&&!this.getFinalVictimBodyPose()?[`Missing authored Final victim paired profile ${selection.targetFighter}/${selection.profileKey} at age${selection.authoredAge}`]:[];}
+  getFinalVictimPresentationSelection(){const state=this.getFinalVictimPresentationState();return state?selectFinalVictimPresentation(state):null;}
+
+  private finalSmashBodyTail: { runId:number;sheet:string;age:number;advance:number;endAge:number;facing:1|-1;
+    bornFrame:number;previousDelta:{x:number;y:number} } | null = null;
+  retainFinalSmashBodyTail(sheet:string,age:number,advance:number,endAge:number,runId:number,frame:number):void {
+    if(age>=endAge)return;
+    const pose=finalBodyPose(this.id,sheet,age);
+    this.finalSmashBodyTail={sheet,age,advance,endAge,runId,facing:this.facing,bornFrame:frame,
+      previousDelta:pose?{...pose.rootDelta}:{x:0,y:0}};
+  }
+  getFinalSmashPresentation():FinalSmashActorControl|null {
+    if(this.finalSmashControl)return this.finalSmashControl;
+    const tail=this.finalSmashBodyTail;
+    return tail?{runId:tail.runId,role:'owner',phase:'uncommitted-end-tail',sheet:tail.sheet,age:tail.age,
+      facing:tail.facing,intangible:false,noDead:false,terrainBypass:false,jostle:true,gravityDisabled:false,velocity:null}:null;
+  }
+  private finalSmashOriginalMask: number | null = null;
+  private finalOpponentSlow: FinalOpponentSlowState | null = null;
+  private finalSlowLocalStep = true;
+  setFinalOpponentSlow(runId: number, divisor: number, duration: number, frame: number): void {
+    const original=this.finalOpponentSlow?.originalTimeScale??this.body.timeScale;
+    this.finalOpponentSlow=beginFinalOpponentSlow(runId,divisor,duration,frame,original);
+    if (!this.finalSmashControl) this.body.timeScale=original/divisor;
+  }
+  clearFinalOpponentSlow(runId?: number): void {
+    if (!this.finalOpponentSlow || runId!==undefined&&runId!==this.finalOpponentSlow.runId) return;
+    this.body.timeScale=this.finalOpponentSlow.originalTimeScale; this.finalOpponentSlow=null; this.finalSlowLocalStep=true;
+  }
+  /** Called once by Scene before item/input adapters; raw recording remains
+   * at global60Hz. Owner/captive Final phase clock takes precedence. */
+  sampleFinalOpponentSlowInput(raw: CharacterInput, frame: number): CharacterInput | null {
+    if (!this.finalOpponentSlow) { this.finalSlowLocalStep=true; return raw; }
+    if (this.finalSmashControl) {
+      this.body.timeScale=this.finalOpponentSlow.originalTimeScale;
+      this.finalSlowLocalStep=true; return raw;
+    }
+    const next=stepFinalOpponentSlow(this.finalOpponentSlow,raw,frame);
+    if (!next.state) { this.clearFinalOpponentSlow(); return next.input; }
+    this.finalOpponentSlow=next.state; this.body.timeScale=next.state.originalTimeScale*next.state.rate;
+    this.finalSlowLocalStep=next.input!==null; return next.input;
+  }
+  /** Reaction provenance only: a capture release may clear its own linking
+   * launch, but never a later independent hit or the real released finisher. */
+  private lastFinalReactionRun: number | null = null;
+  private capturedFinalReactionRun: number | null = null;
+  getFinalSmashControl(): FinalSmashActorControl | null { return this.finalSmashControl; }
+  getSourceRootPosition(): { x: number; y: number } {
+    const control=this.getFinalSmashPresentation();
+    const pose=this.getFinalVictimBodyPose()??(control?.sheet?finalBodyPose(this.id,control.sheet,control.age):null);
+    const centre=this.getPosition();
+    return { x:centre.x,y:centre.y-(pose?.bodyCentreFromRootY??-this.tuning.height/2) };
+  }
+  moveFinalSmashSourceRoot(root:{x:number;y:number},runId:number):boolean {
+    const centre=this.getPosition(),current=this.getSourceRootPosition();
+    return this.moveFinalSmashRoot({x:root.x,y:root.y+centre.y-current.y},runId);
+  }
+  /** Read-only reconstruction evidence; restoration still replays gameplay. */
+  getMatchHistoryEvidence(){
+    const attack=this.getActiveAttack(),held=this.getEquippedItem();
+    const scalars:Record<string,string|number|boolean|null>={};
+    for(const [key,value] of Object.entries(this).sort(([a],[b])=>a.localeCompare(b)))
+      if(value===null||['string','number','boolean'].includes(typeof value)){
+        if(typeof value==='number'&&!Number.isFinite(value))throw new Error(`Nonfinite actor history field ${key}`);
+        scalars[key]=value as string|number|boolean|null;
+      }
+    return {scalars,staleMoveQueue:this.staleMoveQueue.map(row=>({...row})),
+      attack:attack?{move:attack.move,facing:attack.facing,phase:attack.phase,framesElapsed:attack.framesElapsed,
+        chargeHeldFrames:attack.chargeHeldFrames,hasPhysicalSensor:attack.hitboxBody!==null}:null,
+      charge:this.getAnimationActionState(),shield:this.getShieldState(),dodge:this.getDodgeState(),
+      locomotion:this.getLocomotionState(),jump:this.getJumpPresentationState(),ledge:this.getLedgeHangState(),
+      taunt:this.getTauntPresentationState(),tauntOwner:this.getSourceTauntPresentationOwner(),sourceBodyRoute:this.sourceCurrentBodyRoute(),
+      support:this.getSourceSupportPresentationObservation(),ordinary:this.getOrdinaryPresentationState(),landing:this.getLandingPresentationState(),
+      captureEquipmentClock:{grabEntry:this.sourceGrabAdmissionFrame,captureEntry:this.sourceCaptureAdmissionFrame,cutEntry:this.sourceCutAdmissionFrame,heldEntry:this.sourceHeldAdmissionFrame},
+      grabDamage:{pummel:this.pummelDamageTransaction,throw:this.throwPresentation?.damageTransaction??null},
+      grab:this.getGrabState(),recipient:this.getSourceRecipientPresentationState(),throw:this.getThrowPresentationState(),
+      held:held?{definition:held.definition,ammo:held.getAmmo()}:null,receiving:this.getActiveHurtboxes(),
+      lease:this.getFinalSmashLeaseSnapshot()};
+  }
+  getFinalSmashLeaseSnapshot() {
+    return { generation: this.positionResetGeneration,
+      intrinsic: this.captureIntrinsicRuntimeState(),
+      actor: { timeScale: this.body.timeScale, bodyMask: this.body.collisionFilter.mask, position: this.getPosition(), velocity: this.getVelocity(), facing: this.facing, percent: this.damagePercent,
+        ignoreGravity:this.body.ignoreGravity??false,
+        hitlag: this.hitlagRemaining, hitlagPosition: this.hitlagPosition ? { ...this.hitlagPosition } : null,
+        inputFrame: this.simulationInputFrame, previous: { jump: this.prevJumpHeld, attack: this.prevAttackHeld,
+          heavy: this.prevHeavyHeld, special: this.prevSpecialHeld, shield: this.prevShieldHeld,
+          dodge: this.prevDodgeHeld, grab: this.prevGrabHeld, appeal: this.prevAppealHeld,
+          x: this.prevMoveX, y: this.prevMoveY } },
+      ledgeJumpClearance:this.ledgeJumpClearance?{...this.ledgeJumpClearance}:null,
+      shieldBreakReceiving:this.shieldBreak?structuredClone(this.shieldBreak):null,
+      shieldBreakVelocityY:this.shieldBreakVelocityY,shieldBreakPhysicsFrame:this.shieldBreakPhysicsFrame,
+      shieldBreakLastFiveSeconds:this.shieldBreakLastFiveSeconds,shieldBreakMash:this.shieldBreakMash?structuredClone(this.shieldBreakMash):null,
+      clankPresentation:{remaining:this.attackClankRemaining,total:this.attackClankTotal,lockedStep:this.attackClankLockedStep,
+        interrupted:this.attackClankInterrupted?structuredClone(this.attackClankInterrupted):null,
+        receiving:this.getAttackClankPresentationState()?.phase==='freeze'&&this.attackClankReceiving?structuredClone(this.attackClankReceiving):null},
+      captureEquipmentClock:{grabEntry:this.sourceGrabAdmissionFrame,captureEntry:this.sourceCaptureAdmissionFrame,cutEntry:this.sourceCutAdmissionFrame,heldEntry:this.sourceHeldAdmissionFrame},
+      sourceDamagePresentation:this.sourceDamagePresentation?structuredClone(this.sourceDamagePresentation):null,sourceDamageEventSerial:this.sourceDamageEventSerial,sourceDamageOwnStop:this.sourceDamageOwnStop,sourceJumpEventSerial:this.sourceJumpEventSerial,sourcePresentationClockAdvances:this.sourcePresentationClockAdvances,
+      captureMotionFamily:this.sourceCaptureMotionFamily?structuredClone(this.sourceCaptureMotionFamily):null,
+      sourceFootstool:{state:this.sourceLinkFootstool?structuredClone(this.sourceLinkFootstool):null,
+        repeatCount:this.sourceLinkFootstoolRepeatCount,cooldown:this.sourceLinkFootstoolCooldown,cooldownEntryFrame:this.sourceLinkFootstoolCooldownEntryFrame,
+        side:this.sourceLinkFootstoolRecipientSide,pendingContact:this.sourceLinkFootstoolPendingContact?{...this.sourceLinkFootstoolPendingContact}:null,
+        pendingJump:this.pendingFootstoolJump,phantom:this.pendingFootstoolPhantom,
+        recipient:this.footstoolRecipient?{...this.footstoolRecipient}:null,mini:this.footstoolMini?{...this.footstoolMini}:null},
+      recoveryTransactions:{eating:this.itemEating?structuredClone(this.itemEating):null,healing:this.itemHealing?{...this.itemHealing}:null,events:structuredClone(this.recoveryEvents)},
+      passiveGuard:this.linkPassiveGuard?structuredClone(this.linkPassiveGuard):null,
+      aerialRebound:this.getSourceAerialReboundState(),
+      bodyTail: this.finalSmashBodyTail ? structuredClone(this.finalSmashBodyTail) : null,
+      slow: this.finalOpponentSlow ? structuredClone(this.finalOpponentSlow) : null, slowLocalStep: this.finalSlowLocalStep,
+      originalMask: this.finalSmashOriginalMask,
+      finalVictimPresentation:this.getFinalVictimPresentationState()?structuredClone(this.getFinalVictimPresentationState()):null,
+      control: this.finalSmashControl ? { ...this.finalSmashControl,
+        velocity: this.finalSmashControl.velocity ? { ...this.finalSmashControl.velocity } : null } : null,
+      reaction: {
+        lastRun: this.lastFinalReactionRun, capturedRun: this.capturedFinalReactionRun,
+        hitstun: this.hitstunRemaining, tumble: this.tumbling,
+        pending: this.pendingKnockback ? structuredClone(this.pendingKnockback) : null,
+        reference: this.referenceLaunch ? structuredClone(this.referenceLaunch) : null,
+        launch: this.launchVelocity ? { ...this.launchVelocity } : null,
+        decay: this.launchDecayPerFrame, stunnedStep: this.referenceStunnedStep,
+        gravityY: this.hitstunGravityVelocityY, gravityCorrection: this.pendingHitstunGravityCorrection,
+      } };
+  }
+  /** Restore AFTER the authoritative actor generation/body state. Never
+   * capture an already-bypassed mask as the lease's original floor mask. */
+  restoreFinalSmashLease(snapshot: ReturnType<Character['getFinalSmashLeaseSnapshot']>): void {
+    if (snapshot.generation !== this.positionResetGeneration) throw new Error('Final lease generation mismatch');
+    this.setFinalSmashControl(null);
+    if (snapshot.control) {
+    if (snapshot.originalMask === null) throw new Error('Active Final lease requires original collision mask');
+    this.body.collisionFilter.mask = snapshot.originalMask;
+    this.setFinalSmashControl(snapshot.control);
+    }
+    if(snapshot.finalVictimPresentation){const victim=parseFinalVictimPresentationState(snapshot.finalVictimPresentation);
+      if(victim.victimGeneration!==this.positionResetGeneration||victim.victimFighter!==this.id||victim.lastFrame>snapshot.actor.inputFrame||
+        (victim.kind==='captured'?(snapshot.control?.role!=='captured'||snapshot.control.runId!==victim.runId):
+          snapshot.actor.hitlag<=0||snapshot.reaction?.lastRun!==victim.runId))
+        throw new Error('Restore actual capture or accepted blast stop before cinematic recipient pose');
+      this.setFinalVictimPresentation(victim);
+    }else this.finalVictimPresentation=null;
+    const clearance=snapshot.ledgeJumpClearance;
+    if(clearance&&(!Number.isSafeInteger(clearance.originalMask)||!Number.isFinite(clearance.cornerY)))throw new Error('Malformed ledge jump clearance checkpoint');
+    this.ledgeJumpClearance=clearance?{...clearance}:null;
+    this.shieldBreak=parseShieldBreakState(snapshot.shieldBreakReceiving);
+    if(this.shieldBreak&&this.shieldBreak.generation!==this.positionResetGeneration)throw new Error('Shield break generation mismatch');
+    if(snapshot.shieldBreakVelocityY!==null&&!Number.isFinite(snapshot.shieldBreakVelocityY)||!Number.isSafeInteger(snapshot.shieldBreakPhysicsFrame)||snapshot.shieldBreakPhysicsFrame< -1||typeof snapshot.shieldBreakLastFiveSeconds!=='boolean')throw new Error('Malformed shield pop kinetic checkpoint');
+    this.shieldBreakVelocityY=snapshot.shieldBreakVelocityY;this.shieldBreakPhysicsFrame=snapshot.shieldBreakPhysicsFrame;
+    this.shieldBreakLastFiveSeconds=snapshot.shieldBreakLastFiveSeconds;this.shieldBreakMash=snapshot.shieldBreakMash?structuredClone(snapshot.shieldBreakMash):null;
+    const clank=snapshot.clankPresentation;
+    if(!Number.isSafeInteger(clank.remaining)||clank.remaining<0||!Number.isSafeInteger(clank.total)||clank.total<clank.remaining||typeof clank.lockedStep!=='boolean'||
+      clank.interrupted&&(!Number.isSafeInteger(clank.interrupted.framesElapsed)||clank.interrupted.framesElapsed<0||![1,-1].includes(clank.interrupted.facing)))throw new Error('Malformed clank physical presentation checkpoint');
+    if(clank.receiving&&(!Array.isArray(clank.receiving)||clank.receiving.some(box=>typeof box.id!=='string'||!box.id||
+      ![box.offsetX,box.offsetY,box.width,box.height].every(Number.isFinite)||box.width<=0||box.height<=0||box.capsule&&
+      ![box.capsule.start.x,box.capsule.start.y,box.capsule.end.x,box.capsule.end.y,box.capsule.radius].every(Number.isFinite))))throw new Error('Malformed frozen clank receiving checkpoint');
+    this.attackClankRemaining=clank.remaining;this.attackClankTotal=clank.total;this.attackClankLockedStep=clank.lockedStep;
+    this.attackClankInterrupted=clank.interrupted?{...structuredClone(clank.interrupted),move:parseAttackMoveSnapshot(clank.interrupted.move,'clank.interrupted.move')}:null;
+    this.attackClankReceiving=clank.receiving?structuredClone(clank.receiving):null;
+    this.sourceDamagePresentation=parseSourceDamagePresentationReceipt(snapshot.sourceDamagePresentation);
+    if(this.sourceDamagePresentation&&this.sourceDamagePresentation.generation!==this.positionResetGeneration)throw new Error('Damage receipt generation mismatch');
+    if(!Number.isSafeInteger(snapshot.sourceDamageEventSerial)||snapshot.sourceDamageEventSerial<0||this.sourceDamagePresentation&&snapshot.sourceDamageEventSerial<this.sourceDamagePresentation.eventSerial)throw new Error('Damage event sequence mismatch');
+    if(typeof snapshot.sourcePresentationClockAdvances!=='boolean')throw new Error('Malformed source stop clock checkpoint');
+    if(!Number.isSafeInteger(snapshot.sourceJumpEventSerial)||snapshot.sourceJumpEventSerial<0)throw new Error('Malformed actual jump event serial');
+    this.sourceJumpEventSerial=snapshot.sourceJumpEventSerial;
+    if(typeof snapshot.sourceDamageOwnStop!=='boolean')throw new Error('Malformed damage stop ownership');
+    this.sourceDamageOwnStop=snapshot.sourceDamageOwnStop;this.sourceDamageEventSerial=snapshot.sourceDamageEventSerial;this.sourcePresentationClockAdvances=snapshot.sourcePresentationClockAdvances;
+    const tread=snapshot.sourceFootstool;
+    const count=(n:unknown,min=0)=>typeof n==='number'&&Number.isSafeInteger(n)&&n>=min;
+    const contactValid=(c:typeof tread.pendingContact)=>c===null||!!c&&[c.jumperIndex,c.jumperGeneration,c.recipientIndex,c.recipientGeneration].every(n=>count(n))&&c.jumperIndex!==c.recipientIndex;
+    if(!tread||!count(tread.repeatCount)||!count(tread.cooldown)||tread.cooldown>8||!count(tread.cooldownEntryFrame,-1)||
+      ![null,'front','back'].includes(tread.side)||typeof tread.pendingJump!=='boolean'||typeof tread.phantom!=='boolean'||!contactValid(tread.pendingContact))
+      throw new Error('Malformed fresh footstool checkpoint');
+    if(tread.state){const s=tread.state,p=s.presentation;
+      if(!s||s.generation!==this.positionResetGeneration||!count(s.entryFrame)||!count(s.lastFrame)||s.lastFrame<s.entryFrame||
+        typeof s.mini!=='boolean'||typeof s.phantom!=='boolean'||!contactValid(s.contact)||!s.contact)throw new Error('Malformed footstool accepted-contact lease');
+      selectLinkFootstoolBodyRoute(p);
+      const limit=p.phase==='ground-back'?24:p.phase==='air-pose'?8:p.phase==='air-fall'?28:9;
+      if(p.framesElapsed>=limit||p.role==='performer'&&s.contact.jumperGeneration!==this.positionResetGeneration||
+        p.role==='recipient'&&s.contact.recipientGeneration!==this.positionResetGeneration)throw new Error('Footstool phase/identity mismatch');
+    }
+    if(tread.recipient&&(!count(tread.recipient.framesElapsed)||!count(tread.recipient.entryFrame)||typeof tread.recipient.grounded!=='boolean'||
+      ![1,-1].includes(tread.recipient.facing)))throw new Error('Malformed footstool recipient clock');
+    if(tread.mini&&(!Number.isFinite(tread.mini.basis)||tread.mini.basis<=0||!count(tread.mini.framesElapsed)||tread.mini.framesElapsed>=3||
+      typeof tread.mini.cut!=='boolean'))throw new Error('Malformed footstool mini transaction');
+    this.sourceLinkFootstool=tread.state?structuredClone(tread.state):null;this.sourceLinkFootstoolRepeatCount=tread.repeatCount;
+    this.sourceLinkFootstoolCooldown=tread.cooldown;this.sourceLinkFootstoolCooldownEntryFrame=tread.cooldownEntryFrame;this.sourceLinkFootstoolRecipientSide=tread.side;
+    this.sourceLinkFootstoolPendingContact=tread.pendingContact?{...tread.pendingContact}:null;this.pendingFootstoolJump=tread.pendingJump;this.pendingFootstoolPhantom=tread.phantom;
+    this.footstoolRecipient=tread.recipient?{...tread.recipient}:null;this.footstoolMini=tread.mini?{...tread.mini}:null;
+    const family=snapshot.captureMotionFamily;
+    if(family){const parsed=parseAuthoredCaptureMotionFamily(family,'checkpoint.captureMotionFamily');
+      if(!parsed||![family.captureId,family.generation,family.captorGeneration].every(n=>Number.isSafeInteger(n)&&n>=0)||
+        family.generation!==this.positionResetGeneration||!this.grabbedBy||family.captorGeneration!==this.grabbedBy.positionResetGeneration||
+        family.captureId!==this.capturePresentation?.state.captureId||!this.capturePresentation.state.active)
+        throw new Error('Restore actual accepted capture before source capture-family checkpoint');
+      this.sourceCaptureMotionFamily={...parsed,captureId:family.captureId,generation:family.generation,captorGeneration:family.captorGeneration};
+    }else this.sourceCaptureMotionFamily=null;
+    const recovery=snapshot.recoveryTransactions;
+    if(recovery&&(typeof recovery!=='object'||Array.isArray(recovery)||Object.keys(recovery).length!==3||
+      ['eating','healing','events'].some(key=>!Object.hasOwn(recovery,key))))throw new Error('Malformed recovery transaction checkpoint');
+    this.itemEating=parseRecoveryEatingState(recovery?.eating,this.positionResetGeneration,this.sourceItemEatingConsumeAge());
+    this.itemHealing=parseRecoveryHealingState(recovery?.healing);
+    if(recovery&&!Array.isArray(recovery.events))throw new Error('Malformed recovery callback checkpoint');
+    this.recoveryEvents=(recovery?.events??[]).map(event=>{
+      const parsed=parseRecoveryTransactionEvent(event);if(parsed.actorGeneration!==this.positionResetGeneration)throw new Error('Recovery callback generation mismatch');return parsed;});
+    this.linkPassiveGuard=snapshot.passiveGuard?structuredClone(snapshot.passiveGuard):null;
+    this.finalSmashBodyTail=snapshot.bodyTail?structuredClone(snapshot.bodyTail):null;
+    this.clearFinalOpponentSlow();
+    this.finalOpponentSlow=snapshot.slow?structuredClone(snapshot.slow):null; this.finalSlowLocalStep=snapshot.slowLocalStep;
+    if(this.finalOpponentSlow)this.body.timeScale=this.finalOpponentSlow.originalTimeScale*(snapshot.control?1:this.finalOpponentSlow.rate);
+    const a = snapshot.actor;
+    this.body.collisionFilter.mask = a.bodyMask; this.body.timeScale = a.timeScale;
+    if(typeof a.ignoreGravity!=='boolean')throw new Error('Malformed actor gravity checkpoint');this.body.ignoreGravity=a.ignoreGravity;
+    this.scene.matter.body.setPosition(this.body, a.position); this.scene.matter.body.setVelocity(this.body, a.velocity);
+    this.facing = a.facing; this.damagePercent = a.percent; this.hitlagRemaining = a.hitlag;
+    this.hitlagPosition = a.hitlagPosition ? { ...a.hitlagPosition } : null; this.simulationInputFrame = a.inputFrame;
+    const captureClock=snapshot.captureEquipmentClock;
+    if(!captureClock||Object.keys(captureClock).length!==4||!['grabEntry','captureEntry','cutEntry','heldEntry'].every(key=>Object.hasOwn(captureClock,key))||
+      !Object.values(captureClock).every(value=>Number.isSafeInteger(value)&&value>=0&&value<=this.simulationInputFrame))throw new Error('Invalid actual capture equipment admission clocks');
+    this.sourceGrabAdmissionFrame=captureClock.grabEntry;this.sourceCaptureAdmissionFrame=captureClock.captureEntry;
+    this.sourceCutAdmissionFrame=captureClock.cutEntry;this.sourceHeldAdmissionFrame=captureClock.heldEntry;
+    this.prevJumpHeld = a.previous.jump; this.prevAttackHeld = a.previous.attack; this.prevHeavyHeld = a.previous.heavy;
+    this.prevSpecialHeld = a.previous.special; this.prevShieldHeld = a.previous.shield; this.prevDodgeHeld = a.previous.dodge;
+    this.prevGrabHeld = a.previous.grab; this.prevAppealHeld = a.previous.appeal;
+    this.prevMoveX = a.previous.x; this.prevMoveY = a.previous.y;
+    const r = snapshot.reaction;
+    this.lastFinalReactionRun = r.lastRun; this.capturedFinalReactionRun = r.capturedRun;
+    this.hitstunRemaining = r.hitstun; this.tumbling = r.tumble;
+    this.pendingKnockback = r.pending ? structuredClone(r.pending) : null;
+    this.referenceLaunch = r.reference ? structuredClone(r.reference) : null;
+    this.launchVelocity = r.launch ? { ...r.launch } : null;
+    this.launchDecayPerFrame = r.decay; this.referenceStunnedStep = r.stunnedStep;
+    this.hitstunGravityVelocityY = r.gravityY; this.pendingHitstunGravityCorrection = r.gravityCorrection;
+    if(snapshot.aerialRebound){const active=this.activeAttack;
+      if(!active||active.move.id!==snapshot.aerialRebound.moveId)throw new Error('Restore active aerial before rebound checkpoint');
+      this.aerialReboundFrames.set(active,snapshot.aerialRebound.frame);
+      if(snapshot.aerialRebound.pendingSpeed!==null)this.pendingAerialReboundSpeeds.set(active,snapshot.aerialRebound.pendingSpeed);
+      else this.pendingAerialReboundSpeeds.delete(active);
+    }else if(this.activeAttack){this.aerialReboundFrames.delete(this.activeAttack);this.pendingAerialReboundSpeeds.delete(this.activeAttack);}
+    this.restoreIntrinsicRuntimeState(snapshot.intrinsic);
+  }
+  /** Source relocation/snap is not a respawn, does not advance generation or
+   * reset action/article ownership, and is admitted only by the current lease. */
+  moveFinalSmashRoot(position: { x: number; y: number }, runId: number): boolean {
+    if (this.finalSmashControl?.runId !== runId || ![position.x, position.y].every(Number.isFinite)) return false;
+    this.scene.matter.body.setPosition(this.body, position);
+    // Source-controlled relocation moves the existing freeze anchor with the
+    // lease; it does not consume or re-arm the victim's hitlag clock.
+    if (this.hitlagPosition) this.hitlagPosition = { ...position };
+    return true;
+  }
+
+  /** Fresh Link overrides these intrinsic callbacks; unrelated/legacy kits
+   * cannot inherit guessed equipment or article origins. */
+  setLinkBoomerangPresent(_present:boolean):void{}
+  notifyLinkBoomerangCatch():boolean{return false;}
+  applySourceAbsorbedHealing(amount:number):number{return this.applySourceItemRecoveryHealing(amount);}
+  applySourceItemRecoveryHealing(amount:number):number {
+    if(!Number.isFinite(amount)||amount<0)throw new Error('Absorbed healing requires finite positive source power');
+    const before=this.damagePercent;this.damagePercent=Math.max(0,before-amount);return before-this.damagePercent;
+  }
+  /** Same selected paired cranial contact as the Final pixels/receiving.
+   * Missing anatomical registration never borrows an ordinary-motion point. */
+  getFinalSmashHeadWorldContact():{x:number;y:number}|null {
+    const victim=this.getFinalVictimPresentationSelection(),control=this.getFinalSmashPresentation(),
+      pose=victim?this.getFinalVictimBodyPose():control?.sheet?finalBodyPose(this.id,control.sheet,control.age):null,
+      contact=pose?.headContact;
+    if(!contact)return null;
+    const operator={facing:victim?.facing??control?.facing??this.facing,rotationDegrees:victim?0:control?.rotationDegrees??0},
+      point=transformPikachuFinalOrientationPoint(contact.point,operator),root=this.getSourceRootPosition();
+    return{x:root.x+point.x,y:root.y+point.y};
+  }
+  getLinkEquipmentState(): import('./linkEquipment').LinkEquipmentState | null { return null; }
+  onLinkFinalEvent(_event: import('./linkAncientFinal').LinkAncientFinalEvent, _runId: number): void {}
+  setLinkRemoteBombState(_state:import('./linkRemoteBomb').LinkRemoteBombState|null):void {}
+  consumeLinkRuntimeEvents(): readonly import('./FreshLink').LinkRuntimeEvent[] { return []; }
+  getLinkPassiveShieldWorldSurfaces():readonly import('./linkPassiveShield').LinkPassiveShieldSurface[]{return [];}
+  canActivateFinalSmash(): boolean {
+    return this.finalSmashControl === null && !this.donkeykongHeavyItemHeld && this.canUseItemsBeforeInput();
+  }
+  isFinalSmashNoDead(): boolean { return this.finalSmashControl?.noDead === true; }
+  setFinalSmashControl(control: FinalSmashActorControl | null): void {
+    if(control?.inheritVerticalVelocity!==undefined&&(typeof control.inheritVerticalVelocity!=='boolean'||
+      control.inheritVerticalVelocity&&(this.id!=='pikachu'||control.role!=='owner'||control.phase!=='miss')))
+      throw new Error('Only Pikachu Final miss may inherit ordinary vertical velocity');
+    if(control?.rotationDegrees!==undefined&&(!Number.isFinite(control.rotationDegrees)||Math.abs(control.rotationDegrees)>90||
+      this.id!=='pikachu'||control.role!=='owner'))throw new Error('Only actual Pika owner posture may supply a finite source-guided rotation');
+    if(control){this.endLedgeJumpClearance();
+      this.sourceLinkFootstool=null;this.sourceLinkFootstoolPendingContact=null;this.footstoolRecipient=null;this.footstoolMini=null;this.pendingFootstoolJump=false;
+    }
+    const prior = this.finalSmashControl;
+    if (prior?.role === 'captured' && (!control || prior.runId !== control.runId)) {
+      if(this.finalVictimPresentation?.runId===prior.runId)this.finalVictimPresentation=null;
+      // Engine lifecycle adapter: unavailable native victim-release callee.
+      // Keep damage/root/generation, hitlag and independent protection clocks.
+      if (this.capturedFinalReactionRun === prior.runId && this.lastFinalReactionRun === prior.runId) {
+        this.clearReferenceLaunch(); this.pendingKnockback = null; this.launchVelocity = null;
+        this.launchDecayPerFrame = undefined; this.hitstunRemaining = 0;
+        this.referenceStunnedStep = false; this.tumbling = false;
+        this.hitstunGravityVelocityY = 0; this.pendingHitstunGravityCorrection = 0;
+        this.reactionPresentation = null; this.reactionCue = null;
+        this.scene.matter.body.setVelocity(this.body, { x: 0, y: 0 });
+      }
+      this.capturedFinalReactionRun = null;
+    }
+    if (control && (!prior || prior.runId !== control.runId)) {
+      this.finalSmashBodyTail=null; this.clearSourceShieldBreak();this.sourceDamagePresentation=null;this.sourceDamageOwnStop=false;
+      this.linkPassiveGuard=null;
+      this.cancelAttack();
+      if (control.role === 'captured') {
+        this.capturedFinalReactionRun = this.lastFinalReactionRun === control.runId ? control.runId : null;
+        if (this.grabbedBy) this.releaseFromGrab('external');
+        if (this.grabTarget) { this.grabTarget.releaseFromGrab('external'); this.grabTarget = null; }
+        this.grabState = resetGrabState(); this.grabReleasePresentation = null;
+        this.clearGrabSourcePresentation();
+      }
+      this.clearReferenceLaunch();
+      this.offensiveActionBuffer = null;
+      this.jumpInputBufferFrames = 0;
+      this.tapJumpBufferFrames = 0;
+      this.chargingSmash = null;
+      this.chargingSpecial = null;
+      this.jumpsquatRemaining = 0;
+      this.jumpPresentation = null;
+      this.finalSmashOriginalMask = this.body.collisionFilter.mask;
+    }
+    this.finalSmashControl = control ? Object.freeze({ ...control,
+      velocity: control.velocity ? Object.freeze({ ...control.velocity }) : null }) : null;
+    if (control) {
+      this.facing = control.facing;
+      if (this.finalSmashOriginalMask !== null) this.body.collisionFilter.mask = control.terrainBypass
+        ? this.finalSmashOriginalMask & ~(COLLISION_CATEGORIES.PLATFORM_SOLID | COLLISION_CATEGORIES.PLATFORM_PASS_THROUGH)
+        : this.finalSmashOriginalMask;
+    } else if (this.finalSmashOriginalMask !== null) {
+      this.body.collisionFilter.mask = this.finalSmashOriginalMask;
+      this.finalSmashOriginalMask = null;
+    }
+  }
 
   private collisionStartListener: ((event: CollisionEventLike) => void) | null = null;
   private collisionEndListener: ((event: CollisionEventLike) => void) | null = null;
@@ -1661,9 +3151,13 @@ export class Character {
    */
   private dropThroughFramesRemaining = 0;
 
-  constructor(scene: Phaser.Scene, options: CharacterOptions) {
+  constructor(scene: PhysicsHost, options: CharacterOptions) {
     this.scene = scene;
     this.id = options.id;
+    const dkVertical=options.donkeykongOrdinaryVertical??getFighterMovementProfile(options.id).donkeykongOrdinaryVertical;
+    this.donkeykongOrdinaryVertical=options.id==='donkeykong'&&dkVertical
+      ? Object.freeze({...dkVertical,fullHopStepVelocitiesY:Object.freeze([...dkVertical.fullHopStepVelocitiesY])}):null;
+    this.authoredShieldPushTraction=options.shieldPushTraction??getFighterMovementProfile(options.id).shieldPushTraction??0.65;
     // AC 10302 Sub-AC 2 — latch the optional combat → audio sink.
     // `undefined` (omitted by callers that haven't yet wired audio)
     // collapses to `null` so the per-frame emit calls have a single
@@ -1690,12 +3184,18 @@ export class Character {
       ...DEFAULT_CHARACTER_TUNING,
       ...getFighterMovementProfile(options.id),
       ...stripUndefined(options),
+      locomotion: {
+        ...getFighterMovementProfile(options.id).locomotion,
+        ...stripUndefined(options.locomotion ?? {}),
+      },
       // Resolve the partial `shield` slot into a fully-defaulted record
       // so the per-step tick can read tuning fields directly without
       // optional-chaining or re-resolution work each frame.
       shield: resolveShieldTuning(options.shield),
       // AC 60302 Sub-AC 2 — same treatment for the dodge slot.
-      dodge: resolveDodgeTuning(options.dodge),
+      dodge: resolveDodgeTuning(mergeDodgeTuning(
+        resolveDodgeTuning(getFighterMovementProfile(options.id).dodge), options.dodge ?? {},
+      )),
       // AC 60403 Sub-AC 3 — same treatment for the ledge slot. The
       // ledge-detection record is a flat tuning bundle (no per-variant
       // resolution required) so we just copy it verbatim with an empty
@@ -1806,6 +3306,9 @@ export class Character {
     this.collisionEndListener = (event: CollisionEventLike) =>
       this.onCollisionEnd(event);
     scene.matter.world.on('collisionstart', this.collisionStartListener);
+    // A reset clears our contacts while Matter can retain the same floor pair.
+    // Active events restore that support without waiting for a new collision.
+    scene.matter.world.on('collisionactive', this.collisionStartListener);
     scene.matter.world.on('collisionend', this.collisionEndListener);
   }
 
@@ -1823,8 +3326,202 @@ export class Character {
    * our movement intent and any external forces (gravity, knockback —
    * coming in a later sub-AC).
    */
-  applyInput(input: CharacterInput): void {
+  applyInput(input: CharacterInput, simulationFrame?: number): void {
+    this.sourcePresentationClockAdvances=this.hitlagRemaining===0;
+    this.tickLedgeJumpClearance();
+    this.itemLockedInput=null;
+    this.donkeykongOrdinaryVerticalTick=false;
+    this.donkeykongOpeningCarryY=null;
+    this.donkeykongOrdinaryEntryVelocityY=null;
+    if(this.shieldPushApplied!==0&&this.hitlagRemaining===0){
+      this.scene.matter.body.setVelocity(this.body,{x:this.body.velocity.x-this.shieldPushApplied,y:this.body.velocity.y});
+      this.shieldPushApplied=0;
+    }
+    if(this.grabState.name==='holding'&&this.grabState.active?.cargo)
+      input={...input,special:false,shield:false,dodge:false,appeal:false,attackHeavy:false,
+        jump:input.jump&&canCargoJump(this.isGrounded())};
+    // Match supplies its fixed frame so target-side status installation is
+    // independent of whether the captor or captive receives input first.
+    this.simulationInputFrame = simulationFrame ?? this.simulationInputFrame + 1;
+    this.advanceSourceGlobalPresentationClock(Math.max(0,this.simulationInputFrame));
+    if(this.finalVictimPresentation?.kind==='impact-stop')this.finalVictimPresentation=stepFinalImpactVictimPresentation(this.finalVictimPresentation,{
+      frame:Math.max(0,this.simulationInputFrame),victimGeneration:this.positionResetGeneration,
+      genuineVictimHitstop:this.hitlagRemaining>0&&this.lastFinalReactionRun===this.finalVictimPresentation.runId,
+      ownStopPresentationAdvances:true,globallyPaused:false,interrupted:false});
+    this.retireSourceDamagePresentationIfUnowned();
+    if(this.sourceDamagePresentation&&this.simulationInputFrame>this.sourceDamagePresentation.lastAdvancedFrame){
+      if(this.sourceDamagePresentation.generation!==this.positionResetGeneration)this.sourceDamagePresentation=null;
+      else this.sourceDamagePresentation={...this.sourceDamagePresentation,lastAdvancedFrame:this.simulationInputFrame,
+        framesElapsed:this.sourceDamagePresentation.framesElapsed+(this.hitlagRemaining===0?1:0)};
+    }
+    // Already-admitted healing belongs to the actor's advancing step, not a
+    // later ordinary action branch. Actual pre-decrement hitstop still freezes.
+    const healing=stepHealing(this.itemHealing,this.damagePercent,this.isInHitlag());
+    this.itemHealing=healing.state;this.damagePercent=healing.percent;
+
+    if(this.shieldBreak){const prior=this.shieldBreak,stopped=this.hitlagRemaining>0;
+      const mashBefore=this.shieldBreakMash??initialCaptureMash(input);
+      const mash=!stopped&&prior.phase==='loop'?tickCaptureMash(mashBefore,input,this.simulationInputFrame,SHIELD_BREAK_MASH_WEIGHTS):
+        {...mashBefore,previousHeld:initialCaptureMash(input).previousHeld};
+      this.shieldBreakMash=mash;
+      const tailNewOwner=prior.phase==='tail'&&(this.activeAttack!==null||this.sourceIntrinsicActionCommitted()||this.finalSmashControl!==null||
+        this.itemAction!==null||this.itemShooting!==null||this.grabState.active!==null||this.tauntPresentation!==null||
+        Math.abs(input.moveX)>.1||Math.abs(input.moveY??0)>.1||this.getJumpsquatRemaining()>0||isShieldRaised(this.shieldState)||!['idle','cooldown'].includes(this.dodgeState.name));
+      const next=stepShieldBreak(prior,{frame:this.simulationInputFrame,generation:this.positionResetGeneration,
+        clockAdvances:!stopped,grounded:this.isGrounded(),landingOrientation:this.knockdownRemaining>0&&this.knockdownFaceDown?'face-down':'face-up',
+        mashReduction:mash.reduction-mashBefore.reduction,interruption:this.grabbedBy?'capture':this.finalSmashControl||tailNewOwner?'new-action':null});
+      this.shieldBreak=next.state;
+      if(!next.state){this.clearSourceShieldBreak(true);}
+      else if(next.events.some(e=>e.kind==='actionable')){
+        // Existing postBreakHealth transition restores ordinary shield admission
+        // at raw33, while its natural end50 visual tail remains tangible.
+        this.shieldState=tickShield({...this.shieldState,stunRemaining:0},{held:false},this.tuning.shield);this.shieldBreakMash=null;
+      }
+      if(this.shieldBreak&&shieldBreakControlsLocked(this.shieldBreak)){
+        this.shieldState={...this.shieldState,name:'broken',health:0,blockStunRemaining:0,
+          stunRemaining:this.shieldBreak.phase==='loop'?this.shieldBreak.loopRemaining:0};
+        if(stopped){this.scene.matter.body.setVelocity(this.body,{x:0,y:0});this.hitlagRemaining-=1;
+          if(this.hitlagRemaining===0){this.hitlagPosition=null;this.attackerHitlagVelocity=null;}}
+        if(this.shieldBreak.phase!=='pop')this.scene.matter.body.setVelocity(this.body,{x:0,y:0});
+        this.lockPikachuSourceRecoveryInput(input);this.prevAppealHeld=input.appeal===true;return;
+      }
+    }
+    if (this.finalSmashControl) {
+      this.prevJumpHeld = !!input.jump;
+      this.prevSpecialHeld = !!input.special;
+      this.prevAttackHeld = !!input.attack;
+      this.prevHeavyHeld = !!input.attackHeavy; this.prevShieldHeld = !!input.shield;
+      this.prevDodgeHeld = !!input.dodge; this.prevGrabHeld = !!input.grab; this.prevAppealHeld = !!input.appeal;
+      this.prevMoveX = clamp(input.moveX, -1, 1); this.prevMoveY = clamp(input.moveY ?? 0, -1, 1);
+      if (this.hitlagRemaining > 0) this.hitlagRemaining -= 1;
+      const control = this.finalSmashControl;
+      if (control.velocity && this.hitlagRemaining === 0)
+        this.scene.matter.body.setVelocity(this.body, control.inheritVerticalVelocity?
+          {x:control.velocity.x,y:this.body.velocity.y}:control.velocity);
+      return;
+    }
+    const tail=this.finalSmashBodyTail;
+    if(tail){
+      const superseded=input.jump||input.attack===true||input.attackHeavy===true||input.special===true||
+        input.shield===true||input.dodge===true||input.grab===true||input.appeal===true||Math.abs(input.moveX)>.1||
+        Math.abs(input.moveY??0)>.1||(!tail.sheet.includes('air')&&!this.isGrounded())||this.hitstunRemaining>0||this.activeAttack!==null||this.grabbedBy!==null;
+      if(superseded)this.finalSmashBodyTail=null;
+      else if(this.hitlagRemaining===0&&this.simulationInputFrame!==tail.bornFrame){
+        tail.age+=tail.advance;
+        const pose=finalBodyPose(this.id,tail.sheet,Math.min(tail.age,tail.endAge));
+        if(pose){const p=this.getPosition();this.scene.matter.body.setPosition(this.body,
+          {x:p.x+(pose.rootDelta.x-tail.previousDelta.x)*tail.facing,y:p.y+pose.rootDelta.y-tail.previousDelta.y});
+          tail.previousDelta={...pose.rootDelta};}
+        if(tail.age>=tail.endAge)this.finalSmashBodyTail=null;
+      }
+    }
+    const passive=this.linkPassiveGuard;
+    if(passive){
+      const stopped=this.hitlagRemaining>0;
+      if(passive.generation!==this.positionResetGeneration||this.grabbedBy||!this.isGrounded()||this.hitstunRemaining>0)
+        this.linkPassiveGuard=null;
+      else{
+        if(!stopped&&this.simulationInputFrame>passive.lastFrame)passive.framesElapsed+=1;
+        passive.lastFrame=this.simulationInputFrame;
+        const ordinaryIntent=input.jump||input.attack||input.attackHeavy||input.special||input.shield||input.dodge||input.grab||input.appeal||
+          Math.abs(input.moveX)>.1||(!passive.crouchedAtEntry&&(input.moveY??0)<-.3);
+        // Selected CancelModule adapter is separate from standing natural20:
+        // after cancel4 a new ordinary owner may interrupt the uncommitted tail.
+        if(passive.framesElapsed>=passive.duration||(!stopped&&passive.framesElapsed>=4&&ordinaryIntent))this.linkPassiveGuard=null;
+        else if(passive.framesElapsed<4||stopped)input=this.lockSourceIntrinsicInput(input);
+      }
+    }
+    input=this.filterSourceIntrinsicInput(input,this.simulationInputFrame);
+    const hammer=this.equippedItem?.definition.hammer;
+    const hammerState=this.equippedItem?.getHammerState?.();
+    if(hammer && hammerState && !this.destroyed){
+      const next=stepHammer(hammer,hammerState).state;
+      this.equippedItem?.setHammerState?.({...next,motionElapsed:this.isInHitlag()||this.hitstunRemaining>0||this.grabbedBy?hammerState.motionElapsed:next.motionElapsed});
+      // Expiry restores native input on this exact step, including smash presses. Scene removes the old inventory object.
+      if(next.elapsed>=hammer.durationFrames)this.unequipItem();
+    }
+    if(this.isHammerLocked()){
+      const raw=input;this.itemLockedInput=raw;
+      const goldenTap=hammer!.golden&&!this.isGrounded()&&input.jump&&!this.prevJumpHeld;
+      if(goldenTap && !this.isInHitlag() && this.hitstunRemaining===0 && !this.grabbedBy)
+        this.scene.matter.body.setVelocity(this.body,{x:this.body.velocity.x,y:Math.min(this.body.velocity.y,hammer!.floatVelocity)});
+      input={...input,moveY:0,jump:input.jump&&(this.isGrounded()||this.jumpsquatRemaining>0),
+        attack:false,attackHeavy:false,special:false,shield:false,dodge:false,grab:false,appeal:false,dropThrough:false};
+      this.offensiveActionBuffer=null;
+    }
+    if (this.holdOnRevivalPlatform(input)) return;
+    try {
+      this.applyInputStep(input);
+    } finally {
+      if(this.sourceCargoEntry&&(!this.grabTarget||this.grabState.name!=='holding'||!this.grabState.active?.cargo||!this.isGrounded()||
+        this.jumpsquatRemaining>0||this.jumpPresentation!==null||
+        (!this.grabState.active.cargoStartupRemaining&&Math.abs(input.moveX)>0&&this.sourceCargoEntry.lastFrame===this.simulationInputFrame)))this.sourceCargoEntry=null;
+      // Buffered jumps/other owners may begin after the entry observation.
+      // They retire a retained tail on that same input step.
+      if(this.donkeykongJabContinuation&&(this.activeAttack!==null||this.jumpsquatRemaining>0||this.jumpPresentation!==null||
+        this.chargingSpecial!==null||this.chargingSmash!==null||this.grabbedBy!==null||isGrabActing(this.grabState)||
+        this.shieldState.name!=='idle'||isDodgeActing(this.dodgeState)||isLedgeLockingInput(this.ledgeHangState)||
+        this.itemAction!==null||this.donkeykongHeavyItemAction!==null||this.tauntPresentation!==null))
+        this.donkeykongJabContinuation=null;
+      if((this.activeAttack!==null&&this.activeAttack.move.type!=='aerial')||this.chargingSpecial!==null||this.chargingSmash!==null||
+        this.grabbedBy!==null||this.buriedState!==null||isGrabActing(this.grabState)||
+        isLedgeLockingInput(this.ledgeHangState)||isDodgeLockingInput(this.dodgeState)||
+        this.surfaceTech!==null||this.groundRecovery!==null||this.hitstunRemaining>0)
+        this.donkeykongFullHopStep=null;
+      // Every lockout/commitment path retires the old ordinary entry too.
+      this.prevAppealHeld = input.appeal === true;
+      this.lastCaptureInput = input;
+      if (!this.canPresentUncommittedBody()) { this.pikachuCrouchCrawl = null; this.pikachuTurnBrake = null; }
+      if(this.id==='donkeykong'&&!this.canPresentUncommittedBody())this.donkeykongTurnBrake=null;
+      if (this.pikachuAuxiliaryAir && (this.isGrounded() || !this.canPresentUncommittedBody())) this.pikachuAuxiliaryAir = null;
+      if (this.pikachuRespawnPresentation && (!this.canPresentUncommittedBody() || this.jumpPresentation ||
+          this.pikachuAuxiliaryAir || Math.abs(input.moveX)>.1 || Math.abs(input.moveY??0)>.1)) this.pikachuRespawnPresentation=null;
+      if (this.pikachuLedgeJump?.phase==='flight' && (!this.canPresentUncommittedBody() || this.jumpPresentation || this.pikachuAuxiliaryAir || this.isGrounded())) {
+        this.pikachuLedgeJump=null;this.clearPikachuLedgeAttachment();
+      }
+      this.syncObservedPresentation(false);
+      this.syncDonkeyKongCatchCollisionPose();
+      // applyInputStep may install this snapshot; method side effects are not
+      // tracked by TypeScript's null narrowing from the entry reset above.
+      const itemLockedInput=this.itemLockedInput as CharacterInput|null;
+      if(itemLockedInput){
+        const raw=itemLockedInput;
+        this.prevJumpHeld=raw.jump;this.prevAttackHeld=raw.attack===true;this.prevHeavyHeld=raw.attackHeavy===true;
+        this.prevSpecialHeld=raw.special===true;this.prevShieldHeld=raw.shield===true;this.prevDodgeHeld=raw.dodge===true;
+        this.prevGrabHeld=raw.grab===true;this.prevAppealHeld=raw.appeal===true;
+      }
+      this.donkeykongOrdinaryEntryVelocityY=null;
+    }
+  }
+
+  private applyInputStep(input: CharacterInput): void {
     if (this.destroyed) return;
+    this.prepareDonkeyKongJabContinuation(input);
+    if (this.hitlagRemaining === 0 && this.postReleaseGrabImmunity.remaining > 0 &&
+        this.postReleaseGrabImmunity.lastFrame !== this.simulationInputFrame) {
+      this.postReleaseGrabImmunity.remaining -= 1;
+      this.postReleaseGrabImmunity.lastFrame = this.simulationInputFrame;
+    }
+    this.attackClankLockedStep = false;
+    this.throwReleaseInvincible = false;
+    this.reactionCue = null;
+    this.pikachuSpecialStick = { x: input.moveX, y: input.moveY ?? 0 };
+    this.pikachuSpecialHeld = input.special === true;
+    if (this.pikachuWallBounceContact && (this.isGrounded() || this.pikachuWallBounceSurface()?.wall !== this.pikachuWallBounceContact)) this.pikachuWallBounceContact = null;
+    this.referenceStunnedStep = this.hitstunRemaining > 0;
+    // The ground-only jump expires when support is lost, including during
+    // hitlag/hitstun or capture. Observe it before those input lockouts return.
+    // Deliberate airborne spawns retain their configured starting budget.
+    if (!this.isGrounded() && this.prevGrounded && this.jumpsUsed === 0) {
+      this.jumpsUsed = 1;
+    }
+    this.airtimeFrames = this.isGrounded() ? 0 : this.airtimeFrames + 1;
+    this.prePhysicsVelocityY = null;
+    this.updateOffensiveActionBuffer(input);
+    this.updateJumpInputBuffer(input);
+    // Placed objects have their own simulation clock, including while their
+    // owner is captured, in hitlag, or stunned. Global pause skips this step.
+    this.tickTraps();
 
     // ---- Drop-through window bookkeeping ----------------------------------
     // Arm the temporary "ignore pass-through platforms" window when
@@ -1835,9 +3532,6 @@ export class Character {
     // long enough for the body to clear a thin platform's height even
     // at low fall speed, short enough that the window doesn't bleed
     // into the next platform below.
-    if (input.dropThrough === true && this.isGrounded()) {
-      this.dropThroughFramesRemaining = 10;
-    }
     if (this.dropThroughFramesRemaining > 0) {
       this.dropThroughFramesRemaining -= 1;
     }
@@ -1849,6 +3543,18 @@ export class Character {
     // belt-and-suspenders so a stale impulse can't drift the body
     // between the grabbed-state set and the grabber's pin.
     if (this.grabbedBy !== null) {
+      if (this.hitlagRemaining === 0) {
+        this.tickCapturePresentation();
+        this.grabbedBy.acceptUltimateCaptureMash(this, input);
+      } else this.grabbedBy.acceptUltimateCaptureMash(this, input, true);
+      // Captive hit-stop uses the same fixed clock without permitting SDI,
+      // launching or input. Otherwise a pummel/throw pre-hit freeze survives
+      // indefinitely until the eventual release.
+      if (this.hitlagRemaining > 0 && --this.hitlagRemaining === 0) {
+        this.hitlagPosition = null;
+        this.attackerHitlagVelocity = null;
+        this.pikachuLedgeFlightHitlagRelease=false;
+      }
       this.scene.matter.body.setVelocity(this.body, { x: 0, y: 0 });
       this.prevJumpHeld = input.jump;
       this.prevAttackHeld = input.attack ?? false;
@@ -1859,6 +3565,10 @@ export class Character {
       this.prevGrabHeld = input.grab ?? false;
       return;
     }
+
+    // Tech intent must survive hitlag's button latching. Its fixed-frame
+    // window begins on the press, including when a hard launch is queued.
+    this.updateTechInputBuffer(input);
 
     // ---- Hitlag freeze (post-M2 hit-feel pass) ----------------------------
     // While `hitlagRemaining > 0` both the defender and (eventually)
@@ -1871,50 +3581,65 @@ export class Character {
     //
     // Latch the input button states so a button held through hitlag
     // doesn't synthesise a rising-edge on the first free frame.
-    if (this.hitlagRemaining > 0) {
-      this.hitlagRemaining -= 1;
+    if (this.hitlagRemaining > 0 || this.pendingKnockback !== null) {
+      const allowsSDI = this.hitlagRemaining > 0;
+      this.hitlagRemaining = Math.max(0, this.hitlagRemaining - 1);
       // Pin position by zeroing velocity each freeze frame. `setVelocity`
       // (vs. mutating `.velocity`) keeps Matter's previous-position cache
       // coherent so the integrator doesn't blink on freeze-end.
       this.scene.matter.body.setVelocity(this.body, { x: 0, y: 0 });
       // ---- SDI (Smash Directional Influence) ----------------------------
-      // Only the VICTIM (the fighter with a queued launch) can SDI — the
-      // attacker shares the freeze but has no pendingKnockback. Each FRESH
-      // stick flick beyond the threshold (neutral → beyond, rising edge)
-      // nudges position a few px in the stick direction, capped per freeze.
-      // This is a position drift, NOT a trajectory change (that's DI, at
-      // freeze-end) — it lets a victim wiggle out of a multi-hit.
-      if (this.pendingKnockback) {
-        const sdiX = input.moveX;
-        const sdiY = input.moveY ?? 0;
-        const len = Math.hypot(sdiX, sdiY);
-        const beyond = len >= SDI_STICK_THRESHOLD;
-        if (
-          beyond &&
-          !this.sdiPrevBeyond &&
-          this.sdiSpentPx < SDI_MAX_TOTAL_PX
-        ) {
+      // Only the victim has a queued launch. Ordinary SDI changes position
+      // during real hitlag; zero-hitlag release does not synthesize ASDI.
+      if (this.pendingKnockback && allowsSDI) {
+        const sdi = stepReferenceSdi(this.sdiState,
+          { x: input.moveX, y: input.moveY ?? 0 }, this.sdiMultiplier);
+        this.sdiState = sdi.state;
+        if (sdi.pulsed) {
           const pos = this.body.position;
           this.scene.matter.body.setPosition(this.body, {
-            x: pos.x + (sdiX / len) * SDI_NUDGE_PX,
-            y: pos.y + (sdiY / len) * SDI_NUDGE_PX,
+            x: pos.x + sdi.displacement.x,
+            y: pos.y + sdi.displacement.y,
           });
-          this.sdiSpentPx += SDI_NUDGE_PX;
         }
-        this.sdiPrevBeyond = beyond;
       }
       if (this.hitlagRemaining === 0 && this.pendingKnockback) {
-        // Directional Influence (DI) — sample the stick on the frame
-        // hitlag drains to zero. The stick component perpendicular to
-        // the launch direction rotates the angle by up to ±18°. A
-        // stick parallel to the launch is a no-op; perpendicular gives
-        // the maximum rotation. Magnitude is preserved so DI shifts
-        // trajectory without changing kill power.
+        if (this.pendingKnockback.trip) {
+          const soft = this.pendingKnockback.softTrip === true;
+          this.pendingKnockback = null;
+          this.hitlagPosition = null;
+          this.hitstunRemaining = 0;
+          this.applyTrip(soft);
+          this.prevJumpHeld = input.jump;
+          this.prevAttackHeld = input.attack === true;
+          this.prevHeavyHeld = input.attackHeavy === true;
+          this.prevSpecialHeld = input.special === true;
+          this.prevShieldHeld = input.shield === true;
+          this.prevDodgeHeld = input.dodge === true;
+          this.prevGrabHeld = input.grab === true;
+          return;
+        }
+        // Sample influence once when hitlag drains to zero. Authored reference
+        // launches apply DI then LSI to the gravity-boosted launch component;
+        // carry and the precomputed hitstun/gravity branch remain separate.
         const queued = this.pendingKnockback.vector;
         const magnitude = Math.hypot(queued.x, queued.y);
         let releaseVx = queued.x;
         let releaseVy = queued.y;
-        if (magnitude > 0) {
+        const tumble = this.pendingKnockback.tumble ?? magnitude >= TUMBLE_KNOCKBACK_THRESHOLD;
+        if (this.pendingKnockback.autolink) {
+          // SDI already moved the recipient this release step. A contextual
+          // linking hit uses position pull, independent of ordinary DI/LSI.
+          const pulled = referenceAutolinkVelocity(this.pendingKnockback.autolink, this.body.position);
+          releaseVx = pulled.x;
+          releaseVy = pulled.y;
+        } else if (this.pendingKnockback.referenceLaunch) {
+          const influenced = applyReferenceLaunchInfluence(queued, {
+            stickX: input.moveX, stickY: input.moveY ?? 0,
+          }, tumble);
+          releaseVx = influenced.x;
+          releaseVy = influenced.y;
+        } else if (tumble) {
           const launchAngle = Math.atan2(queued.y, queued.x);
           const stickX = input.moveX;
           const stickY = input.moveY ?? 0;
@@ -1927,19 +3652,218 @@ export class Character {
             releaseVy = magnitude * Math.sin(rotatedAngle);
           }
         }
+        const carry = this.pendingKnockback.autolink ? undefined : this.pendingKnockback.velocityCarry;
         this.scene.matter.body.setVelocity(this.body, {
-          x: releaseVx,
-          y: releaseVy,
+          x: releaseVx + (carry?.x ?? 0),
+          y: releaseVy + (carry?.y ?? 0),
         });
+        // Transport from a linking hit is ordinary motion: only the authored
+        // knockback component decays or qualifies for DI/LSI/tumble.
+        this.launchVelocity = { x: releaseVx, y: releaseVy };
+        this.launchDecayPerFrame = this.pendingKnockback.launchDecayPerFrame;
+        this.referenceLaunch = this.pendingKnockback.referenceLaunch
+          ? { ...this.pendingKnockback.referenceLaunch, gravityY: 0, firstStep: true, groupIndex: 0, interrupted: false }
+          : null;
+        this.referenceStunnedStep = true;
+        this.hitstunGravityVelocityY = 0;
         this.hitstunRemaining = this.pendingKnockback.hitstunFrames;
         // A hard launch sends the fighter into TUMBLE — the state that can
         // be teched on ground contact (and otherwise knocks them down).
-        this.tumbling = Math.hypot(releaseVx, releaseVy) >= TUMBLE_KNOCKBACK_THRESHOLD;
+        this.tumbling = tumble;
         this.pendingKnockback = null;
+        this.attackerHitlagVelocity = null;
+        this.pikachuLedgeFlightHitlagRelease=false;
+      } else if (this.hitlagRemaining === 0 && this.attackerHitlagVelocity) {
+        if (this.pikachuLedgeJump?.phase==='flight') {
+          // This source cue advances only on an unfrozen input step. Keep its
+          // physical flight frozen through the final skipped-clock step too.
+          this.pikachuLedgeFlightHitlagRelease=true;
+          this.scene.matter.body.setVelocity(this.body,{x:0,y:0});
+        } else {
+          const resumed = { ...this.attackerHitlagVelocity };
+          // A sampled throw/recovery delta belongs to its action age, which did not tick
+          // during this freeze-release early return. Replaying it would transport
+          // the previous sample twice. Normal velocity carry remains unchanged.
+          if (this.throwRootMotionApplied || this.pikachuGroundRecovery) resumed.x = 0;
+          if(this.surfaceTech?.kind==='ceiling'&&SURFACE_TECH_PROFILES[this.id].ceilingRootDeltas){resumed.x=0;resumed.y=0;}
+          // This release step skips normal input shaping but Matter still
+          // integrates it. Resume the same authored gravity and terminal cap,
+          // preserving platform support and externally supplied excess speed.
+          const supported = this.isGrounded() || this.platformFallSupported;
+          this.platformFallSupported = false;
+          const flight = this.getSustainedUpSpecialRise();
+          const specialGravity = (flight !== null &&
+            this.activeAttack!.framesElapsed < flight.gravityFrames)||
+            (this.donkeykongOrdinaryVertical!==null&&this.activeAttack?.move.gravityScale!==undefined);
+          const dkReleaseNeutralDodge=this.id==='donkeykong'&&this.dodgeState.active?.kind==='air'&&!this.dodgeState.active.directional;
+          const dkReleaseRelax=dkReleaseNeutralDodge||this.itemAction?.plan.action.startsWith('throw-air-')===true;
+          if(!supported&&this.referenceLaunch===null&&!specialGravity&&this.donkeykongOrdinaryVertical&&
+            this.activeAttack?.move.gravityScale===undefined&&(!isDodgeLockingInput(this.dodgeState)||dkReleaseNeutralDodge)&&
+            !isLedgeLockingInput(this.ledgeHangState)){
+            this.donkeykongOrdinaryVerticalTick=true;
+            // The final skipped input step does not consume another opening
+            // sample. Keep its location frozen, then resume the next sample.
+            if(this.donkeykongFullHopStep!==null)resumed.y=0;
+            else{
+              const entry=resumed.y;
+              if(dkReleaseRelax&&resumed.y>this.tuning.maxFallSpeed)
+                resumed.y=Math.max(this.tuning.maxFallSpeed,resumed.y-DONKEYKONG_VERTICAL_PARAMETERS.excessFallBrakeNative*DONKEYKONG_VERTICAL_PARAMETERS.worldUnitsPerNativeUnit);
+              else resumed.y+=this.donkeykongOrdinaryVertical.totalGravity;
+              const terminal=this.fastFallLatched?this.tuning.fastFallSpeed:this.tuning.maxFallSpeed;
+              if(this.fastFallLatched&&resumed.y>0&&resumed.y<terminal)resumed.y=terminal;
+              resumed.y=Math.min(resumed.y,Math.max(terminal,entry));
+            }
+          }else if (!supported && this.referenceLaunch === null && !specialGravity) {
+            const rising = resumed.y < 0;
+            if (rising && !isLedgeLockingInput(this.ledgeHangState)) {
+              resumed.y += this.airJumpRising
+                ? this.tuning.airJumpRiseAccel ?? this.tuning.riseAccel ?? 0
+                : this.shortHopRising
+                  ? this.tuning.shortHopRiseAccel ?? this.tuning.riseAccel ?? 0
+                  : this.tuning.riseAccel ?? 0;
+            }
+            if (resumed.y >= 0) {
+              this.shortHopRising = false;
+              this.airJumpRising = false;
+            }
+            const entryVy = resumed.y;
+            if (resumed.y > 0 && !rising) resumed.y += this.tuning.fallAccel;
+            const terminal = this.fastFallLatched ? this.tuning.fastFallSpeed : this.tuning.maxFallSpeed;
+            if (this.fastFallLatched && resumed.y > 0 && resumed.y < terminal) resumed.y = terminal;
+            resumed.y = Math.min(resumed.y, Math.max(terminal, entryVy));
+          }
+          this.prePhysicsVelocityY = resumed.y;
+          this.scene.matter.body.setVelocity(this.body, resumed);
+          if (this.referenceLaunch !== null) {
+            if (this.referenceStunnedStep) {
+              this.referenceLaunch.groupIndex += 1;
+              this.hitstunRemaining = Math.max(0, this.hitstunRemaining - 1);
+            } else this.applyLaunchVelocityDecay();
+          }
+          this.attackerHitlagVelocity = null;
+          this.pikachuLedgeFlightHitlagRelease=false;
+        }
       }
+      this.hitlagPosition = this.hitlagRemaining > 0 || this.pikachuLedgeFlightHitlagRelease
+        ? { x: this.body.position.x, y: this.body.position.y }
+        : null;
       this.prevJumpHeld = input.jump;
       this.prevAttackHeld = input.attack ?? false;
+      this.prevHeavyHeld = input.attackHeavy ?? false;
+      this.prevSpecialHeld = input.special ?? false;
+      this.prevShieldHeld = input.shield ?? false;
+      this.prevDodgeHeld = input.dodge ?? false;
+      this.prevGrabHeld = input.grab ?? false;
       return;
+    }
+
+    if(this.pikachuLedgeFlightHitlagRelease){
+      if(this.pikachuLedgeJump?.phase==='flight' && this.attackerHitlagVelocity)
+        this.scene.matter.body.setVelocity(this.body,this.attackerHitlagVelocity);
+      this.pikachuLedgeFlightHitlagRelease=false;
+      this.attackerHitlagVelocity=null;this.hitlagPosition=null;
+    }
+    input=this.stepDonkeyKongPunchInput(input);
+    input=this.stepRecoveryInput(input);
+    input=this.stepItemInput(input);
+    input=this.stepDonkeyKongHeavyItemInput(input);
+    input=this.stepDonkeyKongHeavyCarryInput(input);
+    if(this.donkeykongFootstoolCooldown>0&&this.donkeykongFootstoolCooldownEntryFrame!==this.simulationInputFrame)
+      this.donkeykongFootstoolCooldown-=1;
+    if(this.buriedState){
+      const step=tickBuriedState(this.buriedState,{input,grounded:this.isGrounded()});this.buriedState=step.state;
+      this.jumpInputBufferFrames=0;this.tapJumpBufferFrames=0;this.offensiveActionBuffer=null;
+      if(step.launch){this.pendingKnockback=step.launch;this.hitlagRemaining=0;this.hitlagPosition=null;}
+      if(step.releaseKind==='escape-jump')this.scene.matter.body.setVelocity(this.body,{x:0,y:-(this.tuning.shortHopImpulse??this.tuning.jumpImpulse*.5)});
+      if(this.buriedState){if(this.buriedState.phase==='buried')this.scene.matter.body.setVelocity(this.body,{x:0,y:0});this.lockPikachuSourceRecoveryInput(input);return;}
+      if(step.launch){this.lockPikachuSourceRecoveryInput(input);return;}
+    }
+    if(this.groundRecovery&&!this.isGrounded())this.groundRecovery=null;
+    if(this.groundRecovery){
+      const state=this.groundRecovery,next=state.framesElapsed+1;
+      this.jumpInputBufferFrames=0;this.tapJumpBufferFrames=0;this.offensiveActionBuffer=null;
+      if(next<state.duration){
+        const a=getPackedBodyRootDelta(this.id,state.sheet,state.framesElapsed),b=getPackedBodyRootDelta(this.id,state.sheet,next);
+        state.framesElapsed=next;
+        const vx=a&&b?(b.x-a.x)*state.facing:state.travelDirection===undefined?0:state.travelDirection*GETUP_ROLL_SPEED;
+        this.scene.matter.body.setVelocity(this.body,{x:vx,y:a&&b?b.y-a.y:0});
+        this.lockPikachuSourceRecoveryInput(input);return;
+      }
+      this.groundRecovery=null;
+      this.scene.matter.body.setVelocity(this.body,{x:0,y:this.body.velocity.y});
+    }
+
+    // This is observed jump-entry age, not a native motion/status selector.
+    // Captive and hitlag steps return above and do not advance its clock.
+    if (this.jumpPresentation) this.jumpPresentation.framesElapsed += 1;
+    this.advanceRespawnPresentation();
+    if (this.equippedItem) this.heldItemCarryAge=(this.heldItemCarryAge+1)%106;
+    if (this.pikachuFootstoolVisual && this.pikachuFootstoolVisual.entryFrame !== this.simulationInputFrame) {
+      const age=this.pikachuFootstoolVisual.age+1;
+      this.pikachuFootstoolVisual=age<6 ? {...this.pikachuFootstoolVisual,age} : null;
+    }
+    if(this.donkeykongFootstoolPerformer&&this.donkeykongFootstoolPerformer.entryFrame!==this.simulationInputFrame){
+      const next=this.donkeykongFootstoolPerformer.framesElapsed+1;
+      this.donkeykongFootstoolPerformer=next<9&&!this.isGrounded()?{...this.donkeykongFootstoolPerformer,framesElapsed:next}:null;
+    }
+    if (this.pikachuAuxiliaryAir) {
+      const next = this.pikachuAuxiliaryAir.framesElapsed + 1;
+      this.pikachuAuxiliaryAir = next < (pikachuAuxiliaryBodyEndExclusive(this.pikachuAuxiliaryAir.sheet) ?? 0)
+        ? {...this.pikachuAuxiliaryAir, framesElapsed:next} : null;
+    }
+    this.tickCapturePresentation();
+    this.advanceSourceLinkFootstoolPresentation();
+    if (this.footstoolMini) {
+      const mini = this.footstoolMini;
+      if (!mini.cut && mini.framesElapsed < 3 && !input.jump && this.body.velocity.y < 0) {
+        this.scene.matter.body.setVelocity(this.body, {x:this.body.velocity.x,
+          y:Math.max(this.body.velocity.y,this.id==='link'?linkFootstoolJumpVelocity(mini.basis,true,Math.max(0,this.sourceLinkFootstoolRepeatCount-1)):this.id==='donkeykong'?donkeyKongFootstoolJumpVelocity(mini.basis,true,Math.max(0,this.donkeykongFootstoolRepeatCount-1)):-mini.basis*PIKACHU_AUXILIARY_SOURCE_PARAMETERS.footstoolMiniJumpSpeedYMultiplier)});
+        if(this.donkeykongFootstoolPerformer)this.donkeykongFootstoolPerformer.mini=true;
+        if(this.sourceLinkFootstool?.presentation.role==='performer')this.sourceLinkFootstool.mini=true;
+        mini.cut=true;
+      }
+      mini.framesElapsed += 1;
+      if (mini.framesElapsed >= 3) this.footstoolMini=null;
+    }
+    if (this.tickGrabReleaseInput(input)) return;
+    this.syncObservedPresentation(true);
+    if (this.attackClankRemaining > 0) {
+      this.attackClankLockedStep = true;
+      this.attackClankRemaining -= 1;
+      this.scene.matter.body.setVelocity(this.body, { x: 0, y: 0 });
+      this.prevJumpHeld = input.jump;
+      this.prevAttackHeld = input.attack === true;
+      this.prevHeavyHeld = input.attackHeavy === true;
+      this.prevSpecialHeld = input.special === true;
+      this.prevShieldHeld = input.shield === true;
+      this.prevDodgeHeld = input.dodge === true;
+      this.prevGrabHeld = input.grab === true;
+      return;
+    }
+    // Parry shieldstun begins after hit-stop and remains fully protected.
+    // The final locked step stays protected; the next input step clears it.
+    if (this.shieldParryStunRemaining > 0) {
+      this.shieldParryStunRemaining -= 1;
+      this.scene.matter.body.setVelocity(this.body, { x: 0, y: 0 });
+      this.prevJumpHeld = input.jump;
+      this.prevAttackHeld = input.attack === true;
+      this.prevHeavyHeld = input.attackHeavy === true;
+      this.prevSpecialHeld = input.special === true;
+      this.prevShieldHeld = input.shield === true;
+      this.prevDodgeHeld = input.dodge === true;
+      this.prevGrabHeld = input.grab === true;
+      return;
+    }
+    this.shieldParryProtected = false;
+
+    // Restore ordinary falling before a fresh jump/dodge/special takes ownership.
+    // Apply a saved delta so wind injected after the last physics step survives.
+    if (this.pendingHitstunGravityCorrection > 0) {
+      this.scene.matter.body.setVelocity(this.body, {
+        x: this.body.velocity.x,
+        y: this.body.velocity.y - this.pendingHitstunGravityCorrection,
+      });
+      this.pendingHitstunGravityCorrection = 0;
     }
 
     // ---- Invincibility drain (Sub-AC 4.2) ---------------------------------
@@ -1952,6 +3876,103 @@ export class Character {
       this.invincibilityRemaining -= 1;
     }
 
+    // Shared surface tech: wall / ceiling hold the body (gravity, or the ceiling root
+    // track) and lock input; the wall-jump flight is actionable after its entry step.
+    if(this.surfaceTech){
+      const previous=this.surfaceTech,next=tickSurfaceTech(previous,{grounded:this.isGrounded()});
+      if(!next)this.clearSurfaceTech();
+      else{
+        this.surfaceTech=next;
+        if(!surfaceTechActionable(next)){
+          // Live collision blockage of the ceiling track is retained without catch-up.
+          this.scene.matter.body.setVelocity(this.body,surfaceTechCeilingDisplacement(previous,next,SURFACE_TECH_PROFILES[this.id])??
+            {x:this.body.velocity.x,y:Math.min(this.body.velocity.y+this.tuning.fallAccel,this.tuning.maxFallSpeed)});
+          this.lockPikachuSourceRecoveryInput(input);return;
+        }
+        // Available fresh actions replace retained flight. Exhausted resources
+        // leave its dedicated drawing live.
+        if((this.hasJumpIntent(input)&&this.jumpsUsed<this.tuning.maxJumps)||
+          (input.attack===true&&!this.prevAttackHeld&&this.canAttack())||
+          (input.special===true&&!this.prevSpecialHeld&&this.canAttack())||
+          (input.dodge===true&&!this.prevDodgeHeld&&!this.airDodgeUsed)||this.pendingFootstoolJump)
+          this.surfaceTech=null;
+      }
+    }
+
+    if (this.pikachuLedgeJump) {
+      const previous=this.pikachuLedgeJump,next=advancePikachuLedgeJump(previous);
+      this.pikachuLedgeJump=next?{...previous,...next}:null;
+      if (next?.phase==='start') {this.lockPikachuSourceRecoveryInput(input);return;}
+      if (previous.phase==='start' && next?.phase==='flight') {
+        this.clearPikachuLedgeAttachment();
+        const impulse=pikachuLedgeJumpBetaImpulse(this.pikachuLastGravityDose+(this.tuning.riseAccel??0));
+        this.scene.matter.body.setVelocity(this.body,{x:PIKACHU_LEDGE_JUMP_SOURCE_TRAVEL.speedX*next.facing,y:-impulse});
+        this.jumpInputBufferFrames=0;this.tapJumpBufferFrames=0;this.offensiveActionBuffer=null;
+        this.fastFallLatched=false;this.jumpCutArmed=false;this.airJumpRising=false;this.shortHopRising=false;
+      }
+    }
+
+    // Source-guided Pikachu ground recovery owns one unfrozen action clock.
+    // Clocks advance after the hitlag early return; real loss of support retires
+    // this ground-only owner rather than allowing an airborne wakeup.
+    if (this.pikachuGroundRecovery) {
+      this.jumpInputBufferFrames = 0;
+      this.tapJumpBufferFrames = 0;
+      this.offensiveActionBuffer = null;
+      const previous = this.pikachuGroundRecovery;
+      const next = this.isGrounded() ? advancePikachuGroundRecovery(previous) : null;
+      this.pikachuGroundRecovery = next;
+      if (next) {
+        this.scene.matter.body.setVelocity(this.body, pikachuGroundRecoveryVelocity(previous, next));
+        this.prevJumpHeld = input.jump;
+        this.prevAttackHeld = input.attack === true;
+        this.prevHeavyHeld = input.attackHeavy === true;
+        this.prevSpecialHeld = input.special === true;
+        this.prevShieldHeld = input.shield === true;
+        this.prevDodgeHeld = input.dodge === true;
+        this.prevGrabHeld = input.grab === true;
+        this.prevMoveX = clamp(input.moveX, -1, 1);
+        this.prevMoveY = clamp(input.moveY ?? 0, -1, 1);
+        this.prevGrounded = this.isGrounded();
+        return;
+      }
+      this.scene.matter.body.setVelocity(this.body, {x: 0, y: this.body.velocity.y});
+    }
+
+    if (this.footstoolRecipient) {
+      const recovery=this.footstoolRecipient;
+      const landed=!recovery.grounded && this.isGrounded();
+      const elapsed=this.simulationInputFrame===recovery.entryFrame ? recovery.framesElapsed : recovery.framesElapsed+1;
+      const duration=this.id==='link'?recovery.grounded?this.sourceLinkFootstoolRecipientSide==='back'?21:9:LINK_FOOTSTOOL_SOURCE.airRecipientRecoveryFrames:
+        recovery.grounded ? 9 : this.id==='donkeykong'?DONKEYKONG_FOOTSTOOL_PARAMETERS.airRecipientRecoveryFrames:PIKACHU_AUXILIARY_SOURCE_PARAMETERS.footstoolFallRecoveryFrames;
+      this.jumpInputBufferFrames=0;this.tapJumpBufferFrames=0;this.offensiveActionBuffer=null;
+      if (landed || elapsed>=duration) {
+        this.footstoolRecipient=null;
+        if(!recovery.grounded||landed)this.sourceLinkFootstool=null;
+        if (!landed) this.clearTumbleForStartedAction();
+      }
+      else {
+        recovery.framesElapsed=elapsed;
+        this.jumpInputBufferFrames=0;this.tapJumpBufferFrames=0;this.offensiveActionBuffer=null;
+        if (recovery.grounded) this.scene.matter.body.setVelocity(this.body,{x:0,y:0});
+        this.prevJumpHeld=input.jump;this.prevAttackHeld=input.attack===true;
+        this.prevHeavyHeld=input.attackHeavy===true;this.prevSpecialHeld=input.special===true;
+        this.prevShieldHeld=input.shield===true;this.prevDodgeHeld=input.dodge===true;this.prevGrabHeld=input.grab===true;
+        this.prevMoveX=clamp(input.moveX,-1,1);this.prevMoveY=clamp(input.moveY??0,-1,1);
+        this.prevGrounded=this.isGrounded();return;
+      }
+    }
+
+    // A floor knockdown owns its pin only while it has real support. Wind,
+    // moving platforms or a disappearing floor can remove that support.
+    // Reuse airborne tumble/landing resolution rather than cancelling gravity
+    // every step or allowing a floor getup in midair (authored integration).
+    if (this.knockdownRemaining > 0 && !this.isGrounded()) {
+      this.knockdownRemaining = 0;
+      this.tripped = false;
+      this.tumbling = true;
+    }
+
     // ---- Tumble resolution (launch → floor: tech / knockdown) -------------
     // Runs BEFORE — and independently of — hitstun so a fighter who exits
     // hitstun mid-flight still resolves on the frame they finally touch a
@@ -1961,29 +3982,55 @@ export class Character {
     //   • a press that drains before contact mistimes into a TECH-LOCKOUT
     //     (a re-press can't tech the real landing — anti-panic),
     //   • an un-teched landing is a KNOCKDOWN.
-    // Once hitstun has ended, acting (jump / attack / dodge / special) out
-    // of tumble cancels it — you DI'd / jumped out, mirroring Smash.
+    // After hitstun, only a successfully started action cancels tumble;
+    // an exhausted jump or unavailable move must still resolve on landing.
     if (this.tumbling) {
-      const techPress =
-        (input.shield === true && !this.prevShieldHeld) ||
-        (input.dodge === true && !this.prevDodgeHeld);
+      if(!this.isGrounded()){
+        const surface=this.surfaceTechContact();
+        const launch=this.launchVelocity??this.body.velocity;
+        const kind=surface?selectSurfaceTech({surface:surface.kind,airborne:true,tumbling:this.tumbling,
+          hitstunRemaining:this.hitstunRemaining,bufferRemaining:this.techBufferRemaining,
+          lockoutRemaining:this.techLockoutRemaining,launchSpeedPixels:Math.hypot(launch.x,launch.y),jumpHeld:input.jump}):null;
+        if(kind&&surface){
+          const incomingX=this.body.velocity.x,profile=SURFACE_TECH_PROFILES[this.id];
+          this.clearReferenceLaunch();this.launchVelocity=null;this.hitstunRemaining=0;this.pendingKnockback=null;
+          this.referenceStunnedStep=false;this.pendingHitstunGravityCorrection=0;this.hitstunGravityVelocityY=0;
+          this.clearTumbleForStartedAction();this.pikachuAuxiliaryAir=null;this.jumpPresentation=null;
+          this.fastFallLatched=false;this.jumpCutArmed=false;this.airJumpRising=false;this.shortHopRising=false;
+          this.surfaceTech=beginSurfaceTech(kind,this.facing,surface.outward,profile);
+          if(kind==='ceiling'&&profile.ceilingRootDeltas){
+            this.surfaceTechGravityRestore=this.body.ignoreGravity??false;
+            this.body.ignoreGravity=true;this.scene.matter.body.setVelocity(this.body,{x:0,y:0});
+          }else this.scene.matter.body.setVelocity(this.body,surfaceTechEntryVelocity(this.surfaceTech,profile,incomingX));
+          this.lockPikachuSourceRecoveryInput(input);return;
+        }
+      }
       if (this.isGrounded()) {
         this.tumbling = false;
         this.hitstunRemaining = 0;
-        const buffered = techPress || this.techBufferRemaining > 0;
+        this.launchVelocity = null;
+        this.referenceLaunch = null;
+        this.hitstunGravityVelocityY = 0;
+        const buffered = this.techBufferRemaining > 0;
         const teched = buffered && this.techLockoutRemaining === 0;
         this.techBufferRemaining = 0;
         const dir = clamp(input.moveX, -1, 1);
         if (teched) {
           if (Math.abs(dir) >= 0.5) {
-            this.startGetupRoll(dir >= 0 ? 1 : -1); // directional tech-roll
+            this.startGetupRoll(dir >= 0 ? 1 : -1, 'tech'); // directional tech-roll
           } else {
             this.scene.matter.body.setVelocity(this.body, { x: 0, y: 0 });
-            this.setInvincibility(TECH_IFRAME_FRAMES); // tech-in-place
+            if (this.id === 'pikachu') this.beginPikachuGroundRecovery('tech');
+            else this.beginGroundRecovery('tech',GROUND_RECOVERY_ROWS.techInPlace);
           }
         } else {
+          // Preserve the existing observed selector before clearing impact motion.
+          // Native knockdown posture selection remains a separate source gap.
+          this.knockdownFaceDown = this.body.velocity.x * this.facing > 0;
           this.scene.matter.body.setVelocity(this.body, { x: 0, y: 0 });
+          this.tripped = false;
           this.knockdownRemaining = KNOCKDOWN_FRAMES; // missed → knocked down
+          this.reactionPresentation = null;
         }
         this.prevJumpHeld = input.jump;
         this.prevAttackHeld = input.attack === true;
@@ -1996,31 +4043,6 @@ export class Character {
         this.prevGrounded = true;
         return;
       }
-      // Airborne: buffer a fresh press; drain an old one into a lockout.
-      if (techPress && this.techLockoutRemaining === 0 && this.techBufferRemaining === 0) {
-        this.techBufferRemaining = TECH_WINDOW_FRAMES;
-      }
-      if (this.techBufferRemaining > 0) {
-        this.techBufferRemaining -= 1;
-        if (this.techBufferRemaining === 0) {
-          this.techLockoutRemaining = TECH_LOCKOUT_FRAMES;
-        }
-      }
-      if (this.techLockoutRemaining > 0) this.techLockoutRemaining -= 1;
-      // Acting out of tumble (only reachable once hitstun has ended) clears
-      // it; we fall through so the action fires this frame in normal flow.
-      if (this.hitstunRemaining === 0) {
-        const actOut =
-          (input.jump === true && !this.prevJumpHeld) ||
-          (input.attack === true && !this.prevAttackHeld) ||
-          (input.attackHeavy === true && !this.prevHeavyHeld) ||
-          (input.special === true && !this.prevSpecialHeld) ||
-          (input.dodge === true && !this.prevDodgeHeld);
-        if (actOut) {
-          this.tumbling = false;
-          this.techBufferRemaining = 0;
-        }
-      }
     }
 
     // ---- Hitstun lockout (Sub-AC 4.1) -------------------------------------
@@ -2032,12 +4054,14 @@ export class Character {
     // a button held throughout hitstun does NOT fire a rising-edge on
     // the first free frame — the player has to release and re-press.
     //
-    // We deliberately do NOT damp velocity during hitstun: that's what
-    // gives the knockback its arc. Matter's gravity will integrate the
-    // upward component over the lockout, producing the "sent flying"
-    // visual.
+    // Launch momentum decays independently from Matter gravity. This avoids
+    // quadratic travel while preserving the ballistic rise/fall residual.
     if (this.hitstunRemaining > 0) {
+      if (this.referenceLaunch !== null) this.referenceLaunch.groupIndex += 1;
+      else this.applyLaunchVelocityDecay();
       this.hitstunRemaining -= 1;
+      // Keep provenance through this last locked physics step. Its contact
+      // response and gravity must resolve before we hand control back.
       this.prevJumpHeld = input.jump;
       this.prevAttackHeld = input.attack === true;
       this.prevHeavyHeld = input.attackHeavy === true;
@@ -2063,17 +4087,13 @@ export class Character {
       // dodge key still pressed when hitstun ends does NOT auto-fire
       // a dodge on the recovery frame — the player has to release and
       // re-press, mirroring the jump / attack / shield contracts.
-      this.dodgeState = tickDodge(
-        this.dodgeState,
-        {
-          held: false,
-          justPressed: false,
-          moveX: 0,
-          grounded: this.isGrounded(),
-          facing: this.facing,
-        },
-        this.tuning.dodge,
-      );
+      this.stepDodge({
+        held: false,
+        justPressed: false,
+        moveX: 0,
+        grounded: this.isGrounded(),
+        facing: this.facing,
+      });
       this.prevDodgeHeld = input.dodge === true;
       // AC 60101 Sub-AC 1 — track the raw stick across hitstun frames
       // so the smash-flick detector reads the player's actual stick
@@ -2096,11 +4116,13 @@ export class Character {
     if (this.knockdownRemaining > 0) {
       this.scene.matter.body.setVelocity(this.body, { x: 0, y: 0 });
       this.knockdownRemaining -= 1;
+      // Options open once the lock has elapsed (the landing step is prone frame 1, this step frame 1 + age).
+      const optionsOpen = this.knockdownTotalFrames() - this.knockdownRemaining >= (this.tripped ? this.tripOptionLockFrames : KNOCKDOWN_OPTION_LOCK_FRAMES);
       const dir = clamp(input.moveX, -1, 1);
-      const rollGetup = Math.abs(dir) >= 0.5;
-      const attackGetup = input.attack === true && !this.prevAttackHeld;
+      const rollGetup = optionsOpen && Math.abs(dir) >= 0.5;
+      const attackGetup = optionsOpen && input.attack === true && !this.prevAttackHeld;
       const getUp =
-        (input.jump === true && !this.prevJumpHeld) ||
+        (optionsOpen && input.jump === true && !this.prevJumpHeld) ||
         attackGetup ||
         rollGetup ||
         this.knockdownRemaining === 0;
@@ -2115,31 +4137,11 @@ export class Character {
         } else if (attackGetup) {
           this.startGetupAttack();
         } else {
-          this.setInvincibility(GETUP_IFRAME_FRAMES);
+          if (this.id === 'pikachu') this.beginPikachuGroundRecovery(this.knockdownFaceDown ? 'getup_face_down' : 'getup');
+          // A trip stands through slip_stand, a knockdown through down_stand.
+          else this.beginGroundRecovery(this.knockdownFaceDown?'getup_face_down':'getup',this.tripped?GROUND_RECOVERY_ROWS.tripStand:GROUND_RECOVERY_ROWS.stand);
         }
       }
-      this.prevJumpHeld = input.jump;
-      this.prevAttackHeld = input.attack === true;
-      this.prevHeavyHeld = input.attackHeavy === true;
-      this.prevSpecialHeld = input.special === true;
-      this.prevShieldHeld = input.shield === true;
-      this.prevDodgeHeld = input.dodge === true;
-      this.prevMoveX = clamp(input.moveX, -1, 1);
-      this.prevMoveY = clamp(input.moveY ?? 0, -1, 1);
-      this.prevGrounded = this.isGrounded();
-      return;
-    }
-
-    // ---- Tech-roll / get-up-roll lockout ---------------------------------
-    // A directional tech or roll-get-up: the fighter slides along the floor
-    // (intangible — i-frames were set when the roll started) with input
-    // otherwise locked until the roll frames drain.
-    if (this.getupRollRemaining > 0) {
-      this.getupRollRemaining -= 1;
-      this.scene.matter.body.setVelocity(this.body, {
-        x: this.getupRollDir * GETUP_ROLL_SPEED,
-        y: 0,
-      });
       this.prevJumpHeld = input.jump;
       this.prevAttackHeld = input.attack === true;
       this.prevHeavyHeld = input.attackHeavy === true;
@@ -2162,25 +4164,25 @@ export class Character {
     // when the stun ends does NOT instantly re-raise — the player has
     // to release and re-press, mirroring the hitstun contract.
     if (isShieldBroken(this.shieldState)) {
+      // Mashing shortens the stun (SmashWiki Stun: 3 frames per stick input, 5.4 per button).
+      const mashBefore = this.shieldBreakMash ?? initialCaptureMash(input);
+      this.shieldBreakMash = tickCaptureMash(mashBefore, input, this.simulationInputFrame, SHIELD_BREAK_MASH_WEIGHTS);
       this.shieldState = tickShield(
         this.shieldState,
-        { held: false },
+        { held: false, mash: this.shieldBreakMash.reduction - mashBefore.reduction },
         this.tuning.shield,
       );
+      if (!isShieldBroken(this.shieldState)) this.shieldBreakMash = null;
       // AC 60302 Sub-AC 2 — shield-break stun also locks out dodge
       // presses (the fighter is helpless). The dodge state machine
       // still ticks so any in-flight roll cooldown drains in real time.
-      this.dodgeState = tickDodge(
-        this.dodgeState,
-        {
-          held: false,
-          justPressed: false,
-          moveX: 0,
-          grounded: this.isGrounded(),
-          facing: this.facing,
-        },
-        this.tuning.dodge,
-      );
+      this.stepDodge({
+        held: false,
+        justPressed: false,
+        moveX: 0,
+        grounded: this.isGrounded(),
+        facing: this.facing,
+      });
       this.prevJumpHeld = input.jump;
       this.prevAttackHeld = input.attack === true;
       this.prevHeavyHeld = input.attackHeavy === true;
@@ -2198,6 +4200,40 @@ export class Character {
       }
       this.prevGrounded = this.isGrounded();
       return;
+    }
+
+    // Landing is resolved before any action arbitration. A six-frame landing
+    // blocks touchdown plus five subsequent input steps; the seventh can act.
+    // Existing recovery drains here, while a new landing starts at its full
+    // authored duration. Ordinary attack cooldown retains its separate timing.
+    const wasInLandingRecovery = this.isInLandingRecovery();
+    this.shieldReleaseRemaining = Math.max(0, this.shieldReleaseRemaining - 1);
+    if (!this.isGrounded()) this.shieldReleaseRemaining = 0;
+    // Native GuardOff permits jump, up smash and up special before its ordinary
+    // cancel frame. A successful action cancels the release parry window too.
+    const shieldReleaseUp = (input.moveY ?? 0) <= -DEFAULT_NEUTRAL_THRESHOLD &&
+      Math.abs(input.moveY ?? 0) >= Math.abs(input.moveX);
+    // A right-stick heavy press aims with its own direction, so shield +
+    // right-stick up is an out-of-shield up smash regardless of the left stick.
+    const heavyStick = this.heavyPressStick(input);
+    const heavyPressUp = heavyStick !== null
+      ? heavyStick.y <= -DEFAULT_NEUTRAL_THRESHOLD && Math.abs(heavyStick.y) >= Math.abs(heavyStick.x)
+      : shieldReleaseUp;
+    const upSmashPress = heavyPressUp &&
+      input.attackHeavy === true && !this.prevHeavyHeld && this.upSmashId !== null;
+    const upSpecialPress = shieldReleaseUp &&
+      input.special === true && !this.prevSpecialHeld && this.upSpecialId !== null;
+    const shieldReleaseCancel = this.hasJumpIntent(input) || upSmashPress || upSpecialPress;
+    if (this.shieldReleaseRemaining > 0 && shieldReleaseCancel) this.shieldReleaseRemaining = 0;
+    this.tickLanding();
+    this.advanceShootingLegs();
+    this.tickTaunt(input);
+    input=this.reserveSourceUpdatedControlInput(input,this.simulationInputFrame);
+    if (input.dropThrough === true && this.isGrounded() &&
+        this.canStartCommittedAction() && !this.chargingSpecial?.groundedUpSpecial) {
+      // The activation step is included, matching the existing ten-step
+      // counter's immediate decrement while respecting landing commitment.
+      this.dropThroughFramesRemaining = 9;
     }
 
     // ---- Shield tick (AC 60301 Sub-AC 1) ---------------------------------
@@ -2239,17 +4275,46 @@ export class Character {
     // every aerial / up-special escape. During shieldstun the shield is
     // locked and these are suppressed.
     const inShieldstunNow = isInShieldstun(this.shieldState);
-    const canActOutOfShield = shieldRaisedNow && !inShieldstunNow;
+    // Three completed free steps after ordinary blockstun cannot parry.
+    // Four here includes the tick that drains the final shieldstun frame.
+    this.shieldParryBlockRemaining = inShieldstunNow ? 4
+      : Math.max(0, this.shieldParryBlockRemaining - 1);
+    const directDodgeHeld = input.dodge === true;
+    // A fresh shield press in the air is the neutral air-dodge gesture.
+    // Directional shield chords already arrive as `input.dodge = true`.
+    const neutralAirDodgePressed =
+      !groundedForShield && shieldHeld && !this.prevShieldHeld && !directDodgeHeld;
+    const dodgePressed =
+      (directDodgeHeld && !this.prevDodgeHeld) || neutralAirDodgePressed;
+    const wantsDodge =
+      dodgePressed &&
+      this.canStartCommittedAction() &&
+      (!shieldRaisedNow || !inShieldstunNow);
+    const canActOutOfShield =
+      shieldRaisedNow && !inShieldstunNow && this.canStartCommittedAction();
     const oosJump =
-      canActOutOfShield && input.jump === true && !this.prevJumpHeld;
-    const oosGrab =
-      canActOutOfShield && input.grab === true && !this.prevGrabHeld;
-    const wantsOutOfShield = oosJump || oosGrab;
+      canActOutOfShield && this.hasJumpIntent(input);
+    // Post-shieldstun shield grab waits 4 more frames (SHIELD_GRAB_POST_SHIELDSTUN_DELAY_FRAMES);
+    // a grab pressed during shieldstun or the delay starts when the delay ends.
+    const grabPressed = input.grab === true && !this.prevGrabHeld;
+    if (!shieldRaisedNow) { this.shieldGrabLockRemaining = 0; this.shieldGrabPending = false; }
+    else if (inShieldstunNow) this.shieldGrabLockRemaining = SHIELD_GRAB_POST_SHIELDSTUN_DELAY_FRAMES;
+    if (shieldRaisedNow && grabPressed && (inShieldstunNow || this.shieldGrabLockRemaining > 0)) this.shieldGrabPending = true;
+    const shieldGrabReady = canActOutOfShield && this.shieldGrabLockRemaining === 0;
+    const delayedShieldGrab = shieldGrabReady && this.shieldGrabPending;
+    if (!inShieldstunNow && this.shieldGrabLockRemaining > 0) this.shieldGrabLockRemaining -= 1;
+    if (delayedShieldGrab) this.shieldGrabPending = false;
+    const oosGrab = shieldGrabReady && (grabPressed || delayedShieldGrab);
+    const oosUpAttack = canActOutOfShield && (upSmashPress || upSpecialPress);
+    const wantsOutOfShield = oosJump || oosGrab || oosUpAttack;
     const effectiveShieldHeld =
       groundedForShield &&
-      shieldHeld &&
-      (shieldRaisedNow || !this.prevShieldHeld) &&
-      !wantsOutOfShield;
+      (shieldHeld || (shieldRaisedNow && this.shieldActiveFrames < 3)) &&
+      (shieldRaisedNow || !this.prevShieldHeld ||
+        (wasInLandingRecovery && !this.isInLandingRecovery())) &&
+      !wantsOutOfShield &&
+      !wantsDodge &&
+      this.canStartCommittedAction(true);
     // AC 10302 Sub-AC 2 — capture the shield state-name BEFORE the tick
     // so the post-tick comparison can detect a non-`'active'` →
     // `'active'` transition (the rising-edge raise) and voice the
@@ -2262,12 +4327,17 @@ export class Character {
     const shieldNameBefore = this.shieldState.name;
     this.shieldState = tickShield(
       this.shieldState,
-      { held: effectiveShieldHeld },
+      { held: effectiveShieldHeld, percent: this.damagePercent },
       this.tuning.shield,
     );
-    // Track how long the shield has been continuously raised — the
-    // PERFECT SHIELD window (read in `applyHit`). Resets the instant the
-    // shield isn't active, so a fresh raise next frame starts at 1.
+    if(shieldNameBefore!=='broken'&&isShieldBroken(this.shieldState))this.beginSourceShieldBreak();
+    if (shieldNameBefore === 'active' && this.shieldState.name === 'idle' &&
+        groundedForShield && !shieldHeld && !wantsOutOfShield && !wantsDodge) {
+      this.shieldReleaseRemaining = 11;
+      this.latchShieldPresentation('release', 11);
+      this.shieldReleaseCanParry = this.shieldParryBlockRemaining === 0;
+    }
+    // Track the minimum three-frame shield hold before ordinary release.
     if (isShieldRaised(this.shieldState)) {
       this.shieldActiveFrames += 1;
     } else {
@@ -2284,23 +4354,6 @@ export class Character {
     ) {
       emitCombatSfx(this.sfxSink ?? undefined, ASSET_KEYS.sfxShield);
     }
-    // The shield raise also cancels any in-flight attack: a player
-    // who panic-shields out of recovery should be able to put the
-    // shield up the same frame they panic. Mirrors Smash's "shield
-    // cancels nothing in startup but anything in recovery" — we go a
-    // half-step further and cancel the whole move because the unit
-    // tests for the attack state machine read the absence of an
-    // active attack as "fighter is free", and a raised shield is the
-    // same kind of free-but-locked-out state.
-    if (
-      isShieldRaised(this.shieldState) &&
-      !this.prevShieldHeld &&
-      this.activeAttack !== null
-    ) {
-      this.cancelAttack();
-      this.cooldownRemaining = 0;
-    }
-
     const grounded = this.isGrounded();
     // `groundedForFall` is used ONLY by the fall-shaping pack below. It folds
     // in the scene driver's platform-support signal so that while the driver
@@ -2321,16 +4374,10 @@ export class Character {
     // direction before the shield was up keep working.
     const shieldRaised = isShieldRaised(this.shieldState);
     const rawMoveX = clamp(input.moveX, -1, 1);
-    const moveXAfterShield = shieldRaised ? 0 : rawMoveX;
+    const moveXAfterShield = shieldRaised || this.shieldReleaseRemaining > 0 ? 0 : rawMoveX;
 
-    // AC 60102 Sub-AC 2 — capture state needed by the airborne attack
-    // dispatcher BEFORE the horizontal-motion section flips facing on a
-    // direction press. The aerial classifier needs to read the
-    // *pre-input* facing so a player who holds left + attack while
-    // facing right gets a back-aerial (bair) instead of a forward-
-    // aerial (fair) — without this snapshot, facing would flip to -1
-    // first and the classifier could never distinguish "stick toward
-    // facing" from "stick away from facing".
+    // Aerial direction is relative to the fighter's orientation on press,
+    // independently of air drift: left + attack while facing right is bair.
     const prevFacing = this.facing;
     // Detect the airborne→grounded transition for the "lock attack
     // until completion or landing" half of Sub-AC 2: an aerial in
@@ -2345,6 +4392,7 @@ export class Character {
     if (grounded) {
       this.airDodgeUsed = false;
       this.airDodgeBurst = null;
+      this.airDodgeGravityVelocityY = 0;
     }
 
     // AC 10304 — voice the landing thud on the airborne → grounded
@@ -2386,50 +4434,51 @@ export class Character {
     // suppression-class lockout (hitstun, shield-break stun) is active —
     // those early-return paths above handle their own latch updates so
     // the press cannot leak through.
-    // User spec: shield is an "anchor" — no movement, no roll, no
-    // attack out of it. Suppress dodge input while the shield is
-    // raised so the canonical Smash "roll out of shield" gesture
-    // doesn't fire (was being read as an unexpected "dash"). The
-    // player has to release shield first, then dodge.
-    const dodgeHeldThisFrame = input.dodge === true && !shieldRaised;
-    const dodgeJustPressedRaw = dodgeHeldThisFrame && !this.prevDodgeHeld;
+    // Fresh dodge intent wins arbitration over shield above, so the shield is
+    // already lowered on a legal roll/spot-dodge frame. Shieldstun and attack
+    // commitment suppress `wantsDodge` before the state machine sees it.
+    const dodgeHeldThisFrame =
+      (directDodgeHeld || neutralAirDodgePressed) && !shieldRaised;
+    const dodgeJustPressedRaw = dodgeHeldThisFrame && wantsDodge;
     // Air-dodge limit: only ONE directional air-dodge per airtime (reset on
     // land) so a directional burst can't be spammed into infinite recovery.
     const dodgeJustPressed =
       dodgeJustPressedRaw && !(!grounded && this.airDodgeUsed);
-    const dodgeFacingForPress: 1 | -1 =
-      dodgeJustPressed && rawMoveX !== 0
-        ? rawMoveX > 0
-          ? 1
-          : -1
-        : this.facing;
     const dodgeStateBefore = this.dodgeState;
-    this.dodgeState = tickDodge(
-      this.dodgeState,
-      {
-        held: dodgeHeldThisFrame,
-        justPressed: dodgeJustPressed,
-        moveX: rawMoveX,
-        grounded,
-        facing: dodgeFacingForPress,
-      },
-      this.tuning.dodge,
-    );
+    this.stepDodge({
+      held: dodgeHeldThisFrame,
+      justPressed: dodgeJustPressed,
+      moveX: rawMoveX,
+      moveY: input.moveY ?? 0,
+      grounded,
+      facing: this.facing,
+    });
+    // Ultimate spot dodge cancels into a ground attack or special (never a grab) from its cancel
+    // frame (SmashWiki Spot dodge; UFD DK "21/26").
+    if (grounded && this.offensiveActionBuffer !== null && canCancelSpotDodge(this.dodgeState, this.tuning.dodge)) {
+      this.dodgeState = cancelDodge(this.dodgeState, this.tuning.dodge);
+    }
 
     // Directional air-dodge: on the air-dodge START frame, capture a velocity
     // burst from the stick (null = neutral → keep the in-place stall) and spend
     // this airtime's air-dodge. The burst is applied + decayed during the
     // active phase just before the velocity commit below.
     if (dodgeJustPressed && !grounded && this.dodgeState.active?.kind === 'air') {
+      this.clearTumbleForStartedAction();
+      this.clearReferenceLaunch();
       this.airDodgeUsed = true;
+      this.airDodgeGravityVelocityY = 0;
       const sx = rawMoveX;
       const sy = clamp(input.moveY ?? 0, -1, 1);
       const mag = Math.hypot(sx, sy);
+      // Fully stale directional air dodges travel 2/3 as far (SmashWiki Air dodge).
+      const burstSpeed = AIRDODGE_BURST_SPEED *
+        (isDodgeFullyStale(this.dodgeState.active.staleCount ?? 0) ? FULLY_STALE_AIR_DODGE_DISTANCE_SCALE : 1);
       this.airDodgeBurst =
         mag >= AERIAL_STICK_THRESHOLD
           ? {
-              x: (sx / mag) * AIRDODGE_BURST_SPEED,
-              y: (sy / mag) * AIRDODGE_BURST_SPEED,
+              x: (sx / mag) * burstSpeed,
+              y: (sy / mag) * burstSpeed,
             }
           : null;
     }
@@ -2449,7 +4498,8 @@ export class Character {
       // so `shieldRaised` already reads false here; a grab attempt while
       // LOCKED in shieldstun (shield still up) is correctly suppressed.
       const grabJustPressed =
-        grabHeldThisFrame && !this.prevGrabHeld && !shieldRaised;
+        ((grabHeldThisFrame && !this.prevGrabHeld) || delayedShieldGrab) && !shieldRaised &&
+        this.canStartCommittedAction();
       // DASH GRAB: a grab started while running fast (and on a spec that
       // declares a dashGrab) carries forward momentum + reaches further.
       // Latched here; the momentum carry + range shift read the latch
@@ -2465,6 +4515,18 @@ export class Character {
           this.dashGrabEntryVx = this.body.velocity.x;
         }
       }
+      if (grabJustPressed) {
+        const pivot = this.dashGrabActive && rawMoveX * this.body.velocity.x < 0 && this.grabSpec.pivotGrab;
+        const variant = pivot || (this.dashGrabActive ? this.grabSpec.dashGrab : undefined);
+        this.grabPresentationVariant = pivot ? 'pivot' : this.dashGrabActive ? 'dash' : 'standing';
+        if (pivot) this.facing = rawMoveX > 0 ? 1 : -1;
+        this.grabVariantSpec = variant ? { ...this.grabSpec,
+          collisionHits: variant.collisionHits ?? this.grabSpec.collisionHits,
+          startupFrames: variant.startupFrames ?? this.grabSpec.startupFrames,
+          activeFrames: variant.activeFrames ?? this.grabSpec.activeFrames,
+          whiffRecoveryFrames: variant.whiffRecoveryFrames ?? this.grabSpec.whiffRecoveryFrames,
+          hitbox: variant.hitbox ?? { ...this.grabSpec.hitbox, offsetX: this.grabSpec.hitbox.offsetX + variant.rangeBonusX } } : this.grabSpec;
+      }
       const grabInput: GrabInput = {
         grabPressed: grabJustPressed,
         grounded,
@@ -2476,33 +4538,65 @@ export class Character {
       };
       const before = this.grabState;
       const pummelReadyBefore = canPummel(before);
-      this.grabState = tickGrab(before, grabInput, this.grabSpec);
+      const selectedGrab = this.grabVariantSpec ?? this.grabSpec;
+      const holdBudget = this.ultimateCaptureBudget && before.name === 'holding' && !before.active?.cargo
+        ? reducedCaptureFrames(this.ultimateCaptureBudget.initialFrames, this.ultimateCaptureBudget.mash) : null;
+      const cargoBudget=this.ultimateCargoBudget&&before.name==='holding'&&before.active?.cargo
+        ? reducedCargoFrames(this.ultimateCargoBudget.initialFrames,this.ultimateCargoBudget.mash):null;
+      const liveGrab=cargoBudget!==null&&selectedGrab.cargo?{...selectedGrab,cargo:{...selectedGrab.cargo,holdFramesMax:cargoBudget}}:
+        holdBudget===null?selectedGrab:{...selectedGrab,holdFramesMax:holdBudget};
+      const sourcePummel=liveGrab.pummel?.motionFrames!==undefined;
+      if(sourcePummel||liveGrab.cargo?.entryMotionFrames!==undefined)this.advanceGrabSourcePresentation();
+      const sourceStep=sourcePummel?stepGrabWithEvents(before,{...grabInput,pummelPressed:grabInput.pummelPressed&&this.grabTarget?.grabbedBy===this},liveGrab):null;
+      this.grabState = sourceStep?.state??tickGrab(before, grabInput, liveGrab);
       this.prevGrabHeld = grabHeldThisFrame;
       this.handleGrabStateTransition(before, this.grabState);
+      if(sourceStep?.pummelStarted&&this.grabTarget){
+        this.pummelDamageTransaction=this.beginCapturedDamageTransaction(`${this.grabSpec.id}.pummel`,'pummel');
+        this.sourceGrabPummel={...beginGrabSourcePresentation(this.simulationInputFrame,this.facing),target:this.grabTarget,
+          captureId:this.grabTarget.captureSequence,targetGeneration:this.grabTarget.positionResetGeneration,cargo:false,damageDelivered:false};
+        this.sourceGrabHeld=null;this.pendingPummelFrames=null;
+        this.notifySourceCaptureEquipmentOwnerChanged();
+      }
+      if(sourcePummel)this.deliverSourcePummel();
       // Pummel damage — fires the frame the attack button is pressed while
       // holding, if the pummel cooldown was zero. canPummel checks the
       // PRE-tick state (cooldown 0); tickGrab already reset it to cooldownFrames.
       if (
-        pummelReadyBefore &&
+        !sourcePummel && pummelReadyBefore &&
         grabInput.pummelPressed &&
         this.grabTarget !== null &&
         this.grabSpec.pummel
       ) {
-        this.grabTarget.applyHit({
-          damage: this.grabSpec.pummel.damage,
-          knockback: { x: 0, y: 0, scaling: 0 },
-          facing: this.facing,
-        });
+        this.pummelDamageTransaction=this.beginCapturedDamageTransaction(`${this.grabSpec.id}.pummel`,'pummel');
+        this.pendingPummelFrames = this.grabSpec.pummel.startupFrames ?? 0;
+      }
+      if (this.pendingPummelFrames !== null) {
+        if (!this.grabTarget || this.grabState.name !== 'holding'||!this.capturedDamageTransactionValid(this.pummelDamageTransaction,this.grabTarget)) {this.pendingPummelFrames = null;this.pummelDamageTransaction=null;}
+        else if (this.pendingPummelFrames > 0) this.pendingPummelFrames -= 1;
+        else {
+          const p = this.grabSpec.pummel!,transaction=this.pummelDamageTransaction!;
+          const freeze = p.hitlagFrames ?? computeHitlag({ damage: p.damage*transaction.staleMultiplier, targetPercent: this.grabTarget.getDamagePercent(), multiplier: p.hitlagMultiplier,
+            electricCollision: p.electricCollision });
+          const beforeDamage=this.grabTarget.getDamagePercent();
+          this.grabTarget.addDamage(p.damage*transaction.staleMultiplier, 'pummel',this.slotIndex);
+          this.pummelDamageTransaction=this.commitCapturedDamageTransaction(transaction,this.grabTarget.getDamagePercent()-beforeDamage);
+          this.grabTarget.armAttackerHitlag(freeze);
+          this.armAttackerHitlag(freeze);
+          if (this.grabState.active) this.grabState = { ...this.grabState, active: { ...this.grabState.active,
+            pummelCooldownRemaining: Math.max(0, p.cooldownFrames - freeze) } };
+          this.pendingPummelFrames = null;this.pummelDamageTransaction=null;
+        }
       }
       // While holding, pin the target's body to the grabber's
       // contact-point offset each frame so it can't drift.
-      if (this.grabState.name === 'holding' && this.grabTarget !== null) {
-        const offsetX = this.grabSpec.hitbox.offsetX * this.facing;
+      if ((this.grabState.name === 'holding' || this.grabState.name === 'throwing') && this.grabTarget !== null && !this.bypassCaptureAttachmentLegacyPin()) {
+        const offsetX = (this.grabState.active?.cargo ? this.grabSpec.cargo?.offsetX ?? this.grabSpec.hitbox.offsetX : this.grabSpec.hitbox.offsetX) * this.facing;
         const targetX = this.body.position.x + offsetX;
-        const targetY = this.body.position.y + this.grabSpec.hitbox.offsetY;
+        const targetY = this.body.position.y + (this.grabState.active?.cargo ? this.grabSpec.cargo?.offsetY ?? this.grabSpec.hitbox.offsetY : this.grabSpec.hitbox.offsetY);
         this.scene.matter.body.setPosition(this.grabTarget.body, {
           x: targetX,
-          y: targetY,
+          y: this.grabTarget.clearedCaptiveY(this, targetY),
         });
         this.scene.matter.body.setVelocity(this.grabTarget.body, { x: 0, y: 0 });
       }
@@ -2513,6 +4607,9 @@ export class Character {
         this.dashGrabActive = false;
       }
     }
+    // A natural source capture release can be installed during tickGrab
+    // above. Its born frame is locked too; no action leaks through here.
+    if (this.grabReleasePresentation && this.tickGrabReleaseInput(input)) return;
     // Detect a "dodge just started this frame" transition. We look at
     // the *before vs after* states because the press classification
     // logic lives inside `tickDodge` (a press on a frame the cooldown
@@ -2528,15 +4625,9 @@ export class Character {
       // class instance so the (later AC) renderer / animation layer
       // and the aerial-attack classifier read the same value.
       if (this.dodgeState.active !== null) {
-        this.facing = this.dodgeState.active.facing;
-      }
-      // Dodge cancels any in-flight attack — getting out is more
-      // important than finishing the swing. Clearing the cooldown
-      // alongside it means the post-dodge punish window isn't padded
-      // by the swing's recovery cooldown.
-      if (this.activeAttack !== null) {
-        this.cancelAttack();
-        this.cooldownRemaining = 0;
+        this.facing = this.dodgeState.active.backward
+          ? (this.dodgeState.active.facing === 1 ? -1 : 1)
+          : this.dodgeState.active.facing;
       }
       // AC 10302 Sub-AC 2 — fire the dodge SFX on the dodge state-
       // machine's non-active → active transition. We re-use the
@@ -2573,6 +4664,7 @@ export class Character {
     // implicit force-release so a player who taps "drop" on the same
     // frame an opponent hits the i-frame tail still gets a clean exit.
     let ledgeReleased: LedgeReleaseAction | null = null;
+    let ledgeAttackCorner: LedgeCandidate | null = null;
     let climbingTransitionCompleted: { x: number; y: number; side: 'left' | 'right' } | null =
       null;
     // AC 60404 Sub-AC 4 — capture for the ledge-roll completion. When
@@ -2583,7 +4675,19 @@ export class Character {
     let rollingTransitionCompleted: { x: number; y: number; side: 'left' | 'right' } | null =
       null;
     {
-      const ledgeDetection = this.computeLedgeDetection();
+      // A deliberate descent can pass the ledge. A legal jump begins before
+      // an automatic catch, so pressing jump beside a ledge does not get
+      // swallowed into a hang and replayed as a different action later.
+      const startsAirJump = !grounded && this.hasJumpIntent(input) &&
+        this.jumpsUsed < this.tuning.maxJumps && this.canStartCommittedAction();
+      const dodgeLedgeLocked = this.id === 'pikachu' && this.dodgeState.active?.kind === 'air' &&
+        this.dodgeState.active.directional &&
+        !pikachuDirectionalDodgePhase(this.dodgeState.active.framesElapsed)?.controlEnabled;
+      const declinesLedgeCatch = (input.moveY ?? 0) >= 0.5 || startsAirJump || dodgeLedgeLocked;
+      // Native heavy Jump/Fall/Pass keeps cliff checking NONE, including the
+      // recovered fall helper; no later cliff enable was found.
+      // A carried captive (cargo) has no cliff check either: the carry falls past the ledge.
+      const ledgeDetection = declinesLedgeCatch || this.isHammerLocked() || this.hasDonkeyKongHeavyAirPolicy() || this.grabState.active?.cargo ? null : this.computeLedgeDetection();
       const ledgeInput: LedgeHangInput = {
         detection: ledgeDetection,
         // Humans never set the explicit `ledgeRelease` field — derive the
@@ -2595,6 +4699,9 @@ export class Character {
         forceRelease: this.pendingLedgeForceRelease,
         airborne: !grounded,
         facing: this.facing,
+        // A fresh catch's intangibility reads airtime and percent (SmashWiki Edge).
+        airtimeFrames: this.airtimeFrames,
+        percent: this.damagePercent,
       };
       const prevState = this.ledgeHangState;
       const ledgeTick = tickLedgeHang(
@@ -2606,6 +4713,7 @@ export class Character {
         prevState.name === 'idle' || prevState.name === 'cooldown';
       this.ledgeHangState = ledgeTick.state;
       ledgeReleased = ledgeTick.released;
+      if (ledgeReleased === 'attack' || ledgeReleased === 'jump') ledgeAttackCorner = prevState.active?.candidate ?? null;
       this.pendingLedgeForceRelease = false;
 
       // Climb completion — the previous tick was 'climbing' and we just
@@ -2654,12 +4762,11 @@ export class Character {
         // A fresh ledge-grab cancels any in-flight attack — the latch
         // reads as a hard interrupt, mirroring the dodge / shield
         // contracts.
-        if (this.activeAttack !== null) {
-          this.cancelAttack();
-          this.cooldownRemaining = 0;
-        }
+        this.cancelAttack();
+        this.cooldownRemaining = 0;
         // Lock the body to the latch point. Velocity is zeroed so the
         // fighter doesn't drift mid-hang.
+        this.clearReferenceLaunch();
         this.scene.matter.body.setPosition(this.body, {
           x: this.ledgeHangState.active.latchX,
           y: this.ledgeHangState.active.latchY,
@@ -2669,11 +4776,15 @@ export class Character {
         // canonical recovery point, so the fighter can air-jump out of
         // the hang on release without the budget being exhausted by
         // the recovery up-special they used to reach the ledge.
-        this.jumpsUsed = 0;
+        this.jumpsUsed = Math.min(1, this.tuning.maxJumps);
+        this.helpless = false;
+        this.airDodgeUsed = false;
         // A fresh grab also resets descent shaping — a fast-fall latch
         // or armed jump-cut must not survive into (or past) the hang.
         this.fastFallLatched = false;
         this.jumpCutArmed = false;
+        this.shortHopRising = false;
+        this.airJumpRising = false;
         // Lock facing to the ledge's "into the stage" side so the
         // fighter visually faces inward (a left-side ledge grab faces
         // right, a right-side ledge grab faces left).
@@ -2695,8 +4806,11 @@ export class Character {
     // it can pummel + throw (handled in the grab block above) but cannot
     // walk, jump, or swing a normal until the grab resolves.
     const grabActing = this.grabSpec !== null && isGrabActing(this.grabState);
+    const directionalDodge = this.id === 'pikachu' && !grounded &&
+      this.dodgeState.active?.kind === 'air' && this.dodgeState.active.directional
+      ? pikachuDirectionalDodgePhase(this.dodgeState.active.framesElapsed) : null;
     const moveX =
-      dodgeLocking || ledgeLocking || rootedByCharge || grabActing
+      (dodgeLocking && !directionalDodge?.controlEnabled) || ledgeLocking || rootedByCharge || grabActing || this.tauntPresentation !== null
         ? 0
         : moveXAfterShield;
 
@@ -2716,8 +4830,20 @@ export class Character {
     // proportional path below); the dispatch-side `moveX` fed to
     // `tickAttack` is left RAW so the directional-aerial classifier and the
     // dashStrike facing still read the player's true stick.
-    const attackRootsLocomotion = this.activeAttack !== null && grounded;
-    const locoMoveX = attackRootsLocomotion ? 0 : moveX;
+    const attackRootsLocomotion =
+      (this.activeAttack !== null || this.isInLandingRecovery()) && grounded;
+    if (this.id === 'pikachu') {
+      const freshAction = this.hasJumpIntent(input) ||
+        input.attack === true && !this.prevAttackHeld || input.attackHeavy === true && !this.prevHeavyHeld ||
+        input.special === true && !this.prevSpecialHeld || input.grab === true && !this.prevGrabHeld;
+      this.pikachuCrouchCrawl = tickPikachuCrouchCrawl(this.pikachuCrouchCrawl, {
+        down: (input.moveY ?? 0) >= .5, moveX: Math.abs(rawMoveX) >= .2 ? rawMoveX : 0,
+        facing: this.facing, grounded, eligible: this.canPresentUncommittedBody() && !freshAction,
+      });
+    }
+    const cargoMoving=this.grabState.name==='holding'&&this.grabState.active?.cargo&&!this.grabState.active.cargoStartupRemaining;
+    const cargoWalkLimit=Math.max(0,this.resolvedLocomotionTuning.dashStickThreshold-.0001);
+    const locoMoveX = attackRootsLocomotion || this.pikachuCrouchCrawl !== null ? 0 : (cargoMoving||this.isHammerLocked())?clamp(moveX,-cargoWalkLimit,cargoWalkLimit):moveX;
 
     // ---- Ground-locomotion tick (Tier 5) ---------------------------------
     // Advance the locomotion machine with the POST-lockout `moveX` (a
@@ -2727,18 +4853,45 @@ export class Character {
     // velocity + facing; the integrator below is unchanged. Standing/crouch
     // carry the runtime facing, so this can never clobber a
     // dodge/ledge/charge/attack-owned facing.
+    const preLocomotionFacing = this.facing;
     const locoInput = {
       moveX: locoMoveX,
-      moveY: clamp(input.moveY ?? 0, -1, 1),
+      moveY: this.tauntPresentation ? 0 : clamp(input.moveY ?? 0, -1, 1),
       prevMoveX: this.prevLocoMoveX,
       grounded,
       facing: this.facing,
     };
+    if (this.id === 'pikachu') {
+      const freshAction = this.hasJumpIntent(input) ||
+        input.attack === true && !this.prevAttackHeld || input.attackHeavy === true && !this.prevHeavyHeld ||
+        input.special === true && !this.prevSpecialHeld || input.grab === true && !this.prevGrabHeld;
+      this.pikachuTurnBrake = tickPikachuTurnBrake(this.pikachuTurnBrake, this.locomotionState,
+        locoInput, this.resolvedLocomotionTuning, this.canPresentUncommittedBody() && !freshAction);
+    }
+    if(this.id==='donkeykong'){
+      const previousTurn=this.donkeykongTurnBrake;
+      const freshAction=this.hasJumpIntent(input)||input.attack===true&&!this.prevAttackHeld||
+        input.attackHeavy===true&&!this.prevHeavyHeld||input.special===true&&!this.prevSpecialHeld||input.grab===true&&!this.prevGrabHeld;
+      this.donkeykongTurnBrake=tickDonkeyKongTurnBrake(this.donkeykongTurnBrake,this.locomotionState,locoInput,
+        this.resolvedLocomotionTuning,this.canPresentUncommittedBody()&&!freshAction);
+      if(previousTurn?.sheet==='run_turn'&&!this.donkeykongTurnBrake&&!freshAction&&
+        this.canPresentUncommittedBody()&&grounded&&Math.abs(locoMoveX)>=this.resolvedLocomotionTuning.dashStickThreshold&&
+        Math.sign(locoMoveX)===previousTurn.targetFacing)
+        this.locomotionState={...resetLocomotionState(previousTurn.targetFacing),name:'run'};
+      if(this.donkeykongTurnBrake?.sheet==='dash_turn'&&donkeyKongTurnBrakeNativeMarkers(this.donkeykongTurnBrake).dashToRunEnabled
+        &&Math.abs(locoMoveX)>=this.resolvedLocomotionTuning.dashStickThreshold&&Math.sign(locoMoveX)===this.donkeykongTurnBrake.targetFacing){
+        const facing=this.donkeykongTurnBrake.targetFacing;this.donkeykongTurnBrake=null;
+        this.locomotionState={...resetLocomotionState(facing),name:'run'};
+      }
+    }
     this.locomotionState = tickLocomotion(
-      this.locomotionState,
+      this.pikachuTurnBrake ? resetLocomotionState(this.pikachuTurnBrake.targetFacing)
+        :this.donkeykongTurnBrake?resetLocomotionState(donkeyKongTurnBrakeFacing(this.donkeykongTurnBrake)):this.locomotionState,
       locoInput,
       this.resolvedLocomotionTuning,
     );
+    // Shooting keeps the fire facing: the legs walk under it (shootingWalkTargetVx), no dash, run or turn.
+    if (this.itemShooting && grounded) this.locomotionState = resetLocomotionState(this.itemShooting.state.facing);
     // Latch the value ACTUALLY fed to the machine (post attack-root gate),
     // not the raw stick — the flick-edge detector compares against the prior
     // machine input, so latching the gated value keeps the edge math
@@ -2749,13 +4902,31 @@ export class Character {
 
     // Apply ledge-release physics for actions that resolved this tick.
     if (ledgeReleased !== null) {
-      this.applyLedgeReleasePhysics(ledgeReleased);
+      this.applyLedgeReleasePhysics(ledgeReleased, ledgeAttackCorner);
+      if(this.pikachuLedgeJump?.phase==='start'){this.lockPikachuSourceRecoveryInput(input);return;}
     }
 
     // ---- Horizontal motion -------------------------------------------------
-    let vx = this.body.velocity.x;
-    const accel = grounded ? this.tuning.groundAccel : this.tuning.airAccel;
+    // Player drift controls its own component; retained damage velocity keeps
+    // the reference decay instead of inheriting movement damping/speed limits.
+    if (this.referenceLaunch !== null) this.applyLaunchVelocityDecay();
+    let vx = this.body.velocity.x - (this.referenceLaunch ? this.launchVelocity?.x ?? 0 : 0);
+    // Carrying an opponent (Cargo) or a heavy item scales walk speed and acceleration
+    // (GrabSpec cargo.walkMultiplier). SmashWiki DK Forward throw: "while carrying an opponent or
+    // heavy item, Donkey Kong's walk speed and acceleration are increased by 1.1×".
+    const heavyCarrying = this.donkeykongHeavyItemHeld && this.donkeykongHeavyCarry !== null;
+    // A fighter's own heavy walk (fighterHeavyItemProfile) replaces DK's SmashWiki cargo multiplier.
+    const heavyWalk = heavyCarrying ? fighterHeavyItemProfile(this.id).carry.walk : null;
+    const carryWalk = heavyWalk?.groundAccelMultiplier ?? (cargoMoving || heavyCarrying ? this.grabSpec?.cargo?.walkMultiplier ?? 1 : 1);
+    const accel = grounded ? heavyWalk?.accelerationNative !== undefined
+      ? heavyWalk.accelerationNative * 5 // native item_lift_accel_add adapter; the common mul formula is unknown
+      : this.tuning.groundAccel * carryWalk : this.tuning.airAccel;
     const damping = grounded ? this.tuning.groundDamping : this.tuning.airDamping;
+    const upSpecialFlight = this.getSustainedUpSpecialRise();
+    // tickAttack advances the move later in this input step. Shape velocity
+    // for that upcoming physics frame, including the gravity restoration edge.
+    const sustainedRise = upSpecialFlight !== null &&
+      this.activeAttack!.framesElapsed + 1 < upSpecialFlight.gravityFrames;
 
     // AC 60302 Sub-AC 2 — dodge motion overrides player input.
     //   • A roll's active phase forces vx to slideSpeed × facing so the
@@ -2766,8 +4937,34 @@ export class Character {
     //   • Recovery phase preserves whatever vx was committed at the end
     //     of the active window so a roll's slide carries naturally to a
     //     stop via the normal damping path.
+    const activeRoll = this.dodgeState.active;
+    if (activeRoll?.kind === 'roll' && !activeRoll.backward &&
+        activeRoll.framesElapsed === this.tuning.dodge.roll.reverseFacingFrame) {
+      this.facing = activeRoll.facing === 1 ? -1 : 1;
+      this.locomotionState = { ...this.locomotionState, facing: this.facing };
+    }
     const dodgeSlide = getDodgeSlideVelocity(this.dodgeState, this.tuning.dodge);
-    if (this.dodgeState.name === 'active') {
+    const groundedMotion = grounded ? this.activeAttack?.move.groundedMotion : undefined;
+    if (groundedMotion) {
+      const age = this.activeAttack!.framesElapsed;
+      const friction = groundedMotion.postHitFrame !== undefined && age >= groundedMotion.postHitFrame
+        ? groundedMotion.postHitFriction ?? groundedMotion.friction : groundedMotion.friction;
+      vx = Math.sign(vx) * Math.max(0, Math.abs(vx) - friction);
+      vx = clamp(vx + rawMoveX * groundedMotion.acceleration, -groundedMotion.maxSpeed, groundedMotion.maxSpeed);
+    } else if (upSpecialFlight !== null) {
+      // Spinning recovery retains neutral momentum. Steering changes travel,
+      // including backward travel, without turning the fighter around.
+      if (Math.abs(rawMoveX) > 0.0001) {
+        const targetVx = rawMoveX * upSpecialFlight.maxAirSpeed;
+        const delta = targetVx - vx;
+        vx += Math.sign(delta) * Math.min(Math.abs(delta), upSpecialFlight.airAcceleration);
+      }
+    } else if (directionalDodge !== null) {
+      if (directionalDodge.controlEnabled && Math.abs(moveX) > .0001) {
+        const target = moveX * (this.tuning.maxAirSpeed ?? this.tuning.maxRunSpeed);
+        vx += Math.sign(target - vx) * Math.min(Math.abs(target - vx), this.tuning.airAccel);
+      }
+    } else if (this.dodgeState.name === 'active') {
       if (dodgeSlide !== null) {
         vx = dodgeSlide;
       } else {
@@ -2777,24 +4974,38 @@ export class Character {
     } else if (grounded) {
       // ---- GROUNDED — locomotion-driven (Tier 5) -----------------------
       // The locomotion machine supplies the TARGET (walk / dash / run) or
-      // `null` (standing / crouch / pivot → damp). The per-step integrator
-      // is byte-identical to the legacy path so the first-frame-`groundAccel`
-      // and terminal-`maxRunSpeed` contracts hold; only the TARGET (and the
-      // facing source) changed.
-      const target = getLocomotionTargetVx(
-        this.locomotionState,
-        locoInput,
-        this.resolvedLocomotionTuning,
-      );
+      // `null` (standing / crouch / pivot → damp). Generic profiles accelerate
+      // from rest; authored initial-dash profiles can start at their burst
+      // speed. The current phase supplies the appropriate speed limit.
+      const locomotionTarget = this.itemShooting
+        ? this.shootingWalkTargetVx(locoMoveX, this.itemShooting.state.facing)
+        : getLocomotionTargetVx(
+          this.locomotionState,
+          locoInput,
+          this.resolvedLocomotionTuning,
+        );
+      const target = locomotionTarget === null ? null : locomotionTarget * carryWalk;
       if (target !== null) {
+        // Authored initial dash is an entry impulse. Attack selection runs
+        // later this step, so an offense press must not first become a dash:
+        // that would misclassify a standing smash as a dash attack.
+        const offensePending = this.offensiveActionBuffer !== null ||
+          (input.attack === true && !this.prevAttackHeld) ||
+          (input.attackHeavy === true && !this.prevHeavyHeld) ||
+          (input.special === true && !this.prevSpecialHeld);
+        const instantDashEntry = this.resolvedLocomotionTuning.initialDashInstantStart &&
+          this.locomotionState.name === 'initialDash' &&
+          this.locomotionState.framesElapsed === 0 && !offensePending;
         const delta = target - vx;
-        if (Math.abs(delta) <= accel) {
+        if (instantDashEntry || Math.abs(delta) <= accel) {
           vx = target;
         } else {
           vx += accel * Math.sign(delta);
         }
-        // Knockback can leave us above max speed; ease back toward it.
-        if (Math.abs(vx) > this.tuning.maxRunSpeed) {
+        // A fighter's initial dash may be faster than its sustained run.
+        // Never damp an authored target merely because it exceeds run speed.
+        const speedLimit = Math.max(this.tuning.maxRunSpeed, Math.abs(target));
+        if (Math.abs(vx) > speedLimit) {
           vx *= damping;
         }
       } else {
@@ -2808,24 +5019,63 @@ export class Character {
       }
       // Facing is locomotion-owned on the ground (standing/crouch carry the
       // current facing, so a lockout-set facing is never clobbered).
-      this.facing = getLocomotionFacing(this.locomotionState);
+      this.facing = this.pikachuCrouchCrawl?.facing ?? (this.jumpsquatRemaining > 0 && this.jumpsquatFacing !== null
+        ? this.jumpsquatFacing
+        : getLocomotionFacing(this.locomotionState));
+      if (this.pikachuCrouchCrawl !== null) vx = pikachuCrouchCrawlVelocity(this.pikachuCrouchCrawl) ?? 0;
+      if (this.pikachuTurnBrake !== null) {
+        // Avoid a second locomotion acceleration: the phase owns this step's
+        // velocity from the original physical input velocity.
+        vx = pikachuTurnBrakeVelocity(this.pikachuTurnBrake, this.body.velocity.x,
+          this.resolvedLocomotionTuning, this.tuning.groundAccel, this.tuning.groundDamping);
+        this.facing = this.pikachuTurnBrake.targetFacing;
+      }
+      if(this.id==='donkeykong'&&!this.donkeykongHeavyItemHeld&&this.canPresentUncommittedBody()){
+        if(this.donkeykongTurnBrake){
+          vx=donkeyKongTurnBrakeVelocity(this.donkeykongTurnBrake,this.body.velocity.x,this.resolvedLocomotionTuning,this.tuning.groundAccel);
+          this.facing=donkeyKongTurnBrakeFacing(this.donkeykongTurnBrake);
+        }else if(this.locomotionState.name==='run')vx=stepDonkeyKongGroundVelocity({velocityX:this.body.velocity.x,stickX:locoMoveX,phase:'run'});
+        else if(['standing','crouch','pivot'].includes(this.locomotionState.name))vx=stepDonkeyKongGroundVelocity({velocityX:this.body.velocity.x,stickX:0,phase:'brake'});
+      }
+    } else if(this.id==='donkeykong'&&!this.donkeykongHeavyItemHeld&&(this.canPresentUncommittedBody()||this.itemShooting!==null)&&!this.helpless){
+      vx=stepDonkeyKongAirVelocity({velocityX:vx,stickX:moveX});
     } else if (Math.abs(moveX) > 0.0001) {
-      // ---- AIRBORNE — legacy proportional air-drift (unchanged) --------
-      const targetVx = moveX * this.tuning.maxRunSpeed;
+      // ---- AIRBORNE — proportional air drift --------------------------
+      const maxAirSpeed = this.pikachuSpecialRuntime?.airControlSpeedLimitForNextInput()
+        ?? (this.tuning.maxAirSpeed ?? this.tuning.maxRunSpeed)
+          * (this.helpless ? this.specialFallAirSpeedMultiplier : 1);
+      const targetVx = moveX * maxAirSpeed;
       const delta = targetVx - vx;
       if (Math.abs(delta) <= accel) {
         vx = targetVx;
       } else {
         vx += accel * Math.sign(delta);
       }
-      if (Math.abs(vx) > this.tuning.maxRunSpeed) {
+      if (Math.abs(vx) > maxAirSpeed) {
         vx *= damping;
       }
-      this.facing = moveX > 0 ? 1 : -1;
+      // Drift changes travel, not orientation. Otherwise holding backward
+      // for a few frames silently changes the subsequent back air into fair.
+      // Explicit actions such as side specials can still choose a facing.
     } else {
       // Airborne, stick neutral — damp toward rest.
       vx *= damping;
       if (Math.abs(vx) < 0.01) vx = 0;
+    }
+
+    if(this.donkeykongHeavyItemAction)this.facing=this.donkeykongHeavyItemAction.facing;
+    else if(this.donkeykongHeavyItemHeld&&this.donkeykongHeavyCarry){
+      this.facing=this.donkeykongHeavyCarry.facing;
+      if(grounded){
+        // Heavy carry walks at DK's walk speed and acceleration × the carry multiplier (SmashWiki,
+        // above; SmashWiki Barrel: heavy items slow every character "except Donkey Kong's"). The
+        // stick maps linearly onto that cap. No dash is entered.
+        const walking=this.donkeykongHeavyCarry.phase==='walk';
+        const maximum=heavyWalk?heavyWalk.maximumSpeedNative*5:this.resolvedLocomotionTuning.walkMaxSpeed*carryWalk;
+        const target=walking?clamp(this.donkeykongHeavyCarryStickX,-1,1)*maximum:0;
+        const delta=target-this.body.velocity.x;
+        vx=walking?this.body.velocity.x+Math.sign(delta)*Math.min(Math.abs(delta),accel):0;
+      }
     }
 
     // DASH GRAB momentum carry — a grab started out of a run slides
@@ -2841,8 +5091,10 @@ export class Character {
         this.grabState.name === 'whiffActive' ||
         this.grabState.name === 'whiffRecovery')
     ) {
+      // Each variant retains its own share: DK's pivot grab keeps none (native CatchTurn has no Trans travel).
+      const variant = this.grabPresentationVariant === 'pivot' ? this.grabSpec.pivotGrab : this.grabSpec.dashGrab;
       const retained =
-        this.dashGrabEntryVx * this.grabSpec.dashGrab.momentumRetain;
+        this.dashGrabEntryVx * (variant?.momentumRetain ?? 0);
       const cap = this.tuning.maxRunSpeed;
       vx = Math.max(-cap, Math.min(cap, retained));
     }
@@ -2861,32 +5113,56 @@ export class Character {
     // call) so a shield- or dodge-released jump press on the next
     // frame still reads as a fresh rising edge.
     let vy = this.body.velocity.y;
+    const jumpRequested = this.hasJumpIntent(input);
     const jumpJustPressed =
+      this.tauntPresentation === null &&
       !shieldRaised &&
       !dodgeLocking &&
       !ledgeLocking &&
       !this.helpless &&
       !grabActing &&
+      ledgeReleased !== 'jump' &&
+      this.activeAttack === null &&
+      this.jumpsquatRemaining === 0 &&
+      !this.isInLandingRecovery() &&
       // Charging a grounded SMASH or NEUTRAL-SPECIAL (Samus cannon) fully
       // roots the fighter — no jump while charging. The charge is a
       // committed, stationary, grounded action: to act, release it (fire)
       // or shield-store the charge first.
-      !(
-        (this.chargingSmash !== null || this.chargingSpecial !== null) &&
-        grounded
-      ) &&
-      input.jump &&
-      !this.prevJumpHeld;
+      this.chargingSpecial === null &&
+      !(this.chargingSmash !== null && grounded) &&
+      jumpRequested;
+    if (jumpJustPressed) this.jumpInputBufferFrames = 0;
     // The jump impulse, extracted so an immediate jump and a buffered
     // tap-jump (below) drive byte-identical state.
-    const applyJumpImpulse = (): void => {
-      vy = -this.tuning.jumpImpulse;
+    const applyJumpImpulse = (shortHop = false, airJump = false): void => {
+      this.clearTumbleForStartedAction();
+      vx += this.referenceLaunch ? this.launchVelocity?.x ?? 0 : 0;
+      this.clearReferenceLaunch();
+      if (this.id === 'donkeykong' && !airJump && !this.donkeykongHeavyItemHeld)
+        vx = groundJumpTakeoffVelocityX(DONKEYKONG_JUMP_TAKEOFF_PARAMETERS, vx, moveX, 5);
+      this.donkeykongFullHopStep=this.donkeykongOrdinaryVertical&&!shortHop&&!airJump?0:null;
+      vy = -(airJump
+        ? this.tuning.airJumpImpulse ?? this.tuning.jumpImpulse
+        : shortHop
+          ? this.tuning.shortHopImpulse ?? this.tuning.jumpImpulse * this.tuning.jumpCutFactor
+          : this.tuning.jumpImpulse);
+      this.shortHopRising = shortHop;
+      this.airJumpRising = airJump;
+      if (!airJump && this.jumpsquatFacing !== null) {
+        this.facing = this.jumpsquatFacing;
+      }
+      this.sourceJumpEventSerial+=1;
+      this.jumpPresentation = { kind: airJump ? 'air' : 'ground', facing: this.facing,
+        moveX: input.moveX,velocityX:this.body.velocity.x, shortHop, framesElapsed: 0 };
       this.jumpsUsed += 1;
       // Arm the variable-height cut for THIS rise and clear any
       // fast-fall latch — a fresh jump always starts a clean arc.
-      this.jumpCutArmed = true;
+      this.jumpCutArmed = !shortHop && this.tuning.shortHopImpulse === undefined &&
+        !(airJump && this.tuning.airJumpImpulse !== undefined);
       this.jumpCutFrames = 0;
       this.fastFallLatched = false;
+      this.takeoffInputFrame = this.simulationInputFrame;
       // AC 10304 — voice the jump cue on the impulse frame. The first
       // jump off a platform (`jumpsUsed === 1` after the increment)
       // gets the full "hup"; every air / multi-jump after it gets the
@@ -2898,12 +5174,94 @@ export class Character {
       emitCombatSfx(this.sfxSink ?? undefined, mapJumpToSfxKey(this.jumpsUsed));
     };
 
+    if(this.pendingDonkeyKongHeavyJump){
+      const jump=this.pendingDonkeyKongHeavyJump;this.pendingDonkeyKongHeavyJump=null;
+      if(this.donkeykongHeavyItemHeld&&grounded&&!this.donkeykongHeavyItemAction){
+        // Source uses ordinary JUMP kinetic type. Its exact setup is not yet
+        // recovered; retain the existing explicit full/short impulse adapter.
+        applyJumpImpulse(jump.mini);
+      }
+    }
+
     // Fresh attack rising-edge (light or heavy), read here for the tap-jump
     // buffer; the same edge drives the grounded up-attack dispatch later, so a
     // press that cancels the buffer ALSO fires the up-tilt / up-smash.
     const attackEdgeForJump =
       (input.attack === true && !this.prevAttackHeld) ||
       (input.attackHeavy === true && !this.prevHeavyHeld);
+
+    // Ultimate's jump-cancelled up smash / up special (SmashWiki "Jump
+    // canceling": during jumpsquat the character is still grounded, so up
+    // smash and up special come out as the standing moves): an up-aimed
+    // heavy press, or an up-aimed special pending in the action buffer, on
+    // any jumpsquat frame (the takeoff frame included, since this runs
+    // before the impulse, and the frame the squat starts) drops the jump and
+    // stays grounded, so the grounded dispatch below fires the move this
+    // same step. This is what makes keyboard up smash reachable at all: W is
+    // both up and jump, so W held past the tap-jump buffer is already in
+    // jumpsquat when the smash key lands. The heavy press is consumed live;
+    // an earlier press queued for the aerial is dropped with the jump. The
+    // special stays in the buffer: it is the action the dispatch fires.
+    let jumpsquatUpSmashCancel = false;
+    const cancelJumpsquatIntoGroundedUpAction = (): boolean => {
+      const upSmash = this.isJumpsquatUpSmashPress(input, moveX);
+      if (!upSmash && !this.isJumpsquatUpSpecialPress()) return false;
+      this.jumpsquatRemaining = 0;
+      this.jumpsquatShortHop = false;
+      this.jumpsquatFacing = null;
+      if (upSmash) {
+        this.offensiveActionBuffer = null;
+        jumpsquatUpSmashCancel = true;
+      }
+      return true;
+    };
+    // DK jumpsquat is a stance, not locomotion (Ultimate JumpSquat runs the
+    // motion kinetic type): the stick cannot start a dash, the ground speed it
+    // entered with only brakes by ground_brake until takeoff.
+    const holdJumpsquatMomentum = (): void => {
+      if (this.id === 'donkeykong')
+        vx = stepDonkeyKongGroundVelocity({velocityX:this.body.velocity.x,stickX:0,phase:'brake'});
+    };
+    const enterJumpsquat = (shortHop: boolean): void => {
+      this.jumpsquatRemaining = JUMPSQUAT_FRAMES;
+      this.jumpsquatFacing = this.resolvedLocomotionTuning.jumpsquatKeepsFacing ? preLocomotionFacing : null;
+      if (this.jumpsquatFacing !== null) this.facing = this.jumpsquatFacing;
+      this.jumpsquatShortHop = shortHop;
+      holdJumpsquatMomentum();
+      // The squat-entry step is a jumpsquat frame too: a jump and an
+      // up-aimed right-stick smash or up special on the SAME step cancel like
+      // the press one step later does (and like keyboard W + smash key, which
+      // the tap-jump buffer below turns into a grounded up smash), instead of
+      // short-hopping to the aerial.
+      cancelJumpsquatIntoGroundedUpAction();
+    };
+
+    if (this.jumpsquatRemaining > 0) {
+      const canceled =
+        !grounded ||
+        shieldRaised ||
+        dodgeLocking ||
+        ledgeLocking ||
+        grabActing ||
+        this.hitstunRemaining > 0;
+      if (canceled) {
+        this.jumpsquatRemaining = 0;
+        this.jumpsquatShortHop = false;
+        this.jumpsquatFacing = null;
+      } else if (!cancelJumpsquatIntoGroundedUpAction()) {
+        holdJumpsquatMomentum();
+        if (!input.jump || attackEdgeForJump) this.jumpsquatShortHop = true;
+        this.jumpsquatRemaining -= 1;
+        if (
+          this.jumpsquatRemaining === 0 &&
+          this.jumpsUsed < this.tuning.maxJumps
+        ) {
+          applyJumpImpulse(this.jumpsquatShortHop);
+          this.jumpsquatShortHop = false;
+          this.jumpsquatFacing = null;
+        }
+      }
+    }
 
     // ---- Tap-jump buffer ---------------------------------------------------
     // Resolve any in-flight buffer from a prior frame's ambiguous up+jump.
@@ -2926,12 +5284,68 @@ export class Character {
           this.tapJumpBufferFrames === 0 &&
           this.jumpsUsed < this.tuning.maxJumps
         ) {
-          applyJumpImpulse();
+          enterJumpsquat(!input.jump);
         }
       }
     }
 
-    if (jumpJustPressed && this.jumpsUsed < this.tuning.maxJumps) {
+    // An ordinary beta wall bounce reuses the reviewed PassiveWallJump body.
+    // Its native passive speeds are an explicitly authored ordinary-wall policy;
+    // resource endpoint44 adds no action lock and no jump-budget consumption.
+    let footstooled = false;
+    if (this.pendingFootstoolJump) {
+      this.pendingFootstoolJump=false;
+      this.donkeykongFullHopStep=null;
+      // Native full-footstool accelerated entry is still unrecovered. Preserve
+      // the previously reviewed authored basis, independently of the new FH curve.
+      const basis=this.id==='donkeykong'&&this.donkeykongOrdinaryVertical?DONKEYKONG_FOOTSTOOL_BETA_JUMP_BASIS:this.tuning.jumpImpulse;
+      const sourceLink=this.id==='link';
+      vy=sourceLink?linkFootstoolJumpVelocity(basis,false,this.sourceLinkFootstoolRepeatCount):this.id==='donkeykong'?donkeyKongFootstoolJumpVelocity(basis,false,this.donkeykongFootstoolRepeatCount):-basis*PIKACHU_AUXILIARY_SOURCE_PARAMETERS.footstoolJumpSpeedYMultiplier;
+      if(sourceLink){
+        this.onIntrinsicSourceInterrupted();this.sourceJumpEventSerial+=1;
+        this.sourceLinkFootstool={presentation:{role:'performer',phase:'jump',framesElapsed:0,facing:this.facing},
+          entryFrame:this.simulationInputFrame,lastFrame:this.simulationInputFrame,generation:this.positionResetGeneration,mini:false,phantom:this.pendingFootstoolPhantom,
+          contact:this.sourceLinkFootstoolPendingContact};this.sourceLinkFootstoolPendingContact=null;
+        this.sourceLinkFootstoolRepeatCount+=1;this.sourceLinkFootstoolCooldown=LINK_FOOTSTOOL_SOURCE.cooldownFrames;this.sourceLinkFootstoolCooldownEntryFrame=this.simulationInputFrame;
+      }
+      if(this.id==='donkeykong'){
+        this.donkeykongFootstoolPerformer={framesElapsed:0,facing:this.facing,mini:false,entryFrame:this.simulationInputFrame};
+        this.donkeykongFootstoolRepeatCount+=1;
+        this.donkeykongFootstoolCooldown=DONKEYKONG_FOOTSTOOL_REPEAT_RULES.cooldownFrames;
+        this.donkeykongFootstoolCooldownEntryFrame=this.simulationInputFrame;
+      }else if(!sourceLink)this.pikachuAuxiliaryAir={sheet:'footstool_jump',framesElapsed:0,facing:this.facing};
+      this.footstoolMini=(this.id==='donkeykong'||sourceLink)&&this.pendingFootstoolPhantom?null:{basis,framesElapsed:0,cut:false};
+      this.pendingFootstoolPhantom=false;
+      this.jumpPresentation=null;this.jumpInputBufferFrames=0;this.tapJumpBufferFrames=0;
+      this.clearTumbleForStartedAction();this.airJumpRising=false;this.shortHopRising=false;
+      this.fastFallLatched=false;this.jumpCutArmed=false;this.takeoffInputFrame=this.simulationInputFrame;footstooled=true;
+    }
+    let wallBounced = false;
+    if (this.id === 'pikachu' && !footstooled && !grounded && this.canStartCommittedAction() &&
+        !this.helpless && this.tauntPresentation === null && PIKACHU_AUXILIARY_SOURCE_PARAMETERS.wallJumpEnabled) {
+      const surface = this.pikachuWallBounceSurface(), away = surface?.away;
+      const outwardEdge = away !== undefined && moveX * away >= .5 && this.prevMoveX * away < .5;
+      if (surface && away !== undefined && surface.wall !== this.pikachuWallBounceContact && (jumpJustPressed || outwardEdge)) {
+        this.pikachuWallBounceContact = surface.wall;
+        const unit = PIKACHU_AUXILIARY_SOURCE_PARAMETERS.referencePixelsPerUnit;
+        vx = away * PIKACHU_AUXILIARY_SOURCE_PARAMETERS.passiveWallJumpSpeedX * unit;
+        vy = -PIKACHU_AUXILIARY_SOURCE_PARAMETERS.passiveWallJumpSpeedY * unit;
+        this.facing = away;
+        this.pikachuAuxiliaryAir = {sheet:'wall_jump',framesElapsed:0,facing:away};
+        this.jumpPresentation = null;
+        this.jumpInputBufferFrames = 0;
+        this.tapJumpBufferFrames = 0;
+        this.clearTumbleForStartedAction();
+        this.airJumpRising = true;
+        this.shortHopRising = false;
+        this.fastFallLatched = false;
+        this.jumpCutArmed = false;
+        this.takeoffInputFrame = this.simulationInputFrame;
+        wallBounced = true;
+      }
+    }
+
+    if (jumpJustPressed && !wallBounced && !footstooled && this.jumpsUsed < this.tuning.maxJumps) {
       const rawMoveY = input.moveY ?? 0;
       const rawMoveX = input.moveX ?? 0;
       // Same up-stick test that gates the grounded up-attack dispatch, so the
@@ -2949,8 +5363,12 @@ export class Character {
           this.tapJumpBufferFrames = TAP_JUMP_BUFFER_FRAMES;
         }
       } else {
-        // Unambiguous jump (no up-stick, airborne, or no up-attack): instant.
-        applyJumpImpulse();
+        if (grounded) {
+          enterJumpsquat(!input.jump || attackEdgeForJump);
+        } else {
+          // Midair jumps have no grounded squat and remain immediate.
+          applyJumpImpulse(false, true);
+        }
       }
     }
 
@@ -2959,6 +5377,10 @@ export class Character {
     // happening on the same frame we just kicked off the ground.
     if (grounded && vy >= 0) {
       this.jumpsUsed = 0;
+      if(this.id==='donkeykong')this.donkeykongFootstoolRepeatCount=0;
+      this.sourceLinkFootstoolRepeatCount=0;
+      this.jumpPresentation = null;
+    this.pikachuAuxiliaryAir = null;
     }
 
     // ---- Vertical motion shaping (Smash-feel pack) -------------------------
@@ -2986,7 +5408,46 @@ export class Character {
     //      clamps the result, giving every fall a readable terminal
     //      velocity where raw Matter had none. Rise speed is untouched
     //      so jump heights keep their pre-pack tuning.
-    if (this.hitstunRemaining === 0) {
+    const dkNeutralAirDodge=this.id==='donkeykong'&&this.dodgeState.active?.kind==='air'&&!this.dodgeState.active.directional;
+    const dkAerialItemThrow=this.itemAction?.plan.action.startsWith('throw-air-')===true;
+    const dkRelaxExcessFall=dkNeutralAirDodge||dkAerialItemThrow;
+    if(dkRelaxExcessFall){this.donkeykongFullHopStep=null;this.fastFallLatched=false;}
+    if (this.referenceLaunch !== null) {
+      this.donkeykongFullHopStep=null;
+      // Fastfall is an explicit project control rule: descending total speed
+      // gates it, and it replaces natural gravity without erasing launch/wind.
+      if (!ledgeLocking && vy > 0 && (input.moveY ?? 0) > 0.6) this.fastFallLatched = true;
+    } else if (sustainedRise || this.activeAttack?.move.gravityScale !== undefined) {
+      this.donkeykongFullHopStep=null;
+      // preparePhysicsStep replaces world gravity with the move's authored
+      // acceleration. Ordinary jump shaping and fastfall would cancel it.
+      this.fastFallLatched = false;
+      this.jumpCutArmed = false;
+    } else if(this.hitstunRemaining===0&&this.donkeykongOrdinaryVertical&&!ledgeLocking&&(!dodgeLocking||dkNeutralAirDodge)){
+      // DK owns total ordinary gravity. preparePhysicsStep removes the world
+      // dose, so editor/world gravity cannot silently add a second acceleration.
+      const vertical=this.donkeykongOrdinaryVertical;
+      if(!groundedForFall||this.isTakeoffStep()){
+        this.donkeykongOrdinaryVerticalTick=true;
+        const entryVy=vy;
+        this.donkeykongOrdinaryEntryVelocityY=entryVy;
+        if(this.donkeykongFullHopStep!==null&&this.donkeykongFullHopStep<vertical.fullHopStepVelocitiesY.length){
+          vy=vertical.fullHopStepVelocitiesY[this.donkeykongFullHopStep++]!;
+          this.donkeykongOpeningCarryY=donkeyKongFullHopCarriedVelocityY(vertical,this.donkeykongFullHopStep);
+          if(this.donkeykongFullHopStep===vertical.fullHopStepVelocitiesY.length)this.donkeykongFullHopStep=null;
+        }else if(dkRelaxExcessFall&&vy>this.tuning.maxFallSpeed){
+          vy=Math.max(this.tuning.maxFallSpeed,vy-DONKEYKONG_VERTICAL_PARAMETERS.excessFallBrakeNative*DONKEYKONG_VERTICAL_PARAMETERS.worldUnitsPerNativeUnit);
+        }else vy+=vertical.totalGravity;
+        if(vy>=0){this.shortHopRising=false;this.airJumpRising=false;}
+        if(!dkRelaxExcessFall&&!this.fastFallLatched&&vy>0&&(input.moveY??0)>.6)this.fastFallLatched=true;
+        const terminal=this.fastFallLatched?this.tuning.fastFallSpeed:this.tuning.maxFallSpeed;
+        if(this.fastFallLatched&&vy>0&&vy<terminal)vy=terminal;
+        vy=Math.min(vy,Math.max(terminal,entryVy));
+      }else{
+        this.donkeykongFullHopStep=null;this.fastFallLatched=false;
+        this.shortHopRising=false;this.airJumpRising=false;
+      }
+    } else if (this.hitstunRemaining === 0) {
       if (this.jumpCutArmed) {
         this.jumpCutFrames += 1;
         if (this.jumpCutFrames > JUMP_CUT_WINDOW_FRAMES) {
@@ -3012,7 +5473,19 @@ export class Character {
           this.jumpCutArmed = false;
         }
       }
-      if (!groundedForFall) {
+      if (!groundedForFall || this.isTakeoffStep()) {
+        const risingThisStep = vy < 0;
+        if (risingThisStep && !ledgeLocking) {
+          vy += this.airJumpRising
+            ? this.tuning.airJumpRiseAccel ?? this.tuning.riseAccel ?? 0
+            : this.shortHopRising
+              ? this.tuning.shortHopRiseAccel ?? this.tuning.riseAccel ?? 0
+              : this.tuning.riseAccel ?? 0;
+        }
+        if (vy >= 0) {
+          this.shortHopRising = false;
+          this.airJumpRising = false;
+        }
         const stickY = input.moveY ?? 0;
         if (!ledgeLocking && !this.fastFallLatched && vy > 0 && stickY > 0.6) {
           this.fastFallLatched = true;
@@ -3023,7 +5496,7 @@ export class Character {
         // wind gust, a hazard shove) already injected above terminal —
         // that would silently nullify the hazard.
         const entryVy = vy;
-        if (vy > 0) {
+        if (vy > 0 && !risingThisStep) {
           vy += this.tuning.fallAccel;
         }
         const terminal = this.fastFallLatched
@@ -3041,8 +5514,13 @@ export class Character {
         }
       } else {
         this.fastFallLatched = false;
+        if (!this.isTakeoffStep()) {
+          this.shortHopRising = false;
+          this.airJumpRising = false;
+        }
       }
     } else {
+      this.donkeykongFullHopStep=null;
       // Hitstun owns the velocity — drop both latches so the launch
       // arc can't inherit a stale fast-fall or jump-cut.
       this.fastFallLatched = false;
@@ -3074,7 +5552,14 @@ export class Character {
       vy = 0;
       const a = this.ledgeHangState.active;
       const name = this.ledgeHangState.name;
-      if (name === 'climbing' || name === 'rolling') {
+      const sourceTarget = this.getPikachuLedgeAttachmentTarget();
+      if (sourceTarget !== null) {
+        if (sourceTarget.mode === 'pin-hand') {
+          this.scene.matter.body.setPosition(this.body, sourceTarget.position);
+        }
+        // Source-root transitions are integrated before physics below, so
+        // unrelated solid geometry can obstruct the authored path.
+      } else if (name === 'climbing' || name === 'rolling') {
         const mode = name === 'rolling' ? 'roll' : 'climb';
         const denom =
           mode === 'roll'
@@ -3114,19 +5599,41 @@ export class Character {
       this.airDodgeBurst !== null
     ) {
       vx = this.airDodgeBurst.x;
-      vy = this.airDodgeBurst.y;
+      if (directionalDodge?.gravityEnabled) {
+        this.airDodgeGravityVelocityY = Math.min(this.tuning.maxFallSpeed,
+          this.airDodgeGravityVelocityY + this.tuning.fallAccel + 1000 / 3600);
+      }
+      vy = this.airDodgeBurst.y + (directionalDodge ? this.airDodgeGravityVelocityY : 0);
       this.airDodgeBurst = {
         x: this.airDodgeBurst.x * AIRDODGE_BURST_DECAY,
         y: this.airDodgeBurst.y * AIRDODGE_BURST_DECAY,
       };
     }
 
+    // Source-guided throw trajectory replaces only its horizontal authored
+    // component. Matter still integrates and solves walls/floors; no pose offset
+    // or absolute position snap transports the actor through stage geometry.
+    const throwMotion = this.getAuthoredThrowRootMotion();
+    if (throwMotion !== null) {
+      const age = throwMotion.frame;
+      vx = age === 0 ? 0 : (throwMotion.samples[age]! - throwMotion.samples[age - 1]!) * throwMotion.facing;
+      this.throwRootMotionApplied = true;
+    } else if (this.throwRootMotionApplied) {
+      // The final displacement is not an inherited slide after action exit.
+      vx = 0;
+      this.throwRootMotionApplied = false;
+    }
+
+    if (this.tauntPresentation !== null) vx = 0;
+
     // ---- Commit velocity ---------------------------------------------------
     // Phaser's Matter wrapper exposes the BodyFactory at `scene.matter.body`.
     // Using setVelocity (vs mutating `body.velocity` directly) keeps
     // Matter's previous-position cache in sync so integration stays
     // stable.
-    this.scene.matter.body.setVelocity(this.body, { x: vx, y: vy });
+    this.scene.matter.body.setVelocity(this.body, {
+      x: vx + (this.referenceLaunch ? this.launchVelocity?.x ?? 0 : 0), y: vy,
+    });
 
     // ---- Climb-up translation (AC 60403 Sub-AC 3) -------------------------
     // The climb animation just finished — translate the fighter onto
@@ -3135,7 +5642,7 @@ export class Character {
     // latch point. The state machine has already rolled to `'cooldown'`
     // at this point so the lock-in-place loop above does NOT fight
     // this translation.
-    if (climbingTransitionCompleted !== null) {
+    if (climbingTransitionCompleted !== null && this.id !== 'pikachu') {
       // Authoritative final placement — the exact pixel the per-frame
       // climb lerp eases toward (shares `computeLedgeStandingTarget` so
       // the interpolation endpoint and this snap can never drift apart).
@@ -3156,7 +5663,7 @@ export class Character {
     // Mirrors the climb-up translation above but offset further inward
     // by the ledge tuning's `rollDistance`. The fighter lands past the
     // corner — the visible payoff of the "evasive roll" recovery option.
-    if (rollingTransitionCompleted !== null) {
+    if (rollingTransitionCompleted !== null && this.id !== 'pikachu') {
       // Authoritative final placement (further inward by `rollDistance`),
       // sharing the same target formula as the per-frame roll lerp.
       const target = computeLedgeStandingTarget(
@@ -3207,15 +5714,43 @@ export class Character {
     // whiff) cannot attack, special, or jump until it touches the ground;
     // it only keeps limited air drift. Same suppression shape as shield.
     const helpless = this.helpless;
+    const canConsumeBufferedOffense =
+      this.offensiveActionBuffer !== null &&
+      this.canAttack() &&
+      this.chargingSpecial === null &&
+      this.chargingSmash === null &&
+      this.jumpsquatRemaining === 0 &&
+      !shieldRaised &&
+      !dodgeLocking &&
+      !ledgeLocking &&
+      !helpless &&
+      !grabActing;
+    const bufferedOffense = canConsumeBufferedOffense
+      ? this.offensiveActionBuffer
+      : null;
+    const sameFrameBufferedOffense =
+      bufferedOffense?.remaining === OFFENSIVE_ACTION_BUFFER_FRAMES;
+    if (bufferedOffense) this.offensiveActionBuffer = null;
     const attackHeldEffective =
-      !shieldRaised && !dodgeLocking && !ledgeLocking && !helpless && !grabActing && input.attack === true;
+      !shieldRaised &&
+      !dodgeLocking &&
+      !ledgeLocking &&
+      !helpless &&
+      !grabActing &&
+      this.jumpsquatRemaining === 0 &&
+      (bufferedOffense
+        ? bufferedOffense.kind === 'attack'
+        : input.attack === true);
     const heavyHeldEffective =
       !shieldRaised &&
       !dodgeLocking &&
       !ledgeLocking &&
       !helpless &&
       !grabActing &&
-      input.attackHeavy === true;
+      this.jumpsquatRemaining === 0 &&
+      (bufferedOffense
+        ? bufferedOffense.kind === 'heavy'
+        : input.attackHeavy === true);
     // T1 (AC 5-9) — special-press dispatch. Same suppression gates as
     // attack/heavy: while a shield is raised, while a dodge is acting,
     // or while a ledge-hang locks input, a special press is consumed
@@ -3233,7 +5768,10 @@ export class Character {
       !ledgeLocking &&
       !helpless &&
       !grabActing &&
-      input.special === true;
+      this.jumpsquatRemaining === 0 &&
+      (bufferedOffense
+        ? bufferedOffense.kind === 'special'
+        : input.special === true);
     // Directional input leniency: classify up/down attacks off the
     // most-extreme vertical stick over a short backward window, not just
     // the exact press frame (a flick-up a frame or two early still fires
@@ -3247,30 +5785,56 @@ export class Character {
     for (const v of this.recentMoveY) {
       if (Math.abs(v) > Math.abs(bufferedMoveY)) bufferedMoveY = v;
     }
+    // A right-stick heavy press carries its own direction: it replaces the
+    // left stick and the leniency window, so holding down (crouch) then
+    // flicking the right stick forward still reads as a forward smash.
+    const olderBufferedOffense =
+      bufferedOffense !== null && !sameFrameBufferedOffense ? bufferedOffense : null;
+    const liveHeavyStick =
+      bufferedOffense === null || bufferedOffense.kind === 'heavy'
+        ? this.heavyPressStick(input)
+        : null;
+    const attackFromStick = olderBufferedOffense
+      ? olderBufferedOffense.fromStick
+      : liveHeavyStick !== null;
+    const attackMoveX = olderBufferedOffense
+      ? olderBufferedOffense.moveX
+      : liveHeavyStick?.x ?? moveX;
+    // A jumpsquat up-smash cancel aims with this step's stick (what the
+    // cancel tested), not the leniency window.
+    const attackMoveY = olderBufferedOffense
+      ? olderBufferedOffense.moveY
+      : liveHeavyStick?.y ?? (jumpsquatUpSmashCancel ? curMoveY : bufferedMoveY);
     // Down-special fires on a held DOWN-stick, not only the drop-through
     // gesture. Without the stick read, holding down + special fell through to
     // the NEUTRAL special — so e.g. Nova's bomb (down-B) was unreachable and a
     // down+special gave the CANNON CHARGE (neutral-B) instead. (+moveY = down
     // in screen-space; same 0.3 threshold the down-tilt/down-smash use.)
     const downSpecialHeld =
-      input.dropThrough === true || bufferedMoveY >= DEFAULT_NEUTRAL_THRESHOLD;
+      input.dropThrough === true || attackMoveY >= DEFAULT_NEUTRAL_THRESHOLD;
     this.tickAttack(
       attackHeldEffective,
       heavyHeldEffective,
-      this.isGrounded(),
-      moveX,
-      prevFacing,
-      justLanded,
+      this.isGroundedForActionStart(),
+      attackMoveX,
+      bufferedOffense && !sameFrameBufferedOffense
+        ? bufferedOffense.facing
+        : prevFacing,
       specialHeldEffective,
       downSpecialHeld,
       // Up-special is reachable via the up-stick too, not only the jump
       // button — on a gamepad, jump (button 0) and the up-stick are separate
       // inputs, so a stick-only up+special would otherwise fall through to the
       // NEUTRAL special. Mirrors the down-special stick read above.
-      input.jump === true || bufferedMoveY <= -DEFAULT_NEUTRAL_THRESHOLD,
+      input.jump === true || attackMoveY <= -DEFAULT_NEUTRAL_THRESHOLD,
       shieldHeld,
-      bufferedMoveY,
+      attackMoveY,
+      bufferedOffense?.kind ?? null,
+      !shieldRaised && !dodgeLocking && !ledgeLocking && !helpless &&
+        !grabActing && !this.isInLandingRecovery() && this.jumpsquatRemaining === 0,
+      attackFromStick,
     );
+    this.updateAerialLandingContext();
 
     // Latch the jump / attack / grounded state for next frame's edge
     // detection. Grounded is latched LAST so the same frame's
@@ -3301,6 +5865,805 @@ export class Character {
     // detector would falsely see "just pressed" once the gate lifts).
     this.prevDodgeHeld = input.dodge === true;
     this.prevGrounded = this.isGrounded();
+    this.prePhysicsVelocityY = this.body.velocity.y;
+  }
+
+  private updateOffensiveActionBuffer(input: CharacterInput): void {
+    if (this.offensiveActionBuffer !== null) {
+      this.offensiveActionBuffer.remaining -= 1;
+      if (this.offensiveActionBuffer.remaining <= 0) {
+        this.offensiveActionBuffer = null;
+      }
+    }
+    if (
+      this.offensiveActionBuffer !== null ||
+      this.grabbedBy !== null ||
+      (this.grabSpec !== null && isGrabActing(this.grabState))
+    ) {
+      return;
+    }
+    const kind =
+      input.special === true &&
+      !this.prevSpecialHeld &&
+      (this.neutralSpecialId !== null ||
+        Array.from(this.attacks.values()).some(
+          (move) => move.type === 'sideSpecial',
+        ) ||
+        this.upSpecialId !== null ||
+        this.downSpecialId !== null)
+        ? 'special'
+        : input.attackHeavy === true &&
+            !this.prevHeavyHeld &&
+            (this.heavyAttackId !== null ||
+              this.upSmashId !== null ||
+              this.downSmashId !== null ||
+              // Airborne, a heavy press fires an aerial.
+              (!this.isGrounded() && (this.aerialAttackId ?? this.aerialNeutralId ??
+                this.aerialForwardId ?? this.aerialBackId ?? this.aerialUpId ??
+                this.aerialDownId) !== null))
+          ? 'heavy'
+          : input.attack === true && !this.prevAttackHeld
+            ? 'attack'
+            : null;
+    if (kind === null) return;
+    if (kind === 'attack' && this.activeAttack !== null) {
+      const move = this.activeAttack.move as AttackMoveWithAnimation;
+      const chain = move.jabChain;
+      if (
+        chain &&
+        this.canAdvanceJab(move,this.activeAttack.framesElapsed)
+      ) {
+        // tickAttack consumes this edge as an immediate jab-chain advance.
+        return;
+      }
+    }
+    const stick = kind === 'heavy' ? this.heavyPressStick(input) : null;
+    this.offensiveActionBuffer = {
+      kind,
+      remaining: OFFENSIVE_ACTION_BUFFER_FRAMES,
+      moveX: stick ? stick.x : clamp(input.moveX, -1, 1),
+      moveY: stick ? stick.y : clamp(input.moveY ?? 0, -1, 1),
+      facing: this.facing,
+      fromStick: stick !== null,
+    };
+  }
+
+  /**
+   * Right-stick direction of a heavy press made this frame, or null when
+   * the press has none (a smash key, the CPU) or heavy did not rise. Read
+   * before the end-of-step `prevHeavyHeld` latch.
+   */
+  private heavyPressStick(input: CharacterInput): { x: number; y: number } | null {
+    if (input.attackHeavy !== true || this.prevHeavyHeld) return null;
+    const x = finiteClamp(input.attackStickX);
+    const y = finiteClamp(input.attackStickY);
+    return x === 0 && y === 0 ? null : { x, y };
+  }
+
+  /**
+   * Whether this step's heavy press, made during jumpsquat, is aimed up and
+   * so cancels the jump into the up smash. A right-stick press aims with its
+   * own direction; a smash key reads THIS step's left stick only. There is
+   * deliberately no {@link DIRECTIONAL_INPUT_WINDOW} leniency here: on
+   * keyboard the W (up + jump) that started the jump is still in that
+   * window, so a neutral or sideways press made after letting go of W would
+   * cancel the jump too. Up needs moveY at or past the neutral threshold
+   * and strict vertical dominance (|y| > |x|): a diagonal W + D press is
+   * not up — it keeps the short hop and comes out as the aerial.
+   */
+  private isJumpsquatUpSmashPress(input: CharacterInput, moveX: number): boolean {
+    if (this.upSmashId === null || input.attackHeavy !== true || this.prevHeavyHeld) return false;
+    const stick = this.heavyPressStick(input);
+    const x = stick !== null ? stick.x : moveX;
+    const y = stick !== null ? stick.y : input.moveY ?? 0;
+    return y <= -DEFAULT_NEUTRAL_THRESHOLD && Math.abs(y) > Math.abs(x);
+  }
+
+  /**
+   * Whether an up-aimed special press (made this step or still buffered) is
+   * pending during jumpsquat for a fighter whose up special has a distinct
+   * grounded record, so the jump is dropped for the standing up special.
+   * Fighters with a single up-special record keep their buffered start.
+   */
+  private isJumpsquatUpSpecialPress(): boolean {
+    const pending = this.offensiveActionBuffer;
+    if (pending?.kind !== 'special' || pending.moveY > -DEFAULT_NEUTRAL_THRESHOLD || !this.canAttack()) return false;
+    const move = this.upSpecialId === null ? undefined : this.attacks.get(this.upSpecialId);
+    return move !== undefined && isUpSpecialMove(move) && move.upSpecialKind === 'multiHitRising' &&
+      move.groundedVariant !== undefined;
+  }
+
+  /** True on the input step whose takeoff impulse was just written. */
+  private isTakeoffStep(): boolean {
+    return this.takeoffInputFrame === this.simulationInputFrame;
+  }
+
+  /**
+   * Grounded state for choosing a newly started action's record (grounded
+   * vs aerial variant, entry-velocity scale). On a takeoff step the body
+   * still touches its support until the Matter step, but the jump impulse is
+   * already written: the action starts airborne so a grounded record cannot
+   * inherit (and hold) the jump velocity.
+   */
+  private isGroundedForActionStart(): boolean {
+    return this.isGrounded() && !this.isTakeoffStep();
+  }
+
+  private updateJumpInputBuffer(input: CharacterInput): void {
+    if (this.jumpInputBufferFrames > 0) this.jumpInputBufferFrames -= 1;
+    if (
+      input.jump &&
+      !this.prevJumpHeld &&
+      this.grabbedBy === null &&
+      this.jumpsquatRemaining === 0
+    ) {
+      this.jumpInputBufferFrames = JUMP_INPUT_BUFFER_FRAMES;
+    }
+  }
+
+  private hasJumpIntent(input: CharacterInput): boolean {
+    return (input.jump && !this.prevJumpHeld) || this.jumpInputBufferFrames > 0;
+  }
+
+  private updateTechInputBuffer(input: CharacterInput): void {
+    const queued=this.pendingKnockback?.vector;
+    const canTechLaunch=this.tumbling||(queued!==undefined&&(this.pendingKnockback?.tumble??Math.hypot(queued.x,queued.y)>=TUMBLE_KNOCKBACK_THRESHOLD));
+    const pressed=input.shield===true&&!this.prevShieldHeld||input.dodge===true&&!this.prevDodgeHeld;
+    const next=advanceTechInputWindow({bufferRemaining:this.techBufferRemaining,lockoutRemaining:this.techLockoutRemaining},
+      {pressed,canTechLaunch,frozen:this.hitlagRemaining>0});
+    this.techBufferRemaining=next.bufferRemaining;this.techLockoutRemaining=next.lockoutRemaining;
+  }
+
+  private clearTumbleForStartedAction(): void {
+    this.tumbling = false;
+    this.techBufferRemaining = 0;
+    this.aerialLandingContext = null;
+  }
+
+  /**
+   * Shared entry gate for grab and defense. Existing actions retain their own
+   * progression and explicit cancels (jab chains, landings, charge banking).
+   * Shield may bank a neutral-special charge; it cannot cancel smash charging.
+   */
+  private canStartCommittedAction(allowShieldChargeBank = false): boolean {
+    if(this.donkeykongHeavyItemHeld||this.donkeykongHeavyItemAction)return false;
+    if(this.itemEating||this.itemAction||this.itemShooting||this.isHammerLocked())return false;
+    if(this.isSurfaceTechLocking())return false;
+    return this.buriedState === null && !this.grabState.active?.cargo && this.pikachuLedgeJump?.phase!=='start' && this.groundRecovery === null && this.footstoolRecipient === null && this.pikachuGroundRecovery === null && this.grabReleasePresentation === null && this.tauntPresentation === null && this.attackClankRemaining === 0 && !this.attackClankLockedStep && this.activeAttack === null &&
+      this.shieldReleaseRemaining === 0 &&
+      !this.shieldParryProtected &&
+      !this.isInLandingRecovery() &&
+      this.chargingSmash === null &&
+      (this.chargingSpecial === null || (allowShieldChargeBank && !this.chargingSpecial.groundedUpSpecial && !this.chargingSpecial.donkeykongPunch)) &&
+      !isGrabActing(this.grabState) &&
+      !isDodgeActing(this.dodgeState) &&
+      !isLedgeLockingInput(this.ledgeHangState) &&
+      this.jumpsquatRemaining === 0 &&
+      (!this.helpless || this.isGrounded());
+  }
+
+  private isInLandingRecovery(): boolean {
+    return this.ordinaryLandingRemaining > 0 ||
+      (this.landingRecovery && this.cooldownRemaining > 0);
+  }
+
+  private tickLanding(): void {
+    this.ordinaryLandingRemaining = Math.max(0, this.ordinaryLandingRemaining - 1);
+    if (this.landingRecovery) {
+      this.cooldownRemaining = Math.max(0, this.cooldownRemaining - 1);
+      if (this.cooldownRemaining === 0) {
+        this.landingRecovery = false;
+        // Retire before arbitration on the first free step, so the nested
+        // action cannot append another attack-busy frame to landing lag.
+        if (this.activeAttack !== null && this.activeAttack === this.landingAttackInstance) this.cancelAttack();
+      }
+    }
+    const ordinaryLag = this.pendingOrdinaryLandingFrames ?? this.tuning.softLandingFrames ?? 0;
+    const ordinaryKind = this.pendingOrdinaryLandingKind ?? 'soft';
+    this.pendingOrdinaryLandingFrames = null;
+    this.pendingOrdinaryLandingKind = null;
+    if (this.prevGrounded || !this.isGrounded()) return;
+    if (this.continueUpSpecialOnGround()) return;
+    const specialLag = this.getSpecialLandingFrames();
+    if (specialLag !== null) {
+      this.landingPresentation = { kind: 'special', totalFrames: specialLag,
+        ...(this.activeAttack ? { moveId: this.activeAttack.move.id,sourcePoseId:this.activeAttack.move.sourcePoseId } : {}) };
+      this.cancelAttack();
+      this.helpless = false;
+      this.cooldownRemaining = specialLag;
+      this.landingRecovery = specialLag > 0;
+      return;
+    }
+    const dodgeLag = this.getAirDodgeLandingFrames();
+    if (dodgeLag !== null) {
+      this.landingPresentation = { kind: this.dodgeState.active?.directional ? 'directional-air-dodge' : 'air-dodge', totalFrames: dodgeLag };
+      // Contact ends the airborne action, its burst and its intangibility.
+      // The ground commitment replaces the airborne remainder.
+      this.dodgeState = resetDodgeState();
+      this.airDodgeBurst = null;
+      this.airDodgeGravityVelocityY = 0;
+      this.ordinaryLandingRemaining = dodgeLag;
+      return;
+    }
+    const attack = this.activeAttack?.move.type === 'aerial'
+      ? this.activeAttack
+      : this.activeAttack === null ? this.aerialLandingContext : null;
+    if (attack === null) {
+      // Unauthored specials/dodges and ledge actions retain their existing
+      // transitions. Ordinary recovery cannot interrupt them.
+      if (this.activeAttack === null && this.chargingSmash === null &&
+          this.chargingSpecial === null && !isGrabActing(this.grabState) &&
+          !isDodgeActing(this.dodgeState) && !isLedgeLockingInput(this.ledgeHangState) &&
+          !this.helpless) {
+        this.ordinaryLandingRemaining = ordinaryLag;
+        this.landingPresentation = { kind: ordinaryKind, totalFrames: ordinaryLag };
+      }
+      return;
+    }
+    const aerial = attack.move as Partial<AerialMove>;
+    // Legacy aerial records carry no penalty. Authored autocancel windows
+    // skip the move's penalty using the frame that actually touched the floor,
+    // before advancing the attack timeline for the next integration.
+    const lag = typeof aerial.landingLagFrames === 'number'
+      ? getLandingLagFrames(attack.move as AerialMove, attack.framesElapsed)
+      : 0;
+    const landingAttack = lag > 0 ? aerial.landingAttack : undefined;
+    const facing = attack.facing;
+    if (landingAttack !== undefined) validateAerialLandingAttack(attack.move as AerialMove);
+    this.cancelAttack();
+    this.cooldownRemaining = lag;
+    this.landingRecovery = lag > 0;
+    this.ordinaryLandingRemaining = lag > 0 ? 0 : ordinaryLag;
+    this.landingPresentation = lag > 0 ? { kind: 'aerial', totalFrames: lag, moveId: attack.move.id,sourcePoseId:attack.move.sourcePoseId,entryFrame:this.simulationInputFrame,facing }
+      : { kind: ordinaryKind, totalFrames: ordinaryLag };
+    if(lag>0)this.notifySourceAerialLandingAdmitted(Object.freeze({frame:this.simulationInputFrame,generation:this.positionResetGeneration,
+      moveId:attack.move.id,sourcePoseId:attack.move.sourcePoseId??null,facing,landingLagFrames:lag}));
+    if (landingAttack !== undefined) {
+      this.activeAttack = { move: landingAttack, facing, framesElapsed: 0,
+        hitboxBody: null, upSpecial: null, chargeHeldFrames: null };
+      this.landingAttackInstance = this.activeAttack;
+      this.landingAttackActivationPending = true;
+    }
+  }
+
+  /**
+   * A `multiHitRising` spin with `groundedLandingFrame` that touches down
+   * before special fall continues on its grounded variant from that frame
+   * instead of taking special landing lag. A grounded spin that left its
+   * floor lands into the same frame unless it is already past it. Contact
+   * while still rising is not a landing.
+   */
+  private continueUpSpecialOnGround(): boolean {
+    const a = this.activeAttack;
+    if (a === null || a.move.type !== 'upSpecial' || this.helpless) return false;
+    const spin = this.attacks.get(a.move.id);
+    if (!spin || !isUpSpecialMove(spin) || spin.upSpecialKind !== 'multiHitRising') return false;
+    const frame = spin.groundedLandingFrame;
+    if (frame === undefined || (a.move.sheetVariant === 'ground' && a.framesElapsed >= frame)) return false;
+    // Rising through a pass-through platform's top is contact, not a landing: the spin goes on.
+    if (this.body.velocity.y < 0) return true;
+    if (a.hitboxBody !== null) {
+      despawnHitbox(this.scene, a.hitboxBody);
+      a.hitboxBody = null;
+    }
+    this.clearTransientHitboxes();
+    this.multiHitNextIndex = 0;
+    a.move = Character.groundedUpSpecialAttack(spin);
+    a.framesElapsed = frame;
+    // The landing step presents the entry frame; tickAttack advances from it next step.
+    a.holdInitialFrame = true;
+    return true;
+  }
+
+  private static groundedUpSpecialAttack(move: MultiHitRisingUpSpecialMove): AttackMove {
+    return { ...move.groundedVariant!, id: move.id, type: 'upSpecial', sheetVariant: 'ground' };
+  }
+
+  private getSpecialLandingFrames(): number | null {
+    const intrinsic=this.getIntrinsicSourceLandingFrames();if(intrinsic!==null)return intrinsic;
+    const move = this.activeAttack?.move;
+    if (move && (move.type === 'special' || move.type === 'sideSpecial' ||
+        move.type === 'upSpecial' || move.type === 'downSpecial')) {
+      return move.specialLandingLagFrames ?? null;
+    }
+    return this.helpless ? this.specialFallLandingFrames : null;
+  }
+
+  private getAirDodgeLandingFrames(): number | null {
+    if (!isDodgeActing(this.dodgeState) || this.dodgeState.active?.kind !== 'air') return null;
+    const active = this.dodgeState.active;
+    if (!active.directional) return this.tuning.airDodgeLandingFrames ?? null;
+    const early = this.tuning.directionalAirDodgeLandingFrames;
+    const late = this.tuning.directionalAirDodgeLateLandingFrames;
+    if (early === undefined || late === undefined) return early ?? null;
+    return Math.round(early + (late - early) * dodgeProgress(active, this.tuning.dodge));
+  }
+
+  private updateAerialLandingContext(): void {
+    const attack = this.activeAttack;
+    if (attack !== null) {
+      this.aerialLandingContext = attack.move.type === 'aerial' &&
+        typeof (attack.move as Partial<AerialMove>).landingLagFrames === 'number'
+        ? { move: attack.move as AerialMove, framesElapsed: attack.framesElapsed, facing: attack.facing }
+        : null;
+    } else if (this.aerialLandingContext !== null) {
+      this.aerialLandingContext.framesElapsed += 1;
+      if (getLandingLagFrames(this.aerialLandingContext.move, this.aerialLandingContext.framesElapsed) === 0) {
+        this.aerialLandingContext = null;
+      }
+    }
+  }
+
+  private applyLaunchVelocityDecay(): void {
+    if (this.launchVelocity === null) return;
+    const current = this.body.velocity;
+    const residual = {
+      x: current.x - this.launchVelocity.x,
+      y: current.y - this.launchVelocity.y,
+    };
+    const decayed = decayLaunchVelocity(this.launchVelocity, this.launchDecayPerFrame);
+    this.launchVelocity = decayed;
+    this.scene.matter.body.setVelocity(this.body, {
+      x: residual.x + decayed.x,
+      y: residual.y + decayed.y,
+    });
+  }
+
+  /** A new motion owner keeps the body's current velocity but replaces its provenance. */
+  private clearReferenceLaunch(): void {
+    if (this.referenceLaunch === null) return;
+    this.referenceLaunch = null;
+    this.launchVelocity = null;
+    this.launchDecayPerFrame = undefined;
+    this.hitstunGravityVelocityY = 0;
+    this.pendingHitstunGravityCorrection = 0;
+  }
+
+  /**
+   * Replace the upcoming world-gravity contribution for authored move motion
+   * or reference launch energy.
+   * Call before the first integration and each additional reference tick in a
+   * compressed group. Only the first call cancels the outer world-gravity dose.
+   * Release uses zero gravity; subsequent active reference ticks advance it.
+   * Natural gravity remains independent of launch, carried motion and wind.
+   */
+  preparePhysicsStep(worldGravityDeltaY: number, additionalReferenceTick = false): void {
+    if(this.intrinsicSourceHitbox){const plugin=this.intrinsicSourceHitbox.plugin as import('./attacks').HitboxPlugin;
+      updateHitboxPosition(this.scene,this.intrinsicSourceHitbox,this.body.position,
+        {hitbox:plugin.hitbox} as AttackMove,plugin.facing);}
+    if (this.finalSmashControl) {
+      const control = this.finalSmashControl;
+      if (!additionalReferenceTick && control.gravityDisabled)
+        this.scene.matter.body.setVelocity(this.body, { x: this.body.velocity.x,
+          y: this.body.velocity.y - worldGravityDeltaY });
+      return;
+    }
+
+    if(this.shieldBreak&&shieldBreakControlsLocked(this.shieldBreak)){
+      if(!additionalReferenceTick&&!this.sourcePresentationClockAdvances){this.scene.matter.body.setVelocity(this.body,{x:0,y:-worldGravityDeltaY});return;}
+      if(!additionalReferenceTick&&!this.isInHitlag()){
+        const phase=this.shieldBreak;
+        if(phase.phase==='pop'){
+          if(this.shieldBreakVelocityY===null)this.shieldBreakVelocityY=this.shieldBreakPop().initialVelocityY;
+          if(this.shieldBreakPhysicsFrame!==this.simulationInputFrame){this.shieldBreakVelocityY+=this.shieldBreakPop().gravity;
+            this.shieldBreakPhysicsFrame=this.simulationInputFrame;}
+          this.scene.matter.body.setVelocity(this.body,{x:0,y:this.shieldBreakVelocityY-worldGravityDeltaY});
+        }else this.scene.matter.body.setVelocity(this.body,{x:0,y:-worldGravityDeltaY});
+      }
+      return;
+    }
+
+    // A sourced kinetic profile already owns traction. Avoid a second Matter
+    // floor-friction dose, retaining normal wall solving and every other fighter.
+    const dkOrdinaryGround=this.id==='donkeykong'&&!this.donkeykongHeavyItemHeld&&this.isGrounded()&&this.canPresentUncommittedBody()&&
+      (this.donkeykongTurnBrake!==null||['run','standing','crouch','pivot'].includes(this.locomotionState.name));
+    if((this.activeAttack?.move.groundedMotion&&this.isGrounded())||dkOrdinaryGround){
+      if(this.sourcedGroundFrictionBackup===null)this.sourcedGroundFrictionBackup=this.body.friction;
+      this.body.friction=0;
+    }else this.restoreSourcedGroundFriction();
+    if (!this.finalSlowLocalStep) return;
+    this.validateLedgeAttackAttachmentOwner();
+    const energy = this.referenceLaunch;
+    if (this.destroyed || this.hitlagRemaining > 0 || this.pikachuLedgeFlightHitlagRelease ||
+        this.body.isStatic || this.body.isSleeping) return;
+    if(!additionalReferenceTick)this.syncDonkeyKongAttackCollisionPose();
+    this.pikachuLastGravityDose=worldGravityDeltaY;
+    if(!additionalReferenceTick&&this.sourcedShieldPush){
+      const push=this.sourcedShieldPush;this.shieldPushApplied=push.speed;
+      this.scene.matter.body.setVelocity(this.body,{x:this.body.velocity.x+push.speed,y:this.body.velocity.y});
+      push.speed=decayShieldPushback(push.speed,getNativeShieldPushTraction(this.id)??this.authoredShieldPushTraction,push.attacker);
+      if(push.speed===0)this.sourcedShieldPush=null;
+    }
+    if (!additionalReferenceTick && this.pikachuLedgeJump?.phase==='start') {
+      const jump=this.pikachuLedgeJump,target=this.getPikachuLedgeAttachmentTarget();
+      if(!target)throw new Error('Ledge jump source start lacks its live root');
+      this.configurePikachuLedgeAttachmentPairs();
+      this.scene.matter.body.setVelocity(this.body,{
+        x:(target.x-jump.previousOffset.x)*jump.facing+target.corner.x-jump.previousCorner.x,
+        y:target.y-jump.previousOffset.y+target.corner.y-jump.previousCorner.y-worldGravityDeltaY});
+      jump.previousOffset={x:target.x,y:target.y};jump.previousCorner={x:target.corner.x,y:target.corner.y};return;
+    }
+    if (!additionalReferenceTick && this.pikachuLedgeJump?.phase==='flight' && this.pikachuLedgeJump.framesElapsed===0)
+      this.scene.matter.body.setVelocity(this.body,{x:PIKACHU_LEDGE_JUMP_SOURCE_TRAVEL.speedX*this.pikachuLedgeJump.facing,y:this.body.velocity.y});
+    const ledgeTarget = this.getPikachuLedgeAttachmentTarget();
+    if (!additionalReferenceTick && ledgeTarget !== null) {
+      this.configurePikachuLedgeAttachmentPairs();
+      if (ledgeTarget.mode === 'pin-hand') {
+        this.scene.matter.body.setPosition(this.body, ledgeTarget.position);
+        this.scene.matter.body.setVelocity(this.body, { x: 0, y: -worldGravityDeltaY });
+      } else {
+        this.scene.matter.body.setVelocity(this.body, {
+          x: ledgeTarget.position.x - this.body.position.x,
+          y: ledgeTarget.position.y - this.body.position.y - worldGravityDeltaY,
+        });
+      }
+      return;
+    }
+    this.configurePikachuLedgeAttachmentPairs();
+    if (this.ledgeAttackAttachment && !additionalReferenceTick) {
+      const state = this.ledgeAttackAttachment;
+      const age = this.activeAttack!.framesElapsed;
+      const points = state.move.ledgeRootMotion!;
+      const next = points[age]!;
+      const previous = points[Math.max(0, state.frame)]!;
+      const sameAge = age === state.frame;
+      const corner = this.ledgeCandidates.find(c => c.platformId === state.candidate.platformId && c.side === state.candidate.side) ?? state.candidate;
+      const dx = corner.x - state.corner.x, dy = corner.y - state.corner.y;
+      state.corner = {x: corner.x, y: corner.y};
+      this.configureLedgeAttackPairs();
+      if (this.activeAttack!.hitboxBody) {
+        this.activeAttack!.hitboxBody.plugin.ownerAnchoredContact = true;
+        this.activeAttack!.hitboxBody.plugin.postPhysicsContactOnly = true;
+      }
+      this.scene.matter.body.setVelocity(this.body, {
+        x: (sameAge ? 0 : next.x - previous.x) * state.facing + dx,
+        y: state.attached ? (sameAge ? 0 : next.y - previous.y) + dy - worldGravityDeltaY : this.body.velocity.y,
+      });
+      state.frame = age;
+      return;
+    }
+    const directional = this.id === 'pikachu' && this.dodgeState.active?.kind === 'air' &&
+      this.dodgeState.active.directional ? pikachuDirectionalDodgePhase(this.dodgeState.active.framesElapsed) : null;
+    if (energy === null && directional && (!directional.gravityEnabled || this.dodgeState.name === 'active')) {
+      if (!additionalReferenceTick && !this.body.ignoreGravity) this.scene.matter.body.setVelocity(this.body, {
+        x: this.body.velocity.x, y: this.body.velocity.y - worldGravityDeltaY,
+      });
+      return;
+    }
+    const specialGravity = this.pikachuSpecialRuntime?.gravity();
+    const gravityScale = this.activeAttack?.move.gravityScale;
+    if (energy === null && gravityScale !== undefined) {
+      if (!additionalReferenceTick && !this.body.ignoreGravity) this.scene.matter.body.setVelocity(this.body, {
+        x: this.body.velocity.x,
+        // DK Headbutt's published .5 gravity multiplier scales its sourced
+        // ordinary total, rather than half of this world's unrelated dose.
+        y: this.body.velocity.y + (this.donkeykongOrdinaryVertical
+          ? this.donkeykongOrdinaryVertical.totalGravity*gravityScale-worldGravityDeltaY
+          : worldGravityDeltaY*(gravityScale-1)),
+      });
+      return;
+    }
+    if (energy === null && specialGravity !== undefined && specialGravity !== null) {
+      if (!additionalReferenceTick && !this.body.ignoreGravity) this.scene.matter.body.setVelocity(this.body, {
+        x: this.body.velocity.x, y: this.body.velocity.y + specialGravity - worldGravityDeltaY,
+      });
+      return;
+    }
+    const flight = this.getSustainedUpSpecialRise();
+    if (energy === null && flight !== null &&
+        this.activeAttack!.framesElapsed < flight.gravityFrames) {
+      // Other fighters can subdivide world integration for reference launches;
+      // this move still receives exactly one gravity dose per gameplay frame.
+      if (!additionalReferenceTick && !this.body.ignoreGravity) {
+        const worldGravity = Number.isFinite(worldGravityDeltaY) ? worldGravityDeltaY : 0;
+        this.scene.matter.body.setVelocity(this.body, {
+          x: this.body.velocity.x,
+          y: this.body.velocity.y + flight.gravity - worldGravity,
+        });
+      }
+      return;
+    }
+    if (energy === null) {
+      if(!additionalReferenceTick&&this.donkeykongOrdinaryVerticalTick&&!this.body.ignoreGravity)
+        this.scene.matter.body.setVelocity(this.body,{x:this.body.velocity.x,
+          y:donkeyKongVerticalPrePhysicsVelocity(this.body.velocity.y,worldGravityDeltaY)});
+      return;
+    }
+    if (!energy.firstStep && (this.referenceStunnedStep || additionalReferenceTick)) this.applyLaunchVelocityDecay();
+    const nextGravity = this.body.ignoreGravity ? energy.gravityY : energy.firstStep ? 0 : this.fastFallLatched && !this.referenceStunnedStep
+      ? this.tuning.fastFallSpeed
+      : stepReferenceGravity(energy.gravityY, energy.profile, energy.vertical, this.referenceStunnedStep);
+    const worldGravity = !this.body.ignoreGravity && Number.isFinite(worldGravityDeltaY) ? worldGravityDeltaY : 0;
+    this.scene.matter.body.setVelocity(this.body, {
+      x: this.body.velocity.x,
+      y: this.body.velocity.y + nextGravity - energy.gravityY - worldGravity,
+    });
+    energy.gravityY = nextGravity;
+    energy.firstStep = false;
+  }
+
+  /** The ordinary reference ticks to simulate inside this one gameplay frame. */
+  getReferencePhysicsStep(): { token: object; ticks: number } | null {
+    if (!this.finalSlowLocalStep) return null;
+    const energy = this.referenceLaunch;
+    if (this.destroyed || energy === null || energy.interrupted || !this.referenceStunnedStep ||
+        this.hitlagRemaining > 0 || this.pendingKnockback !== null ||
+        this.body.isStatic || this.body.isSleeping) return null;
+    return { token: energy, ticks: energy.groups[energy.groupIndex] ?? 1 };
+  }
+
+  /** Cancel further accelerated travel in this frame after a KO or floor impact. */
+  stopReferencePhysicsStep(): void {
+    if (this.referenceLaunch !== null) this.referenceLaunch.interrupted = true;
+  }
+
+  beginReferenceTransport(multiplier: number): void {
+    const energy = this.referenceLaunch;
+    if (multiplier <= 1 || energy === null || this.launchVelocity === null ||
+        this.getReferencePhysicsStep() === null) return;
+    const launch = this.launchVelocity;
+    const residual = { x: this.body.velocity.x - launch.x,
+      y: this.body.velocity.y - launch.y - energy.gravityY };
+    this.referenceTransport = { token: energy, multiplier, residual };
+    this.scene.matter.body.setVelocity(this.body, {
+      x: residual.x + multiplier * launch.x,
+      y: residual.y + multiplier * (launch.y + energy.gravityY),
+    });
+  }
+
+  endReferenceTransport(): void {
+    const transport = this.referenceTransport;
+    if (transport === null) return;
+    // Damage/capture/reset can replace the body's velocity during collision
+    // callbacks. That new owner already supplies canonical velocity.
+    if (transport.token === this.referenceLaunch) {
+      const canonical = this.getVelocity();
+      for (const pair of this.contactPairs.values()) {
+        if (pair.isActive === false || pair.isSensor || pair.bodyA.isSensor ||
+            pair.bodyB.isSensor || !pair.collision) continue;
+        const direction = pair.bodyA === this.body ? 1 : -1;
+        const nx = direction * pair.collision.normal.x;
+        const ny = direction * pair.collision.normal.y;
+        const solvedNormal = this.body.velocity.x * nx + this.body.velocity.y * ny;
+        if (Math.abs(solvedNormal) <= 1e-6) {
+          // A stopped normal must stay stopped even when launch and external
+          // carry had different transport rates. Preserve tangential carry.
+          const normal = canonical.x * nx + canonical.y * ny;
+          canonical.x -= normal * nx;
+          canonical.y -= normal * ny;
+        }
+      }
+      this.scene.matter.body.setVelocity(this.body, canonical);
+    }
+    this.referenceTransport = null;
+  }
+
+  /** Collision-only work; timers and landing classification run once per frame. */
+  applyPhysicsSubstepConstraints(): void {
+    if (this.destroyed) return;
+    if (this.revivalPlatform) {
+      this.scene.matter.body.setPosition(this.body, { x: this.revivalPlatform.x, y: this.revivalPlatform.y });
+      this.scene.matter.body.setVelocity(this.body, { x: 0, y: 0 });
+      return;
+    }
+    this.commitAerialReboundAfterPhysics();
+    if ((this.hitlagRemaining > 0 || this.pikachuLedgeFlightHitlagRelease) && this.hitlagPosition !== null) {
+      // A collision callback can arm hitlag before Matter solves the same
+      // frame's gravity penetration. Keep the actually solved support height
+      // rather than restoring that pre-solver position below the platform.
+      // Air/captive/wall freezes retain their exact original anchor.
+      if (this.id === 'pikachu') {
+        let supportedY = this.body.position.y;
+        for (const pair of this.contactPairs.values()) {
+          if (!this.isSupportPair(pair) || !pair.collision || Math.abs(pair.collision.normal.x) > 1e-6) continue;
+          const platform = pair.bodyA === this.body ? pair.bodyB : pair.bodyA;
+          if (!platform.bounds) continue;
+          const vertices = this.body.vertices;
+          const bodyHalfHeight = (vertices?.length
+            ? Math.max(...vertices.map(vertex => vertex.y)) : this.getBodyBottomY()) - this.body.position.y;
+          const slop = Math.max(0, (this.body as unknown as { slop?: number }).slop ?? .05);
+          supportedY = Math.min(supportedY, platform.bounds.min.y - bodyHalfHeight + slop);
+        }
+        if (this.isGrounded() && supportedY < this.hitlagPosition.y)
+          this.hitlagPosition = { x: this.hitlagPosition.x, y: supportedY };
+      }
+      this.scene.matter.body.setPosition(this.body, this.hitlagPosition);
+      this.scene.matter.body.setVelocity(this.body, { x: 0, y: 0 });
+      this.pikachuSpecialRuntime?.refreshContactAfterPhysics(true);
+      this.syncDonkeyKongCatchCollisionPose();
+      return;
+    }
+    this.finishLedgeAttackPhysics();
+    this.finishPikachuLedgeAttachmentPhysics();
+    this.syncDonkeyKongAttackCollisionPose();
+    this.reconcileLaunchContacts();
+    if(this.donkeykongFullHopStep!==null&&this.referenceLaunch===null&&
+      this.donkeykongOpeningCarryY!==null&&this.body.velocity.y>=-1e-6){
+      // A prescribed opening is an ordinary kinetic owner, not a root path
+      // through solids. Retire it when Matter cancels upward ceiling travel.
+      const stoppedAtCeiling=[...this.contactPairs.values()].some(pair=>{
+        if(pair.isActive===false||pair.isSensor||pair.bodyA.isSensor||pair.bodyB.isSensor||!pair.collision)return false;
+        const other=pair.bodyA===this.body?pair.bodyB:pair.bodyA;
+        const outwardY=pair.collision.normal.y*(pair.bodyA===this.body?1:-1);
+        return other.label===PLATFORM_LABELS.solid&&outwardY>.5;
+      });
+      if(stoppedAtCeiling)this.donkeykongFullHopStep=null;
+    }
+    if (this.referenceLaunch !== null && this.tumbling && this.isGrounded()) {
+      this.stopReferencePhysicsStep();
+    }
+    if (this.tauntPresentation !== null && !this.isGrounded()) this.tauntPresentation = null;
+    // Physics may enter fall or acquire support between input steps. Reset
+    // only; substeps and queries never advance the ordinary body clock.
+    this.syncObservedPresentation(false);
+    this.syncDonkeyKongCatchCollisionPose();
+    if (this.grabTarget !== null && this.getAuthoredThrowRootMotion() !== null && this.grabSpec && !this.bypassCaptureAttachmentLegacyPin()) {
+      // Shared fixed-offset attachment is explicitly retained as a beta policy;
+      // native throw target/bone attachment is not inferred from Trans samples.
+      this.scene.matter.body.setPosition(this.grabTarget.body, {
+        x: this.body.position.x + this.grabSpec.hitbox.offsetX * this.facing,
+        y: this.grabTarget.clearedCaptiveY(this, this.body.position.y + this.grabSpec.hitbox.offsetY),
+      });
+      this.scene.matter.body.setVelocity(this.grabTarget.body, { x: 0, y: 0 });
+    }
+    this.pikachuSpecialRuntime?.refreshContactAfterPhysics();
+  }
+
+  /**
+   * Complete the fixed-step body contract: freeze hitlag/SDI position,
+   * reconcile collision-canceled launch momentum, then limit only Matter's
+   * excess gravity. Call once immediately after `matter.world.step()`, before
+   * post-step hazards apply their own forces.
+   * `gravityDeltaY` is the downward velocity added by that integration alone;
+   * callers without a physics step may omit it. External forces are excluded.
+   */
+  applyPostPhysicsVelocityConstraints(gravityDeltaY = 0): void {
+    const preStepVy = this.prePhysicsVelocityY;
+    this.prePhysicsVelocityY = null;
+    if (this.destroyed) return;
+    this.applyPhysicsSubstepConstraints();
+    if (!this.finalSlowLocalStep) return;
+    if (this.revivalPlatform) return;
+    if ((this.hitlagRemaining > 0 || this.pikachuLedgeFlightHitlagRelease) && this.hitlagPosition !== null) return;
+    // The opening sample has moved the body; leave it carrying ordinary jump
+    // energy so whichever owner reads it next (next sample, special entry,
+    // dodge, or ordinary gravity after a retirement this tick) never inherits
+    // the calibrated sample. Launch owners and slower owner speeds are kept.
+    const openingCarry=this.donkeykongOpeningCarryY;
+    if(openingCarry!==null&&this.referenceLaunch===null&&this.launchVelocity===null&&this.pendingKnockback===null&&
+      this.hitstunRemaining===0&&this.body.velocity.y<openingCarry)
+      this.scene.matter.body.setVelocity(this.body,{x:this.body.velocity.x,y:openingCarry});
+    // DK lands on his own gravity dose, so his resting position carries sub-1e-9
+    // float residue that Matter reports as vertical speed; supported DK has none.
+    if (this.donkeykongOrdinaryVertical !== null && this.referenceLaunch === null && this.launchVelocity === null
+        && this.isGrounded() && Math.abs(this.body.velocity.y) < 1e-9) {
+      this.scene.matter.body.setVelocity(this.body, { x: this.body.velocity.x, y: 0 });
+    }
+    if (this.activeAttack?.move.pikachuSpecial) {
+      const normals = [...this.contactPairs.values()].filter(pair => pair.isActive !== false && !pair.isSensor
+        && !pair.bodyA.isSensor && !pair.bodyB.isSensor && pair.collision)
+        .map(pair => { const sign = pair.bodyA === this.body ? 1 : -1;
+          return { x: pair.collision!.normal.x * sign, y: pair.collision!.normal.y * sign }; });
+      this.pikachuSpecialRuntime?.observePhysics(normals);
+      // Skull's attack status explicitly limits its gravity energy. Enforce
+      // that authored limit after integration, without installing ordinary
+      // FALL or landing rules for its AIR_STOP start/end phases.
+      const specialVerticalLimit = this.pikachuSpecialRuntime?.authoredVerticalSpeedLimit();
+      if (specialVerticalLimit != null && !this.isGrounded() && this.body.velocity.y > specialVerticalLimit) {
+        this.scene.matter.body.setVelocity(this.body, { x: this.body.velocity.x, y: specialVerticalLimit });
+        this.pikachuSpecialRuntime?.observePhysics();
+      }
+      // SpecialN's pinned status selects ordinary FALL in air. Its null
+      // authored gravity must retain the ordinary post-integration fall cap;
+      // otherwise every Matter dose becomes uncapped speed on the next input.
+      // Quick's sourced aerial END likewise retains a gravity speed limit.
+      // Other special phases own their authored velocity/acceleration here.
+      if (this.activeAttack.move.pikachuSpecial.kind !== 'thunderJolt' &&
+          this.pikachuSpecialRuntime?.fallSpeedLimit() == null) return;
+    }
+    if (this.referenceLaunch !== null) {
+      if (this.isGrounded()) {
+        this.referenceLaunch.gravityY = 0;
+        if (!this.referenceStunnedStep) this.clearReferenceLaunch();
+      }
+    } else if (this.launchVelocity !== null) {
+      // Attribution comes from the integrator, never from total body speed:
+      // that also contains velocity carry and externally applied forces.
+      const gravity = Number.isFinite(gravityDeltaY) ? Math.max(0, gravityDeltaY) : 0;
+      this.hitstunGravityVelocityY = Math.min(this.hitstunGravityVelocityY + gravity,
+        Math.max(0, this.body.velocity.y - this.launchVelocity.y));
+      if (this.hitstunRemaining === 0) {
+        this.pendingHitstunGravityCorrection = Math.min(
+          Math.max(0, this.hitstunGravityVelocityY - this.tuning.maxFallSpeed),
+          Math.max(0, this.body.velocity.y - this.tuning.maxFallSpeed),
+        );
+        this.launchVelocity = null;
+        this.hitstunGravityVelocityY = 0;
+      }
+    }
+    // Matter has already canceled impact velocity by the time contact is
+    // observed. Count the free-fall steps from their pre-integration velocity,
+    // including touchdown, and keep the result until next input arbitration.
+    if (preStepVy !== null && this.ledgeAttackAttachment === null && this.hitstunRemaining === 0 && this.pendingKnockback === null) {
+      this.terminalFallFrames = preStepVy >= this.tuning.maxFallSpeed - 1e-6
+        ? this.terminalFallFrames + 1 : 0;
+      if (this.isGrounded()) {
+        if (!this.prevGrounded) {
+          const heavy = this.terminalFallFrames >= (this.tuning.hardLandingSpeedFrames ?? 4);
+          this.pendingOrdinaryLandingFrames = heavy
+            ? this.tuning.hardLandingFrames ?? 0 : this.tuning.softLandingFrames ?? 0;
+          this.pendingOrdinaryLandingKind = heavy ? 'hard' : 'soft';
+        }
+        this.terminalFallFrames = 0;
+      }
+    } else {
+      this.terminalFallFrames = 0;
+    }
+    if (
+      this.destroyed ||
+      preStepVy === null ||
+      this.hitlagRemaining > 0 ||
+      this.hitstunRemaining > 0 ||
+      this.pendingKnockback !== null ||
+      this.referenceLaunch !== null ||
+      this.isGrounded()
+    ) {
+      return;
+    }
+    const terminal = this.pikachuSpecialRuntime?.fallSpeedLimit() ?? (this.fastFallLatched
+      ? this.tuning.fastFallSpeed
+      : this.tuning.maxFallSpeed);
+    // Preserve velocity that was already externally above terminal before the
+    // physics step (wind, a downward special, scripted hazards). Only Matter's
+    // newly-added excess is removed.
+    const externalExcess = Math.max(0, preStepVy - terminal);
+    const cap = terminal + externalExcess;
+    if (this.body.velocity.y > cap) {
+      this.scene.matter.body.setVelocity(this.body, {
+        x: this.body.velocity.x,
+        y: cap,
+      });
+      // The special's observable velocity follows the completed constrained
+      // integration, rather than retaining the discarded Matter excess.
+      if (this.activeAttack?.move.pikachuSpecial?.kind === 'thunderJolt' ||
+          this.pikachuSpecialRuntime?.fallSpeedLimit() != null) {
+        this.pikachuSpecialRuntime?.observePhysics();
+      }
+    }
+  }
+
+  private reconcileLaunchContacts(): void {
+    if (this.launchVelocity === null) return;
+    for (const pair of this.contactPairs.values()) {
+      if (pair.isActive === false || pair.isSensor ||
+          pair.bodyA.isSensor || pair.bodyB.isSensor || !pair.collision) continue;
+      // Matter's normal points from B toward A. Orient it away from the
+      // surface for this fighter; only inward launch momentum is blocked.
+      const direction = pair.bodyA === this.body ? 1 : -1;
+      const nx = pair.collision.normal.x * direction;
+      const ny = pair.collision.normal.y * direction;
+      // Impacts and tangential wall friction can cancel gravity together with
+      // launch. Rebase only at a real contact; free-flight wind stays separate.
+      const rebaseGravity = () => {
+        if (this.referenceLaunch !== null) {
+          this.referenceLaunch.gravityY = Math.min(this.referenceLaunch.gravityY,
+            Math.max(0, this.body.velocity.y - (this.launchVelocity?.y ?? 0)));
+        }
+      };
+      const launch: { readonly x: number; readonly y: number } = this.launchVelocity;
+      const inward = launch.x * nx + launch.y * ny;
+      if (inward >= 0) { rebaseGravity(); continue; }
+      const actual = this.body.velocity.x * nx + this.body.velocity.y * ny;
+      const remaining = clamp(actual, inward, 0);
+      // Keep the solver's actual velocity authoritative. Remove only the
+      // launch bookkeeping it canceled so subsequent decay cannot subtract
+      // nonexistent momentum and accelerate the fighter away from contact.
+      this.launchVelocity = {
+        x: launch.x + (remaining - inward) * nx,
+        y: launch.y + (remaining - inward) * ny,
+      };
+      rebaseGravity();
+    }
   }
 
   // -------------------------------------------------------------------------
@@ -3360,88 +6723,206 @@ export class Character {
   }
 
   // -------------------------------------------------------------------------
-  // AC 4 (T2 refactor) — slot override API for the T3 item framework
-  //
-  // Items declare which {@link AttackMovesetSlotName} slot(s) they replace
-  // and install a callback per slot via {@link setSlotOverride}. The
-  // per-fighter `execute<Slot>` hooks consult the override map BEFORE
-  // firing the fighter's authored slot move; on item drop / break /
-  // despawn the inventory module clears the overrides via
-  // {@link clearSlotOverride} / {@link clearAllSlotOverrides}.
-  //
-  // Why not store an `AttackMove` record? Because items vary in what
-  // they do per slot — a bat swing is a Matter hitbox spawn, a ray gun
-  // shot is a projectile entity, a bomb throw is a free-body launch —
-  // and a single canonical "fire the move" callback covers all three
-  // without per-item-category special cases inside the dispatcher.
-  // The callback owns its own runtime side effects (durability tick,
-  // audio cue, projectile spawn, inventory clear-on-break, …).
-  //
-  // Open / closed: a hypothetical 4th item subclass installs its
-  // callbacks through this same API — zero edits to Character or to
-  // the dispatcher are needed. The Seed's `extensibility_invariant`
-  // exit condition rests on this contract.
+  // Held item (Ultimate items framework)
   // -------------------------------------------------------------------------
 
-  /**
-   * Install a temporary slot override. The supplied callback fires when
-   * the input dispatcher routes a press to the named slot, BEFORE the
-   * fighter's authored slot move runs. Returning `true` consumes the
-   * press; returning `false` falls through to the fighter's native
-   * move (lets a partial-override item decline a press it can't
-   * service — empty clip, on cooldown, etc.).
-   *
-   * Idempotent — calling twice for the same slot replaces the previous
-   * callback. The inventory module is responsible for clearing
-   * overrides at item drop / break / despawn.
-   */
-  setSlotOverride(
-    slot: AttackMovesetSlotName,
-    fire: () => boolean,
-  ): void {
-    this.slotOverrides.set(slot, fire);
+  /** Equip the held item; its uses replace the presses {@link resolveItemInput} maps. */
+  equipItem(item: HeldItemHandle): void {
+    if (this.equippedItem === null) this.heldItemCarryAge = 0;
+    this.donkeykongJabContinuation = null;
+    this.equippedItem = item;
+    if(item.definition.hammer){
+      this.cancelAttack();this.clearTransientHitboxes();this.chargingSmash=null;this.chargingSpecial=null;
+      this.itemShooting=null;this.itemAction=null;this.itemActionEvents=[];this.pikachuSpecialRuntime?.clear();
+      this.shieldState={...this.shieldState,name:'idle',blockStunRemaining:0};this.shieldReleaseRemaining=0;
+      this.dodgeState=resetDodgeState();this.airDodgeBurst=null;this.airDodgeGravityVelocityY=0;
+      this.offensiveActionBuffer=null;this.jumpInputBufferFrames=0;this.tapJumpBufferFrames=0;
+    }
+  }
+
+  /** The fighter's own moves answer every press again. */
+  unequipItem(): void {
+    this.equippedItem = null;
+    this.itemShooting = null;
+  }
+
+  isHammerLocked():boolean {
+    const spec=this.equippedItem?.definition.hammer;
+    return !!spec && (this.equippedItem?.getHammerState?.()?.elapsed??0)<spec.durationFrames;
+  }
+  getHammerPresentation(){
+    const item=this.equippedItem,spec=item?.definition.hammer,state=item?.getHammerState?.();
+    if(!spec || !state || !this.isHammerLocked() || this.hitstunRemaining>0 || this.grabbedBy)return null;
+    return {...hammerMotion(spec,state,this.isGrounded(),this.prevMoveX),facing:this.facing};
+  }
+  getHammerDamageAreas(spec:HammerSpec){
+    const socket=this.getHeldItemSocket();
+    const z=selectHeldItemSocket(captureSimulationAnimation(this,0,false),'z');
+    return hammerAreas(spec,{...socket,zAngle:z?.angle,zLength:z?.length});
+  }
+  getEquippedItem(): HeldItemHandle | null {
+    return this.equippedItem;
+  }
+
+  /** Recovery acquisition is independent of Inventory so a carried weapon stays equipped. */
+  beginItemRecovery(itemId:number,spec:RecoverySpec,frame:number,walking=false,entityGeneration:number|null=null):boolean {
+    if(!validRecoverySpec(spec)||!Number.isSafeInteger(itemId)||itemId<0||!Number.isSafeInteger(frame)||frame<0||
+      entityGeneration!==null&&(!Number.isSafeInteger(entityGeneration)||entityGeneration<0))return false;
+    if(this.itemEating||!this.canUseItemsBeforeInput())return false;
+    this.donkeykongJabContinuation=null;this.cancelAttack();this.itemShooting=null;this.clearItemAction();
+    const actorGeneration=this.getPositionResetGeneration();
+    if(spec.eat)this.itemEating={...beginEating(spec.amount,itemId,walking),entryFrame:frame,facing:this.facing,spec:{...spec},entityGeneration,actorGeneration};
+    else this.recoveryEvents.push({itemId,kind:'consume',spec:{...spec},amount:spec.amount,entryFrame:frame,actorGeneration,entityGeneration});
+    return true;
+  }
+  getEatingState(){return this.itemEating?{...this.itemEating,spec:{...this.itemEating.spec}}:null;}
+  getHealingState(){return this.itemHealing?{...this.itemHealing}:null;}
+  drainRecoveryEvents(){const e=this.recoveryEvents;this.recoveryEvents=[];return e;}
+  /** Scene calls only after exact live recovery transaction validation. */
+  applyValidatedItemRecovery(spec:RecoverySpec,_transaction?:Readonly<RecoveryTransactionEvent>):void {
+    if(!validRecoverySpec(spec))throw new TypeError('Invalid validated item recovery spec');
+    if(spec.mode==='instant')this.applySourceItemRecoveryHealing(spec.amount);
+    else this.itemHealing=beginHealing(spec,this.itemHealing);
+  }
+  notifyItemRecoveryTransactionRejected(itemId:number,entryFrame:number,_transaction?:Readonly<RecoveryTransactionEvent>):void {
+    if(this.itemEating?.itemId===itemId&&this.itemEating.entryFrame===entryFrame)this.itemEating=null;
+  }
+  discardItemRecoveryOnStock():void {this.itemEating=null;this.itemHealing=null;this.recoveryEvents=[];this.notifySourceLinkTemporaryFood(null);}
+  protected sourceItemEatingConsumeAge():number{return 4;}
+  getRecoveryPresentation(){
+    const e=this.itemEating;
+    return e?{sheet:e.walking?'item_light_walk_eat':'item_light_eat',age:e.age,facing:e.facing}:null;
+  }
+  private interruptEating(kind:'drop'|'discard'='drop'):void {
+    const eating=this.itemEating;
+    if(eating&&!eating.consumed)this.recoveryEvents.push({itemId:eating.itemId,kind,entryFrame:eating.entryFrame,
+      entityGeneration:eating.entityGeneration,actorGeneration:eating.actorGeneration,spec:{...eating.spec},amount:0});
+    this.itemEating=null;
+  }
+  private stepRecoveryInput(input:CharacterInput):CharacterInput {
+    const before=this.itemEating;if(!before)return input;
+    if(this.grabbedBy||this.hitstunRemaining>0||this.pendingKnockback){this.interruptEating();return input;}
+    if(before.entryFrame!==this.simulationInputFrame){
+      const result=stepEating(before,{frozen:false,flinched:false,consumeAge:this.sourceItemEatingConsumeAge()});
+      this.itemEating=result.state?{...result.state,entryFrame:before.entryFrame,facing:before.facing,spec:before.spec,
+        entityGeneration:before.entityGeneration,actorGeneration:before.actorGeneration}:null;
+      if(result.event==='consume'){
+        this.recoveryEvents.push({itemId:before.itemId,kind:'consume',amount:result.amount,spec:{...before.spec},
+          entryFrame:before.entryFrame,entityGeneration:before.entityGeneration,actorGeneration:before.actorGeneration});
+      }
+    }
+    if(!this.itemEating)return input;
+    this.itemLockedInput=input;this.jumpInputBufferFrames=0;this.tapJumpBufferFrames=0;this.offensiveActionBuffer=null;
+    // Walk-eat keeps native ordinary walking; never starts a run or an attack during the brief commitment.
+    const stick=before.walking?Math.sign(input.moveX)*Math.min(Math.abs(input.moveX),this.resolvedLocomotionTuning.dashStickThreshold-.001):0;
+    return {...input,moveX:stick,moveY:0,jump:false,attack:false,attackHeavy:false,special:false,shield:false,dodge:false,
+      grab:false,appeal:false,dropThrough:false};
+  }
+
+  /** Item shots queued since the last drain, oldest first (MatchScene spawns them as projectiles). */
+  consumeItemShots(): { shot: ItemShot; x: number; y: number; facing: 1 | -1 }[] {
+    const shots = this.pendingItemShots;
+    this.pendingItemShots = [];
+    if (shots.length === 0) return shots;
+    // A shot leaves the drawn item: the muzzle of the drawing shown now (heldItemMuzzle, the renderer's own rule).
+    // Phase transitions and leg clocks commit after the shot callbacks queue, so the drain reads the displayed pose.
+    // Without a socket axis the item's authored body offset (queueItemShot) stays; the fire facing is kept.
+    const visual = this.equippedItem?.definition.visual;
+    const muzzle = visual ? heldItemMuzzle(this.getHeldItemSocket(), visual) : null;
+    return muzzle ? shots.map(event => ({ ...event, x: muzzle.x, y: muzzle.y })) : shots;
+  }
+
+  /** The running shooting-item session (phase, clocks, charge, shots), or null. */
+  getItemShootingState(): ShootingState | null {
+    return this.itemShooting?.state ?? null;
+  }
+
+  protected queueItemShot(shot: ItemShot, facing: 1 | -1, _callbackState?:ShootingState): void {
+    const p = this.getPosition();
+    this.pendingItemShots.push({ shot, x: p.x + facing * shot.spawnOffsetX,
+      y: p.y + shot.spawnOffsetY, facing });
+  }
+
+  /** One step of the shooting session: its clock, its shots (paid from the held item's ammo), its end. */
+  private advanceItemShooting(held: boolean): void {
+    const session = this.itemShooting, item = this.equippedItem;
+    if (!session || !item) { this.itemShooting = null; return; }
+    const step = stepShooting(session.spec, session.state, held, cost => item.spendShot(cost), item.getAmmo());
+    for (const shot of step.shots) this.queueItemShot(shot, session.state.facing,step.state??undefined);
+    if (step.state) session.state = step.state;
+    else this.itemShooting = null;
   }
 
   /**
-   * Remove a previously-installed slot override. No-op if no override
-   * is currently set for the slot. Called by the inventory module on
-   * item drop / break / despawn so the fighter's native slot move
-   * runs again.
+   * Grounded target speed while shooting: the native shoot status has only walk legs (item_shoot_legs_walk_f/b), so
+   * the legs walk (never dash or run) at the walk speed for the stick, keep the fire facing, and walk backward at
+   * fighter_param shoot_back_speed_mul 0.87 (native-derived; ultimate-13.0.1 item sheet).
    */
-  clearSlotOverride(slot: AttackMovesetSlotName): void {
-    this.slotOverrides.delete(slot);
+  private shootingWalkTargetVx(moveX: number, facing: 1 | -1): number | null {
+    const t = this.resolvedLocomotionTuning, mag = Math.abs(moveX);
+    if (mag < t.walkStickThreshold) return null;
+    const span = Math.max(1e-6, t.dashStickThreshold - t.walkStickThreshold);
+    const speed = t.walkMaxSpeed * Math.min(1, (mag - t.walkStickThreshold) / span) * (Math.sign(moveX) === facing ? 1 : SHOOT_BACK_SPEED_MUL);
+    return Math.sign(moveX) * speed;
   }
 
   /**
-   * Bulk-clear every installed slot override. Convenience for the
-   * inventory module on item-detach (a held item replaces multiple
-   * slots; one call here drops them all).
+   * The shooting body: the phase's native motion full-body when standing or airborne; while the legs walk, squat
+   * for a jump or land, the `_upper` motion over `item_shoot_legs_*` (Ultimate composes the upper-body layer over the
+   * shooting legs). Sheets are the drawn clips (itemMotionClip resolves motions that share one file).
    */
-  clearAllSlotOverrides(): void {
-    this.slotOverrides.clear();
+  getItemShootingPresentation(): { sheet: string; age: number; facing: 1 | -1; upper?: { sheet: string; age: number } } | null {
+    const session = this.itemShooting;
+    if (!session) return null;
+    const facing = session.state.facing, motion = shootingMotion(session.spec, session.state);
+    if (!this.isGrounded()) return { sheet: itemMotionClip(motion.clips.air), age: motion.age, facing };
+    const legs = this.shootingLegs(facing);
+    const upper = { sheet: itemMotionClip(motion.clips.upper), age: motion.age };
+    return legs ? { ...legs, facing, upper } : { sheet: itemMotionClip(motion.clips.ground), age: motion.age, facing };
+  }
+
+  /** Actual original shooting-spec motion selection, before shared-file draw
+   * aliases. This reads the same live session/leg chooser as the renderer. */
+  getItemShootingCanonicalPresentation(){
+    const session=this.itemShooting;if(!session)return null;
+    const selected=shootingMotion(session.spec,session.state),facing=session.state.facing;
+    if(!this.isGrounded())return{kind:session.spec.kind,phase:session.state.phase,roles:[{
+      componentRole:'body' as const,canonicalMotion:selected.clips.air,rawAge:selected.age,facing}]};
+    const legs=this.shootingLegs(facing);
+    return{kind:session.spec.kind,phase:session.state.phase,roles:legs?[
+      {componentRole:'lower' as const,canonicalMotion:legs.sheet,rawAge:legs.age,facing},
+      {componentRole:'upper' as const,canonicalMotion:selected.clips.upper,rawAge:selected.age,facing}]:[
+      {componentRole:'body' as const,canonicalMotion:selected.clips.ground,rawAge:selected.age,facing}]};
+  }
+
+  private shootingLegs(facing: 1 | -1): { sheet: string; age: number } | null {
+    if (this.jumpsquatRemaining > 0) return { sheet: 'item_shoot_legs_jump_squat', age: JUMPSQUAT_FRAMES - this.jumpsquatRemaining };
+    if (this.shootLandingAge !== null) return { sheet: 'item_shoot_legs_landing', age: this.shootLandingAge };
+    const vx = this.body.velocity.x;
+    if (Math.abs(vx) < SHOOT_LEGS_WALK_MIN_SPEED) return null;
+    return { sheet: Math.sign(vx) === facing ? 'item_shoot_legs_walk_f' : 'item_shoot_legs_walk_b', age: this.shootLegsWalkAge };
+  }
+
+  /** Shooting presentation clocks, once per step after movement: the walk loop age and the landing legs. */
+  private advanceShootingLegs(): void {
+    if (!this.itemShooting) { this.shootLegsWalkAge = 0; this.shootLandingAge = null; return; }
+    const grounded = this.isGrounded();
+    if (grounded && !this.prevGrounded) this.shootLandingAge = 0;
+    else if (this.shootLandingAge !== null) this.shootLandingAge = this.shootLandingAge + 1 < SHOOT_LEGS_LANDING_FRAMES && grounded
+      ? this.shootLandingAge + 1 : null;
+    this.shootLegsWalkAge = grounded && Math.abs(this.body.velocity.x) >= SHOOT_LEGS_WALK_MIN_SPEED ? this.shootLegsWalkAge + 1 : 0;
   }
 
   /**
-   * Read the currently-installed override callback for a slot, or
-   * `null` if no override is set. Per-fighter `execute<Slot>` hooks
-   * call this and, if non-null, fire the callback first.
+   * A projectile was just reflected by this fighter's active reflector. A
+   * move whose reflect window swings on reflect (the Home-Run Bat forward
+   * smash, SmashWiki Ultimate) skips the rest of its wind-up: the next
+   * step is its first active frame.
    */
-  getSlotOverride(
-    slot: AttackMovesetSlotName,
-  ): (() => boolean) | null {
-    return this.slotOverrides.get(slot) ?? null;
-  }
-
-  /**
-   * Run the slot override (if any) and report whether it consumed the
-   * press. Helper used by per-fighter `execute<Slot>` hooks: the hook
-   * calls this first, returning early on `true`, otherwise falling
-   * through to its native slot move.
-   */
-  protected runSlotOverride(slot: AttackMovesetSlotName): boolean {
-    const cb = this.slotOverrides.get(slot);
-    if (!cb) return false;
-    return cb();
+  noteProjectileReflected(): void {
+    const a = this.activeAttack;
+    if (!a?.move.reflectWindow?.swingOnReflect) return;
+    a.framesElapsed = Math.max(a.framesElapsed, a.move.startupFrames - 1);
   }
 
   /**
@@ -3478,17 +6959,165 @@ export class Character {
    *
    * Pass `null` to clear (the character will ignore grab presses).
    */
+  /** Register opt-in taunts; absent data preserves every legacy fighter. */
+  setTauntSpec(set: TauntSet | null): void {
+    if (set !== null) validateTauntSet(set);
+    this.tauntSpec = set && Object.freeze(Object.fromEntries(
+      (['up', 'side', 'down'] as const).map(kind => [kind, Object.freeze({...set[kind]})]),
+    )) as TauntSet | null;
+    this.tauntPresentation = null;
+  }
+  getTauntPresentationState(): TauntPresentationState | null {
+    const state = this.tauntPresentation;
+    return state && this.tauntSpec ? { ...state,
+      cancellable: state.framesElapsed >= this.tauntSpec[state.kind].cancelAfterFrames } : null;
+  }
+  protected notifySourceTauntEquipmentOwnerChanged():void{}
+  getSourceTauntPresentationOwner(){const state=this.tauntPresentation;if(!state)return null;
+    const motion=`appeal_${state.kind==='up'?'hi':state.kind==='down'?'lw':'s'}_${state.facing===1?'r':'l'}` as import('./linkTauntEquipment').LinkTauntEquipmentMotion;
+    return {motion,rawAge:state.framesElapsed,facing:state.facing,kind:state.kind,entryFrame:state.entryFrame,
+      generation:this.positionResetGeneration,cancelAfterFrames:this.tauntSpec![state.kind].cancelAfterFrames,presentationFrames:this.tauntSpec![state.kind].presentationFrames,
+      ownerKey:JSON.stringify([this.slotIndex,this.positionResetGeneration,state.entryFrame,state.kind,state.facing])};
+  }
+  private tickTaunt(input: CharacterInput): void {
+    if (!this.tauntSpec) return;
+    const active = this.tauntPresentation;
+    if (active) {
+      active.framesElapsed++;
+      const spec = this.tauntSpec[active.kind];
+      const control = Math.abs(input.moveX) > .3 || Math.abs(input.moveY ?? 0) > .3 ||
+        input.jump || input.attack || input.attackHeavy || input.special || input.shield || input.grab || input.dodge;
+      if (!this.isGrounded() || active.framesElapsed >= spec.presentationFrames ||
+          (active.framesElapsed >= spec.cancelAfterFrames && control)) this.tauntPresentation = null;
+      return;
+    }
+    if (input.appeal !== true || this.prevAppealHeld || !this.isGrounded() ||
+        !this.canPresentUncommittedBody() || !this.canStartCommittedAction()) return;
+    // Authored keyboard/pad chord: native D-pad selector and status rate remain separate.
+    const kind: TauntKind = (input.moveY ?? 0) < -.3 ? 'up' : (input.moveY ?? 0) > .3 ? 'down' : 'side';
+    this.tauntPresentation = {kind, framesElapsed: 0, facing: this.facing,entryFrame:this.simulationInputFrame};
+    this.notifySourceTauntEquipmentOwnerChanged();
+  }
+
   setGrabSpec(spec: GrabSpec | null): void {
     if (spec !== null) {
       validateGrabSpec(spec);
     }
+    this.clearGrabSourcePresentation();
     this.grabSpec = spec;
+    this.captureAttachmentDiagnostic=null;
+  }
+
+  /** Published budget with explicit logical-input sampling adaptation. */
+  getCaptureBudgetState() {
+    const budget = this.ultimateCaptureBudget;
+    return budget && this.grabState.name === 'holding' ? {entryPercent: budget.entryPercent,
+      initialFrames: budget.initialFrames, totalFrames: reducedCaptureFrames(budget.initialFrames, budget.mash),
+      framesElapsed: this.grabState.active?.framesElapsed ?? 0, reduction: budget.mash.reduction,
+      lastAcceptedMash: budget.mash.lastAccepted ? {...budget.mash.lastAccepted} : null} : null;
+  }
+  getPostReleaseGrabImmunityRemaining(): number { return this.postReleaseGrabImmunity.remaining; }
+  getGrabReleasePresentationState() {
+    const state = this.grabReleasePresentation;
+    return state ? {role: state.role, framesElapsed: state.framesElapsed,
+      totalFrames: ULTIMATE_GRAB_RELEASE_FRAMES, facing: state.facing, groundedAtEntry: state.groundedAtEntry} : null;
+  }
+  private acceptUltimateCaptureMash(target: Character, input: CharacterInput, frozen = false): void {
+    if (this.grabTarget !== target || this.grabState.name !== 'holding') return;
+    const budget=this.grabState.active?.cargo?this.ultimateCargoBudget:this.ultimateCaptureBudget;
+    if(!budget)return;
+    budget.mash = frozen ? {...budget.mash, previousHeld: initialCaptureMash(input).previousHeld}
+      : tickCaptureMash(budget.mash, input, target.capturePresentation?.state.framesElapsed ?? 0);
+  }
+  private installGrabRelease(role: 'captor'|'target', bornFrame: number): void {
+    this.sourceCutAdmissionFrame=bornFrame;
+    this.grabReleasePresentation = {role, framesElapsed: 0, lastFrame: bornFrame,
+      facing: this.facing, groundedAtEntry: this.isGrounded()};
+    this.ordinaryPresentation = null;
+    this.tauntPresentation = null;
+    this.notifySourceCaptureEquipmentOwnerChanged();
+  }
+  private tickGrabReleaseInput(input: CharacterInput): boolean {
+    const state = this.grabReleasePresentation;
+    if (!state) return false;
+    if (state.lastFrame !== this.simulationInputFrame) {
+      state.framesElapsed += 1; state.lastFrame = this.simulationInputFrame;
+    }
+    if (state.framesElapsed >= ULTIMATE_GRAB_RELEASE_FRAMES) { this.grabReleasePresentation = null; return false; }
+    this.scene.matter.body.setVelocity(this.body, {x: 0, y: this.body.velocity.y});
+    this.prevJumpHeld = input.jump; this.prevAttackHeld = input.attack === true;
+    this.prevHeavyHeld = input.attackHeavy === true; this.prevSpecialHeld = input.special === true;
+    this.prevShieldHeld = input.shield === true; this.prevDodgeHeld = input.dodge === true;
+    this.prevGrabHeld = input.grab === true;
+    return true;
   }
 
   /** Read the currently-registered grab spec (or `null`). */
   getGrabSpec(): GrabSpec | null {
     return this.grabSpec;
   }
+  /** The selected whiff variant and timing, including dash/pivot overrides. */
+  getGrabPresentationState() {
+    if (!this.grabSpec || this.grabState.name === 'idle') return null;
+    const spec = this.grabVariantSpec ?? this.grabSpec;
+    const phaseFramesElapsed = this.grabState.active?.framesElapsed ?? 0;
+    const framesElapsed = phaseFramesElapsed + (this.grabState.name === 'whiffActive' ? spec.startupFrames
+      : this.grabState.name === 'whiffRecovery' ? spec.startupFrames + spec.activeFrames : 0);
+    return { variant: this.grabPresentationVariant, spec, phase: this.grabState.name,
+      phaseFramesElapsed, framesElapsed, facing: this.facing };
+  }
+  /** Neutral actor-owned clocks; no donor fighter sheet/name is selected. */
+  protected notifySourceCaptureEquipmentOwnerChanged():void{}
+  /** Actual producer clocks/participants. SCRIPT raw+1 is a selected engine
+   * ordinal adapter, independently from body visual contact clocks. */
+  getSourceCaptureEquipmentOwner(){
+    const generation=this.positionResetGeneration,groupKey=JSON.stringify([this.slotIndex,generation,this.sourceGrabAdmissionFrame]);
+    const release=this.getGrabReleasePresentationState(),throwing=this.getThrowPresentationState(),pummel=this.getSourceGrabPresentationState().pummel,
+      grab=this.getGrabPresentationState(),target=this.grabTarget;
+    const captureKey=target&&target.grabbedBy===this?JSON.stringify([target.slotIndex,target.positionResetGeneration,target.captureSequence]):null;
+    const make=(motion:import('./linkCaptureActionEquipment').LinkCaptureActionEquipmentMotion,rawAge:number,facing:1|-1,key:string,entryFrame:number,acceptedCaptureKey=captureKey)=>
+      ({motion,rawAge,facing,ownerKey:key,groupKey,captureKey:acceptedCaptureKey,entryFrame,generation});
+    if(release?.role==='captor')return make('catch_cut',release.framesElapsed,release.facing,`cut:${groupKey}:${this.sourceCutAdmissionFrame}`,this.sourceCutAdmissionFrame);
+    if(throwing&&!throwing.cargo&&throwing.entryFrame!==null){const suffix={forward:'f',back:'b',up:'hi',down:'lw'} as const;
+      return make(`throw_${suffix[throwing.direction]}`,throwing.framesElapsed,throwing.facing,`throw:${throwing.damageTransaction?.transactionKey??groupKey+':'+throwing.entryFrame}`,throwing.entryFrame,throwing.damageTransaction?JSON.stringify(['accepted-throw-capture',throwing.damageTransaction.targetGeneration,throwing.damageTransaction.captureId,throwing.damageTransaction.transactionKey]):captureKey);}
+    if(pummel&&pummel.damageTransaction)return make('catch_attack',pummel.framesElapsed,pummel.facing,`pummel:${pummel.damageTransaction.transactionKey}`,pummel.damageTransaction.entryFrame);
+    if(!grab||this.grabState.active?.cargo)return null;
+    if(grab.phase==='holding'&&captureKey){const held=this.sourceGrabHeld;
+      if(held)return make('catch_wait',held.framesElapsed,held.facing,`wait:${groupKey}:${captureKey}:after-pummel:${this.sourceHeldAdmissionFrame}`,this.sourceHeldAdmissionFrame);
+      const pulled=grab.framesElapsed<21;
+      return make(pulled?'catch_pull':'catch_wait',pulled?grab.framesElapsed:grab.framesElapsed-21,grab.facing,`${pulled?'pull':'wait'}:${groupKey}:${captureKey}`,this.sourceCaptureAdmissionFrame);}
+    if(['whiffStartup','whiffActive','whiffRecovery'].includes(grab.phase))return make(grab.variant==='dash'?'catch_dash':grab.variant==='pivot'?'catch_turn':'catch',grab.framesElapsed,grab.facing,`grab:${groupKey}`,this.sourceGrabAdmissionFrame);
+    return null;
+  }
+  getSourceGrabPresentationState(){
+    const p=this.sourceGrabPummel,h=this.sourceGrabHeld;
+    return {pummel:p&&this.sourceGrabLinkValid(p.target,p.captureId,p.targetGeneration)?
+      {framesElapsed:p.framesElapsed,facing:p.facing,damageTransaction:this.pummelDamageTransaction}:null,
+      heldAfterPummel:h&&this.sourceGrabLinkValid(h.target,h.captureId,h.targetGeneration)?{facing:h.facing}:null};
+  }
+  getSourceRecipientPresentationState(){
+    const capture=this.getCapturePresentationState(),captor=this.grabbedBy;
+    if(!capture||!captor)return null;
+    const throwing=captor.getThrowPresentationState();
+    const captureIdentity={targetPlayerIndex:this.slotIndex,targetGeneration:this.positionResetGeneration,captorPlayerIndex:captor.slotIndex,
+      captorGeneration:captor.positionResetGeneration,captureId:capture.captureId};
+    return{captureIdentity,captureId:capture.captureId,generation:this.positionResetGeneration,facing:capture.facing,
+      phase:throwing?'throw' as const:capture.event.kind==='damage'?'damage' as const:
+        capture.event.kind==='entry'?'entry' as const:'hold' as const,
+      framesElapsed:throwing?.framesElapsed??(capture.event.kind==='damage'?capture.event.framesElapsed:capture.framesElapsed),
+      throwDirection:throwing?.direction??null,cargo:captor.grabState.active?.cargo===true,
+      cargoStartupRemaining:captor.grabState.active?.cargoStartupRemaining??0,
+      cargoLiftPending:captor.sourceCargoEntry!==null,
+      selectedHeight:this.sourceCaptureMotionFamily?.captureId===capture.captureId&&
+        this.sourceCaptureMotionFamily.generation===this.positionResetGeneration&&
+        this.sourceCaptureMotionFamily.captorGeneration===captor.positionResetGeneration?
+        this.sourceCaptureMotionFamily.authoredCaptureMotionFamily:this.id==='link'?'high' as const:null,
+      captureMotionFamilyProvenance:this.sourceCaptureMotionFamily?.captureMotionFamilyProvenance??null,
+      // Native motion_list captures Link HIGH; common victim dispatch remains
+      // separately sourced. This named field is not a guessed low/high selector.
+      templateNativeMotionHeight:this.id==='link'?'high' as const:null};
+  }
+  getSourceGroundRecoveryPresentationState(){return this.getReactionPresentationState();}
 
   /** Read-only snapshot of the live grab state-machine record. */
   getGrabState(): GrabState {
@@ -3527,18 +7156,109 @@ export class Character {
    * No-op for destroyed or already-grabbed targets (defensive
    * against duplicate collision events).
    */
+  /** Authored2D held-context floor clearance. Move the physical root with
+   * its paired drawing/receiving; native victim-bone attachment is separate. */
+  private clearedCaptiveY(grabber: Character, requestedY: number): number {
+    if (this.id !== 'pikachu' || !['holding', 'throwing'].includes(grabber.grabState.name) ||
+        grabber.grabState.active?.cargo || !grabber.isGrounded()) return requestedY;
+    // Half a pixel preserves clearance through the next normal gravity dose.
+    return Math.min(requestedY, grabber.getBodyBottomY() - getPikachuCapturedBodyBottomEnvelope(
+      this.capturePresentation?.state.event.kind === 'damage' && this.capturePresentation.state.event.framesElapsed < 20) - .5);
+  }
+
   applyGrabbed(grabber: Character): void {
+    if (this.postReleaseGrabImmunity.remaining > 0) return;
+    this.grabReleasePresentation = null;
+    this.ultimateCaptureBudget = null;
+    this.clearLedgeAttackAttachment();
+    this.clearPikachuLedgeAttachment();
+    this.tauntPresentation = null;
     if (this.destroyed) return;
     if (this.grabbedBy !== null) return;
+    this.clearGrabSourcePresentation();
+    this.donkeykongFullHopStep=null;this.donkeykongOrdinaryVerticalTick=false;
+    if (this.grabTarget !== null) {
+      // Being caught interrupts our own captive link as well as our motion.
+      this.grabTarget.releaseFromGrab('break');
+      this.grabTarget = null;
+      this.grabState = resetGrabState();
+    }
+    this.buriedState=null;
+    this.ultimateCargoBudget=null;
     this.grabbedBy = grabber;
+    this.throwReleaseInvincible = false;
+    this.captureAttachmentEntry={captor:grabber,captureId:this.captureSequence+1,captorReset:grabber.positionResetGeneration,recipientReset:this.positionResetGeneration};
+    this.capturePresentation = { captor: grabber, state: {
+      captureId: ++this.captureSequence, active: true, framesElapsed: 0,
+      facing: this.facing, groundedAtEntry: this.isGrounded(),
+      captor: { characterId: grabber.id, bodyId: grabber.body.id,
+        entryFacing: grabber.facing, facing: grabber.facing },
+      event: { sequence: ++this.captureEventSequence, kind: 'entry', framesElapsed: 0 },
+    } };
+    const motionFamily=parseAuthoredCaptureMotionFamily(grabber.grabVariantSpec??grabber.grabSpec??{},'accepted grab');
+    this.sourceCaptureMotionFamily=motionFamily?{...motionFamily,captureId:this.captureSequence,
+      generation:this.positionResetGeneration,captorGeneration:grabber.positionResetGeneration}:null;
+    this.shieldPresentation = null;
+    this.attackClankRemaining = 0;
+    this.attackClankLockedStep = false;
+    this.jumpPresentation = null;
+    this.pikachuAuxiliaryAir = null;
+    this.pikachuLedgeJump=null;this.pikachuGroundRecovery=null;this.groundRecovery=null;this.clearSurfaceTech();
+    this.pendingFootstoolJump=false;this.pendingFootstoolPhantom=false;this.sourceLinkFootstoolPendingContact=null;this.donkeykongFootstoolPerformer=null;this.sourceLinkFootstool=null;this.footstoolRecipient=null;this.footstoolMini=null;this.pikachuFootstoolVisual=null;
+    this.pikachuRespawnPresentation=null;this.clearItemAction();
+    this.donkeykongTurnBrake=null;this.restoreSourcedGroundFriction();
+    this.throwPresentation = null;
+    this.throwRootMotionApplied = false;
+    this.landingPresentation = null;
+    // Capture cancels a pending takeoff; releasing a hold must not resume the
+    // jumpsquat or action intent that existed before the fighter was caught.
+    this.jumpsquatRemaining = 0;
+    this.jumpsquatShortHop = false;
+    this.jumpsquatFacing = null;
+    this.tapJumpBufferFrames = 0;
+    this.shortHopRising = false;
+    this.airJumpRising = false;
+    this.jumpInputBufferFrames = 0;
+    this.offensiveActionBuffer = null;
+    if (this.chargingSpecial !== null) this.storedSpecialCharge = null;
+    this.chargingSpecial = null;
+    this.chargingSmash = null;
+    // Capture interrupts a raised shield, including shieldstun. Keep its
+    // health and regeneration history; resetting the shield would refill it.
+    // Captive input skips shield ticking, so leaving it raised would let it
+    // absorb the grabber's pummels and the eventual throw.
+    if (isShieldRaised(this.shieldState)) {
+      this.shieldState = Object.freeze({
+        ...this.shieldState,
+        name: 'idle',
+        blockStunRemaining: 0,
+      });
+    }
+    this.shieldActiveFrames = 0;
     // Cancel any in-flight attack — the target was caught mid-swing.
     this.cancelAttack();
     this.cooldownRemaining = 0;
+    this.helpless = false;
     // Clear hitstun / hitlag — the target is now in a different
     // captive state.
     this.hitstunRemaining = 0;
     this.hitlagRemaining = 0;
+    this.hitlagPosition = null;
     this.pendingKnockback = null;
+    this.sdiState = createReferenceSdiState();
+    this.sdiMultiplier = 1;
+    this.attackerHitlagVelocity = null;
+    this.pikachuLedgeFlightHitlagRelease=false;
+    this.prePhysicsVelocityY = null;
+    this.launchVelocity = null;
+    this.referenceLaunch = null;
+    this.hitstunGravityVelocityY = 0;
+    this.pendingHitstunGravityCorrection = 0;
+    if (this.id === 'pikachu' && grabber.grabState.name === 'holding') {
+      this.scene.matter.body.setPosition(this.body, {
+        x: this.body.position.x, y: this.clearedCaptiveY(grabber, this.body.position.y),
+      });
+    }
     // Pin velocity at zero so the body doesn't drift between frames
     // while the grabber's tick re-pins position each step.
     this.scene.matter.body.setVelocity(this.body, { x: 0, y: 0 });
@@ -3549,8 +7269,55 @@ export class Character {
    * state machine transitions out of `'holding'` (throw release,
    * mash-out, force break, KO).
    */
-  releaseFromGrab(): void {
+  releaseFromGrab(reason: NonNullable<CapturePresentationState['event']['releaseReason']> = 'external'): void {
+    if (this.grabbedBy === null) return;
+    this.sourceCaptureMotionFamily=null;
+    if (this.capturePresentation) {
+      const state = this.capturePresentation.state;
+      state.active = false;
+      state.captor.facing = this.grabbedBy.facing;
+      state.event = { sequence: ++this.captureEventSequence, kind: 'release',
+        framesElapsed: 0, releaseReason: reason };
+    }
+    const captor = this.grabbedBy;
+    captor.clearGrabSourcePresentation();
+    if (captor.grabSpec?.ultimateCapture && reason !== 'reset') {
+      this.postReleaseGrabImmunity = {remaining: ULTIMATE_POST_RELEASE_GRAB_IMMUNITY_FRAMES, lastFrame: captor.simulationInputFrame};
+      if (reason === 'hold-expired') {
+        this.installGrabRelease('target', captor.simulationInputFrame);
+        captor.installGrabRelease('captor', captor.simulationInputFrame);
+      }
+    }
     this.grabbedBy = null;
+    this.captureAttachmentEntry=null;
+    if(captor.captureAttachmentBypass?.link.target===this)captor.captureAttachmentBypass=null;
+  }
+
+  private noteCaptureDamage(damage: number, damageSource: NonNullable<CapturePresentationState['event']['damageSource']>): void {
+    if (damage > 0 && this.grabbedBy !== null && this.capturePresentation) {
+      this.capturePresentation.state.event = { sequence: ++this.captureEventSequence, kind: 'damage',
+        framesElapsed: 0, damage, damageSource };
+      if (this.id === 'pikachu') {
+        const y = this.clearedCaptiveY(this.grabbedBy, this.body.position.y);
+        this.scene.matter.body.setPosition(this.body, { x: this.body.position.x, y });
+        if (this.hitlagPosition) this.hitlagPosition = { x: this.hitlagPosition.x, y };
+      }
+    }
+  }
+
+  private tickCapturePresentation(): void {
+    const state = this.capturePresentation?.state;
+    if (!state) return;
+    if (state.active) state.framesElapsed += 1;
+    state.event.framesElapsed += 1;
+  }
+
+  /** Release is historical inactive context, never a new recovery commitment. */
+  getCapturePresentationState(): CapturePresentationState | null {
+    if (this.destroyed || !this.capturePresentation) return null;
+    const { state, captor } = this.capturePresentation;
+    return { ...state, captor: { ...state.captor, facing: state.active ? captor.facing : state.captor.facing },
+      event: { ...state.event } };
   }
 
   /**
@@ -3567,15 +7334,22 @@ export class Character {
    *   • stickX against facing       → 'back'
    *   • else → null
    */
+  private getCurrentThrowSet(state:GrabState=this.grabState){
+    const spec=this.grabSpec!;return state.active?.cargo?state.active.throwAirborne?spec.cargo?.airThrows??spec.cargo?.throws??spec.throws:spec.cargo?.throws??spec.throws:spec.throws;
+  }
+
   private readThrowDirectionInput(input: CharacterInput): ThrowDirection | null {
     if (this.grabState.name !== 'holding') return null;
+    if(this.grabState.active?.cargo)return selectCargoThrow({attackPressed:input.attack===true&&!this.prevAttackHeld,
+      grabPressed:input.grab===true&&!this.prevGrabHeld,moveX:input.moveX,moveY:input.moveY},this.facing);
+    if (this.grabState.active?.cargo && !(input.attack && !this.prevAttackHeld) && !(input.grab && !this.prevGrabHeld)) return null;
     const moveY = input.moveY ?? 0;
     if (moveY < -0.3) return 'up';
     if (moveY > 0.3) return 'down';
     const moveX = input.moveX;
     if (moveX > 0.3) return this.facing === 1 ? 'forward' : 'back';
     if (moveX < -0.3) return this.facing === 1 ? 'back' : 'forward';
-    return null;
+    return this.grabState.active?.cargo ? 'forward' : null;
   }
 
   /**
@@ -3588,6 +7362,18 @@ export class Character {
     after: GrabState,
   ): void {
     if (this.grabSpec === null) return;
+    if(before.name!=='whiffStartup'&&after.name==='whiffStartup')this.sourceGrabAdmissionFrame=this.simulationInputFrame;
+    if(after.active?.cargo&&!before.active?.cargo&&this.grabTarget){
+      this.sourceGrabPummel=null;this.sourceGrabHeld=null;
+      if(this.grabSpec.cargo?.entryMotionFrames!==undefined&&this.isGrounded())
+        this.sourceCargoEntry={...beginGrabSourcePresentation(this.simulationInputFrame,this.facing),target:this.grabTarget,captureId:this.grabTarget.captureSequence,targetGeneration:this.grabTarget.positionResetGeneration,cargo:true};
+      const spent=(before.active?.framesElapsed??0)+(this.ultimateCaptureBudget?.mash.reduction??0);
+      this.ultimateCargoBudget={initialFrames:ultimateCargoFrames(this.grabTarget.getDamagePercent(),spent),mash:initialCaptureMash(this.grabTarget.lastCaptureInput)};
+      this.ultimateCaptureBudget=null;
+      this.setInvincibility(this.grabSpec.throws.forward.invincibilityFrames??0,'invincible');
+    }
+    if(!after.active?.cargo)this.ultimateCargoBudget=null;
+    if(after.name!=='holding'){this.sourceGrabPummel=null;this.sourceGrabHeld=null;this.sourceCargoEntry=null;this.pummelDamageTransaction=null;}
     const enteredWhiffActive =
       before.name !== 'whiffActive' && after.name === 'whiffActive';
     const leftWhiffActive =
@@ -3596,19 +7382,9 @@ export class Character {
       // A DASH GRAB reaches further: shift the range hitbox forward by
       // `rangeBonusX` (a shallow spec clone — spawnGrabHitbox still mirrors
       // offsetX by facing, so the bonus extends the reach in front).
-      const spawnSpec =
-        this.dashGrabActive && this.grabSpec.dashGrab != null
-          ? {
-              ...this.grabSpec,
-              hitbox: {
-                ...this.grabSpec.hitbox,
-                offsetX:
-                  this.grabSpec.hitbox.offsetX + this.grabSpec.dashGrab.rangeBonusX,
-              },
-            }
-          : this.grabSpec;
+      const spawnSpec = this.grabVariantSpec ?? this.grabSpec;
       this.grabHitboxBody = spawnGrabHitbox(
-        this.scene as unknown as HitboxScene,
+        this.scene,
         {
           id: this.id,
           position: this.body.position,
@@ -3619,8 +7395,27 @@ export class Character {
       );
     }
     if (leftWhiffActive && this.grabHitboxBody !== null) {
-      despawnHitbox(this.scene as unknown as HitboxScene, this.grabHitboxBody);
+      this.donkeykongCatchPoseConsumer.forget(this.grabHitboxBody);
+      this.donkeykongCatchCollisionDiagnostic=null;
+      despawnHitbox(this.scene, this.grabHitboxBody);
       this.grabHitboxBody = null;
+    }
+    if (after.name === 'throwing' && this.grabTarget !== null && after.active?.throwDirection) {
+      if (before.name !== 'throwing') this.throwPresentation = { damageTransaction:this.beginCapturedDamageTransaction(
+        `${this.grabSpec.id}.throw.${after.active.cargo?'cargo.':''}${after.active.throwDirection}`,`throw-${after.active.throwDirection}`),direction: after.active.throwDirection,
+        facing: this.facing, entryFrame:this.simulationInputFrame,releaseElapsed: null, recoveryAtRelease: 0,cargo:after.active.cargo,airborne:after.active.throwAirborne };
+      const spec = getThrowByDirection(this.getCurrentThrowSet(after),after.active.throwDirection);
+      const hit = spec.heldTargetHits?.find(event => event.frame === after.active!.framesElapsed);
+      const transaction=this.throwPresentation?.damageTransaction??null;
+      if (hit&&this.capturedDamageTransactionValid(transaction,this.grabTarget)) {
+        const beforeDamage=this.grabTarget.getDamagePercent();
+        const freeze = computeHitlag({ damage: hit.hitlagDamage ?? hit.damage*transaction.staleMultiplier,
+          targetPercent: this.grabTarget.getDamagePercent(), multiplier: hit.hitlagMultiplier, electricCollision: hit.electricCollision });
+        this.grabTarget.addDamage(hit.damage*transaction.staleMultiplier, 'throw-pre-hit',this.slotIndex);
+        this.throwPresentation!.damageTransaction=this.commitCapturedDamageTransaction(transaction,this.grabTarget.getDamagePercent()-beforeDamage);
+        this.grabTarget.armAttackerHitlag(freeze);
+        this.armAttackerHitlag(freeze);
+      }
     }
     // throwing → cooldown transition fires the throw release.
     const throwReleased =
@@ -3628,21 +7423,49 @@ export class Character {
     if (throwReleased && this.grabTarget !== null) {
       const dir = before.active?.throwDirection;
       if (dir !== null && dir !== undefined) {
-        const throwSpec = getThrowByDirection(this.grabSpec.throws, dir);
+        this.throwPresentation = {damageTransaction:this.throwPresentation?.damageTransaction??null,direction: dir, facing: this.throwPresentation?.facing ?? this.facing,
+          entryFrame:this.throwPresentation?.entryFrame??null,releaseElapsed: (before.active?.framesElapsed ?? 0) + 1, recoveryAtRelease: after.cooldownRemaining,cargo:before.active?.cargo,airborne:before.active?.throwAirborne };
+        const throwSpec = getThrowByDirection(this.getCurrentThrowSet(before),dir);
+        // Source protection includes the release integration, even though the
+        // grab machine has already advanced into ordinary recovery.
+        this.throwReleaseInvincible = (before.active?.framesElapsed ?? 0) + 1 < (throwSpec.invincibilityFrames ?? 0);
         // Apply damage + knockback to the target via the standard
         // hit pipeline so existing combat math (percent scaling,
         // hitlag, etc.) all fire identically to a regular hit.
-        this.grabTarget.releaseFromGrab();
+        const target=this.grabTarget,transaction=this.throwPresentation.damageTransaction;
+        const validTransaction=this.capturedDamageTransactionValid(transaction,target)?transaction:null;
+        const capture=target.getSourceRecipientPresentationState()?.captureIdentity,throwEntryFrame=this.throwPresentation.entryFrame;
+        const throwRelease:HitInfo['combatThrowRelease']=capture&&validTransaction&&typeof throwEntryFrame==='number'?Object.freeze({kind:'accepted-capture-throw-release',grabId:this.grabSpec.id,
+          producerPlayerIndex:this.slotIndex,producerGeneration:this.positionResetGeneration,
+          targetPlayerIndex:this.grabTarget.slotIndex,targetGeneration:this.grabTarget.positionResetGeneration,
+          capture:Object.freeze({captureId:capture.captureId,targetPlayerIndex:capture.targetPlayerIndex,targetGeneration:capture.targetGeneration,
+            captorPlayerIndex:capture.captorPlayerIndex,captorGeneration:capture.captorGeneration}),
+          direction:dir,cargo:before.active?.cargo===true,airborne:before.active?.cargo?before.active.throwAirborne===true:!this.isGrounded(),
+          throwEntryFrame,releaseFrame:this.simulationInputFrame,
+          releaseElapsed:this.throwPresentation.releaseElapsed!,descriptor:structuredClone(throwSpec),
+          damageSource:Object.freeze({baseDamage:throwSpec.damage,staleMultiplier:validTransaction!.staleMultiplier,
+            queueMoveId:validTransaction!.queueMoveId,transactionKey:validTransaction!.transactionKey})}):undefined;
+        const beforeReleaseDamage=target.getDamagePercent();
+        this.grabTarget.releaseFromGrab('throw');
         // Back throw launches the victim BEHIND the grabber — flip the
         // facing the knockback's +x mirrors against, so a back-throw's
         // positive knockback.x sends them the opposite way from a forward
         // throw (previously every throw used `this.facing`, so back-throw
         // launched the wrong direction).
         this.grabTarget.applyHit({
-          damage: throwSpec.damage,
+          damage: throwSpec.damage*(validTransaction?.staleMultiplier??1),baseDamage:throwSpec.damage,
+          staleMultiplier:validTransaction?.staleMultiplier??1,combatAttackerSlotIndex:this.slotIndex,...(throwRelease?{combatThrowRelease:throwRelease}:{}),
+          hitlagMultiplier: throwSpec.hitlagMultiplier,
+          electricCollision: throwSpec.electricCollision,
           knockback: throwSpec.knockback,
-          facing: (dir === 'back' ? -this.facing : this.facing) as 1 | -1,
+          facing: (throwSpec.launchFacing==='actor'?this.facing:throwSpec.launchFacing==='opposite'?-this.facing:
+            dir === 'back' ? -this.facing : this.facing) as 1 | -1,
         });
+        if(validTransaction)this.throwPresentation.damageTransaction=this.commitCapturedDamageTransaction(validTransaction,target.getDamagePercent()-beforeReleaseDamage);
+        const releaseVelocity=throwSpec.releaseVelocity;
+        if(releaseVelocity&&(releaseVelocity.situation===undefined||releaseVelocity.situation===((before.active?.cargo?before.active.throwAirborne:!this.isGrounded())?'air':'ground')))
+          this.scene.matter.body.setVelocity(this.body,{x:releaseVelocity.x*this.facing,y:releaseVelocity.y});
+        if(throwSpec.reverseFacingAtRelease){this.facing=this.facing===1?-1:1;this.locomotionState=resetLocomotionState(this.facing);}
         this.grabTarget = null;
       }
     }
@@ -3650,9 +7473,15 @@ export class Character {
     const heldToCooldownNoThrow =
       before.name === 'holding' && after.name === 'cooldown';
     if (heldToCooldownNoThrow && this.grabTarget !== null) {
-      this.grabTarget.releaseFromGrab();
+      if(before.active?.cargo&&(this.grabSpec.cargo?.breakDamage??0)>0)this.grabTarget.addDamage(this.grabSpec.cargo!.breakDamage!,'external',this.slotIndex);
+      this.grabTarget.releaseFromGrab('hold-expired');
       this.grabTarget = null;
+      if (this.grabSpec?.ultimateCapture) this.grabState = resetGrabState();
+      this.ultimateCaptureBudget = null;
     }
+    if (after.name !== 'holding') this.ultimateCaptureBudget = null;
+    if (after.name === 'idle' || after.name === 'holding') this.throwPresentation = null;
+    this.notifySourceCaptureEquipmentOwnerChanged();
   }
 
   /**
@@ -3667,14 +7496,20 @@ export class Character {
    */
   resolveGrabConnect(target: Character): void {
     if (this.grabState.name !== 'whiffActive') return;
-    if (target.isGrabbed()) return;
+    if (target.isGrabbed() || target.isCaptureProtected()) return;
+    this.clearGrabSourcePresentation();
     this.grabState = applyGrabConnect(this.grabState);
-    this.grabTarget = target;
+    this.ultimateCaptureBudget = this.grabSpec?.ultimateCapture
+      ? {entryPercent: target.getDamagePercent(), initialFrames: ultimateCaptureFrames(target.getDamagePercent()), mash: initialCaptureMash(target.lastCaptureInput)} : null;
+    this.grabTarget = target;this.sourceCaptureAdmissionFrame=this.simulationInputFrame;
     target.applyGrabbed(this);
     if (this.grabHitboxBody !== null) {
-      despawnHitbox(this.scene as unknown as HitboxScene, this.grabHitboxBody);
+      this.donkeykongCatchPoseConsumer.forget(this.grabHitboxBody);
+      this.donkeykongCatchCollisionDiagnostic=null;
+      despawnHitbox(this.scene, this.grabHitboxBody);
       this.grabHitboxBody = null;
     }
+    this.notifySourceCaptureEquipmentOwnerChanged();
   }
 
   /**
@@ -3779,6 +7614,11 @@ export class Character {
    * press, mirroring the {@link setLightAttack} / {@link setHeavyAttack}
    * / {@link setAerialAttack} contract.
    */
+  setSideSpecial(id:string|null):void {
+    if(id!==null&&!this.attacks.has(id))throw new Error(`Character: unknown side special '${id}'`);
+    this.sideSpecialId=id;
+  }
+  getSideSpecialId():string|null {return this.sideSpecialId;}
   setNeutralSpecial(id: string | null): void {
     if (id !== null && !this.attacks.has(id)) {
       throw new Error(
@@ -3789,6 +7629,25 @@ export class Character {
   }
 
   /** Sub-AC 3.3 — read the wired-up light/heavy/aerial dispatch slot. */
+  /** Read-only current neutral input route at its first active frame. */
+  getCpuNeutralAttackContactPreview(frame:number,previewFacing:1|-1=this.facing){
+    const id=this.lightAttackId??this.defaultAttackId,move=id?this.getAttack(id):null;
+    if(!move||!this.isGrounded()||this.equippedItem)return null;
+    const age=move.hitWindows?.[0]?.startFrame??move.startupFrames,window=move.hitWindows?.find(w=>w.startFrame<=age&&age<w.endFrame);
+    const current=window?resolveAttackHitWindow(move,move,window):move;
+    const hits=current.collisionHits;
+    const position=this.getPosition(),basis=previewFacing;
+    let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
+    const include=(x:number,y:number,r:number)=>{minX=Math.min(minX,x-r);maxX=Math.max(maxX,x+r);minY=Math.min(minY,y-r);maxY=Math.max(maxY,y+r);};
+    if(hits!==undefined){for(const hit of hits){if((hit.damage??current.damage)<=0)continue;const c=hit.capsule;include(position.x+c.start.x*basis,position.y+c.start.y,c.radius);include(position.x+c.end.x*basis,position.y+c.end.y,c.radius);}}
+    else{if(current.damage<=0)return null;const box=current.hitbox,x=position.x+box.offsetX*basis,y=position.y+box.offsetY;
+      minX=x-box.width/2;maxX=x+box.width/2;minY=y-box.height/2;maxY=y+box.height/2;}
+    if(![minX,maxX,minY,maxY].every(Number.isFinite))return null;
+    const moveIdentity=JSON.stringify(move);
+    return{geometryIdentity:JSON.stringify(hits!==undefined?hits.map(hit=>({id:hit.id,capsule:hit.capsule,damage:hit.damage??current.damage})):{rectangle:current.hitbox}),range:{minX,maxX,minY,maxY},provenance:{moveIdentity,generation:this.positionResetGeneration,frame,
+      actorPosition:position,sourceRoot:this.getSourceRootPosition(),facing:basis,intent:'neutral-ground-light' as const,
+      heldItemRoute:'unarmed' as const,previewKind:'first-active' as const}};
+  }
   getLightAttackId(): string | null {
     return this.lightAttackId;
   }
@@ -3930,6 +7789,7 @@ export class Character {
    * traps work mechanically even when unrendered, so this is purely visual.
    */
   getActiveTraps(): ReadonlyArray<{
+    readonly objectId: number;
     readonly x: number;
     readonly y: number;
     readonly width: number;
@@ -3944,6 +7804,7 @@ export class Character {
     readonly moveId: string;
   }> {
     return this.activeTraps.map((t) => ({
+      objectId: t.objectId,
       x: t.x,
       y: t.y,
       width: t.width,
@@ -3964,7 +7825,56 @@ export class Character {
 
   /** True iff a new attack would be allowed to start this frame. */
   canAttack(): boolean {
-    return !this.destroyed && this.activeAttack === null && this.cooldownRemaining === 0;
+    if(this.linkPassiveGuard&&this.linkPassiveGuard.framesElapsed<4)return false;
+    if (this.finalSmashControl) return false;
+    if(this.donkeykongHeavyItemHeld||this.donkeykongHeavyItemAction)return false;
+    if(this.itemEating||this.itemAction||this.itemShooting||this.isHammerLocked())return false;
+    if(this.isSurfaceTechLocking())return false;
+    if(this.buriedState||this.chargingSpecial?.donkeykongPunch)return false;
+    if(this.groundRecovery || this.grabState.active?.cargo)return false;
+    if (this.pikachuLedgeJump?.phase==='start' || this.footstoolRecipient || this.pikachuGroundRecovery || this.attackClankRemaining > 0 || this.attackClankLockedStep) return false;
+    return this.grabReleasePresentation === null && this.tauntPresentation === null && !this.destroyed && this.activeAttack === null && this.cooldownRemaining === 0
+      && this.shieldReleaseRemaining === 0
+      && !this.shieldParryProtected
+      && !this.isInLandingRecovery()
+      && !this.chargingSpecial?.groundedUpSpecial;
+  }
+
+  /**
+   * Item adapters run before applyInput. Predict this step's landing drain
+   * without advancing it, including a Matter touchdown still awaiting tickLanding.
+   */
+  canUseItemsBeforeInput(): boolean {
+    if(this.linkPassiveGuard&&this.linkPassiveGuard.framesElapsed<4)return false;
+    if (this.finalSmashControl) return false;
+    if(this.donkeykongHeavyItemAction)return false;
+    if(this.itemEating||this.itemAction||this.itemShooting||this.isHammerLocked())return false;
+    if(this.isSurfaceTechLocking())return false;
+    const landingCooldown = this.landingRecovery ? Math.max(0, this.cooldownRemaining - 1)
+      : this.cooldownRemaining;
+    const landingAttackEndsThisStep = this.activeAttack !== null &&
+      this.activeAttack === this.landingAttackInstance && this.landingRecovery && landingCooldown === 0;
+    const pendingLanding = !this.prevGrounded && this.isGrounded()
+      ? this.getSpecialLandingFrames() ?? this.getAirDodgeLandingFrames() ??
+        ((this.aerialLandingContext === null ? 0 : getLandingLagFrames(
+          this.aerialLandingContext.move, this.aerialLandingContext.framesElapsed)) ||
+          (this.pendingOrdinaryLandingFrames ?? this.tuning.softLandingFrames ?? 0))
+      : 0;
+    return this.buriedState === null && !this.grabState.active?.cargo && this.pikachuLedgeJump?.phase!=='start' && this.groundRecovery === null && this.footstoolRecipient === null && (this.grabReleasePresentation === null ||
+      this.grabReleasePresentation.framesElapsed + 1 >= ULTIMATE_GRAB_RELEASE_FRAMES) && (this.tauntPresentation === null ||
+      this.tauntPresentation.framesElapsed + 1 >= this.tauntSpec![this.tauntPresentation.kind].cancelAfterFrames) &&
+      !this.destroyed && this.attackClankRemaining === 0 && !this.attackClankLockedStep &&
+      (this.activeAttack === null || landingAttackEndsThisStep) && landingCooldown === 0 &&
+      this.shieldReleaseRemaining <= 1 &&
+      this.shieldParryStunRemaining === 0 &&
+      this.ordinaryLandingRemaining <= 1 && pendingLanding === 0 &&
+      this.hitlagRemaining === 0 && this.hitstunRemaining === 0 &&
+      this.grabbedBy === null && !isGrabActing(this.grabState) &&
+      !isDodgeActing(this.dodgeState) && !isShieldRaised(this.shieldState) &&
+      !isShieldBroken(this.shieldState) && !isInShieldstun(this.shieldState) &&
+      !this.helpless && this.chargingSmash === null && this.chargingSpecial === null &&
+      this.jumpsquatRemaining === 0 && this.knockdownRemaining === 0 && !this.pikachuGroundRecovery &&
+      !isLedgeLockingInput(this.ledgeHangState);
   }
 
   /**
@@ -4011,6 +7921,7 @@ export class Character {
    */
   getAnimationSnapshot(): {
     readonly characterId: CharacterId;
+    readonly assetCharacterId: string;
     readonly facing: 1 | -1;
     readonly destroyed: boolean;
     readonly activeAttack: ActiveAttack | null;
@@ -4019,9 +7930,13 @@ export class Character {
     readonly shield: ShieldState;
     readonly dodge: DodgeState;
     readonly ledgeHang: LedgeHangState;
+    readonly pikachuSpecial: ReturnType<Character['getPikachuSpecialState']>;
+    readonly finalSmash: FinalSmashActorControl | null;
   } {
     return {
       characterId: this.id,
+      assetCharacterId: this.id,
+      finalSmash: this.getFinalSmashPresentation(),
       facing: this.facing,
       destroyed: this.destroyed,
       activeAttack: this.getActiveAttack(),
@@ -4030,6 +7945,7 @@ export class Character {
       shield: this.shieldState,
       dodge: this.dodgeState,
       ledgeHang: this.ledgeHangState,
+      pikachuSpecial: this.getPikachuSpecialState(),
     };
   }
 
@@ -4044,12 +7960,50 @@ export class Character {
     return {
       move: this.activeAttack.move,
       facing: this.activeAttack.facing,
-      phase: this.attackPhase(),
+      phase: this.activeAttack.move.pikachuSpecial && this.activeAttack.hitboxBody !== null ? 'active' : this.attackPhase(),
       framesElapsed: this.activeAttack.framesElapsed,
       hitboxBody: this.activeAttack.hitboxBody,
       chargeHeldFrames: this.activeAttack.chargeHeldFrames,
     };
   }
+  /** Opaque live owner identity accompanies the existing selected item-body
+   * clock. The copied presentation getter alone cannot identify a new swing. */
+  getItemAttackPresentationOwner():{token:object;phase:'active'|'charge';move:AttackMove;rawAge:number;facing:1|-1}|null {
+    const active=this.activeAttack;
+    if(active?.move.itemClip)return{token:active,phase:'active',move:active.move,rawAge:active.framesElapsed,facing:active.facing};
+    const charge=this.chargingSmash??this.chargingSpecial,move=charge?this.attacks.get(charge.moveId):null;
+    if(!charge||!move?.itemClip)return null;
+    const hold=move.itemClip==='item_sword_swing_4'||move.itemClip==='item_starrod_swing_4';
+    return{token:charge,phase:'charge',move,rawAge:hold&&charge.framesHeld>0?charge.framesHeld:this.chargingSmash?.startupElapsed??0,facing:this.facing};
+  }
+
+  /** Live action timing for presentation; a stored charge is not a charge pose. */
+  getAnimationActionState(): {
+    chargingMove: AttackMove | null;
+    chargeHeldFrames: number;
+    chargeStartupElapsed?: number;
+    landingRecoveryRemaining: number;
+  } {
+    const specialCharge = this.pikachuSpecialRuntime?.charge();
+    if (specialCharge && this.activeAttack) return { chargingMove: this.activeAttack.move,
+      chargeHeldFrames: specialCharge.frames, chargeStartupElapsed: specialCharge.startupElapsed, landingRecoveryRemaining: 0 };
+    const charge = this.chargingSmash ?? this.chargingSpecial;
+    const startupElapsed = this.chargingSmash?.startupElapsed;
+    return {
+      chargingMove: charge ? this.attacks.get(charge.moveId) ?? null : null,
+      chargeHeldFrames: charge?.framesHeld ?? 0,
+      ...(startupElapsed === undefined ? {} : { chargeStartupElapsed: startupElapsed }),
+      landingRecoveryRemaining: Math.max(this.ordinaryLandingRemaining,
+        this.landingRecovery ? this.cooldownRemaining : 0),
+    };
+  }
+  /** Read-only actual smash charge owner; its object identity survives holds.
+   * Entry and release are observed separately from a later active attack. */
+  getNormalChargePresentationOwner(){const state=this.chargingSmash;if(!state)return null;
+    const move=this.attacks.get(state.moveId);if(!move)return null;
+    return{token:state,moveId:move.id,sourcePoseId:move.sourcePoseId??null,startupElapsed:state.startupElapsed??0,
+      heldFrames:state.framesHeld,facing:state.facing};}
+  getNormalAttackPresentationOwner(){const active=this.activeAttack;return active?{token:active,move:active.move}:null;}
 
   /**
    * Read-only charge / wind-up progress of the active attack, in
@@ -4085,7 +8039,10 @@ export class Character {
    * `startupFrames <= 0` (collapses the whole startup window to a
    * single full-charge frame rather than dividing by zero).
    */
+  getIntrinsicChargeReadout():{progress:number;label:string}|null {return null;}
   getChargeProgress(): number | null {
+    const specialCharge = this.pikachuSpecialRuntime?.charge();
+    if (specialCharge) return Math.min(1, specialCharge.frames / 80);
     // Hold-to-charge specials (Samus cannon) report their REAL buildup
     // — the fraction of the charge window the button has been held —
     // which is the headline use of this getter. This takes priority
@@ -4132,8 +8089,22 @@ export class Character {
    */
   attemptAttack(id: string): boolean {
     if (!this.canAttack()) return false;
-    const move = this.attacks.get(id);
+    let move = this.attacks.get(id);
     if (!move) return false;
+    this.donkeykongJabContinuation=null;
+    const grounded = this.isGroundedForActionStart();
+    if (!grounded && move.airborneVariant) move = { ...move.airborneVariant, sheetVariant: 'air' };
+    this.clearTumbleForStartedAction();
+    if (move.entryVelocityScale) {
+      const scale = move.entryVelocityScale;
+      const entryY=this.donkeykongOrdinaryEntryVelocityY??this.body.velocity.y;
+      this.clearReferenceLaunch();
+      this.scene.matter.body.setVelocity(this.body, {
+        x: this.body.velocity.x * (grounded ? scale.xGround : scale.xAir),
+        y: entryY * (grounded ? scale.yGround : scale.yAir),
+      });
+      this.donkeykongOrdinaryEntryVelocityY=null;
+    }
     this.activeAttack = {
       move,
       facing: this.facing,
@@ -4142,11 +8113,25 @@ export class Character {
       upSpecial: null,
       chargeHeldFrames: null,
     };
+    if (move.pikachuSpecial) this.getPikachuSpecialRuntime().begin(move, this.activeAttack,
+      move.pikachuSpecial.kind === 'skullBash' && isSmashFlick(this.prevMoveX, this.pikachuSpecialStick.x));
+    // Shockwave down special: an airborne press starts the authored aerial
+    // record instead (same id/type so routing and landing lag still resolve);
+    // a grounded press arms the mash-repeat bookkeeping.
+    const shockwave = this.resolveShockwaveSpec(move);
+    if (shockwave !== null) {
+      if (!grounded && shockwave.aerialVariant) {
+        this.activeAttack.move = { ...shockwave.aerialVariant, id: move.id, type: 'downSpecial', sheetVariant: 'air' };
+        this.shockwaveRepeat = null;
+      } else {
+        this.shockwaveRepeat = shockwave.repeat ? { moveId: move.id, queued: 0, repeats: 0 } : null;
+      }
+    }
     return true;
   }
 
   /**
-   * JAB-COMBO advance — replace the in-flight jab stage with the next
+   * Replace an in-flight combo stage with its authored follow-up,
    * stage of the string (`nextId`), restarting its frame timeline. Unlike
    * {@link attemptAttack} this deliberately BYPASSES `canAttack()` (which
    * would reject because a jab is already active) and arms NO cooldown
@@ -4156,13 +8141,14 @@ export class Character {
    * flip the combo. Returns false (no-op) if the next stage isn't
    * registered or no jab is active.
    */
-  private advanceJabChain(nextId: string): boolean {
+  private advanceChainedAttack(nextId: string, preserveCharge = false): boolean {
     if (this.activeAttack === null) return false;
     const next = this.attacks.get(nextId);
     if (next === undefined) return false;
+    this.donkeykongJabContinuation=null;
     // Despawn the current stage's live hitbox so we never leak a sensor.
     if (this.activeAttack.hitboxBody !== null) {
-      despawnHitbox(this.scene as unknown as HitboxScene, this.activeAttack.hitboxBody);
+      despawnHitbox(this.scene, this.activeAttack.hitboxBody);
     }
     this.activeAttack = {
       move: next,
@@ -4170,7 +8156,7 @@ export class Character {
       framesElapsed: 0,
       hitboxBody: null,
       upSpecial: null,
-      chargeHeldFrames: null,
+      chargeHeldFrames: preserveCharge ? this.activeAttack.chargeHeldFrames : null,
     };
     return true;
   }
@@ -4186,8 +8172,15 @@ export class Character {
    */
   private fireNeutralChargeSpecial(moveId: string, heldFrames: number): void {
     if (!this.canAttack()) return;
-    const move = this.attacks.get(moveId);
+    let move = this.attacks.get(moveId);
     if (!move) return;
+    const maxCharge = (move as AttackMoveWithAnimation).charge?.maxChargeFrames;
+    const grounded = this.isGroundedForActionStart();
+    if (!grounded && move.airborneVariant) move = { ...move.airborneVariant, sheetVariant: 'air' };
+    if (maxCharge !== undefined && heldFrames >= maxCharge && move.fullChargeVariant) {
+      move = { ...move.fullChargeVariant, sheetVariant: grounded ? 'ground' : 'air' };
+    }
+    this.clearTumbleForStartedAction();
     this.activeAttack = {
       move,
       facing: this.facing,
@@ -4226,23 +8219,64 @@ export class Character {
    * can no longer act (mid-attack / cooldown / destroyed) — the charge is
    * simply dropped.
    */
-  private fireSmash(moveId: string, facing: 1 | -1, heldFrames: number): void {
+  private fireSmash(moveId: string, facing: 1 | -1, heldFrames: number, startupElapsed = 0): void {
     if (!this.canAttack()) return;
     this.facing = facing;
     if (!this.attemptAttack(moveId)) return;
     if (this.activeAttack !== null) {
       this.activeAttack.chargeHeldFrames = Math.max(0, Math.round(heldFrames));
+      this.activeAttack.framesElapsed = startupElapsed;
     }
   }
 
-  private neutralChargeMove(): { id: string; charge: ChargeSpec } | null {
+  /** Source-style press charge is opt-in; ordinary shared release controls remain unchanged. */
+  private stepDonkeyKongPunchInput(input:CharacterInput):CharacterInput {
+    const charge=this.chargingSpecial,punch=charge?.donkeykongPunch;
+    if(!charge||!punch)return input;
+    this.donkeykongPunchConsumedFrame=this.simulationInputFrame;
+    this.offensiveActionBuffer=null;this.jumpInputBufferFrames=0;this.tapJumpBufferFrames=0;
+    const previous=punch.state;
+    const chargeSpec=this.neutralChargeMove()?.charge;
+    const next=tickDonkeyKongPunch(previous,{specialPressed:input.special===true&&!this.prevSpecialHeld,
+      shieldPressed:input.shield===true&&!this.prevShieldHeld,shieldHeld:input.shield===true,
+      dodgePressed:input.dodge===true&&!this.prevDodgeHeld,jumpPressed:input.jump&&!this.prevJumpHeld,
+      rollDirection:Math.abs(input.moveX)>=.5?(Math.sign(input.moveX)*punch.facing) as 1|-1:0,
+      grounded:this.isGrounded(),canAirJump:!this.helpless&&this.jumpsUsed<this.tuning.maxJumps,
+      canAirDodge:!this.helpless&&!this.airDodgeUsed},{entryFrames:chargeSpec?.entryFrames??7,maxChargeFrames:charge.maxFrames,cancelFrames:chargeSpec?.cancelFrames??4,airJumpCancelFrames:5,fullBankEndFrames:4});
+    if(next.state){
+      if(previous.phase!=='cancel'&&next.state.phase==='cancel')punch.cancelInput={x:input.moveX,y:input.moveY??0};
+      if(next.state.phase!=='cancel')punch.sourceGrounded=this.isGrounded();
+      punch.state=next.state;charge.framesHeld=next.state.chargeFrames;
+      return input;
+    }
+    this.chargingSpecial=null;
+    if(!next.command)return input;
+    if(next.command.kind==='fire'){
+      this.storedSpecialCharge=null;this.facing=punch.facing;
+      this.fireNeutralChargeSpecial(charge.moveId,next.command.chargeFrames);
+      this.donkeykongPunchFireFrame=this.simulationInputFrame;return input;
+    }
+    this.storedSpecialCharge={moveId:charge.moveId,framesHeld:next.command.chargeFrames};
+    const exit=next.command.exit;
+    if(exit==='shield'){this.prevShieldHeld=false;return {...input,shield:true};}
+    if(exit==='ground-jump'||exit==='air-jump'){this.prevJumpHeld=false;return {...input,jump:true};}
+    if(exit==='roll-forward'||exit==='roll-back'){
+      this.prevDodgeHeld=false;return {...input,shield:false,dodge:true,moveX:(exit==='roll-forward'?1:-1)*punch.facing,moveY:0};
+    }
+    if(exit==='air-dodge'){
+      this.prevDodgeHeld=false;return {...input,shield:false,dodge:true,moveX:punch.cancelInput?.x??0,moveY:punch.cancelInput?.y??0};
+    }
+    return input;
+  }
+
+  private neutralChargeMove(): { id: string; charge: ChargeSpec; airCharge: boolean; storeCharge: boolean; autoFire: boolean } | null {
     if (this.neutralSpecialId === null) return null;
     const move = this.attacks.get(this.neutralSpecialId) as unknown as
       | {
           id: string;
           specialKind?: string;
           charge?: ChargeSpec;
-          chargedProjectile?: { charge: ChargeSpec };
+          chargedProjectile?: { charge: ChargeSpec; airCharge?: boolean; storeCharge?: boolean; autoFire?: boolean };
         }
       | undefined;
     if (!move) return null;
@@ -4255,7 +8289,8 @@ export class Character {
       charge &&
       (move.specialKind === 'charge' || move.specialKind === 'projectile')
     ) {
-      return { id: move.id, charge };
+      return { id: move.id, charge, airCharge: move.chargedProjectile?.airCharge ?? charge.airCharge ?? false,
+        storeCharge: move.chargedProjectile?.storeCharge ?? true, autoFire: move.chargedProjectile?.autoFire ?? false };
     }
     return null;
   }
@@ -4264,8 +8299,9 @@ export class Character {
    * Resolve the move record (possibly a charged clone) to spawn the
    * active attack's hitbox from. For a charge release, lerps the move's
    * `damage` + `knockback` between the `charge.min*` / `charge.max*`
-   * endpoints at the held-frame count via the {@link ChargeSpec} ramp;
-   * every other move returns its authored record unchanged.
+   * endpoints at the held-frame count via the {@link ChargeSpec} ramp.
+   * Damage-only mode preserves the authored reference launch, with charged
+   * damage supplying its stronger growth. Uncharged moves return unchanged.
    */
   private chargedSpawnMove(a: {
     move: AttackMove;
@@ -4274,10 +8310,13 @@ export class Character {
     if (a.chargeHeldFrames === null) return a.move;
     const spec = (a.move as unknown as { charge?: ChargeSpec }).charge;
     if (!spec) return a.move;
+    const damage = computeChargedDamageFromSpec(spec, a.chargeHeldFrames);
     return {
       ...a.move,
-      damage: computeChargedDamageFromSpec(spec, a.chargeHeldFrames),
-      knockback: computeChargedKnockbackFromSpec(spec, a.chargeHeldFrames),
+      damage,
+      ...(a.move.collisionHits ? { collisionHits: scaleAttackCollisionHitDamage(a.move.collisionHits,
+        a.move.damage === 0 ? 1 : damage / a.move.damage) } : {}),
+      knockback: computeChargedKnockbackFromSpec(spec, a.chargeHeldFrames, a.move.knockback),
     };
   }
 
@@ -4315,19 +8354,26 @@ export class Character {
    *     Bear's recovery always produces vertical movement on activation,
    *     consistent with the contract for Sub-AC 3.
    *
-   * Common to all four mechanics: the fighter's `jumpsUsed` counter is
-   * reset so a successful up-B does not consume a regular jump from the
-   * limited budget — the up-special is the dedicated recovery option,
-   * NOT a third jump.
+   * Up-special neither consumes nor restores the separate jump budget.
+   * Landing or grabbing a ledge replenishes it.
    *
    * Returns `false` (without mutating velocity) if the dispatch slot is
    * empty, the move id can't be resolved, or the attack lifecycle
    * gates `attemptAttack`.
    */
   attemptUpSpecial(stickX: number = 0, stickY: number = -1): boolean {
+    if (this.helpless) return false;
     if (this.upSpecialId === null) return false;
     const move = this.attacks.get(this.upSpecialId);
     if (!move) return false;
+    if (move.pikachuSpecial?.kind === 'quickAttack') {
+      this.pikachuSpecialStick = { x: stickX, y: stickY };
+      const started = this.attemptAttack(move.id);
+      if (started) { this.jumpCutArmed = false; this.fastFallLatched = false;
+        this.shortHopRising = false; this.airJumpRising = false; this.jumpsquatRemaining = 0;
+        this.tapJumpBufferFrames = 0; this.jumpInputBufferFrames = 0; }
+      return started;
+    }
     if (!isUpSpecialMove(move)) {
       // Defensive: the dispatch slot should only ever point at an
       // `'upSpecial'`-typed move (the per-fighter slot-wiring helper
@@ -4338,6 +8384,30 @@ export class Character {
     }
     if (!this.canAttack()) return false;
     if (this.destroyed) return false;
+    if (move.upSpecialKind === 'multiHitRising' && move.groundedVariant && this.isGroundedForActionStart()) {
+      const groundedMove = move.groundedVariant;
+      if (groundedMove.charge && move.groundedChargeStartFrame !== undefined) {
+        this.chargingSpecial = { moveId: move.id, framesHeld: 0,
+          maxFrames: groundedMove.charge.maxChargeFrames,
+          groundedUpSpecial: { move: groundedMove, facing: this.facing, startupElapsed: 0, holdFrame: move.groundedChargeStartFrame } };
+        this.clearTumbleForStartedAction();
+        this.storedSpecialCharge = null;
+        this.tapJumpBufferFrames = 0;
+        this.jumpInputBufferFrames = 0;
+        this.jumpsquatRemaining = 0;
+        this.jumpsquatShortHop = false;
+        this.jumpsquatFacing = null;
+        return true;
+      }
+      if (!this.attemptAttack(this.upSpecialId)) return false;
+      this.activeAttack!.move = Character.groundedUpSpecialAttack(move);
+      this.tapJumpBufferFrames = 0;
+      this.jumpInputBufferFrames = 0;
+      this.jumpsquatRemaining = 0;
+      this.jumpsquatShortHop = false;
+      this.jumpsquatFacing = null;
+      return true;
+    }
 
     // Snap the stick to one of the 8 cardinal / diagonal directions when
     // the move's schema demands it (the canonical Smash up-B feel);
@@ -4365,16 +8435,22 @@ export class Character {
     // recovery physics integration" contract for Sub-AC 3.
     this.applyUpSpecialPressPhysics(move, dir);
 
-    // Reset the air-jump budget so the recovery move doesn't burn a
-    // jump. Canonical Smash up-Bs are the dedicated recovery option;
-    // they're orthogonal to the multi-jump counter.
-    this.jumpsUsed = 0;
+    // Recovery neither consumes nor restores the separate jump budget.
+    // Landing or grabbing a ledge replenishes it; damage interruption does not.
     // The up-special owns the vertical velocity from this frame on —
     // an armed short-hop cut from a prior jump must not clip the
     // recovery's rise on button release, and a stale fast-fall latch
     // must not drag the recovery back down.
     this.jumpCutArmed = false;
     this.fastFallLatched = false;
+
+    this.shortHopRising = false;
+    this.airJumpRising = false;
+    this.tapJumpBufferFrames = 0;
+    this.jumpInputBufferFrames = 0;
+    this.jumpsquatRemaining = 0;
+    this.jumpsquatShortHop = false;
+    this.jumpsquatFacing = null;
 
     return true;
   }
@@ -4427,6 +8503,7 @@ export class Character {
     move: UpSpecialMove,
     dir: OctantDirection,
   ): void {
+    this.clearReferenceLaunch();
     switch (move.upSpecialKind) {
       case 'multiHitRising':
         this.applyMultiHitRisingPress(move);
@@ -4447,12 +8524,20 @@ export class Character {
     }
   }
 
-  /** Wolf — straight upward burst with optional facing drift. */
+  /** Legacy burst, or a spinning recovery that retains entry momentum. */
   private applyMultiHitRisingPress(move: MultiHitRisingUpSpecialMove): void {
     const r = move.multiHitRising;
-    const vx = r.driftImpulse * this.facing;
+    const vx = r.sustainedRise ? this.body.velocity.x : r.driftImpulse * this.facing;
     const vy = r.riseImpulse; // Schema mandates this is negative (upward).
     this.scene.matter.body.setVelocity(this.body, { x: vx, y: vy });
+  }
+
+  /** Only the live aerial move owns flight; interruption drops it immediately. */
+  private getSustainedUpSpecialRise(): UpSpecialSustainedRiseSpec | null {
+    const attack = this.activeAttack;
+    if (!attack?.upSpecial || !isUpSpecialMove(attack.move) ||
+        attack.move.upSpecialKind !== 'multiHitRising') return null;
+    return attack.move.multiHitRising.sustainedRise ?? null;
   }
 
   /**
@@ -4601,8 +8686,8 @@ export class Character {
         break;
       }
       case 'multiHitRising':
-        // Press-frame impulse + standard physics integration is the
-        // recovery vector for this kind. No per-frame override.
+        // The optional flight profile is applied by input drift and the
+        // pre-integration gravity hook; legacy moves keep ordinary physics.
         break;
       default: {
         const _exhaustive: never = a.move;
@@ -4705,6 +8790,7 @@ export class Character {
     const framesIntoActive = a.framesElapsed - a.move.startupFrames;
     const descending = framesIntoActive >= dive.riseFrames;
     const vy = descending ? dive.descentVy : dive.riseVy;
+    this.clearReferenceLaunch();
     // The dive owns the vertical motion this frame; horizontal velocity is
     // preserved so the player can steer the plunge slightly.
     this.scene.matter.body.setVelocity(this.body, {
@@ -4713,7 +8799,7 @@ export class Character {
     });
     if (a.hitboxBody !== null) {
       updateHitboxPosition(
-        this.scene as unknown as HitboxScene,
+        this.scene,
         a.hitboxBody,
         this.body.position,
         a.move,
@@ -4727,15 +8813,374 @@ export class Character {
    * floor away from danger. Grants i-frames for the roll and latches the
    * roll lockout that {@link tickAttack} drains while pinning vy to 0.
    */
-  private startGetupRoll(dir: 1 | -1): void {
-    this.getupRollDir = dir;
-    this.getupRollRemaining = GETUP_ROLL_FRAMES;
-    this.facing = dir; // rolls turn you to face the travel direction
-    this.setInvincibility(GETUP_ROLL_FRAMES);
-    this.scene.matter.body.setVelocity(this.body, {
-      x: dir * GETUP_ROLL_SPEED,
-      y: 0,
-    });
+  private recoveryOrigin(): Exclude<ReactionPresentationState['origin'], null> {
+    return this.tripped ? 'trip' : this.knockdownFaceDown ? 'face-down' : 'face-up';
+  }
+
+  /** Explicit reviewed cranial TOP supplied by paired anatomy. */
+  getFootstoolHeadWorldContact():{x:number;y:number}|null{
+    if(this.getFinalSmashPresentation()||this.getFinalVictimPresentationSelection())return this.getFinalSmashHeadWorldContact();
+    const point=selectPackedHeadContact(captureSimulationAnimation(this,0,false));
+    const position=this.getPosition();return point?{x:position.x+point.x,y:position.y+point.y}:null;
+  }
+  /** Pre-input value snapshot; reading it never changes input/state clocks. */
+  getFootstoolParticipant(playerIndex:number,input:CharacterInput):SourceFootstoolParticipant {
+    const p=this.getPosition(),v=this.getVelocity(),vertices=this.body.vertices;
+    const feetY=vertices?.length ? Math.max(...vertices.map(vertex=>vertex.y)) : this.getBodyBottomY();
+    const top=vertices?.length ? Math.min(...vertices.map(vertex=>vertex.y)) : p.y-this.tuning.height/2;
+    const freshLink=this.id==='link';
+    const posedFinal=!!(this.getFinalSmashPresentation()||this.getFinalVictimPresentationSelection());
+    const headBoxes=this.getActiveHurtboxes().filter(h=>this.id==='donkeykong'?h.region==='head'||h.id.endsWith('.head'):
+      freshLink||posedFinal?!h.intangible&&(h.region==='head'||h.id==='head'||h.id.endsWith('.head')):h.id.endsWith('.head'));
+    const head=headBoxes[0];
+    const anatomical=freshLink||this.id==='donkeykong'||posedFinal;
+    const declared=anatomical?this.getFootstoolHeadWorldContact():null;
+    // Current old named-head rows lack a reviewed contact point. This explicit
+    // fallback uses the complete anatomical capsule union, never its first
+    // strip or the movement hull; new rows supply the reviewed point directly.
+    const headEdges=anatomical?headBoxes.flatMap(h=>h.capsule?[
+      Math.min(h.capsule.start.x*this.facing,h.capsule.end.x*this.facing)-h.capsule.radius,
+      Math.max(h.capsule.start.x*this.facing,h.capsule.end.x*this.facing)+h.capsule.radius]:[
+      h.offsetX*this.facing-h.width/2,h.offsetX*this.facing+h.width/2]):[];
+    const headX=declared?.x??(anatomical&&headEdges.length?p.x+(Math.min(...headEdges)+Math.max(...headEdges))/2:p.x+(head?.offsetX??0)*this.facing);
+    const headTop=declared?.y??((this.id==='donkeykong'||freshLink)&&headBoxes.length?p.y+Math.min(...headBoxes.map(h=>h.capsule?
+      Math.min(h.capsule.start.y,h.capsule.end.y)-h.capsule.radius:h.offsetY-h.height/2)):
+      head?.capsule ? p.y+Math.min(head.capsule.start.y,head.capsule.end.y)-head.capsule.radius
+      : top);
+    const normal=!this.destroyed && this.hitlagRemaining===0 && this.hitstunRemaining===0 &&
+      !this.pendingKnockback && !this.grabbedBy && !isGrabActing(this.grabState) &&
+      !isLedgeLockingInput(this.ledgeHangState) && !this.footstoolRecipient;
+    return {playerIndex,characterId:this.id,sourceLinkFootstool:freshLink,x:p.x,y:p.y,feetY,velocityY:v.y,head:{x:headX,top:headTop},
+      freshJump:input.jump && !this.prevJumpHeld,mayJump:normal && this.canAttack() && this.canStartCommittedAction() && !this.helpless&&
+        (!freshLink||canLinkFootstoolJump(this.tuning.jumpImpulse,this.sourceLinkFootstoolRepeatCount,this.sourceLinkFootstoolCooldown))&&
+        (this.id!=='donkeykong'||(this.simulationInputFrame-this.donkeykongLastAttackEndFrame>=DONKEYKONG_FOOTSTOOL_PARAMETERS.postAttackLockoutFrames&&
+          canDonkeyKongFootstoolJump(DONKEYKONG_FOOTSTOOL_BETA_JUMP_BASIS,this.donkeykongFootstoolRepeatCount,this.donkeykongFootstoolCooldown))),
+      // Every fighter can be footstooled (SmashWiki Footstool); without a head region the hull top is the head.
+      mayReceive:normal && (!posedFinal||headBoxes.length>0&&declared!==null) && !this.isCaptureProtected()&&!this.hasDonkeyKongHeavyAirPolicy(),attacking:this.activeAttack!==null,grounded:this.isGrounded()};
+  }
+  canPresentFootstoolRecipient(grounded:boolean):boolean {
+    return this.id!=='pikachu' || selectPikachuAuxiliaryBody(grounded?'footstool_pose':'footstool_air_pose',0)!==null;
+  }
+  queueFootstoolJump(phantom=false,contact?:{jumperIndex:number;jumperGeneration:number;recipientIndex:number;recipientGeneration:number}):void {
+    if(this.id==='link'&&!contact)throw new Error('Fresh footstool requires accepted participant identities');
+    this.sourceLinkFootstoolPendingContact=contact?{...contact}:null;
+    this.donkeykongJabContinuation=null;this.pendingFootstoolJump=true;this.pendingFootstoolPhantom=phantom;
+  }
+  applyFootstoolRecipient(grounded:boolean,entryFrame:number,jumperX?:number,contact?:{jumperIndex:number;jumperGeneration:number;recipientIndex:number;recipientGeneration:number}):void {
+    if(this.id==='link'){
+      if(jumperX===undefined||!Number.isFinite(jumperX)||!contact)throw new Error('Fresh footstool requires actual accepted jumper contact');
+      this.sourceLinkFootstoolRecipientSide=selectLinkFootstoolRecipientSide({jumperX,recipientX:this.getPosition().x,recipientEntryFacing:this.facing});
+      this.sourceLinkFootstool={presentation:{role:'recipient',phase:grounded?this.sourceLinkFootstoolRecipientSide==='back'?'ground-back':'ground-front':'air-pose',
+        framesElapsed:0,facing:this.facing},entryFrame,lastFrame:entryFrame,generation:this.positionResetGeneration,mini:false,phantom:false,contact:{...contact}};
+      this.onIntrinsicSourceInterrupted();this.sourceDamagePresentation=null;this.sourceDamageOwnStop=false;
+    }
+    this.donkeykongFullHopStep=null;this.donkeykongOrdinaryVerticalTick=false;
+    this.clearItemAction();
+    this.donkeykongTurnBrake=null;this.restoreSourcedGroundFriction();
+    if(this.pikachuLedgeFlightHitlagRelease){
+      this.pikachuLedgeFlightHitlagRelease=false;
+      this.attackerHitlagVelocity=null;this.hitlagPosition=null;
+    }
+    this.cancelAttack();this.pikachuSpecialRuntime?.clear();this.pikachuGroundRecovery=null;this.groundRecovery=null;this.clearSurfaceTech();this.pikachuLedgeJump=null;this.clearPikachuLedgeAttachment();
+    this.pikachuAuxiliaryAir=null;this.jumpPresentation=null;this.footstoolMini=null;
+    this.clearReferenceLaunch();this.pendingKnockback=null;this.hitstunRemaining=0;
+    this.fastFallLatched=false;this.airJumpRising=false;this.shortHopRising=false;this.jumpCutArmed=false;
+    this.footstoolRecipient={framesElapsed:0,grounded,facing:this.facing,entryFrame};
+    // StepPose and StepPoseAir emit sys_step_jump at native frame0 on
+    // Top +(0,6,5). The registered root is feet, native Z is horizontal,
+    // and native Y is up at5px/unit. The common effect asset/lifetime is
+    // unavailable: this6-step decorative cue is an explicit beta visual.
+    this.pikachuFootstoolVisual=this.id==='pikachu'
+      ? {x:this.body.position.x+25*this.facing,y:this.body.position.y-5,age:0,entryFrame} : null;
+    this.tumbling=!grounded;this.reactionPresentation=null;
+    if (grounded) this.scene.matter.body.setVelocity(this.body,{x:0,y:0});
+  }
+  getSourceLinkFootstoolPresentationRoute(){
+    const state=this.sourceLinkFootstool;if(!state||state.generation!==this.positionResetGeneration)return null;
+    if(this.finalSmashControl||this.grabbedBy||this.hitstunRemaining>0||this.pendingKnockback||this.sourceDamageOwnStop||
+      !this.footstoolRecipient&&!this.canPresentUncommittedBody())return null;
+    return selectLinkFootstoolBodyRoute(state.presentation);
+  }
+  private advanceSourceLinkFootstoolPresentation():void {
+    const state=this.sourceLinkFootstool;
+    if(this.sourceLinkFootstoolCooldown>0&&this.sourceLinkFootstoolCooldownEntryFrame!==this.simulationInputFrame)this.sourceLinkFootstoolCooldown-=1;
+    if(!state||state.lastFrame===this.simulationInputFrame)return;
+    if(state.generation!==this.positionResetGeneration||this.finalSmashControl||this.grabbedBy||this.hitstunRemaining>0||this.pendingKnockback||
+      !this.footstoolRecipient&&!this.canPresentUncommittedBody()){this.sourceLinkFootstool=null;return;}
+    const age=this.simulationInputFrame===state.entryFrame?state.presentation.framesElapsed:state.presentation.framesElapsed+1;
+    const performer=state.presentation.role==='performer',ground=state.presentation.phase==='ground-front'||state.presentation.phase==='ground-back';
+    if(performer&&(age>=9||this.isGrounded())||ground&&(!this.isGrounded()||age>=(state.presentation.phase==='ground-back'?24:9))||
+      !performer&&!ground&&this.isGrounded()){this.sourceLinkFootstool=null;return;}
+    const previous=state.presentation;
+    this.sourceLinkFootstool={...state,lastFrame:this.simulationInputFrame,presentation:previous.phase==='air-pose'&&age>=8?
+      {...previous,phase:'air-fall',framesElapsed:0}:{...previous,framesElapsed:age}};
+  }
+  private lockPikachuSourceRecoveryInput(input:CharacterInput):void {
+    this.jumpInputBufferFrames=0;this.tapJumpBufferFrames=0;this.offensiveActionBuffer=null;
+    this.prevJumpHeld=input.jump;this.prevAttackHeld=input.attack===true;this.prevHeavyHeld=input.attackHeavy===true;
+    this.prevSpecialHeld=input.special===true;this.prevShieldHeld=input.shield===true;
+    this.prevDodgeHeld=input.dodge===true;this.prevGrabHeld=input.grab===true;
+    this.prevMoveX=clamp(input.moveX,-1,1);this.prevMoveY=clamp(input.moveY??0,-1,1);this.prevGrounded=this.isGrounded();
+  }
+  getPikachuLedgeJumpPresentationState(){
+    const state=this.pikachuLedgeJump;
+    return state?{phase:state.phase,framesElapsed:state.framesElapsed,facing:state.facing}:null;
+  }
+  private pikachuPhysicalHalfHeight(){
+    return this.body.vertices?.length?Math.max(...this.body.vertices.map(v=>v.y))-this.body.position.y:this.tuning.height/2;
+  }
+  getItemThrowContext(direction:ItemDirection){
+    if(this.donkeykongHeavyItemHeld||this.donkeykongHeavyItemAction)return null;
+    const dodge=this.dodgeState.active;
+    const dodgeKind=dodge?.kind==='roll'?(dodge.backward?'back-roll':'roll'):dodge?.kind==='air'?(dodge.directional?'air-directional':'air-neutral'):dodge?.kind==='spot'?'spot':undefined;
+    const externallyBlocked=this.destroyed||this.hitlagRemaining>0||this.hitstunRemaining>0||this.pendingKnockback!==null||
+      this.itemEating!==null||this.itemAction!==null||this.buriedState!==null||this.activeAttack!==null||this.chargingSpecial!==null||this.chargingSmash!==null||
+      this.grabbedBy!==null||isGrabActing(this.grabState)||isLedgeLockingInput(this.ledgeHangState)||this.groundRecovery!==null||
+      this.footstoolRecipient!==null||this.isSurfaceTechLocking()||this.tauntPresentation!==null||this.grabReleasePresentation!==null||
+      this.knockdownRemaining>0||this.helpless||this.isInLandingRecovery()||this.ordinaryLandingRemaining>1||
+      this.shieldReleaseRemaining>1||this.shieldParryStunRemaining>0||this.shieldParryProtected||isShieldBroken(this.shieldState)||isInShieldstun(this.shieldState);
+    return eligibleItemThrowContext({airborne:!this.isGrounded(),normalActionable:this.canUseItemsBeforeInput(),externallyBlocked,
+      shielding:isShieldRaised(this.shieldState),jumpSquatActive:this.jumpsquatRemaining>0,dodgeKind,dodgeAge:dodge?.framesElapsed,direction});
+  }
+  /** Acquisition retains the currently selected body/action. Scene owns the
+   * actual item rectangles, fresh entry input, finite source-window check,
+   * identity/recatch locks and inventory commit. No ground pickup is started. */
+  getItemCatchContext():{context:ItemCatchContext;age:number;externallyBlocked:boolean}|null {
+    if(this.equippedItem!==null||this.donkeykongHeavyItemHeld||this.donkeykongHeavyItemAction)return null;
+    const externallyBlocked=this.destroyed||this.hitlagRemaining>0||this.hitstunRemaining>0||this.pendingKnockback!==null||
+      this.itemAction!==null||this.buriedState!==null||this.chargingSpecial!==null||this.chargingSmash!==null||
+      this.grabbedBy!==null||isGrabActing(this.grabState)||isLedgeLockingInput(this.ledgeHangState)||this.groundRecovery!==null||
+      this.footstoolRecipient!==null||this.isSurfaceTechLocking()||this.tauntPresentation!==null||this.grabReleasePresentation!==null||
+      this.knockdownRemaining>0||this.helpless||this.isInLandingRecovery()||this.ordinaryLandingRemaining>0||
+      this.shieldReleaseRemaining>0||isShieldRaised(this.shieldState)||isShieldBroken(this.shieldState)||isInShieldstun(this.shieldState);
+    const attack=this.activeAttack;
+    if(attack){
+      if(!this.isGrounded()&&attack.move.type==='aerial')return{context:'aerial',age:attack.framesElapsed,externallyBlocked};
+      if(this.isGrounded()&&attack.move.id===this.dashAttackSlotId)return{context:'dash-attack',age:attack.framesElapsed,externallyBlocked};
+      if(this.isGrounded()&&attack.move.type==='tilt')return{context:'tilt',age:attack.framesElapsed,externallyBlocked};
+      return null;
+    }
+    const dodge=this.dodgeState.active;
+    if(!this.isGrounded()&&dodge?.kind==='air')return{context:'air-dodge',age:dodge.framesElapsed,externallyBlocked};
+    if(!this.isGrounded()&&this.canUseItemsBeforeInput())return{context:'air-stationary',age:0,externallyBlocked};
+    return null;
+  }
+  /** Scene reserves the actual item identity before input. Its callback is
+   * emitted once by this source clock, then Scene commits inventory/physics. */
+  beginItemAction(action:ItemAction,simulationFrame:number,entryFacing:1|-1=this.facing):boolean {
+    if(this.isHammerLocked())return false;
+    if(!Number.isInteger(simulationFrame)||simulationFrame<0)return false;
+    const pickup=action.startsWith('pickup-');
+    if((action.startsWith('throw-air-')||action==='air-z-drop')===this.isGrounded())return false;
+    const direction:ItemDirection=action==='ground-drop'||action==='air-z-drop'?'drop':action.includes('-back-')?'back':action.includes('-up-')?'up':action.includes('-down-')?'down':'forward';
+    const context=pickup?(this.isGrounded()&&this.canUseItemsBeforeInput()?'ordinary':null):this.getItemThrowContext(direction);
+    if(!context)return false;
+    this.donkeykongJabContinuation=null;
+    if(action.startsWith('throw-air-')){
+      this.clearSurfaceTech();this.donkeykongFullHopStep=null;this.fastFallLatched=false;
+    }
+    const step=createItemAction(action,entryFacing,fighterItemProfile(this.id)),plan=step.state?.plan??getItemActionPlan(action,fighterItemProfile(this.id));
+    if(context==='shield-cancel'){
+      this.shieldState={...this.shieldState,name:'idle',blockStunRemaining:0};this.shieldReleaseRemaining=0;
+    }
+    if(context==='jump-cancel'){this.jumpsquatRemaining=0;this.jumpsquatFacing=null;this.jumpsquatShortHop=false;this.jumpPresentation=null;}
+    if(context==='roll-cancel'||context==='air-z-drop-cancel'){
+      this.dodgeState=resetDodgeState();this.airDodgeBurst=null;this.airDodgeGravityVelocityY=0;
+    }
+    this.itemActionEntryFrame=simulationFrame;
+    this.itemAction=step.state?{...step.state,entryFrame:simulationFrame,entryFacing}:null;
+    this.itemActionEvents=step.events.map(event=>({...event,action,plan,entryFacing,entryFrame:simulationFrame}));
+    this.jumpInputBufferFrames=0;this.tapJumpBufferFrames=0;this.offensiveActionBuffer=null;
+    this.packedCrouchPhase=null;this.donkeykongTurnBrake=null;this.donkeykongFootstoolPerformer=null;
+    return true;
+  }
+  getItemActionState(){return this.itemAction?{...this.itemAction}:null;}
+  drainItemActionEvents(){const events=this.itemActionEvents;this.itemActionEvents=[];return events;}
+  drainItemActionCompletions(){const completed=this.itemActionCompletions;this.itemActionCompletions=[];return completed;}
+  syncDonkeyKongHeavyItem(held:boolean):void {
+    if(held)this.donkeykongJabContinuation=null;
+    const wasHeld=this.donkeykongHeavyItemHeld;this.donkeykongHeavyItemHeld=held;
+    if(!held){this.donkeykongHeavyCarry=null;this.pendingDonkeyKongHeavyJump=null;this.donkeykongHeavyDownFlickAge=null;this.donkeykongHeavyDownHeld=false;}
+    else if(!wasHeld&&!this.donkeykongHeavyItemAction){this.donkeykongHeavyCarry=beginDonkeyKongHeavyCarry(this.isGrounded(),this.facing);this.donkeykongHeavyCarryEntryFrame=this.simulationInputFrame;}
+  }
+  /** Retirement/interruption ends the delayed action too. Ordinary native
+   * throw release calls sync(false) and retains its recovery drawing. */
+  interruptHeavyItemCarry():void {
+    this.syncDonkeyKongHeavyItem(false);this.clearDonkeyKongHeavyItemAction();
+  }
+  getDonkeyKongHeavyCarryState(){return this.donkeykongHeavyCarry?{...this.donkeykongHeavyCarry}:null;}
+  getDonkeyKongHeavyItemActionState(){return this.donkeykongHeavyItemAction?{...this.donkeykongHeavyItemAction}:null;}
+  drainDonkeyKongHeavyItemActionEvents(){const events=this.donkeykongHeavyItemEvents;this.donkeykongHeavyItemEvents=[];return events;}
+  /** Native heavy callbacks are distinct from light ones. The helper's current
+   * selected unit action rate remains explicitly authored until common status
+   * get-rate/throw-rate caller resolution; it is not native rate parity. */
+  beginDonkeyKongHeavyItemAction(action:DonkeyKongHeavyItemAction,simulationFrame:number,entryFacing:1|-1=this.facing):boolean {
+    if(!Number.isInteger(simulationFrame)||simulationFrame<0||this.itemAction||this.donkeykongHeavyItemAction||!this.canUseItemsBeforeInput())return false;
+    if(action==='pickup'?!this.isGrounded()||this.donkeykongHeavyItemHeld:!this.donkeykongHeavyItemHeld)return false;
+    const carry=this.donkeykongHeavyCarry;
+    if(action!=='pickup'&&carry&&(carry.phase==='landing'||carry.phase==='turn'&&!carry.turnCompleted))return false;
+    if(fighterHeavyItemProfile(this.id).carry.groundOnly&&!this.isGrounded())return false;
+    const step=createDonkeyKongHeavyItemAction(action,entryFacing,this.id);
+    this.donkeykongJabContinuation=null;
+    if(action!=='pickup')this.donkeykongFullHopStep=null;
+    this.donkeykongHeavyItemAction={...step.state,entryFrame:simulationFrame};
+    this.donkeykongHeavyCarry=null;this.pendingDonkeyKongHeavyJump=null;
+    this.donkeykongHeavyItemEvents=[];this.clearSurfaceTech();this.donkeykongTurnBrake=null;this.packedCrouchPhase=null;
+    this.jumpInputBufferFrames=0;this.tapJumpBufferFrames=0;this.offensiveActionBuffer=null;
+    return true;
+  }
+  /** Pikachu's item body: the item action's sparse native drawing (the nearest drawn sample of its
+   * clip; strong throws share the ordinary drawing), else WaitItem while standing with an item. */
+  getPikachuItemPresentationState(){
+    if(this.id!=='pikachu')return null;
+    const eating=this.getRecoveryPresentation();
+    if(eating){const pose=selectPikachuAuxiliaryBody(eating.sheet,eating.age);
+      if(pose)return{sheet:eating.sheet,nativeAge:eating.age,artFrameIndex:pose.artFrameIndex,nativeSample:pose.nativeSample,facing:eating.facing,eventAge:eating.age};}
+    const hammer=this.getHammerPresentation();
+    if(hammer){const pose=selectPikachuAuxiliaryBody(hammer.sheet,hammer.age);
+      if(pose)return{sheet:hammer.sheet,nativeAge:hammer.age,artFrameIndex:pose.artFrameIndex,nativeSample:pose.nativeSample,facing:hammer.facing,eventAge:null};}
+    if(this.donkeykongHeavyItemAction||this.donkeykongHeavyCarry){
+      const heavy=this.donkeykongHeavyItemAction,carry=this.donkeykongHeavyCarry;
+      // The heavy wait resource/common status is unavailable: hold the
+      // native pickup's final carry pose, not a light-item crouch pose.
+      const sheet=heavy?heavy.plan.motion.replace(/4$/,''):carry?.phase==='walk'?'item_heavy_walk':carry?.phase==='landing'?'landing_heavy':'item_heavy_get';
+      const age=heavy?Math.max(0,Math.floor(heavy.nativeFrame)-1):carry?.phase==='walk'||carry?.phase==='landing'?carry.age:24;
+      const pose=selectPikachuAuxiliaryBody(sheet,age);
+      return pose?{sheet,nativeAge:age,artFrameIndex:pose.artFrameIndex,nativeSample:pose.nativeSample,facing:heavy?.facing??carry!.facing,eventAge:heavy?.framesElapsed??null}:null;
+    }
+    const action=this.itemAction;
+    if(action){
+      const base=itemActionSheet(action.plan),sheet=pikachuAuxiliaryBodyEndExclusive(base)===null?base.replace(/4$/,''):base;
+      const end=pikachuAuxiliaryBodyEndExclusive(sheet);
+      const raw=Math.max(0,Math.floor(action.nativeFrame)-1);
+      const age=end===null?null:selectPikachuAuxiliaryBody(sheet,raw)?raw:end-1;
+      const pose=age===null?null:selectPikachuAuxiliaryBody(sheet,age);
+      return pose&&age!==null?{sheet,nativeAge:age,artFrameIndex:pose.artFrameIndex,nativeSample:pose.nativeSample,
+        facing:action.facing,eventAge:action.framesElapsed}:null;
+    }
+    // WaitItem is the neutral held-item body. Preserve the actual ordinary
+    // locomotion, crouch, jump, landing and contextual cue while moving.
+    if(!this.canPresentUncommittedBody()||this.equippedItem===null||!this.isGrounded()||
+        this.locomotionState.name!=='standing' || this.pikachuCrouchCrawl ||
+        this.jumpPresentation || this.pikachuAuxiliaryAir || this.pikachuTurnBrake ||
+        this.pikachuRespawnPresentation || this.getLandingPresentationState())return null;
+    const pose=selectPikachuAuxiliaryBody('item_carry',this.heldItemCarryAge);
+    return pose ? {sheet:'item_carry',nativeAge:this.heldItemCarryAge,artFrameIndex:pose.artFrameIndex,nativeSample:pose.nativeSample,
+      facing:this.facing,eventAge:null} : null;
+  }
+  /** The held item's world point and angle: the socket of the drawing shown now (heldItemSocket.ts),
+   * else the fighter's hand anchor. Held, released and rendered items all use this one point. */
+  getHeldItemSocket():{x:number;y:number;angle:number|null;length:number}{
+    const p=this.getPosition(),axis=this.equippedItem?.definition.visual?.socketAxis??'y';
+    const socket=selectHeldItemSocket(captureSimulationAnimation(this,0,false),axis);
+    if(socket)return{x:p.x+socket.x,y:p.y+socket.y,angle:socket.angle,length:socket.length};
+    return{...computeHeldItemPosition(p,this.facing,this.id),angle:null,length:1};
+  }
+  getHeldItemWorldPosition(){
+    const socket=this.getHeldItemSocket();
+    return{x:socket.x,y:socket.y+(this.equippedItem?.definition.generated?.kind==='link-remote-bomb'?10:this.equippedItem?.definition.generated?.kind==='link-arrow'?15:0)};
+  }
+  /** Authored post-respawn Entry visual cue. Native Rebirth has not been
+   * recovered; this cue never owns controls, kinetics or protection duration. */
+  private advanceRespawnPresentation():void {
+    if (!this.pikachuRespawnPresentation) return;
+    const next=this.pikachuRespawnPresentation.framesElapsed+1;
+    this.pikachuRespawnPresentation=next<(pikachuAuxiliaryBodyEndExclusive('entry')??0)
+      ? {...this.pikachuRespawnPresentation,framesElapsed:next} : null;
+  }
+  /** The respawn coordinator's hook: wait, intangible, on the revival platform at the current (spawn) position. */
+  beginRevivalPlatform():void {
+    this.revivalPlatform={framesElapsed:0,x:this.body.position.x,y:this.body.position.y};
+    this.setRespawnInvincibility(REVIVAL_DISMOUNT_INVINCIBILITY_MAX_FRAMES);
+  }
+  isOnRevivalPlatform():boolean { return this.revivalPlatform!==null; }
+  /** True while the fighter keeps waiting this step (the step is consumed: no action, presentation clocks only). The
+   * dismounting step grants the wait-scaled invincibility and then runs as an ordinary step with the same input. */
+  private holdOnRevivalPlatform(input:CharacterInput):boolean {
+    const platform=this.revivalPlatform;
+    if (!platform || this.destroyed) return false;
+    if (platform.framesElapsed < REVIVAL_PLATFORM_MAX_FRAMES && !isRevivalDismountInput(input)) {
+      this.revivalPlatform={...platform,framesElapsed:platform.framesElapsed+1};
+      this.advanceRespawnPresentation();
+      // Standing on the platform: the wait (idle) clock runs as on a floor.
+      this.syncObservedPresentation(true);
+      return true;
+    }
+    this.revivalPlatform=null;
+    this.setRespawnInvincibility(revivalDismountInvincibilityFrames(platform.framesElapsed));
+    return false;
+  }
+  /** Pikachu only. DK stands (wait) on the revival platform: SmashWiki Revival platform, "After a KO, the character will simply
+   * descend from the sky on the revival platform"; Entry is the intro "before the beginning of a match" (On-screen appearance),
+   * and the engine has no match-start entrance phase. */
+  beginPikachuRespawnPresentation():void {
+    if(this.id==='pikachu')this.pikachuRespawnPresentation={framesElapsed:0,facing:this.facing};
+  }
+  getPikachuRespawnPresentationState(){return this.pikachuRespawnPresentation;}
+  getFootstoolRecipientPresentationState() {return this.footstoolRecipient;}
+  getPikachuFootstoolVisuals() {
+    const fx=this.pikachuFootstoolVisual;
+    return fx && !this.destroyed ? [{kind:'footstoolStep' as const,x:fx.x,y:fx.y,age:fx.age}] : [];
+  }
+  getPikachuSurfaceTechPresentationState(){return this.id==='pikachu'?pikachuSurfaceTechPresentation(this.surfaceTech):null;}
+  private clearSurfaceTech():void {
+    if(this.surfaceTechGravityRestore!==null){
+      this.body.ignoreGravity=this.surfaceTechGravityRestore;
+      this.surfaceTechGravityRestore=null;
+    }
+    this.surfaceTech=null;
+  }
+  private surfaceTechContact(){
+    for(const pair of this.contactPairs.values()){
+      const other=pair.bodyA===this.body?pair.bodyB:pair.bodyA;
+      if(pair.isActive===false||pair.isSensor||this.body.isSensor||other.isSensor||other.collisionFilter?.mask===0||
+         other.label!==PLATFORM_LABELS.solid||!pair.collision)continue;
+      const vertices=this.body.vertices;
+      if(!vertices?.length||!other.bounds)continue;
+      const minX=Math.min(...vertices.map(v=>v.x)),maxX=Math.max(...vertices.map(v=>v.x));
+      const minY=Math.min(...vertices.map(v=>v.y)),maxY=Math.max(...vertices.map(v=>v.y));
+      if(maxX<other.bounds.min.x-.1||minX>other.bounds.max.x+.1||maxY<other.bounds.min.y-.1||minY>other.bounds.max.y+.1)continue;
+      const sign=pair.bodyA===this.body?1:-1;
+      const surface=classifySurfaceTechContact({x:pair.collision.normal.x*sign,y:pair.collision.normal.y*sign});
+      if(surface)return surface;
+    }
+    return null;
+  }
+  getPikachuAuxiliaryAirPresentationState() { return this.pikachuAuxiliaryAir; }
+  private pikachuWallBounceSurface(): {away:1|-1;wall:object}|null {
+    for (const pair of this.contactPairs.values()) {
+      const other = pair.bodyA === this.body ? pair.bodyB : pair.bodyA;
+      if (pair.isSensor || other.isSensor || other.collisionFilter?.mask === 0 || other.label !== PLATFORM_LABELS.solid ||
+          !pair.collision || Math.abs(pair.collision.normal.x) < .9) continue;
+      // Reject a retained pair after geometric separation or stage removal.
+      const vertices=this.body.vertices;
+      if (vertices?.length && other.bounds) {
+        const minX=Math.min(...vertices.map(v=>v.x)), maxX=Math.max(...vertices.map(v=>v.x));
+        const minY=Math.min(...vertices.map(v=>v.y)), maxY=Math.max(...vertices.map(v=>v.y));
+        if (maxX<other.bounds.min.x-.1 || minX>other.bounds.max.x+.1 ||
+            maxY<other.bounds.min.y-.1 || minY>other.bounds.max.y+.1) continue;
+      }
+      return {away:other.position.x >= this.body.position.x ? -1 : 1,wall:other};
+    }
+    return null;
+  }
+  getPikachuGroundRecoveryPresentationState(): PikachuGroundRecovery | null { return this.pikachuGroundRecovery; }
+  private beginPikachuGroundRecovery(sheet: PikachuGroundRecoverySheet): void {
+    this.pikachuGroundRecovery = beginPikachuGroundRecovery(sheet, this.facing);
+    this.jumpInputBufferFrames = 0;
+    this.tapJumpBufferFrames = 0;
+    this.offensiveActionBuffer = null;
+    this.reactionPresentation = null;
+    this.scene.matter.body.setVelocity(this.body, {x: 0, y: 0});
+  }
+
+  private startGetupRoll(dir: 1 | -1, origin = this.recoveryOrigin()): void {
+    const forward = dir === this.facing;
+    const sheet = origin === 'tech' ? forward ? 'tech_forward' : 'tech_back'
+      : origin === 'face-down' ? forward ? 'getup_roll_face_down' : 'getup_roll_back_face_down'
+      : forward ? 'getup_roll' : 'getup_roll_back';
+    if (this.id === 'pikachu') { this.beginPikachuGroundRecovery(sheet); return; }
+    this.beginGroundRecovery(sheet,origin==='tech'?GROUND_RECOVERY_ROWS.techRoll:getupRollRow(this.id,forward,origin==='face-down'),dir);
   }
 
   /**
@@ -4785,7 +9230,64 @@ export class Character {
     };
   }
 
+  /** Trip recovery shares the prone input route, with its own attack record. A soft trip (slip) opens the options
+   * sooner (SLIP_OPTION_LOCK_FRAMES). */
+  applyTrip(soft = false): void {
+    if (!this.isGrounded() || this.isInvincible()) return;
+    this.donkeykongTurnBrake=null;this.restoreSourcedGroundFriction();
+    this.attackClankRemaining = 0;
+    this.attackClankLockedStep = false;
+    this.cancelAttack();
+    this.tripped = true;
+    this.tripOptionLockFrames = soft ? SLIP_OPTION_LOCK_FRAMES : TRIP_OPTION_LOCK_FRAMES;
+    this.reactionPresentation = null;
+    this.recoveryReaction = null;
+    this.pikachuGroundRecovery = null; this.groundRecovery=null;this.clearSurfaceTech();
+    this.pendingFootstoolJump=false;this.pendingFootstoolPhantom=false;this.sourceLinkFootstoolPendingContact=null;this.donkeykongFootstoolPerformer=null;this.sourceLinkFootstool=null;this.footstoolRecipient=null;this.footstoolMini=null;this.pikachuFootstoolVisual=null;this.pikachuRespawnPresentation=null;this.clearItemAction();this.pikachuLedgeJump=null;
+    this.knockdownRemaining = TRIP_KNOCKDOWN_FRAMES;
+    this.scene.matter.body.setVelocity(this.body, { x: 0, y: 0 });
+  }
+  private knockdownTotalFrames(): number { return this.tripped ? TRIP_KNOCKDOWN_FRAMES : KNOCKDOWN_FRAMES; }
+
+  /** Match-owned deterministic stream; omitted preserves legacy no-trip hits. */
+  setTripRandomSource(source: (() => number) | null): void {
+    this.tripRandomSource = source;
+  }
+  /** Direct-melee source rebound commitment, after its separately frozen hitlag. */
+  applyAttackClank(hitlagFrames: number, reboundFrames: number): void {
+    if (this.destroyed) return;
+    const attack = this.activeAttack;
+    this.attackClankReceiving = this.getActiveHurtboxes().map(hurtbox => ({ ...hurtbox }));
+    this.attackClankInterrupted = attack ? { move: attack.move, framesElapsed: attack.framesElapsed,
+      facing: attack.facing, chargeHeldFrames: attack.chargeHeldFrames } : null;
+    this.cancelAttack();
+    this.cooldownRemaining = 0;
+    this.attackClankTotal = this.attackClankRemaining = reboundFrames;
+    this.ordinaryPresentation = null;
+    this.scene.matter.body.setVelocity(this.body, { x: 0, y: 0 });
+    this.armAttackerHitlag(hitlagFrames);
+  }
+  getAttackClankPresentationState() {
+    return this.attackClankRemaining > 0 || this.attackClankLockedStep
+      ? { totalFrames: this.attackClankTotal,
+        phase: this.hitlagRemaining > 0 ? 'freeze' as const : 'rebound' as const,
+        framesElapsed: Math.max(0, this.attackClankTotal - this.attackClankRemaining - 1), facing: this.facing,
+        interruptedAttack: this.attackClankInterrupted ? { ...this.attackClankInterrupted } : null } : null;
+  }
+
+  protected sourceRecoveryAttack(lineage:string):AttackMove|undefined {return this.attacks.get(lineage);}
   private startGetupAttack(): void {
+    this.recoveryReaction = { origin: this.recoveryOrigin(), facing: this.facing };
+    this.reactionPresentation = null;
+    const native = this.sourceRecoveryAttack(`${this.id}.${this.tripped ? 'tripAttack' : this.knockdownFaceDown ? 'getupAttackFaceDown' : 'getupAttack'}`);
+    if (native) {
+      if (!(native as AttackMoveWithAnimation).hurtboxModifiers?.length && !native.protectionWindows?.length)
+        this.setInvincibility(native.startupFrames + native.activeFrames);
+      this.scene.matter.body.setVelocity(this.body, { x: 0, y: 0 });
+      this.activeAttack = { move: native, facing: this.facing, framesElapsed: 0, hitboxBody: null, upSpecial: null, chargeHeldFrames: null };
+      this.tripped = false;
+      return;
+    }
     this.setInvincibility(GETUP_IFRAME_FRAMES);
     this.scene.matter.body.setVelocity(this.body, { x: 0, y: 0 });
     const p = this.getUpAttackParams();
@@ -4801,12 +9303,15 @@ export class Character {
       cooldownFrames: 0,
     } as unknown as AttackMove;
     const body = spawnHitbox(
-      this.scene as unknown as HitboxScene,
+      this.scene,
       { id: this.id, position: this.body.position, bodyId: this.body.id },
       getupMove,
       this.facing,
     );
     this.transientHitboxes.push({ body, framesRemaining: p.activeFrames });
+    // Legacy transient attack has no body commitment clock: expose its entry only.
+    this.reactionCue = { kind: 'getup-attack', origin: this.recoveryReaction.origin,
+      framesElapsed: 0, facing: this.facing, moveId: getupMove.id };
   }
 
   /**
@@ -4838,7 +9343,7 @@ export class Character {
       cooldownFrames: 0,
     } as unknown as AttackMove;
     const body = spawnHitbox(
-      this.scene as unknown as HitboxScene,
+      this.scene,
       { id: this.id, position: this.body.position, bodyId: this.body.id },
       shockMove,
       facing,
@@ -4857,7 +9362,7 @@ export class Character {
     for (const h of this.transientHitboxes) {
       h.framesRemaining -= 1;
       if (h.framesRemaining <= 0) {
-        despawnHitbox(this.scene as unknown as HitboxScene, h.body);
+        despawnHitbox(this.scene, h.body);
       } else {
         survivors.push(h);
       }
@@ -4865,16 +9370,18 @@ export class Character {
     this.transientHitboxes = survivors;
   }
 
-  /** Despawn + drop every transient hitbox (teardown / respawn). */
+  /** Despawn attack-owned transient hitboxes on interruption or teardown. */
   private clearTransientHitboxes(): void {
     for (const h of this.transientHitboxes) {
-      despawnHitbox(this.scene as unknown as HitboxScene, h.body);
+      despawnHitbox(this.scene, h.body);
     }
     this.transientHitboxes = [];
-    // Placed traps are world sensors too — sweep them on the same path so
-    // a respawn / teardown can't leak an armed mine into the next stock.
+  }
+
+  /** Placed objects survive action interruption, but not a stock/round reset. */
+  private clearPlacedTraps(): void {
     for (const t of this.activeTraps) {
-      if (t.body !== null) despawnHitbox(this.scene as unknown as HitboxScene, t.body);
+      if (t.body !== null) despawnHitbox(this.scene, t.body);
     }
     this.activeTraps = [];
   }
@@ -4883,35 +9390,11 @@ export class Character {
    * Resolve a `trap` down-special into its placement spec, or `null`.
    * Pure.
    */
-  private resolveTrapSpec(move: AttackMove): {
-    trapWidth: number;
-    trapHeight: number;
-    spawnOffsetX: number;
-    spawnOffsetY: number;
-    armDelayFrames: number;
-    trapLifetimeFrames: number;
-    trapDamage: number;
-    trapKnockback: AttackMove['knockback'];
-    maxActiveTraps: number;
-    fuseDetonateFrames?: number;
-    selfBounceVelocity?: number;
-  } | null {
+  private resolveTrapSpec(move: AttackMove): DownSpecialTrapSpec | null {
     const m = move as unknown as {
       type?: string;
       downSpecialKind?: string;
-      trap?: {
-        trapWidth: number;
-        trapHeight: number;
-        spawnOffsetX: number;
-        spawnOffsetY: number;
-        armDelayFrames: number;
-        trapLifetimeFrames: number;
-        trapDamage: number;
-        trapKnockback: AttackMove['knockback'];
-        maxActiveTraps: number;
-        fuseDetonateFrames?: number;
-        selfBounceVelocity?: number;
-      };
+      trap?: DownSpecialTrapSpec;
     };
     if (m.type === 'downSpecial' && m.downSpecialKind === 'trap' && m.trap) {
       return { ...m.trap };
@@ -4926,19 +9409,7 @@ export class Character {
    * {@link tickTraps} once the arm delay elapses.
    */
   private placeTrap(
-    spec: {
-      trapWidth: number;
-      trapHeight: number;
-      spawnOffsetX: number;
-      spawnOffsetY: number;
-      armDelayFrames: number;
-      trapLifetimeFrames: number;
-      trapDamage: number;
-      trapKnockback: AttackMove['knockback'];
-      maxActiveTraps: number;
-      fuseDetonateFrames?: number;
-      selfBounceVelocity?: number;
-    },
+    spec: DownSpecialTrapSpec,
     facing: 1 | -1,
     moveId: string,
   ): void {
@@ -4946,7 +9417,7 @@ export class Character {
     while (this.activeTraps.length >= Math.max(1, spec.maxActiveTraps)) {
       const oldest = this.activeTraps.shift();
       if (oldest && oldest.body !== null) {
-        despawnHitbox(this.scene as unknown as HitboxScene, oldest.body);
+        despawnHitbox(this.scene, oldest.body);
       }
     }
     // Timed bomb (Samus): the blast sensor arms exactly at the fuse and lives
@@ -4961,6 +9432,7 @@ export class Character {
       ? (spec.fuseDetonateFrames as number) + TRAP_BLAST_FRAMES
       : spec.trapLifetimeFrames;
     this.activeTraps.push({
+      objectId: this.nextTrapObjectId++,
       x: this.body.position.x + facing * spec.spawnOffsetX,
       y: this.body.position.y + spec.spawnOffsetY,
       facing,
@@ -4982,7 +9454,12 @@ export class Character {
           ? spec.selfBounceVelocity
           : null,
       detonated: false,
+      vx: facing * (spec.throwSpeedX ?? 0),
+      launchAwayFromSource: spec.launchAwayFromSource,
+      hitlagMultiplier: spec.hitlagMultiplier,
+      sdiMultiplier: spec.sdiMultiplier,
     });
+    this.activeTraps[this.activeTraps.length - 1]!.vy = spec.throwSpeedY ?? 0;
   }
 
   /**
@@ -5030,60 +9507,69 @@ export class Character {
       // default). Only integrate while it has no live body yet — once it has
       // armed/detonated its position is fixed at the blast point.
       if (!t.landed && t.body === null) {
+        t.x += t.vx;
         t.vy = Math.min(TRAP_MAX_FALL, t.vy + TRAP_GRAVITY);
         const nextY = t.y + t.vy;
+        const objectHalfHeight = t.height / 2;
         const surf = this.trapSurfaceYBelow(t.x, t.y);
-        if (surf !== null && nextY + t.height / 2 >= surf) {
-          t.y = surf - t.height / 2;
+        if (surf !== null && t.vy >= 0 && nextY + objectHalfHeight >= surf) {
+          t.y = surf - objectHalfHeight;
           t.vy = 0;
           t.landed = true;
         } else {
           t.y = nextY;
         }
+      } else if (t.landed && t.body === null && t.vx !== 0) {
+        t.x += t.vx;
+        t.vx *= 0.94;
+        if (Math.abs(t.vx) < 0.1) t.vx = 0;
+        const surface = this.trapSurfaceYBelow(t.x, t.y);
+        if (surface === null || surface > t.y + t.height / 2 + 2) t.landed = false;
       }
-      // Arm: spawn the live sensor exactly once, at the placement point.
-      if (t.body === null && t.framesSinceSpawn >= t.armDelay) {
-        const trapMove = {
-          id: `${t.moveId}.trap`,
-          type: 'downSpecial',
-          damage: t.damage,
-          knockback: t.knockback,
-          hitbox: { offsetX: 0, offsetY: 0, width: t.width, height: t.height },
-          startupFrames: 0,
-          activeFrames: 1,
-          recoveryFrames: 0,
-          cooldownFrames: 0,
-        } as unknown as AttackMove;
-        t.body = spawnHitbox(
-          this.scene as unknown as HitboxScene,
-          { id: this.id, position: { x: t.x, y: t.y }, bodyId: this.body.id },
-          trapMove,
-          t.facing,
-        );
-        // Timed bomb (Samus): this arming frame IS the detonation. Apply the
-        // bomb-jump self-bounce exactly once if the placer is within the blast.
-        if (!t.detonated && t.selfBounceVelocity !== null) {
-          t.detonated = true;
-          const dx = Math.abs(this.body.position.x - t.x);
-          const dy = Math.abs(this.body.position.y - t.y);
-          if (
-            dx <= t.width / 2 + this.tuning.width / 2 &&
-            dy <= t.height / 2 + this.tuning.height / 2
-          ) {
-            this.scene.matter.body.setVelocity(this.body, {
-              x: this.body.velocity.x,
-              y: t.selfBounceVelocity,
-            });
-          }
-        }
-      }
+      if (t.framesSinceSpawn >= t.armDelay) this.armTrap(t);
       if (t.framesSinceSpawn >= t.lifetime) {
-        if (t.body !== null) despawnHitbox(this.scene as unknown as HitboxScene, t.body);
+        if (t.body !== null) despawnHitbox(this.scene, t.body);
       } else {
         survivors.push(t);
       }
     }
     this.activeTraps = survivors;
+  }
+
+  /** Spawn a placed object's damage sensor once, on its actual active step. */
+  private armTrap(t: Character['activeTraps'][number]): void {
+    if (t.body !== null) return;
+    const trapMove = {
+      id: `${t.moveId}.trap`,
+      type: 'downSpecial',
+      damage: t.damage,
+      knockback: t.knockback,
+      launchAwayFromSource: t.launchAwayFromSource,
+      hitlagMultiplier: t.hitlagMultiplier,
+      sdiMultiplier: t.sdiMultiplier,
+      hitbox: { offsetX: 0, offsetY: 0, width: t.width, height: t.height },
+      startupFrames: 0, activeFrames: 1, recoveryFrames: 0, cooldownFrames: 0,
+    } as unknown as AttackMove;
+    t.body = spawnHitbox(
+      this.scene,
+      { id: this.id, position: { x: t.x, y: t.y }, bodyId: this.body.id },
+      trapMove,
+      t.facing,
+    );
+    t.body.plugin ??= {};
+    t.body.plugin.attackInstance = {};
+    t.body.plugin.staleMoveId = t.moveId;
+    const overlapsOwner = Math.abs(this.body.position.x - t.x) <= (t.width + this.tuning.width) / 2
+      && Math.abs(this.body.position.y - t.y) <= (t.height + this.tuning.height) / 2;
+    if (t.fused && !t.detonated) {
+      t.detonated = true;
+      if (t.selfBounceVelocity !== null && overlapsOwner) {
+        this.clearReferenceLaunch();
+        this.scene.matter.body.setVelocity(this.body, {
+          x: this.body.velocity.x, y: t.selfBounceVelocity,
+        });
+      }
+    }
   }
 
   /**
@@ -5101,6 +9587,10 @@ export class Character {
     frames: number[];
     damagePerHit: number[];
     knockbackPerHit: Array<AttackMove['knockback']>;
+    hitlagMultiplierPerHit?: ReadonlyArray<number>;
+    sdiMultiplierPerHit?: ReadonlyArray<number>;
+    activeFramesPerHit?: ReadonlyArray<number>;
+    collisionHitsPerHit?: ReadonlyArray<readonly import('./attacks').AttackCollisionHit[]>;
     hitbox: AttackMove['hitbox'];
   } | null {
     const m = move as unknown as {
@@ -5116,6 +9606,13 @@ export class Character {
         knockbackPerHit: ReadonlyArray<AttackMove['knockback']>;
       };
       multiHitRising?: {
+        hitFrames?: ReadonlyArray<number>;
+        damagePerHit?: ReadonlyArray<number>;
+        knockbackPerHit?: ReadonlyArray<AttackMove['knockback']>;
+        hitlagMultiplierPerHit?: ReadonlyArray<number>;
+        sdiMultiplierPerHit?: ReadonlyArray<number>;
+        activeFramesPerHit?: ReadonlyArray<number>;
+        collisionHitsPerHit?: ReadonlyArray<readonly import('./attacks').AttackCollisionHit[]>;
         hitCount: number;
         hitInterval: number;
         linkDamage: number;
@@ -5146,12 +9643,14 @@ export class Character {
       const damagePerHit: number[] = [];
       const knockbackPerHit: Array<AttackMove['knockback']> = [];
       for (let i = 0; i < s.hitCount; i += 1) {
-        frames.push(i * s.hitInterval);
+        frames.push(s.hitFrames?.[i] ?? i * s.hitInterval);
         const isLauncher = i === s.hitCount - 1;
-        damagePerHit.push(isLauncher ? s.launcherDamage : s.linkDamage);
-        knockbackPerHit.push(isLauncher ? s.launcherKnockback : s.linkKnockback);
+        damagePerHit.push(s.damagePerHit?.[i] ?? (isLauncher ? s.launcherDamage : s.linkDamage));
+        knockbackPerHit.push(s.knockbackPerHit?.[i] ?? (isLauncher ? s.launcherKnockback : s.linkKnockback));
       }
-      return { moveId: m.id, frames, damagePerHit, knockbackPerHit, hitbox: m.hitbox };
+      return { moveId: m.id, frames, damagePerHit, knockbackPerHit, hitbox: m.hitbox,
+        hitlagMultiplierPerHit: s.hitlagMultiplierPerHit, sdiMultiplierPerHit: s.sdiMultiplierPerHit,
+        activeFramesPerHit: s.activeFramesPerHit, collisionHitsPerHit: s.collisionHitsPerHit };
     }
     return null;
   }
@@ -5192,6 +9691,10 @@ export class Character {
       moveId: string;
       damagePerHit: number[];
       knockbackPerHit: Array<AttackMove['knockback']>;
+      hitlagMultiplierPerHit?: ReadonlyArray<number>;
+      sdiMultiplierPerHit?: ReadonlyArray<number>;
+      activeFramesPerHit?: ReadonlyArray<number>;
+    collisionHitsPerHit?: ReadonlyArray<readonly import('./attacks').AttackCollisionHit[]>;
       hitbox: AttackMove['hitbox'];
     },
     idx: number,
@@ -5202,19 +9705,30 @@ export class Character {
       type: 'special',
       damage: view.damagePerHit[idx],
       knockback: view.knockbackPerHit[idx],
+      hitlagMultiplier: view.hitlagMultiplierPerHit?.[idx],
+      sdiMultiplier: view.sdiMultiplierPerHit?.[idx],
       hitbox: view.hitbox,
+      collisionHits: view.collisionHitsPerHit?.[idx],
       startupFrames: 0,
       activeFrames: 1,
       recoveryFrames: 0,
       cooldownFrames: 0,
     } as unknown as AttackMove;
     const body = spawnHitbox(
-      this.scene as unknown as HitboxScene,
+      this.scene,
       { id: this.id, position: this.body.position, bodyId: this.body.id },
       rungMove,
       facing,
     );
-    this.transientHitboxes.push({ body, framesRemaining: MULTIHIT_RUNG_FRAMES });
+    const active = this.activeAttack;
+    if (active) {
+      let identity = this.attackHitGroups.get(active);
+      if (!identity) { identity = new Map(); this.attackHitGroups.set(active, identity); }
+      body.plugin ??= {};
+      body.plugin.attackInstance = identity;
+      body.plugin.staleMoveId = view.moveId;
+    }
+    this.transientHitboxes.push({ body, framesRemaining: view.activeFramesPerHit?.[idx] ?? MULTIHIT_RUNG_FRAMES });
   }
 
   /**
@@ -5226,6 +9740,7 @@ export class Character {
   private resolveDashStrike(
     move: AttackMove,
   ): { dashSpeed: number; dashFrames: number } | null {
+    if (move.entryVelocityScale) return null;
     const m = move as unknown as {
       type?: string;
       sideSpecialKind?: string;
@@ -5375,6 +9890,7 @@ export class Character {
     if (Character.phaseFor(a.framesElapsed, a.move) !== 'active') return;
     const framesIntoActive = a.framesElapsed - a.move.startupFrames;
     if (framesIntoActive < dash.dashFrames) {
+      this.clearReferenceLaunch();
       this.scene.matter.body.setVelocity(this.body, {
         x: a.facing * dash.dashSpeed,
         y: 0,
@@ -5382,7 +9898,7 @@ export class Character {
     }
     if (a.hitboxBody !== null) {
       updateHitboxPosition(
-        this.scene as unknown as HitboxScene,
+        this.scene,
         a.hitboxBody,
         this.body.position,
         a.move,
@@ -5438,6 +9954,17 @@ export class Character {
     return null;
   }
 
+  /** Resolve a `'shockwave'` down special's spec, or `null` for any other move. */
+  private resolveShockwaveSpec(move: AttackMove): DownSpecialShockwaveSpec | null {
+    const m = move as unknown as {
+      type?: string;
+      downSpecialKind?: string;
+      shockwave?: DownSpecialShockwaveSpec;
+    };
+    if (m.type !== 'downSpecial' || m.downSpecialKind !== 'shockwave' || !m.shockwave) return null;
+    return m.shockwave;
+  }
+
   /**
    * Spawn the counter RETALIATION hitbox the tick after a successful parry
    * (see {@link pendingCounterRetaliation}, latched in {@link applyHit}).
@@ -5471,7 +9998,7 @@ export class Character {
       cooldownFrames: 0,
     } as unknown as AttackMove;
     const body = spawnHitbox(
-      this.scene as unknown as HitboxScene,
+      this.scene,
       { id: this.id, position: this.body.position, bodyId: this.body.id },
       retalMove,
       a.facing,
@@ -5535,12 +10062,8 @@ export class Character {
    * Hook — fire this fighter's jab. Default delegates to the resolved
    * id from the dispatcher (backward compat for base-class tests).
    * Subclasses override to call `attemptAttack(<X>_JAB.id)` directly.
-   *
-   * AC 4 (T2) — slot override consulted first; if a held item's
-   * override consumed the press, the native jab does not run.
    */
   protected executeJab(resolvedId: string | null): boolean {
-    if (this.runSlotOverride('jab')) return true;
     return resolvedId !== null ? this.attemptAttack(resolvedId) : false;
   }
 
@@ -5550,13 +10073,11 @@ export class Character {
    * dispatcher for partial movesets).
    */
   protected executeTilt(resolvedId: string | null): boolean {
-    if (this.runSlotOverride('tilt')) return true;
     return resolvedId !== null ? this.attemptAttack(resolvedId) : false;
   }
 
   /** Hook — fire this fighter's smash. */
   protected executeSmash(resolvedId: string | null): boolean {
-    if (this.runSlotOverride('smash')) return true;
     return resolvedId !== null ? this.attemptAttack(resolvedId) : false;
   }
 
@@ -5567,7 +10088,6 @@ export class Character {
    * movesets).
    */
   protected executeFair(resolvedId: string | null): boolean {
-    if (this.runSlotOverride('fair')) return true;
     return resolvedId !== null ? this.attemptAttack(resolvedId) : false;
   }
 
@@ -5577,7 +10097,6 @@ export class Character {
    * per-fighter slot-wiring helper for any `'special'`-typed move).
    */
   protected executeNeutralSpecial(): boolean {
-    if (this.runSlotOverride('neutralSpecial')) return true;
     if (this.neutralSpecialId === null) return false;
     return this.attemptAttack(this.neutralSpecialId);
   }
@@ -5590,7 +10109,6 @@ export class Character {
    * `attemptAttack(<X>_SIDE_SPECIAL.id)` call.
    */
   protected executeSideSpecial(): boolean {
-    if (this.runSlotOverride('sideSpecial')) return true;
     for (const move of this.attacks.values()) {
       if (move.type === 'sideSpecial') {
         return this.attemptAttack(move.id);
@@ -5607,7 +10125,6 @@ export class Character {
    * recovery press.
    */
   protected executeUpSpecial(stickX: number = 0, stickY: number = -1): boolean {
-    if (this.runSlotOverride('upSpecial')) return true;
     return this.attemptUpSpecial(stickX, stickY);
   }
 
@@ -5617,7 +10134,6 @@ export class Character {
    * slot-wiring helper for any `'downSpecial'`-typed move).
    */
   protected executeDownSpecial(): boolean {
-    if (this.runSlotOverride('downSpecial')) return true;
     if (this.downSpecialId === null) return false;
     return this.attemptAttack(this.downSpecialId);
   }
@@ -5681,19 +10197,26 @@ export class Character {
    *      that a successful press on a zero-cooldown frame starts a
    *      new attack instead of burning the cooldown for nothing.
    */
+  private readonly attackHitGroups = new WeakMap<object, Map<string, object>>();
+  private readonly aerialReboundFrames = new WeakMap<object, number>();
+  private readonly pendingAerialReboundSpeeds = new WeakMap<object, number>();
+
   private tickAttack(
     attackHeld: boolean,
     heavyHeld: boolean,
     grounded: boolean,
     moveX: number,
     prevFacing: 1 | -1,
-    justLanded: boolean,
     specialHeld: boolean = false,
     downHeld: boolean = false,
     upHeld: boolean = false,
     shieldHeld: boolean = false,
     attackMoveY: number = 0,
+    forcedPress: 'attack' | 'heavy' | 'special' | null = null,
+    allowBufferedFollowUp: boolean = false,
+    attackFromStick: boolean = false,
   ): void {
+    if(this.donkeykongPunchFireFrame===this.simulationInputFrame)return;
     // The call where a move ends *arms* the cooldown but does not also
     // drain it — otherwise the cooldown would read `cooldownFrames - 1`
     // immediately after the move's last frame, which is harder to
@@ -5704,53 +10227,17 @@ export class Character {
     // Expire any transient hitboxes (dive landing shockwaves) — lifecycle
     // is independent of the active attack, so it ticks every frame.
     this.tickTransientHitboxes();
-    // Advance placed traps (arm / detonate-window / expire) — they outlive
-    // the placement attack, so they also tick every frame.
-    this.tickTraps();
-
-    // ---- Step 0: landing interrupt for in-flight aerials (AC 60102 -------
-    // Sub-AC 2 "lock attack until completion or landing") ------------------
-    // If we touched down this frame AND an aerial is still in flight,
-    // end the move and apply landing-lag. Auto-cancel windows declared
-    // on the move's `AerialMove` record may zero out the lag — the
-    // helper `getLandingLagFrames` resolves "would landing now skip the
-    // lag?" against the move's gameplay-frame counter.
-    //
-    // Plain `AttackMove`-typed aerials (legacy `WOLF_NAIR` / `CAT_NAIR`)
-    // carry no landing-lag fields; we cancel them cleanly (lag = 0). The
-    // attack is still interrupted — the "lock until completion or
-    // landing" half of the contract — but the fighter is free to act
-    // immediately afterwards, mirroring the canonical "pre-AerialMove
-    // schema" behaviour those movesets shipped with.
-    if (
-      justLanded &&
-      this.activeAttack !== null &&
-      this.activeAttack.move.type === 'aerial'
-    ) {
-      const a = this.activeAttack;
-      const aerialMaybe = a.move as Partial<AerialMove>;
-      let lagFrames = 0;
-      if (typeof aerialMaybe.landingLagFrames === 'number') {
-        lagFrames = getLandingLagFrames(a.move as AerialMove, a.framesElapsed);
-      }
-      // Despawn any live hitbox so a frame-perfect "swing-then-touchdown"
-      // doesn't leave a sensor floating in the world.
-      if (a.hitboxBody !== null) {
-        despawnHitbox(this.scene as unknown as HitboxScene, a.hitboxBody);
-      }
-      this.activeAttack = null;
-      // Stamping the cooldown with the resolved landing-lag means the
-      // grounded press dispatch below is correctly gated: lag > 0 ⇒ no
-      // press fires this frame, lag = 0 (auto-cancel) ⇒ a press that
-      // also lands this frame can fire a clean grounded attack.
-      this.cooldownRemaining = lagFrames;
-      attackJustEnded = true;
-    }
-
+    // A shooting item's fire session runs beside the body (itemShooting.ts).
+    if (this.itemShooting) this.advanceItemShooting(attackHeld);
     // ---- Step 1: advance the in-flight attack -----------------------------
-    if (this.activeAttack) {
+    if (this.activeAttack?.move.pikachuSpecial) {
+      this.getPikachuSpecialRuntime().tick(this.activeAttack, this.pikachuSpecialStick,
+        this.pikachuSpecialHeld, pikachuSpecialContact);
+    } else if (this.activeAttack) {
       const a = this.activeAttack;
-      const prevPhase = Character.phaseFor(a.framesElapsed, a.move);
+      const startingLandingAttack = a === this.landingAttackInstance && this.landingAttackActivationPending;
+      this.landingAttackActivationPending = false;
+      const prevPhase = startingLandingAttack ? 'startup' : Character.phaseFor(a.framesElapsed, a.move);
 
       // Down-special DIVE (groundPound / stallAndFall) landing + hold-active
       // gate, resolved on the PRE-increment frame so the meteor hitbox is
@@ -5773,7 +10260,7 @@ export class Character {
           this.diveShockwaveSpawned = true;
           if (a.hitboxBody !== null) {
             despawnHitbox(
-              this.scene as unknown as HitboxScene,
+              this.scene,
               a.hitboxBody,
             );
             a.hitboxBody = null;
@@ -5804,8 +10291,24 @@ export class Character {
         }
       }
 
-      if (!holdDiveActive) {
-        a.framesElapsed += 1;
+      if (!holdDiveActive && !startingLandingAttack) {
+        if (a.holdInitialFrame) a.holdInitialFrame = false;
+        else a.framesElapsed += 1;
+      }
+      // Shockwave mash-repeat: at the loop point, a queued press rewinds the
+      // timeline so the authored hit windows fire again (Hand Slap loop).
+      const shockwaveSpec = this.resolveShockwaveSpec(a.move);
+      const repeatRule = shockwaveSpec?.repeat;
+      if (repeatRule && this.shockwaveRepeat !== null && this.shockwaveRepeat.moveId === a.move.id
+        && this.shockwaveRepeat.queued > 0 && a.framesElapsed === repeatRule.loopFrame
+        && (repeatRule.maxRepeats === undefined || this.shockwaveRepeat.repeats < repeatRule.maxRepeats)) {
+        if (a.hitboxBody !== null) {
+          despawnHitbox(this.scene, a.hitboxBody);
+          a.hitboxBody = null;
+        }
+        a.framesElapsed = repeatRule.entryFrame;
+        this.shockwaveRepeat = { ...this.shockwaveRepeat, queued: this.shockwaveRepeat.queued - 1,
+          repeats: this.shockwaveRepeat.repeats + 1 };
       }
       const newPhase = Character.phaseFor(a.framesElapsed, a.move);
 
@@ -5818,8 +10321,9 @@ export class Character {
       // also spawn a body-attached melee hitbox, or the shot would
       // double-hit at point blank. Every other move spawns its hitbox.
       const releasesChargeBeam =
-        (a.move as { chargedProjectile?: unknown }).chargedProjectile !==
-        undefined;
+        (a.move as { chargedProjectile?: unknown }).chargedProjectile !== undefined
+        || (a.move as { specialKind?: string }).specialKind === 'projectile'
+        || (a.move as { sideSpecialKind?: string }).sideSpecialKind === 'boomerang';
       // A multi-hit LADDER move (side `multiHit` / up `multiHitRising`)
       // spawns its damage as per-rung transient sensors via
       // tickMultiHitLadder — NOT as the single base hitbox here, or rung 0
@@ -5835,8 +10339,22 @@ export class Character {
       if (prevPhase === 'startup' && newPhase === 'active' && trapSpec !== null) {
         this.placeTrap(trapSpec, a.facing, a.move.id);
       }
+      // A held item's shot on the use's first active frame, while the item has ammo (Star Rod star).
+      if (prevPhase === 'startup' && newPhase === 'active' && a.move.itemShot && this.equippedItem?.spendShot())
+        this.queueItemShot(a.move.itemShot, a.facing);
+      const rebound = a.move.type === 'aerial' ? (a.move as AerialMove).rebound : undefined;
+      const reboundFrame = this.aerialReboundFrames.get(a);
+      const returning = rebound !== undefined && reboundFrame !== undefined;
+      const awaitingReturn = returning && a.framesElapsed - reboundFrame < rebound.rehitFrames;
+      const windowIndex = returning ? -2 : attackHitWindowIndex(a.move, a.framesElapsed);
+      const hitWindow = a.move.hitWindows?.[windowIndex];
+      if (a.move.hitWindows && a.hitboxBody !== null
+        && a.hitboxBody.plugin.hitWindowIndex !== windowIndex) {
+        despawnHitbox(this.scene, a.hitboxBody);
+        a.hitboxBody = null;
+      }
       if (
-        prevPhase === 'startup' &&
+        (returning ? !awaitingReturn : a.move.hitWindows ? hitWindow !== undefined : prevPhase === 'startup') &&
         newPhase === 'active' &&
         a.hitboxBody === null &&
         !releasesChargeBeam &&
@@ -5850,7 +10368,7 @@ export class Character {
         // shielding victim. Every other move spawns its authored record.
         const cmdGrab = this.resolveCommandGrabSpec(a.move);
         const reflector = this.resolveReflectorContact(a.move);
-        const spawnMove =
+        const baseSpawnMove =
           cmdGrab !== null
             ? ({
                 ...a.move,
@@ -5875,12 +10393,35 @@ export class Character {
                   },
                 } as unknown as AttackMove)
               : this.chargedSpawnMove(a);
+        const spawnMove = returning && rebound.returnHit
+          ? { ...baseSpawnMove, ...rebound.returnHit, groundedKnockback: undefined }
+          : hitWindow ? resolveAttackHitWindow(a.move, baseSpawnMove, hitWindow) : baseSpawnMove;
+        const hitFacing = (a.facing * (hitWindow?.facing ?? 1)) as 1 | -1;
         a.hitboxBody = spawnHitbox(
-          this.scene as unknown as HitboxScene,
+          this.scene,
           { id: this.id, position: this.body.position, bodyId: this.body.id },
           spawnMove,
-          a.facing,
+          hitFacing,
         );
+        if (hitWindow || (a.move.type === 'aerial' && (a.move as AerialMove).rebound)) {
+          let groups = this.attackHitGroups.get(a);
+          if (!groups) { groups = new Map(); this.attackHitGroups.set(a, groups); }
+          const name = returning ? `rebound:${reboundFrame}` : hitWindow?.group ?? String(windowIndex);
+          let identity = groups.get(name);
+          if (!identity) { identity = {}; groups.set(name, identity); }
+          // Assign after Matter's factory: its options cloning must not clone
+          // the identity shared by the early and late replacement sensors.
+          a.hitboxBody.plugin ??= {};
+          a.hitboxBody.plugin.hitGroup = identity;
+          a.hitboxBody.plugin.attackInstance = groups;
+          a.hitboxBody.plugin.hitWindowIndex = windowIndex;
+        } else {
+          // A single-sensor swing can also hit several opponents. Give it one
+          // identity so MatchScene snapshots staleness once for the whole swing;
+          // the next jab stage or fresh attack receives a new identity.
+          a.hitboxBody.plugin ??= {};
+          a.hitboxBody.plugin.attackInstance = {};
+        }
 
         // AC 10302 Sub-AC 2 — fire the move's swing SFX at the exact
         // frame the hitbox enters the world. The mapping covers the
@@ -5899,7 +10440,9 @@ export class Character {
         // a *given* call produces sound; they never affect simulation
         // state.
         const attackSfxKey = mapMoveTypeToSfxKey(a.move.type);
-        if (attackSfxKey !== null) {
+        if (attackSfxKey !== null && (!hitWindow || windowIndex === 0
+          || (hitWindow.group ?? String(windowIndex))
+            !== (a.move.hitWindows?.[windowIndex - 1]?.group ?? String(windowIndex - 1)))) {
           emitCombatSfx(this.sfxSink ?? undefined, attackSfxKey);
         }
 
@@ -5910,6 +10453,15 @@ export class Character {
           this.diveShockwaveSpawned = false;
           this.diveHoldFrames = 0;
         }
+      }
+
+      // Sampled before collision callbacks can freeze the attacker. Read by
+      // the airborne velocity carry and by every angle-367 autolink hit,
+      // which retains the attacker's motion (referenceAutolink.ts); without
+      // it a falling fair pulls its victim up while Link keeps falling and
+      // the second strike misses.
+      if (a.hitboxBody?.plugin) {
+        a.hitboxBody.plugin.attackerVelocity = { x: this.body.velocity.x, y: this.body.velocity.y };
       }
 
       // AC 60103 Sub-AC 3 — track aerial hitboxes to the attacker's
@@ -5945,11 +10497,12 @@ export class Character {
         a.move.type === 'aerial'
       ) {
         updateHitboxPosition(
-          this.scene as unknown as HitboxScene,
+          this.scene,
           a.hitboxBody,
           this.body.position,
-          a.move,
-          a.facing,
+          returning && rebound.returnHit ? { ...a.move, ...rebound.returnHit }
+            : hitWindow ? resolveAttackHitWindow(a.move, a.move, hitWindow) : a.move,
+          (a.facing * (hitWindow?.facing ?? 1)) as 1 | -1,
         );
       }
 
@@ -5984,7 +10537,7 @@ export class Character {
       // standard active→recovery transition and the rare active→done
       // case (a move with zero recovery frames).
       if (prevPhase === 'active' && newPhase !== 'active' && a.hitboxBody !== null) {
-        despawnHitbox(this.scene as unknown as HitboxScene, a.hitboxBody);
+        despawnHitbox(this.scene, a.hitboxBody);
         a.hitboxBody = null;
       }
 
@@ -5994,7 +10547,7 @@ export class Character {
         // above (e.g. zero-active-frames move that jumped startup→done),
         // clean it up so we never leak a sensor.
         if (a.hitboxBody !== null) {
-          despawnHitbox(this.scene as unknown as HitboxScene, a.hitboxBody);
+          despawnHitbox(this.scene, a.hitboxBody);
           a.hitboxBody = null;
         }
         this.cooldownRemaining = a.move.cooldownFrames;
@@ -6003,7 +10556,13 @@ export class Character {
         // stallAndFall / commandDash). On the ground it just ends normally.
         if (this.movesetEndsHelpless(a.move) && !this.isGrounded()) {
           this.helpless = true;
+          this.specialFallLandingFrames = a.move.specialLandingLagFrames ?? null;
         }
+        if(this.id==='donkeykong'){
+          this.donkeykongLastAttackEndFrame=this.simulationInputFrame;
+        }
+        this.donkeykongJabContinuation=this.id==='donkeykong'&&this.donkeykongJabContinuationEligibleStep
+          ?retainDonkeyKongJabContinuation(a.move,a,a.facing,this.positionResetGeneration,this.simulationInputFrame):null;
         this.activeAttack = null;
         attackJustEnded = true;
       }
@@ -6013,10 +10572,10 @@ export class Character {
     // ----                            directional aerial dispatch) --------
     // Pick a move id based on which button rose this frame and the
     // fighter's grounded state. Heavy press takes priority on the
-    // ground; in the air, heavy is ignored (smashes are grounded
-    // moves) and `attack` resolves to a direction-aware aerial slot.
+    // ground; in the air, `attack` and heavy both resolve to a
+    // direction-aware aerial slot (heavy = Ultimate's C-stick aerial).
     //
-    // Direction classification (airborne `attack` press only):
+    // Direction classification (airborne press):
     //
     //   |moveX| < AERIAL_STICK_THRESHOLD  → neutral aerial (nair)
     //   sign(moveX) === prevFacing        → forward aerial (fair)
@@ -6026,14 +10585,17 @@ export class Character {
     // (legacy `WOLF_NAIR` registered alone) firing on any directional
     // press — the directional slots are empty so the resolver falls
     // through to `aerialAttackId`.
-    const attackJustPressed = attackHeld && !this.prevAttackHeld;
-    const heavyJustPressed = heavyHeld && !this.prevHeavyHeld;
+    const attackJustPressed =
+      forcedPress === 'attack' || (attackHeld && !this.prevAttackHeld);
+    const heavyJustPressed =
+      forcedPress === 'heavy' || (heavyHeld && !this.prevHeavyHeld);
     // ---- Smash-charge state machine (hold to charge, release/cap to fire) ---
     // Mirrors the special-charge machine but for grounded smashes. While
     // charging it consumes the frame so every press path below is skipped;
     // on release (or hitting the cap, or leaving the ground) it fires the
-    // smash scaled by the held frames. Smashes AUTO-FIRE at max charge
-    // (a special instead STORES at the cap) — the canonical Smash difference.
+    // smash scaled by the held frames. An authored continued-hold limit can
+    // keep a fully powered smash held before its automatic release; legacy
+    // profiles retain their power-cap release when no separate limit exists.
     let smashConsumedThisFrame = false;
     if (this.chargingSmash !== null) {
       const cs = this.chargingSmash;
@@ -6045,44 +10607,39 @@ export class Character {
         // press can't reach here: it's suppressed while charging below.)
         this.chargingSmash = null;
         smashConsumedThisFrame = true;
+      } else if (triggerHeld && cs.holdFrame !== undefined
+        && (cs.startupElapsed ?? 0) < cs.holdFrame) {
+        cs.startupElapsed = (cs.startupElapsed ?? 0) + 1;
+        smashConsumedThisFrame = true;
       } else if (
         triggerHeld &&
         this.activeAttack === null &&
-        cs.framesHeld < cs.maxFrames
+        cs.framesHeld < (cs.maxHoldFrames ?? cs.maxFrames)
       ) {
         cs.framesHeld += 1;
+        if (cs.holdFrame !== undefined && cs.framesHeld === (cs.maxHoldFrames ?? cs.maxFrames)) {
+          this.chargingSmash = null;
+          this.fireSmash(cs.moveId, cs.facing, cs.framesHeld, cs.holdFrame);
+        }
         smashConsumedThisFrame = true;
       } else {
         // Released, or hit the cap — fire the smash (we are grounded here).
         const { moveId, facing, framesHeld } = cs;
         this.chargingSmash = null;
-        this.fireSmash(moveId, facing, framesHeld);
+        this.fireSmash(moveId, facing, framesHeld, cs.holdFrame === undefined ? 0
+          : Math.min(cs.holdFrame, (cs.startupElapsed ?? 0) + 1));
         smashConsumedThisFrame = true;
       }
     }
-    // When holding an item, route the LIGHT-attack press to the item's
-    // slot override regardless of grounded / airborne / stick direction.
-    // Per the user's spec: "while having an object, light attack isn't
-    // triggered by its button, only the object — objects can be used
-    // while in air." The item declares its overrides (jab / tilt /
-    // smash / fair); we walk them in priority order and the first that
-    // fires consumes the press, suppressing the native dispatch below.
-    // Heavy press is unaffected (smash slot still routes through its
-    // own override via `executeSmash`).
-    let attackPressConsumedByItem = false;
-    if (
-      attackJustPressed &&
-      !smashConsumedThisFrame &&
-      this.slotOverrides.size > 0 &&
-      this.activeAttack === null &&
-      this.cooldownRemaining === 0
-    ) {
-      attackPressConsumedByItem =
-        this.runSlotOverride('jab') ||
-        this.runSlotOverride('tilt') ||
-        this.runSlotOverride('smash') ||
-        this.runSlotOverride('fair');
-    }
+    // A queued press can enter an authored follow-up window before the
+    // fighter is free to start an unrelated move. Consume only on success;
+    // one early tap must never advance more than one stage.
+    const neutralDkChainQueue=this.id!=='donkeykong'||!this.activeAttack||
+      donkeyKongJabCanAdvance(this.activeAttack.move,this.activeAttack.framesElapsed)===null||
+      (this.offensiveActionBuffer?.moveX===0&&this.offensiveActionBuffer.moveY===0);
+    const queuedFollowUp = allowBufferedFollowUp&&neutralDkChainQueue
+      ? this.offensiveActionBuffer?.kind
+      : undefined;
     // ---- Jab-combo advance ------------------------------------------------
     // A re-press of attack DURING a chainable jab stage — once that stage's
     // hitbox has come out (framesElapsed past the advance window) — steps
@@ -6091,9 +10648,8 @@ export class Character {
     // naturally skips a brand-new move this same frame. Single-jab rosters
     // (no `jabChain`) and every non-jab move short-circuit on `chain == null`.
     if (
-      attackJustPressed &&
+      (attackJustPressed || queuedFollowUp === 'attack') &&
       grounded &&
-      !attackPressConsumedByItem &&
       !smashConsumedThisFrame &&
       this.activeAttack !== null
     ) {
@@ -6102,17 +10658,36 @@ export class Character {
       if (
         chain != null &&
         this.attacks.has(chain.nextId) &&
-        this.activeAttack.framesElapsed >=
-          (chain.advanceWindowStart ?? curMove.startupFrames)
+        this.canAdvanceJab(curMove,this.activeAttack.framesElapsed)
       ) {
-        this.advanceJabChain(chain.nextId);
+        if (this.advanceChainedAttack(chain.nextId)) this.offensiveActionBuffer = null;
+      }
+    }
+    // The source continuation window outlives jab1 commitment/actionability.
+    // A fresh neutral edge may enter jab2 here; held F and an old late queue
+    // cannot manufacture a second edge. No cooldown or active jab is retained.
+    if(this.id==='donkeykong'&&this.donkeykongJabContinuationFreshAttackStep&&this.donkeykongJabContinuationEligibleStep&&
+      !smashConsumedThisFrame&&this.canAttack()&&
+      donkeyKongRetainedJabCanAdvance(this.donkeykongJabContinuation)){
+      const continuation=this.donkeykongJabContinuation!;
+      if(this.attemptAttack(continuation.move.jabChain!.nextId)){
+        this.activeAttack!.facing=continuation.entryFacing;this.facing=continuation.entryFacing;
+        this.offensiveActionBuffer=null;
+      }
+    }
+    if (grounded && (attackJustPressed || heavyJustPressed ||
+      queuedFollowUp === 'attack' || queuedFollowUp === 'heavy')
+      && !smashConsumedThisFrame && this.activeAttack) {
+      const follow = (this.activeAttack.move as AttackMoveWithAnimation).followUp;
+      if (follow && this.activeAttack.framesElapsed >= follow.windowStart
+        && this.activeAttack.framesElapsed < follow.windowEnd) {
+        if (this.advanceChainedAttack(follow.nextId, true)) this.offensiveActionBuffer = null;
       }
     }
     if (
-      this.activeAttack === null &&
-      this.cooldownRemaining === 0 &&
-      !attackPressConsumedByItem &&
-      !smashConsumedThisFrame
+      this.canAttack() &&
+      !smashConsumedThisFrame &&
+      !this.chargingSpecial?.groundedUpSpecial
     ) {
       let pickedId: string | null = null;
       let aerialDirection: AerialDirection | null = null;
@@ -6184,7 +10759,8 @@ export class Character {
             moveX,
             prevMoveX: this.prevMoveX,
             prevMoveY: this.prevMoveY,
-            moveY: attackMoveY,
+            moveY: this.tiltAttackId && this.attacks.get(this.tiltAttackId)?.angledVariants
+              && Math.abs(moveX) >= 0.3 && Math.abs(attackMoveY) === Math.abs(moveX) ? attackMoveY * 0.9 : attackMoveY,
             movingFast,
           },
           slots,
@@ -6197,17 +10773,15 @@ export class Character {
         // Airborne attack press — AC 60201 Sub-AC 1 airborne state
         // detection + aerial dispatch. The grounded press path is
         // handled exclusively by the `classifyGroundedAttack` branch
-        // above; the heavy press is dropped silently when airborne
-        // (smashes are grounded moves; aerials own the in-air kit).
+        // above; an airborne heavy press fires the aerial for its
+        // direction, exactly like an `attack` press.
         //
         // Delegate the airborne classification to the pure helper so
         // the runtime, the AI's input synthesiser, the (later AC)
         // input-rebinding screen, and the replay drift verifier all
         // read from a single source of truth. The helper applies the
-        // aerial gate (`airborne === false ⇒ null`), drops heavy
-        // presses, classifies direction relative to *prevFacing* (so
-        // a stick press that also flipped facing this frame still
-        // reads as "stick away from facing" = bair), and cascades
+        // aerial gate (`airborne === false ⇒ null`), classifies
+        // direction relative to *prevFacing*, and cascades
         // through the slot table for partial movesets.
         const aerialSlots: AerialAttackSlots = {
           aerialNeutralId: this.aerialNeutralId,
@@ -6235,14 +10809,38 @@ export class Character {
           aerialDirection = aerialDispatch.direction;
         }
       }
-      if (pickedId !== null) {
-        // For airborne attacks, lock facing to `prevFacing` so the
-        // character's visual orientation does not flip mid-aerial. The
-        // motion section may have already flipped `this.facing` to
-        // match the stick; we override that decision here because the
-        // canonical Smash interpretation is "back-air does not turn
-        // you around — your hitbox spawns behind you while you keep
-        // facing forward."
+      // A held item replaces the classified press with its use; presses it
+      // does not map keep the fighter's own move (resolveItemInput).
+      // A held item decides the classified press (resolveItemInput): its use replaces the move,
+      // a smash input is a smash throw through the shared item planner, anything else stays native.
+      const itemPattern = grounded ? groundedPattern : aerialDirection === 'neutral' ? 'nair' : 'aerial';
+      const itemDecision = pickedId !== null && itemPattern !== null && this.equippedItem
+        ? resolveItemInput(itemPattern, itemUsesFor(this.equippedItem.definition, this.id), this.equippedItem.canUse(),
+          moveX * prevFacing < 0, this.equippedItem.definition.shooting !== undefined) : null;
+      if (itemDecision?.kind === 'smash-throw') {
+        const facing = prevFacing as 1 | -1;
+        if (this.beginItemAction(`throw-ground-${itemDecision.direction}-strong`, this.simulationInputFrame, facing)) pickedId = null;
+      }
+      // A shooting item fires (its session starts and runs its first step now); an empty one is thrown forward.
+      // Ground locomotion has already resolved this step's turn. Only aerial
+      // input classification needs the pre-step facing; a new ground shot
+      // must not turn the holder back to that stale orientation.
+      const shootingFacing = grounded ? this.facing : prevFacing;
+      if (itemDecision?.kind === 'fire') {
+        const spec = this.equippedItem!.definition.shooting!, facing = shootingFacing;
+        this.facing = facing;
+        this.itemShooting = { spec, state: startShooting(spec, facing) };
+        this.advanceItemShooting(attackHeld);
+        pickedId = null;
+      } else if (itemDecision?.kind === 'empty-throw') {
+        this.beginItemAction(`throw-${grounded ? 'ground' : 'air'}-forward-ordinary`, this.simulationInputFrame, shootingFacing);
+        pickedId = null;
+      }
+      const itemMove = itemDecision?.kind === 'use' ? itemDecision.move : null;
+      if (itemMove) pickedId = itemMove.id;
+      if (pickedId !== null && itemDecision?.kind !== 'smash-throw') {
+        // The fighter keeps the orientation used to select this aerial;
+        // back-air mirrors its hitbox behind that orientation separately.
         if (!grounded && aerialDirection !== null) {
           this.facing = prevFacing;
         }
@@ -6284,12 +10882,7 @@ export class Character {
           pickedId !== null &&
           (groundedPattern === 'smash' ||
             groundedPattern === 'usmash' ||
-            groundedPattern === 'dsmash') &&
-          // Don't hijack a held item's smash override: the forward-smash
-          // instant path runs `executeSmash` → `runSlotOverride('smash')`,
-          // so if an item override is installed, let it fire the item move
-          // instead of entering a NATIVE charge stance.
-          !(groundedPattern === 'smash' && this.getSlotOverride('smash') !== null)
+            groundedPattern === 'dsmash')
         ) {
           const sc = this.smashChargeMove(pickedId);
           if (sc !== null) {
@@ -6304,10 +10897,17 @@ export class Character {
               facing: chargeFacing,
               framesHeld: 0,
               maxFrames: Math.max(1, sc.charge.maxChargeFrames),
+              ...(sc.charge.maxHoldFrames === undefined ? {} : { maxHoldFrames: sc.charge.maxHoldFrames }),
+              ...((this.attacks.get(pickedId) as AttackMoveWithAnimation).chargeStartFrame === undefined ? {} : {
+                startupElapsed: 0,
+                holdFrame: (this.attacks.get(pickedId) as AttackMoveWithAnimation).chargeStartFrame,
+              }),
             };
             smashChargeStarted = true;
           }
         }
+        // An item use runs its own move; otherwise the slot hook fires the fighter's.
+        const fire = (native: () => boolean): boolean => itemMove ? this.attemptAttack(itemMove.id) : native();
         let started: boolean;
         if (smashChargeStarted) {
           // Charging — no move has fired yet this frame.
@@ -6315,13 +10915,21 @@ export class Character {
         } else if (grounded && groundedPattern !== null) {
           switch (groundedPattern) {
             case 'jab':
-              started = this.executeJab(pickedId);
+              started = fire(() => this.executeJab(pickedId));
               break;
             case 'tilt':
-              started = this.executeTilt(pickedId);
+              started = fire(() => this.executeTilt(pickedId));
+              if (started && this.activeAttack?.move.angledVariants && Math.abs(attackMoveY) >= 0.3) {
+                this.activeAttack.move = attackMoveY < 0 ? this.activeAttack.move.angledVariants.up : this.activeAttack.move.angledVariants.down;
+              }
               break;
             case 'smash':
-              started = this.executeSmash(pickedId);
+              // An instant smash fires toward `this.facing`, which the left
+              // stick's locomotion turned; a right-stick smash aims itself.
+              if (attackFromStick && Math.abs(moveX) >= 0.3) {
+                this.facing = Math.sign(moveX) as 1 | -1;
+              }
+              started = fire(() => this.executeSmash(pickedId));
               break;
             case 'utilt':
             case 'usmash':
@@ -6336,7 +10944,7 @@ export class Character {
               break;
           }
         } else if (!grounded && aerialDirection === 'forward') {
-          started = this.executeFair(pickedId);
+          started = fire(() => this.executeFair(pickedId));
         } else {
           // Airborne neutral / back press, or any path that did not
           // produce a pattern (defensive fallback): drive the legacy
@@ -6344,7 +10952,10 @@ export class Character {
           // 10-slot uniform contract Sub-AC 2.1 migrates.
           started = this.attemptAttack(pickedId);
         }
-        // Back-aerial: the hitbox geometry is authored facing-right
+        // Existing back-aerials author positive offsets and reverse their
+        // hitbox basis here. Source-projected moves with geometryFacing:'fighter'
+        // already put contacts behind the fighter, so retain that basis.
+        // The legacy hitbox geometry is authored facing-right
         // (positive `offsetX` puts the hitbox in front of the
         // attacker). For bair we want the sensor to spawn BEHIND the
         // attacker, so we invert the active-attack's `facing` field —
@@ -6358,9 +10969,11 @@ export class Character {
         // has narrowed the field type to `null` in TypeScript's flow
         // analysis — the analyser doesn't know `attemptAttack` mutates
         // it. Reading through the local clears the narrowing.
-        if (started && aerialDirection === 'back') {
+        if (itemMove && (started || smashChargeStarted)) this.equippedItem!.noteUse(this.simulationInputFrame, this.getPosition());
+        if (started && aerialDirection === 'back' && !itemMove) {
           const just = this.getActiveAttack();
-          if (just !== null && this.activeAttack !== null) {
+          if (just !== null && this.activeAttack !== null
+            && (just.move as AerialMove).geometryFacing !== 'fighter') {
             (this.activeAttack as { facing: 1 | -1 }).facing = (-prevFacing) as 1 | -1;
           }
         }
@@ -6397,39 +11010,63 @@ export class Character {
     // it consumes the special button so the normal dispatch below is
     // skipped. A neutral-special press on a `specialKind: 'charge'` move
     // STARTS charging (in the neutral branch) instead of firing.
-    let specialConsumedByCharge = false;
-    if (this.chargingSpecial !== null) {
+    let specialConsumedByCharge = this.donkeykongPunchConsumedFrame===this.simulationInputFrame || this.chargingSpecial?.donkeykongPunch!==undefined;
+    if (this.chargingSpecial?.groundedUpSpecial) {
       const cs = this.chargingSpecial;
+      const spin = cs.groundedUpSpecial!;
+      specialConsumedByCharge = true;
+      this.tapJumpBufferFrames = 0;
+      this.jumpInputBufferFrames = 0;
+      this.offensiveActionBuffer = null;
+      if (!grounded) {
+        // A disappearing support cancels the grounded hold; it cannot
+        // create a charged ground hitbox in the air or restore recovery.
+        this.chargingSpecial = null;
+      } else {
+        const atHold = spin.startupElapsed >= spin.holdFrame;
+        if (!atHold) spin.startupElapsed += 1;
+        else if (specialHeld && cs.framesHeld < cs.maxFrames) cs.framesHeld += 1;
+        if (!specialHeld || cs.framesHeld >= cs.maxFrames) {
+          this.chargingSpecial = null;
+          this.facing = spin.facing;
+          this.activeAttack = { move: spin.move, facing: spin.facing,
+            framesElapsed: spin.startupElapsed, hitboxBody: null, upSpecial: null,
+            chargeHeldFrames: cs.framesHeld };
+        }
+      }
+    } else if (this.chargingSpecial !== null && !this.chargingSpecial.donkeykongPunch) {
+      const cs = this.chargingSpecial;
+      const chargeRules = this.neutralChargeMove();
       // Samus charge-cancel: a rising-edge SHIELD press while charging
       // BANKS the accumulated charge and exits the charge WITHOUT firing.
       // The bank persists across actions until fired or wiped (mid-charge
       // hit / respawn). This is what makes the charge feel "kept".
       const shieldStore = shieldHeld && !this.prevShieldHeld;
-      if (shieldStore) {
-        this.storedSpecialCharge = {
+      if (cs.entryRemaining && cs.entryRemaining > 0) {
+        cs.entryRemaining -= 1;
+        specialConsumedByCharge = true;
+      } else if (shieldStore) {
+        this.storedSpecialCharge = chargeRules?.storeCharge !== false ? {
           moveId: cs.moveId,
           framesHeld: cs.framesHeld,
-        };
+        } : null;
         this.chargingSpecial = null;
+        this.cooldownRemaining = Math.max(this.cooldownRemaining, chargeRules?.charge.cancelFrames ?? 0);
         // Do NOT consume the special button — the player may still be
         // holding it; the rising-edge dispatch below won't refire (the
         // press already happened) and the shield raises normally.
       } else if (
         specialHeld &&
         this.activeAttack === null &&
-        this.isGrounded()
+        (this.isGrounded() || chargeRules?.airCharge) &&
+        !(chargeRules?.autoFire && cs.framesHeld >= cs.maxFrames)
       ) {
-        // Still holding ON THE GROUND — keep charging, CAPPED at max. The
-        // charge is GROUNDED-ONLY: it cannot progress while jumping/falling
-        // (jump is suppressed while charging, so the only way to be airborne
-        // here is an external launch / platform drop — which falls to the
-        // else and fires the shot). A full charge is STORED at the cap until
-        // released or hit; it does NOT auto-fire at the top.
+        // Continue in the locations allowed by this move. Bankable shots
+        // remain held at the cap; auto-fire shots release on the next step.
         if (cs.framesHeld < cs.maxFrames) cs.framesHeld += 1;
         specialConsumedByCharge = true;
       } else {
-        // Released — OR left the ground (cannot charge in the air) — fire
-        // the shot scaled by how long it was held.
+        // Release, auto-fire, or leaving the move's allowed charging state.
         const held = cs.framesHeld;
         const moveId = cs.moveId;
         this.chargingSpecial = null;
@@ -6439,12 +11076,25 @@ export class Character {
       }
     }
 
-    const specialJustPressed = specialHeld && !this.prevSpecialHeld;
+    const specialJustPressed =
+      forcedPress === 'special' || (specialHeld && !this.prevSpecialHeld);
+    // A special press during a shockwave down special's repeat window queues
+    // one more loop, or two from `doubleRepeatFrom` (grounded only); presses do
+    // not stack beyond that. The move itself keeps running.
+    if (specialJustPressed && !specialConsumedByCharge && this.activeAttack !== null
+      && this.shockwaveRepeat !== null && this.shockwaveRepeat.moveId === this.activeAttack.move.id) {
+      const rule = this.resolveShockwaveSpec(this.activeAttack.move)?.repeat;
+      const f = this.activeAttack.framesElapsed;
+      if (rule && this.isGrounded() && f >= rule.windowStart && f < rule.windowEnd
+        && (rule.maxRepeats === undefined || this.shockwaveRepeat.repeats < rule.maxRepeats)) {
+        const loops = rule.doubleRepeatFrom !== undefined && f >= rule.doubleRepeatFrom ? 2 : 1;
+        this.shockwaveRepeat = { ...this.shockwaveRepeat, queued: Math.max(this.shockwaveRepeat.queued, loops) };
+      }
+    }
     if (
       !specialConsumedByCharge &&
       specialJustPressed &&
-      this.activeAttack === null &&
-      this.cooldownRemaining === 0
+      this.canAttack()
     ) {
       const AERIAL_STICK_THRESHOLD = 0.3;
       if (downHeld) {
@@ -6487,14 +11137,15 @@ export class Character {
             // releases on press, like Samus).
             this.storedSpecialCharge = null;
             this.fireNeutralChargeSpecial(chargeMove.id, banked.framesHeld);
-          } else if (this.isGrounded()) {
-            // Start, or RESUME from a banked partial, charging — GROUNDED
-            // ONLY: Samus charges rooted on the ground (no air-charging).
+          } else if (this.isGrounded() || chargeMove.airCharge) {
+            // Start or resume in this move's allowed charging state.
             this.chargingSpecial = {
               moveId: chargeMove.id,
               framesHeld: banked?.framesHeld ?? 0,
               maxFrames,
+              ...(chargeMove.charge.inputBehavior==='press-wind-fire'?{donkeykongPunch:{state:beginDonkeyKongPunch(banked?.framesHeld??0,{entryFrames:chargeMove.charge.entryFrames??7,maxChargeFrames:maxFrames,cancelFrames:chargeMove.charge.cancelFrames??4,airJumpCancelFrames:5,fullBankEndFrames:4}).state!,facing:this.facing,sourceGrounded:this.isGroundedForActionStart(),cancelInput:null}}:{entryRemaining:Math.max(0,(chargeMove.charge.entryFrames??0)-1)}),
             };
+            this.clearTumbleForStartedAction();
             this.storedSpecialCharge = null; // now live in chargingSpecial
           } else {
             // Airborne press — you cannot START a charge in the air. Fire
@@ -6515,11 +11166,13 @@ export class Character {
     // arm the cooldown this same call.
     if (
       !attackJustEnded &&
+      !this.landingRecovery &&
       this.activeAttack === null &&
       this.cooldownRemaining > 0
     ) {
       this.cooldownRemaining -= 1;
     }
+    if (this.cooldownRemaining === 0) this.landingRecovery = false;
   }
 
   // -------------------------------------------------------------------------
@@ -6539,14 +11192,14 @@ export class Character {
    * trims the queue to {@link STALE_QUEUE_SIZE}. Attacker-side; the queue
    * naturally "freshens" a move as it rotates out.
    */
-  registerLandedMove(moveId: string): number {
+  registerLandedMove(moveId: string, shield = false): number {
     let occurrences = 0;
-    for (const id of this.staleMoveQueue) {
-      if (id === moveId) occurrences += 1;
+    for (const entry of this.staleMoveQueue) {
+      if (entry.moveId === moveId) occurrences += 1;
     }
-    this.staleMoveQueue.push(moveId);
+    this.staleMoveQueue.unshift({ moveId, shield });
     if (this.staleMoveQueue.length > STALE_QUEUE_SIZE) {
-      this.staleMoveQueue.shift();
+      this.staleMoveQueue.pop();
     }
     return occurrences;
   }
@@ -6554,8 +11207,8 @@ export class Character {
   /** Occurrences of `moveId` in the stale queue WITHOUT mutating it (HUD / tests / AI). */
   getStaleOccurrences(moveId: string): number {
     let occurrences = 0;
-    for (const id of this.staleMoveQueue) {
-      if (id === moveId) occurrences += 1;
+    for (const entry of this.staleMoveQueue) {
+      if (entry.moveId === moveId) occurrences += 1;
     }
     return occurrences;
   }
@@ -6571,6 +11224,25 @@ export class Character {
    */
   setDamagePercent(percent: number): void {
     this.damagePercent = accumulateDamage(0, percent);
+  }
+
+  /** Install the match's damage-taken multiplier (1 outside a 1v1, items-off match). */
+  setDamageTakenMultiplier(multiplier: number): void {
+    this.damageTakenMultiplier = Number.isFinite(multiplier) && multiplier > 0 ? multiplier : 1;
+  }
+
+  getDamageTakenMultiplier(): number {
+    return this.damageTakenMultiplier;
+  }
+
+  /** Percent after taking `damage` from `percent`; positive damage is scaled by the damage-taken multiplier. */
+  private percentAfterDamageTaken(percent: number, damage: number): number {
+    return accumulateDamage(percent, damage > 0 ? damage * this.damageTakenMultiplier : damage);
+  }
+
+  /** Weighted newest-first history, including the reduced shield-contact penalty. */
+  getStaleMultiplier(moveId: string): number {
+    return computeStaleMultiplier(this.staleMoveQueue, moveId);
   }
 
   /**
@@ -6614,9 +11286,13 @@ export class Character {
    * No-op for destroyed fighters — they ignore further damage and the
    * call still returns the (frozen) current percent.
    */
-  addDamage(delta: number): number {
+  addDamage(delta: number, captureSource: NonNullable<CapturePresentationState['event']['damageSource']> = 'external', combatAttackerSlotIndex?:number): number {
     if (this.destroyed) return this.damagePercent;
-    this.damagePercent = accumulateDamage(this.damagePercent, delta);
+    const before = this.damagePercent;
+    this.damagePercent = this.percentAfterDamageTaken(this.damagePercent, delta);
+    this.noteCaptureDamage(this.damagePercent - before, captureSource);
+    if(combatAttackerSlotIndex!==undefined&&this.damagePercent>before)this.combatPercentReceiptSink?.({
+      damageApplied:this.damagePercent-before,attackerSlotIndex:combatAttackerSlotIndex,recoil:false,viaSceneResolver:false});
     return this.damagePercent;
   }
 
@@ -6657,9 +11333,10 @@ export class Character {
    *   • Sets `hitlagRemaining = max(current, frames)` — never shortens
    *     an in-flight freeze (e.g. a multi-hit move's later contacts
    *     can extend but not curtail the first contact's freeze).
-   *   • Does NOT touch `pendingKnockback` — the attacker has no
-   *     queued launch; the hitlag-drain path naturally skips the
-   *     "release knockback" branch when `pendingKnockback === null`.
+   *   • Saves the pre-freeze velocity once and restores it after the pause.
+   *     Extending an existing freeze never captures the temporary zero.
+   *   • Does NOT touch `pendingKnockback` — an incoming hit always owns
+   *     freeze-end launch velocity instead.
    *   • While the freeze drains, the standard hitlag handling pins
    *     the attacker's body at zero velocity and skips per-frame
    *     ticks (movement, attack progression, hitstun decrement) so
@@ -6670,9 +11347,78 @@ export class Character {
   armAttackerHitlag(frames: number): void {
     if (this.destroyed) return;
     if (frames <= 0) return;
+    if (this.hitlagRemaining === 0 && this.pendingKnockback === null && !this.pikachuLedgeFlightHitlagRelease) {
+      this.attackerHitlagVelocity = this.getVelocity();
+    }
     if (frames > this.hitlagRemaining) {
       this.hitlagRemaining = frames;
     }
+    this.hitlagPosition = { x: this.body.position.x, y: this.body.position.y };
+  }
+
+  /** Apply a body-attached aerial's rebound after confirmed contact and hitlag.
+   * The attack identity prevents an old sensor or detached projectile from
+   * bouncing a later move. Multiple targets on one simulation frame supply
+   * one impulse; damage interruption retains priority over outgoing contact.
+   */
+  protected getSourceAerialReboundState(){const attack=this.activeAttack,frame=attack?this.aerialReboundFrames.get(attack):undefined;
+    return attack&&frame!==undefined?{moveId:attack.move.id,frame,pendingSpeed:this.pendingAerialReboundSpeeds.get(attack)??null}:null;}
+  applyAerialRebound(attackInstance: object | undefined, outcome: CharacterHitOutcome): boolean {
+    const attack = this.activeAttack;
+    if (this.destroyed || this.isGrounded() || this.hitstunRemaining > 0 ||
+        this.pendingKnockback !== null || attack?.move.type !== 'aerial' || attack.hitboxBody === null ||
+        (outcome !== 'landed' && outcome !== 'shielded') ||
+        attackInstance === undefined || this.attackHitGroups.get(attack) !== attackInstance ||
+        Character.phaseFor(attack.framesElapsed, attack.move) !== 'active') return false;
+    const rebound = (attack.move as AerialMove).rebound;
+    if (!rebound || (rebound.disableOnFastFall && this.fastFallLatched) ||
+        this.aerialReboundFrames.get(attack) === attack.framesElapsed) return false;
+    this.aerialReboundFrames.set(attack, attack.framesElapsed);
+    // The rebound removes the entire hitbox until its return, including for
+    // opponents other than the first target. Already reported collision pairs
+    // on this impact step still share the original strike's hit identity.
+    despawnHitbox(this.scene, attack.hitboxBody);
+    attack.hitboxBody = null;
+    this.fastFallLatched = false;
+    this.jumpCutArmed = false;
+    this.shortHopRising = false;
+    this.airJumpRising = false;
+    this.launchVelocity = null;
+    this.referenceLaunch = null;
+    if (this.attackerHitlagVelocity !== null) {
+      this.attackerHitlagVelocity = { ...this.attackerHitlagVelocity, y: -rebound.upwardSpeed };
+    } else {
+      // collisionStart precedes Matter's solver, whose cached contact impulses
+      // would otherwise change the authored bounce strength. The active attack
+      // owns this one-step queue, so cancellation also abandons the impulse.
+      this.pendingAerialReboundSpeeds.set(attack, rebound.upwardSpeed);
+    }
+    return true;
+  }
+
+  private commitAerialReboundAfterPhysics(): void {
+    const attack = this.activeAttack;
+    if (attack === null) return;
+    const speed = this.pendingAerialReboundSpeeds.get(attack);
+    if (speed === undefined) return;
+    this.pendingAerialReboundSpeeds.delete(attack);
+    if (this.hitstunRemaining > 0 || this.pendingKnockback !== null) return;
+    if (this.attackerHitlagVelocity !== null) {
+      // A second target can take damage after the first target blocks on this
+      // same step. That newly armed hitlag must release the queued rebound.
+      this.attackerHitlagVelocity = { ...this.attackerHitlagVelocity, y: -speed };
+      return;
+    }
+    if (this.hitlagRemaining > 0) return;
+    for (const pair of this.contactPairs.values()) {
+      if (pair.isActive === false || pair.isSensor ||
+          pair.bodyA.isSensor || pair.bodyB.isSensor || !pair.collision) continue;
+      const direction = pair.bodyA === this.body ? 1 : -1;
+      // Retain the solver's ceiling response instead of restoring upward
+      // velocity into a solid surface above the fighter.
+      if (pair.collision.normal.y * direction > 0.5) return;
+    }
+    this.scene.matter.body.setVelocity(this.body, { x: this.body.velocity.x, y: -speed });
   }
 
   /**
@@ -6691,6 +11437,22 @@ export class Character {
     return this.helpless;
   }
 
+  /** Release-edge shield protection; never armed by raising or forced shield loss. */
+  isShieldParrying(): boolean {
+    return this.shieldReleaseCanParry && this.shieldReleaseRemaining > 6 && this.isGrounded();
+  }
+
+  /** Successful parry removes GuardOff's remaining ordinary commitment. */
+  consumeShieldParry(): void {
+    this.shieldReleaseRemaining = 0;
+    this.shieldReleaseCanParry = false;
+    this.shieldParryBlockRemaining = 0;
+  }
+
+  getShieldReleaseRemaining(): number {
+    return this.shieldReleaseRemaining;
+  }
+
   /** True while the fighter is in TUMBLE (hard-launched; can tech on contact). */
   isTumbling(): boolean {
     return this.tumbling;
@@ -6700,10 +11462,15 @@ export class Character {
   isKnockedDown(): boolean {
     return this.knockdownRemaining > 0;
   }
+  isTripped(): boolean {
+    return this.tripped && this.knockdownRemaining > 0;
+  }
 
   /** True while a directional tech-roll / get-up-roll is sliding (intangible). */
   isGetupRolling(): boolean {
-    return this.getupRollRemaining > 0;
+    // Getup rolls and tech rolls (tech_forward / tech_back); tech in place is not a roll.
+    const roll=(sheet:string|undefined)=>sheet!==undefined&&/roll|^tech_(forward|back)$/.test(sheet);
+    return roll(this.pikachuGroundRecovery?.sheet) || roll(this.groundRecovery?.sheet);
   }
 
   /** True while a mistimed tech is locked out (a re-press can't tech). */
@@ -6740,9 +11507,56 @@ export class Character {
    * `'active'` phase — recovery has `iframesRemaining === 0` so the
    * punish-window half of the dodge contract still lets hits through.
    */
+  /** Knockback-armor threshold of the throw in progress (until release), or null. */
+  private getThrowKnockbackArmor(): number | null {
+    const active = this.grabState.active;
+    if (this.grabState.name !== 'throwing' || !active?.throwDirection || !this.grabSpec) return null;
+    return getThrowByDirection(this.getCurrentThrowSet(), active.throwDirection).knockbackArmor ?? null;
+  }
+
+  /** Source true invincible contact is separate from legacy suppression. */
+  isThrowInvincible(): boolean {
+    if (this.throwReleaseInvincible) return true;
+    const active = this.grabState.active;
+    if (this.grabState.name !== 'throwing' || !active?.throwDirection || !this.grabSpec) return false;
+    const throws = this.getCurrentThrowSet();
+    const spec = getThrowByDirection(throws, active.throwDirection);
+    return active.framesElapsed < (spec.invincibilityFrames ?? 0);
+  }
+
+  /** Whole-body capture protection; a single protected limb is insufficient.
+   * Legacy whole-body dodge/ledge/grace counters remain separate from authored
+   * capsule geometry, including reviewed sheets that replace the base body. */
+  isCaptureProtected(): boolean {
+    return this.finalSmashControl !== null || this.postReleaseGrabImmunity.remaining > 0 || this.isInvincible() || isAllHurtboxesIntangible(this.getActiveHurtboxes());
+  }
+
+  /** Whole-body states every hurtbox inherits: the revival platform, the shield-break pop
+   * and a trip (slip / slip_down xlu 1..6, every fighter: intangible on trip frames 1-5). */
+  private isWholeBodyIntangibleState():boolean {
+    return this.revivalPlatform!==null||
+      this.shieldBreak!==null&&shieldBreakProtection(this.shieldBreak,this.shieldBreakLastFiveSeconds).intangible||
+      this.tripped&&this.knockdownRemaining>0&&TRIP_KNOCKDOWN_FRAMES-this.knockdownRemaining<=TRIP_FALL_INTANGIBLE_FRAMES;
+  }
+  private hasWholeSourceProtection():boolean {
+    if(this.finalSmashControl?.intangible)return true;
+    if(this.isWholeBodyIntangibleState())return true;
+    if(this.surfaceTech&&surfaceTechProtected(this.surfaceTech))return true;
+    if(this.groundRecovery&&this.groundRecovery.framesElapsed<this.groundRecovery.protectionFrames)return true;
+    const active=this.activeAttack;if(!active)return false;
+    // A ledge attack's regrab budget cuts its whole-body window too (getActiveHurtboxes applies the same cut).
+    if(active.ledgeProtectionFrames!==undefined&&active.framesElapsed>=active.ledgeProtectionFrames)return false;
+    const age=this.id==='donkeykong'?resolveDonkeyKongProtectionClock(active.move,active.framesElapsed).age:active.framesElapsed;
+    return age!==null&&!!active.move.protectionWindows?.some(w=>w.startFrame<=age&&age<w.endFrame&&w.regions.includes('*'));
+  }
+
   isInvincible(): boolean {
     return (
+      this.hasWholeSourceProtection() ||
+      (this.groundRecovery !== null && this.groundRecovery.framesElapsed < this.groundRecovery.protectionFrames) ||
+      this.isThrowInvincible() ||
       this.invincibilityRemaining > 0 ||
+      this.shieldParryProtected ||
       isDodgeInvincible(this.dodgeState) ||
       // AC 60403 Sub-AC 3 — the hang's i-frame window is the third
       // independent invulnerability source the runtime composes via OR.
@@ -6764,8 +11578,20 @@ export class Character {
    * non-negative" so the rest of the engine can read this without
    * having to clamp.
    */
-  setInvincibility(frames: number): void {
+  setInvincibility(frames: number, protection: 'legacy' | 'invincible' = 'legacy'): void {
     this.invincibilityRemaining = Math.max(0, Math.floor(frames));
+    this.timerProtection = protection;
+  }
+
+  /** Dedicated respawn hook; source fighters may opt into true contact while
+   * ordinary getup/tech counters and older fighters preserve legacy behavior. */
+  setRespawnInvincibility(frames: number): void {
+    this.setInvincibility(frames);
+  }
+
+  isSourceInvincible(): boolean {
+    if(this.revivalPlatform)return false;
+    return this.isThrowInvincible() || (this.timerProtection === 'invincible' && this.invincibilityRemaining > 0);
   }
 
   /**
@@ -6792,6 +11618,12 @@ export class Character {
    * Idempotent for `destroyed` fighters — they ignore the hit.
    */
   applyHit(hit: HitInfo): KnockbackResult {
+    const directThrowPresentation=hit.combatThrowRelease&&this.detailedHitApplicationDepth===0&&this.id==='link'?{groundedBefore:this.isGrounded(),damageBefore:this.damagePercent}:null;
+    // Reset before every protection/early-return path; signals belong to this hit.
+    this.lastDonkeyKongCarryHit = {};
+    if (this.finalSmashControl?.role === 'captured' && hit.finalSmashRunId !== this.finalSmashControl.runId)
+      return { vector: { x: 0, y: 0 }, magnitude: 0, angle: 0, hitstunFrames: 0 };
+    if(this.hasWholeSourceProtection())return {vector:{x:0,y:0},magnitude:0,angle:0,hitstunFrames:0};
     if (this.destroyed) {
       return {
         vector: { x: 0, y: 0 },
@@ -6810,7 +11642,7 @@ export class Character {
     // damage, knockback, or hitstun — and its damage is latched so the
     // next tick spawns a retaliation hitbox scaled by what was caught.
     // Checked FIRST so the parry beats the i-frame / shield paths below.
-    if (this.activeAttack !== null) {
+    if (this.activeAttack !== null && !(hit.finalSmashRunId !== undefined && hit.unblockable)) {
       const counter = this.resolveCounterSpec(this.activeAttack.move);
       if (counter !== null) {
         const f = this.activeAttack.framesElapsed;
@@ -6826,7 +11658,7 @@ export class Character {
     // shorten the invincibility timer per absorbed hit — the grace
     // window is wall-clock fixed (decremented in `applyInput`) so a
     // crowd of attackers can't burn it down with simultaneous pokes.
-    if (this.invincibilityRemaining > 0) {
+    if (this.invincibilityRemaining > 0 || this.shieldParryProtected) {
       return {
         vector: { x: 0, y: 0 },
         magnitude: 0,
@@ -6866,20 +11698,44 @@ export class Character {
     // is in its active window (stall or fall phase), the fighter is fully
     // intangible. Canonical example: Kirby stone form. Checked after
     // invincibility/dodge/ledge so those still take priority if stacked.
-    if (this.activeAttack !== null) {
-      const m = this.activeAttack.move as unknown as {
-        type?: string;
-        downSpecialKind?: string;
-        stallAndFall?: { armorDuringFall?: boolean };
-      };
-      if (
-        m.type === 'downSpecial' &&
-        m.downSpecialKind === 'stallAndFall' &&
-        m.stallAndFall?.armorDuringFall === true &&
-        Character.phaseFor(this.activeAttack.framesElapsed, this.activeAttack.move) === 'active'
-      ) {
-        return { vector: { x: 0, y: 0 }, magnitude: 0, angle: 0, hitstunFrames: 0 };
-      }
+    if (this.isStallAndFallArmored()) {
+      return { vector: { x: 0, y: 0 }, magnitude: 0, angle: 0, hitstunFrames: 0 };
+    }
+
+    // True throw invincibility leaves receiving overlap intact. The contact
+    // consumer confirms/deduplicates it and freezes only the attacking body.
+    if (this.isThrowInvincible())
+      return { vector: { x: 0, y: 0 }, magnitude: 0, angle: 0, hitstunFrames: 0 };
+
+    // Super armour (`AttackMove.armorWindows`): the hit connects — damage is
+    // taken and the attacker freezes in hitlag — but the fighter is neither
+    // launched, stunned nor interrupted, and a live charge is kept. Sourced
+    // examples: Donkey Kong's Headbutt and full-charge Giant Punch.
+    if (this.isSuperArmored() && hit.nativeForceReaction !== true) {
+      const armoredPercentBefore = this.damagePercent;
+      this.damagePercent = this.percentAfterDamageTaken(this.damagePercent, hit.damage);
+      this.noteCaptureDamage(this.damagePercent - armoredPercentBefore, 'external');
+      this.noteCombatPercentApplied(armoredPercentBefore,hit);
+      this.armAttackerHitlag(computeHitlag({ damage: hit.damage, targetPercent: armoredPercentBefore,
+        multiplier: hit.hitlagMultiplier, crouching: false, players: hit.hitlagPlayers,
+        electricCollision: hit.electricCollision, projectile: hit.hitlagProjectile }));
+      return { vector: { x: 0, y: 0 }, magnitude: 0, angle: 0, hitstunFrames: 0 };
+    }
+
+    if (this.isShieldParrying() && !hit.unblockable) {
+      // Zero-damage contact can be blocked, but cannot trigger a parry.
+      if (!(hit.damage > 0)) return { vector: { x: 0, y: 0 }, magnitude: 0, angle: 0, hitstunFrames: 0 };
+      this.consumeShieldParry();
+      const freeze = computeShieldParryHitlag({ damage: hit.damage,
+        targetPercent: this.damagePercent, multiplier: hit.hitlagMultiplier, players: hit.hitlagPlayers,direct:hit.direct,
+          electricCollision: hit.electricCollision, projectile: hit.hitlagProjectile },
+      hit.shieldKind === 'projectile');
+      this.armAttackerHitlag(freeze.defender);
+      this.shieldParryStunRemaining = computeShieldstun(hit.damage, hit.shieldKind, hit.shieldSetoffMultiplier);
+      this.shieldParryProtected = true;
+      this.latchShieldPresentation('parry', this.shieldParryStunRemaining);
+      emitCombatSfx(this.sfxSink ?? undefined, ASSET_KEYS.sfxShield);
+      return { vector: { x: 0, y: 0 }, magnitude: 0, angle: 0, hitstunFrames: 0 };
     }
 
     // AC 60403 Sub-AC 3 — if the fighter is hanging on a ledge but the
@@ -6909,16 +11765,31 @@ export class Character {
     // The break-stun lockout is enforced by the `applyInput` early-
     // return path that fires while `isShieldBroken(this.shieldState)`
     // is true.
-    if (isShieldRaised(this.shieldState) && !hit.unblockable) {
+    if (isShieldRaised(this.shieldState) && !hit.unblockable && this.sourceShieldContactAllowsBlock(hit)) {
       // Pass how long the shield has been up so a hit caught in the raise
       // window powershields — no HP cost, no shieldstun, instant punish.
       const r = applyShieldHit(
         this.shieldState,
         hit.damage,
         this.tuning.shield,
-        this.shieldActiveFrames,
+        undefined, // Raising a shield is an ordinary block; Ultimate parries on release.
+        hit.shieldKind,
+        hit.shieldDamage,
+        hit.shieldSetoffMultiplier,
+        this.damagePercent,
       );
       this.shieldState = r.state;
+      if(!r.perfect&&!isShieldBroken(r.state)&&hit.shieldSetoffMultiplier!==undefined){
+        const speed=computeShieldPushback({damage:hit.damage,kind:hit.shieldKind,setoffMultiplier:hit.shieldSetoffMultiplier}).defenderSpeed;
+        this.sourcedShieldPush={speed:hit.facing*speed,attacker:false};
+      }
+      this.latchShieldPresentation(isShieldBroken(r.state) ? 'broken' : 'block',
+        isShieldBroken(r.state) ? r.state.stunRemaining : r.state.blockStunRemaining);
+      if (!r.perfect) {
+        this.armAttackerHitlag(computeShieldHitlag({ damage: hit.damage,
+          targetPercent: this.damagePercent, multiplier: hit.hitlagMultiplier, players: hit.hitlagPlayers,
+          electricCollision: hit.electricCollision, projectile: hit.hitlagProjectile }));
+      }
       // AC 10304 — voice the shatter cue when this hit is the one that
       // BROKE the shield (raised → broken edge), distinct from the
       // shield-raise hum. The `applyShieldHit` result carries the new
@@ -6927,6 +11798,7 @@ export class Character {
       // a bit of shield health. Audio-only side effect — the break-stun
       // lockout itself is driven by the state machine, untouched here.
       if (isShieldBroken(r.state)) {
+        this.beginSourceShieldBreak();
         emitCombatSfx(this.sfxSink ?? undefined, ASSET_KEYS.sfxShieldBreak);
       } else if (r.perfect) {
         // A perfect shield rings the raise cue again as its "ting".
@@ -6940,21 +11812,84 @@ export class Character {
       };
     }
 
+    // Preview before destructive reaction/item resets. Knockback armor and the
+    // carry classifier consume modified reference KB, not final hitstun or the
+    // authored legacy launch.
+    const sourceCarryActive = this.id === 'donkeykong' && this.donkeykongHeavyItemHeld
+      && this.donkeykongHeavyCarry !== null && this.donkeykongHeavyItemAction === null
+      && this.pendingKnockback === null && this.hitstunRemaining === 0
+      && this.grabbedBy === null && this.buriedState === null;
+    const throwKnockbackArmor = this.getThrowKnockbackArmor();
+    if (sourceCarryActive || throwKnockbackArmor !== null) {
+      const percentBefore = this.damagePercent;
+      const percentAfter = accumulateDamage(percentBefore, hit.damage);
+      const crouchMultiplier = this.isGrounded() && isCrouching(this.locomotionState)
+        ? CROUCH_KNOCKBACK_REDUCTION : 1;
+      const referenceKnockback = computeKnockback(hit, percentAfter, this.tuning.mass, {
+        referenceWeight: hit.nativeCollisionAttribute === 'collision_attr_bury' || hit.statusEffect === 'bury'
+          ? 100 : this.tuning.referenceWeight,
+        grounded: this.isGrounded(),
+        multiplier: crouchMultiplier * (hit.referenceKnockbackMultiplier ?? 1),
+      }).referenceKnockback;
+      // Resisted reaction: damage and the attacker's hitlag land, no launch.
+      const resist = () => {
+        this.damagePercent = this.percentAfterDamageTaken(percentBefore, hit.damage);
+        this.noteCaptureDamage(this.damagePercent - percentBefore, 'external');
+        this.noteCombatPercentApplied(percentBefore,hit);
+        this.armAttackerHitlag(computeHitlag({damage:hit.damage,targetPercent:percentBefore,
+          multiplier:hit.hitlagMultiplier,crouching:crouchMultiplier !== 1,
+          players:hit.hitlagPlayers,electricCollision:hit.electricCollision,projectile:hit.hitlagProjectile}));
+        this.lastDonkeyKongCarryHit = {reactionResisted:true};
+        return {vector:{x:0,y:0},magnitude:0,angle:0,hitstunFrames:0};
+      };
+      if (throwKnockbackArmor !== null && referenceKnockback !== undefined && referenceKnockback <= throwKnockbackArmor)
+        return resist();
+      if (sourceCarryActive) {
+        const decision = classifyDonkeyKongReferenceCarryDamage({sourceCarryActive,
+          referenceKnockback, nativeCollisionAttribute:hit.nativeCollisionAttribute,
+          nativeForceReaction:hit.nativeForceReaction});
+        if (decision.kind === 'resist') return resist();
+        if (decision.kind === 'launch' && referenceKnockback !== undefined)
+          this.lastDonkeyKongCarryHit = {heavyItemDrop:{reason:decision.reason,referenceKnockback}};
+      }
+    }
+
+    this.tauntPresentation = null;
+    this.clearLedgeAttackAttachment();
+    this.clearPikachuLedgeAttachment();
+    this.donkeykongFullHopStep=null;this.donkeykongOrdinaryVerticalTick=false;
+    this.grabReleasePresentation = null;
+    this.ultimateCaptureBudget = null;
+    this.clearGrabSourcePresentation();
     // Getting hit while GRABBING a victim BREAKS the grab (Smash: interrupt
     // the grabber and the held opponent goes free). Fires only on a hit
     // that actually lands — the i-frame / shield absorbs above already
     // returned, and a fighter can't be grabbing while shielding.
     if (this.grabTarget !== null && this.grabSpec !== null) {
-      this.grabTarget.releaseFromGrab();
+      this.grabTarget.releaseFromGrab('break');
       this.grabTarget = null;
       this.grabState = applyGrabBreak(this.grabState, this.grabSpec);
     }
+    this.throwRootMotionApplied = false;
+    this.throwPresentation = null;
     // A fresh hit re-launches a prone / tumbling / rolling fighter — clear
     // the floor-loop lockouts so the new knockback takes over (tumble is
     // re-set when this hit's launch is applied).
+    const alreadyTripped = this.isTripped();
+    this.reactionPresentation = null;
+    this.recoveryReaction = null;
+    this.pikachuGroundRecovery = null; this.groundRecovery=null;this.clearSurfaceTech();
+    this.pendingFootstoolJump=false;this.pendingFootstoolPhantom=false;this.sourceLinkFootstoolPendingContact=null;this.donkeykongFootstoolPerformer=null;this.sourceLinkFootstool=null;this.footstoolRecipient=null;this.footstoolMini=null;this.pikachuFootstoolVisual=null;this.pikachuRespawnPresentation=null;this.clearItemAction();this.pikachuLedgeJump=null;
+    this.reactionCue = null;
+    this.crouchPresentation = null;
+    this.pikachuCrouchCrawl = null;
+    this.pikachuTurnBrake = null;
+    this.donkeykongTurnBrake=null;this.restoreSourcedGroundFriction();
+    this.attackClankRemaining = 0;
+    this.attackClankLockedStep = false;
     this.knockdownRemaining = 0;
+    this.tripped = false;
     this.tumbling = false;
-    this.getupRollRemaining = 0;
     this.techBufferRemaining = 0;
     this.techLockoutRemaining = 0;
 
@@ -6962,11 +11897,15 @@ export class Character {
     //    high-% hitlag bonus so a 149% target hit by a heavy crosses
     //    into "high-% crunch" exactly when the bonus formula expects.
     const percentBeforeHit = this.damagePercent;
-    this.damagePercent = accumulateDamage(this.damagePercent, hit.damage);
+    this.interruptEating();
+    // Knockback and knockback-dependent statuses read the unmultiplied percent.
+    const knockbackPercent = accumulateDamage(percentBeforeHit, hit.damage);
+    this.damagePercent = this.percentAfterDamageTaken(percentBeforeHit, hit.damage);
+    this.noteCaptureDamage(this.damagePercent - percentBeforeHit, 'external');
+    this.noteCombatPercentApplied(percentBeforeHit,hit);
 
     // 2. Knockback math — at the *new* percent, scaled by the
     //    fighter's current mass so heavy targets resist.
-    const rawResult = computeKnockback(hit, this.damagePercent, this.tuning.mass);
     // CROUCH-CANCEL — a grounded crouching victim eats a softened launch.
     // Gated on grounded too so a (defensively) stale crouch can never hand
     // an airborne / juggled fighter the reduction.
@@ -6974,8 +11913,13 @@ export class Character {
       this.isGrounded() && isCrouching(this.locomotionState)
         ? CROUCH_KNOCKBACK_REDUCTION
         : 1;
-    const result: KnockbackResult =
-      crouchCancel === 1
+    const rawResult = computeKnockback(hit, knockbackPercent, this.tuning.mass, {
+      referenceWeight: this.tuning.referenceWeight,
+      grounded: this.isGrounded(),
+      multiplier: crouchCancel*(hit.referenceKnockbackMultiplier??1),
+    });
+    let result: KnockbackResult =
+      crouchCancel === 1 || hit.knockback.reference !== undefined
         ? rawResult
         : {
             vector: {
@@ -6987,6 +11931,56 @@ export class Character {
             hitstunFrames: rawResult.hitstunFrames,
           };
 
+    const tripProbability = referenceTripProbability({ tripChance: hit.tripChance,
+      grounded: this.isGrounded(), alreadyTripped, verticalVelocity: result.vector.y,
+      referenceKnockback: result.referenceKnockback });
+    // A slip trips a grounded target whatever the knockback, without a roll (SmashWiki Slip).
+    const slip = hit.slip === true && this.isGrounded() && !alreadyTripped;
+    const trip = slip || (hit.slip !== true && tripProbability > 0 && this.tripRandomSource !== null
+      && this.tripRandomSource() < tripProbability);
+    if (trip) result = { ...result, vector: { x: 0, y: 0 }, magnitude: 0,
+      angle: 0, hitstunFrames: 0, tumble: false, tripped: true };
+
+    const autolink = hit.knockback.reference?.angle === 367 && !this.isGrounded()
+      && validReferenceAutolinkContext(hit.autolink) ? {
+        target: { ...hit.autolink.target }, sourceVelocity: { ...hit.autolink.sourceVelocity },
+      } : undefined;
+    const profile = !trip && hit.knockback.reference !== undefined ? this.tuning.referenceLaunch : undefined;
+    const vertical = autolink === undefined
+      && isVerticalReferenceLaunch(result.vector, result.tumble === true);
+    if (profile !== undefined) {
+      const vector = { x: result.vector.x, y: result.vector.y - referenceGravityBoost(profile, vertical,
+        result.tumble === true, hit.knockback.reference?.setWeight === true) };
+      result = { ...result, vector, magnitude: Math.hypot(vector.x, vector.y), angle: Math.atan2(vector.y, vector.x) };
+    }
+    // Imported custom values can request impractically long reactions. Keep
+    // those on the existing constant-space clock rather than allocating a
+    // trajectory schedule proportional to an unbounded authoring value.
+    const boundedSchedule = Number.isSafeInteger(result.hitstunFrames) && result.hitstunFrames <= 10_000;
+    const groups = profile !== undefined
+      ? boundedSchedule ? getReferenceDamageSpeedUpGroups(result.hitstunFrames,
+        result.tumble === true && !isFixedReferenceKnockback(hit.knockback.reference)) : [1]
+      : undefined;
+    if (groups !== undefined) {
+      result = { ...result, ordinaryHitstunFrames: result.hitstunFrames,
+        hitstunFrames: boundedSchedule ? groups.length - 1 : result.hitstunFrames };
+    }
+
+    // An opted DK source grab is replaced by genuine hitstun. Retiring its
+    // whiff now prevents its sensor and body from resuming after hitlag/stun.
+    // Held-target break, rejected hits and unopted profiles retain their paths.
+    if (this.id === 'donkeykong' && this.grabSpec?.attachmentPolicy === 'pose-anchors-beta-v1'
+      && result.hitstunFrames > 0 && (this.grabState.name === 'whiffStartup'
+        || this.grabState.name === 'whiffActive' || this.grabState.name === 'whiffRecovery')) {
+      const before = this.grabState;
+      this.grabState = resetGrabState();
+      this.handleGrabStateTransition(before, this.grabState);
+      this.dashGrabActive = false;
+      this.dashGrabEntryVx = 0;
+      this.grabVariantSpec = null;
+      this.grabPresentationVariant = 'standing';
+    }
+
     // 3. Hitlag freeze frames (post-M2 hit-feel pass). Both fighters
     //    visually pause at the moment of impact for `hitlagFrames` —
     //    the knockback velocity and hitstun lockout don't actually
@@ -6995,7 +11989,10 @@ export class Character {
     const hitlagFrames = computeHitlag({
       damage: hit.damage,
       targetPercent: percentBeforeHit,
-      sweetSpot: hit.sweetSpot === true,
+      multiplier: hit.hitlagMultiplier,
+      crouching: crouchCancel !== 1,
+      players: hit.hitlagPlayers,
+      electricCollision: hit.electricCollision, projectile: hit.hitlagProjectile,
     });
 
     // 4 + 5. Interrupt attack + clear cooldown.
@@ -7012,13 +12009,46 @@ export class Character {
     //    fire on the frame `hitlagRemaining` drains to zero; see the
     //    hitlag-drain path at the top of `applyInput`.
     this.hitlagRemaining = hitlagFrames;
+    this.hitlagPosition = { x: this.body.position.x, y: this.body.position.y };
+    this.jumpPresentation = null;
+    this.pikachuAuxiliaryAir = null;
+    this.throwPresentation = null;
+    this.throwRootMotionApplied = false;
+    this.landingPresentation = null;
+    // Damage interrupts special-fall. It does not replenish jumps or dodge.
+    this.helpless = false;
+    this.jumpsquatRemaining = 0;
+    this.jumpsquatShortHop = false;
+    this.jumpsquatFacing = null;
+    this.tapJumpBufferFrames = 0;
+    this.attackerHitlagVelocity = null;
+    this.pikachuLedgeFlightHitlagRelease=false;
+    this.launchVelocity = null;
+    this.referenceLaunch = null;
+    this.hitstunGravityVelocityY = 0;
+    this.pendingHitstunGravityCorrection = 0;
     this.pendingKnockback = {
+      ...(trip ? { trip: true } : {}),
+      ...(slip ? { softTrip: true } : {}),
+      ...(autolink === undefined ? {} : { autolink }),
       vector: { x: result.vector.x, y: result.vector.y },
       hitstunFrames: result.hitstunFrames,
+      launchDecayPerFrame: result.launchDecayPerFrame,
+      tumble: result.tumble,
+      ...(profile && groups ? { referenceLaunch: { profile: { ...profile }, vertical, groups } } : {}),
+      ...(hit.velocityCarry && Number.isFinite(hit.velocityCarry.x) && Number.isFinite(hit.velocityCarry.y)
+        ? { velocityCarry: { ...hit.velocityCarry } } : {}),
     };
+    if(this.buriedState){
+      const reaction=receiveBuriedHit(this.buriedState,result.referenceKnockback??result.magnitude,this.pendingKnockback);
+      this.buriedState=reaction.state;if(reaction.held)this.pinBuriedLaunch();
+    }else if(hit.statusEffect==='bury'&&this.isGrounded()){
+      const weight100=computeKnockback(hit,knockbackPercent,this.tuning.mass,{referenceWeight:100,grounded:true}).referenceKnockback;
+      if(weight100!==undefined){this.buriedState=createBuriedState(ultimateBuryFrames(knockbackPercent,weight100,hit.attackerMinusVictimStocks??0),this.lastCaptureInput);this.pinBuriedLaunch();}
+    }
     // Fresh SDI budget for this freeze (no carry-over from a prior hit).
-    this.sdiSpentPx = 0;
-    this.sdiPrevBeyond = false;
+    this.sdiState = createReferenceSdiState();
+    this.sdiMultiplier = Number.isFinite(hit.sdiMultiplier) ? Math.max(0, hit.sdiMultiplier!) : 1;
     // Fall-shaping latches die the moment a hit lands: the queued
     // launch owns the velocity, and a surviving fast-fall latch (or
     // armed jump-cut) would corrupt the knockback arc when hitstun
@@ -7027,6 +12057,8 @@ export class Character {
     // whose hitstun branch never runs during the hitlag freeze.
     this.fastFallLatched = false;
     this.jumpCutArmed = false;
+    this.shortHopRising = false;
+    this.airJumpRising = false;
     // Getting hit MID-CHARGE drops the charge — including any bank it was
     // resumed from (Smash idiom: an interrupted active charge is lost).
     // A merely-HELD bank (not actively charging) SURVIVES the hit, which
@@ -7048,7 +12080,131 @@ export class Character {
     this.locomotionState = resetLocomotionState(this.facing);
     this.prevLocoMoveX = 0;
 
+    // Source catch limits reset on genuine hitstun, including a zero-damage
+    // launch. Legacy profiles retain their damaging-launch reset policy.
+    // Blocked/armored contacts return before this branch.
+    const resetLedgeCatches = this.tuning.ledge.maxGrabsWithoutGround > 0
+      ? result.hitstunFrames > 0 : hit.damage > 0 && result.magnitude > 0;
+    if (resetLedgeCatches) {
+      this.ledgeHangState = { ...this.ledgeHangState, ledgeGrabsSinceGround: 0 };
+    }
+
+    if(directThrowPresentation&&result.magnitude>0){
+      this.admitSourceDamageReceipt(hit,result,directThrowPresentation.groundedBefore,directThrowPresentation.damageBefore);
+      this.reactionPresentation=null;
+    }
     return result;
+  }
+
+  /** Same visual admission for detailed contacts and genuine direct absolute
+   * throws; consumes the already computed launch once, never recomputes combat. */
+  private admitSourceDamageReceipt(hit:HitInfo,knockback:KnockbackResult,groundedBefore:boolean,damageBefore:number):number {
+      const eventFrame=Math.max(0,this.simulationInputFrame);this.sourceDamageOwnStop=this.hitlagRemaining>0;
+      this.sourceDamagePresentation=parseSourceDamagePresentationReceipt({eventSerial:++this.sourceDamageEventSerial,generation:this.positionResetGeneration,
+        entryFrame:eventFrame,lastAdvancedFrame:eventFrame,framesElapsed:0,entryFacing:this.facing,groundedAtEntry:groundedBefore,
+        ownElectricStop:this.sourceDamageOwnStop&&(hit.electricCollision===true||hit.nativeCollisionAttribute?.includes('collision_attr_elec')===true),electricStopFramesElapsed:0,electricStopLastAdvancedFrame:eventFrame,
+        damageApplied:this.damagePercent-damageBefore,postHitPercent:this.damagePercent,initialHitstunFrames:knockback.ordinaryHitstunFrames??knockback.hitstunFrames,initialStatusHitstunFrames:this.pendingKnockback?.hitstunFrames??knockback.hitstunFrames,tumbleAtAdmission:this.pendingKnockback?.tumble??knockback.tumble??false,referenceKnockback:knockback.referenceKnockback??null,
+        launchVelocity:knockback.vector,nativeCollisionAttribute:hit.nativeCollisionAttribute??null,nativeLaunchAngleRadians:knockback.nativeLaunchAngleRadians??null,
+        electric:hit.electricCollision===true||hit.nativeCollisionAttribute?.includes('collision_attr_elec')===true,
+        nativeAttackHeight:hit.nativeAttackHeight??null,nativeAttackHeightSource:hit.nativeAttackHeightSource??null,attackHeightContext:hit.combatAttackHeightContext??null,
+        receivingRegions:hit.combatReceivingRegions??null,sourceContactCapsuleWorld:hit.combatContactCapsuleWorld??null});
+    return eventFrame;
+  }
+
+  /** Apply a hit and report why it landed or was rejected. */
+  applyHitDetailed(hit: HitInfo): CharacterHitApplication {
+    const destroyedBefore = this.destroyed;
+    const revivalPlatformBefore = this.isOnRevivalPlatform();
+    const counterBefore = this.pendingCounterRetaliation;
+    const respawnInvincibleBefore = (this.timerProtection === 'legacy' && this.invincibilityRemaining > 0) || this.shieldParryProtected;
+    const dodgeInvincibleBefore = isDodgeInvincible(this.dodgeState);
+    const ledgeInvincibleBefore = isLedgeHangInvincible(this.ledgeHangState);
+    const sourceInvulnerableBefore = this.isSourceInvincible();
+    const intangibleBefore=this.hasWholeSourceProtection() || (this.finalSmashControl?.role === 'captured' &&
+      hit.finalSmashRunId !== this.finalSmashControl.runId);
+    const armoredBefore = this.isStallAndFallArmored() || (this.isSuperArmored() && hit.nativeForceReaction !== true);
+    const shieldedBefore = (isShieldRaised(this.shieldState) && this.sourceShieldContactAllowsBlock(hit) ||
+      (this.isShieldParrying() && !(hit.damage > 0))) && !hit.unblockable;
+    const shieldParryBefore = this.isShieldParrying() && hit.damage > 0 && !hit.unblockable;
+    const damageBefore = this.damagePercent;
+    const groundedBefore = this.isGrounded();
+    let knockback:KnockbackResult;this.detailedHitApplicationDepth++;
+    try{knockback=this.applyHit(hit);}finally{this.detailedHitApplicationDepth--;}
+
+    let outcome: CharacterHitOutcome;
+    if (destroyedBefore) outcome = 'destroyed';
+    else if (revivalPlatformBefore) outcome = 'intangible';
+    else if (this.pendingCounterRetaliation !== counterBefore) outcome = 'parried';
+    else if (respawnInvincibleBefore) outcome = 'invincible';
+    else if (dodgeInvincibleBefore) outcome = 'dodged';
+    else if (ledgeInvincibleBefore) outcome = 'ledge-invincible';
+    else if (sourceInvulnerableBefore) outcome = 'invulnerable';
+    else if (intangibleBefore) outcome = 'intangible';
+    else if (armoredBefore) outcome = 'armored';
+    else if (shieldParryBefore) outcome = 'parried';
+    else if (shieldedBefore) outcome = 'shielded';
+    else outcome = 'landed';
+
+    if(outcome==='landed'&&knockback.magnitude>0){
+      this.clearSourceShieldBreak();this.linkPassiveGuard=null;
+      // A launch that passed an exact shield bubble ends the raised shield.
+      if(this.usesExactShieldBubble()&&isShieldRaised(this.shieldState)){
+        this.shieldState={...this.shieldState,name:'idle',blockStunRemaining:0};this.shieldReleaseRemaining=0;this.shieldPresentation=null;}
+      if(this.id==='link'){this.admitSourceDamageReceipt(hit,knockback,groundedBefore,damageBefore);
+        // Each actual flinch owns a new visual age even if its broad reaction kind
+        // equals the prior hit. This does not alter hitstun/launch or protection.
+        this.reactionPresentation=null;}
+    }
+    if (outcome === 'landed') {
+      if(this.finalVictimPresentation?.kind==='impact-stop')this.finalVictimPresentation=null;
+      this.lastFinalReactionRun = hit.finalSmashRunId ?? null;
+      if (this.finalSmashControl?.role === 'captured')
+        this.capturedFinalReactionRun = this.lastFinalReactionRun === this.finalSmashControl.runId
+          ? this.lastFinalReactionRun : null;
+    }
+
+    return {
+      outcome,
+      knockback,
+      damageApplied: this.damagePercent - damageBefore,
+      ...this.lastDonkeyKongCarryHit,
+      ...(outcome === 'parried' ? { parryKind: this.pendingCounterRetaliation !== counterBefore
+        ? 'counter' as const : 'shield' as const } : {}),
+    };
+  }
+
+  /** True while the active move is inside one of its `armorWindows`. */
+  private isSuperArmored(): boolean {
+    const a = this.activeAttack;
+    if (a === null) return false;
+    const windows = (a.move as AttackMove).armorWindows;
+    if (!windows || windows.length === 0) return false;
+    const f = a.framesElapsed;
+    return windows.some((w) => {
+      if (f < w.startFrame || f >= w.endFrame) return false;
+      if (w.minChargeRatio === undefined) return true;
+      const max = (a.move as { charge?: { maxChargeFrames?: number } }).charge?.maxChargeFrames ?? 0;
+      const held = a.chargeHeldFrames ?? 0;
+      return max > 0 && held / max >= w.minChargeRatio;
+    });
+  }
+
+  private isStallAndFallArmored(): boolean {
+    if (this.activeAttack === null) return false;
+    const move = this.activeAttack.move as unknown as {
+      type?: string;
+      downSpecialKind?: string;
+      stallAndFall?: { armorDuringFall?: boolean };
+    };
+    return (
+      move.type === 'downSpecial' &&
+      move.downSpecialKind === 'stallAndFall' &&
+      move.stallAndFall?.armorDuringFall === true &&
+      Character.phaseFor(
+        this.activeAttack.framesElapsed,
+        this.activeAttack.move,
+      ) === 'active'
+    );
   }
 
   // -------------------------------------------------------------------------
@@ -7061,7 +12217,11 @@ export class Character {
    * point during the step.
    */
   isGrounded(): boolean {
-    return this.groundContacts > 0;
+    if(this.pikachuLedgeJump?.phase==='flight' && this.pikachuLedgeJump.framesElapsed===0 && this.body.velocity.y<0)return false;
+    for (const pair of this.contactPairs.values()) {
+      if (this.isSupportPair(pair)) return true;
+    }
+    return false;
   }
 
   /** Live world-space position (Matter centre of mass). */
@@ -7071,7 +12231,17 @@ export class Character {
 
   /** Live velocity in Matter px-per-step units. */
   getVelocity(): { x: number; y: number } {
-    return { x: this.body.velocity.x, y: this.body.velocity.y };
+    // Matter's collisionStart callback occurs before it normalizes the public
+    // velocity field. Its getter derives consistent units from Verlet history.
+    const velocity = this.scene.matter.body.getVelocity?.(this.body) ?? this.body.velocity;
+    const transport = this.referenceTransport;
+    if (transport !== null && transport.token === this.referenceLaunch) {
+      return {
+        x: transport.residual.x + (velocity.x - transport.residual.x) / transport.multiplier,
+        y: transport.residual.y + (velocity.y - transport.residual.y) / transport.multiplier,
+      };
+    }
+    return { x: velocity.x, y: velocity.y };
   }
 
   /** Last input-driven facing direction. 1 = right, -1 = left. */
@@ -7083,6 +12253,197 @@ export class Character {
   getJumpsUsed(): number {
     return this.jumpsUsed;
   }
+  /** Observed entry controls, not a guessed native forward/back motion selector. */
+  getJumpPresentationState() {
+    return this.jumpPresentation && !this.isGrounded() && !this.isGrabbed() && !this.isHangingOnLedge()
+      ? { ...this.jumpPresentation } : null;
+  }
+  private canPresentUncommittedBody(): boolean {
+    if(this.donkeykongHeavyItemAction)return false;
+    if(this.itemEating||this.itemAction||this.itemShooting||this.isHammerLocked())return false;
+    if(this.isSurfaceTechLocking())return false;
+    if (this.buriedState !== null || this.grabState.active?.cargo || this.pikachuLedgeJump?.phase==='start' || this.groundRecovery !== null || this.footstoolRecipient !== null || this.grabReleasePresentation !== null || this.tauntPresentation !== null || this.destroyed || this.activeAttack !== null || this.cooldownRemaining > 0 ||
+      this.attackClankRemaining > 0 || this.attackClankLockedStep ||
+      this.chargingSmash !== null || this.chargingSpecial !== null ||
+      this.isInLandingRecovery() || (this.pendingOrdinaryLandingFrames ?? 0) > 0 ||
+      this.grabbedBy !== null || isGrabActing(this.grabState) || isDodgeActing(this.dodgeState) ||
+      isLedgeLockingInput(this.ledgeHangState) || isShieldRaised(this.shieldState) ||
+      isShieldBroken(this.shieldState) || isInShieldstun(this.shieldState) ||
+      this.shieldReleaseRemaining > 0 || this.shieldParryStunRemaining > 0 || this.shieldParryProtected ||
+      this.hitstunRemaining > 0 || this.referenceStunnedStep || this.pendingKnockback !== null ||
+      this.knockdownRemaining > 0 || this.pikachuGroundRecovery !== null || this.jumpsquatRemaining > 0) return false;
+    return true;
+  }
+  private ordinaryPresentationSheet(): 'idle' | 'walk' | 'fall' | 'fall_special' | null {
+    if (!this.canPresentUncommittedBody() || this.isCrouching() || this.reactionCue || this.packedBodyTail) return null;
+    // The revival platform is a floor the revived fighter stands on (SmashWiki Revival platform; simulationSpriteAnimation).
+    if (!this.isGrounded() && !this.revivalPlatform) {
+      if (this.helpless) return 'fall_special';
+      // This preserves the framework's beta velocity-based motion selection.
+      const velocityY = this.attackerHitlagVelocity?.y ?? this.body.velocity.y;
+      return velocityY >= 0 ? 'fall' : null;
+    }
+    if (this.locomotionState.name === 'standing') return 'idle';
+    if (this.locomotionState.name === 'walk') return 'walk';
+    return null;
+  }
+  private syncOrdinaryPresentation(advance: boolean): void {
+    const sheet = this.ordinaryPresentationSheet();
+    if (sheet === null) { this.ordinaryPresentation = null; return; }
+    if (this.ordinaryPresentation?.sheet !== sheet) {
+      this.ordinaryPresentation = { sheet, framesElapsed: 0 };
+    } else if (advance) this.ordinaryPresentation.framesElapsed += 1;
+  }
+  private reactionPresentationCandidate(): ReactionPresentationState | null {
+    if (this.destroyed || this.grabbedBy !== null) return null;
+    if (this.reactionCue) return { ...this.reactionCue };
+    const attack = this.activeAttack;
+    if (attack && this.recoveryReaction &&
+      [`${this.id}.tripAttack`, `${this.id}.getupAttack`, `${this.id}.getupAttackFaceDown`].includes(attack.move.id))
+      return { kind: 'getup-attack', ...this.recoveryReaction, framesElapsed: attack.framesElapsed, moveId: attack.move.id };
+    if (this.knockdownRemaining > 0) return { kind: this.tripped ? 'trip' : 'prone',
+      origin: this.recoveryOrigin(), framesElapsed: this.knockdownTotalFrames() - this.knockdownRemaining, facing: this.facing };
+    if (this.pendingKnockback || this.hitstunRemaining > 0 || this.referenceStunnedStep)
+      return { kind: 'damage', origin: null, framesElapsed: 0, facing: this.facing,
+        phase: this.hitlagRemaining > 0 ? 'hitlag' : 'hitstun' };
+    if (this.tumbling) return { kind: 'tumble', origin: null, framesElapsed: 0, facing: this.facing };
+    return null;
+  }
+  private syncObservedPresentation(advance: boolean): void {
+    this.syncShieldPresentation();
+    // The ordinary idle/fall clock waits for the tail, so it starts afresh once the tail ends.
+    const packed=packedBodyProfile(this.id)!==null;
+    if(packed)this.packedBodyTail=nextPackedBodyTail(captureSimulationAnimation(this,0,false),advance);
+    this.syncOrdinaryPresentation(advance);
+    if (packed) {
+      const crouching=this.isGrounded()&&this.isCrouching()&&this.canPresentUncommittedBody();
+      const oldPhase=this.packedCrouchPhase;
+      if(crouching)this.packedCrouchPhase=oldPhase===null||oldPhase==='end'?'start':oldPhase==='start'&&(this.packedBodyClock?.framesElapsed??0)>=6?'hold':oldPhase;
+      else this.packedCrouchPhase=oldPhase==='hold'||oldPhase==='start'?'end':oldPhase==='end'&&(this.packedBodyClock?.framesElapsed??0)<6?'end':null;
+      if(!this.canPresentUncommittedBody())this.packedCrouchPhase=null;
+      const candidate=packedBodyCandidate(captureSimulationAnimation(this,0,false));
+      if(candidate){const old=this.packedBodyClock;this.packedBodyClock={sheet:candidate.sheet,facing:candidate.facing,action:candidate.action,
+        framesElapsed:candidate.age??(old?.sheet===candidate.sheet?old.framesElapsed+(advance?1:0):0)};}
+      else this.packedBodyClock=null;
+    }
+    if (this.canPresentUncommittedBody() && this.isGrounded() && this.isCrouching() && !this.reactionCue) {
+      if (!this.crouchPresentation) this.crouchPresentation = { framesElapsed: 0, facing: this.facing };
+      else if (advance) this.crouchPresentation.framesElapsed += 1;
+    } else this.crouchPresentation = null;
+    const candidate = this.reactionPresentationCandidate();
+    if (!candidate) { this.reactionPresentation = null; return; }
+    if (candidate.kind === 'damage' || candidate.kind === 'tumble') {
+      const old = this.reactionPresentation;
+      this.reactionPresentation = { ...candidate,
+        framesElapsed: old?.kind === candidate.kind ? old.framesElapsed + (advance ? 1 : 0) : 0,
+        facing: old?.kind === candidate.kind ? old.facing : candidate.facing };
+    } else this.reactionPresentation = { ...candidate,
+      facing: this.reactionPresentation?.kind === candidate.kind
+        ? this.reactionPresentation.facing : candidate.facing };
+  }
+  /** Observed hold only; native crouch entry/exit commitments are unresolved. */
+  protected sourceCurrentBodyRoute():import('./linkCommonBodyRoute').LinkCommonBodyRoute|null{return null;}
+  getSourceLinkDamagePresentationRoute():ReturnType<typeof import('./linkDamagePresentation').selectLinkDamagePresentation>{return null;}
+  getSourceLinkAirPresentationRoute():ReturnType<typeof import('./linkAirPresentation').selectLinkAirPresentation>{return null;}
+  getSourceLinkLandingPresentationRoute():{motion:string;rawAge:number;facing:1|-1;terminal:boolean}|null{return null;}
+  /** Live supporting Matter pair, independent from drawing/receiving geometry. */
+  getSourceSupportPresentationObservation(){
+    const bodies=[...this.contactPairs.values()].filter(pair=>this.isSupportPair(pair)).map(pair=>pair.bodyA===this.body?pair.bodyB:pair.bodyA)
+      .filter(body=>body.bounds&&Number.isSafeInteger(body.id)).sort((a,b)=>a.id!-b.id!);
+    const body=bodies[0];if(!body||!this.isGrounded())return null;
+    const bounds=body.bounds!,root=this.getSourceRootPosition(),hull=this.body.bounds;
+    const left=bounds.min.x,right=bounds.max.x,halfWidth=(hull.max.x-hull.min.x)/2;
+    // Authored conservative edge cue: the source root is still supported, but
+    // the actual movement hull extends beyond its facing-side support edge.
+    return{bodyId:body.id!,left,right,floorY:bounds.min.y,actorRootX:root.x,
+      nearEdge:this.facing===1?root.x+halfWidth>right:root.x-halfWidth<left,
+      inwardSupport:root.x>=left&&root.x<=right};
+  }
+  getSourceContextualPresentationRoute():import('./linkContextualPresentation').LinkContextualRoute|null{return null;}
+  getSourceLinkItemContextPresentationState():ReturnType<typeof import('./linkItemContextEquipment').selectLinkItemContextEquipment>|null{return null;}
+  getSourceLinkCaptureActionPresentationRoute():{motion:string;rawAge:number;facing:1|-1;terminal:boolean}|null{return null;}
+  notifySourceLinkItemActionIdentity(_identity:{entityId:number;entityGeneration:number;actorGeneration:number;frame:number}|null):void{}
+  notifySourceLinkLightPickup(_identity:{entityId:number;entityGeneration:number;actorGeneration:number;frame:number}|null):void{}
+  notifySourceLinkLightPickupResult(_entityId:number,_entityGeneration:number,_accepted:boolean):void{}
+  notifySourceLinkTemporaryFood(_identity:{entityId:number;entityGeneration:number;actorGeneration:number;frame:number}|null):void{}
+  beginSourceMatchEntry(_side:'left'|'right'):boolean{return false;}
+  advanceSourceMatchEntry(_frame:number,_gameplayStarted:boolean):void{}
+  getSourceMatchEntryEquipment():ReturnType<typeof import('./linkContextualPresentation').linkEntryEquipment>|null{return null;}
+  getSourceGuardReleasePresentationRoute():ReturnType<typeof import('./linkGuardReleasePresentation').selectLinkGuardReleasePresentation>{return null;}
+  getSourceShieldBubble():(ReturnType<typeof import('./linkShieldTilt').selectLinkShieldTilt>&{readonly actorGeneration:number})|null{return null;}
+  /** True when getSourceShieldBubble is the fighter's exact shield geometry. */
+  protected usesExactShieldBubble():boolean{return false;}
+  private sourceShieldContactAllowsBlock(hit:HitInfo):boolean {
+    // Explicit non-scene physics fixtures keep the plain shield path. Scene
+    // contacts on an exact-bubble fighter require that exact geometry.
+    if(!this.usesExactShieldBubble()||hit.combatViaSceneResolver!==true)return true;
+    const bubble=this.getSourceShieldBubble(),contact=hit.combatShieldContact;
+    return bubble!==null&&contact!==undefined&&contact.actorGeneration===this.getPositionResetGeneration()&&
+      contact.centre.x===bubble.centre.x&&contact.centre.y===bubble.centre.y&&contact.radius===bubble.radius;
+  }
+  getSourceCommonPresentationRoute():import('./linkCommonPresentationController').LinkCommonPresentationRoute|null{return null;}
+  getCrouchPresentationState() {
+    if (this.pikachuCrouchCrawl && this.canPresentUncommittedBody() && this.isGrounded() && !this.reactionCue)
+      return { ...this.pikachuCrouchCrawl };
+    if (!this.canPresentUncommittedBody() || !this.isGrounded() || !this.isCrouching() || this.reactionCue) return null;
+    return { phase: 'hold' as const, framesElapsed: this.crouchPresentation?.framesElapsed ?? 0,
+      facing: this.crouchPresentation?.facing ?? this.facing };
+  }
+  getPikachuTurnBrakePresentationState() {
+    return this.pikachuTurnBrake && this.canPresentUncommittedBody() && this.isGrounded()
+      ? { ...this.pikachuTurnBrake } : null;
+  }
+  /** Timed existing statuses or one-step option cues; no invented native selector. */
+  getReactionPresentationState(): ReactionPresentationState | null {
+    const candidate = this.reactionPresentationCandidate();
+    if (!candidate) return null;
+    const clock = this.reactionPresentation;
+    return candidate.kind === 'damage' || candidate.kind === 'tumble'
+      ? { ...candidate, framesElapsed: clock?.kind === candidate.kind ? clock.framesElapsed : 0,
+        facing: clock?.kind === candidate.kind ? clock.facing : candidate.facing }
+      : { ...candidate, facing: clock?.kind === candidate.kind ? clock.facing : candidate.facing };
+  }
+  /** Shared pre-physics receiving/render clock; reading never advances it. */
+  getOrdinaryPresentationState() {
+    const sheet = this.ordinaryPresentationSheet();
+    if (sheet === null) return null;
+    return { sheet, framesElapsed: this.ordinaryPresentation?.sheet === sheet
+      ? this.ordinaryPresentation.framesElapsed : 0, facing: this.facing };
+  }
+  /** Identity is latched: a hard landing stays hard when one frame remains. */
+  getLandingPresentationState() {
+    const presentation = this.landingPresentation;
+    if (!presentation || !this.isInLandingRecovery()) return null;
+    const remaining = presentation.kind === 'special' || presentation.kind === 'aerial'
+      ? this.cooldownRemaining : this.ordinaryLandingRemaining;
+    return { ...presentation, framesElapsed: presentation.totalFrames - remaining, remainingFrames: remaining };
+  }
+  private getAuthoredThrowRootMotion() {
+    const state = this.getThrowPresentationState();
+    if (!state || !this.grabSpec) return null;
+    const throws = state.cargo ? state.airborne ? this.grabSpec.cargo?.airThrows??this.grabSpec.cargo?.throws??this.grabSpec.throws : this.grabSpec.cargo?.throws??this.grabSpec.throws : this.grabSpec.throws;
+    const samples = getThrowByDirection(throws, state.direction).rootMotionX;
+    if (!samples || state.framesElapsed < 0 || state.framesElapsed >= samples.length) return null;
+    return { samples, frame: state.framesElapsed, facing: state.facing };
+  }
+
+  /** Preserve the throw body clock through recovery after the captive link ends. */
+  getThrowPresentationState() {
+    const presentation = this.throwPresentation;
+    if (!presentation) return null;
+    if (this.grabState.name === 'throwing' && this.grabState.active)
+      return { direction: presentation.direction, facing: presentation.facing, entryFrame:presentation.entryFrame,damageTransaction:presentation.damageTransaction,cargo:presentation.cargo,airborne:presentation.airborne, phase: 'throwing' as const,
+        framesElapsed: this.grabState.active.framesElapsed };
+    if (this.grabState.name === 'cooldown' && presentation.releaseElapsed !== null)
+      return { direction: presentation.direction, facing: presentation.facing, entryFrame:presentation.entryFrame,damageTransaction:presentation.damageTransaction,cargo:presentation.cargo,airborne:presentation.airborne, phase: 'recovery' as const,
+        framesElapsed: presentation.releaseElapsed + presentation.recoveryAtRelease - this.grabState.cooldownRemaining };
+    return null;
+  }
+
+  /** Grounded wind-up frames remaining before takeoff. */
+  getJumpsquatRemaining(): number {
+    return this.jumpsquatRemaining;
+  }
 
   /** Air-jumps still available before landing again. */
   getJumpsRemaining(): number {
@@ -7090,11 +12451,21 @@ export class Character {
   }
 
   /** Read-only view of the active tuning record. */
-  getTuning(): Required<CharacterTuning> {
+  getTuning(): Required<Omit<CharacterTuning, 'referenceLaunch'>> & Pick<CharacterTuning, 'referenceLaunch'> & AirMovementTuning & LandingTuning {
     // `locomotion` is resolved into `resolvedLocomotionTuning` (it needs
     // `maxRunSpeed`) and stays optional on `tuning`; the public view fills
     // every other field, and no caller reads `.locomotion` from here.
-    return { ...this.tuning } as Required<CharacterTuning>;
+    return { ...this.tuning } as Required<Omit<CharacterTuning, 'referenceLaunch'>> & Pick<CharacterTuning, 'referenceLaunch'> & AirMovementTuning & LandingTuning;
+  }
+
+  /** Calibrated opening and total-gravity ownership, exposed for match review. */
+  getDonkeyKongVerticalMotionState(){
+    return this.donkeykongOrdinaryVertical?{
+      profile:{...this.donkeykongOrdinaryVertical,fullHopStepVelocitiesY:[...this.donkeykongOrdinaryVertical.fullHopStepVelocitiesY]},
+      nextOpeningStep:this.donkeykongFullHopStep,ordinaryTick:this.donkeykongOrdinaryVerticalTick,
+      footstool:{repeatCount:this.donkeykongFootstoolRepeatCount,cooldownRemaining:this.donkeykongFootstoolCooldown,
+        betaBasis:DONKEYKONG_FOOTSTOOL_BETA_JUMP_BASIS},
+    }:null;
   }
 
   // -------------------------------------------------------------------------
@@ -7176,8 +12547,64 @@ export class Character {
   }
 
   getActiveHurtboxes(): ReadonlyArray<Hurtbox> {
+    const control = this.getFinalSmashPresentation();
+    const victim=this.getFinalVictimPresentationSelection(),victimPose=this.getFinalVictimBodyPose();
+    if(victim&&!victimPose)return []; // Required cinematic receiving never borrows a movement hull/old flinch.
+    const posed = victimPose??(control?.sheet ? finalBodyPose(this.id, control.sheet, control.age) : null);
+    const relativeFacing = victim?victim.facing*this.facing:control ? control.facing * this.facing : 1;
+    const orientedPoint=(point:{x:number;y:number})=>{const p=transformPikachuFinalOrientationPoint(point,{facing:control?.facing??this.facing,rotationDegrees:control?.rotationDegrees??0});
+      return{x:p.x*this.facing,y:p.y-(posed?.bodyCentreFromRootY??0)};};
+    const orientedCapsule=(h:Hurtbox)=>{if(!h.capsule)return null;return{...h.capsule,start:orientedPoint(h.capsule.start),end:orientedPoint(h.capsule.end)};};
+    const live = posed&&control?.rotationDegrees!==undefined&&!victim?posed.receiving.map(h=>{const capsule=orientedCapsule(h),point=orientedPoint({x:h.offsetX,y:h.offsetY});
+      // New Final profiles carry exact capsules. A legacy rectangle cannot
+      // become an axis-aligned approximation of an angled body.
+      if(!capsule)throw new Error('Rotated Pika Final requires paired capsule receiving');
+      return{...h,offsetX:point.x,offsetY:point.y,width:Math.abs(capsule.end.x-capsule.start.x)+capsule.radius*2,
+        height:Math.abs(capsule.end.y-capsule.start.y)+capsule.radius*2,capsule,
+        ...(control.phase==='uncommitted-end-tail'?{intangible:false}:control.intangible?{intangible:true}:{})};}):posed ? posed.receiving.map(h => ({ ...h,
+      offsetX: h.offsetX * relativeFacing, offsetY: h.offsetY - posed.bodyCentreFromRootY,
+      ...(h.capsule ? { capsule: { ...h.capsule,
+        start: { x: h.capsule.start.x * relativeFacing, y: h.capsule.start.y - posed.bodyCentreFromRootY },
+        end: { x: h.capsule.end.x * relativeFacing, y: h.capsule.end.y - posed.bodyCentreFromRootY } } } : {}),
+      ...(control?.phase==='uncommitted-end-tail'?{intangible:false}:control?.intangible ? { intangible: true } : {}) })) : this.unsunkActiveHurtboxes();
+    if(this.isWholeBodyIntangibleState())return live.map(h=>({...h,intangible:true}));
+    // A buried fighter's hurtboxes go into the floor with its drawing (buriedPresentation.ts; SmashWiki Buried).
+    return this.buriedState?.phase==='buried'?sinkHurtboxes(live,buriedSinkDepth(this.tuning.height)):live;
+  }
+
+  /** The live set before the bury sink; fighters with posed receiving override this, not getActiveHurtboxes. */
+  protected unsunkActiveHurtboxes(): ReadonlyArray<Hurtbox> {
+    if(this.id==='donkeykong'&&!this.getAttackClankPresentationState()){
+      const posed=selectPackedBodyReceiving(captureSimulationAnimation(this,0,false));
+      if(posed)return posed;
+      if((this.groundRecovery||this.surfaceTech)&&this.hasWholeSourceProtection())return [{...this.postureBodyHurtbox(),intangible:true}];
+    }
+    const pikachuTech=this.getPikachuSurfaceTechPresentationState();
+    if(pikachuTech)return selectPikachuSurfaceTechBody(pikachuTech)?.hurtboxes??[];
+    if (this.getAttackClankPresentationState() && this.attackClankReceiving) return this.attackClankReceiving;
     const body = this.postureBodyHurtbox();
-    if (!this.activeAttack) return [body];
+    const special = this.getPikachuSpecialState();
+    if (special && this.activeAttack) {
+      const clock = resolvePikachuSpecialBodyClock(special);
+      // Accepted receiving rows have the same gameplay windows as the body
+      // artwork. Hold loops use their six-frame local motion period.
+      const poseFrame = clock.phase === 'hold' ? clock.nativeFrame : clock.localFrame;
+      const authored: ReadonlyArray<Hurtbox> | null = selectPikachuSpecialHurtboxes(clock.sheet, poseFrame)
+        ?? selectPikachuSpecialPhaseHurtboxes(clock.sheet, poseFrame);
+      if (authored) {
+        const rotated = special.bodyRotation !== 0 && (special.kind === 'skullBash' || special.kind === 'quickAttack')
+          ? rotatePikachuSpecialHurtboxes(authored, special.bodyRotation, this.facing,
+            special.kind === 'quickAttack' ? PIKACHU_QUICK_ROT_PIVOT : undefined) : authored;
+        return this.pikachuSpecialRuntime?.intangible() ? rotated.map(h => ({ ...h, intangible: true })) : rotated;
+      }
+    }
+    if (this.pikachuSpecialRuntime?.intangible()) return [{ ...body, intangible: true }];
+    if (!this.activeAttack) {
+      const charge = this.getAnimationActionState();
+      if (charge.chargingMove && charge.chargeStartupElapsed !== undefined)
+        return selectActiveHurtboxes(body, charge.chargingMove as AttackMoveWithAnimation, charge.chargeStartupElapsed);
+      return [body];
+    }
     // The attack's `move` is typed `AttackMove`; per-move hurtbox
     // modifiers live on the `AttackMoveWithAnimation` extension. We
     // upcast deliberately — every move registered in the M2 roster is
@@ -7187,7 +12614,15 @@ export class Character {
     // to the body default by the helper's empty-modifier short-circuit.
     // The base it layers over already reflects the crouch posture.
     const move = this.activeAttack.move as AttackMoveWithAnimation;
-    return selectActiveHurtboxes(body, move, this.activeAttack.framesElapsed);
+    const baseReceiving=selectActiveHurtboxes(body,move,this.activeAttack.framesElapsed);
+    const selected = this.id==='donkeykong'
+      ?applyDonkeyKongMoveProtection(baseReceiving,move,this.activeAttack.framesElapsed)
+      :applyRegionalProtection(baseReceiving,move,this.activeAttack.framesElapsed);
+    const authored = this.activeAttack.ledgeProtectionFrames !== undefined &&
+      this.activeAttack.framesElapsed >= this.activeAttack.ledgeProtectionFrames
+      ? selected.map(h => ({ ...h, intangible: false })) : selected;
+    return special?.kind === 'skullBash' && special.bodyRotation !== 0 && move.hurtboxModifiers?.length
+      ? rotatePikachuSpecialHurtboxes(authored, special.bodyRotation, this.facing) : authored;
   }
 
   // -------------------------------------------------------------------------
@@ -7227,6 +12662,40 @@ export class Character {
     return this.shieldState.name === 'broken' ? this.shieldState.stunRemaining : 0;
   }
 
+  private shieldPresentationCounter(): { kind: ShieldPresentationState['kind']; remaining: number | null } | null {
+    if (this.destroyed || this.grabbedBy !== null) return null;
+    // Eligibility on release is deliberately separate from a successful contact.
+    if (this.shieldParryProtected) return { kind: 'parry', remaining: this.shieldParryStunRemaining };
+    if (isShieldBroken(this.shieldState)) return { kind: 'broken', remaining: this.shieldState.stunRemaining };
+    if (isShieldRaised(this.shieldState)) return this.shieldState.blockStunRemaining > 0
+      ? { kind: 'block', remaining: this.shieldState.blockStunRemaining } : { kind: 'hold', remaining: null };
+    return this.shieldReleaseRemaining > 0 ? { kind: 'release', remaining: this.shieldReleaseRemaining } : null;
+  }
+  private latchShieldPresentation(kind: ShieldPresentationState['kind'], totalFrames: number | null): void {
+    this.shieldPresentation = { kind, totalFrames, facing: this.facing, holdEntryAge: this.shieldActiveFrames };
+  }
+  private syncShieldPresentation(): void {
+    const current = this.shieldPresentationCounter();
+    if (!current) { this.shieldPresentation = null; return; }
+    if (this.shieldPresentation?.kind !== current.kind)
+      this.latchShieldPresentation(current.kind, current.remaining);
+  }
+  /** Shared actual shield outcome clock. Native start/break-end clips stay unbound. */
+  getShieldPresentationState(): ShieldPresentationState | null {
+    const current = this.shieldPresentationCounter();
+    if (!current) return null;
+    const entry = this.shieldPresentation?.kind === current.kind ? this.shieldPresentation : null;
+    const totalFrames = entry?.totalFrames ?? current.remaining;
+    return { kind: current.kind, totalFrames, remainingFrames: current.remaining,
+      framesElapsed: current.kind === 'hold' ? entry ? Math.max(0, this.shieldActiveFrames - entry.holdEntryAge) : 0
+        : Math.max(0, (totalFrames ?? 0) - (current.remaining ?? 0)),
+      facing: entry?.facing ?? this.facing, phase: this.hitlagRemaining > 0 ? 'hitlag' : 'active' };
+  }
+  /** Protected ordinary shieldstun following a successful release parry. */
+  getShieldParryStunRemaining(): number {
+    return this.shieldParryStunRemaining;
+  }
+
   /**
    * Replace the live shield state. Used by the replay snapshot system
    * (rewind to frame N's recorded shield state) and tests; gameplay
@@ -7236,6 +12705,9 @@ export class Character {
   setShieldState(state: ShieldState): void {
     if (this.destroyed) return;
     this.shieldState = state;
+    // Restored counters do not establish the historical entry/total budget.
+    this.shieldPresentation = null;
+    this.syncShieldPresentation();
   }
 
   // -------------------------------------------------------------------------
@@ -7330,6 +12802,21 @@ export class Character {
    * code should drive the dodge via `applyInput({ dodge: true, ... })`
    * instead.
    */
+  /** Advance the dodge machine one step, timing new dodges from (and counting them into) the staleness. */
+  private stepDodge(input: Omit<DodgeInput, 'staleCount'>): void {
+    const before = this.dodgeState;
+    this.dodgeState = tickDodge(before, { ...input, staleCount: this.dodgeStaleness.count }, this.tuning.dodge);
+    this.dodgeStaleness = tickDodgeStaleness(this.dodgeStaleness, {
+      started: before.name !== 'active' && this.dodgeState.name === 'active',
+      acting: isDodgeActing(this.dodgeState),
+    });
+  }
+
+  /** Read-only dodge staleness (shared use count) for tests / probes. */
+  getDodgeStaleness(): DodgeStaleness {
+    return this.dodgeStaleness;
+  }
+
   setDodgeState(state: DodgeState): void {
     if (this.destroyed) return;
     this.dodgeState = state;
@@ -7460,18 +12947,52 @@ export class Character {
 
   /**
    * Replace the live ledge candidate list the runtime feeds in for
-   * geometric detection. Called by the match scene each frame the stage
-   * geometry is finalised — for static stages this fires once at match
-   * start and is then stable; for stages with moving platforms (a future
-   * sub-AC will also support drop-through filtering at runtime) the
-   * scene re-emits the candidate list whenever a ledge corner shifts.
+   * geometric detection, after the stage has moved its platforms and before
+   * applyInput. An attached hang/climb/roll follows the same platform and
+   * side without restarting recovery or refreshing invulnerability.
    *
    * Pass an empty array to disable ledge detection for this fighter
    * (the canonical "no edge-grabbable ledges" state — useful in tests
    * that want to isolate other systems from the ledge mechanic).
    */
   setLedgeCandidates(candidates: ReadonlyArray<LedgeCandidate>): void {
+    if (this.destroyed) return;
     this.ledgeCandidates = candidates;
+    const active = this.ledgeHangState.active;
+    if (active === null || !isLedgeLockingInput(this.ledgeHangState)) return;
+    const candidate = candidates.find((next) =>
+      next.platformId === active.candidate.platformId && next.side === active.candidate.side);
+    if (candidate === undefined || this.pendingLedgeForceRelease) {
+      // A vanished platform (or a hit/trump that already severed attachment)
+      // releases immediately. Waiting for applyInput can freeze a stale hang
+      // through hitlag or mistake an interrupted climb for completed recovery.
+      this.ledgeHangState = tickLedgeHang(this.ledgeHangState, {
+        detection: null, release: null, forceRelease: true,
+        airborne: true, facing: this.facing,
+      }, this.tuning.ledge).state;
+      this.pendingLedgeForceRelease = false;
+      return;
+    }
+    const dx = candidate.x - active.candidate.x;
+    const dy = candidate.y - active.candidate.y;
+    this.ledgeHangState = Object.freeze({
+      ...this.ledgeHangState,
+      active: Object.freeze({
+        ...active, candidate,
+        latchX: active.latchX + dx,
+        latchY: active.latchY + dy,
+      }),
+    });
+    if (dx === 0 && dy === 0) return;
+    this.scene.matter.body.setPosition(this.body, {
+      x: this.body.position.x + dx,
+      y: this.body.position.y + dy,
+    });
+    // Hitlag still owns the post-Matter pin. Move that anchor with the ledge
+    // so the gravity freeze cannot undo the platform's explicit translation.
+    if (this.hitlagPosition !== null) {
+      this.hitlagPosition = { x: this.hitlagPosition.x + dx, y: this.hitlagPosition.y + dy };
+    }
   }
 
   /**
@@ -7493,6 +13014,10 @@ export class Character {
   computeLedgeDetection(): LedgeGrabDetection | null {
     if (this.destroyed) return null;
     if (this.ledgeCandidates.length === 0) return null;
+    const sourcePolicy=this.sourceIntrinsicLedgePolicy();if(sourcePolicy&&!sourcePolicy.front&&!sourcePolicy.back)return null;
+    const special = this.getPikachuSpecialState();
+    if (special?.kind === 'quickAttack' && special.frame < 14) return null;
+    if (special?.kind === 'skullBash' && (this.activeAttack?.framesElapsed ?? 0) < 26) return null;
     const bounds: FighterBounds = {
       centerX: this.body.position.x,
       centerY: this.body.position.y,
@@ -7501,11 +13026,20 @@ export class Character {
       velocityY: this.body.velocity.y,
       facing: this.facing,
     };
-    return detectLedgeGrab(
+    const detected = detectLedgeGrab(
       bounds,
       this.ledgeCandidates,
-      this.tuning.ledgeDetection,
+      sourcePolicy?.allowRise||special?.kind === 'quickAttack' || special?.kind === 'skullBash'
+        ? { ...this.tuning.ledgeDetection, minDescendVelocity: Number.NEGATIVE_INFINITY, requireFacing: false }
+        : this.tuning.ledgeDetection,
     );
+    if(detected&&sourcePolicy){const ahead=(detected.candidate.x-this.body.position.x)*this.facing>=0;
+      if(ahead?!sourcePolicy.front:!sourcePolicy.back)return null;}
+    if (detected && special?.kind === 'skullBash' && (this.activeAttack?.framesElapsed ?? 0) < 53) {
+      const ahead = (detected.candidate.x - this.body.position.x) * this.facing >= 0;
+      if (!ahead) return null;
+    }
+    return detected;
   }
 
   /**
@@ -7522,15 +13056,172 @@ export class Character {
    * recovery state, then translated inward by `rollDistance` once the
    * `'rolling'` state expires.
    */
-  private applyLedgeReleasePhysics(action: LedgeReleaseAction): void {
+  private getPikachuLedgeAttachmentTarget() {
+    if (this.pikachuLedgeJump?.phase==='start') {
+      const jump=this.pikachuLedgeJump,offset=pikachuLedgeJumpStartOffset(jump.framesElapsed,this.pikachuPhysicalHalfHeight());
+      const pose=selectPikachuAuxiliaryBody('ledge_jump_start',jump.framesElapsed);
+      const corner=this.ledgeCandidates.find(c=>c.platformId===jump.candidate.platformId&&c.side===jump.candidate.side)??jump.candidate;
+      return offset&&pose?{mode:'source-root' as const,...offset,handX:0,handY:0,
+        artFrameIndex:pose.artFrameIndex,nativeSample:pose.nativeSample,sheet:'ledge_jump_start',localFrame:jump.framesElapsed,
+        corner,facing:jump.facing,position:{x:corner.x+offset.x*jump.facing,y:corner.y+offset.y}}:null;
+    }
+    const state = this.ledgeHangState, active = state.active;
+    if (this.id !== 'pikachu' || this.destroyed || this.grabbedBy !== null ||
+        this.hitstunRemaining > 0 || this.pendingLedgeForceRelease || !active ||
+        !isLedgeLockingInput(state)) return null;
+    let sheet: string, age = active.framesElapsed;
+    if (state.name === 'hanging') {
+      ({ sheet, age } = ledgeHangPresentationClock(age, state.ledgeGrabsSinceGround,
+        this.tuning.ledge.catchFrames ?? 0, this.tuning.ledge.catchMotionRatesByGrab ?? []));
+    } else sheet = state.name === 'climbing' ? 'ledge_getup' : 'ledge_roll';
+    const pose = selectPikachuLedgeAttachment(sheet, age);
+    if (!pose) return null;
+    const corner = this.ledgeCandidates.find(c => c.platformId === active.candidate.platformId &&
+      c.side === active.candidate.side) ?? active.candidate;
+    return { ...pose, sheet, localFrame: age, corner, facing: active.facing,
+      position: { x: corner.x + pose.x * active.facing, y: corner.y + pose.y } };
+  }
+  private clearPikachuLedgeAttachment(): void {
+    if (!this.pikachuLedgeAttachment) return;
+    for (const [pair, original] of this.pikachuLedgeAttachment.ignoredPairs) pair.isSensor = original;
+    this.pikachuLedgeAttachment = null;
+  }
+  private configurePikachuLedgeAttachmentPairs(): void {
+    const target = this.getPikachuLedgeAttachmentTarget();
+    if (!target) { this.clearPikachuLedgeAttachment(); return; }
+    if (this.pikachuLedgeAttachment?.candidate.platformId !== target.corner.platformId ||
+        this.pikachuLedgeAttachment.candidate.side !== target.corner.side) {
+      this.clearPikachuLedgeAttachment();
+      this.pikachuLedgeAttachment = { candidate: target.corner, attached: true, ignoredPairs: new Map() };
+    }
+    const state = this.pikachuLedgeAttachment!;
+    if (!state.attached) return;
+    for (const pair of this.contactPairs.values()) {
+      const other = pair.bodyA === this.body ? pair.bodyB : pair.bodyA;
+      if (!isPlatformLabel(other.label) || other.isSensor) continue;
+      const platformId = (other as {plugin?: {platformId?: string}}).plugin?.platformId;
+      const boundX = target.corner.side === 'left' ? other.bounds?.min.x : other.bounds?.max.x;
+      const supporting = platformId !== undefined ? platformId === target.corner.platformId
+        : boundX !== undefined && Math.abs(boundX - target.corner.x) < .01 &&
+          other.bounds !== undefined && Math.abs(other.bounds.min.y - target.corner.y) < .01;
+      if (!supporting) continue;
+      if (!state.ignoredPairs.has(pair)) state.ignoredPairs.set(pair, pair.isSensor);
+      pair.isSensor = true;
+    }
+  }
+  private finishPikachuLedgeAttachmentPhysics(): void {
+    const target = this.getPikachuLedgeAttachmentTarget();
+    if (!target) { this.clearPikachuLedgeAttachment(); return; }
+    if (target.mode === 'pin-hand') {
+      // An attached hand is a positional constraint, with no elapsed-time
+      // advancement here. Body/receiving and physical root use one drawing.
+      this.scene.matter.body.setPosition(this.body, target.position);
+      this.scene.matter.body.setVelocity(this.body, { x: 0, y: 0 });
+    } else if (this.pikachuLedgeAttachment?.attached && target.y <= -this.tuning.height / 2 &&
+        this.body.position.y+this.pikachuPhysicalHalfHeight() <= target.corner.y + .05) {
+      this.pikachuLedgeAttachment.attached = false;
+      for (const [pair, original] of this.pikachuLedgeAttachment.ignoredPairs) pair.isSensor = original;
+      this.pikachuLedgeAttachment.ignoredPairs.clear();
+    }
+  }
+  /** Observed physical attachment; native shared cliff algorithms remain separate. */
+  getPikachuLedgeAttachmentState() {
+    const target = this.getPikachuLedgeAttachmentTarget();
+    return target ? { ...target, attached: this.pikachuLedgeAttachment?.attached ?? true } : null;
+  }
+
+  private validateLedgeAttackAttachmentOwner(): void {
+    const state = this.ledgeAttackAttachment;
+    if (state && (this.activeAttack?.move !== state.move ||
+        this.activeAttack.framesElapsed >= state.move.ledgeRootMotion!.length)) this.clearLedgeAttackAttachment();
+  }
+  private clearLedgeAttackAttachment(): void {
+    const state = this.ledgeAttackAttachment;
+    if (!state) return;
+    for (const [pair, original] of state.ignoredPairs) pair.isSensor = original;
+    this.ledgeAttackAttachment = null;
+  }
+  private configureLedgeAttackPairs(): void {
+    const state = this.ledgeAttackAttachment;
+    if (!state?.attached) return;
+    for (const pair of this.contactPairs.values()) {
+      const other = pair.bodyA === this.body ? pair.bodyB : pair.bodyA;
+      if (!isPlatformLabel(other.label) || other.isSensor) continue;
+      const plugin = (other as {plugin?: {platformId?: string}}).plugin;
+      // Identity is supplied by StageRenderer. Minimal legacy/test scenes can
+      // identify the same actual corner by bounds; no global mask changes.
+      const boundX = state.candidate.side === 'left' ? other.bounds?.min.x : other.bounds?.max.x;
+      const supporting = plugin?.platformId !== undefined
+        ? plugin.platformId === state.candidate.platformId
+        : boundX !== undefined && Math.abs(boundX - state.corner.x) < .01 &&
+          other.bounds !== undefined && Math.abs(other.bounds.min.y - state.corner.y) < .01;
+      if (!supporting) continue;
+      if (!state.ignoredPairs.has(pair)) state.ignoredPairs.set(pair, pair.isSensor);
+      pair.isSensor = true;
+    }
+  }
+  private finishLedgeAttackPhysics(): void {
+    this.validateLedgeAttackAttachmentOwner();
+    const state = this.ledgeAttackAttachment;
+    if (!state) return;
+    const point = state.move.ledgeRootMotion![this.activeAttack!.framesElapsed]!;
+    // Actual actor clearance AND the source standing-height segment are both
+    // required. A different solid can block the climb; source age cannot
+    // silently teleport through it or extend the existing action.
+    if (state.attached && point.y <= 0 && this.getBodyBottomY() <= state.corner.y + .05) {
+      state.attached = false;
+      // The authored climb has completed its vertical displacement. Retire
+      // that attachment velocity before ordinary gravity/floor support resumes.
+      this.scene.matter.body.setVelocity(this.body, {x: this.body.velocity.x, y: 0});
+      for (const [pair, original] of state.ignoredPairs) pair.isSensor = original;
+      state.ignoredPairs.clear();
+    }
+    const attack = this.activeAttack!;
+    if (attack.hitboxBody) {
+      attack.hitboxBody.plugin.ownerAnchoredContact = true;
+      attack.hitboxBody.plugin.postPhysicsContactOnly = true;
+      updateHitboxPosition(this.scene, attack.hitboxBody,
+        this.body.position, attack.move, attack.facing);
+    }
+  }
+  /** Read-only observed adapter context; source common attachment is not claimed. */
+  getLedgeAttackRootMotionState() {
+    const state = this.ledgeAttackAttachment;
+    return state ? {framesElapsed: this.activeAttack?.framesElapsed ?? 0, attached: state.attached,
+      platformId: state.candidate.platformId, side: state.candidate.side,
+      facing: state.facing, corner: {...state.corner}} : null;
+  }
+
+  private applyLedgeReleasePhysics(action: LedgeReleaseAction, corner: LedgeCandidate | null = null): void {
     if (action === 'jump') {
+      if(this.id==='pikachu' && corner){
+        const state=beginPikachuLedgeJump(this.facing),offset=pikachuLedgeJumpStartOffset(0,this.pikachuPhysicalHalfHeight());
+        if(!offset)throw new Error('Ledge jump entry lacks its source root');
+        this.clearPikachuLedgeAttachment();this.jumpPresentation=null;this.pikachuAuxiliaryAir=null;
+        // The source start's twelve flagged capsule steps replace the generic
+        // ledge-release timer; that timer must not survive the committed start.
+        this.ledgeHangState={...this.ledgeHangState,hangIframesRemaining:0,grabVulnerableRemaining:0};
+        this.pikachuLedgeJump={...state,candidate:corner,previousOffset:offset,previousCorner:{x:corner.x,y:corner.y}};
+        this.clearReferenceLaunch();
+        this.scene.matter.body.setPosition(this.body,{x:corner.x+offset.x*state.facing,y:corner.y+offset.y});
+        this.scene.matter.body.setVelocity(this.body,{x:0,y:0});
+        const impulse=(this.body as unknown as {positionImpulse?:{x:number;y:number}}).positionImpulse;
+        if(impulse){impulse.x=0;impulse.y=0;}
+        this.jumpsUsed=Math.min(1,this.tuning.maxJumps);this.jumpInputBufferFrames=0;
+        this.configurePikachuLedgeAttachmentPairs();return;
+      }
+
+      this.sourceJumpEventSerial+=1;
+      if(corner)this.beginLedgeJumpClearance(corner.y);
+      this.jumpPresentation = { kind: 'ledge', facing: this.facing, moveX: 0,velocityX:this.body.velocity.x, shortHop: false, framesElapsed: 0 };
       // Release into a standard jump impulse, refreshing the air-jump
       // budget so the fighter can still air-jump after the ledge-jump.
       this.scene.matter.body.setVelocity(this.body, {
         x: 0,
         y: -this.tuning.jumpImpulse,
       });
-      this.jumpsUsed = 0;
+      this.jumpsUsed = Math.min(1, this.tuning.maxJumps);
+      this.jumpInputBufferFrames = 0;
     } else if (action === 'dropDown') {
       // Drop-down releases the fighter cleanly with a small downward
       // clearance so they don't immediately re-grab the same corner
@@ -7552,6 +13243,37 @@ export class Character {
       const inward =
         this.facing === 1 ? this.tuning.maxRunSpeed * 0.5 : -this.tuning.maxRunSpeed * 0.5;
       this.scene.matter.body.setVelocity(this.body, { x: inward, y: 0 });
+      const native = this.sourceRecoveryAttack(`${this.id}.ledgeAttack`);
+      if (native) {
+        this.scene.matter.body.setVelocity(this.body, { x: 0, y: 0 });
+        const ledgeProtectionFrames = ledgeRegrabEntry(this.tuning.ledge.attackProtectionFramesByGrab,
+          this.ledgeHangState.ledgeGrabsSinceGround);
+        this.activeAttack = { move: native, facing: this.facing, framesElapsed: 0, hitboxBody: null, upSpecial: null,
+          chargeHeldFrames: null, holdInitialFrame: true,
+          ...(ledgeProtectionFrames === undefined ? {} : { ledgeProtectionFrames }) };
+        if (native.ledgeRootMotion && corner) {
+          validateLedgeRootMotion(native.ledgeRootMotion, native.startupFrames + native.activeFrames + native.recoveryFrames);
+          this.clearLedgeAttackAttachment();
+    this.clearPikachuLedgeAttachment();
+          this.ledgeAttackAttachment = {move: native, candidate: corner, facing: this.facing,
+            frame: -1, attached: true, corner: {x: corner.x, y: corner.y}, ignoredPairs: new Map()};
+          const first = native.ledgeRootMotion[0]!;
+          // Explicit beta corner/standing-foot-root attachment; native common
+          // cliff initialization and posture correction remain unqualified.
+          this.scene.matter.body.setPosition(this.body, {
+            x: corner.x + first.x * this.facing,
+            y: corner.y - this.tuning.height / 2 + first.y,
+          });
+          // The preceding pinned hang can leave a warmed positional impulse
+          // against this support. Matter applies that cache even to sensor
+          // pairs, so it belongs to the retired hang owner, not this climb.
+          const impulse = (this.body as unknown as {positionImpulse?: {x: number; y: number}}).positionImpulse;
+          if (impulse) { impulse.x = 0; impulse.y = 0; }
+          this.clearReferenceLaunch();
+          this.configureLedgeAttackPairs();
+        }
+        return;
+      }
       const p = this.ledgeAttackParams();
       const ledgeAttackMove = {
         id: `${this.id}.ledgeAttack`,
@@ -7567,7 +13289,7 @@ export class Character {
         cooldownFrames: 0,
       } as unknown as AttackMove;
       const body = spawnHitbox(
-        this.scene as unknown as HitboxScene,
+        this.scene,
         { id: this.id, position: this.body.position, bodyId: this.body.id },
         ledgeAttackMove,
         this.facing,
@@ -7584,15 +13306,104 @@ export class Character {
   // -------------------------------------------------------------------------
 
   /**
-   * Teleport the body and reset transient movement state. Used by the
-   * (later AC) respawn flow and replay snapshot resync.
+   * Clear round-local combat and item hooks without changing damage or match
+   * statistics. The scene separately removes its traveling projectiles/items
+   * and sets the new round's percent. Safe in either order for a grabbed pair.
    */
-  setPosition(x: number, y: number): void {
+  resetForRound(x: number, y: number): void {
+    this.interruptEating('discard');this.itemHealing=null;this.recoveryEvents=[];
+    this.clearGrabSourcePresentation();
+    this.donkeykongJabContinuation=null;this.donkeykongJabContinuationEligibleStep=false;
+    this.lastDonkeyKongCarryHit = {};
+    this.donkeykongFootstoolCooldown=0;this.donkeykongFootstoolCooldownEntryFrame=-1;this.sourceLinkFootstoolRepeatCount=0;this.sourceLinkFootstoolCooldown=0;this.sourceLinkFootstoolCooldownEntryFrame=-1;this.sourceLinkFootstoolRecipientSide=null;
+    this.donkeykongFullHopStep=null;this.donkeykongOrdinaryVerticalTick=false;
+    this.donkeykongHeavyItemHeld=false;
+    this.donkeykongHeavyCarry=null;this.pendingDonkeyKongHeavyJump=null;this.donkeykongHeavyDownFlickAge=null;this.donkeykongHeavyDownHeld=false;
+    this.clearLedgeAttackAttachment();
+    this.clearPikachuLedgeAttachment();
+    this.grabReleasePresentation = null;
+    this.ultimateCaptureBudget = null;
+    this.postReleaseGrabImmunity = {remaining: 0, lastFrame: -1};
+    this.tauntPresentation = null;
+    this.prevAppealHeld = false;
     if (this.destroyed) return;
+    const grabber = this.grabbedBy;
+    if (grabber !== null && grabber.grabTarget === this) {
+      grabber.grabTarget = null;
+      grabber.grabState = resetGrabState();
+      grabber.dashGrabActive = false;
+      grabber.dashGrabEntryVx = 0;
+    }
+    this.setPosition(x, y);
+    this.equippedItem = null;
+    this.invincibilityRemaining = 0;
+    this.timerProtection = 'legacy';
+    this.prePhysicsVelocityY = null;
+    this.prevSpecialHeld = false;
+    this.dropThroughFramesRemaining = 0;
+    this.diveLandingEvent = null;
+  }
+
+  /** Monotonic discontinuity marker; ordinary Matter movement does not change it. */
+  private positionResetGeneration = 0;
+
+  /** Lets scene-level collision history distinguish teleports from movement. */
+  getPositionResetGeneration(): number {
+    return this.positionResetGeneration;
+  }
+
+  /** Teleport the body and reset transient movement state for a new spawn. */
+  setPosition(x: number, y: number): void {
+    this.endLedgeJumpClearance();this.sourceCaptureMotionFamily=null;
+    this.setFinalSmashControl(null); this.finalVictimPresentation=null; this.clearFinalOpponentSlow(); this.finalSmashBodyTail=null; this.clearSourceShieldBreak();this.sourceDamagePresentation=null;this.sourceDamageOwnStop=false;
+    this.linkPassiveGuard=null;
+    this.interruptEating('discard');this.itemHealing=null;this.recoveryEvents=[];
+    this.clearGrabSourcePresentation();
+    this.donkeykongJabContinuation=null;this.donkeykongJabContinuationEligibleStep=false;
+    this.donkeykongFootstoolCooldown=0;this.donkeykongFootstoolCooldownEntryFrame=-1;this.sourceLinkFootstoolRepeatCount=0;this.sourceLinkFootstoolCooldown=0;this.sourceLinkFootstoolCooldownEntryFrame=-1;this.sourceLinkFootstoolRecipientSide=null;
+    this.donkeykongFullHopStep=null;this.donkeykongOrdinaryVerticalTick=false;
+    this.restoreSourcedGroundFriction();
+    this.sourcedShieldPush=null;this.shieldPushApplied=0;
+    this.buriedState=null;this.revivalPlatform=null;this.packedBodyClock=null;this.packedBodyTail=null;this.packedCrouchPhase=null;this.donkeykongTurnBrake=null;this.ultimateCargoBudget=null;
+    this.clearLedgeAttackAttachment();
+    this.clearPikachuLedgeAttachment();
+    this.grabReleasePresentation = null;
+    this.ultimateCaptureBudget = null;
+    this.postReleaseGrabImmunity = {remaining: 0, lastFrame: -1};
+    this.tauntPresentation = null;
+    if (this.destroyed) return;
+    this.pikachuSpecialRuntime?.clear();
+    this.terminalFallFrames = 0;
+    this.pendingOrdinaryLandingFrames = null;
+    this.pendingOrdinaryLandingKind = null;
+    this.landingPresentation = null;
+    this.throwReleaseInvincible = false;
+    this.capturePresentation = null;
+    this.sourceCaptureMotionFamily=null;
+    this.captureAttachmentEntry=null;this.captureAttachmentBypass=null;this.captureAttachmentDiagnostic=null;
+    this.crouchPresentation = null;
+    this.pikachuCrouchCrawl = null;
+    this.pikachuTurnBrake = null;
+    this.reactionPresentation = null;
+    this.recoveryReaction = null;
+    this.pikachuGroundRecovery = null; this.groundRecovery=null;this.clearSurfaceTech();
+    this.pendingFootstoolJump=false;this.pendingFootstoolPhantom=false;this.sourceLinkFootstoolPendingContact=null;this.donkeykongFootstoolPerformer=null;this.sourceLinkFootstool=null;this.footstoolRecipient=null;this.footstoolMini=null;this.pikachuFootstoolVisual=null;this.pikachuRespawnPresentation=null;this.clearItemAction();this.pikachuLedgeJump=null;
+    this.reactionCue = null;
+    this.pikachuWallBounceContact = null;
+    this.heldItemCarryAge=0;
+    this.positionResetGeneration += 1;
     this.scene.matter.body.setPosition(this.body, { x, y });
     this.scene.matter.body.setVelocity(this.body, { x: 0, y: 0 });
     this.jumpsUsed = 0;
+    this.donkeykongFootstoolRepeatCount=0;this.donkeykongLastAttackEndFrame=-1000;
+    this.jumpPresentation = null;
+    this.pikachuAuxiliaryAir = null;
+    this.throwPresentation = null;
+    this.throwRootMotionApplied = false;
     this.prevJumpHeld = false;
+    this.ordinaryPresentation = null;
+    this.attackClankRemaining = 0;
+    this.attackClankLockedStep = false;
     this.prevAttackHeld = false;
     this.prevHeavyHeld = false;
     this.prevShieldHeld = false;
@@ -7603,21 +13414,28 @@ export class Character {
     this.prevMoveX = 0;
     this.prevMoveY = 0;
     this.recentMoveY = [];
-    this.groundContacts = 0;
     this.platformFallSupported = false;
     this.tapJumpBufferFrames = 0;
+    this.jumpInputBufferFrames = 0;
+    this.jumpsquatRemaining = 0;
+    this.jumpsquatShortHop = false;
+    this.jumpsquatFacing = null;
+    this.offensiveActionBuffer = null;
     this.airDodgeUsed = false;
     this.airDodgeBurst = null;
+    this.airDodgeGravityVelocityY = 0;
     // AC 60102 Sub-AC 2 — clear the prev-grounded latch on teleport.
     // A respawn drops the fighter into the air; the next applyInput
     // must NOT mistake the spawn frame for "just landed" and trigger a
     // spurious aerial-interrupt path. Setting this to false matches
-    // the post-teleport `groundContacts = 0` reset above.
+    // the contact-pair reset below.
     this.prevGrounded = false;
     // Cancel any in-flight attack — a teleport (respawn / replay seek)
     // must not leave a stale hitbox in the world or freeze the
     // fighter mid-recovery.
     this.cancelAttack();
+    this.donkeykongLastAttackEndFrame=-1000;
+    this.clearPlacedTraps();
     this.cooldownRemaining = 0;
     // Hitstun is transient combat state — clear it on teleport so a
     // respawn doesn't leave the fighter inert for the first half-second
@@ -7629,11 +13447,23 @@ export class Character {
     // state. Clear them on teleport so a fighter who was KO'd mid-
     // freeze doesn't respawn with a queued launch about to fire.
     this.hitlagRemaining = 0;
+    this.hitlagPosition = null;
+    this.contactPairs.clear();
     this.pendingKnockback = null;
+    this.sdiState = createReferenceSdiState();
+    this.sdiMultiplier = 1;
+    this.attackerHitlagVelocity = null;
+    this.pikachuLedgeFlightHitlagRelease=false;
+    this.launchVelocity = null;
+    this.referenceLaunch = null;
+    this.hitstunGravityVelocityY = 0;
+    this.pendingHitstunGravityCorrection = 0;
     // Fall-shaping latches are transient too — a respawn must not
     // inherit a fast-fall or an armed jump-cut from the previous stock.
     this.fastFallLatched = false;
     this.jumpCutArmed = false;
+    this.shortHopRising = false;
+    this.airJumpRising = false;
     // A stored special charge is transient combat state — drop it on
     // teleport/respawn so a fighter KO'd mid-charge doesn't reappear
     // holding the cannon. Both the live charge and any bank reset to zero
@@ -7648,12 +13478,18 @@ export class Character {
     this.techBufferRemaining = 0;
     this.techLockoutRemaining = 0;
     this.knockdownRemaining = 0;
-    this.getupRollRemaining = 0;
     // AC 60301 Sub-AC 1 — shield state is transient too. Reset to a
     // fresh idle / full-HP shield on respawn so a fighter who lost a
     // stock mid-shatter doesn't reappear pre-broken.
+    this.shieldPresentation = null;
     this.shieldState = resetShieldState(this.tuning.shield);
+    this.shieldBreakMash = null;
     this.shieldActiveFrames = 0;
+    this.shieldReleaseRemaining = 0;
+    this.shieldReleaseCanParry = false;
+    this.shieldParryBlockRemaining = 0;
+    this.shieldParryStunRemaining = 0;
+    this.shieldParryProtected = false;
     // Stale-move history is per-life — a fresh stock fights with every
     // move fully un-staled.
     this.staleMoveQueue = [];
@@ -7661,6 +13497,8 @@ export class Character {
     // who lost a stock mid-roll shouldn't respawn carrying the rest of
     // the slide / recovery / cooldown. Reset to a fresh idle.
     this.dodgeState = resetDodgeState();
+    this.dodgeStaleness = createDodgeStaleness();
+    this.airtimeFrames = 0;
     // Tier 5 — locomotion is transient too: a respawned fighter starts
     // standing (not mid-run / mid-pivot), facing the freshly-set facing.
     this.locomotionState = resetLocomotionState(this.facing);
@@ -7674,21 +13512,29 @@ export class Character {
     // Grab state is also transient. A fighter who was mid-grab when
     // they KO'd shouldn't respawn still latched to a target.
     if (this.grabHitboxBody !== null) {
-      despawnHitbox(this.scene as unknown as HitboxScene, this.grabHitboxBody);
+      this.donkeykongCatchPoseConsumer.forget(this.grabHitboxBody);
+      this.donkeykongCatchCollisionDiagnostic=null;
+      despawnHitbox(this.scene, this.grabHitboxBody);
       this.grabHitboxBody = null;
     }
     if (this.grabTarget !== null) {
-      this.grabTarget.releaseFromGrab();
+      this.grabTarget.releaseFromGrab('reset');
       this.grabTarget = null;
     }
     if (this.grabbedBy !== null) {
       this.grabbedBy = null;
     }
     this.grabState = resetGrabState();
+    this.grabVariantSpec = null;
+    this.pendingPummelFrames = null;this.pummelDamageTransaction=null;
     this.prevGrabHeld = false;
     this.dashGrabActive = false;
     this.dashGrabEntryVx = 0;
+    this.onSourcePositionReset();
   }
+  /** Source-owned presentation/admission state resets in the same actual
+   * generation transaction; unrelated fighters retain their shared reset. */
+  protected onSourcePositionReset():void{}
 
   /**
    * Replace tuning at runtime. Used by tests and the M2 roster.
@@ -7698,7 +13544,8 @@ export class Character {
    * a caller that only wants to bump `breakStunFrames` doesn't have to
    * re-supply the other shield fields.
    */
-  setTuning(overrides: CharacterTuning): void {
+  setTuning(overrides: CharacterTuning & AirMovementTuning & LandingTuning & {shieldPushTraction?:number}): void {
+    if(overrides.shieldPushTraction!==undefined)this.authoredShieldPushTraction=overrides.shieldPushTraction;
     const stripped = stripUndefined(overrides);
     const nextShield: ResolvedShieldTuning =
       stripped.shield !== undefined
@@ -7722,6 +13569,10 @@ export class Character {
       stripped.ledgeDetection !== undefined
         ? { ...this.tuning.ledgeDetection, ...stripped.ledgeDetection }
         : this.tuning.ledgeDetection;
+    const nextLocomotion: LocomotionTuning | undefined =
+      stripped.locomotion !== undefined
+        ? { ...this.tuning.locomotion, ...stripUndefined(stripped.locomotion) }
+        : this.tuning.locomotion;
     // `shield`, `dodge`, `ledge`, and `ledgeDetection` are handled
     // separately above so they don't get clobbered by the spread. The
     // cast keeps the fields omitted from the intermediate type without
@@ -7744,7 +13595,11 @@ export class Character {
       dodge: nextDodge,
       ledge: nextLedge,
       ledgeDetection: nextLedgeDetection,
+      locomotion: nextLocomotion,
     };
+    this.resolvedLocomotionTuning = resolveLocomotionTuning(
+      this.tuning.locomotion, this.tuning.maxRunSpeed,
+    );
   }
 
   /**
@@ -7762,15 +13617,36 @@ export class Character {
 
   /** Detach listeners and remove the Matter body. Idempotent. */
   destroy(): void {
+    this.endLedgeJumpClearance();this.sourceCaptureMotionFamily=null;
+    this.linkPassiveGuard=null;
+    this.clearGrabSourcePresentation();
+    this.donkeykongJabContinuation=null;this.donkeykongJabContinuationEligibleStep=false;
+    this.restoreSourcedGroundFriction();
     if (this.destroyed) return;
+    this.clearLedgeAttackAttachment();
+    this.clearPikachuLedgeAttachment();
+    this.grabReleasePresentation = null;
+    this.ultimateCaptureBudget = null;
+    this.postReleaseGrabImmunity = {remaining: 0, lastFrame: -1};
+    this.tauntPresentation = null;
+    this.pikachuSpecialRuntime?.clear();
     this.destroyed = true;
     // Tear down any live hitbox first so we don't leak a sensor body.
     if (this.activeAttack && this.activeAttack.hitboxBody) {
-      despawnHitbox(this.scene as unknown as HitboxScene, this.activeAttack.hitboxBody);
+      despawnHitbox(this.scene, this.activeAttack.hitboxBody);
     }
     this.activeAttack = null;
+    // The opt-in catch consumer owns one source snapshot for this live sensor.
+    // Retire it at teardown without changing unopted generic grab behavior.
+    if(this.grabHitboxBody&&this.donkeykongCatchPoseConsumer.owns(this.grabHitboxBody)){
+      this.donkeykongCatchPoseConsumer.forget(this.grabHitboxBody);
+      despawnHitbox(this.scene,this.grabHitboxBody);
+      this.grabHitboxBody=null;
+      this.donkeykongCatchCollisionDiagnostic=null;
+    }
     // Transient hitboxes (dive shockwaves) are sensors in the world too.
     this.clearTransientHitboxes();
+    this.clearPlacedTraps();
     // Guard every matter.world access — by SHUTDOWN time the scene's
     // Matter plugin may already be torn down (the Phaser scene-stop
     // sequence destroys plugins before scene.destroy hooks fire). The
@@ -7779,6 +13655,7 @@ export class Character {
     const world = this.scene?.matter?.world ?? null;
     if (this.collisionStartListener) {
       world?.off('collisionstart', this.collisionStartListener);
+      world?.off('collisionactive', this.collisionStartListener);
       this.collisionStartListener = null;
     }
     if (this.collisionEndListener) {
@@ -7794,6 +13671,30 @@ export class Character {
    * (respawn) and tests; gameplay code should not need to call it.
    */
   private cancelAttack(): void {
+    this.onIntrinsicSourceInterrupted();this.clearIntrinsicSourceHitbox();
+    this.donkeykongJabContinuation=null;this.donkeykongJabContinuationEligibleStep=false;
+    this.restoreSourcedGroundFriction();
+    this.clearLedgeAttackAttachment();
+    this.clearPikachuLedgeAttachment();
+    this.shieldPresentation = null;
+    this.pikachuSpecialRuntime?.interruptAction();
+    this.shockwaveRepeat = null;
+    this.shieldReleaseRemaining = 0;
+    this.shieldReleaseCanParry = false;
+    this.shieldParryStunRemaining = 0;
+    this.shieldParryProtected = false;
+    this.landingRecovery = false;
+    this.ordinaryLandingRemaining = 0;
+    this.aerialLandingContext = null;
+    this.landingAttackInstance = null;
+    this.landingAttackActivationPending = false;
+    this.specialFallLandingFrames = null;
+    // Damage, capture, footstool, trip, ledge catch and reset interrupt an
+    // acting dodge too (spot, roll or air; intangible hits never reach here).
+    // Preserve the spent air-dodge resource until ground/ledge recovery.
+    if (isDodgeActing(this.dodgeState)) this.dodgeState = resetDodgeState();
+    this.airDodgeBurst = null;
+    this.airDodgeGravityVelocityY = 0;
     // Transient hitboxes (dive shockwaves) outlive the active attack, so
     // clear them here too — a respawn / teleport must not leave a stale
     // sensor in the world or a half-finished dive's latches set.
@@ -7802,9 +13703,12 @@ export class Character {
     this.diveHoldFrames = 0;
     this.multiHitNextIndex = 0;
     this.pendingCounterRetaliation = null;
+    // Damage, capture, ledge catch and reset end a shooting session too.
+    this.itemShooting = null;
     if (!this.activeAttack) return;
+    if(this.id==='donkeykong')this.donkeykongLastAttackEndFrame=this.simulationInputFrame;
     if (this.activeAttack.hitboxBody) {
-      despawnHitbox(this.scene as unknown as HitboxScene, this.activeAttack.hitboxBody);
+      despawnHitbox(this.scene, this.activeAttack.hitboxBody);
     }
     this.activeAttack = null;
   }
@@ -7814,17 +13718,9 @@ export class Character {
   // -------------------------------------------------------------------------
 
   /**
-   * Returns true iff the pair represents a *support* contact for this
-   * character — i.e. one of the bodies is `this.body`, the other is a
-   * platform, and the platform's centre is below ours (so it's
-   * physically possible for it to be the floor we're standing on).
-   *
-   * Why centre-Y not contact normal: the centre-comparison heuristic
-   * reliably excludes wall bumps (centre-y ≈ ours) and ceiling thumps
-   * (centre-y above ours) without us having to read the contact normal,
-   * which Matter's typings expose inconsistently across pair-list
-   * shapes. With a tall character (130 px) and our shortest platform
-   * (24 px), the geometric margin is comfortable.
+   * A live, solid platform contact supports the fighter only when its
+   * normal points upward toward the fighter. Reading the current pair also
+   * handles a contact changing from floor to side without a new start event.
    */
   private isSupportPair(pair: SupportPair): boolean {
     let other: SupportPair['bodyA'];
@@ -7836,26 +13732,32 @@ export class Character {
       return false;
     }
     if (!isPlatformLabel(other.label ?? null)) return false;
+    if (pair.isActive === false || pair.isSensor || this.body.isSensor ||
+        other.isSensor || other.collisionFilter?.mask === 0) return false;
+    if (pair.collision) {
+      const direction = pair.bodyA === this.body ? 1 : -1;
+      return pair.collision.normal.y * direction < -0.5;
+    }
+    // Minimal scene adapters can omit normals. Real Matter pairs always
+    // provide one, so gameplay never classifies a side wall by center alone.
     return other.position.y > this.body.position.y;
   }
 
   private onCollisionStart(event: CollisionEventLike): void {
     if (this.destroyed) return;
     for (const pair of event.pairs) {
-      if (this.isSupportPair(pair)) {
-        this.groundContacts += 1;
-      }
+      if (pair.bodyA === this.body) this.contactPairs.set(pair.bodyB, pair);
+      else if (pair.bodyB === this.body) this.contactPairs.set(pair.bodyA, pair);
     }
+    this.configureLedgeAttackPairs();
+    this.configurePikachuLedgeAttachmentPairs();
   }
 
   private onCollisionEnd(event: CollisionEventLike): void {
     if (this.destroyed) return;
     for (const pair of event.pairs) {
-      if (this.isSupportPair(pair)) {
-        // Clamp to 0 so a duplicate end event (rare but possible across
-        // Matter versions) can't push the counter negative.
-        this.groundContacts = Math.max(0, this.groundContacts - 1);
-      }
+      if (pair.bodyA === this.body) this.contactPairs.delete(pair.bodyB);
+      else if (pair.bodyB === this.body) this.contactPairs.delete(pair.bodyA);
     }
   }
 
@@ -7938,7 +13840,25 @@ function mergeDodgeTuning(
   return {
     spot: overrides.spot !== undefined ? { ...base.spot, ...overrides.spot } : base.spot,
     roll: overrides.roll !== undefined ? { ...base.roll, ...overrides.roll } : base.roll,
+    ...(base.backwardRoll === undefined && overrides.backwardRoll === undefined ? {} : {
+      backwardRoll: { ...base.backwardRoll, ...overrides.backwardRoll },
+    }),
     air: overrides.air !== undefined ? { ...base.air, ...overrides.air } : base.air,
+    ...(base.directionalAir === undefined && overrides.directionalAir === undefined ? {} : {
+      directionalAir: { ...base.directionalAir, ...overrides.directionalAir },
+    }),
+    ...((overrides.directionalAirUpRecoveryFrames ?? base.directionalAirUpRecoveryFrames) === undefined ? {} : {
+      directionalAirUpRecoveryFrames: overrides.directionalAirUpRecoveryFrames ?? base.directionalAirUpRecoveryFrames,
+    }),
+    ...((overrides.directionalAirDownRecoveryFrames ?? base.directionalAirDownRecoveryFrames) === undefined ? {} : {
+      directionalAirDownRecoveryFrames: overrides.directionalAirDownRecoveryFrames ?? base.directionalAirDownRecoveryFrames,
+    }),
+    ...((overrides.directionalAirUpDiagonalRecoveryFrames ?? base.directionalAirUpDiagonalRecoveryFrames) === undefined ? {} : {
+      directionalAirUpDiagonalRecoveryFrames: overrides.directionalAirUpDiagonalRecoveryFrames ?? base.directionalAirUpDiagonalRecoveryFrames,
+    }),
+    ...((overrides.directionalAirDownDiagonalRecoveryFrames ?? base.directionalAirDownDiagonalRecoveryFrames) === undefined ? {} : {
+      directionalAirDownDiagonalRecoveryFrames: overrides.directionalAirDownDiagonalRecoveryFrames ?? base.directionalAirDownDiagonalRecoveryFrames,
+    }),
     stickThreshold: overrides.stickThreshold ?? base.stickThreshold,
   };
 }

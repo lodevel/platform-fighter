@@ -52,7 +52,7 @@ import {
   type MinimalBody,
 } from './BlastZoneWatcher';
 import { RespawnHandler, type RespawnTarget } from './RespawnHandler';
-import { BLAST_ZONE_LABELS } from '../stages/StageRenderer';
+import { BLAST_ZONE_LABELS } from '../stages/stageBodies';
 import type { BlastZone } from '../types';
 
 // ---------------------------------------------------------------------------

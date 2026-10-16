@@ -18,6 +18,7 @@ import {
 import { KEY_CODE } from './keyCodes';
 import { LOGICAL_ACTIONS } from '../types/inputBindings';
 import type {
+  ActionBindings,
   GamepadBinding,
   KeyboardBinding,
   PlayerBindings,
@@ -409,6 +410,97 @@ describe('deserializePlayerBindings — body validation', () => {
 // ---------------------------------------------------------------------------
 // Safe (non-throwing) variants
 // ---------------------------------------------------------------------------
+
+describe('saves from before the smash action (schema version 1, no smash key)', () => {
+  function stripSmash(json: string): string {
+    const envelope = JSON.parse(json) as { data: Record<string, unknown> };
+    const strip = (pb: { bindings: Record<string, unknown> }) => { delete pb.bindings['smash']; };
+    if ('bindings' in envelope.data) strip(envelope.data as { bindings: Record<string, unknown> });
+    else for (const slot of Object.values(envelope.data)) strip(slot as { bindings: Record<string, unknown> });
+    return JSON.stringify(envelope, null, 2);
+  }
+
+  it('fills smash per slot from that slot\'s layout and keeps every other binding', () => {
+    const custom = {
+      ...DEFAULT_PLAYER_BINDINGS,
+      2: { playerIndex: 2 as const, bindings: { ...DEFAULT_PLAYER_BINDINGS[2].bindings,
+        attack: [{ kind: 'keyboard' as const, keyCode: KEY_CODE.SPACE }] } },
+    };
+    const loaded = deserializeBindingsSnapshot(stripSmash(serializeBindingsSnapshot(custom)));
+    expect(loaded[1].bindings.smash).toEqual([{ kind: 'keyboard', keyCode: KEY_CODE.V }]);
+    expect(loaded[2].bindings.smash).toEqual([{ kind: 'keyboard', keyCode: KEY_CODE.NUMPAD_0 }]);
+    expect(loaded[2].bindings.attack).toEqual([{ kind: 'keyboard', keyCode: KEY_CODE.SPACE }]);
+    for (const slot of [1, 3, 4] as const) {
+      expect(JSON.stringify(loaded[slot])).toBe(JSON.stringify(DEFAULT_PLAYER_BINDINGS[slot]));
+    }
+    expect(Object.keys(loaded[2].bindings)).toEqual([...LOGICAL_ACTIONS]);
+  });
+
+  // P2's layout moved off the arrows/numpad onto IJKL + letters.
+  const p2OnLetters = (): ActionBindings => {
+    const k = (keyCode: number) => [{ kind: 'keyboard' as const, keyCode }];
+    return { left: k(74), right: k(76), up: k(73), down: k(75), jump: k(73), attack: k(85),
+      special: k(79), shield: k(80), grab: k(89), taunt: k(78), smash: [] };
+  };
+  const keyCodesOf = (pb: PlayerBindings) => LOGICAL_ACTIONS.flatMap(action => (pb.bindings[action] ?? [])
+    .flatMap(binding => binding.kind === 'keyboard' ? [binding.keyCode] : []));
+
+  it('gives slot 2 its own Numpad 0 after an upgrade even when its layout left the numpad', () => {
+    const custom = { ...DEFAULT_PLAYER_BINDINGS, 2: { playerIndex: 2 as const, bindings: p2OnLetters() } };
+    const loaded = deserializeBindingsSnapshot(stripSmash(serializeBindingsSnapshot(custom)));
+    expect(loaded[1].bindings.smash).toEqual([{ kind: 'keyboard', keyCode: KEY_CODE.V }]);
+    expect(loaded[2].bindings.smash).toEqual([{ kind: 'keyboard', keyCode: KEY_CODE.NUMPAD_0 }]);
+    // No key is shared between the two keyboard players.
+    const p1Keys = new Set(keyCodesOf(loaded[1]));
+    expect(keyCodesOf(loaded[2]).filter(code => p1Keys.has(code))).toEqual([]);
+  });
+
+  it('leaves a customised slot\'s smash unbound when the other keyboard slot already uses its default key', () => {
+    const p2WithV = { ...DEFAULT_PLAYER_BINDINGS[2].bindings,
+      attack: [{ kind: 'keyboard' as const, keyCode: KEY_CODE.V }] };
+    const p1Custom = { ...DEFAULT_PLAYER_BINDINGS[1].bindings,
+      grab: [{ kind: 'keyboard' as const, keyCode: 89 /* Y */ }] };
+    const custom = { ...DEFAULT_PLAYER_BINDINGS,
+      1: { playerIndex: 1 as const, bindings: p1Custom }, 2: { playerIndex: 2 as const, bindings: p2WithV } };
+    const loaded = deserializeBindingsSnapshot(stripSmash(serializeBindingsSnapshot(custom)));
+    expect(loaded[1].bindings.smash).toEqual([]);
+    expect(loaded[2].bindings.smash).toEqual([{ kind: 'keyboard', keyCode: KEY_CODE.NUMPAD_0 }]);
+  });
+
+  it('an untouched default slot loads byte-identical to the new defaults even when another slot took its key', () => {
+    // The match, not the stored layout, resolves the shared V (see dropSharedKeyboardSmashKeys).
+    const p2WithV = { ...DEFAULT_PLAYER_BINDINGS[2].bindings,
+      attack: [{ kind: 'keyboard' as const, keyCode: KEY_CODE.V }] };
+    const custom = { ...DEFAULT_PLAYER_BINDINGS, 2: { playerIndex: 2 as const, bindings: p2WithV } };
+    const loaded = deserializeBindingsSnapshot(stripSmash(serializeBindingsSnapshot(custom)));
+    expect(JSON.stringify(loaded[1])).toBe(JSON.stringify(DEFAULT_PLAYER_BINDINGS[1]));
+    expect(loaded[2].bindings.smash).toEqual([{ kind: 'keyboard', keyCode: KEY_CODE.NUMPAD_0 }]);
+  });
+
+  it('fills a slot 2 single-player export from the P2 half, not by voting its keys', () => {
+    const json = stripSmash(serializePlayerBindings({ playerIndex: 2, bindings: p2OnLetters() }));
+    expect(deserializePlayerBindings(json, 2).bindings.smash)
+      .toEqual([{ kind: 'keyboard', keyCode: KEY_CODE.NUMPAD_0 }]);
+  });
+
+  it('fills a single-player export and re-serialises it with smash at schema version 1', () => {
+    const json = stripSmash(serializePlayerBindings(DEFAULT_PLAYER_BINDINGS[4]));
+    expect(json).not.toContain('smash');
+    const loaded = deserializePlayerBindings(json, 4);
+    expect(loaded).toEqual(DEFAULT_PLAYER_BINDINGS[4]);
+    const resaved = JSON.parse(serializePlayerBindings(loaded)) as { schemaVersion: number };
+    expect(resaved.schemaVersion).toBe(1);
+    expect(BINDINGS_SCHEMA_VERSION).toBe(1);
+  });
+
+  it('still rejects a save missing any other action', () => {
+    const envelope = JSON.parse(serializePlayerBindings(DEFAULT_PLAYER_BINDINGS[1])) as {
+      data: { bindings: Record<string, unknown> } };
+    delete envelope.data.bindings['smash'];
+    delete envelope.data.bindings['grab'];
+    expect(() => deserializePlayerBindings(JSON.stringify(envelope), 1)).toThrow(/grab/);
+  });
+});
 
 describe('safeDeserializePlayerBindings', () => {
   it('returns ok for valid input', () => {

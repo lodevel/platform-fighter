@@ -84,6 +84,9 @@
 
 import type { MatchConfig, PlayerSlot } from '../types';
 import { MatchRng } from './MatchRng';
+import { NEW_MATCH_FINAL_RULES, parseFinalSmashRules } from '../finalSmash/finalSmashSchema';
+import { SIMULATION_BUILD_ID } from '../engine/buildIdentity';
+import { snapshotMatchCharacters } from './characterSnapshot';
 import {
   initialiseMatchRngFromConfig,
   type MatchRngInitResult,
@@ -416,7 +419,7 @@ function resolveFixedTimestep(raw: number | undefined): number {
 
 function resolveEngineVersion(raw: string | undefined): string {
   if (typeof raw === 'string' && raw.length > 0) return raw;
-  return UNKNOWN_ENGINE_VERSION;
+  return SIMULATION_BUILD_ID;
 }
 
 function defaultNowFactory(): Date {
@@ -443,10 +446,16 @@ function freezeMatchConfig(source: MatchConfig, resolvedSeed: number): MatchConf
         ...(slot.aiDifficulty !== undefined
           ? { aiDifficulty: slot.aiDifficulty }
           : {}),
+        ...(slot.participantId !== undefined ? { participantId: slot.participantId } : {}),
+        ...(slot.bindingProfileIndex !== undefined ? { bindingProfileIndex: slot.bindingProfileIndex } : {}),
+        ...(slot.bindingProfileId !== undefined ? { bindingProfileId: slot.bindingProfileId } : {}),
+        ...(slot.inputDevice !== undefined ? { inputDevice: slot.inputDevice } : {}),
+        ...(slot.customCharacter !== undefined ? { customCharacter: slot.customCharacter } : {}),
       }),
     ),
   ) as ReadonlyArray<PlayerSlot>;
-  return Object.freeze({
+  return snapshotMatchCharacters({
+    finalSmashRules: parseFinalSmashRules(source.finalSmashRules ?? NEW_MATCH_FINAL_RULES),
     mode: source.mode,
     stockCount: source.stockCount,
     ...(source.timeLimitSeconds !== undefined
@@ -455,5 +464,7 @@ function freezeMatchConfig(source: MatchConfig, resolvedSeed: number): MatchConf
     stageId: source.stageId,
     players,
     rngSeed: resolvedSeed,
+    ...(source.itemFrequency !== undefined ? { itemFrequency: source.itemFrequency } : {}),
+    ...(source.itemSwitch !== undefined ? { itemSwitch: Object.freeze({ ...source.itemSwitch }) } : {}),
   });
 }

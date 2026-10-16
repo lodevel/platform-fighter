@@ -39,7 +39,7 @@ import { ReplayPlaybackController } from './ReplayPlaybackController';
 // ---------------------------------------------------------------------------
 
 function makePlayerSlots(count: number): PlayerSlot[] {
-  const ids = ['wolf', 'cat', 'owl', 'bear'] as const;
+  const ids = ['donkeykong', 'pikachu', 'donkeykong', 'pikachu'] as const;
   return Array.from({ length: count }, (_, i) => ({
     index: (i + 1) as PlayerSlot['index'],
     characterId: ids[i]!,
@@ -336,12 +336,14 @@ describe('ReplayPlaybackController — sampleFrame', () => {
     const f0 = c.sampleFrame(0)!;
     expect(f0).toHaveLength(2);
     expect(f0[0]).toEqual({
+      ...NEUTRAL_INPUT,
       moveX: 1, moveY: 0,
       jump: false,
       attack: false,
       dropThrough: false,
     });
     expect(f0[1]).toEqual({
+      ...NEUTRAL_INPUT,
       moveX: -1, moveY: 0,
       jump: true,
       attack: false,
@@ -350,6 +352,7 @@ describe('ReplayPlaybackController — sampleFrame', () => {
 
     const f1 = c.sampleFrame(1)!;
     expect(f1[0]).toEqual({
+      ...NEUTRAL_INPUT,
       moveX: 0, moveY: 0,
       jump: true,
       attack: true,

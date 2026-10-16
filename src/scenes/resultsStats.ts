@@ -115,6 +115,8 @@ export function formatDamageDealt(damage: number): string {
 export interface StatsLineInput {
   /** 0-based slot index. Rendered as `P${index+1}`. */
   readonly index: number;
+  /** Original lobby slot when it differs from the runtime index. */
+  readonly displaySlotIndex?: number;
   /** Display name (truncated/padded to {@link PLAYER_NAME_COLUMN_WIDTH}). */
   readonly name: string;
   /** True iff this slot is the match winner — gets the leading star. */
@@ -141,7 +143,7 @@ export interface StatsLineInput {
  */
 export function formatStatsLine(input: StatsLineInput): string {
   const prefix = input.isWinner ? '★ ' : '  ';
-  const slot = `P${input.index + 1}`;
+  const slot = `P${input.displaySlotIndex ?? input.index + 1}`;
   const name = padOrTruncate(input.name, PLAYER_NAME_COLUMN_WIDTH);
   const kos = input.stats.kos;
   const koLabel = `${kos} ${kos === 1 ? 'KO' : 'KOs'}`;

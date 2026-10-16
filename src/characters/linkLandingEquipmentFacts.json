@@ -1,0 +1,168 @@
+{
+  "landing_air_n": {
+    "motion": "landing_air_n",
+    "source": {
+      "function": "expression_landingairn",
+      "path": "sources/native/scripts/LandingAirN.txt",
+      "sha256": "a68076b360fe7b9e883e35814a4d72fd831a2eabb5b0c687713e0e4c7ae668dc"
+    },
+    "events": [],
+    "nativeMetadata": {
+      "gameScript": "game_landingairn",
+      "animations": [
+        "c05landingairn.nuanmb"
+      ],
+      "cancelFrame": "20",
+      "xluStart": "0",
+      "xluEnd": "0",
+      "loop": "false",
+      "sourceMotion": "landing_air_n"
+    }
+  },
+  "landing_air_f": {
+    "motion": "landing_air_f",
+    "source": {
+      "function": "expression_landingairf",
+      "path": "sources/native/scripts/LandingAirF.txt",
+      "sha256": "ae0efc3008fca1ee9b01c1b8802fc18539492e1c8be3fd79b7dd02fec9283307"
+    },
+    "events": [],
+    "nativeMetadata": {
+      "gameScript": "game_landingairf",
+      "animations": [
+        "c05landingairf.nuanmb"
+      ],
+      "cancelFrame": "20",
+      "xluStart": "0",
+      "xluEnd": "0",
+      "loop": "false",
+      "sourceMotion": "landing_air_f"
+    }
+  },
+  "landing_air_b": {
+    "motion": "landing_air_b",
+    "source": {
+      "function": "expression_landingairb",
+      "path": "sources/native/scripts/LandingAirB.txt",
+      "sha256": "7807ded6c35734e70880eac93b5d25e9cf833360293d629192b314a1509951f7"
+    },
+    "events": [],
+    "nativeMetadata": {
+      "gameScript": "game_landingairb",
+      "animations": [
+        "c05landingairb.nuanmb"
+      ],
+      "cancelFrame": "20",
+      "xluStart": "0",
+      "xluEnd": "0",
+      "loop": "false",
+      "sourceMotion": "landing_air_b"
+    }
+  },
+  "landing_air_hi": {
+    "motion": "landing_air_hi",
+    "source": {
+      "function": "expression_landingairhi",
+      "path": "sources/native/scripts/LandingAirHi.txt",
+      "sha256": "54f0c77e6c327ec9810aa137ed9cd3907a6d2ed63d929392f2c8617af4d1cb7b"
+    },
+    "events": [
+      {
+        "scriptNativeFrame": 0,
+        "changes": {
+          "shield": "back"
+        },
+        "sourceLine": 17,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_back\") as i64)"
+      },
+      {
+        "scriptNativeFrame": 0,
+        "changes": {
+          "heldItemVisible": false
+        },
+        "sourceLine": 19,
+        "raw": "ItemModule::set_have_item_visibility(agent.module_accessor, false, 0)"
+      },
+      {
+        "scriptNativeFrame": 22.0,
+        "changes": {
+          "heldItemVisible": true
+        },
+        "sourceLine": 27,
+        "raw": "ItemModule::set_have_item_visibility(agent.module_accessor, true, 0)"
+      },
+      {
+        "scriptNativeFrame": 28.0,
+        "changes": {
+          "shield": "normal"
+        },
+        "sourceLine": 31,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_normal\") as i64)"
+      }
+    ],
+    "nativeMetadata": {
+      "gameScript": "game_landingairhi",
+      "animations": [
+        "c05landingairhi.nuanmb"
+      ],
+      "cancelFrame": "20",
+      "xluStart": "0",
+      "xluEnd": "0",
+      "loop": "false",
+      "sourceMotion": "landing_air_hi"
+    }
+  },
+  "landing_air_lw": {
+    "motion": "landing_air_lw",
+    "source": {
+      "function": "expression_landingairlw",
+      "path": "sources/native/scripts/LandingAirLw.txt",
+      "sha256": "07e19219facc45144c7407813bdadbd5508c6646db46b7266cb3c111d25d2b55"
+    },
+    "events": [
+      {
+        "scriptNativeFrame": 0,
+        "changes": {
+          "shield": "back"
+        },
+        "sourceLine": 19,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_back\") as i64)"
+      },
+      {
+        "scriptNativeFrame": 0,
+        "changes": {
+          "heldItemVisible": false
+        },
+        "sourceLine": 20,
+        "raw": "ItemModule::set_have_item_visibility(agent.module_accessor, false, 0)"
+      },
+      {
+        "scriptNativeFrame": 65.0,
+        "changes": {
+          "shield": "normal"
+        },
+        "sourceLine": 25,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_normal\") as i64)"
+      },
+      {
+        "scriptNativeFrame": 65.0,
+        "changes": {
+          "heldItemVisible": true
+        },
+        "sourceLine": 26,
+        "raw": "ItemModule::set_have_item_visibility(agent.module_accessor, true, 0)"
+      }
+    ],
+    "nativeMetadata": {
+      "gameScript": "game_landingairlw",
+      "animations": [
+        "c05landingairlw.nuanmb"
+      ],
+      "cancelFrame": "45",
+      "xluStart": "0",
+      "xluEnd": "0",
+      "loop": "false",
+      "sourceMotion": "landing_air_lw"
+    }
+  }
+}

@@ -1,0 +1,149 @@
+{
+  "state": "CAPTURED_HIT_TARGET_ANCHORS_REVIEWED_BY_VIEWING_OVERLAYS",
+  "pikachuTarget": {
+    "path": "assets/characters/pikachu/animations/captured_hit.png",
+    "sha256": "fc24d2dcd25d1420e13eecb6c685f3abadecb1b5829045d7f3f654355a15d592"
+  },
+  "pikachuMetadata": {
+    "path": "assets/characters/pikachu/frames.json",
+    "sha256": "fd7c1afa3de13dd552918b011488ada80587be2ad93307d23b3d3036875970bb"
+  },
+  "method": {
+    "path": ".tmp/dk-review-ordinary-grip-anchors.py",
+    "sha256": "ab9a162b4c412a5b8332b576544882c977b8bfa61ea49ea0ee8c8294190daaa5"
+  },
+  "recipientProposals": [
+    {
+      "poseKey": "captured_hit",
+      "context": "ordinary-damage",
+      "profileKey": "pikachu-ordinary-captured-target-v1",
+      "dimensions": {
+        "width": 40,
+        "height": 50
+      },
+      "artFrameIndex": 0,
+      "nativeSample": null,
+      "point": {
+        "x": 21.7,
+        "y": 0.03333333333333144
+      },
+      "provenance": "authored-reviewed-target",
+      "targetPixel": [
+        302,
+        362
+      ],
+      "targetRGBA": [
+        234,
+        206,
+        51,
+        255
+      ],
+      "view": {
+        "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/remaining-gaps/pikachu-captured-hit-anchor/pikachu-captured_hit-cell0-anchor.png",
+        "sha256": "21ddadd78263603fb9a47d6c587420f0b645d912a444941fb72b29d5fcbeaf30"
+      }
+    },
+    {
+      "poseKey": "captured_hit",
+      "context": "ordinary-damage",
+      "profileKey": "pikachu-ordinary-captured-target-v1",
+      "dimensions": {
+        "width": 40,
+        "height": 50
+      },
+      "artFrameIndex": 1,
+      "nativeSample": null,
+      "point": {
+        "x": 13.766666666666667,
+        "y": 1.4333333333333336
+      },
+      "provenance": "authored-reviewed-target",
+      "targetPixel": [
+        285,
+        365
+      ],
+      "targetRGBA": [
+        240,
+        207,
+        45,
+        255
+      ],
+      "view": {
+        "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/remaining-gaps/pikachu-captured-hit-anchor/pikachu-captured_hit-cell1-anchor.png",
+        "sha256": "c013699a0331db0a7f05b70ca6dc33d1d3aeeb9c13d1ae1c3b4abfa5fc8ec97a"
+      }
+    },
+    {
+      "poseKey": "captured_hit",
+      "context": "ordinary-damage",
+      "profileKey": "pikachu-ordinary-captured-target-v1",
+      "dimensions": {
+        "width": 40,
+        "height": 50
+      },
+      "artFrameIndex": 2,
+      "nativeSample": null,
+      "point": {
+        "x": 14.233333333333334,
+        "y": 0.03333333333333144
+      },
+      "provenance": "authored-reviewed-target",
+      "targetPixel": [
+        286,
+        362
+      ],
+      "targetRGBA": [
+        240,
+        207,
+        45,
+        255
+      ],
+      "view": {
+        "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/remaining-gaps/pikachu-captured-hit-anchor/pikachu-captured_hit-cell2-anchor.png",
+        "sha256": "22df74d2e6ca8c6b61f49429e384eb78d7629adc04b5584e7679d78a1a4d8004"
+      }
+    },
+    {
+      "poseKey": "captured_hit",
+      "context": "ordinary-damage",
+      "profileKey": "pikachu-ordinary-captured-target-v1",
+      "dimensions": {
+        "width": 40,
+        "height": 50
+      },
+      "artFrameIndex": 3,
+      "nativeSample": null,
+      "point": {
+        "x": 25.433333333333334,
+        "y": -0.9000000000000021
+      },
+      "provenance": "authored-reviewed-target",
+      "targetPixel": [
+        310,
+        360
+      ],
+      "targetRGBA": [
+        240,
+        207,
+        45,
+        255
+      ],
+      "view": {
+        "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/remaining-gaps/pikachu-captured-hit-anchor/pikachu-captured_hit-cell3-anchor.png",
+        "sha256": "2da21dc14895700591deee0fdb93461ee2e8c6538786917d979586f505e8e8da"
+      }
+    }
+  ],
+  "contactSheet": {
+    "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/remaining-gaps/pikachu-captured-hit-anchor/pikachu-captured-vs-captured_hit-anchors.png",
+    "sha256": "2971fcb83c82187589cca048ea971a5c172949fffe3ec03d8d942f50cf1be57d"
+  },
+  "limits": [
+    "Authored upper-torso material points, same method as the captured (ordinary-held) anchors; no native socket parity.",
+    "Pikachu art/metadata read-only (sha asserted)."
+  ],
+  "tool": {
+    "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/remaining-gaps/pikachu-captured-hit-anchor/derive_captured_hit_anchors.py",
+    "sha256": "fc97573b01138c828177f4a6959e16842babdcfd4f84595a0add820eb7a7554b"
+  }
+}

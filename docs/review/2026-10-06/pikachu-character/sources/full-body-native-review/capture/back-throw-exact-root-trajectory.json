@@ -1,0 +1,841 @@
+{
+  "state": "exact native trajectory retained; native status/kinetic application unqualified",
+  "provenance": {
+    "skeleton": {
+      "path": "assets/gen/pikachu-native-reference/raw-model/fighter/pikachu/model/body/c00/model.nusktb",
+      "sha256": "09b80e92fa89921c4d895abe36f23252c2ba69c1ed2a787953185572d2b19b04"
+    },
+    "helper": {
+      "path": "assets/gen/pikachu-native-reference/raw-model/fighter/pikachu/model/body/c00/model.nuhlpb",
+      "sha256": "2362c0d133764a5f909e037c93ff9caf5e09f63da1aaa3ab9c3f0c22984a1555"
+    },
+    "motion": {
+      "path": "assets/gen/pikachu-native-reference/raw-motion/fighter/pikachu/motion/body/c00/e01throwb.nuanmb",
+      "sha256": "231e731366e0030d87475ab730315a9e0d6546867bd3cf90c4d062f9635c9ebf"
+    },
+    "native_final_frame_index": 65.0,
+    "matrix_convention": "row-major arrays; column vectors; native x/y/z, no game or camera transform",
+    "helper_constraints": "Excluded; requested bones and ancestors reject any constraint target",
+    "game_patch": null,
+    "unmodified_vanilla_verified": false,
+    "gameplay_frame_mapping": null,
+    "runtime_consumer": null
+  },
+  "exporter": "tools/pikachu-back-throw-root-prepare.py",
+  "exporterSha256": "d84c645727d5800af14fff43ebe9f9a71915ef386c3a090c7dc1e6afc4c5d0e7",
+  "preparation": "docs/review/2026-10-06/pikachu-character/sources/full-body-native-review/capture/preparation.json",
+  "preparationSha256": "037c64a8d9ae75a456406c99405a7d247fe9eb8afd2e372e4d46e88c856cf23c",
+  "projection": "Native Trans world matrix column3. Entry-facing-right world displacement x=5*nativeZ, y=-5*nativeY; opposite entry facing negates x only.",
+  "directionBasis": "Latched actor entry facing. Shared backthrow release-facing flip must not retroactively reverse trajectory samples.",
+  "referenceOrigin": "Absolute sampled native displacement, not per-step velocity. Native0 small nonzero offset retained; any runtime subtraction of sample0 must be explicit.",
+  "rows": [
+    {
+      "nativeFrame": 0,
+      "translationNative": [
+        0.0,
+        0.0,
+        -0.00028773010126315057
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -0.0014386505063157529,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 1,
+      "translationNative": [
+        0.0,
+        0.0,
+        0.07501059025526047
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": 0.37505295127630234,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 2,
+      "translationNative": [
+        0.0,
+        0.0,
+        0.1898220032453537
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": 0.9491100162267685,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 3,
+      "translationNative": [
+        0.0,
+        0.0,
+        0.18912336230278015
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": 0.9456168115139008,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 4,
+      "translationNative": [
+        0.0,
+        0.0,
+        -0.0793939009308815
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -0.3969695046544075,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 5,
+      "translationNative": [
+        0.0,
+        0.0,
+        -0.7599800229072571
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -3.7999001145362854,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 6,
+      "translationNative": [
+        0.0,
+        0.0,
+        -1.440230131149292
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -7.20115065574646,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 7,
+      "translationNative": [
+        0.0,
+        0.0,
+        -2.425518751144409
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -12.127593755722046,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 8,
+      "translationNative": [
+        0.0,
+        0.0,
+        -3.847221851348877
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -19.236109256744385,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 9,
+      "translationNative": [
+        0.0,
+        0.0,
+        -5.343919277191162
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -26.71959638595581,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 10,
+      "translationNative": [
+        0.0,
+        0.0,
+        -7.661709308624268
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -38.30854654312134,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 11,
+      "translationNative": [
+        0.0,
+        0.0,
+        -10.919499397277832
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -54.59749698638916,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 12,
+      "translationNative": [
+        0.0,
+        0.0,
+        -13.994901657104492
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -69.97450828552246,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 13,
+      "translationNative": [
+        0.0,
+        0.0,
+        -15.850000381469727
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -79.25000190734863,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 14,
+      "translationNative": [
+        0.0,
+        0.0,
+        -17.290897369384766
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -86.45448684692383,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 15,
+      "translationNative": [
+        0.0,
+        0.0,
+        -18.31369972229004
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -91.5684986114502,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 16,
+      "translationNative": [
+        0.0,
+        0.0,
+        -18.573801040649414
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -92.86900520324707,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 17,
+      "translationNative": [
+        0.0,
+        0.0,
+        -18.89059829711914
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -94.4529914855957,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 18,
+      "translationNative": [
+        0.0,
+        0.0,
+        -19.14859962463379
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -95.74299812316895,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 19,
+      "translationNative": [
+        0.0,
+        0.0,
+        -19.328598022460938
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -96.64299011230469,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 20,
+      "translationNative": [
+        0.0,
+        0.0,
+        -19.554401397705078
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -97.77200698852539,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 21,
+      "translationNative": [
+        0.0,
+        0.0,
+        -20.027700424194336
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -100.13850212097168,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 22,
+      "translationNative": [
+        0.0,
+        0.0,
+        -20.867998123168945
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -104.33999061584473,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 23,
+      "translationNative": [
+        0.0,
+        0.0,
+        -21.572097778320312
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -107.86048889160156,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 24,
+      "translationNative": [
+        0.0,
+        0.0,
+        -21.80240249633789
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -109.01201248168945,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 25,
+      "translationNative": [
+        0.0,
+        0.0,
+        -21.838897705078125
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -109.19448852539062,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 26,
+      "translationNative": [
+        0.0,
+        0.0,
+        -21.891700744628906
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -109.45850372314453,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 27,
+      "translationNative": [
+        0.0,
+        0.0,
+        -21.94499969482422
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -109.7249984741211,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 28,
+      "translationNative": [
+        0.0,
+        0.0,
+        -21.995798110961914
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -109.97899055480957,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 29,
+      "translationNative": [
+        0.0,
+        0.0,
+        -22.030200958251953
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -110.15100479125977,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 30,
+      "translationNative": [
+        0.0,
+        0.0,
+        -22.051902770996094
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -110.25951385498047,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 31,
+      "translationNative": [
+        0.0,
+        0.0,
+        -22.068700790405273
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -110.34350395202637,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 32,
+      "translationNative": [
+        0.0,
+        0.0,
+        -22.08289909362793
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -110.41449546813965,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 33,
+      "translationNative": [
+        0.0,
+        0.0,
+        -22.09640121459961
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -110.48200607299805,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 34,
+      "translationNative": [
+        0.0,
+        0.0,
+        -22.111099243164062
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -110.55549621582031,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 35,
+      "translationNative": [
+        0.0,
+        0.0,
+        -22.126197814941406
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -110.63098907470703,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 36,
+      "translationNative": [
+        0.0,
+        0.0,
+        -22.140501022338867
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -110.70250511169434,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 37,
+      "translationNative": [
+        0.0,
+        0.0,
+        -22.15730094909668
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -110.7865047454834,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 38,
+      "translationNative": [
+        0.0,
+        0.0,
+        -22.167497634887695
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -110.83748817443848,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 39,
+      "translationNative": [
+        0.0,
+        0.0,
+        -22.17609977722168
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -110.8804988861084,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 40,
+      "translationNative": [
+        0.0,
+        0.0,
+        -22.17889976501465
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -110.89449882507324,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 41,
+      "translationNative": [
+        0.0,
+        0.0,
+        -22.166297912597656
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -110.83148956298828,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 42,
+      "translationNative": [
+        0.0,
+        0.0,
+        -22.128902435302734
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -110.64451217651367,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 43,
+      "translationNative": [
+        0.0,
+        0.0,
+        -22.068599700927734
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -110.34299850463867,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 44,
+      "translationNative": [
+        0.0,
+        0.0,
+        -22.049901962280273
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -110.24950981140137,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 45,
+      "translationNative": [
+        0.0,
+        0.0,
+        -22.030399322509766
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -110.15199661254883,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 46,
+      "translationNative": [
+        0.0,
+        0.0,
+        -21.956199645996094
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -109.78099822998047,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 47,
+      "translationNative": [
+        0.0,
+        0.0,
+        -21.742799758911133
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -108.71399879455566,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 48,
+      "translationNative": [
+        0.0,
+        0.0,
+        -21.37660026550293
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -106.88300132751465,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 49,
+      "translationNative": [
+        0.0,
+        0.0,
+        -20.939701080322266
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -104.69850540161133,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 50,
+      "translationNative": [
+        0.0,
+        0.0,
+        -20.371702194213867
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -101.85851097106934,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 51,
+      "translationNative": [
+        0.0,
+        0.0,
+        -19.76569938659668
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -98.8284969329834,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 52,
+      "translationNative": [
+        0.0,
+        0.0,
+        -19.23889923095703
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -96.19449615478516,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 53,
+      "translationNative": [
+        0.0,
+        0.0,
+        -18.82050132751465
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -94.10250663757324,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 54,
+      "translationNative": [
+        0.0,
+        0.0,
+        -18.454601287841797
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -92.27300643920898,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 55,
+      "translationNative": [
+        0.0,
+        0.0,
+        -18.112598419189453
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -90.56299209594727,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 56,
+      "translationNative": [
+        0.0,
+        0.0,
+        -17.80950164794922
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -89.0475082397461,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 57,
+      "translationNative": [
+        0.0,
+        0.0,
+        -17.563201904296875
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -87.81600952148438,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 58,
+      "translationNative": [
+        0.0,
+        0.0,
+        -17.37900161743164
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -86.8950080871582,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 59,
+      "translationNative": [
+        0.0,
+        0.0,
+        -17.269298553466797
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -86.34649276733398,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 60,
+      "translationNative": [
+        0.0,
+        0.0,
+        -17.249801635742188
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -86.24900817871094,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 61,
+      "translationNative": [
+        0.0,
+        0.0,
+        -17.249801635742188
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -86.24900817871094,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 62,
+      "translationNative": [
+        0.0,
+        0.0,
+        -17.249801635742188
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -86.24900817871094,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 63,
+      "translationNative": [
+        0.0,
+        0.0,
+        -17.249801635742188
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -86.24900817871094,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 64,
+      "translationNative": [
+        0.0,
+        0.0,
+        -17.249801635742188
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -86.24900817871094,
+        "y": -0.0
+      }
+    },
+    {
+      "nativeFrame": 65,
+      "translationNative": [
+        0.0,
+        0.0,
+        -17.249801635742188
+      ],
+      "worldDisplacementInEntryFacingBasis": {
+        "x": -86.24900817871094,
+        "y": -0.0
+      }
+    }
+  ],
+  "currentlyPlayableSourceRange": {
+    "startNativeInclusive": 0,
+    "endNativeExclusive": 49
+  },
+  "clock": {
+    "nativeSamples": "integer native motion indices; all samples direct, no interpolation",
+    "gameplayNativeRate": null,
+    "statusKineticTranslationConsumer": null,
+    "currentBetaBodyPresentation": "one native sample per eligible fixed step, selected commitment49; not proof of native status rate"
+  },
+  "limits": [
+    "Native animation data alone does not prove how game status/kinetic motion applies Trans.",
+    "Source native LR-change boundary unresolved; entry basis must be qualified in runtime.",
+    "Fixedroot reviewed body/capsule art stays unchanged. Runtime actor motion must be implemented separately after qualification.",
+    "All66 frames retained through65; 49..65 postcommitment source data remain excluded from current action."
+  ]
+}

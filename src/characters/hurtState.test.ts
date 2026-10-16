@@ -91,7 +91,7 @@ describe('deriveHurtState — basic classification', () => {
 function makeSnapshot(overrides: Partial<FighterStateSnapshot> = {}): FighterStateSnapshot {
   return {
     playerIndex: 1,
-    characterId: 'wolf',
+    characterId: 'donkeykong',
     paletteIndex: 0,
     stocks: 3,
     stocksLost: 0,

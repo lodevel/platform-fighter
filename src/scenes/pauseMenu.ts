@@ -164,6 +164,10 @@ export const PAUSE_MENU_OPTIONS: ReadonlyArray<PauseMenuOption> = Object.freeze(
   }),
 ]);
 
+export function getPauseMenuOptions(): ReadonlyArray<PauseMenuOption> {
+  return PAUSE_MENU_OPTIONS;
+}
+
 // ---------------------------------------------------------------------------
 // Cursor state model
 // ---------------------------------------------------------------------------
@@ -214,11 +218,12 @@ export const DEFAULT_PAUSE_MENU_STATE: PauseMenuState = Object.freeze({
 export function moveSelection(
   state: PauseMenuState,
   direction: number,
+  options: ReadonlyArray<PauseMenuOption> = PAUSE_MENU_OPTIONS,
 ): PauseMenuState {
   const next = wrapIndex(
     state.selectedIndex,
     direction,
-    PAUSE_MENU_OPTIONS.length,
+    options.length,
   );
   if (next === state.selectedIndex) return state;
   return Object.freeze({ selectedIndex: next });
@@ -236,8 +241,9 @@ export function moveSelection(
 export function setSelection(
   state: PauseMenuState,
   index: number,
+  options: ReadonlyArray<PauseMenuOption> = PAUSE_MENU_OPTIONS,
 ): PauseMenuState {
-  const next = clampIndex(index, PAUSE_MENU_OPTIONS.length);
+  const next = clampIndex(index, options.length);
   if (next === state.selectedIndex) return state;
   return Object.freeze({ selectedIndex: next });
 }
@@ -253,12 +259,15 @@ export function setSelection(
  * `noUncheckedIndexedAccess` and would only fire if the table were ever
  * accidentally emptied (it never is — static config).
  */
-export function getSelectedOption(state: PauseMenuState): PauseMenuOption {
-  const idx = clampIndex(state.selectedIndex, PAUSE_MENU_OPTIONS.length);
+export function getSelectedOption(
+  state: PauseMenuState,
+  options: ReadonlyArray<PauseMenuOption> = PAUSE_MENU_OPTIONS,
+): PauseMenuOption {
+  const idx = clampIndex(state.selectedIndex, options.length);
   // `PAUSE_MENU_OPTIONS` is a non-empty static config, so index 0 — and
   // any clamped index — always resolves. The fallback satisfies the
   // checker's `T | undefined` widening only.
-  return PAUSE_MENU_OPTIONS[idx] ?? (PAUSE_MENU_OPTIONS[0] as PauseMenuOption);
+  return options[idx] ?? (PAUSE_MENU_OPTIONS[0] as PauseMenuOption);
 }
 
 /**

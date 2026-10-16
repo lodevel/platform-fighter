@@ -76,6 +76,8 @@ export const BOOT_REGISTRY_KEYS = {
    * their character's colour suddenly change.
    */
   lastMatchConfig: 'lastMatchConfig',
+  /** Complete launch context, including Character Lab overrides and custom stages. */
+  lastMatchSceneData: 'lastMatchSceneData',
   /**
    * Last-saved `HandCursorState` from `CharacterSelectScene`. Persisted
    * on every state change and rehydrated in `init()` so a player who
@@ -84,6 +86,14 @@ export const BOOT_REGISTRY_KEYS = {
    * no more re-clicking 4 portraits to set up a rematch.
    */
   lastCharacterSelectState: 'lastCharacterSelectState',
+  /** Physical pad ownership survives stage selection and Controls round trips. */
+  lastCharacterSelectPads: 'lastCharacterSelectPads',
+  /** Controls handoff, consumed by the returning roster or sleeping match. */
+  controlsDeviceAssignments: 'controlsDeviceAssignments',
+  /** Reusable named input profiles, independent of player/device ownership. */
+  inputProfiles: 'inputProfiles',
+  /** Selected profile IDs returned from Controls to the roster or match. */
+  controlsProfileSelections: 'controlsProfileSelections',
   /**
    * `true` when the player has muted stage music via the in-match
    * speaker toggle (upper-right of the HUD). Persists across scene

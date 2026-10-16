@@ -642,3 +642,23 @@ describe('RespawnHandler — determinism', () => {
     expect(a.finalActive).toEqual([]);
   });
 });
+
+// SmashWiki Revival platform: the revived fighter stays on the platform until it moves or attacks (at most 5 seconds),
+// and "the platform disappears as soon as the player moves or attacks" (https://www.ssbwiki.com/Revival_platform).
+describe('RespawnHandler — revival platform targets', () => {
+  it('starts the revival hold instead of a fixed invincibility window, and keeps the platform until dismount', () => {
+    const handler = new RespawnHandler();
+    const { target, calls } = makeRecordingTarget();
+    let onPlatform = false;
+    const revival: RespawnTarget = { ...target, beginRevivalPlatform: () => { onPlatform = true; }, isOnRevivalPlatform: () => onPlatform };
+    handler.registerSlot(makeSlot(), revival);
+    handler.applyRespawns([makeEvent({ invincibilityFrames: 90 })], 0);
+    expect(onPlatform).toBe(true);
+    expect(calls.setInvincibility).toEqual([]);
+    expect(handler.update(200)).toEqual([]); // still waiting past the old 90-frame window
+    expect(handler.getActiveSpawnPlatforms()).toHaveLength(1);
+    onPlatform = false; // the fighter moved
+    expect(handler.update(201)).toHaveLength(1);
+    expect(handler.getActiveSpawnPlatforms()).toHaveLength(0);
+  });
+});

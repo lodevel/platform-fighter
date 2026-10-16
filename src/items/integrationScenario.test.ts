@@ -6,8 +6,8 @@
  *
  *   1. Items spawn on timer at anchors (ItemSpawnManager + RNG).
  *   2. P1 picks up bat via jab-near, swings 5 times until break.
- *   3. P2 picks up ray gun, fires 6 shots until break.
- *   4. P3 picks up bomb, throws it (single-use).
+ *   3. P2 picks up the Ray Gun, fires its 16 shots; the empty gun's fire press throws it.
+ *   4. P3 picks up the Bob-omb and throws it.
  *   5. P4 (bot) picks up an item via simpleBot's item-awareness branch.
  *   6. Refactor invariants pass (per-fighter slot count, etc.).
  *   7. The replay event log records every spawn (type, position, tick).
@@ -15,19 +15,22 @@
 
 import { describe, it, expect } from 'vitest';
 import {
-  BAT_DEFINITION,
+  HOME_RUN_BAT_DEFINITION,
   RAY_GUN_DEFINITION,
-  BOMB_DEFINITION,
+  BOB_OMB_DEFINITION,
   ItemRegistry,
   ItemEntity,
   Inventory,
-  PickupController,
-  ThrowController,
   ItemSpawnManager,
 } from './index';
+import { DEFAULT_FIGHTER_ITEM_PROFILE, getItemActionPlan, itemReleaseVelocity, resolveItemThrowDirection,
+  selectItemThrow } from './itemActions';
+import { fighterAcquisitionRectangle, nearestAcquirableItem } from './itemAcquisitionBounds';
+import { nativeItemReleaseVelocity } from './nativeItemThrow';
 import { ItemSpawnEventLog } from '../replay/ItemSpawnEventLog';
 import { MatchRng } from '../match/MatchRng';
-import type { AttackMovesetSlotName } from '../characters/movesetContract';
+import { resolveItemInput, type ItemInputPattern } from './resolveItemInput';
+import type { HeldItemHandle } from './ItemDefinition';
 import {
   simpleBotInput,
   resetSimpleBotState,
@@ -37,25 +40,28 @@ import {
 
 // Stub fighter mirroring the surface the item framework reads.
 class StubFighter {
-  private overrides = new Map<AttackMovesetSlotName, () => boolean>();
+  readonly id = 'donkeykong' as const;
+  canUseItemsBeforeInput() { return true; }
   private attacks = new Map<string, unknown>();
+  private equipped: HeldItemHandle | null = null;
   facing: 1 | -1 = 1;
   position: { x: number; y: number };
   constructor(position: { x: number; y: number }) {
     this.position = position;
   }
-  setSlotOverride(slot: AttackMovesetSlotName, fn: () => boolean) {
-    this.overrides.set(slot, fn);
-  }
-  clearSlotOverride(slot: AttackMovesetSlotName) {
-    this.overrides.delete(slot);
-  }
-  getSlotOverride(slot: AttackMovesetSlotName) {
-    return this.overrides.get(slot) ?? null;
-  }
-  fireSlot(slot: AttackMovesetSlotName) {
-    const cb = this.overrides.get(slot);
-    return cb ? cb() : false;
+  equipItem(item: HeldItemHandle) { this.equipped = item; }
+  unequipItem() { this.equipped = null; }
+  /** Character's dispatch step: resolve the press, start the item move (or shoot one shot), count the use. */
+  press(pattern: ItemInputPattern): boolean | 'empty-throw' {
+    const item = this.equipped;
+    const decision = item ? resolveItemInput(pattern, item.definition.uses, item.canUse(), false,
+      item.definition.shooting !== undefined) : null;
+    if (decision?.kind === 'fire') return item!.spendShot();
+    if (decision?.kind === 'empty-throw') return 'empty-throw';
+    const move = decision?.kind === 'use' ? decision.move : null;
+    if (!move || !this.attacks.has(move.id)) return false;
+    item!.noteUse(0, this.position);
+    return true;
   }
   getFacing(): 1 | -1 {
     return this.facing;
@@ -66,13 +72,10 @@ class StubFighter {
   addAttack(move: { id: string }) {
     this.attacks.set(move.id, move);
   }
-  attemptAttack(id: string): boolean {
-    return this.attacks.has(id);
-  }
 }
 
 describe('AC 19 — 4-player match integration scenario', () => {
-  it('runs the full P1 bat / P2 ray gun / P3 bomb / P4 bot scenario', () => {
+  it('runs the full P1 bat / P2 ray gun / P3 Bob-omb / P4 bot scenario', () => {
     // ---- Setup ---------------------------------------------------------
     const registry = new ItemRegistry();
     const eventLog = new ItemSpawnEventLog();
@@ -108,8 +111,12 @@ describe('AC 19 — 4-player match integration scenario', () => {
       rng: matchRng,
     });
 
-    const pickupCtl = new PickupController({ pickupRadiusPx: 50 });
-    const throwCtl = new ThrowController();
+    // The match's ground pickup: the nearest pickable item inside the fighter's acquisition range.
+    const pickupCtl = { tryPickup(f: StubFighter, inventory: Inventory, items: ItemRegistry, player: number, frame: number, _press: boolean) {
+      const range = fighterAcquisitionRectangle(DEFAULT_FIGHTER_ITEM_PROFILE, f.position, f.facing, false, 0);
+      const item = nearestAcquirableItem(range, f.position, items.getGrounded().filter(e => e.isPickable()));
+      return item && inventory.pickup(item, frame, player, f.position) ? item : null;
+    } };
 
     // ---- Spawn 4 items deterministically -------------------------------
     // Manually place one item per anchor (the test isn't validating the
@@ -117,10 +124,10 @@ describe('AC 19 — 4-player match integration scenario', () => {
     // — but it IS validating that the registry + event log pipeline
     // records every spawn).
     const definitions = [
-      BAT_DEFINITION,
+      HOME_RUN_BAT_DEFINITION,
       RAY_GUN_DEFINITION,
-      BOMB_DEFINITION,
-      BAT_DEFINITION, // P4's bot grabs a bat
+      BOB_OMB_DEFINITION,
+      HOME_RUN_BAT_DEFINITION, // P4's bot grabs a bat
     ];
     for (let i = 0; i < 4; i++) {
       const def = definitions[i]!;
@@ -139,77 +146,71 @@ describe('AC 19 — 4-player match integration scenario', () => {
     // ---- AC 17 — replay event log records every spawn ------------------
     expect(eventLog.size()).toBe(4);
     const events = eventLog.getEntries();
-    expect(events[0]!.type).toBe('bat');
+    expect(events[0]!.type).toBe('homeRunBat');
     expect(events[1]!.type).toBe('rayGun');
-    expect(events[2]!.type).toBe('bomb');
-    expect(events[3]!.type).toBe('bat');
+    expect(events[2]!.type).toBe('bobOmb');
+    expect(events[3]!.type).toBe('homeRunBat');
 
-    // ---- P1 picks up bat, swings 5 times until break -------------------
+    // ---- P1 picks up the Home-Run Bat: swings never break it (Ultimate) --
     const batItem = registry.getActive()[0]!;
     p1.position = { x: batItem.getPosition().x, y: batItem.getPosition().y };
-    const pickedBat = pickupCtl.tryPickup(p1 as any, inventories[0]!, registry, 1, 200, true);
+    const pickedBat = pickupCtl.tryPickup(p1, inventories[0]!, registry, 1, 200, true);
     expect(pickedBat).toBe(batItem);
     expect(inventories[0]!.isHolding()).toBe(true);
 
     let p1Swings = 0;
-    for (let i = 0; i < 5; i++) {
-      if (p1.fireSlot('jab')) p1Swings += 1;
+    for (const pattern of ['jab', 'tilt', 'dashAttack', 'smash', 'jab', 'jab'] as const) {
+      if (p1.press(pattern)) p1Swings += 1;
     }
-    expect(p1Swings).toBe(5);
-    expect(batItem.isBroken()).toBe(true);
-    // 6th press declines (bat is broken).
-    expect(p1.fireSlot('jab')).toBe(false);
+    expect(p1Swings).toBe(6);
+    expect(batItem.isBroken()).toBe(false);
+    expect(p1.press('aerial')).toBe(false); // aerials stay native
 
-    // ---- P2 picks up ray gun, fires 6 shots until break ----------------
+    // ---- P2 picks up the Ray Gun, fires 16 shots, then the empty gun is thrown ----
     const rayGun = registry.getActive().find((e) => e.definition.type === 'rayGun')!;
     p2.position = { x: rayGun.getPosition().x, y: rayGun.getPosition().y };
-    const pickedGun = pickupCtl.tryPickup(p2 as any, inventories[1]!, registry, 2, 210, true);
+    const pickedGun = pickupCtl.tryPickup(p2, inventories[1]!, registry, 2, 210, true);
     expect(pickedGun).toBe(rayGun);
 
     let p2Shots = 0;
-    for (let i = 0; i < 6; i++) {
-      if (p2.fireSlot('jab')) p2Shots += 1;
+    for (let i = 0; i < 16; i++) {
+      if (p2.press(i % 2 ? 'jab' : 'nair') === true) p2Shots += 1;
     }
-    expect(p2Shots).toBe(6);
-    expect(rayGun.isBroken()).toBe(true);
+    expect(p2Shots).toBe(16);
+    expect(rayGun.isEmptyShooter()).toBe(true);
+    expect(p2.press('jab')).toBe('empty-throw');
 
-    // ---- P3 picks up bomb, smash-throws --------------------------------
-    const bomb = registry.getActive().find((e) => e.definition.type === 'bomb')!;
+    // ---- P3 picks up the Bob-omb and throws it --------------------------
+    const bomb = registry.getActive().find((e) => e.definition.type === 'bobOmb')!;
     p3.position = { x: bomb.getPosition().x, y: bomb.getPosition().y };
-    const pickedBomb = pickupCtl.tryPickup(p3 as any, inventories[2]!, registry, 3, 220, true);
+    const pickedBomb = pickupCtl.tryPickup(p3, inventories[2]!, registry, 3, 220, true);
     expect(pickedBomb).toBe(bomb);
 
     p3.facing = 1;
-    const throwResult = throwCtl.tryThrow(
-      p3 as any,
-      inventories[2]!,
-      230,
-      true, // throw key pressed
-      1, // stick forward
-      false,
-      false,
-    );
-    expect(throwResult).not.toBe(null);
-    expect(throwResult!.direction).toBe('forward');
-    expect(throwResult!.velocityX).toBeGreaterThan(0); // launched forward
+    // A forward grab-throw through the shared planner: direction, action, release velocity.
+    const direction = resolveItemThrowDirection(1, 0, p3.facing);
+    const action = selectItemThrow({ airborne: false, direction, strength: 'ordinary' });
+    expect(action).toBe('throw-ground-forward-ordinary');
+    const release = nativeItemReleaseVelocity(bomb.definition.throwProfile,
+      itemReleaseVelocity(getItemActionPlan(action, DEFAULT_FIGHTER_ITEM_PROFILE), p3.facing, DEFAULT_FIGHTER_ITEM_PROFILE));
+    expect(release.x).toBeGreaterThan(0); // launched forward
+    expect(inventories[2]!.detachWithoutDrop()).toBe(bomb);
     expect(inventories[2]!.isHolding()).toBe(false);
-    // The throw didn't break the bomb yet; the impact handler in the
-    // Phaser layer would do that on collision. Simulate the impact
-    // manually (single-use throwable explodes on impact).
-    expect(bomb.definition.throwBehavior.consumeOnImpact).toBe(true);
-    bomb.markBroken(231, { x: p3.position.x + 50, y: p3.position.y });
-    expect(bomb.isBroken()).toBe(true);
+    // A thrown Bob-omb explodes on what it hits (MatchScene.explodeItem takes it out of play).
+    expect(bomb.definition.bobOmb).toBeDefined();
+    bomb.markDespawned(231);
+    expect(bomb.isDespawned()).toBe(true);
 
     // ---- P4 (bot) picks up the remaining bat via item-aware AI ---------
     const remainingBat = registry.getActive().find(
-      (e) => e.definition.type === 'bat' && !e.isBroken() && !e.isHeld(),
+      (e) => e.definition.type === 'homeRunBat' && !e.isBroken() && !e.isHeld(),
     )!;
     expect(remainingBat).toBeDefined();
 
     const items: ItemSnapshot[] = [
       {
         position: remainingBat.getPosition(),
-        category: 'melee-weapon',
+        itemClass: 'battering',
         pickable: true,
       },
     ];
@@ -230,7 +231,7 @@ describe('AC 19 — 4-player match integration scenario', () => {
     expect(botInput.attack).toBe(true); // bot pressed jab to pick up
 
     // Drive the pickup with the bot's press.
-    const botPicked = pickupCtl.tryPickup(p4 as any, inventories[3]!, registry, 4, 240, true);
+    const botPicked = pickupCtl.tryPickup(p4, inventories[3]!, registry, 4, 240, true);
     expect(botPicked).toBe(remainingBat);
     expect(inventories[3]!.isHolding()).toBe(true);
 
@@ -240,10 +241,7 @@ describe('AC 19 — 4-player match integration scenario', () => {
 
     // Now the bot has a melee weapon held; verify it would press jab
     // when in range of an opponent.
-    const heldItem: HeldItemSnapshot = {
-      category: 'melee-weapon',
-      slotOverrides: ['jab', 'tilt', 'smash'],
-    };
+    const heldItem: HeldItemSnapshot = { itemClass: 'battering' };
     p4.position = { x: 110, y: 200 }; // close to P1
     const botInput2 = simpleBotInput(
       botKey,
@@ -257,10 +255,8 @@ describe('AC 19 — 4-player match integration scenario', () => {
   });
 
   it('refactor invariants — every fighter has all 10 slots, no attack code in Character', async () => {
-    const { WOLF_FIGHTER_CONTRACT } = await import('../characters/Wolf');
-    const { CAT_FIGHTER_CONTRACT } = await import('../characters/Cat');
-    const { OWL_FIGHTER_CONTRACT } = await import('../characters/Owl');
-    const { BEAR_FIGHTER_CONTRACT } = await import('../characters/Bear');
+    const { DONKEYKONG_FIGHTER_CONTRACT } = await import('../characters/DonkeyKong');
+    const { PIKACHU_FIGHTER_CONTRACT } = await import('../characters/Pikachu');
 
     const expectedSlots = [
       'jab',
@@ -276,10 +272,8 @@ describe('AC 19 — 4-player match integration scenario', () => {
     ];
 
     for (const contract of [
-      WOLF_FIGHTER_CONTRACT,
-      CAT_FIGHTER_CONTRACT,
-      OWL_FIGHTER_CONTRACT,
-      BEAR_FIGHTER_CONTRACT,
+      DONKEYKONG_FIGHTER_CONTRACT,
+      PIKACHU_FIGHTER_CONTRACT,
     ]) {
       for (const slot of expectedSlots) {
         expect(

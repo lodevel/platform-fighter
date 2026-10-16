@@ -1,0 +1,182 @@
+{
+  "state": "packed_cells_visually_reviewed_runtime_pending",
+  "coordinateContract": {
+    "canonicalCanvas": [
+      2048,
+      2560
+    ],
+    "canonicalRoot": [
+      1024,
+      1664
+    ],
+    "frameWidth": 512,
+    "frameHeight": 640,
+    "root": [
+      256,
+      416
+    ],
+    "scaleToWorld": 0.4666666666666667,
+    "bodyCentreFromRoot": [
+      0,
+      -25
+    ]
+  },
+  "clockContract": "docs/review/2026-10-06/pikachu-character/sources/state-runtime-clock-contract.json",
+  "clockContractSha256": "68195edde50e38194ebf79dafc687120d1f46839e94506f42ebdd36b32ed665a",
+  "clockContractSnapshot": "docs/review/2026-10-06/pikachu-character/sources/clock-contract-snapshots/68195edde50e38194ebf79dafc687120d1f46839e94506f42ebdd36b32ed665a.json",
+  "animations": {
+    "tech_wall": {
+      "strip": "animations/tech_wall.png",
+      "frameCount": 5,
+      "sha256": "880be52aa2d58b558827033faa46ccb3bffbdbb951aaabcffbef91113e8c17b2",
+      "columns": 5,
+      "rows": 1,
+      "frameWindows": [],
+      "loopDuration": null,
+      "nativeSampleIndices": [
+        0,
+        6,
+        12,
+        18,
+        24
+      ],
+      "nativeWindows": [
+        {
+          "nativeStart": 0,
+          "nativeEnd": 6,
+          "artFrameIndex": 0
+        },
+        {
+          "nativeStart": 6,
+          "nativeEnd": 12,
+          "artFrameIndex": 1
+        },
+        {
+          "nativeStart": 12,
+          "nativeEnd": 18,
+          "artFrameIndex": 2
+        },
+        {
+          "nativeStart": 18,
+          "nativeEnd": 24,
+          "artFrameIndex": 3
+        },
+        {
+          "nativeStart": 24,
+          "nativeEnd": 25,
+          "artFrameIndex": 4
+        }
+      ],
+      "drawingFacingBinding": "actor entry basis; source orientation and both-facing qualified rendering required",
+      "holdRule": "Retain all source samples; native loop endpoint is not gameplay commitment. Unsupported runtime status stays pending.",
+      "specialPhase": null,
+      "specialClockKind": null,
+      "dynamicCutoff": null,
+      "playableEndExclusive": null,
+      "runtimeBindingStatus": "missing or generic runtime state; native status/clock/source movement binding required"
+    }
+  },
+  "sources": [
+    {
+      "sourceKey": "full-tech-wall-sample0-source0",
+      "nativeSample": 0,
+      "sourceReferenceSha256": "f0153080f9544fc7d4ae173e8f5341ad5c5f9081f07af26116e5fcacc488c4e0",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-ledge-getup-batch026-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "3d39448f9f060ccdd6fe688adf63a7cd29ff5f159addcc3c9d391380754f8d5e",
+      "atlasCell": 1,
+      "cellOffset": [
+        1024,
+        0
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-ledge-getup-batch026-bounded-source0-attempt1.review.json",
+      "reviewSha256": "95cddc5e68f094c56d90a6801c5fb3030675572aa09ba8cea3f33ca0ddec6443"
+    },
+    {
+      "sourceKey": "full-tech-wall-sample6-source6",
+      "nativeSample": 6,
+      "sourceReferenceSha256": "083c9c180959258ff2918b5667f2a2ba1a059f186e5dcaae57e15adab55c9445",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-ledge-getup-batch026-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "3d39448f9f060ccdd6fe688adf63a7cd29ff5f159addcc3c9d391380754f8d5e",
+      "atlasCell": 2,
+      "cellOffset": [
+        0,
+        1280
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-ledge-getup-batch026-bounded-source0-attempt1.review.json",
+      "reviewSha256": "95cddc5e68f094c56d90a6801c5fb3030675572aa09ba8cea3f33ca0ddec6443"
+    },
+    {
+      "sourceKey": "full-tech-wall-sample12-source12",
+      "nativeSample": 12,
+      "sourceReferenceSha256": "f63cc7d2bb32b32526ebe089d50ea1f0f6739088726c1dead1ec85750f879937",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-ledge-getup-batch026-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "3d39448f9f060ccdd6fe688adf63a7cd29ff5f159addcc3c9d391380754f8d5e",
+      "atlasCell": 3,
+      "cellOffset": [
+        1024,
+        1280
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-ledge-getup-batch026-bounded-source0-attempt1.review.json",
+      "reviewSha256": "95cddc5e68f094c56d90a6801c5fb3030675572aa09ba8cea3f33ca0ddec6443"
+    },
+    {
+      "sourceKey": "full-tech-wall-sample18-source18",
+      "nativeSample": 18,
+      "sourceReferenceSha256": "a0709aade1fc3fa3bf1f539938f72c782984c4fa929c1e28def793e0541cced3",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-ledge-getup-batch027-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "5eecf9c9b2189cf8716c21231b01eb120c818867b63da8c7d43ab110bd6a5813",
+      "atlasCell": 0,
+      "cellOffset": [
+        0,
+        0
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-ledge-getup-batch027-bounded-source0-attempt1.review.json",
+      "reviewSha256": "34c07f1fe7f6cc04bc57776d7e5787de71957b5219df1481fe3652fe14c2430e"
+    },
+    {
+      "sourceKey": "full-tech-wall-sample24-source24",
+      "nativeSample": 24,
+      "sourceReferenceSha256": "885c9c0ed9e4d041d3c9547cd7c7831ccd517129f1bb7c4acadde8f6908ffe08",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-ledge-getup-batch027-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "5eecf9c9b2189cf8716c21231b01eb120c818867b63da8c7d43ab110bd6a5813",
+      "atlasCell": 1,
+      "cellOffset": [
+        1024,
+        0
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-ledge-getup-batch027-bounded-source0-attempt1.review.json",
+      "reviewSha256": "34c07f1fe7f6cc04bc57776d7e5787de71957b5219df1481fe3652fe14c2430e"
+    }
+  ],
+  "galleries": {
+    "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/tech_wall-cells-1.png": "4e608eefe613e49bd7597d2c37d583e7ce4d552b66cdc78334bea5c3fe0d082c",
+    "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/tech_wall-cells-2.png": "9aff35cbf4fcb43d4e1377d95dd9c1568029a983ec610e421e1b31c4e993e3a8"
+  },
+  "limits": [
+    "Actual packed-cell inspection required before aggregate registration.",
+    "Authored beta presentation windows do not establish native status rate parity.",
+    "Actual running-game qualification remains separate."
+  ],
+  "packedVisualReview": {
+    "reviewer": "pikachu_art_motion",
+    "state": "actual_saved_packed_cells_reviewed",
+    "inspectedGalleries": {
+      "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/tech_wall-cells-1.png": "4e608eefe613e49bd7597d2c37d583e7ce4d552b66cdc78334bea5c3fe0d082c",
+      "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/tech_wall-cells-2.png": "9aff35cbf4fcb43d4e1377d95dd9c1568029a983ec610e421e1b31c4e993e3a8"
+    },
+    "observations": [
+      "Actually inspected all five saved atlas cells on light and dark backgrounds. 0/6 head DOWN-RIGHT tail/feet source occluded;12 horizontal RIGHT tail UP-LEFT;18 stretches RIGHT arms forward;24 diagonal airborne RIGHT.",
+      "Fixed 512x640 canvas/root256,416 retained; source occlusion, true eyes and red cheeks preserved. Thin key fringe/minor source alpha holes remain scoped rough beta. Native status clocks/root transport and runtime visual acceptance remain pending; no playable windows invented."
+    ]
+  }
+}

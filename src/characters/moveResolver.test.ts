@@ -15,7 +15,7 @@ import {
 } from './moveResolver';
 import { MOVESET_TABLE } from './movesetAnimationDriver';
 import { getMoveLockoutFrames } from './moveSchema';
-import type { CharacterId } from '../types';
+import { CHARACTER_IDS } from '../types';
 
 /**
  * AC 10004 Sub-AC 4 — per-character move logic + input-to-move resolver
@@ -38,15 +38,13 @@ import type { CharacterId } from '../types';
  *   5. The special branch wins priority over a same-frame attack
  *      press AND respects per-direction cooldowns.
  *   6. Determinism — identical inputs always produce identical
- *      outputs; the 4 fighters in the v1 roster all dispatch their
- *      data-table moves through the resolver.
+ *      outputs; every roster fighter dispatches its data-table
+ *      moves through the resolver.
  */
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-
-const ALL_CHARACTERS: ReadonlyArray<CharacterId> = ['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno'];
 
 function neutralInput(overrides: Partial<MoveResolverInput> = {}): MoveResolverInput {
   return {
@@ -229,7 +227,7 @@ describe('MoveResolverCooldowns', () => {
 
   it('startMoveResolverCooldown stamps lockout = busy + cooldownFrames', () => {
     const cd = createMoveResolverCooldowns();
-    const move = MOVESET_TABLE.wolf.neutralSpecial;
+    const move = MOVESET_TABLE.donkeykong.neutralSpecial;
     const lockout = getMoveLockoutFrames(move);
     startMoveResolverCooldown(cd, 'neutral', move);
     expect(cd.neutral).toBe(lockout);
@@ -238,7 +236,7 @@ describe('MoveResolverCooldowns', () => {
 
   it('cooldowns are independent across directions', () => {
     const cd = createMoveResolverCooldowns();
-    startMoveResolverCooldown(cd, 'down', MOVESET_TABLE.wolf.downSpecial);
+    startMoveResolverCooldown(cd, 'down', MOVESET_TABLE.donkeykong.downSpecial);
     expect(isMoveResolverDirectionReady(cd, 'down')).toBe(false);
     expect(isMoveResolverDirectionReady(cd, 'neutral')).toBe(true);
     expect(isMoveResolverDirectionReady(cd, 'side')).toBe(true);
@@ -255,7 +253,7 @@ describe('MoveResolverCooldowns', () => {
 
   it('startMoveResolverCooldown takes the max — never shortens an in-flight lockout', () => {
     const cd: MoveResolverCooldowns = { neutral: 100, side: 0, up: 0, down: 0 };
-    startMoveResolverCooldown(cd, 'neutral', MOVESET_TABLE.wolf.neutralSpecial);
+    startMoveResolverCooldown(cd, 'neutral', MOVESET_TABLE.donkeykong.neutralSpecial);
     expect(cd.neutral).toBe(100);
   });
 
@@ -273,7 +271,7 @@ describe('MoveResolverCooldowns', () => {
 describe('resolveMoveFromInput — grounded branch', () => {
   it('returns null when no press flag rose this frame', () => {
     const dispatch = resolveMoveFromInput(
-      MOVESET_TABLE.wolf,
+      MOVESET_TABLE.donkeykong,
       neutralInput(),
     );
     expect(dispatch).toBeNull();
@@ -281,7 +279,7 @@ describe('resolveMoveFromInput — grounded branch', () => {
 
   it('resolves a neutral-stick light press to jab', () => {
     const dispatch = resolveMoveFromInput(
-      MOVESET_TABLE.wolf,
+      MOVESET_TABLE.donkeykong,
       neutralInput({ attackJustPressed: true }),
     );
     expect(dispatch).not.toBeNull();
@@ -290,13 +288,13 @@ describe('resolveMoveFromInput — grounded branch', () => {
     if (dispatch.category !== 'groundedNormal') return;
     expect(dispatch.slot).toBe('jab');
     expect(dispatch.pattern).toBe('jab');
-    expect(dispatch.moveId).toBe(MOVESET_TABLE.wolf.jab.id);
-    expect(dispatch.move).toBe(MOVESET_TABLE.wolf.jab);
+    expect(dispatch.moveId).toBe(MOVESET_TABLE.donkeykong.jab.id);
+    expect(dispatch.move).toBe(MOVESET_TABLE.donkeykong.jab);
   });
 
   it('resolves a held-stick light press to tilt', () => {
     const dispatch = resolveMoveFromInput(
-      MOVESET_TABLE.cat,
+      MOVESET_TABLE.pikachu,
       neutralInput({ attackJustPressed: true, moveX: 1, prevMoveX: 1 }),
     );
     expect(dispatch).not.toBeNull();
@@ -305,12 +303,12 @@ describe('resolveMoveFromInput — grounded branch', () => {
     if (dispatch.category !== 'groundedNormal') return;
     expect(dispatch.slot).toBe('tilt');
     expect(dispatch.pattern).toBe('tilt');
-    expect(dispatch.moveId).toBe(MOVESET_TABLE.cat.tilt.id);
+    expect(dispatch.moveId).toBe(MOVESET_TABLE.pikachu.tilt.id);
   });
 
   it('resolves a heavy press to smash', () => {
     const dispatch = resolveMoveFromInput(
-      MOVESET_TABLE.owl,
+      MOVESET_TABLE.link,
       neutralInput({ heavyJustPressed: true }),
     );
     expect(dispatch).not.toBeNull();
@@ -319,14 +317,14 @@ describe('resolveMoveFromInput — grounded branch', () => {
     if (dispatch.category !== 'groundedNormal') return;
     expect(dispatch.slot).toBe('smash');
     expect(dispatch.pattern).toBe('smash');
-    expect(dispatch.moveId).toBe(MOVESET_TABLE.owl.smash.id);
+    expect(dispatch.moveId).toBe(MOVESET_TABLE.link.smash.id);
   });
 
   it('resolves a smash flick (light press + rapid stick deflection) to smash', () => {
     // prevMoveX = 0 (rest), moveX = 1 (full deflect) — flick crossed
     // both thresholds in one frame.
     const dispatch = resolveMoveFromInput(
-      MOVESET_TABLE.bear,
+      MOVESET_TABLE.pikachu,
       neutralInput({ attackJustPressed: true, moveX: 1, prevMoveX: 0 }),
     );
     expect(dispatch).not.toBeNull();
@@ -338,7 +336,7 @@ describe('resolveMoveFromInput — grounded branch', () => {
   });
 
   it('every roster character resolves jab / tilt / smash to its own move table', () => {
-    for (const id of ALL_CHARACTERS) {
+    for (const id of CHARACTER_IDS) {
       const moveset = MOVESET_TABLE[id];
 
       const jabDispatch = resolveMoveFromInput(
@@ -369,7 +367,7 @@ describe('resolveMoveFromInput — grounded branch', () => {
 describe('resolveMoveFromInput — aerial branch', () => {
   it('resolves a neutral-stick press to nair while airborne', () => {
     const dispatch = resolveMoveFromInput(
-      MOVESET_TABLE.wolf,
+      MOVESET_TABLE.donkeykong,
       neutralInput({ airborne: true, attackJustPressed: true }),
     );
     expect(dispatch).not.toBeNull();
@@ -378,12 +376,12 @@ describe('resolveMoveFromInput — aerial branch', () => {
     if (dispatch.category !== 'aerial') return;
     expect(dispatch.slot).toBe('nair');
     expect(dispatch.direction).toBe('neutral');
-    expect(dispatch.moveId).toBe(MOVESET_TABLE.wolf.nair.id);
+    expect(dispatch.moveId).toBe(MOVESET_TABLE.donkeykong.nair.id);
   });
 
   it('resolves stick-toward-facing while airborne to fair', () => {
     const dispatch = resolveMoveFromInput(
-      MOVESET_TABLE.cat,
+      MOVESET_TABLE.pikachu,
       neutralInput({
         airborne: true,
         attackJustPressed: true,
@@ -397,12 +395,12 @@ describe('resolveMoveFromInput — aerial branch', () => {
     if (dispatch.category !== 'aerial') return;
     expect(dispatch.slot).toBe('fair');
     expect(dispatch.direction).toBe('forward');
-    expect(dispatch.moveId).toBe(MOVESET_TABLE.cat.fair.id);
+    expect(dispatch.moveId).toBe(MOVESET_TABLE.pikachu.fair.id);
   });
 
   it('resolves stick-opposite-facing while airborne to bair', () => {
     const dispatch = resolveMoveFromInput(
-      MOVESET_TABLE.owl,
+      MOVESET_TABLE.link,
       neutralInput({
         airborne: true,
         attackJustPressed: true,
@@ -416,15 +414,17 @@ describe('resolveMoveFromInput — aerial branch', () => {
     if (dispatch.category !== 'aerial') return;
     expect(dispatch.slot).toBe('bair');
     expect(dispatch.direction).toBe('back');
-    expect(dispatch.moveId).toBe(MOVESET_TABLE.owl.bair.id);
+    expect(dispatch.moveId).toBe(MOVESET_TABLE.link.bair.id);
   });
 
-  it('drops a heavy press while airborne (smashes are grounded moves)', () => {
+  // Changed with the dedicated smash input: an airborne heavy press fires
+  // the aerial for its direction (there is no airborne smash).
+  it('resolves a heavy press while airborne to the directional aerial', () => {
     const dispatch = resolveMoveFromInput(
-      MOVESET_TABLE.bear,
+      MOVESET_TABLE.pikachu,
       neutralInput({ airborne: true, heavyJustPressed: true }),
     );
-    expect(dispatch).toBeNull();
+    expect(dispatch).toMatchObject({ category: 'aerial', slot: 'nair', direction: 'neutral' });
   });
 
   it('reads prevFacing — a press that flipped facing this frame still classifies relative to pre-flip facing', () => {
@@ -433,7 +433,7 @@ describe('resolveMoveFromInput — aerial branch', () => {
     // "back-air does not turn you around" rule. Stick is left (-1), but
     // prevFacing = 1, so direction is "stick away from facing" = back.
     const dispatch = resolveMoveFromInput(
-      MOVESET_TABLE.wolf,
+      MOVESET_TABLE.donkeykong,
       neutralInput({
         airborne: true,
         attackJustPressed: true,
@@ -448,7 +448,7 @@ describe('resolveMoveFromInput — aerial branch', () => {
   });
 
   it('every roster character resolves nair / fair / bair to its own move table', () => {
-    for (const id of ALL_CHARACTERS) {
+    for (const id of CHARACTER_IDS) {
       const moveset = MOVESET_TABLE[id];
 
       const nairDispatch = resolveMoveFromInput(
@@ -489,7 +489,7 @@ describe('resolveMoveFromInput — aerial branch', () => {
 describe('resolveMoveFromInput — special branch', () => {
   it('resolves a neutral-stick special press to the neutral special slot', () => {
     const dispatch = resolveMoveFromInput(
-      MOVESET_TABLE.wolf,
+      MOVESET_TABLE.donkeykong,
       neutralInput({ specialJustPressed: true }),
     );
     expect(dispatch).not.toBeNull();
@@ -498,12 +498,12 @@ describe('resolveMoveFromInput — special branch', () => {
     if (dispatch.category !== 'special') return;
     expect(dispatch.slot).toBe('neutralSpecial');
     expect(dispatch.direction).toBe('neutral');
-    expect(dispatch.moveId).toBe(MOVESET_TABLE.wolf.neutralSpecial.id);
+    expect(dispatch.moveId).toBe(MOVESET_TABLE.donkeykong.neutralSpecial.id);
   });
 
   it('resolves a side-stick special press to the side special slot', () => {
     const dispatch = resolveMoveFromInput(
-      MOVESET_TABLE.cat,
+      MOVESET_TABLE.pikachu,
       neutralInput({ specialJustPressed: true, moveX: 1 }),
     );
     expect(dispatch).not.toBeNull();
@@ -511,12 +511,12 @@ describe('resolveMoveFromInput — special branch', () => {
     if (dispatch.category !== 'special') return;
     expect(dispatch.slot).toBe('sideSpecial');
     expect(dispatch.direction).toBe('side');
-    expect(dispatch.moveId).toBe(MOVESET_TABLE.cat.sideSpecial.id);
+    expect(dispatch.moveId).toBe(MOVESET_TABLE.pikachu.sideSpecial.id);
   });
 
   it('resolves an up-stick special press to the up special slot (recovery)', () => {
     const dispatch = resolveMoveFromInput(
-      MOVESET_TABLE.owl,
+      MOVESET_TABLE.link,
       neutralInput({ specialJustPressed: true, moveY: -1 }),
     );
     expect(dispatch).not.toBeNull();
@@ -524,12 +524,12 @@ describe('resolveMoveFromInput — special branch', () => {
     if (dispatch.category !== 'special') return;
     expect(dispatch.slot).toBe('upSpecial');
     expect(dispatch.direction).toBe('up');
-    expect(dispatch.moveId).toBe(MOVESET_TABLE.owl.upSpecial.id);
+    expect(dispatch.moveId).toBe(MOVESET_TABLE.link.upSpecial.id);
   });
 
   it('resolves a down-stick special press to the down special slot', () => {
     const dispatch = resolveMoveFromInput(
-      MOVESET_TABLE.bear,
+      MOVESET_TABLE.pikachu,
       neutralInput({ specialJustPressed: true, moveY: 1 }),
     );
     expect(dispatch).not.toBeNull();
@@ -537,12 +537,12 @@ describe('resolveMoveFromInput — special branch', () => {
     if (dispatch.category !== 'special') return;
     expect(dispatch.slot).toBe('downSpecial');
     expect(dispatch.direction).toBe('down');
-    expect(dispatch.moveId).toBe(MOVESET_TABLE.bear.downSpecial.id);
+    expect(dispatch.moveId).toBe(MOVESET_TABLE.pikachu.downSpecial.id);
   });
 
   it('special press wins priority over a same-frame attack press', () => {
     const dispatch = resolveMoveFromInput(
-      MOVESET_TABLE.wolf,
+      MOVESET_TABLE.donkeykong,
       neutralInput({
         specialJustPressed: true,
         attackJustPressed: true,
@@ -565,7 +565,7 @@ describe('resolveMoveFromInput — special branch', () => {
       down: 0,
     };
     const dispatch = resolveMoveFromInput(
-      MOVESET_TABLE.wolf,
+      MOVESET_TABLE.donkeykong,
       neutralInput({ specialJustPressed: true, moveX: 1 }),
       cd,
     );
@@ -580,7 +580,7 @@ describe('resolveMoveFromInput — special branch', () => {
       down: 0,
     };
     const dispatch = resolveMoveFromInput(
-      MOVESET_TABLE.wolf,
+      MOVESET_TABLE.donkeykong,
       neutralInput({ specialJustPressed: true, moveY: -1 }),
       cd,
     );
@@ -592,7 +592,7 @@ describe('resolveMoveFromInput — special branch', () => {
 
   it('special press fires when airborne too (recovery up-special is the canonical case)', () => {
     const dispatch = resolveMoveFromInput(
-      MOVESET_TABLE.cat,
+      MOVESET_TABLE.pikachu,
       neutralInput({
         airborne: true,
         specialJustPressed: true,
@@ -603,11 +603,11 @@ describe('resolveMoveFromInput — special branch', () => {
     if (dispatch === null) return;
     if (dispatch.category !== 'special') return;
     expect(dispatch.slot).toBe('upSpecial');
-    expect(dispatch.moveId).toBe(MOVESET_TABLE.cat.upSpecial.id);
+    expect(dispatch.moveId).toBe(MOVESET_TABLE.pikachu.upSpecial.id);
   });
 
   it('every roster character resolves all 4 specials to its own move table', () => {
-    for (const id of ALL_CHARACTERS) {
+    for (const id of CHARACTER_IDS) {
       const moveset = MOVESET_TABLE[id];
 
       const neutral = resolveMoveFromInput(
@@ -643,7 +643,7 @@ describe('resolveMoveFromInput — special branch', () => {
 
 describe('resolveMoveFromInput — determinism + edge cases', () => {
   it('is purely deterministic: identical inputs produce identical outputs', () => {
-    const moveset = MOVESET_TABLE.wolf;
+    const moveset = MOVESET_TABLE.donkeykong;
     const input = neutralInput({
       attackJustPressed: true,
       moveX: 0.5,
@@ -661,7 +661,7 @@ describe('resolveMoveFromInput — determinism + edge cases', () => {
     const cd = createMoveResolverCooldowns();
     const before = JSON.stringify(cd);
     resolveMoveFromInput(
-      MOVESET_TABLE.wolf,
+      MOVESET_TABLE.donkeykong,
       neutralInput({ specialJustPressed: true, moveX: 1 }),
       cd,
     );
@@ -669,7 +669,7 @@ describe('resolveMoveFromInput — determinism + edge cases', () => {
   });
 
   it('end-to-end cooldown lifecycle: fire → cooldown → tick → ready', () => {
-    const moveset = MOVESET_TABLE.wolf;
+    const moveset = MOVESET_TABLE.donkeykong;
     const cd = createMoveResolverCooldowns();
     const input = neutralInput({ specialJustPressed: true, moveX: 1 });
 
@@ -697,17 +697,17 @@ describe('resolveMoveFromInput — determinism + edge cases', () => {
     expect(dispatch2.category).toBe('special');
   });
 
-  it('returns null on a heavy press while airborne (smashes are grounded only)', () => {
+  it('never resolves a heavy press while airborne to a smash', () => {
     const dispatch = resolveMoveFromInput(
-      MOVESET_TABLE.wolf,
-      neutralInput({ airborne: true, heavyJustPressed: true }),
+      MOVESET_TABLE.donkeykong,
+      neutralInput({ airborne: true, heavyJustPressed: true, moveX: 1 }),
     );
-    expect(dispatch).toBeNull();
+    expect(dispatch).toMatchObject({ category: 'aerial', slot: 'fair' });
   });
 
   it('uses default cooldowns (all ready) when caller omits the parameter', () => {
     const dispatch = resolveMoveFromInput(
-      MOVESET_TABLE.wolf,
+      MOVESET_TABLE.donkeykong,
       neutralInput({ specialJustPressed: true, moveX: 1 }),
       // No cooldowns argument — defaults to a fresh ready state.
     );
@@ -719,12 +719,12 @@ describe('resolveMoveFromInput — determinism + edge cases', () => {
     // is reference-equal to the authored data table entry, so callers
     // can safely compare with `===`.
     const dispatch = resolveMoveFromInput(
-      MOVESET_TABLE.wolf,
+      MOVESET_TABLE.donkeykong,
       neutralInput({ heavyJustPressed: true }),
     );
     expect(dispatch).not.toBeNull();
     if (dispatch === null) return;
-    expect(dispatch.move).toBe(MOVESET_TABLE.wolf.smash);
+    expect(dispatch.move).toBe(MOVESET_TABLE.donkeykong.smash);
   });
 });
 
@@ -734,7 +734,7 @@ describe('resolveMoveFromInput — determinism + edge cases', () => {
 
 describe('enumerateMovesetMoves', () => {
   it('returns 10 moves in canonical order for every character', () => {
-    for (const id of ALL_CHARACTERS) {
+    for (const id of CHARACTER_IDS) {
       const moveset = MOVESET_TABLE[id];
       const moves = enumerateMovesetMoves(moveset);
       expect(moves).toHaveLength(10);
@@ -752,7 +752,7 @@ describe('enumerateMovesetMoves', () => {
   });
 
   it('every move id is unique within a moveset', () => {
-    for (const id of ALL_CHARACTERS) {
+    for (const id of CHARACTER_IDS) {
       const ids = enumerateMovesetMoves(MOVESET_TABLE[id]).map((m) => m.id);
       expect(new Set(ids).size).toBe(ids.length);
     }

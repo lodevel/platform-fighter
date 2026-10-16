@@ -1,0 +1,233 @@
+{
+  "state": "packed_cells_visually_reviewed_runtime_pending",
+  "coordinateContract": {
+    "canonicalCanvas": [
+      2048,
+      2560
+    ],
+    "canonicalRoot": [
+      1024,
+      1664
+    ],
+    "frameWidth": 512,
+    "frameHeight": 640,
+    "root": [
+      256,
+      416
+    ],
+    "scaleToWorld": 0.4666666666666667,
+    "bodyCentreFromRoot": [
+      0,
+      -25
+    ]
+  },
+  "clockContract": "docs/review/2026-10-06/pikachu-character/sources/state-runtime-clock-contract.json",
+  "clockContractSha256": "cf41f18a0cfefb5f11b0087c5e4bca003a7491e7e354719a7ad714e19d88bd31",
+  "clockContractSnapshot": "docs/review/2026-10-06/pikachu-character/sources/clock-contract-snapshots/cf41f18a0cfefb5f11b0087c5e4bca003a7491e7e354719a7ad714e19d88bd31.json",
+  "animations": {
+    "taunt_down": {
+      "strip": "animations/taunt_down.png",
+      "frameCount": 6,
+      "sha256": "1fab7911c2e8ab62f77fad92872a30abd676e7662ecaebd5fdaeb35cbf62c2f7",
+      "columns": 6,
+      "rows": 1,
+      "frameWindows": [
+        {
+          "startFrame": 0,
+          "endFrame": 10,
+          "artFrameIndex": 0
+        },
+        {
+          "startFrame": 10,
+          "endFrame": 25,
+          "artFrameIndex": 1
+        },
+        {
+          "startFrame": 25,
+          "endFrame": 40,
+          "artFrameIndex": 2
+        },
+        {
+          "startFrame": 40,
+          "endFrame": 55,
+          "artFrameIndex": 3
+        },
+        {
+          "startFrame": 55,
+          "endFrame": 74,
+          "artFrameIndex": 4
+        },
+        {
+          "startFrame": 74,
+          "endFrame": 75,
+          "artFrameIndex": 5
+        }
+      ],
+      "loopDuration": null,
+      "nativeSampleIndices": [
+        0,
+        10,
+        25,
+        40,
+        55,
+        74
+      ],
+      "nativeWindows": [
+        {
+          "nativeStart": 0,
+          "nativeEnd": 10,
+          "artFrameIndex": 0
+        },
+        {
+          "nativeStart": 10,
+          "nativeEnd": 25,
+          "artFrameIndex": 1
+        },
+        {
+          "nativeStart": 25,
+          "nativeEnd": 40,
+          "artFrameIndex": 2
+        },
+        {
+          "nativeStart": 40,
+          "nativeEnd": 55,
+          "artFrameIndex": 3
+        },
+        {
+          "nativeStart": 55,
+          "nativeEnd": 74,
+          "artFrameIndex": 4
+        },
+        {
+          "nativeStart": 74,
+          "nativeEnd": 75,
+          "artFrameIndex": 5
+        }
+      ],
+      "drawingFacingBinding": "actor entry basis; source orientation and both-facing qualified rendering required",
+      "holdRule": "Retire observed taunt at last selected resource frame+1, or real legal input interruption at49, hit/capture/reset/ground loss; no pose-loop invented.",
+      "specialPhase": null,
+      "specialClockKind": null,
+      "dynamicCutoff": null,
+      "playableEndExclusive": null,
+      "runtimeBindingStatus": "Dedicated distinct appeal input, shared observed taunt commitment and Pikachu DATA/factory/save/driver present; accepted pixel-identical clock requalification and actual runtime acceptance pending."
+    }
+  },
+  "sources": [
+    {
+      "sourceKey": "full-taunt-down-sample0-source0",
+      "nativeSample": 0,
+      "sourceReferenceSha256": "8182ec165a6ff38577756321b1b264bdc45dc5444e70f608e27fb1d95a8ca413",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-reactions-misc-batch009-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "d11017d8411b2426ee459fc43ddb574cd4f24aef8a2123bb19d709df4360ea21",
+      "atlasCell": 2,
+      "cellOffset": [
+        0,
+        1280
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-reactions-misc-batch009-bounded-source0-attempt1.review.json",
+      "reviewSha256": "7634db617d1f30ff40246048330cc4d37e7d46bde93192dc07b171f145d356a2"
+    },
+    {
+      "sourceKey": "full-taunt-down-sample10-source10",
+      "nativeSample": 10,
+      "sourceReferenceSha256": "f64c752aa51c58e188442841c6feb0b82758b83105e49450ea37c829c9703384",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-reactions-misc-batch009-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "d11017d8411b2426ee459fc43ddb574cd4f24aef8a2123bb19d709df4360ea21",
+      "atlasCell": 3,
+      "cellOffset": [
+        1024,
+        1280
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-reactions-misc-batch009-bounded-source0-attempt1.review.json",
+      "reviewSha256": "7634db617d1f30ff40246048330cc4d37e7d46bde93192dc07b171f145d356a2"
+    },
+    {
+      "sourceKey": "full-taunt-down-sample25-source25",
+      "nativeSample": 25,
+      "sourceReferenceSha256": "2cb9075a302c56b35fd4cc7b1811cbaeee7c5cdeb997f260fcb813bb528095be",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-reactions-misc-batch010-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "e0c1367580b9cf43cba32bcce9e9e662dbf7486bb10272df13f230cd43c58ae3",
+      "atlasCell": 0,
+      "cellOffset": [
+        0,
+        0
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-reactions-misc-batch010-bounded-source0-attempt1.review.json",
+      "reviewSha256": "9285c052c44ef80f59fcf5f9664618e2ff13beee67d9feebb6395474ed82ce2c"
+    },
+    {
+      "sourceKey": "full-taunt-down-sample40-source40",
+      "nativeSample": 40,
+      "sourceReferenceSha256": "669b473b679d3105b5ef771f5695f33758ff35cfd4109f61c1538a1bc83f9dd4",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-reactions-misc-batch010-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "e0c1367580b9cf43cba32bcce9e9e662dbf7486bb10272df13f230cd43c58ae3",
+      "atlasCell": 1,
+      "cellOffset": [
+        1024,
+        0
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-reactions-misc-batch010-bounded-source0-attempt1.review.json",
+      "reviewSha256": "9285c052c44ef80f59fcf5f9664618e2ff13beee67d9feebb6395474ed82ce2c"
+    },
+    {
+      "sourceKey": "full-taunt-down-sample55-source55",
+      "nativeSample": 55,
+      "sourceReferenceSha256": "80ffeaf04cd0427e9fa7b4c114aa72418cf2d0f8adeb3588721d24c6b8624b91",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-reactions-misc-batch010-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "e0c1367580b9cf43cba32bcce9e9e662dbf7486bb10272df13f230cd43c58ae3",
+      "atlasCell": 2,
+      "cellOffset": [
+        0,
+        1280
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-reactions-misc-batch010-bounded-source0-attempt1.review.json",
+      "reviewSha256": "9285c052c44ef80f59fcf5f9664618e2ff13beee67d9feebb6395474ed82ce2c"
+    },
+    {
+      "sourceKey": "full-taunt-down-sample74-source74",
+      "nativeSample": 74,
+      "sourceReferenceSha256": "0a46bfa14927d3be0822f79a878cea3fc40fffecd90909dd1224af4078d6280d",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-reactions-misc-batch010-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "e0c1367580b9cf43cba32bcce9e9e662dbf7486bb10272df13f230cd43c58ae3",
+      "atlasCell": 3,
+      "cellOffset": [
+        1024,
+        1280
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-reactions-misc-batch010-bounded-source0-attempt1.review.json",
+      "reviewSha256": "9285c052c44ef80f59fcf5f9664618e2ff13beee67d9feebb6395474ed82ce2c"
+    }
+  ],
+  "galleries": {
+    "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/taunt_down-cells-1.png": "cdd7bfa19cecfc79365d16e82082f52c0aec9dcf1c4cdca208510abfdcd3e322",
+    "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/taunt_down-cells-2.png": "ddb985051aabc1d70c87513471add83a4774321f96af4d0ddccdb194483b7ffa"
+  },
+  "limits": [
+    "Actual packed-cell inspection required before aggregate registration.",
+    "Authored beta presentation windows do not establish native status rate parity.",
+    "Actual running-game qualification remains separate."
+  ],
+  "priorPackedMetadataSnapshot": "docs/review/2026-10-06/pikachu-character/tiled-body/packed-metadata-snapshots/ebca323821da95e81863931bbab0a025c4eaf25f120f97fffadfdcbb5a022d4b.json",
+  "requalificationScope": "Declared clock metadata only; exact body/source pixels preserved. New window/receiving/runtime qualification still required.",
+  "packedVisualReview": {
+    "reviewer": "pikachu_art_motion",
+    "scope": "Actually re-inspected all6 saved body cells on light/dark, fixed512\u00b2/root256416; exact pixel/source comparison passed packer. New explicit authored clock changes only metadata; runtime taunt input/interrupt/bodycaps tests separate.",
+    "galleries": {
+      "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/taunt_down-cells-1.png": "cdd7bfa19cecfc79365d16e82082f52c0aec9dcf1c4cdca208510abfdcd3e322",
+      "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/taunt_down-cells-2.png": "ddb985051aabc1d70c87513471add83a4774321f96af4d0ddccdb194483b7ffa"
+    }
+  }
+}

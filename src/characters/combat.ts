@@ -40,7 +40,8 @@
  *
  * Formula choices (tuned for "feels Smash-ish, not exactly Smash"):
  *
- *   realised_kb = base_kb * (1 + scaling * percent) * (BASELINE_MASS / target_mass)
+ *   realised_kb = base_kb * (1 + scaling * percent * KNOCKBACK_PERCENT_TEMPER)
+ *                 * (BASELINE_MASS / target_mass)
  *
  *     - scaling controls how fast the knockback grows with percent. A
  *       jab might use scaling ≈ 0.05 (gentle ramp); a finisher smash
@@ -72,6 +73,8 @@
  * — practically every hit is a KO past ~150 %, but the cap exists so
  * the math never produces NaN/Infinity from a freakishly long match.
  */
+import { computeReferenceKnockback, type ReferenceKnockbackSpec } from './referenceKnockback';
+
 export const MAX_DAMAGE_PERCENT = 999;
 
 /**
@@ -113,25 +116,11 @@ export const BASELINE_MASS = 12;
  * Punch-style move a strong LOW-percent killer while ordinary smashes
  * need real damage first).
  *
- * Calibration (2026-06): headless KO-percent probing against the flat
- * stage showed `0.15` still sent a lightweight (mass 8) across the
- * side blast from a single forward-smash at ~30 % — because there is
- * NO velocity damping during hitstun, KO *reach* scales with knockback
- * *squared*, so even a modest over-tune launches absurdly far.
- *
- * `0.06` was chosen first but proved too conservative: at 150 % Link's
- * forward smash (scaling 0.4) against a neutral-weight opponent from
- * centre-stage produces ~1325 px of horizontal travel vs a blast zone
- * at ~1340 px — a kill threshold of ~165 %, far above Smash Ultimate's
- * ~100-110 % norm for a sword fighter's forward smash.
- *
- * `0.09` restores Smash-appropriate kill thresholds while preserving
- * the relative balance between moves (smashes > specials > tilts > jabs):
- *   - fwd smash kills neutral (mass 12) from centre at ~108 %
- *   - usmash kills neutral from centre at ~105 %
- *   - fwd smash kills lightweight (mass 8) at ~65 %
- *   - tilts require ~150 %+ to kill — they never feel spammy
- *   - jabs never kill regardless of percent
+ * This is the existing authored balance value, not a conversion from
+ * Ultimate knockback units. Historical KO thresholds measured before
+ * launch decay are not valid for the current Matter trajectory model.
+ * Current unit/trajectory evidence lives in
+ * `docs/review/2026-09-09/combat-physics-followup.md`.
  *
  * (The hook in `computeKnockback` reads an optional `globalThis.__kbTemper`
  * override first so headless balance sweeps can try values without a
@@ -146,6 +135,32 @@ export const KNOCKBACK_PERCENT_TEMPER = 0.09;
  * frames (~500 ms — long enough to read but not unbreakably long).
  */
 export const HITSTUN_FRAMES_PER_KNOCKBACK_UNIT = 2.0;
+
+/**
+ * Per-frame launch-momentum decay in this engine's velocity units.
+ *
+ * The community SSBU calculator uses speed `knockback * 0.03`, hitstun
+ * near `knockback * 0.4`, and speed decay `0.051/frame`. Their normalized
+ * product is about 0.68; this engine's `0.34 * 2` matches that ratio.
+ * This is a tuning rationale, not a verified conversion between Ultimate
+ * distance units and Matter px per 60 Hz step. Gravity, hitstun clamps,
+ * stage dimensions, and collision response still change actual travel.
+ * Primary implementation: https://github.com/rubendal/SSBU-Calculator/blob/master/js/formulas.js
+ */
+export const LAUNCH_SPEED_DECAY_PER_FRAME = 0.34;
+
+/** Reduce vector magnitude without changing launch direction or overshooting. */
+export function decayLaunchVelocity(
+  vector: { readonly x: number; readonly y: number },
+  decay: number = LAUNCH_SPEED_DECAY_PER_FRAME,
+): { x: number; y: number } {
+  const magnitude = Math.hypot(vector.x, vector.y);
+  if (magnitude === 0) return { x: 0, y: 0 };
+  const amount = Number.isFinite(decay) ? Math.max(0, decay) : 0;
+  const nextMagnitude = Math.max(0, magnitude - amount);
+  const scale = nextMagnitude / magnitude;
+  return { x: vector.x * scale, y: vector.y * scale };
+}
 
 /**
  * Lower bound on hitstun frames — no matter how feeble the hit, a
@@ -166,17 +181,9 @@ export const MAX_HITSTUN_FRAMES = 120;
 // ---------------------------------------------------------------------------
 // Hit-feel constants (post-M2 architecture pass — milestone H1)
 //
-// These constants drive the "moment of contact" mechanics that make
-// hits feel crunchy without letting a hit character immediately
-// retaliate. The formulas are calibrated against a web survey of
-// Smash Ultimate, Rivals of Aether, Brawlhalla, SF6, GG Strive, and
-// Lethal League — see plan file
-// `~/.claude/plans/i-want-you-to-fluffy-parasol.md` for sources.
-//
-// Tiers map move damage (in %) to a hitlag freeze duration, with
-// optional bonuses for sweet-spot hits and hitting at high percent.
-// All values are integers in fixed-step frames — pure deterministic
-// math, replay-safe.
+// Runtime hitlag follows the pinned Ultimate calculator below. Legacy
+// tier constants remain exported for compatibility and screen feedback;
+// they no longer choose a contact's freeze duration or add bonuses.
 // ---------------------------------------------------------------------------
 
 /** Damage threshold ≤ which a hit is "light" (4f freeze). */
@@ -195,20 +202,27 @@ export const HITLAG_SWEET_SPOT_BONUS_FRAMES = 4;
 export const HITLAG_HIGH_PERCENT_THRESHOLD = 150;
 /** Bonus hitlag frames when target.percent ≥ HITLAG_HIGH_PERCENT_THRESHOLD. */
 export const HITLAG_HIGH_PERCENT_BONUS_FRAMES = 3;
-/** Hard cap on hitlag frames — prevents stacked bonuses from feeling sticky. */
-export const HITLAG_MAX_FRAMES = 18;
+/** Ordinary Ultimate hitlag cap in fixed simulation steps. */
+export const HITLAG_MAX_FRAMES = 30;
 
-/** Maximum DI rotation in degrees. Stick perpendicular to launch rotates the angle by up to this much. */
-export const DI_MAX_ROTATION_DEGREES = 18;
+/**
+ * Ultimate DI parameter in radians, applied only to eligible tumble launches.
+ * Sources: rubendal/SSBU-Calculator js/formulas.js (DI), and HDR's documented
+ * Ultimate-to-HDR change from 9.74 degrees to 18 degrees:
+ * https://hdr-development.github.io/hdr-website/engine/di.html
+ */
+export const DI_MAX_ROTATION_RADIANS = 0.17;
+/** Degree view for presentation/debugging; calculation stays in radians. */
+export const DI_MAX_ROTATION_DEGREES = DI_MAX_ROTATION_RADIANS * 180 / Math.PI;
 
 /** Constant frames added to shieldstun (defender's locked-in-shield window). */
 export const SHIELDSTUN_BASE_FRAMES = 2;
 /** Frames of shieldstun added per point of damage. */
-export const SHIELDSTUN_PER_DAMAGE = 0.4;
-/** Floor on shieldstun — even a 1% chip-block locks the shielder briefly. */
-export const SHIELDSTUN_MIN_FRAMES = 3;
-/** Cap on shieldstun for normals — keeps neutral fast-paced. Heavies still cap here; that's intentional. */
-export const SHIELDSTUN_MAX_FRAMES = 8;
+export const SHIELDSTUN_PER_DAMAGE = 0.8;
+/** Zero-damage shield contacts have no shieldstun. */
+export const SHIELDSTUN_MIN_FRAMES = 0;
+/** Safety bound derived from the maximum supported authored damage. */
+export const SHIELDSTUN_MAX_FRAMES = 801; // Local 999-damage authoring safety bound, not a native eight-frame cap.
 
 /** Light-tier screen shake amplitude in design pixels. */
 export const SHAKE_LIGHT_INTENSITY_PX = 2;
@@ -239,8 +253,78 @@ export const SHAKE_HEAVY_DURATION_FRAMES = 9;
  *     real hitbox spawner ("simulate me getting hit by Wolf's smash").
  */
 export interface HitInfo {
+  /** Actual incoming contact geometry, when the owning narrowphase provides it. No guessed victim region. */
+  readonly combatReceivingRegions?:readonly {readonly id:string;readonly centreWorld:{readonly x:number;readonly y:number}}[];
+  readonly combatContactCapsuleWorld?:{readonly start:{readonly x:number;readonly y:number};readonly end:{readonly x:number;readonly y:number};readonly radius:number};
+  /** Actual combat credit, supplied by the owning contact/capture consumer.
+   * Recoil is an explicit self-cost, not the identity of an explosive owner. */
+  readonly combatAttackerSlotIndex?: number | null;
+  readonly combatViaSceneResolver?: boolean;
+  /** Internal exact active-shield narrowphase receipt, never a move option. */
+  readonly combatShieldContact?:{readonly actorGeneration:number;readonly centre:{readonly x:number;readonly y:number};readonly radius:number};
+  /** Genuine absolute release from one accepted ordinary/cargo capture.
+   * ThrowSpec is not an AttackMove; no synthetic move/sourcePose ID is supplied. */
+  readonly combatThrowRelease?:{
+    readonly kind:'accepted-capture-throw-release';readonly grabId:string;
+    readonly producerPlayerIndex:number;readonly producerGeneration:number;
+    readonly targetPlayerIndex:number;readonly targetGeneration:number;
+    readonly capture:{readonly captureId:number;readonly targetPlayerIndex:number;readonly targetGeneration:number;
+      readonly captorPlayerIndex:number;readonly captorGeneration:number};
+    readonly direction:import('./throwSchema').ThrowDirection;readonly cargo:boolean;readonly airborne:boolean;
+    readonly throwEntryFrame:number;readonly releaseFrame:number;readonly releaseElapsed:number;
+    readonly descriptor:import('./throwSchema').ThrowSpec;
+    readonly damageSource:{readonly baseDamage:number;readonly staleMultiplier:number;readonly queueMoveId:string;readonly transactionKey:string};
+  };
+  readonly combatMoveId?:string;
+  readonly combatSourcePoseId?:string|null;
+  /** Selected actual narrowphase packet identity, separate from move/phase. */
+  readonly combatCollisionHitId?:string|number;
+  readonly recoil?: boolean;
+  /** Opt-in applied-percent scalar, keeping original baseDamage for native
+   * reference growth (Meter Finals for DK/Pika/Link). */
+  readonly appliedDamageMultiplier?: number;
+  readonly finalSmashRunId?: number;
+  readonly nativeAttackHeight?:'low'|'high';
+  readonly nativeAttackHeightSource?:import('./attackHeightMetadata').AttackHeightSourceReceipt;
+  readonly combatAttackHeightContext?:{readonly attackerRootY:number;readonly victimRootY:number};
+  readonly nativeCollisionAttribute?: string;
+  readonly nativeForceReaction?: boolean;
+  /** Opt-in reference launch modifier, applied after preserved source BKB/KBG.
+   * Ordinary native thrown items select the published experimental0.8 rule;
+   * explosions and fighter-generated objects leave this absent. */
+  readonly referenceKnockbackMultiplier?:number;
+  readonly direct?:boolean;
+  readonly reflectable?:boolean;readonly absorbable?:boolean;
+  readonly statusEffect?:'bury';
+  /** Source rank input; omitted explicitly selects tied stocks. */
+  readonly attackerMinusVictimStocks?:number;
+  /** Native additive probability, evaluated only for eligible grounded hits. */
+  readonly tripChance?: number;
+  /** Slip attribute (SmashWiki Slip): a guaranteed soft trip on a grounded target, whatever the knockback. */
+  readonly slip?: boolean;
+  readonly electricCollision?: boolean;
+  readonly hitlagProjectile?: boolean;
+  /** Extra shield HP damage, excluded from percent, hitlag and shieldstun. */
+  readonly shieldDamage?: number;
+  readonly shieldSetoffMultiplier?: number;
+  /** Airborne angle-367 contact anchor, sampled before hitlag; not fighter data. */
+  readonly autolink?: import('./referenceAutolink').ReferenceAutolinkContext;
+  readonly hitlagMultiplier?: number;
+  readonly sdiMultiplier?: number;
+  /** Authored minimum action lockout for separate strikes in one move. */
+  readonly minHitstunFrames?: number;
+  /** Runtime motion carry, added after DI and excluded from launch decay/tumble. */
+  readonly velocityCarry?: { readonly x: number; readonly y: number };
   /** Damage value added to the target's percent meter. */
   readonly damage: number;
+  /** Runtime damage before stale-move negation, used by reference growth. */
+  readonly baseDamage?: number;
+  /** Runtime weighted stale multiplier; damage already includes this factor. */
+  readonly staleMultiplier?: number;
+  /** Match participant count for the reference hit-stop formula. */
+  readonly hitlagPlayers?: number;
+  /** Runtime category for ordinary reference shieldstun (detached projectiles win). */
+  readonly shieldKind?: ShieldAttackKind;
   /**
    * Base knockback vector at 0 %. `x` is mirrored by `facing` (so a
    * positive `x` always sends the target away from the attacker).
@@ -248,6 +332,8 @@ export interface HitInfo {
    * `scaling` is the per-percent multiplier.
    */
   readonly knockback: {
+    /** Reference KB units, independent of physical body mass. */
+    readonly reference?: ReferenceKnockbackSpec;
     readonly x: number;
     readonly y: number;
     readonly scaling: number;
@@ -259,12 +345,9 @@ export interface HitInfo {
   /** Attacker's facing direction at the moment the hit was registered. */
   readonly facing: 1 | -1;
   /**
-   * Optional flag — `true` if the contact landed in the move's
-   * authored sweet-spot region (post-M2 hit-feel pass). Threaded
-   * into `computeHitlag` for the +4-frame freeze bonus and into
-   * any future damage / knockback multiplier path. Falsy / omitted
-   * means "regular contact" — every existing call site stays
-   * unchanged.
+   * Contact metadata for an authored sweet-spot region. The selected
+   * hitbox's damage, launch and hitlag multiplier determine the result;
+   * this flag does not add a generic hitlag bonus.
    */
   readonly sweetSpot?: boolean;
   /**
@@ -289,6 +372,14 @@ export interface HitInfo {
  * locks the target out of input for that many fixed steps.
  */
 export interface KnockbackResult {
+  readonly nativeLaunchAngleRadians?:number|null;
+  readonly tripped?: boolean;
+  /** Uncompressed reference duration, when Character applies tumble speed-up. */
+  readonly ordinaryHitstunFrames?: number;
+  /** Present only on reference launches; legacy moves retain their calibration. */
+  readonly referenceKnockback?: number;
+  readonly launchDecayPerFrame?: number;
+  readonly tumble?: boolean;
   /** Final knockback velocity vector (Matter px-per-step units). */
   readonly vector: { readonly x: number; readonly y: number };
   /** Euclidean magnitude of `vector` (same units as `vector` components). */
@@ -352,6 +443,7 @@ export function accumulateDamage(currentPercent: number, damage: number): number
  * Sub-AC 2 of AC 6 — formula:
  *
  *   percentMultiplier = 1 + scaling * clamp(percent, 0, MAX_DAMAGE_PERCENT)
+ *                           * KNOCKBACK_PERCENT_TEMPER
  *   massMultiplier    = BASELINE_MASS / max(1, targetMass)
  *   totalMultiplier   = percentMultiplier * massMultiplier
  *
@@ -391,7 +483,16 @@ export function computeKnockback(
   hit: HitInfo,
   targetPercent: number,
   targetMass: number,
+  context: { referenceWeight?: number; grounded?: boolean; multiplier?: number } = {},
 ): KnockbackResult {
+  if (hit.knockback.reference) {
+    const result = computeReferenceKnockback(hit.knockback.reference, targetPercent,
+      (hit.baseDamage ?? hit.damage) * (1 - (1 - (hit.staleMultiplier ?? 1)) * 0.3),
+      context.referenceWeight ?? 100, hit.facing, context.grounded ?? false,
+      context.multiplier ?? 1);
+    const floor = Number.isFinite(hit.minHitstunFrames) ? Math.max(0, Math.trunc(hit.minHitstunFrames!)) : 0;
+    return { ...result, hitstunFrames: Math.max(result.hitstunFrames, floor) };
+  }
   const safePercent = clamp(targetPercent, 0, MAX_DAMAGE_PERCENT);
   const safeMass = Math.max(1, targetMass);
 
@@ -438,13 +539,27 @@ export function computeKnockback(
 
   const magnitude = Math.hypot(vx, vy);
   const angle = Math.atan2(vy, vx);
-  const hitstunFrames = computeHitstun(magnitude);
+  const hitstunFloor = Number.isFinite(hit.minHitstunFrames)
+    ? clamp(Math.trunc(hit.minHitstunFrames!), 0, MAX_HITSTUN_FRAMES) : 0;
+  const hitstunFrames = Math.max(computeHitstun(magnitude), hitstunFloor);
 
   return {
     vector: { x: vx, y: vy },
     magnitude,
     angle,
     hitstunFrames,
+  };
+}
+
+/** Scale the whole authored launch, including reference base and growth terms. */
+export function scaleKnockbackSpec(knockback: HitInfo['knockback'], factor: number): HitInfo['knockback'] {
+  return {
+    ...knockback,
+    x: knockback.x * factor,
+    y: knockback.y * factor,
+    ...(knockback.baseMagnitude === undefined ? {} : { baseMagnitude: knockback.baseMagnitude * factor }),
+    ...(knockback.reference ? { reference: { ...knockback.reference,
+      base: knockback.reference.base * factor, growth: knockback.reference.growth * factor } } : {}),
   };
 }
 
@@ -499,12 +614,22 @@ export function computeHitstun(magnitude: number): number {
 
 /** Inputs to {@link computeHitlag}. */
 export interface HitlagInput {
+  readonly direct?:boolean;
+  readonly reflectable?:boolean;readonly absorbable?:boolean;
+  readonly electricCollision?: boolean;
+  readonly projectile?: boolean;
   /** Damage value of the move (% added to target). */
   readonly damage: number;
-  /** Target's current percent BEFORE this hit lands (used for the high-% crunch bonus). */
+  /** Compatibility input; percent does not independently change reference hitlag. */
   readonly targetPercent: number;
-  /** Whether the hit was a sweet-spot connect (adds {@link HITLAG_SWEET_SPOT_BONUS_FRAMES}). */
+  /** Compatibility input; hitbox multipliers replace the old generic tip bonus. */
   readonly sweetSpot?: boolean;
+  /** Authored hitbox hit-stop multiplier; zero disables the freeze. */
+  readonly multiplier?: number;
+  /** Crouching victims use the reference 0.67 hit-stop multiplier. */
+  readonly crouching?: boolean;
+  /** Number of match participants, including CPUs (2–8). */
+  readonly players?: number;
 }
 
 /**
@@ -514,36 +639,28 @@ export interface HitlagInput {
  * that gives heavy hits visual weight and locks the attacker out of
  * stringing inputs into the freeze.
  *
- * Tier mapping (from the hit-feel research):
- *   - damage ≤ {@link HITLAG_LIGHT_DAMAGE_THRESHOLD}  → {@link HITLAG_LIGHT_FRAMES}
- *   - damage ≤ {@link HITLAG_MEDIUM_DAMAGE_THRESHOLD} → {@link HITLAG_MEDIUM_FRAMES}
- *   - else                                            → {@link HITLAG_HEAVY_FRAMES}
- *
- * Bonuses (additive, applied after the base tier):
- *   - sweet-spot hit                              → +{@link HITLAG_SWEET_SPOT_BONUS_FRAMES}
- *   - target.percent ≥ {@link HITLAG_HIGH_PERCENT_THRESHOLD} → +{@link HITLAG_HIGH_PERCENT_BONUS_FRAMES}
- *
- * Result is hard-capped at {@link HITLAG_MAX_FRAMES} so stacked
- * bonuses can't make a hit feel sluggish.
+ * Ordinary non-electric Ultimate hit-stop: floor((damage * .65 * playerScale
+ * + 6) * hitboxMultiplier * crouchMultiplier), capped at 30. Damage includes
+ * stale negation but excludes the separate1v1 bonus. Authored electric attributes
+ * use the published Ultimate nested-floor equation and projectile player-count
+ * exemption; effects are never inferred from art. Source: ssbwiki.com/Hitlag.
+ * Source: rubendal/SSBU-Calculator, pinned in the combat-parity handoff.
  *
  * Pure: same inputs always yield the same integer output.
  */
 export function computeHitlag(input: HitlagInput): number {
-  let frames: number;
-  if (input.damage <= HITLAG_LIGHT_DAMAGE_THRESHOLD) {
-    frames = HITLAG_LIGHT_FRAMES;
-  } else if (input.damage <= HITLAG_MEDIUM_DAMAGE_THRESHOLD) {
-    frames = HITLAG_MEDIUM_FRAMES;
-  } else {
-    frames = HITLAG_HEAVY_FRAMES;
+  const damage = Number.isFinite(input.damage) ? Math.max(0, input.damage) : 0;
+  const multiplier = Number.isFinite(input.multiplier) ? Math.max(0, input.multiplier!) : 1;
+  const players = Math.max(2, Math.min(8, Math.trunc(input.players ?? 2)));
+  const playerScale = [1, 0.925, 0.862, 0.8116, 0.77464, 0.752464, 0.75][players - 2] ?? 1;
+  if (input.electricCollision) {
+    if (damage === 0 || multiplier === 0) return 0;
+    const first = Math.min(30, Math.floor((damage * 0.65 + 6) * multiplier * 1.5));
+    const countFactor = input.projectile || first <= 10 ? 1 : 1 - (first - 10) / 20 * (1 - playerScale);
+    return Math.floor(Math.floor(first * countFactor) * (input.crouching ? 0.67 : 1));
   }
-  if (input.sweetSpot) {
-    frames += HITLAG_SWEET_SPOT_BONUS_FRAMES;
-  }
-  if (input.targetPercent >= HITLAG_HIGH_PERCENT_THRESHOLD) {
-    frames += HITLAG_HIGH_PERCENT_BONUS_FRAMES;
-  }
-  return Math.min(frames, HITLAG_MAX_FRAMES);
+  return Math.min(30, Math.floor((damage * 0.65 * playerScale + 6)
+    * multiplier * (input.crouching ? 0.67 : 1)));
 }
 
 /** Stick state read at the end of hitlag, used to apply DI to the launch angle. */
@@ -557,21 +674,23 @@ export interface DIInput {
 /**
  * Compute the launch angle after applying Directional Influence (DI).
  *
- * DI in Smash works by rotating the launch vector by an amount
+ * For an eligible tumble launch, this rotates the launch vector by an amount
  * proportional to how perpendicular the stick is to the launch
  * direction. A stick parallel to the launch (towards or away) does
  * nothing; a stick perpendicular rotates the angle by up to
- * {@link DI_MAX_ROTATION_DEGREES} radians.
+ * {@link DI_MAX_ROTATION_DEGREES} degrees.
  *
  * The signed perpendicular component of stick `(sx, sy)` against
  * launch angle `θ` is:
  *
  *     perp = sy * cos(θ) - sx * sin(θ)
  *
- * which we clamp to `[-1, 1]` (in case the stick magnitude is greater
- * than 1) and multiply by the max rotation. Positive `perp` rotates
- * the launch counter-clockwise (lower angle in radians); the standard
- * Smash visual is that holding "into" the launch tilts it down.
+ * after normalizing over-length stick vectors to the unit disc. This gives
+ * keyboard diagonals the same response as analog diagonals without losing
+ * partial analog magnitude. Positive `perp` increases
+ * the angle, rotating clockwise in the screen's positive-down Y axis.
+ * Launches within the DI parameter of either horizontal axis cannot be
+ * redirected. The caller owns the tumble eligibility check.
  *
  * The resulting angle is returned in radians, NOT normalized to any
  * particular range — callers can re-derive the velocity via
@@ -585,11 +704,15 @@ export function applyDIToLaunchAngle(
   launchAngle: number,
   di: DIInput,
 ): number {
-  const perpRaw =
-    di.stickY * Math.cos(launchAngle) - di.stickX * Math.sin(launchAngle);
-  const perp = clamp(perpRaw, -1, 1);
-  const maxRotationRad = (DI_MAX_ROTATION_DEGREES * Math.PI) / 180;
-  return launchAngle + perp * maxRotationRad;
+  const cos = Math.cos(launchAngle);
+  const sin = Math.sin(launchAngle);
+  // The reference works in launch-relative coordinates. Mirror its
+  // near-horizontal exclusion into this engine's signed world-space axes.
+  const angleFromHorizontal = Math.atan2(Math.abs(sin), Math.abs(cos));
+  if (angleFromHorizontal < DI_MAX_ROTATION_RADIANS) return launchAngle;
+  const stickScale = Math.max(1, Math.hypot(di.stickX, di.stickY));
+  const perp = (di.stickY * cos - di.stickX * sin) / stickScale;
+  return launchAngle + clamp(perp, -1, 1) * DI_MAX_ROTATION_RADIANS;
 }
 
 /**
@@ -603,10 +726,9 @@ export const RAGE_MAX_PERCENT = 150;
 /**
  * Peak knockback multiplier from RAGE. At {@link RAGE_MAX_PERCENT}+ the
  * attacker's launches hit this much harder — the Smash "rage" comeback
- * mechanic (a high-% fighter KOs earlier). Tuned modest (1.15) so it
- * tilts close games without dominating.
+ * mechanic. Ultimate's ordinary reference range ends at 1.1.
  */
-export const RAGE_MAX_MULTIPLIER = 1.15;
+export const RAGE_MAX_MULTIPLIER = 1.1;
 
 /**
  * Compute the RAGE knockback multiplier for an attacker at the given
@@ -630,43 +752,87 @@ export function computeRageMultiplier(attackerPercent: number): number {
 
 /** Number of recently-landed moves tracked for stale-move negation. */
 export const STALE_QUEUE_SIZE = 9;
-/** Damage/knockback reduction per prior occurrence of a move in the stale queue. */
-export const STALE_STEP = 0.05;
+/** Penalty for the newest successful use (older slots have smaller weights). */
+export const STALE_STEP = 0.09;
 /** Floor on the stale multiplier — a fully-staled move still deals this fraction. */
-export const STALE_MIN_MULTIPLIER = 1 - STALE_QUEUE_SIZE * STALE_STEP; // 0.55
+export const STALE_FACTORS = [0.09, 0.08545, 0.07635, 0.0679, 0.05945, 0.05035, 0.04255, 0.03345, 0.025] as const;
+export const STALE_MIN_MULTIPLIER = 1 - STALE_FACTORS.reduce((sum, factor) => sum + factor, 0);
+export const STALE_FRESH_MULTIPLIER = 1.05;
+export interface StaleEntry { readonly moveId: string; readonly shield: boolean }
 
 /**
- * Compute the STALE-MOVE multiplier for a move that already appears
- * `occurrences` times in the attacker's recent-move queue. Fresh (0
- * occurrences) → 1.0; each prior use shaves {@link STALE_STEP} off, down
- * to {@link STALE_MIN_MULTIPLIER}. Mirrors Smash's stale-move negation:
- * spamming one move makes it weaker, so you vary your offence (and a move
- * "freshens" as it rotates out of the queue).
- *
- * Applied to BOTH damage and knockback at the hit-resolution boundary.
- *
- * Pure: occurrence count in → multiplier out, no state.
+ * Weighted Ultimate stale queue, newest first. Shield uses contribute 85%
+ * of the slot's normal penalty; an absent move gets the 1.05 freshness bonus.
+ * Apply the full factor to damage and only 30% of its penalty to the move
+ * damage term inside reference knockback. Fixed launches remain independent.
  */
-export function computeStaleMultiplier(occurrences: number): number {
-  const n = clamp(occurrences, 0, STALE_QUEUE_SIZE);
-  return clamp(1 - n * STALE_STEP, STALE_MIN_MULTIPLIER, 1);
+export function computeStaleMultiplier(queue: readonly StaleEntry[] | number, moveId = ''): number {
+  // Numeric callers describe consecutive most-recent uses. Runtime callers
+  // provide the actual newest-first queue so an old use has a smaller penalty.
+  const entries = typeof queue === 'number'
+    ? Array.from({ length: Math.trunc(clamp(queue, 0, STALE_QUEUE_SIZE)) }, () => ({ moveId, shield: false }))
+    : queue;
+  let multiplier = 1;
+  let matched = false;
+  for (let index = 0; index < Math.min(entries.length, STALE_QUEUE_SIZE); index++) {
+    if (entries[index]!.moveId !== moveId) continue;
+    matched = true;
+    multiplier -= STALE_FACTORS[index]! * (entries[index]!.shield ? 0.85 : 1);
+  }
+  return matched ? multiplier : STALE_FRESH_MULTIPLIER;
 }
 
 /**
- * Compute the shieldstun frame count for a blocked hit. Defender is
- * locked in their shield (cannot drop, cannot grab out, cannot roll
- * out) for this many fixed steps. The formula keeps shieldstun short
- * (3-8f) on purpose — long blockstun produces sticky neutral and
- * doesn't fit a Smash-flavored party fighter.
- *
- * Formula: `clamp(round(damage * 0.4) + 2, 3, 8)`.
+ * Ultimate shieldstun (SmashWiki Shieldstun): floor(0.8·d·t·m·p + 2), written
+ * floor(d·.8·t·m·p + 3) − 1. `t` is the attack type (smash .725, aerial .33),
+ * `m` the hitbox's shieldstun multiplier and `p` the projectile penalty .29,
+ * which "does not apply" when `t` or `m` is not 1. Zero-damage contacts do not
+ * stun. This excludes shield-poking and perfect-shield advantage.
  *
  * Pure: integer input → integer output, no state.
  */
-export function computeShieldstun(damage: number): number {
-  const raw =
-    Math.round(damage * SHIELDSTUN_PER_DAMAGE) + SHIELDSTUN_BASE_FRAMES;
-  return clamp(raw, SHIELDSTUN_MIN_FRAMES, SHIELDSTUN_MAX_FRAMES);
+export type ShieldAttackKind = 'normal' | 'smash' | 'aerial' | 'projectile';
+export function computeShieldstun(damage: number, kind: ShieldAttackKind = 'normal', multiplier = 1): number {
+  if (!(damage > 0)) return 0;
+  const factor = kind === 'projectile' && multiplier !== 1 ? 1
+    : { normal: 1, smash: .725, aerial: .33, projectile: .29 }[kind];
+  return Math.floor(Math.min(damage, MAX_DAMAGE_PERCENT) * .8 * factor * multiplier + 3) - 1;
+}
+
+/** Ordinary shield stop clamps hitbox multipliers below one, then applies .67. */
+export function computeShieldHitlag(input: HitlagInput): number {
+  // The original testing record explicitly exempts zero-hitlag hitboxes;
+  // the calculator's generic below-one clamp omits this exception.
+  if (!(input.damage > 0) || input.multiplier === 0) return 0;
+  return computeHitlag({ ...input, multiplier: Math.max(1, input.multiplier ?? 1) * .67, crouching: false });
+}
+
+/**
+ * Extra hit-stop a release parry adds over ordinary shield hitlag. SmashWiki Perfect shield
+ * (Ultimate): "For direct non-projectile attacks, the attacker experiences 14 extra frames of
+ * hitlag, while the defender experiences 11 extra frames" / indirect non-projectile: attacker 14,
+ * defender 2 / direct projectile: "the attacker is not affected, while the defender experiences 8
+ * extra frames" / indirect projectile: "the defender experiences 1 frame less". No player-count term.
+ */
+export const PARRY_EXTRA_HITLAG = Object.freeze({
+  direct: Object.freeze({ defender: 11, attacker: 14 }),
+  indirect: Object.freeze({ defender: 2, attacker: 14 }),
+  directProjectile: Object.freeze({ defender: 8, attacker: 0 }),
+  indirectProjectile: Object.freeze({ defender: -1, attacker: 0 }),
+});
+
+/**
+ * Release-parry hit-stop: ordinary shield hitlag plus {@link PARRY_EXTRA_HITLAG}. A melee hit is
+ * direct unless flagged `direct: false`; a projectile is indirect unless flagged `direct: true`.
+ * Zero-damage / zero-hitlag contacts freeze nobody. A projectile's owner is never frozen.
+ */
+export function computeShieldParryHitlag(input: HitlagInput, projectile = false): { defender: number; attacker: number } {
+  const base = computeShieldHitlag(input);
+  if (base === 0) return { defender: 0, attacker: 0 };
+  const extra = projectile
+    ? input.direct === true ? PARRY_EXTRA_HITLAG.directProjectile : PARRY_EXTRA_HITLAG.indirectProjectile
+    : input.direct === false ? PARRY_EXTRA_HITLAG.indirect : PARRY_EXTRA_HITLAG.direct;
+  return { defender: Math.max(0, base + extra.defender), attacker: extra.attacker === 0 ? 0 : base + extra.attacker };
 }
 
 /** Output of {@link computeScreenShake}. Drives the camera-shake renderer. */

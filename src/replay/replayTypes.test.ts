@@ -42,9 +42,9 @@ describe('replayTypes — schema constants', () => {
     expectTypeOf(REPLAY_FORMAT_MAGIC).toEqualTypeOf<'platform-fighter-replay'>();
   });
 
-  it('REPLAY_FORMAT_VERSION is the integer 3 for today\'s writer (v3 added inputTimeline moveY)', () => {
-    expect(REPLAY_FORMAT_VERSION).toBe(3);
-    expectTypeOf(REPLAY_FORMAT_VERSION).toEqualTypeOf<3>();
+  it('REPLAY_FORMAT_VERSION is 8 for explicit historical Final rules and Link revision', () => {
+    expect(REPLAY_FORMAT_VERSION).toBe(8);
+    expectTypeOf(REPLAY_FORMAT_VERSION).toEqualTypeOf<8>();
   });
 
   it('REPLAY_FILE_EXTENSION is the .replay.json suffix', () => {
@@ -94,13 +94,13 @@ describe('replayTypes — top-level schema', () => {
       players: [
         {
           index: 1,
-          characterId: 'wolf',
+          characterId: 'donkeykong',
           paletteIndex: 0,
           inputType: 'keyboard_p1',
         },
         {
           index: 2,
-          characterId: 'cat',
+          characterId: 'pikachu',
           paletteIndex: 1,
           inputType: 'keyboard_p2',
         },
@@ -143,8 +143,8 @@ describe('replayTypes — top-level schema', () => {
     // canonical home — the schema deliberately doesn't duplicate them
     // in `metadata`).
     expect(replay.matchConfig.players.map((p) => p.characterId)).toEqual([
-      'wolf',
-      'cat',
+      'donkeykong',
+      'pikachu',
     ]);
     expect(replay.matchConfig.stageId).toBe('flat-stage');
   });

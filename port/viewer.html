@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stage Viewer</title>
+<style>
+  :root { --bg: #0b0816; --ink: #f4efff; --dim: #b9b0d6; --panel: rgba(16, 11, 34, 0.72); --edge: rgba(255, 255, 255, 0.16); --accent: #ffc94a; --accent-ink: #22163a; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font: 500 13px system-ui, sans-serif; overflow: hidden; }
+  #view { position: fixed; inset: 0; display: grid; place-items: center; }
+  #view canvas { display: block; }
+  .panel { position: fixed; z-index: 1; top: 12px; right: 12px; display: grid; gap: 8px; padding: 10px 12px; background: var(--panel); border: 1px solid var(--edge); border-radius: 8px; max-width: calc(100vw - 48px); }
+  .panel[hidden] { display: none; }
+  .row { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+  .label { color: var(--dim); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; min-width: 56px; }
+  button { font: inherit; color: var(--ink); background: transparent; border: 1px solid var(--edge); border-radius: 5px; padding: 4px 9px; cursor: pointer; }
+  button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  output { font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+<div id="view"></div>
+<section class="panel" id="panel" aria-label="Viewer controls">
+  <div class="row"><span class="label">Stage</span><span class="row" id="stages"></span></div>
+  <div class="row"><span class="label">Light</span><span class="row" id="moods"></span></div>
+  <div class="row"><span class="label">Show</span><button type="button" id="fighters" aria-pressed="true">Fighters</button><button type="button" id="overlay" aria-pressed="false">Collision</button></div>
+  <div class="row"><span class="label">Sim</span><button type="button" id="pause" aria-pressed="false">Pause</button><button type="button" id="step">Step</button><output id="frame">frame 0</output></div>
+</section>
+<script type="module" src="/src/entries/viewer.ts"></script>
+</body>
+</html>

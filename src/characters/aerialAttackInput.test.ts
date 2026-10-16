@@ -44,14 +44,14 @@ const NEUTRAL_ONLY_SLOTS: AerialAttackSlots = {
 };
 
 const LEGACY_SINGLE_AERIAL_SLOTS: AerialAttackSlots = {
-  // Wolf-style "only WOLF_NAIR registered" — all directional slots
+  // Single-aerial style: only one aerial registered — all directional slots
   // null, but the legacy single-aerial slot picks up the move.
   aerialNeutralId: null,
   aerialForwardId: null,
   aerialBackId: null,
-  aerialAttackId: 'wolf_nair',
-  lightAttackId: 'wolf_jab',
-  defaultId: 'wolf_jab',
+  aerialAttackId: 'test_nair',
+  lightAttackId: 'test_jab',
+  defaultId: 'test_jab',
 };
 
 const LIGHT_ONLY_SLOTS: AerialAttackSlots = {
@@ -195,20 +195,33 @@ describe('classifyAerialAttack — airborne gate', () => {
 // ---------------------------------------------------------------------------
 
 describe('classifyAerialAttack — heavy press handling', () => {
-  it('returns null when only heavy is pressed in air', () => {
-    // Smashes are grounded moves — heavy press while airborne is
-    // intentionally a no-op.
+  // Changed with the dedicated smash input: there is no airborne smash, so
+  // a heavy press (smash key / C-stick) in the air fires the aerial for its
+  // direction by the same rules as a light press. Previously it was dropped.
+  it.each([
+    [0, 0, 'nair', 'neutral'],
+    [1, 0, 'fair', 'forward'],
+    [-1, 0, 'bair', 'back'],
+    [0, -1, 'uair', 'up'],
+    [0, 1, 'dair', 'down'],
+  ] as const)('a heavy-only press at (%d, %d) fires %s', (moveX, moveY, moveId, direction) => {
     const result = classifyAerialAttack(
-      snapshot({ heavyJustPressed: true, attackJustPressed: false, moveX: 1 }),
+      snapshot({ heavyJustPressed: true, attackJustPressed: false, moveX, moveY }),
+      { ...FULL_SLOTS, aerialUpId: 'uair', aerialDownId: 'dair' },
+    );
+    expect(result).toEqual({ moveId, direction });
+  });
+
+  it('a heavy press while grounded is still not an aerial', () => {
+    const result = classifyAerialAttack(
+      snapshot({ airborne: false, heavyJustPressed: true, moveX: 1 }),
       FULL_SLOTS,
     );
     expect(result).toBeNull();
   });
 
   it('still fires the aerial when both light AND heavy press the same frame', () => {
-    // Light takes precedence — the airborne classifier reads
-    // `attackJustPressed`, not `heavyJustPressed`, when picking a
-    // direction. Heavy is "additionally" dropped.
+    // Both presses resolve through the same direction rules.
     const result = classifyAerialAttack(
       snapshot({
         attackJustPressed: true,
@@ -317,26 +330,26 @@ describe('classifyAerialAttack — cascading fallback', () => {
   });
 
   it('legacy single-aerial roster fires its aerial on every directional press', () => {
-    // Wolf-style: only `WOLF_NAIR` registered. All directional slots
+    // Single-aerial style: only one aerial registered. All directional slots
     // are null but `aerialAttackId` carries the move.
     expect(
       classifyAerialAttack(
         snapshot({ attackJustPressed: true, moveX: 0, prevFacing: 1 }),
         LEGACY_SINGLE_AERIAL_SLOTS,
       ),
-    ).toEqual({ moveId: 'wolf_nair', direction: 'neutral' });
+    ).toEqual({ moveId: 'test_nair', direction: 'neutral' });
     expect(
       classifyAerialAttack(
         snapshot({ attackJustPressed: true, moveX: 1, prevFacing: 1 }),
         LEGACY_SINGLE_AERIAL_SLOTS,
       ),
-    ).toEqual({ moveId: 'wolf_nair', direction: 'forward' });
+    ).toEqual({ moveId: 'test_nair', direction: 'forward' });
     expect(
       classifyAerialAttack(
         snapshot({ attackJustPressed: true, moveX: -1, prevFacing: 1 }),
         LEGACY_SINGLE_AERIAL_SLOTS,
       ),
-    ).toEqual({ moveId: 'wolf_nair', direction: 'back' });
+    ).toEqual({ moveId: 'test_nair', direction: 'back' });
   });
 
   it('roster with no aerials at all falls back to the light/jab slot', () => {

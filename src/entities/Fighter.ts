@@ -28,7 +28,7 @@
  * Where this fits in the architecture:
  *
  *   ┌─────────────────────────────────────────────────────────────┐
- *   │ Fighter (this file) — "Player N is currently a Wolf in      │
+ *   │ Fighter (this file) — "Player N is currently Pikachu in     │
  *   │   palette 3 with 3 stocks left and 47 % damage."            │
  *   │       │                                                     │
  *   │       └── owns ─────────► Character (../characters/         │
@@ -43,13 +43,13 @@
  *
  * Why Fighter is a *separate entity file* from Character:
  *
- *   • `Character` is the *physics-and-class* abstraction — "a Wolf body"
- *     vs "a Cat body". One Character per body in the world. It does not
+ *   • `Character` is the *physics-and-class* abstraction — "a Pikachu body"
+ *     vs "a Donkey Kong body". One Character per body in the world. It does not
  *     know which player slot owns it, what palette it's wearing, or how
  *     many stocks the player has burned.
  *
  *   • `Fighter` is the *player-slot* abstraction — "Player 2 is currently
- *     using a Wolf to fight at this stocks/damage state". One Fighter per
+ *     using Pikachu to fight at this stocks/damage state". One Fighter per
  *     active slot in a match. Stocks, palette index, and slot identity
  *     live here; they have no business cluttering `Character`'s body
  *     factory.
@@ -106,24 +106,16 @@
  *     the match's duration so they live only in the match config).
  */
 
-import type Phaser from 'phaser';
+import type {PhysicsHost} from '../physics/PhysicsWorld';
 
-import { Character, type CharacterInput, type CharacterTuning } from '../characters/Character';
+import { Character, type CharacterInput } from '../characters/Character';
 import type { ActiveAttack, AttackMove } from '../characters/attacks';
 import type { HitInfo, KnockbackResult } from '../characters/combat';
 import type { AnimationState } from '../characters/animationState';
 import type { ShieldState } from '../characters/shieldState';
 import type { DodgeState } from '../characters/dodgeState';
-import { Bear } from '../characters/Bear';
-import { Cat } from '../characters/Cat';
-import { Owl } from '../characters/Owl';
-import { Wolf } from '../characters/Wolf';
-// Sub-AC 3 of the T2 refactor — every per-player runtime entity
-// resolves its concrete `Character` subclass through the canonical
-// `fighterRegistry`. The pre-existing per-class imports above remain
-// because tests / type narrowing helpers (`fighter instanceof Wolf`)
-// still need the concrete class symbols; the dispatch path is
-// registry-mediated.
+// Every per-player runtime entity resolves its concrete `Character`
+// subclass through the canonical `fighterRegistry`.
 import { instantiateFighter } from '../characters/fighterRegistry';
 import {
   getCharacterSpec,
@@ -169,7 +161,7 @@ export interface FighterOptions {
   /**
    * Optional override of the underlying Character class. Almost always
    * left to the default factory below; tests use this to inject a
-   * stub Character without spinning up Wolf / Cat / Owl / Bear.
+   * stub Character without spinning up a real fighter.
    */
   readonly characterFactory?: CharacterFactory;
   /**
@@ -198,7 +190,7 @@ export interface FighterOptions {
  * The default is `defaultCharacterFactory` below; tests inject a fake.
  */
 export type CharacterFactory = (
-  scene: Phaser.Scene,
+  scene: PhysicsHost,
   characterId: CharacterId,
   spawnX: number,
   spawnY: number,
@@ -308,56 +300,20 @@ export const MAX_PALETTE_INDEX = 7;
 // ---------------------------------------------------------------------------
 
 /**
- * Map a `CharacterId` to its concrete `Character` subclass. Wolf and
- * Cat shipped in M1; Owl joined the playable roster in AC 60004
- * Sub-AC 4 (mage archetype, grounded triplet); Bear joined in AC 60001
- * Sub-AC 1 (grappler archetype, grounded triplet) — every roster slot
- * now resolves to its concrete subclass. The match runtime composes
- * fighters off this factory, so AI and human input both flow through
- * the same code path regardless of which character was picked.
+ * Map a `CharacterId` to its concrete `Character` subclass through
+ * `fighterRegistry.ts`, the single source of truth for the roster. The
+ * registry's lookup throws with a descriptive message naming the id.
  *
- * The factory is broken out into a `const` (not inlined into the class
- * constructor) so tests can pass a `characterFactory` override without
- * having to subclass `Fighter`.
+ * The factory is a `const` (not inlined into the class constructor) so
+ * tests can pass a `characterFactory` override without subclassing
+ * `Fighter`.
  */
 export const defaultCharacterFactory: CharacterFactory = (
   scene,
   characterId,
   spawnX,
   spawnY,
-) => {
-  // Sub-AC 3 of the T2 refactor — dispatch is now delegated to
-  // `fighterRegistry.ts`, the single source of truth that maps
-  // `CharacterId` onto its concrete per-fighter subclass + frozen
-  // {@link FighterContract}. The legacy in-line `switch (id)` block
-  // (with its parallel `case` lines hard-coding `new Wolf(scene, ...)`
-  // / `new Cat(...)` / etc.) is intentionally gone — adding a 5th
-  // roster slot now only requires editing the registry, not this
-  // factory and `characterFactory.createCharacterById` in lockstep.
-  //
-  // Behaviour preservation: the registry's `instantiateFighter`
-  // invokes the same `new Wolf(scene, opts)` / `new Cat(scene, opts)`
-  // / etc. that this factory called previously, so the wrapped
-  // {@link Character} surface (registered moveset, tuning, body
-  // geometry, palette, animation drivers, ...) is byte-for-byte
-  // identical to the pre-registry path. The registry's lookup throws
-  // with a descriptive message that mentions the offending id, which
-  // preserves the fail-loud behaviour the previous default-case
-  // exhaustiveness guard provided. The `Wolf` / `Cat` / `Owl` /
-  // `Bear` imports above remain because tests and type-narrowing
-  // helpers (`fighter instanceof Wolf`) still need the concrete class
-  // symbols at the entity layer.
-  return instantiateFighter(scene, characterId, { spawnX, spawnY });
-};
-// Reference the per-class imports so the bundler / linter does not
-// warn about unused symbols. The classes themselves are required at
-// the top of this file because tests and downstream type narrowing
-// (`fighter instanceof Wolf`) still consume them; the dispatch path
-// no longer mentions them by name.
-void Wolf;
-void Cat;
-void Owl;
-void Bear;
+) => instantiateFighter(scene, characterId, { spawnX, spawnY });
 
 // ---------------------------------------------------------------------------
 // Fighter
@@ -370,7 +326,7 @@ void Bear;
  *
  *   const fighter = new Fighter(scene, {
  *     playerIndex: 1,
- *     characterId: 'wolf',
+ *     characterId: 'donkeykong',
  *     paletteIndex: 0,
  *     spawnX: 320, spawnY: 200,
  *   });
@@ -437,7 +393,7 @@ export class Fighter {
   // Construction
   // -------------------------------------------------------------------------
 
-  constructor(scene: Phaser.Scene, options: FighterOptions) {
+  constructor(scene: PhysicsHost, options: FighterOptions) {
     // ---- Validate slot identity ------------------------------------------
     // Catch mis-wiring at the entity boundary instead of letting an
     // out-of-range slot index leak into the input dispatcher / HUD.
@@ -783,8 +739,8 @@ export class Fighter {
   // Roster spec accessors (Sub-AC 3.5 of AC 205)
   //
   // The Seed names "stats", "sprites/placeholders", and "move-set configs"
-  // as the three things that define a playable character. Wolf and Cat
-  // each ship a `CharacterSpec` aggregating those three pieces; we expose
+  // as the three things that define a playable character. Every fighter
+  // ships a `CharacterSpec` aggregating those three pieces; we expose
   // them through the entity so any consumer that already iterates
   // `fighters[]` can read the full character definition without reaching
   // into the roster module by hand.
@@ -801,7 +757,7 @@ export class Fighter {
   }
 
   /**
-   * Human-readable name (`'Wolf'`, `'Cat'`). Drives the HUD label, the
+   * Human-readable name (`'Pikachu'`, `'Donkey Kong'`). Drives the HUD label, the
    * results banner, the (M-future) character-select tile. Sourced from
    * the roster spec so a rename only has to land in one place.
    */
@@ -815,7 +771,7 @@ export class Fighter {
    * AI scripts that ask "what's this fighter's max run speed?" don't
    * need to drill into the wrapped Character.
    */
-  getTuning(): Required<CharacterTuning> {
+  getTuning(): ReturnType<Character['getTuning']> {
     return this.character.getTuning();
   }
 

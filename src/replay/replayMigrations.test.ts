@@ -44,7 +44,7 @@ import {
 // ---------------------------------------------------------------------------
 
 function makePlayerSlots(count: number): PlayerSlot[] {
-  const ids = ['wolf', 'cat', 'owl', 'bear'] as const;
+  const ids = ['donkeykong', 'pikachu', 'donkeykong', 'pikachu'] as const;
   return Array.from({ length: count }, (_, i) => ({
     index: (i + 1) as PlayerSlot['index'],
     characterId: ids[i]!,
@@ -271,7 +271,9 @@ describe('migrateReplayPayload — happy path', () => {
     expect(md['notes']).toBe('');
     // Other fields must survive the migration unchanged.
     expect(upgraded['rngSeed']).toBe(v0['rngSeed']);
-    expect(upgraded['matchConfig']).toEqual(v0['matchConfig']);
+    // v7 -> v8 pins historical recordings to the rules they were played under: no Smash Ball.
+    expect(upgraded['matchConfig']).toEqual({ ...(v0['matchConfig'] as object),
+      finalSmashRules: { schemaVersion: 1, meterEnabled: false, smashBallEnabled: false } });
     expect(upgraded['inputTimeline']).toEqual(v0['inputTimeline']);
   });
 

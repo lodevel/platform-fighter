@@ -9,7 +9,7 @@ import {
   getMoveAnimationCueBundle,
 } from './movesetAnimationCues';
 import { MOVESET_SLOTS, MOVESET_TABLE } from './movesetAnimationDriver';
-import { getIdleAnimationKey, enumerateMoveAnimationKeys } from './animationState';
+import { ANIMATED_MOVESET_IDS, getIdleAnimationKey, enumerateMoveAnimationKeys } from './animationState';
 import {
   computeAttackPhase,
   getMoveBusyFrames,
@@ -29,16 +29,16 @@ import { getSpriteAnimationKey } from './spriteAnimationDriver';
  *   3. Lifecycle correctness — per-frame cue list mirrors what
  *      `selectAnimationFrame` / `computeAttackPhase` produce on the live
  *      gameplay state machine.
- *   4. Sprite-key fallback — Cat/Wolf get real movement anim keys
- *      (`{id}.idle.anim`, …), Owl/Bear stay `null` per the procedural
- *      fallback contract.
+ *   4. Sprite-key fallback — animated fighters get real movement anim
+ *      keys (`{id}.idle.anim`, …).
  *   5. Determinism — same character + slot + frame returns the same
  *      cue every call; the catalog is frozen at module load.
  */
 
-const ALL_CHARACTERS: ReadonlyArray<CharacterId> = ['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno', 'link', 'kirby', 'donkeykong'];
-const ART_BACKED: ReadonlyArray<CharacterId> = ['wolf', 'cat', 'owl', 'bear'];
-const PROCEDURAL: ReadonlyArray<CharacterId> = [];
+const ALL_CHARACTERS: ReadonlyArray<CharacterId> = ANIMATED_MOVESET_IDS;
+// Link draws only native frames.json sheets (packed-body presentation): he has no legacy
+// `{id}.<state>.anim` sprite keys, so those cue fields are null by contract.
+const LEGACY_SPRITE_FIGHTERS = ALL_CHARACTERS.filter((id) => id !== 'link');
 
 describe('AC 20004 Sub-AC 4 — moveset animation cue catalog', () => {
   describe('Roster coverage', () => {
@@ -71,8 +71,8 @@ describe('AC 20004 Sub-AC 4 — moveset animation cue catalog', () => {
       }
     });
 
-    it('flat MOVESET_ANIMATION_CUE_BUNDLES has 130 entries (13 × 10)', () => {
-      expect(MOVESET_ANIMATION_CUE_BUNDLES).toHaveLength(130);
+    it('flat MOVESET_ANIMATION_CUE_BUNDLES has one bundle per (animated character, slot)', () => {
+      expect(MOVESET_ANIMATION_CUE_BUNDLES).toHaveLength(ALL_CHARACTERS.length * MOVESET_SLOTS.length);
     });
 
     it('every cue bundle is frozen', () => {
@@ -98,8 +98,12 @@ describe('AC 20004 Sub-AC 4 — moveset animation cue catalog', () => {
   });
 
   describe('Movement keys (sprite anim)', () => {
-    it('Cat and Wolf have all movement keys populated', () => {
-      for (const id of ART_BACKED) {
+    it('Link has no legacy run/attack sprite keys (native sheets only)', () => {
+      expect(CHARACTER_MOVESET_ANIMATION_CUES.link.movementKeys.run).toBeNull();
+    });
+
+    it('Every legacy-sprite fighter has all movement keys populated', () => {
+      for (const id of LEGACY_SPRITE_FIGHTERS) {
         const m = CHARACTER_MOVESET_ANIMATION_CUES[id].movementKeys;
         expect(m.idle).toBe(`${id}.idle.anim`);
         expect(m.run).toBe(`${id}.run.anim`);
@@ -108,17 +112,6 @@ describe('AC 20004 Sub-AC 4 — moveset animation cue catalog', () => {
         expect(m.fall).toBe(`${id}.jump.anim`);
         // Hurt collapses onto the idle sheet.
         expect(m.hurt).toBe(`${id}.idle.anim`);
-      }
-    });
-
-    it('Owl and Bear (no source sheet) get null movement keys', () => {
-      for (const id of PROCEDURAL) {
-        const m = CHARACTER_MOVESET_ANIMATION_CUES[id].movementKeys;
-        expect(m.idle).toBeNull();
-        expect(m.run).toBeNull();
-        expect(m.jump).toBeNull();
-        expect(m.fall).toBeNull();
-        expect(m.hurt).toBeNull();
       }
     });
 
@@ -231,8 +224,8 @@ describe('AC 20004 Sub-AC 4 — moveset animation cue catalog', () => {
   });
 
   describe('attackSpriteKey fallback', () => {
-    it('Cat and Wolf yield a real `{id}.attack.anim` key', () => {
-      for (const id of ART_BACKED) {
+    it('Every legacy-sprite fighter yields a real `{id}.attack.anim` key', () => {
+      for (const id of LEGACY_SPRITE_FIGHTERS) {
         for (const slot of MOVESET_SLOTS) {
           const bundle = CHARACTER_MOVESET_ANIMATION_CUES[id].moves[slot];
           expect(bundle.attackSpriteKey).toBe(`${id}.attack.anim`);
@@ -240,20 +233,12 @@ describe('AC 20004 Sub-AC 4 — moveset animation cue catalog', () => {
       }
     });
 
-    it('Owl and Bear yield null (no source sheet)', () => {
-      for (const id of PROCEDURAL) {
-        for (const slot of MOVESET_SLOTS) {
-          const bundle = CHARACTER_MOVESET_ANIMATION_CUES[id].moves[slot];
-          expect(bundle.attackSpriteKey).toBeNull();
-        }
-      }
-    });
   });
 
   describe('getMoveAnimationCueAt', () => {
     it('returns the lifecycle cue for valid frame indices', () => {
-      const bundle = CHARACTER_MOVESET_ANIMATION_CUES.wolf.moves.fair;
-      const cue = getMoveAnimationCueAt('wolf', 'fair', 0);
+      const bundle = CHARACTER_MOVESET_ANIMATION_CUES.donkeykong.moves.fair;
+      const cue = getMoveAnimationCueAt('donkeykong', 'fair', 0);
       expect(cue).not.toBeNull();
       expect(cue!.key).toBe(bundle.lifecycleKeys[0]);
       expect(cue!.framesElapsed).toBe(0);
@@ -261,14 +246,14 @@ describe('AC 20004 Sub-AC 4 — moveset animation cue catalog', () => {
     });
 
     it('returns null past the move busy window', () => {
-      const move = MOVESET_TABLE.cat.tilt;
+      const move = MOVESET_TABLE.link.tilt;
       const busy = getMoveBusyFrames(move);
-      expect(getMoveAnimationCueAt('cat', 'tilt', busy)).toBeNull();
-      expect(getMoveAnimationCueAt('cat', 'tilt', busy + 5)).toBeNull();
+      expect(getMoveAnimationCueAt('link', 'tilt', busy)).toBeNull();
+      expect(getMoveAnimationCueAt('link', 'tilt', busy + 5)).toBeNull();
     });
 
     it('returns null for negative frame indices', () => {
-      expect(getMoveAnimationCueAt('bear', 'jab', -1)).toBeNull();
+      expect(getMoveAnimationCueAt('link', 'jab', -1)).toBeNull();
     });
   });
 
@@ -301,19 +286,13 @@ describe('AC 20004 Sub-AC 4 — moveset animation cue catalog', () => {
       }
     });
 
-    it('contains the movement anim keys for art-backed characters only', () => {
+    it('contains the movement anim keys for every legacy-sprite character', () => {
       const keys = enumerateAllMovesetAnimationCueKeys();
-      for (const id of ART_BACKED) {
+      for (const id of LEGACY_SPRITE_FIGHTERS) {
         expect(keys).toContain(`${id}.idle.anim`);
         expect(keys).toContain(`${id}.run.anim`);
         expect(keys).toContain(`${id}.jump.anim`);
         expect(keys).toContain(`${id}.attack.anim`);
-      }
-      // No `.anim` keys leak in for owl/bear.
-      for (const id of PROCEDURAL) {
-        for (const sheet of ['idle', 'run', 'jump', 'attack']) {
-          expect(keys).not.toContain(`${id}.${sheet}.anim`);
-        }
       }
     });
 
@@ -326,14 +305,14 @@ describe('AC 20004 Sub-AC 4 — moveset animation cue catalog', () => {
 
   describe('Determinism', () => {
     it('same accessor call returns the same frozen reference', () => {
-      const a = getCharacterMovesetAnimationCues('owl');
-      const b = getCharacterMovesetAnimationCues('owl');
+      const a = getCharacterMovesetAnimationCues('donkeykong');
+      const b = getCharacterMovesetAnimationCues('donkeykong');
       expect(a).toBe(b);
     });
 
     it('same (character, slot, frame) tuple returns the same cue value', () => {
-      const a = getMoveAnimationCueAt('cat', 'sideSpecial', 3);
-      const b = getMoveAnimationCueAt('cat', 'sideSpecial', 3);
+      const a = getMoveAnimationCueAt('link', 'sideSpecial', 3);
+      const b = getMoveAnimationCueAt('link', 'sideSpecial', 3);
       expect(a).toEqual(b);
     });
   });

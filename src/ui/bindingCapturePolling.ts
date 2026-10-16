@@ -79,6 +79,15 @@ export interface PolledGamepad {
  */
 export type GamepadSnapshot = ReadonlyArray<PolledGamepad | null>;
 
+/** Wait for neutral before returning from capture to menu navigation. */
+export function hasHeldGamepadCaptureInput(snapshot: GamepadSnapshot): boolean {
+  return snapshot.some((pad) => pad?.connected === true && (
+    pad.buttons.some((button) => button.pressed) ||
+    // Menu navigation starts at 0.5, below the binding capture threshold.
+    pad.axes.some((value) => Number.isFinite(value) && Math.abs(value) > 0.5)
+  ));
+}
+
 // ---------------------------------------------------------------------------
 // Latch shape — the rising-edge state we carry between polls
 // ---------------------------------------------------------------------------

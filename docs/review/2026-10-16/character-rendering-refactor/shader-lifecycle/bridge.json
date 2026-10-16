@@ -1,0 +1,50 @@
+{
+  "endpoint": "ws://127.0.0.1:9234/devtools/browser/72d398c7-9df7-4c8b-8ade-18a9f23b192c",
+  "launch": {
+    "windowsPort": 9233,
+    "pid": 24176,
+    "arguments": [
+      "--headless=new",
+      "--no-first-run",
+      "--no-default-browser-check",
+      "--remote-debugging-address=127.0.0.1",
+      "--remote-debugging-port=9233",
+      "--user-data-dir=\"C:\\Users\\lombet\\AppData\\Local\\Temp\\platform-fighter-edge-cdp-61621fc8-72b7-4480-a258-85b1fb8cce9c\"",
+      "--window-size=1280,720",
+      "about:blank"
+    ],
+    "profile": "C:\\Users\\lombet\\AppData\\Local\\Temp\\platform-fighter-edge-cdp-61621fc8-72b7-4480-a258-85b1fb8cce9c",
+    "version": {
+      "Browser": "Edg/155.0.4283.45",
+      "Protocol-Version": "1.3",
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36 Edg/155.0.0.0",
+      "V8-Version": "15.5.9.4",
+      "WebKit-Version": "537.36 (@50f24ef2aa5369a074b8888b7db82d9c0652d642)",
+      "webSocketDebuggerUrl": "ws://127.0.0.1:9233/devtools/browser/72d398c7-9df7-4c8b-8ade-18a9f23b192c"
+    },
+    "executable": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+    "ownedRootIds": [
+      24176,
+      23268,
+      15948,
+      14108,
+      16512,
+      15044,
+      22592,
+      8128,
+      19412,
+      15148,
+      21672,
+      12964,
+      6300,
+      23352,
+      21352
+    ],
+    "installedVersion": "155.0.4283.45"
+  },
+  "bridge": {
+    "address": "127.0.0.1",
+    "port": 9234,
+    "transport": "per-connection Windows PowerShell TcpClient binary stdio"
+  }
+}

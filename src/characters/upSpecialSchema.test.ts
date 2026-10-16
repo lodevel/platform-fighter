@@ -23,22 +23,13 @@ import {
   type TetherUpSpecialMove,
 } from './upSpecialSchema';
 import {
-  WOLF_UP_SPECIAL,
-  CAT_UP_SPECIAL,
-  OWL_UP_SPECIAL,
-  BEAR_UP_SPECIAL,
-} from './index';
-import {
-  WOLF_JAB,
-  CAT_JAB,
-  OWL_JAB,
-  BEAR_JAB,
-  WOLF_NAIR,
-  WOLF_NEUTRAL_SPECIAL,
-  CAT_NEUTRAL_SPECIAL,
-  OWL_NEUTRAL_SPECIAL,
-  BEAR_NEUTRAL_SPECIAL,
-} from './index';
+  DONKEYKONG_JAB,
+  DONKEYKONG_NAIR,
+  DONKEYKONG_NEUTRAL_SPECIAL,
+  DONKEYKONG_UP_SPECIAL,
+} from './DonkeyKong';
+import { PIKACHU_JAB, PIKACHU_NEUTRAL_SPECIAL, PIKACHU_UP_SPECIAL } from './Pikachu';
+import { LINK_JAB, LINK_NEUTRAL_SPECIAL, LINK_UP_SPECIAL } from './linkFreshKit';
 import { CHARACTER_ROSTER, findMoveByType } from './roster';
 
 /**
@@ -49,16 +40,16 @@ import { CHARACTER_ROSTER, findMoveByType } from './roster';
  * no wall-clock). This suite locks down:
  *
  *   1. Type guards correctly classify the four kinds.
- *   2. Schema validators reject malformed records and accept all four
- *      authored records.
+ *   2. Schema validators reject malformed records and accept every
+ *      authored roster record plus the synthetic kind fixtures.
  *   3. 8-direction stick snap is a pure function with the canonical
  *      output set (8 unit vectors + neutral default).
  *   4. Multi-hit ladder helpers produce correct hit-spawn frames.
  *   5. Teleport / burst window predicates respect their boundaries.
  *   6. Tether tip-position math grows linearly to maxRange.
  *   7. Per-character data — each authored up-special passes the schema
- *      AND the Seed roster invariants (every character has exactly
- *      one up special, kinds are pairwise distinct, ids are unique).
+ *      AND the roster invariants (every character has exactly one up
+ *      special, ids are unique and carry the owner prefix).
  *   8. Roster integration — `CHARACTER_ROSTER[id].moves` exposes the
  *      up-special and `findMoveByType(spec, 'upSpecial')` returns it.
  *   9. Up-special and neutral-special coexist as distinct moves on
@@ -66,50 +57,127 @@ import { CHARACTER_ROSTER, findMoveByType } from './roster';
  */
 
 // ---------------------------------------------------------------------------
+// Fixtures
+// ---------------------------------------------------------------------------
+
+/** Every authored roster up-special (DK + Link multiHitRising, Pikachu directionalJump). */
+const ROSTER_UP_SPECIALS = [
+  { id: 'donkeykong', move: DONKEYKONG_UP_SPECIAL },
+  { id: 'pikachu', move: PIKACHU_UP_SPECIAL },
+  { id: 'link', move: LINK_UP_SPECIAL },
+] as const;
+
+/** Shared AttackMove fields for the synthetic kind fixtures below. */
+const fixtureBase = (id: string, startupFrames: number, activeFrames: number, recoveryFrames: number) => ({
+  id,
+  type: 'upSpecial' as const,
+  damage: 3,
+  knockback: { x: 0.4, y: -2.2, scaling: 0.12 },
+  hitbox: { offsetX: 0, offsetY: -20, width: 50, height: 50 },
+  startupFrames,
+  activeFrames,
+  recoveryFrames,
+  cooldownFrames: 20,
+  animation: { startupFrames: 2, activeFrames: 3, recoveryFrames: 2 },
+});
+
+/**
+ * Evenly spaced multi-hit ladder (no explicit `hitFrames`): 4 hits every
+ * 5 frames → [0, 5, 10, 15] inside an 18-frame active window. The roster's
+ * multiHitRising records author explicit native `hitFrames`, so the
+ * interval-ladder path is exercised here.
+ */
+const MULTI_HIT_FIXTURE: MultiHitRisingUpSpecialMove = Object.freeze({
+  ...fixtureBase('fixture.multi_hit_rising', 4, 18, 22),
+  upSpecialKind: 'multiHitRising',
+  multiHitRising: {
+    riseImpulse: -9,
+    driftImpulse: 1,
+    hitCount: 4,
+    hitInterval: 5,
+    linkDamage: 2,
+    linkKnockback: { x: 0.2, y: -0.8, scaling: 0 },
+    launcherDamage: 5,
+    launcherKnockback: { x: 1.2, y: -3.0, scaling: 0.2 },
+  },
+});
+
+/** Synthetic teleport fixture: no roster fighter ships a teleport up special. */
+const TELEPORT_FIXTURE: TeleportUpSpecialMove = Object.freeze({
+  ...fixtureBase('fixture.teleport', 6, 10, 24),
+  damage: 0,
+  knockback: { x: 0, y: 0, scaling: 0 },
+  upSpecialKind: 'teleport',
+  teleport: { teleportDistance: 280, invincibilityFrames: 10, snapToOctant: true },
+});
+
+/** Synthetic tether fixture: maxRange = extensionSpeed × extensionFrames = 24 × 10. */
+const TETHER_FIXTURE: TetherUpSpecialMove = Object.freeze({
+  ...fixtureBase('fixture.tether', 6, 20, 22),
+  upSpecialKind: 'tether',
+  tether: {
+    maxRange: 240,
+    extensionSpeed: 24,
+    extensionFrames: 10,
+    reelSpeed: 18,
+    reelFrames: 10,
+    tetherTipDamage: 4,
+    tetherTipKnockback: { x: 1.0, y: -1.0, scaling: 0.05 },
+    lineWidth: 3,
+  },
+});
+
+const KIND_FIXTURES = [MULTI_HIT_FIXTURE, TELEPORT_FIXTURE, TETHER_FIXTURE] as const;
+
+// ---------------------------------------------------------------------------
 // Type guards
 // ---------------------------------------------------------------------------
 
 describe('up-special type guards', () => {
   it('isUpSpecialMove rejects non-upSpecial moves', () => {
-    expect(isUpSpecialMove(WOLF_JAB)).toBe(false);
-    expect(isUpSpecialMove(WOLF_NAIR)).toBe(false);
+    expect(isUpSpecialMove(DONKEYKONG_JAB)).toBe(false);
+    expect(isUpSpecialMove(DONKEYKONG_NAIR)).toBe(false);
     // Crucially, a NEUTRAL special is also not an UP special.
-    expect(isUpSpecialMove(WOLF_NEUTRAL_SPECIAL)).toBe(false);
-    expect(isUpSpecialMove(CAT_NEUTRAL_SPECIAL)).toBe(false);
-    expect(isUpSpecialMove(OWL_NEUTRAL_SPECIAL)).toBe(false);
-    expect(isUpSpecialMove(BEAR_NEUTRAL_SPECIAL)).toBe(false);
+    expect(isUpSpecialMove(DONKEYKONG_NEUTRAL_SPECIAL)).toBe(false);
+    expect(isUpSpecialMove(PIKACHU_NEUTRAL_SPECIAL)).toBe(false);
+    expect(isUpSpecialMove(LINK_NEUTRAL_SPECIAL)).toBe(false);
   });
 
-  it('isUpSpecialMove accepts every authored up-special', () => {
-    expect(isUpSpecialMove(WOLF_UP_SPECIAL)).toBe(true);
-    expect(isUpSpecialMove(CAT_UP_SPECIAL)).toBe(true);
-    expect(isUpSpecialMove(OWL_UP_SPECIAL)).toBe(true);
-    expect(isUpSpecialMove(BEAR_UP_SPECIAL)).toBe(true);
+  it('isUpSpecialMove accepts every authored up-special and every kind fixture', () => {
+    for (const { move } of ROSTER_UP_SPECIALS) {
+      expect(isUpSpecialMove(move)).toBe(true);
+    }
+    for (const move of KIND_FIXTURES) {
+      expect(isUpSpecialMove(move)).toBe(true);
+    }
   });
 
   it('per-kind type guards classify correctly and exclusively', () => {
-    // Wolf = multiHitRising
-    expect(isMultiHitRisingUpSpecial(WOLF_UP_SPECIAL)).toBe(true);
-    expect(isTeleportUpSpecial(WOLF_UP_SPECIAL)).toBe(false);
-    expect(isDirectionalJumpUpSpecial(WOLF_UP_SPECIAL)).toBe(false);
-    expect(isTetherUpSpecial(WOLF_UP_SPECIAL)).toBe(false);
+    // Donkey Kong and Link = multiHitRising (Spinning Kong, Spin Attack)
+    for (const move of [DONKEYKONG_UP_SPECIAL, LINK_UP_SPECIAL, MULTI_HIT_FIXTURE]) {
+      expect(isMultiHitRisingUpSpecial(move)).toBe(true);
+      expect(isTeleportUpSpecial(move)).toBe(false);
+      expect(isDirectionalJumpUpSpecial(move)).toBe(false);
+      expect(isTetherUpSpecial(move)).toBe(false);
+    }
 
-    // Cat = teleport
-    expect(isTeleportUpSpecial(CAT_UP_SPECIAL)).toBe(true);
-    expect(isMultiHitRisingUpSpecial(CAT_UP_SPECIAL)).toBe(false);
+    // Pikachu = directionalJump (Quick Attack)
+    expect(isDirectionalJumpUpSpecial(PIKACHU_UP_SPECIAL)).toBe(true);
+    expect(isTeleportUpSpecial(PIKACHU_UP_SPECIAL)).toBe(false);
+    expect(isMultiHitRisingUpSpecial(PIKACHU_UP_SPECIAL)).toBe(false);
 
-    // Owl = directionalJump
-    expect(isDirectionalJumpUpSpecial(OWL_UP_SPECIAL)).toBe(true);
-    expect(isTeleportUpSpecial(OWL_UP_SPECIAL)).toBe(false);
+    // teleport fixture
+    expect(isTeleportUpSpecial(TELEPORT_FIXTURE)).toBe(true);
+    expect(isMultiHitRisingUpSpecial(TELEPORT_FIXTURE)).toBe(false);
 
-    // Bear = tether
-    expect(isTetherUpSpecial(BEAR_UP_SPECIAL)).toBe(true);
-    expect(isDirectionalJumpUpSpecial(BEAR_UP_SPECIAL)).toBe(false);
+    // tether fixture
+    expect(isTetherUpSpecial(TETHER_FIXTURE)).toBe(true);
+    expect(isDirectionalJumpUpSpecial(TETHER_FIXTURE)).toBe(false);
   });
 
   it('isUpSpecialMove rejects a move tagged "upSpecial" without an upSpecialKind', () => {
     const malformed = {
-      ...WOLF_UP_SPECIAL,
+      ...MULTI_HIT_FIXTURE,
       upSpecialKind: undefined,
     } as unknown as UpSpecialMove;
     expect(isUpSpecialMove(malformed)).toBe(false);
@@ -121,15 +189,17 @@ describe('up-special type guards', () => {
 // ---------------------------------------------------------------------------
 
 describe('validateUpSpecialMove', () => {
-  it('accepts every authored up-special record', () => {
-    expect(validateUpSpecialMove(WOLF_UP_SPECIAL)).toBe(WOLF_UP_SPECIAL);
-    expect(validateUpSpecialMove(CAT_UP_SPECIAL)).toBe(CAT_UP_SPECIAL);
-    expect(validateUpSpecialMove(OWL_UP_SPECIAL)).toBe(OWL_UP_SPECIAL);
-    expect(validateUpSpecialMove(BEAR_UP_SPECIAL)).toBe(BEAR_UP_SPECIAL);
+  it('accepts every authored up-special record and every kind fixture', () => {
+    for (const { move } of ROSTER_UP_SPECIALS) {
+      expect(validateUpSpecialMove(move)).toBe(move);
+    }
+    for (const move of KIND_FIXTURES) {
+      expect(validateUpSpecialMove(move)).toBe(move);
+    }
   });
 
   it('rejects a record whose type is not "upSpecial"', () => {
-    const bad = { ...WOLF_UP_SPECIAL, type: 'jab' } as unknown as UpSpecialMove;
+    const bad = { ...MULTI_HIT_FIXTURE, type: 'jab' } as unknown as UpSpecialMove;
     expect(() => validateUpSpecialMove(bad)).toThrow(/type/);
   });
 
@@ -139,35 +209,35 @@ describe('validateUpSpecialMove', () => {
 
   it('multiHitRising: rejects non-negative riseImpulse (must be upward)', () => {
     const bad: MultiHitRisingUpSpecialMove = {
-      ...WOLF_UP_SPECIAL,
-      multiHitRising: { ...WOLF_UP_SPECIAL.multiHitRising, riseImpulse: 5 },
+      ...MULTI_HIT_FIXTURE,
+      multiHitRising: { ...MULTI_HIT_FIXTURE.multiHitRising, riseImpulse: 5 },
     };
     expect(() => validateUpSpecialMove(bad)).toThrow(/riseImpulse/);
   });
 
   it('multiHitRising: rejects hitCount < 1', () => {
     const bad: MultiHitRisingUpSpecialMove = {
-      ...WOLF_UP_SPECIAL,
-      multiHitRising: { ...WOLF_UP_SPECIAL.multiHitRising, hitCount: 0 },
+      ...MULTI_HIT_FIXTURE,
+      multiHitRising: { ...MULTI_HIT_FIXTURE.multiHitRising, hitCount: 0 },
     };
     expect(() => validateUpSpecialMove(bad)).toThrow(/hitCount/);
   });
 
   it('multiHitRising: rejects hitInterval < 1', () => {
     const bad: MultiHitRisingUpSpecialMove = {
-      ...WOLF_UP_SPECIAL,
-      multiHitRising: { ...WOLF_UP_SPECIAL.multiHitRising, hitInterval: 0 },
+      ...MULTI_HIT_FIXTURE,
+      multiHitRising: { ...MULTI_HIT_FIXTURE.multiHitRising, hitInterval: 0 },
     };
     expect(() => validateUpSpecialMove(bad)).toThrow(/hitInterval/);
   });
 
   it('multiHitRising: rejects final hit past activeFrames', () => {
     const bad: MultiHitRisingUpSpecialMove = {
-      ...WOLF_UP_SPECIAL,
+      ...MULTI_HIT_FIXTURE,
       // 4 hits × 100 interval = final hit at active-frame 300 — way past
       // the 18-frame active window.
       multiHitRising: {
-        ...WOLF_UP_SPECIAL.multiHitRising,
+        ...MULTI_HIT_FIXTURE.multiHitRising,
         hitCount: 4,
         hitInterval: 100,
       },
@@ -177,9 +247,9 @@ describe('validateUpSpecialMove', () => {
 
   it('multiHitRising: rejects negative damage', () => {
     const bad: MultiHitRisingUpSpecialMove = {
-      ...WOLF_UP_SPECIAL,
+      ...MULTI_HIT_FIXTURE,
       multiHitRising: {
-        ...WOLF_UP_SPECIAL.multiHitRising,
+        ...MULTI_HIT_FIXTURE.multiHitRising,
         linkDamage: -1,
       },
     };
@@ -192,24 +262,24 @@ describe('validateUpSpecialMove', () => {
 
   it('teleport: rejects non-positive teleportDistance', () => {
     const bad: TeleportUpSpecialMove = {
-      ...CAT_UP_SPECIAL,
-      teleport: { ...CAT_UP_SPECIAL.teleport, teleportDistance: 0 },
+      ...TELEPORT_FIXTURE,
+      teleport: { ...TELEPORT_FIXTURE.teleport, teleportDistance: 0 },
     };
     expect(() => validateUpSpecialMove(bad)).toThrow(/teleportDistance/);
   });
 
   it('teleport: rejects negative invincibilityFrames', () => {
     const bad: TeleportUpSpecialMove = {
-      ...CAT_UP_SPECIAL,
-      teleport: { ...CAT_UP_SPECIAL.teleport, invincibilityFrames: -1 },
+      ...TELEPORT_FIXTURE,
+      teleport: { ...TELEPORT_FIXTURE.teleport, invincibilityFrames: -1 },
     };
     expect(() => validateUpSpecialMove(bad)).toThrow(/invincibilityFrames/);
   });
 
   it('teleport: rejects invincibilityFrames > activeFrames', () => {
     const bad: TeleportUpSpecialMove = {
-      ...CAT_UP_SPECIAL,
-      teleport: { ...CAT_UP_SPECIAL.teleport, invincibilityFrames: 999 },
+      ...TELEPORT_FIXTURE,
+      teleport: { ...TELEPORT_FIXTURE.teleport, invincibilityFrames: 999 },
     };
     expect(() => validateUpSpecialMove(bad)).toThrow(/exceeds activeFrames/);
   });
@@ -220,25 +290,25 @@ describe('validateUpSpecialMove', () => {
 
   it('directionalJump: rejects non-positive burstSpeed', () => {
     const bad: DirectionalJumpUpSpecialMove = {
-      ...OWL_UP_SPECIAL,
-      directionalJump: { ...OWL_UP_SPECIAL.directionalJump, burstSpeed: 0 },
+      ...PIKACHU_UP_SPECIAL,
+      directionalJump: { ...PIKACHU_UP_SPECIAL.directionalJump, burstSpeed: 0 },
     };
     expect(() => validateUpSpecialMove(bad)).toThrow(/burstSpeed/);
   });
 
   it('directionalJump: rejects burstFrames < 1', () => {
     const bad: DirectionalJumpUpSpecialMove = {
-      ...OWL_UP_SPECIAL,
-      directionalJump: { ...OWL_UP_SPECIAL.directionalJump, burstFrames: 0 },
+      ...PIKACHU_UP_SPECIAL,
+      directionalJump: { ...PIKACHU_UP_SPECIAL.directionalJump, burstFrames: 0 },
     };
     expect(() => validateUpSpecialMove(bad)).toThrow(/burstFrames/);
   });
 
   it('directionalJump: rejects burstFrames > activeFrames', () => {
     const bad: DirectionalJumpUpSpecialMove = {
-      ...OWL_UP_SPECIAL,
+      ...PIKACHU_UP_SPECIAL,
       directionalJump: {
-        ...OWL_UP_SPECIAL.directionalJump,
+        ...PIKACHU_UP_SPECIAL.directionalJump,
         burstFrames: 999,
       },
     };
@@ -251,25 +321,25 @@ describe('validateUpSpecialMove', () => {
 
   it('tether: rejects non-positive maxRange', () => {
     const bad: TetherUpSpecialMove = {
-      ...BEAR_UP_SPECIAL,
-      tether: { ...BEAR_UP_SPECIAL.tether, maxRange: 0 },
+      ...TETHER_FIXTURE,
+      tether: { ...TETHER_FIXTURE.tether, maxRange: 0 },
     };
     expect(() => validateUpSpecialMove(bad)).toThrow(/maxRange/);
   });
 
   it('tether: rejects mismatched maxRange vs extensionSpeed*extensionFrames', () => {
     const bad: TetherUpSpecialMove = {
-      ...BEAR_UP_SPECIAL,
-      tether: { ...BEAR_UP_SPECIAL.tether, maxRange: 999 },
+      ...TETHER_FIXTURE,
+      tether: { ...TETHER_FIXTURE.tether, maxRange: 999 },
     };
     expect(() => validateUpSpecialMove(bad)).toThrow(/maxRange/);
   });
 
   it('tether: rejects extensionFrames > activeFrames', () => {
     const bad: TetherUpSpecialMove = {
-      ...BEAR_UP_SPECIAL,
+      ...TETHER_FIXTURE,
       tether: {
-        ...BEAR_UP_SPECIAL.tether,
+        ...TETHER_FIXTURE.tether,
         // Inflate extensionFrames AND extensionSpeed/maxRange to keep
         // the maxRange = extensionSpeed * extensionFrames invariant —
         // we want to fail the "extension > active" check, not the
@@ -284,24 +354,24 @@ describe('validateUpSpecialMove', () => {
 
   it('tether: rejects non-positive reelSpeed', () => {
     const bad: TetherUpSpecialMove = {
-      ...BEAR_UP_SPECIAL,
-      tether: { ...BEAR_UP_SPECIAL.tether, reelSpeed: 0 },
+      ...TETHER_FIXTURE,
+      tether: { ...TETHER_FIXTURE.tether, reelSpeed: 0 },
     };
     expect(() => validateUpSpecialMove(bad)).toThrow(/reelSpeed/);
   });
 
   it('tether: rejects negative tetherTipDamage', () => {
     const bad: TetherUpSpecialMove = {
-      ...BEAR_UP_SPECIAL,
-      tether: { ...BEAR_UP_SPECIAL.tether, tetherTipDamage: -1 },
+      ...TETHER_FIXTURE,
+      tether: { ...TETHER_FIXTURE.tether, tetherTipDamage: -1 },
     };
     expect(() => validateUpSpecialMove(bad)).toThrow(/tetherTipDamage/);
   });
 
   it('tether: rejects non-positive lineWidth', () => {
     const bad: TetherUpSpecialMove = {
-      ...BEAR_UP_SPECIAL,
-      tether: { ...BEAR_UP_SPECIAL.tether, lineWidth: 0 },
+      ...TETHER_FIXTURE,
+      tether: { ...TETHER_FIXTURE.tether, lineWidth: 0 },
     };
     expect(() => validateUpSpecialMove(bad)).toThrow(/lineWidth/);
   });
@@ -363,39 +433,39 @@ describe('snapStickToOctant', () => {
 // ---------------------------------------------------------------------------
 
 describe('multi-hit ladder helpers', () => {
-  const wolf = WOLF_UP_SPECIAL;
+  const ladder = MULTI_HIT_FIXTURE;
 
   it('computeMultiHitFrames returns hitCount frames spaced by hitInterval', () => {
-    const frames = computeMultiHitFrames(wolf.multiHitRising);
-    expect(frames.length).toBe(wolf.multiHitRising.hitCount);
-    // Wolf: hitCount=4, hitInterval=5 → [0, 5, 10, 15]
+    const frames = computeMultiHitFrames(ladder.multiHitRising);
+    expect(frames.length).toBe(ladder.multiHitRising.hitCount);
+    // hitCount=4, hitInterval=5 → [0, 5, 10, 15]
     expect(frames).toEqual([0, 5, 10, 15]);
   });
 
   it('isMultiHitFrame returns true on hit-spawn frames and false off them', () => {
-    // Wolf ladder is [0, 5, 10, 15]
-    expect(isMultiHitFrame(wolf.multiHitRising, 0)).toBe(true);
-    expect(isMultiHitFrame(wolf.multiHitRising, 1)).toBe(false);
-    expect(isMultiHitFrame(wolf.multiHitRising, 4)).toBe(false);
-    expect(isMultiHitFrame(wolf.multiHitRising, 5)).toBe(true);
-    expect(isMultiHitFrame(wolf.multiHitRising, 10)).toBe(true);
-    expect(isMultiHitFrame(wolf.multiHitRising, 15)).toBe(true);
+    // Ladder is [0, 5, 10, 15]
+    expect(isMultiHitFrame(ladder.multiHitRising, 0)).toBe(true);
+    expect(isMultiHitFrame(ladder.multiHitRising, 1)).toBe(false);
+    expect(isMultiHitFrame(ladder.multiHitRising, 4)).toBe(false);
+    expect(isMultiHitFrame(ladder.multiHitRising, 5)).toBe(true);
+    expect(isMultiHitFrame(ladder.multiHitRising, 10)).toBe(true);
+    expect(isMultiHitFrame(ladder.multiHitRising, 15)).toBe(true);
     // Past the last hit but still on a multiple of hitInterval.
-    expect(isMultiHitFrame(wolf.multiHitRising, 20)).toBe(false);
+    expect(isMultiHitFrame(ladder.multiHitRising, 20)).toBe(false);
   });
 
   it('isMultiHitFrame rejects negative input', () => {
-    expect(isMultiHitFrame(wolf.multiHitRising, -1)).toBe(false);
+    expect(isMultiHitFrame(ladder.multiHitRising, -1)).toBe(false);
   });
 
   it('isFinalLauncherFrame returns true ONLY on the last hit in the ladder', () => {
-    // Wolf ladder is [0, 5, 10, 15]; final = 15.
-    expect(isFinalLauncherFrame(wolf.multiHitRising, 0)).toBe(false);
-    expect(isFinalLauncherFrame(wolf.multiHitRising, 5)).toBe(false);
-    expect(isFinalLauncherFrame(wolf.multiHitRising, 10)).toBe(false);
-    expect(isFinalLauncherFrame(wolf.multiHitRising, 15)).toBe(true);
+    // Ladder is [0, 5, 10, 15]; final = 15.
+    expect(isFinalLauncherFrame(ladder.multiHitRising, 0)).toBe(false);
+    expect(isFinalLauncherFrame(ladder.multiHitRising, 5)).toBe(false);
+    expect(isFinalLauncherFrame(ladder.multiHitRising, 10)).toBe(false);
+    expect(isFinalLauncherFrame(ladder.multiHitRising, 15)).toBe(true);
     // Off-ladder frame is not the launcher.
-    expect(isFinalLauncherFrame(wolf.multiHitRising, 7)).toBe(false);
+    expect(isFinalLauncherFrame(ladder.multiHitRising, 7)).toBe(false);
   });
 });
 
@@ -404,29 +474,29 @@ describe('multi-hit ladder helpers', () => {
 // ---------------------------------------------------------------------------
 
 describe('teleport helpers', () => {
-  const cat = CAT_UP_SPECIAL;
+  const teleport = TELEPORT_FIXTURE;
 
   it('computeTeleportDestination applies direction × distance', () => {
     // Up (0, -1) × 280 from (100, 200) → (100, -80)
-    const up = computeTeleportDestination(cat.teleport, 100, 200, { x: 0, y: -1 });
-    expect(up).toEqual({ x: 100, y: 200 - cat.teleport.teleportDistance });
+    const up = computeTeleportDestination(teleport.teleport, 100, 200, { x: 0, y: -1 });
+    expect(up).toEqual({ x: 100, y: 200 - teleport.teleport.teleportDistance });
     // East (1, 0) × 280 from (100, 200) → (380, 200)
-    const east = computeTeleportDestination(cat.teleport, 100, 200, { x: 1, y: 0 });
-    expect(east).toEqual({ x: 100 + cat.teleport.teleportDistance, y: 200 });
+    const east = computeTeleportDestination(teleport.teleport, 100, 200, { x: 1, y: 0 });
+    expect(east).toEqual({ x: 100 + teleport.teleport.teleportDistance, y: 200 });
   });
 
   it('computeTeleportDestination is deterministic', () => {
-    const a = computeTeleportDestination(cat.teleport, 50, 50, { x: 1, y: 0 });
-    const b = computeTeleportDestination(cat.teleport, 50, 50, { x: 1, y: 0 });
+    const a = computeTeleportDestination(teleport.teleport, 50, 50, { x: 1, y: 0 });
+    const b = computeTeleportDestination(teleport.teleport, 50, 50, { x: 1, y: 0 });
     expect(a).toEqual(b);
   });
 
   it('isInTeleportInvincibilityWindow respects [0, invincibilityFrames)', () => {
-    expect(isInTeleportInvincibilityWindow(cat, -1)).toBe(false);
-    expect(isInTeleportInvincibilityWindow(cat, 0)).toBe(true);
-    expect(isInTeleportInvincibilityWindow(cat, cat.teleport.invincibilityFrames - 1)).toBe(true);
-    expect(isInTeleportInvincibilityWindow(cat, cat.teleport.invincibilityFrames)).toBe(false);
-    expect(isInTeleportInvincibilityWindow(cat, cat.teleport.invincibilityFrames + 1)).toBe(false);
+    expect(isInTeleportInvincibilityWindow(teleport, -1)).toBe(false);
+    expect(isInTeleportInvincibilityWindow(teleport, 0)).toBe(true);
+    expect(isInTeleportInvincibilityWindow(teleport, teleport.teleport.invincibilityFrames - 1)).toBe(true);
+    expect(isInTeleportInvincibilityWindow(teleport, teleport.teleport.invincibilityFrames)).toBe(false);
+    expect(isInTeleportInvincibilityWindow(teleport, teleport.teleport.invincibilityFrames + 1)).toBe(false);
   });
 });
 
@@ -435,27 +505,27 @@ describe('teleport helpers', () => {
 // ---------------------------------------------------------------------------
 
 describe('directional-jump helpers', () => {
-  const owl = OWL_UP_SPECIAL;
+  const quickAttack = PIKACHU_UP_SPECIAL;
 
   it('computeBurstVelocity scales the unit direction by burstSpeed', () => {
     // East × 22 → (22, 0)
-    const east = computeBurstVelocity(owl.directionalJump, { x: 1, y: 0 });
-    expect(east).toEqual({ x: owl.directionalJump.burstSpeed, y: 0 });
+    const east = computeBurstVelocity(quickAttack.directionalJump, { x: 1, y: 0 });
+    expect(east).toEqual({ x: quickAttack.directionalJump.burstSpeed, y: 0 });
     // Up × 22 → (0, -22)
-    const up = computeBurstVelocity(owl.directionalJump, { x: 0, y: -1 });
-    expect(up).toEqual({ x: 0, y: -owl.directionalJump.burstSpeed });
+    const up = computeBurstVelocity(quickAttack.directionalJump, { x: 0, y: -1 });
+    expect(up).toEqual({ x: 0, y: -quickAttack.directionalJump.burstSpeed });
   });
 
   it('isInBurstWindow respects [0, burstFrames)', () => {
-    expect(isInBurstWindow(owl, -1)).toBe(false);
-    expect(isInBurstWindow(owl, 0)).toBe(true);
-    expect(isInBurstWindow(owl, owl.directionalJump.burstFrames - 1)).toBe(true);
-    expect(isInBurstWindow(owl, owl.directionalJump.burstFrames)).toBe(false);
+    expect(isInBurstWindow(quickAttack, -1)).toBe(false);
+    expect(isInBurstWindow(quickAttack, 0)).toBe(true);
+    expect(isInBurstWindow(quickAttack, quickAttack.directionalJump.burstFrames - 1)).toBe(true);
+    expect(isInBurstWindow(quickAttack, quickAttack.directionalJump.burstFrames)).toBe(false);
   });
 
   it('burst velocity is deterministic', () => {
-    const a = computeBurstVelocity(owl.directionalJump, { x: 1, y: 0 });
-    const b = computeBurstVelocity(owl.directionalJump, { x: 1, y: 0 });
+    const a = computeBurstVelocity(quickAttack.directionalJump, { x: 1, y: 0 });
+    const b = computeBurstVelocity(quickAttack.directionalJump, { x: 1, y: 0 });
     expect(a).toEqual(b);
   });
 });
@@ -465,49 +535,49 @@ describe('directional-jump helpers', () => {
 // ---------------------------------------------------------------------------
 
 describe('tether helpers', () => {
-  const bear = BEAR_UP_SPECIAL;
+  const tether = TETHER_FIXTURE;
 
   it('computeTetherTipPosition starts at the body and grows linearly', () => {
     // Frame 0: tip at body
-    const t0 = computeTetherTipPosition(bear.tether, 100, 200, 1, 0);
+    const t0 = computeTetherTipPosition(tether.tether, 100, 200, 1, 0);
     expect(t0).toEqual({ x: 100, y: 200 });
     // Frame 1: tip moved by extensionSpeed in facing direction
-    const t1 = computeTetherTipPosition(bear.tether, 100, 200, 1, 1);
-    expect(t1).toEqual({ x: 100 + bear.tether.extensionSpeed, y: 200 });
+    const t1 = computeTetherTipPosition(tether.tether, 100, 200, 1, 1);
+    expect(t1).toEqual({ x: 100 + tether.tether.extensionSpeed, y: 200 });
     // Frame extensionFrames: tip at maxRange
     const tFull = computeTetherTipPosition(
-      bear.tether,
+      tether.tether,
       100,
       200,
       1,
-      bear.tether.extensionFrames,
+      tether.tether.extensionFrames,
     );
-    expect(tFull).toEqual({ x: 100 + bear.tether.maxRange, y: 200 });
+    expect(tFull).toEqual({ x: 100 + tether.tether.maxRange, y: 200 });
   });
 
   it('computeTetherTipPosition mirrors by facing', () => {
     // Facing left → tip extends to the LEFT of the body.
-    const t1 = computeTetherTipPosition(bear.tether, 100, 200, -1, 1);
-    expect(t1).toEqual({ x: 100 - bear.tether.extensionSpeed, y: 200 });
+    const t1 = computeTetherTipPosition(tether.tether, 100, 200, -1, 1);
+    expect(t1).toEqual({ x: 100 - tether.tether.extensionSpeed, y: 200 });
   });
 
   it('computeTetherTipPosition clamps at maxRange (no over-extension)', () => {
     // Past extensionFrames, tip should still cap at maxRange.
     const tOver = computeTetherTipPosition(
-      bear.tether,
+      tether.tether,
       100,
       200,
       1,
-      bear.tether.extensionFrames + 100,
+      tether.tether.extensionFrames + 100,
     );
-    expect(tOver).toEqual({ x: 100 + bear.tether.maxRange, y: 200 });
+    expect(tOver).toEqual({ x: 100 + tether.tether.maxRange, y: 200 });
   });
 
   it('isTetherFullyExtended fires at and after extensionFrames', () => {
-    expect(isTetherFullyExtended(bear.tether, 0)).toBe(false);
-    expect(isTetherFullyExtended(bear.tether, bear.tether.extensionFrames - 1)).toBe(false);
-    expect(isTetherFullyExtended(bear.tether, bear.tether.extensionFrames)).toBe(true);
-    expect(isTetherFullyExtended(bear.tether, bear.tether.extensionFrames + 5)).toBe(true);
+    expect(isTetherFullyExtended(tether.tether, 0)).toBe(false);
+    expect(isTetherFullyExtended(tether.tether, tether.tether.extensionFrames - 1)).toBe(false);
+    expect(isTetherFullyExtended(tether.tether, tether.tether.extensionFrames)).toBe(true);
+    expect(isTetherFullyExtended(tether.tether, tether.tether.extensionFrames + 5)).toBe(true);
   });
 });
 
@@ -517,126 +587,41 @@ describe('tether helpers', () => {
 
 describe('per-character up-specials', () => {
   it('every character has exactly one up-special', () => {
-    for (const id of ['wolf', 'cat', 'owl', 'bear'] as const) {
+    for (const { id } of ROSTER_UP_SPECIALS) {
       const spec = CHARACTER_ROSTER[id];
       const ups = spec.moves.filter((m) => m.type === 'upSpecial');
       expect(ups.length, `${id} ups`).toBe(1);
     }
   });
 
-  it('the four characters use four distinct kinds (Seed: unique mechanics)', () => {
-    const kinds = new Set([
-      WOLF_UP_SPECIAL.upSpecialKind,
-      CAT_UP_SPECIAL.upSpecialKind,
-      OWL_UP_SPECIAL.upSpecialKind,
-      BEAR_UP_SPECIAL.upSpecialKind,
-    ]);
-    expect(kinds.size).toBe(4);
-    expect(kinds.has('multiHitRising')).toBe(true);
-    expect(kinds.has('teleport')).toBe(true);
-    expect(kinds.has('directionalJump')).toBe(true);
-    expect(kinds.has('tether')).toBe(true);
-  });
-
   it('every up-special id is unique across the roster', () => {
-    const ids = [
-      WOLF_UP_SPECIAL.id,
-      CAT_UP_SPECIAL.id,
-      OWL_UP_SPECIAL.id,
-      BEAR_UP_SPECIAL.id,
-    ];
+    const ids = ROSTER_UP_SPECIALS.map((e) => e.move.id);
     expect(new Set(ids).size).toBe(ids.length);
   });
 
   it('every up-special id matches its owning character prefix', () => {
-    expect(WOLF_UP_SPECIAL.id).toMatch(/^wolf\./);
-    expect(CAT_UP_SPECIAL.id).toMatch(/^cat\./);
-    expect(OWL_UP_SPECIAL.id).toMatch(/^owl\./);
-    expect(BEAR_UP_SPECIAL.id).toMatch(/^bear\./);
-  });
-
-  it('findMoveByType("upSpecial") returns the up-special for each character', () => {
-    expect(findMoveByType(CHARACTER_ROSTER.wolf, 'upSpecial')).toBe(WOLF_UP_SPECIAL);
-    expect(findMoveByType(CHARACTER_ROSTER.cat, 'upSpecial')).toBe(CAT_UP_SPECIAL);
-    expect(findMoveByType(CHARACTER_ROSTER.owl, 'upSpecial')).toBe(OWL_UP_SPECIAL);
-    expect(findMoveByType(CHARACTER_ROSTER.bear, 'upSpecial')).toBe(BEAR_UP_SPECIAL);
-  });
-
-  it('every up-special declares an animation block (renderer integration)', () => {
-    for (const sp of [WOLF_UP_SPECIAL, CAT_UP_SPECIAL, OWL_UP_SPECIAL, BEAR_UP_SPECIAL]) {
-      expect(sp.animation).toBeDefined();
-      const a = sp.animation!;
-      expect(a.startupFrames).toBeGreaterThan(0);
-      expect(a.activeFrames).toBeGreaterThan(0);
-      expect(a.recoveryFrames).toBeGreaterThan(0);
-      // Seed constraint: 6-8 art frames per move.
-      const total = a.startupFrames + a.activeFrames + a.recoveryFrames;
-      expect(total, `${sp.id} art-frame count`).toBeGreaterThanOrEqual(6);
-      expect(total, `${sp.id} art-frame count`).toBeLessThanOrEqual(8);
+    for (const { id, move } of ROSTER_UP_SPECIALS) {
+      expect(move.id.startsWith(`${id}.`)).toBe(true);
     }
   });
 
-  it('art-frame counts never exceed gameplay-phase frame counts', () => {
+  it('findMoveByType("upSpecial") returns the up-special for each character', () => {
+    for (const { id, move } of ROSTER_UP_SPECIALS) {
+      expect(findMoveByType(CHARACTER_ROSTER[id], 'upSpecial')).toBe(move);
+    }
+  });
+
+  it('declared art-frame counts never exceed gameplay-phase frame counts', () => {
     // Stretch contract — art frames stretch out over gameplay frames,
     // but cannot demand more art frames than the gameplay phase has time
-    // to play.
-    for (const sp of [WOLF_UP_SPECIAL, CAT_UP_SPECIAL, OWL_UP_SPECIAL, BEAR_UP_SPECIAL]) {
+    // to play. Pikachu's Quick Attack is presented by its special runtime
+    // and declares no animation block.
+    for (const sp of [DONKEYKONG_UP_SPECIAL, LINK_UP_SPECIAL]) {
       const a = sp.animation!;
       expect(a.startupFrames).toBeLessThanOrEqual(sp.startupFrames);
       expect(a.activeFrames).toBeLessThanOrEqual(sp.activeFrames);
       expect(a.recoveryFrames).toBeLessThanOrEqual(sp.recoveryFrames);
     }
-  });
-});
-
-// ---------------------------------------------------------------------------
-// Recovery-archetype invariants — the move family has a job to do
-// ---------------------------------------------------------------------------
-
-describe('recovery-archetype invariants', () => {
-  it('Wolf rises (negative riseImpulse — upward in Phaser screen-space)', () => {
-    expect(WOLF_UP_SPECIAL.multiHitRising.riseImpulse).toBeLessThan(0);
-  });
-
-  it('Wolf lands the final launcher inside the active window', () => {
-    const r = WOLF_UP_SPECIAL.multiHitRising;
-    const finalOffset = (r.hitCount - 1) * r.hitInterval;
-    expect(finalOffset).toBeLessThan(WOLF_UP_SPECIAL.activeFrames);
-  });
-
-  it('Cat teleports a meaningful distance', () => {
-    // teleportDistance must be enough to actually save a stock —
-    // longer than a typical jump arc (~150-200 px).
-    expect(CAT_UP_SPECIAL.teleport.teleportDistance).toBeGreaterThan(200);
-  });
-
-  it('Cat is invincible during the entire vanish (active phase)', () => {
-    // Invincibility must cover the whole active window so Cat cannot be
-    // hit during the vanish.
-    expect(CAT_UP_SPECIAL.teleport.invincibilityFrames).toBe(CAT_UP_SPECIAL.activeFrames);
-  });
-
-  it('Owl bursts at high speed for the entire active phase', () => {
-    expect(OWL_UP_SPECIAL.directionalJump.burstSpeed).toBeGreaterThan(15);
-    expect(OWL_UP_SPECIAL.directionalJump.burstFrames).toBe(OWL_UP_SPECIAL.activeFrames);
-  });
-
-  it('Owl enters helpless state after the burst', () => {
-    expect(OWL_UP_SPECIAL.directionalJump.helplessAfterBurst).toBe(true);
-  });
-
-  it('Bear extension reaches maxRange in exactly extensionFrames', () => {
-    const t = BEAR_UP_SPECIAL.tether;
-    expect(t.extensionSpeed * t.extensionFrames).toBe(t.maxRange);
-  });
-
-  it('Bear extension fits inside the active window', () => {
-    expect(BEAR_UP_SPECIAL.tether.extensionFrames).toBeLessThanOrEqual(BEAR_UP_SPECIAL.activeFrames);
-  });
-
-  it('Bear tether reach is the longest single-direction recovery anchor in the cast', () => {
-    // Bear's grappler identity demands a long-reach tether — > 200 px.
-    expect(BEAR_UP_SPECIAL.tether.maxRange).toBeGreaterThan(200);
   });
 });
 
@@ -652,20 +637,20 @@ describe('determinism', () => {
   });
 
   it('multi-hit frame computation is deterministic', () => {
-    const a = computeMultiHitFrames(WOLF_UP_SPECIAL.multiHitRising);
-    const b = computeMultiHitFrames(WOLF_UP_SPECIAL.multiHitRising);
+    const a = computeMultiHitFrames(MULTI_HIT_FIXTURE.multiHitRising);
+    const b = computeMultiHitFrames(MULTI_HIT_FIXTURE.multiHitRising);
     expect(a).toEqual(b);
   });
 
   it('teleport destination is deterministic', () => {
-    const a = computeTeleportDestination(CAT_UP_SPECIAL.teleport, 0, 0, { x: 1, y: 0 });
-    const b = computeTeleportDestination(CAT_UP_SPECIAL.teleport, 0, 0, { x: 1, y: 0 });
+    const a = computeTeleportDestination(TELEPORT_FIXTURE.teleport, 0, 0, { x: 1, y: 0 });
+    const b = computeTeleportDestination(TELEPORT_FIXTURE.teleport, 0, 0, { x: 1, y: 0 });
     expect(a).toEqual(b);
   });
 
   it('tether tip position is deterministic', () => {
-    const a = computeTetherTipPosition(BEAR_UP_SPECIAL.tether, 0, 0, 1, 5);
-    const b = computeTetherTipPosition(BEAR_UP_SPECIAL.tether, 0, 0, 1, 5);
+    const a = computeTetherTipPosition(TETHER_FIXTURE.tether, 0, 0, 1, 5);
+    const b = computeTetherTipPosition(TETHER_FIXTURE.tether, 0, 0, 1, 5);
     expect(a).toEqual(b);
   });
 });
@@ -676,7 +661,7 @@ describe('determinism', () => {
 
 describe('AttackMove compatibility (structural subtype)', () => {
   it('every UpSpecialMove has the AttackMove fields', () => {
-    for (const sp of [WOLF_UP_SPECIAL, CAT_UP_SPECIAL, OWL_UP_SPECIAL, BEAR_UP_SPECIAL]) {
+    for (const sp of [...ROSTER_UP_SPECIALS.map((e) => e.move), ...KIND_FIXTURES]) {
       expect(typeof sp.id).toBe('string');
       expect(sp.type).toBe('upSpecial');
       expect(typeof sp.damage).toBe('number');
@@ -697,28 +682,25 @@ describe('AttackMove compatibility (structural subtype)', () => {
   it('grounded triplets are unaffected by the up-special slot wiring', () => {
     // Sanity: jab still resolves to type='jab'; the new up-special slot
     // should not have leaked through and reclassified anything.
-    expect(WOLF_JAB.type).toBe('jab');
-    expect(CAT_JAB.type).toBe('jab');
-    expect(OWL_JAB.type).toBe('jab');
-    expect(BEAR_JAB.type).toBe('jab');
+    expect(DONKEYKONG_JAB.type).toBe('jab');
+    expect(PIKACHU_JAB.type).toBe('jab');
+    expect(LINK_JAB.type).toBe('jab');
   });
 
   it('neutral specials are still type="special" and distinct from up-specials', () => {
     // The new MoveType union added 'upSpecial' alongside 'special'; the
     // existing neutral specials must not have been retagged.
-    expect(WOLF_NEUTRAL_SPECIAL.type).toBe('special');
-    expect(CAT_NEUTRAL_SPECIAL.type).toBe('special');
-    expect(OWL_NEUTRAL_SPECIAL.type).toBe('special');
-    expect(BEAR_NEUTRAL_SPECIAL.type).toBe('special');
+    expect(DONKEYKONG_NEUTRAL_SPECIAL.type).toBe('special');
+    expect(PIKACHU_NEUTRAL_SPECIAL.type).toBe('special');
+    expect(LINK_NEUTRAL_SPECIAL.type).toBe('special');
     // And the up-specials are NOT type='special' (they're 'upSpecial').
-    expect(WOLF_UP_SPECIAL.type).toBe('upSpecial');
-    expect(CAT_UP_SPECIAL.type).toBe('upSpecial');
-    expect(OWL_UP_SPECIAL.type).toBe('upSpecial');
-    expect(BEAR_UP_SPECIAL.type).toBe('upSpecial');
+    for (const { move } of ROSTER_UP_SPECIALS) {
+      expect(move.type).toBe('upSpecial');
+    }
   });
 
   it('every character ships BOTH a neutral special AND an up special (the two slots are independent)', () => {
-    for (const id of ['wolf', 'cat', 'owl', 'bear'] as const) {
+    for (const { id } of ROSTER_UP_SPECIALS) {
       const spec = CHARACTER_ROSTER[id];
       expect(findMoveByType(spec, 'special'), `${id} special`).toBeDefined();
       expect(findMoveByType(spec, 'upSpecial'), `${id} upSpecial`).toBeDefined();

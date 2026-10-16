@@ -28,7 +28,7 @@
  *     `maxHealth` at `regenPerFrame`.
  *   • If shield health hits zero (a heavy hit drains the last few HP, or
  *     decay caps it out while raised), the shield **breaks**. The
- *     fighter enters the `'broken'` stun state for `breakStunFrames`
+ *     fighter enters the `'broken'` stun state for `400 − percent` (see `shieldBreakStunFrames`)
  *     frames during which:
  *       - Input is suppressed (no movement, no attacks, no shield raise).
  *       - The fighter is helpless (the runtime layer interprets this
@@ -67,7 +67,7 @@
  * trajectories — verified by the unit tests in `shieldState.test.ts`.
  */
 
-import { computeShieldstun, SHIELDSTUN_MAX_FRAMES } from './combat';
+import { computeShieldstun, SHIELDSTUN_MAX_FRAMES, type ShieldAttackKind } from './combat';
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -83,7 +83,7 @@ import { computeShieldstun, SHIELDSTUN_MAX_FRAMES } from './combat';
  *                  drain health by the hit's damage. Movement / attacks
  *                  are suppressed at the runtime layer.
  *   • `'broken'` — shield health hit zero. The fighter is stunned for
- *                  `breakStunFrames` and cannot raise the shield again
+ *                  the break stun (`shieldBreakStunFrames`) and cannot raise the shield again
  *                  until the stun timer drains. Stun ticks down once per
  *                  `tickShield` call.
  */
@@ -108,7 +108,7 @@ export interface ShieldTuning {
   /**
    * Health regen per frame while the shield is `'idle'`, applied after
    * `regenDelayFrames` of grace since the last drop / hit. Default
-   * 0.25 → ~3.3 s from empty to full at 60 Hz.
+   * 0.08 (SmashWiki Shield, Ultimate "0.08 (4.8/s)").
    */
   readonly regenPerFrame?: number;
   /**
@@ -118,15 +118,13 @@ export interface ShieldTuning {
    */
   readonly regenDelayFrames?: number;
   /**
-   * Stun frames applied on shield-break. The fighter is locked out of
-   * input for this many frames. Default 180 (~3 s @ 60 Hz) — long
-   * enough that the attacker can confirm a punish, short enough that
-   * the round doesn't grind to a halt.
+   * Explicit override of the shield-break stun. Omitted (the default) uses
+   * Ultimate's `400 − percent` ({@link shieldBreakStunFrames}).
    */
   readonly breakStunFrames?: number;
   /**
-   * Shield health restored after the break-stun ends. Mirrors Smash's
-   * "you come out of the shatter with a sliver of shield." Default 10.
+   * Shield health restored after the break-stun ends. Default 37.5
+   * (SmashWiki Shield, Ultimate "HP after shield break" 37.5).
    */
   readonly postBreakHealth?: number;
   /**
@@ -142,7 +140,8 @@ export interface ShieldTuning {
  * Fully-defaulted shield tuning. Shape mirrors `Required<ShieldTuning>`
  * so call sites that read tuning don't have to optional-chain.
  */
-export type ResolvedShieldTuning = Required<ShieldTuning>;
+export type ResolvedShieldTuning = Required<Omit<ShieldTuning, 'breakStunFrames'>>
+  & { readonly breakStunFrames?: number };
 
 /**
  * Read-only shield state record. Carried per-fighter; advanced by
@@ -193,6 +192,10 @@ export interface ShieldState {
 export interface ShieldInput {
   /** True iff the shield button is held this fixed step. */
   readonly held: boolean;
+  /** Fighter's damage percent, for the break stun when decay empties the shield. Default 0. */
+  readonly percent?: number;
+  /** Extra break-stun frames removed by this step's mash input (SmashWiki Stun). Default 0. */
+  readonly mash?: number;
 }
 
 /**
@@ -232,25 +235,42 @@ export const PERFECT_SHIELD_WINDOW_FRAMES = 3;
 // ---------------------------------------------------------------------------
 
 /**
- * Canonical shield tuning. Numbers chosen to feel Smash-ish:
- *   • A clean shield (50 HP) absorbs roughly 4-5 typical jabs (10-12 dmg
- *     each) before breaking.
- *   • Decay drains a full shield in ~5.5 s of holding — longer than any
- *     reasonable defensive moment, shorter than "stand here and wait
- *     out the timer".
- *   • Regen refills empty → full in ~3.3 s.
- *   • Break stun is 3 s — long enough for a finisher, short enough that
- *     the match keeps moving.
+ * Canonical shield tuning: Ultimate's universal values.
+ *   - SmashWiki Shield, Ultimate row "50 (42.02)||1.19×||0.15 (9/s)||0.08 (4.8/s)||37.5"
+ *     (max HP, damage multiplier, depletion, regeneration, HP after a shield break).
+ *     https://www.ssbwiki.com/Shield
+ *   - Break stun is `400 − percent` (see {@link shieldBreakStunFrames}); `breakStunFrames`
+ *     is only an explicit per-fighter override.
+ *   - `regenDelayFrames` is authored (SmashWiki is silent).
  */
 export const SHIELD_DEFAULTS: ResolvedShieldTuning = Object.freeze({
   maxHealth: 50,
   decayPerFrame: 0.15,
-  regenPerFrame: 0.25,
+  regenPerFrame: 0.08,
   regenDelayFrames: 30,
-  breakStunFrames: 180,
-  postBreakHealth: 10,
+  postBreakHealth: 37.5,
   minHealthToRaise: 1,
 });
+
+/**
+ * Shield health lost per point of damage (and of added shield damage). SmashWiki Shield:
+ * "the amount of health a shield loses when hit by an attack is multiplied by a constant ...
+ * increases it in Smash 4 and Ultimate ... Additional shield damage is also affected by this
+ * constant, but not shieldstun or shield pushback." Ultimate row: 1.19×.
+ */
+export const SHIELD_DAMAGE_MULTIPLIER = 1.19;
+
+/**
+ * Shield-break stun. SmashWiki Stun: "From Brawl onward, the formula is changed to `400 - p`",
+ * p being "the character's damage percent at the time their shield was broken". Fractional
+ * percents round the stun up; at 400 %+ the fighter keeps a single stun frame. An explicit
+ * `breakStunFrames` tuning override wins.
+ */
+export function shieldBreakStunFrames(percent: number, tuning: ResolvedShieldTuning): number {
+  if (tuning.breakStunFrames !== undefined) return tuning.breakStunFrames;
+  const p = Number.isFinite(percent) ? Math.max(0, percent) : 0;
+  return Math.max(1, Math.ceil(400 - p));
+}
 
 // ---------------------------------------------------------------------------
 // Constructors / queries
@@ -284,8 +304,7 @@ export function resolveShieldTuning(
     regenPerFrame: overrides.regenPerFrame ?? SHIELD_DEFAULTS.regenPerFrame,
     regenDelayFrames:
       overrides.regenDelayFrames ?? SHIELD_DEFAULTS.regenDelayFrames,
-    breakStunFrames:
-      overrides.breakStunFrames ?? SHIELD_DEFAULTS.breakStunFrames,
+    ...(overrides.breakStunFrames === undefined ? {} : { breakStunFrames: overrides.breakStunFrames }),
     postBreakHealth:
       overrides.postBreakHealth ?? SHIELD_DEFAULTS.postBreakHealth,
     minHealthToRaise:
@@ -388,7 +407,7 @@ export function tickShield(
 ): ShieldState {
   // 1. Broken-stun drain ---------------------------------------------------
   if (state.name === 'broken') {
-    const next = state.stunRemaining - 1;
+    const next = state.stunRemaining - 1 - Math.max(0, input.mash ?? 0);
     if (next <= 0) {
       // Stun ends — return to idle with a sliver of HP. Reset regen
       // clock to 0 so the player has to wait a beat before refilling.
@@ -436,7 +455,7 @@ export function tickShield(
       return Object.freeze({
         name: 'broken',
         health: 0,
-        stunRemaining: tuning.breakStunFrames,
+        stunRemaining: shieldBreakStunFrames(input.percent ?? 0, tuning),
         blockStunRemaining: 0,
         framesSinceLastDamage: 0,
       });
@@ -472,7 +491,7 @@ export function tickShield(
  *
  *   • If the shield is `'active'`, the hit's damage is subtracted from
  *     `health`. If the resulting health is `<= 0` the shield breaks
- *     (transition to `'broken'` with `stunRemaining = breakStunFrames`).
+ *     (transition to `'broken'` with `stunRemaining = shieldBreakStunFrames(defenderPercent)`).
  *     `absorbed: true` — the runtime layer should not apply knockback
  *     or hitstun for this hit.
  *
@@ -495,6 +514,12 @@ export function applyShieldHit(
    * always a normal block. The pure shieldState tests pass it as needed.
    */
   framesActive?: number,
+  kind: ShieldAttackKind = 'normal',
+  extraShieldDamage = 0,
+  /** Per-hitbox shieldstun multiplier (Ultimate's `m`); 1 when omitted. */
+  shieldstunMultiplier = 1,
+  /** Defender's damage percent, for the break stun ({@link shieldBreakStunFrames}). */
+  defenderPercent = 0,
 ): ShieldHitResult {
   if (state.name !== 'active') {
     return { absorbed: false, state, broke: false, perfect: false };
@@ -519,7 +544,7 @@ export function applyShieldHit(
     };
   }
   const safeDamage = damage > 0 ? damage : 0;
-  const drained = state.health - safeDamage;
+  const drained = state.health - Math.max(0, safeDamage + extraShieldDamage) * SHIELD_DAMAGE_MULTIPLIER;
   if (drained <= 0) {
     return {
       absorbed: true,
@@ -528,7 +553,7 @@ export function applyShieldHit(
       state: Object.freeze({
         name: 'broken',
         health: 0,
-        stunRemaining: tuning.breakStunFrames,
+        stunRemaining: shieldBreakStunFrames(defenderPercent, tuning),
         blockStunRemaining: 0,
         framesSinceLastDamage: 0,
       }),
@@ -538,7 +563,7 @@ export function applyShieldHit(
   // defender is locked in the shield for a few frames. Stacks
   // additively if the shield is hit again before the previous
   // shieldstun has drained, capped at SHIELDSTUN_MAX_FRAMES.
-  const incomingBlockStun = computeShieldstun(safeDamage);
+  const incomingBlockStun = computeShieldstun(safeDamage, kind, shieldstunMultiplier);
   const stackedBlockStun = Math.min(
     state.blockStunRemaining + incomingBlockStun,
     SHIELDSTUN_MAX_FRAMES,

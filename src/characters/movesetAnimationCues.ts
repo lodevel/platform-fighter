@@ -28,7 +28,7 @@
  * sprite animations and animation-state mappings for **all 4 characters'
  * movesets** (idle, movement, and **each move's animation cues**)"*.
  *
- * That is — for **every** fighter (wolf, cat, owl, bear) and **every**
+ * That is — for **every** fighter and **every**
  * moveset slot (10 moves × 4 characters = 40 entries), the renderer
  * needs:
  *
@@ -44,7 +44,7 @@
  * **integrates** the three surfaces under one frozen catalog so the
  * single call site is:
  *
- *     const cues = getCharacterMovesetAnimationCues('owl');
+ *     const cues = getCharacterMovesetAnimationCues('donkeykong');
  *     const idleKey  = cues.idleKey;
  *     const runKey   = cues.movementKeys.run;
  *     const fairCue  = cues.moves.fair.lifecycleKeys;
@@ -71,13 +71,13 @@
  *     `anims` manager.
  *
  * So a future renaming pass that touches the underlying registry
- * (e.g. `'wolf.idle'` → `'wolf.idle.v2'`) ripples through this catalog
+ * (e.g. `'donkeykong.idle'` → `'donkeykong.idle.v2'`) ripples through this catalog
  * automatically; this module never duplicates a literal.
  *
  * # Sprite-key fallback for un-art'd characters
  *
- * Owl and Bear have no sprite source-sheets shipped in the M1 / M2 cut
- * (their `placeholder.spriteKey` is `null`; per the asset constraint
+ * A character with no sprite source-sheets
+ * (`placeholder.spriteKey` is `null`; per the asset constraint
  * the "procedural fallback" path renders them via flat-colour rect +
  * tinted shapes). For those characters `movementKeys.*` and
  * `attackSpriteKey` are `null`, mirroring `getSpriteAnimationKey`'s
@@ -90,6 +90,7 @@
 import type { CharacterId } from '../types';
 import type { AttackMoveWithAnimation } from './moveSchema';
 import {
+  ANIMATED_MOVESET_IDS,
   enumerateMoveAnimationKeys,
   getAnimationKey,
   getIdleAnimationKey,
@@ -150,7 +151,7 @@ export interface MoveAnimationCueBundle {
   readonly slot: MovesetSlot;
   /** Owning character. */
   readonly characterId: CharacterId;
-  /** Stable move id (`'wolf.jab'`, `'cat.fair'`, …). */
+  /** Stable move id (`'donkeykong.jab'`, `'link.fair'`, …). */
   readonly moveId: string;
   /** Short part id used in animation keys (`'jab'`, `'fair'`, …). */
   readonly movePartId: string;
@@ -208,7 +209,7 @@ export interface MoveAnimationCueBundle {
   /**
    * The `{characterId}.attack.anim` Phaser anim key for the high-level
    * sprite state machine to play during the move, or `null` for
-   * characters without a loaded source sheet (Owl, Bear in M1 / M2).
+   * characters without a loaded source sheet.
    * Identical to `getSpriteAnimationKey(characterId, 'attack')`.
    */
   readonly attackSpriteKey: string | null;
@@ -234,7 +235,7 @@ export interface MovementAnimationKeys {
   readonly jump: string | null;
   /**
    * Fall (descending). Collapses onto the `jump` sheet in the M1 art
-   * delivery (`getSpriteAnimationKey('cat', 'fall')` → `'cat.jump.anim'`).
+   * delivery (`getSpriteAnimationKey('donkeykong', 'fall')` → `'donkeykong.jump.anim'`).
    * Stored explicitly so a future fall sheet can land without renaming
    * call sites.
    */
@@ -258,7 +259,7 @@ export interface CharacterMovesetAnimationCues {
    * Phaser anim keys for the high-level sprite movement state machine.
    * Populated for characters with loaded source sheets (Cat, Wolf in
    * M1) and `null`-filled for characters that fall back to procedural
-   * rendering (Owl, Bear).
+   * rendering.
    */
   readonly movementKeys: MovementAnimationKeys;
   /**
@@ -346,7 +347,7 @@ function buildMoveCueBundle(
 /**
  * Build the {@link MovementAnimationKeys} bundle for a character. Pure
  * mapping over `getSpriteAnimationKey` so a character without a loaded
- * source sheet (Owl, Bear) yields a fully-`null` bundle the renderer
+ * source sheet yields a fully-`null` bundle the renderer
  * can branch on cleanly.
  */
 function buildMovementKeys(characterId: CharacterId): MovementAnimationKeys {
@@ -397,24 +398,14 @@ function buildCharacterCues(
  * defensive cloning.
  *
  * Iteration order matches `MOVESET_TABLE` (and `MOVESET_ENTRIES`):
- * `wolf → cat → owl → bear → blaze → puff → aegis`.
+ * `CHARACTER_IDS` order.
  */
 export const CHARACTER_MOVESET_ANIMATION_CUES: Readonly<
   Record<CharacterId, CharacterMovesetAnimationCues>
 > = Object.freeze({
-  wolf: buildCharacterCues('wolf', MOVESET_TABLE.wolf),
-  cat: buildCharacterCues('cat', MOVESET_TABLE.cat),
-  owl: buildCharacterCues('owl', MOVESET_TABLE.owl),
-  bear: buildCharacterCues('bear', MOVESET_TABLE.bear),
-  blaze: buildCharacterCues('blaze', MOVESET_TABLE.blaze),
-  puff: buildCharacterCues('puff', MOVESET_TABLE.puff),
-  aegis: buildCharacterCues('aegis', MOVESET_TABLE.aegis),
-  volt: buildCharacterCues('volt', MOVESET_TABLE.volt),
-  nova: buildCharacterCues('nova', MOVESET_TABLE.nova),
-  bruno: buildCharacterCues('bruno', MOVESET_TABLE.bruno),
   link: buildCharacterCues('link', MOVESET_TABLE.link),
-  kirby: buildCharacterCues('kirby', MOVESET_TABLE.kirby),
   donkeykong: buildCharacterCues('donkeykong', MOVESET_TABLE.donkeykong),
+  pikachu: buildCharacterCues('pikachu', MOVESET_TABLE.pikachu),
 });
 
 /**
@@ -456,14 +447,14 @@ export function getMoveAnimationCueAt(
 }
 
 /**
- * Flat list of every move cue bundle across the roster — 70 entries
- * (7 characters × 10 slots), in `(character, slot)` iteration order.
+ * Flat list of every move cue bundle for `ANIMATED_MOVESET_IDS` (10 slots
+ * each), in `(character, slot)` iteration order.
  * Useful for tests, the asset pipeline, and balance tooling that wants
  * to walk every authored move once without nested loops.
  */
 export const MOVESET_ANIMATION_CUE_BUNDLES: ReadonlyArray<MoveAnimationCueBundle> =
   Object.freeze(
-    (['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno', 'link', 'kirby', 'donkeykong'] as const).flatMap((id) =>
+    ANIMATED_MOVESET_IDS.flatMap((id) =>
       MOVESET_SLOTS.map((slot) => CHARACTER_MOVESET_ANIMATION_CUES[id].moves[slot]),
     ),
   );
@@ -475,12 +466,12 @@ export const MOVESET_ANIMATION_CUE_BUNDLES: ReadonlyArray<MoveAnimationCueBundle
  * exactly which textures + animations to register without poking into
  * each per-character bundle.
  *
- * Returns a frozen array; `null` movement keys (Owl/Bear) are skipped
+ * Returns a frozen array; `null` movement keys are skipped
  * automatically.
  */
 export function enumerateAllMovesetAnimationCueKeys(): ReadonlyArray<string> {
   const out: string[] = [];
-  for (const id of ['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno', 'link', 'kirby', 'donkeykong'] as const) {
+  for (const id of ANIMATED_MOVESET_IDS) {
     const cues = CHARACTER_MOVESET_ANIMATION_CUES[id];
     out.push(cues.idleKey);
     for (const k of [

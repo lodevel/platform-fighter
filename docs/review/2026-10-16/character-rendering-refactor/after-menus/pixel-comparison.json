@@ -1,0 +1,85 @@
+{
+  "note": "Display clock is fixed; native CSS transitions still run on browser time. Initial screenshots may differ during screen transitions. The baseline winner45 screenshot also contains a duplicated bottom capture strip. Stable screenshot matches are reported without filtering pixels.",
+  "comparisons": [
+    {
+      "name": "results-link-loser-0.png",
+      "width": 1280,
+      "height": 800,
+      "changedPixels": 300235,
+      "beforeSha256": "53d80873cf8505124f86cb66005d2bf9196f16cfd08fbeda8fc6fab6edda2d31",
+      "afterSha256": "76c0c13ae478d3520a55f89c56a3d0d3e2939fc206605cb2d1d12349101b1d93"
+    },
+    {
+      "name": "results-link-loser-190.png",
+      "width": 1280,
+      "height": 800,
+      "changedPixels": 0,
+      "beforeSha256": "9aaac1a1ebedfeb5c17dcb6daa184e81205ea57cc5fdb18cbc85b6c6414dadbd",
+      "afterSha256": "9aaac1a1ebedfeb5c17dcb6daa184e81205ea57cc5fdb18cbc85b6c6414dadbd"
+    },
+    {
+      "name": "results-link-loser-45.png",
+      "width": 1280,
+      "height": 800,
+      "changedPixels": 0,
+      "beforeSha256": "23654830188407ee0850b60c52efca99629a0bfdc39e7b31a5cf5513d4ef1a15",
+      "afterSha256": "23654830188407ee0850b60c52efca99629a0bfdc39e7b31a5cf5513d4ef1a15"
+    },
+    {
+      "name": "results-link-winner-0.png",
+      "width": 1280,
+      "height": 800,
+      "changedPixels": 301046,
+      "beforeSha256": "9707f3acc136ec6ed7e39768f8d234c0014029ff286847d4dd38377af1d78433",
+      "afterSha256": "eb70075fae132cab1c436daf9eb007a8e823c9871fffd4c838ffd1619b021548"
+    },
+    {
+      "name": "results-link-winner-190.png",
+      "width": 1280,
+      "height": 800,
+      "changedPixels": 0,
+      "beforeSha256": "0f2ffa92f4e10c7e6462ba529cdfdb452574be8da22424f3b3b53b71c14dcb74",
+      "afterSha256": "0f2ffa92f4e10c7e6462ba529cdfdb452574be8da22424f3b3b53b71c14dcb74"
+    },
+    {
+      "name": "results-link-winner-45.png",
+      "width": 1280,
+      "height": 800,
+      "changedPixels": 177333,
+      "beforeSha256": "22d1050f955164b707cbab15cad3b9c97958927a9625e92fc7c0251f77ef56c4",
+      "afterSha256": "0dc7a2b4eeeddda6a8a9d84968832c25d0801c6e8d0de23aa5ed2d031900474e"
+    },
+    {
+      "name": "stages-flat-0.png",
+      "width": 1280,
+      "height": 800,
+      "changedPixels": 737859,
+      "beforeSha256": "8f637d3e4ca52f2a775222cd458d2217bae74921755146da85a0559e33d57a72",
+      "afterSha256": "2c93168c01ff3af87faf47ab76b9e87ca39ce397529c246ade6fe161c1179d09"
+    },
+    {
+      "name": "stages-flat-40.png",
+      "width": 1280,
+      "height": 800,
+      "changedPixels": 0,
+      "beforeSha256": "0c1d9080471e817708794922ff291f3566b47df4bae4bb33639733baab7a77cd",
+      "afterSha256": "0c1d9080471e817708794922ff291f3566b47df4bae4bb33639733baab7a77cd"
+    },
+    {
+      "name": "stages-lava-0.png",
+      "width": 1280,
+      "height": 800,
+      "changedPixels": 218964,
+      "beforeSha256": "8bfb488cec6bec4c5e0d81ba8e639e25332c3a30a0d3d0669e3d839ac6f4c6d0",
+      "afterSha256": "8379aab7ded953ea98dee71cb3e481db65b111d998adaf085ad7802c782ad4bf"
+    },
+    {
+      "name": "stages-lava-40.png",
+      "width": 1280,
+      "height": 800,
+      "changedPixels": 630,
+      "beforeSha256": "2b79b14db31aaddfb2d8f11596baedef8d271052a11aa5b97340db043c1acc04",
+      "afterSha256": "000f0e4b15bdb796bf81d206bf7b0c2813b468100f7829010d99fe64b36aa4ac"
+    }
+  ]
+}

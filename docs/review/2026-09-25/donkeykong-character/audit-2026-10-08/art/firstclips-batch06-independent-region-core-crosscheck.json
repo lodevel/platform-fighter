@@ -1,0 +1,266 @@
+{
+  "state": "independent_actual_label_core_crosscheck_pass",
+  "scope": "Analytic local core checks; actual Match protection/receiving contacts pending",
+  "records": [
+    {
+      "nativeSample": 5,
+      "candidateSha256": "35ff4c361e9c4250a8490655f071f96cbb87491c6b4c2ea5e2db7e149c1a016d",
+      "coreProbes": [
+        {
+          "desiredRegion": "shoulderl",
+          "actualTargetLabel": "shoulderl",
+          "packedPixel": [
+            212,
+            167
+          ],
+          "world": [
+            65.0,
+            10.846153846153843
+          ],
+          "intersectedRegions": [
+            "shoulderl"
+          ],
+          "classes": [
+            "protected"
+          ],
+          "expectedClass": "protected",
+          "pass": true
+        },
+        {
+          "desiredRegion": "arml",
+          "actualTargetLabel": "arml",
+          "packedPixel": [
+            256,
+            174
+          ],
+          "world": [
+            98.84615384615385,
+            16.23076923076923
+          ],
+          "intersectedRegions": [
+            "arml"
+          ],
+          "classes": [
+            "protected"
+          ],
+          "expectedClass": "protected",
+          "pass": true
+        },
+        {
+          "desiredRegion": "handl",
+          "actualTargetLabel": "handl",
+          "packedPixel": [
+            292,
+            174
+          ],
+          "world": [
+            126.53846153846155,
+            16.23076923076923
+          ],
+          "intersectedRegions": [
+            "handl"
+          ],
+          "classes": [
+            "vulnerable"
+          ],
+          "expectedClass": "vulnerable",
+          "pass": true
+        },
+        {
+          "desiredRegion": "head",
+          "actualTargetLabel": "head",
+          "packedPixel": [
+            185,
+            184
+          ],
+          "world": [
+            44.23076923076923,
+            23.923076923076923
+          ],
+          "intersectedRegions": [
+            "head"
+          ],
+          "classes": [
+            "vulnerable"
+          ],
+          "expectedClass": "vulnerable",
+          "pass": true
+        }
+      ]
+    },
+    {
+      "nativeSample": 7,
+      "candidateSha256": "aa91509d7e2142487daa8472952811e5992d5690999e6959ecbb311f7d8e78c1",
+      "coreProbes": [
+        {
+          "desiredRegion": "shoulderl",
+          "actualTargetLabel": "shoulderl",
+          "packedPixel": [
+            212,
+            167
+          ],
+          "world": [
+            65.0,
+            10.846153846153843
+          ],
+          "intersectedRegions": [
+            "shoulderl"
+          ],
+          "classes": [
+            "protected"
+          ],
+          "expectedClass": "protected",
+          "pass": true
+        },
+        {
+          "desiredRegion": "arml",
+          "actualTargetLabel": "arml",
+          "packedPixel": [
+            239,
+            183
+          ],
+          "world": [
+            85.76923076923077,
+            23.153846153846153
+          ],
+          "intersectedRegions": [
+            "arml"
+          ],
+          "classes": [
+            "protected"
+          ],
+          "expectedClass": "protected",
+          "pass": true
+        },
+        {
+          "desiredRegion": "handl",
+          "actualTargetLabel": "handl",
+          "packedPixel": [
+            269,
+            186
+          ],
+          "world": [
+            108.84615384615385,
+            25.46153846153846
+          ],
+          "intersectedRegions": [
+            "handl"
+          ],
+          "classes": [
+            "vulnerable"
+          ],
+          "expectedClass": "vulnerable",
+          "pass": true
+        },
+        {
+          "desiredRegion": "head",
+          "actualTargetLabel": "head",
+          "packedPixel": [
+            179,
+            184
+          ],
+          "world": [
+            39.61538461538462,
+            23.923076923076923
+          ],
+          "intersectedRegions": [
+            "head"
+          ],
+          "classes": [
+            "vulnerable"
+          ],
+          "expectedClass": "vulnerable",
+          "pass": true
+        }
+      ]
+    },
+    {
+      "nativeSample": 8,
+      "candidateSha256": "1c5d4e02a95ba340d277ec71d7d5c69cea867fa377fb72b4648da7eb3fce14b0",
+      "coreProbes": [
+        {
+          "desiredRegion": "shoulderl",
+          "actualTargetLabel": "shoulderl",
+          "packedPixel": [
+            212,
+            167
+          ],
+          "world": [
+            65.0,
+            10.846153846153843
+          ],
+          "intersectedRegions": [
+            "shoulderl"
+          ],
+          "classes": [
+            "vulnerable"
+          ],
+          "expectedClass": "vulnerable",
+          "pass": true
+        },
+        {
+          "desiredRegion": "arml",
+          "actualTargetLabel": "arml",
+          "packedPixel": [
+            236,
+            185
+          ],
+          "world": [
+            83.46153846153847,
+            24.69230769230769
+          ],
+          "intersectedRegions": [
+            "arml",
+            "handl"
+          ],
+          "classes": [
+            "vulnerable"
+          ],
+          "expectedClass": "vulnerable",
+          "pass": true
+        },
+        {
+          "desiredRegion": "handl",
+          "actualTargetLabel": "handl",
+          "packedPixel": [
+            253,
+            186
+          ],
+          "world": [
+            96.53846153846155,
+            25.46153846153846
+          ],
+          "intersectedRegions": [
+            "handl"
+          ],
+          "classes": [
+            "vulnerable"
+          ],
+          "expectedClass": "vulnerable",
+          "pass": true
+        },
+        {
+          "desiredRegion": "head",
+          "actualTargetLabel": "head",
+          "packedPixel": [
+            176,
+            186
+          ],
+          "world": [
+            37.30769230769231,
+            25.46153846153846
+          ],
+          "intersectedRegions": [
+            "head"
+          ],
+          "classes": [
+            "vulnerable"
+          ],
+          "expectedClass": "vulnerable",
+          "pass": true
+        }
+      ]
+    }
+  ],
+  "probeSelectionPolicy": "Actual-label verified shoulder core at212,167 chosen independently from overlay anatomy; initial guess lay on armL label and is retained as unqualified-location history. Four exposed actual-label body/arm/palm cores; no fitter-derived probe selection."
+}

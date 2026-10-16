@@ -82,6 +82,15 @@ describe('InputCaptureBuffer — NEUTRAL_INPUT', () => {
       jump: false,
       attack: false,
       dropThrough: false,
+      attackHeavy: false,
+      special: false,
+      appeal: false,
+      shield: false,
+      dodge: false,
+      grab: false,
+      ledgeRelease: null,
+      attackStickX: 0,
+      attackStickY: 0,
     });
   });
 
@@ -111,12 +120,14 @@ describe('InputCaptureBuffer — captureFrame', () => {
     expect(entry!.frame).toBe(0);
     expect(entry!.inputs).toHaveLength(2);
     expect(entry!.inputs[0]).toEqual({
+      ...NEUTRAL_INPUT,
       moveX: 1, moveY: 0,
       jump: true,
       attack: false,
       dropThrough: false,
     });
     expect(entry!.inputs[1]).toEqual({
+      ...NEUTRAL_INPUT,
       moveX: -1, moveY: 0,
       jump: false,
       attack: true,
@@ -131,6 +142,7 @@ describe('InputCaptureBuffer — captureFrame', () => {
     buf.captureFrame(0, [{ moveX: 0, moveY: 0, jump: false }]);
     const entry = buf.getFrame(0)!;
     expect(entry.inputs[0]).toEqual({
+      ...NEUTRAL_INPUT,
       moveX: 0, moveY: 0,
       jump: false,
       attack: false,
@@ -286,6 +298,7 @@ describe('InputCaptureBuffer — defensive copy', () => {
 
     const entry = buf.getFrame(0)!;
     expect(entry.inputs[0]).toEqual({
+      ...NEUTRAL_INPUT,
       moveX: 1, moveY: 0,
       jump: true,
       attack: true,
@@ -429,6 +442,7 @@ describe('InputCaptureBuffer — determinism', () => {
   it('round-trip through getFrame yields the exact same RecordedCharacterInput', () => {
     const buf = new InputCaptureBuffer({ playerCount: 1 });
     const expected: RecordedCharacterInput = {
+      ...NEUTRAL_INPUT,
       moveX: 1, moveY: 0,
       jump: true,
       attack: true,

@@ -1,35 +1,21 @@
 import { describe, it, expect } from 'vitest';
 
-import { WOLF_SMASH, WOLF_USMASH, WOLF_DSMASH } from './Wolf';
-import { CAT_SMASH, CAT_USMASH, CAT_DSMASH } from './Cat';
-import { OWL_SMASH, OWL_USMASH, OWL_DSMASH } from './Owl';
-import { BEAR_SMASH, BEAR_USMASH, BEAR_DSMASH } from './Bear';
-import { BLAZE_SMASH, BLAZE_USMASH, BLAZE_DSMASH } from './Blaze';
-import { PUFF_SMASH, PUFF_USMASH, PUFF_DSMASH } from './Puff';
-import { AEGIS_SMASH, AEGIS_USMASH, AEGIS_DSMASH } from './Aegis';
-import { VOLT_SMASH, VOLT_USMASH, VOLT_DSMASH } from './Volt';
-import { NOVA_SMASH, NOVA_USMASH, NOVA_DSMASH } from './Nova';
-import { BRUNO_SMASH, BRUNO_USMASH, BRUNO_DSMASH } from './Bruno';
+import { DONKEYKONG_SMASH, DONKEYKONG_USMASH, DONKEYKONG_DSMASH } from './DonkeyKong';
+import { PIKACHU_SMASH, PIKACHU_USMASH, PIKACHU_DSMASH } from './Pikachu';
+import { LINK_SMASH, LINK_USMASH, LINK_DSMASH } from './linkFreshKit';
 import type { AttackMoveWithAnimation } from './moveSchema';
 import { computeChargedDamageFromSpec, computeChargedKnockbackFromSpec } from './chargeSchema';
 
-// Every forward / up / down smash across the roster (Tier 4: all chargeable).
+// Every forward / up / down smash across the roster (all chargeable).
 const ALL_SMASHES: AttackMoveWithAnimation[] = [
-  WOLF_SMASH, WOLF_USMASH, WOLF_DSMASH,
-  CAT_SMASH, CAT_USMASH, CAT_DSMASH,
-  OWL_SMASH, OWL_USMASH, OWL_DSMASH,
-  BEAR_SMASH, BEAR_USMASH, BEAR_DSMASH,
-  BLAZE_SMASH, BLAZE_USMASH, BLAZE_DSMASH,
-  PUFF_SMASH, PUFF_USMASH, PUFF_DSMASH,
-  AEGIS_SMASH, AEGIS_USMASH, AEGIS_DSMASH,
-  VOLT_SMASH, VOLT_USMASH, VOLT_DSMASH,
-  NOVA_SMASH, NOVA_USMASH, NOVA_DSMASH,
-  BRUNO_SMASH, BRUNO_USMASH, BRUNO_DSMASH,
+  DONKEYKONG_SMASH, DONKEYKONG_USMASH, DONKEYKONG_DSMASH,
+  PIKACHU_SMASH, PIKACHU_USMASH, PIKACHU_DSMASH,
+  LINK_SMASH, LINK_USMASH, LINK_DSMASH,
 ];
 
-describe('Tier 4 — roster smash charge ramps', () => {
-  it('covers all 30 smashes (10 fighters × fwd/up/down)', () => {
-    expect(ALL_SMASHES).toHaveLength(30);
+describe('roster smash charge ramps', () => {
+  it('covers all 9 smashes (3 fighters × fwd/up/down)', () => {
+    expect(ALL_SMASHES).toHaveLength(9);
   });
 
   it.each(ALL_SMASHES.map((m) => [m.id, m] as const))(
@@ -40,19 +26,18 @@ describe('Tier 4 — roster smash charge ramps', () => {
   );
 
   // The headline invariant: a TAPPED (uncharged) smash must fire the
-  // AUTHORED move unchanged — so `minDamage`/`minKnockback` must equal the
-  // move's base. (This is exactly what the parallel authoring pass got
-  // wrong on the first try — minKnockback dropped baseMagnitude — so it is
-  // locked here.)
+  // AUTHORED move unchanged. Roster smashes use Ultimate's damage-only
+  // charge (holding scales damage; the launch comes from the move's own
+  // reference knockback), so `minDamage` must equal the move's base and a
+  // 0-frame charge must hand back the authored knockback record itself.
   it.each(ALL_SMASHES.map((m) => [m.id, m] as const))(
-    '%s: a tap equals the authored move (charge.min == base)',
+    '%s: a tap equals the authored move (damage-only charge, min == base)',
     (_id, move) => {
       const c = move.charge!;
+      expect(c.knockbackMode).toBe('damage-only');
       expect(c.minDamage).toBe(move.damage);
-      expect(c.minKnockback).toEqual(move.knockback);
-      // The charge lerp at 0 held-frames reproduces the base exactly.
       expect(computeChargedDamageFromSpec(c, 0)).toBe(move.damage);
-      expect(computeChargedKnockbackFromSpec(c, 0)).toEqual(move.knockback);
+      expect(computeChargedKnockbackFromSpec(c, 0, move.knockback)).toBe(move.knockback);
     },
   );
 

@@ -3,9 +3,8 @@
  *
  * Hosts the base `Character` class (Sub-AC 1 of AC 201) — Matter.js
  * body wrapper with movement, jump physics, and ground detection —
- * the attack/hitbox primitives (AC 202 Sub-AC 2), and the first two
- * concrete subclasses of the M2 roster (Wolf bruiser, Cat ninja).
- * Owl mage and Bear grappler land in subsequent sub-ACs.
+ * the attack/hitbox primitives (AC 202 Sub-AC 2), and the concrete
+ * fighters (Link, Donkey Kong, Pikachu).
  */
 
 // Base class & input shape
@@ -13,11 +12,16 @@ export {
   Character,
   CHARACTER_LABEL,
   DEFAULT_CHARACTER_TUNING,
+  OFFENSIVE_ACTION_BUFFER_FRAMES,
+  JUMPSQUAT_FRAMES,
+  JUMP_INPUT_BUFFER_FRAMES,
 } from './Character';
 export type {
   CharacterOptions,
   CharacterTuning,
   CharacterInput,
+  CharacterHitApplication,
+  CharacterHitOutcome,
 } from './Character';
 
 // Attack / hitbox primitives
@@ -31,7 +35,6 @@ export type {
   AttackMove,
   ActiveAttack,
   HitboxPlugin,
-  HitboxScene,
 } from './attacks';
 
 // Combat math (Sub-AC 4.1 of AC 301)
@@ -39,11 +42,13 @@ export {
   MAX_DAMAGE_PERCENT,
   BASELINE_MASS,
   HITSTUN_FRAMES_PER_KNOCKBACK_UNIT,
+  LAUNCH_SPEED_DECAY_PER_FRAME,
   MIN_HITSTUN_FRAMES,
   MAX_HITSTUN_FRAMES,
   accumulateDamage,
   computeKnockback,
   computeHitstun,
+  decayLaunchVelocity,
 } from './combat';
 export type { HitInfo, KnockbackResult } from './combat';
 
@@ -278,6 +283,7 @@ export {
 export type {
   UpSpecialKind,
   UpSpecialMultiHitRisingSpec,
+  UpSpecialSustainedRiseSpec,
   UpSpecialTeleportSpec,
   UpSpecialDirectionalJumpSpec,
   UpSpecialTetherSpec,
@@ -326,7 +332,6 @@ export type {
   FighterMovementProfile,
   MovesetSlotCategory,
   MovesetSlotName,
-  MovesetSlotOverride,
 } from './movesetContract';
 
 // Shared move-data schema & base attack state machine (Sub-AC 1 of AC 60001).
@@ -367,13 +372,17 @@ export type {
 
 // Character factory — AC 10005 Sub-AC 5. Phaser-free dispatcher that
 // turns a `CharacterId` (from `MatchConfig.players[].characterId`) into
-// the correctly-typed concrete subclass (Wolf / Cat / Owl / Bear).
+// the correctly-typed concrete subclass.
 // Centralises the switch so both `MatchScene` (via the
 // CharacterSelect → MatchScene wiring) and `Fighter` (per-player runtime
 // entity) read one source of truth. Each instantiated character carries
 // its full authored moveset by virtue of its subclass constructor's
 // `registerAttack` calls.
-export { createCharacterById, resolveSlotCharacterId } from './characterFactory';
+export {
+  applyCharacterMoveOverrides,
+  createCharacterById,
+  resolveSlotCharacterId,
+} from './characterFactory';
 export type { CreateCharacterOptions } from './characterFactory';
 
 // Fighter registry — Sub-AC 3 of the T2 per-fighter refactor track.
@@ -402,235 +411,7 @@ export type {
   FighterRegistryEntry,
 } from './fighterRegistry';
 
-// Concrete fighters (jab + smash + nair triplets land in Sub-AC 3.3;
-// AC 60002 Sub-AC 2 adds Wolf's tilt + animation states for the full
-// grounded triplet jab / tilt / smash; AC 60003 Sub-AC 3 mirrors that
-// expansion onto Cat; AC 60101 Sub-AC 1 adds the full aerial cut
-// (nair / fair / bair) as authored data records on every roster slot,
-// pending runtime wiring in the follow-up sub-AC).
-export {
-  Wolf,
-  WOLF_TUNING,
-  WOLF_JAB,
-  WOLF_TILT,
-  WOLF_SMASH,
-  WOLF_NAIR,
-  WOLF_NAIR_AERIAL,
-  WOLF_FAIR,
-  WOLF_BAIR,
-  WOLF_NEUTRAL_SPECIAL,
-  WOLF_SIDE_SPECIAL,
-  WOLF_UP_SPECIAL,
-  WOLF_DOWN_SPECIAL,
-  // Sub-AC 3 of T2 refactor — frozen per-fighter declarations
-  // (10-slot moveset + movement profile + identity bundle).
-  WOLF_MOVESET,
-  WOLF_MOVEMENT_PROFILE,
-  WOLF_FIGHTER_CONTRACT,
-} from './Wolf';
-export type { WolfOptions } from './Wolf';
-export {
-  Cat,
-  CAT_TUNING,
-  CAT_JAB,
-  CAT_TILT,
-  CAT_SMASH,
-  CAT_NAIR,
-  CAT_NAIR_AERIAL,
-  CAT_FAIR,
-  CAT_BAIR,
-  CAT_NEUTRAL_SPECIAL,
-  CAT_SIDE_SPECIAL,
-  CAT_UP_SPECIAL,
-  CAT_DOWN_SPECIAL,
-  // Sub-AC 3 of T2 refactor — frozen per-fighter declarations.
-  CAT_MOVESET,
-  CAT_MOVEMENT_PROFILE,
-  CAT_FIGHTER_CONTRACT,
-} from './Cat';
-export type { CatOptions } from './Cat';
-// AC 60004 Sub-AC 4 — Owl ships the full grounded triplet
-// (jab / tilt / smash) with animation states. AC 60101 Sub-AC 1
-// adds Owl's aerial cut (nair / fair / bair) as authored data
-// records.
-export {
-  Owl,
-  OWL_TUNING,
-  OWL_JAB,
-  OWL_TILT,
-  OWL_SMASH,
-  OWL_NAIR,
-  OWL_FAIR,
-  OWL_BAIR,
-  OWL_NEUTRAL_SPECIAL,
-  OWL_SIDE_SPECIAL,
-  OWL_UP_SPECIAL,
-  OWL_DOWN_SPECIAL,
-  // Sub-AC 3 of T2 refactor — frozen per-fighter declarations.
-  OWL_MOVESET,
-  OWL_MOVEMENT_PROFILE,
-  OWL_FIGHTER_CONTRACT,
-} from './Owl';
-export type { OwlOptions } from './Owl';
-// AC 60001 Sub-AC 1 — Bear ships the full grounded triplet
-// (jab / tilt / smash) with animation states, fulfilling the "every
-// roster slot has the grounded triplet" foundation cut. AC 60101
-// Sub-AC 1 adds Bear's aerial cut (nair / fair / bair) as authored
-// data records.
-export {
-  Bear,
-  BEAR_TUNING,
-  BEAR_JAB,
-  BEAR_TILT,
-  BEAR_SMASH,
-  BEAR_NAIR,
-  BEAR_FAIR,
-  BEAR_BAIR,
-  BEAR_NEUTRAL_SPECIAL,
-  BEAR_SIDE_SPECIAL,
-  BEAR_UP_SPECIAL,
-  BEAR_DOWN_SPECIAL,
-  // Sub-AC 3 of T2 refactor — frozen per-fighter declarations.
-  BEAR_MOVESET,
-  BEAR_MOVEMENT_PROFILE,
-  BEAR_FIGHTER_CONTRACT,
-} from './Bear';
-export type { BearOptions } from './Bear';
-// Post-M5 roster expansion — three Smash-inspired fighters join the
-// cast with full kits on day one (grounded triplet + 3 aerials + 4
-// specials + grab), each rendered through the procedural placeholder
-// pipeline until sprite packs land: Blaze (Captain Falcon rushdown),
-// Puff (Jigglypuff balloon), Aegis (Marth sword spacing).
-export {
-  Blaze,
-  BLAZE_TUNING,
-  BLAZE_JAB,
-  BLAZE_TILT,
-  BLAZE_SMASH,
-  BLAZE_NAIR,
-  BLAZE_FAIR,
-  BLAZE_BAIR,
-  BLAZE_NEUTRAL_SPECIAL,
-  BLAZE_SIDE_SPECIAL,
-  BLAZE_UP_SPECIAL,
-  BLAZE_DOWN_SPECIAL,
-  BLAZE_GRAB,
-  // Frozen per-fighter declarations (10-slot moveset + movement
-  // profile + identity bundle) — same surface as the rest of the cast.
-  BLAZE_MOVESET,
-  BLAZE_MOVEMENT_PROFILE,
-  BLAZE_FIGHTER_CONTRACT,
-} from './Blaze';
-export type { BlazeOptions } from './Blaze';
-export {
-  Puff,
-  PUFF_TUNING,
-  PUFF_JAB,
-  PUFF_TILT,
-  PUFF_SMASH,
-  PUFF_NAIR,
-  PUFF_FAIR,
-  PUFF_BAIR,
-  PUFF_NEUTRAL_SPECIAL,
-  PUFF_SIDE_SPECIAL,
-  PUFF_UP_SPECIAL,
-  PUFF_DOWN_SPECIAL,
-  PUFF_GRAB,
-  // Frozen per-fighter declarations.
-  PUFF_MOVESET,
-  PUFF_MOVEMENT_PROFILE,
-  PUFF_FIGHTER_CONTRACT,
-} from './Puff';
-export type { PuffOptions } from './Puff';
-export {
-  Aegis,
-  AEGIS_TUNING,
-  AEGIS_JAB,
-  AEGIS_TILT,
-  AEGIS_SMASH,
-  AEGIS_NAIR,
-  AEGIS_FAIR,
-  AEGIS_BAIR,
-  AEGIS_NEUTRAL_SPECIAL,
-  AEGIS_SIDE_SPECIAL,
-  AEGIS_UP_SPECIAL,
-  AEGIS_DOWN_SPECIAL,
-  AEGIS_GRAB,
-  // Frozen per-fighter declarations.
-  AEGIS_MOVESET,
-  AEGIS_MOVEMENT_PROFILE,
-  AEGIS_FIGHTER_CONTRACT,
-} from './Aegis';
-export type { AegisOptions } from './Aegis';
-// Post-batch-2 roster expansion — three more Smash-inspired fighters
-// join the cast with full kits + sourced sprite packs: Volt (Pikachu
-// tiny combo rushdown), Nova (Samus ranged zoner), Bruno (Mario
-// all-rounder).
-export {
-  Volt,
-  VOLT_TUNING,
-  VOLT_JAB,
-  VOLT_TILT,
-  VOLT_SMASH,
-  VOLT_NAIR,
-  VOLT_FAIR,
-  VOLT_BAIR,
-  VOLT_NEUTRAL_SPECIAL,
-  VOLT_SIDE_SPECIAL,
-  VOLT_UP_SPECIAL,
-  VOLT_DOWN_SPECIAL,
-  VOLT_GRAB,
-  // Frozen per-fighter declarations.
-  VOLT_MOVESET,
-  VOLT_MOVEMENT_PROFILE,
-  VOLT_FIGHTER_CONTRACT,
-} from './Volt';
-export type { VoltOptions } from './Volt';
-export {
-  Nova,
-  NOVA_TUNING,
-  NOVA_JAB,
-  NOVA_TILT,
-  NOVA_SMASH,
-  NOVA_NAIR,
-  NOVA_FAIR,
-  NOVA_BAIR,
-  NOVA_NEUTRAL_SPECIAL,
-  NOVA_SIDE_SPECIAL,
-  NOVA_UP_SPECIAL,
-  NOVA_DOWN_SPECIAL,
-  NOVA_GRAB,
-  // Frozen per-fighter declarations.
-  NOVA_MOVESET,
-  NOVA_MOVEMENT_PROFILE,
-  NOVA_FIGHTER_CONTRACT,
-} from './Nova';
-export type { NovaOptions } from './Nova';
-export {
-  Bruno,
-  BRUNO_TUNING,
-  BRUNO_JAB,
-  BRUNO_TILT,
-  BRUNO_SMASH,
-  BRUNO_NAIR,
-  BRUNO_FAIR,
-  BRUNO_BAIR,
-  BRUNO_NEUTRAL_SPECIAL,
-  BRUNO_SIDE_SPECIAL,
-  BRUNO_UP_SPECIAL,
-  BRUNO_DOWN_SPECIAL,
-  BRUNO_GRAB,
-  // Frozen per-fighter declarations.
-  BRUNO_MOVESET,
-  BRUNO_MOVEMENT_PROFILE,
-  BRUNO_FIGHTER_CONTRACT,
-} from './Bruno';
-export type { BrunoOptions } from './Bruno';
-// Post-batch-3 roster expansion — three more Smash-inspired fighters
-// join the cast with full kits, rendered through the procedural
-// placeholder pipeline (no sprite packs): Link (Zelda projectile
-// swordsman), Kirby (multi-jump puffball), Donkey Kong (mobile
-// heavyweight bruiser).
+// Concrete fighters: Link, Donkey Kong, Pikachu.
 export {
   Link,
   LINK_TUNING,
@@ -651,26 +432,6 @@ export {
   LINK_FIGHTER_CONTRACT,
 } from './Link';
 export type { LinkOptions } from './Link';
-export {
-  Kirby,
-  KIRBY_TUNING,
-  KIRBY_JAB,
-  KIRBY_TILT,
-  KIRBY_SMASH,
-  KIRBY_NAIR,
-  KIRBY_FAIR,
-  KIRBY_BAIR,
-  KIRBY_NEUTRAL_SPECIAL,
-  KIRBY_SIDE_SPECIAL,
-  KIRBY_UP_SPECIAL,
-  KIRBY_DOWN_SPECIAL,
-  KIRBY_GRAB,
-  // Frozen per-fighter declarations.
-  KIRBY_MOVESET,
-  KIRBY_MOVEMENT_PROFILE,
-  KIRBY_FIGHTER_CONTRACT,
-} from './Kirby';
-export type { KirbyOptions } from './Kirby';
 // Donkeykong (id 'donkeykong') — the class is `DonkeyKong` (camel-cased
 // for readability); the id-derived display name is "Donkeykong".
 export {
@@ -701,44 +462,11 @@ export {
   CHARACTER_ROSTER,
   CHARACTER_SPECS_IN_ROSTER_ORDER,
   PLAYABLE_CHARACTER_SPECS,
-  WOLF_SPEC,
-  CAT_SPEC,
-  OWL_SPEC,
-  BEAR_SPEC,
-  BLAZE_SPEC,
-  PUFF_SPEC,
-  AEGIS_SPEC,
-  VOLT_SPEC,
-  NOVA_SPEC,
-  BRUNO_SPEC,
   LINK_SPEC,
-  KIRBY_SPEC,
   DONKEYKONG_SPEC,
-  WOLF_MOVES,
-  CAT_MOVES,
-  OWL_MOVES,
-  BEAR_MOVES,
-  BLAZE_MOVES,
-  PUFF_MOVES,
-  AEGIS_MOVES,
-  VOLT_MOVES,
-  NOVA_MOVES,
-  BRUNO_MOVES,
   LINK_MOVES,
-  KIRBY_MOVES,
   DONKEYKONG_MOVES,
-  WOLF_PLACEHOLDER,
-  CAT_PLACEHOLDER,
-  OWL_PLACEHOLDER,
-  BEAR_PLACEHOLDER,
-  BLAZE_PLACEHOLDER,
-  PUFF_PLACEHOLDER,
-  AEGIS_PLACEHOLDER,
-  VOLT_PLACEHOLDER,
-  NOVA_PLACEHOLDER,
-  BRUNO_PLACEHOLDER,
   LINK_PLACEHOLDER,
-  KIRBY_PLACEHOLDER,
   DONKEYKONG_PLACEHOLDER,
   getCharacterSpec,
   findMoveByType,
@@ -751,18 +479,7 @@ export type { CharacterSpec, CharacterPlaceholderVisual } from './roster';
 export {
   CHARACTER_PALETTES,
   PALETTES_PER_CHARACTER,
-  WOLF_PALETTES,
-  CAT_PALETTES,
-  OWL_PALETTES,
-  BEAR_PALETTES,
-  BLAZE_PALETTES,
-  PUFF_PALETTES,
-  AEGIS_PALETTES,
-  VOLT_PALETTES,
-  NOVA_PALETTES,
-  BRUNO_PALETTES,
   LINK_PALETTES,
-  KIRBY_PALETTES,
   DONKEYKONG_PALETTES,
   applyPaletteToPlaceholder,
   getCharacterPalette,
@@ -1033,6 +750,7 @@ export {
   MOVE_SHEET_SPECS,
   MOVE_SHEET_NAMES,
   attackMoveToSheet,
+  attackMoveToSheets,
   getCharacterMoveSheetKey,
   getMoveAnimKey,
   classifySpriteAnimationState,
@@ -1309,3 +1027,5 @@ export type { HandAnchor } from './handAnchors';
 // each slot off the fighter's frozen `moveset` table so the per-slot
 // dispatch boilerplate exists exactly once.
 export { ContractFighter } from './contractFighter';
+
+export * from './Pikachu';

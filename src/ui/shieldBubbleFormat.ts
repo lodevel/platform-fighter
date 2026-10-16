@@ -62,6 +62,16 @@ export interface ShieldBubbleInput {
   readonly maxHealth: number;
   readonly bodyRadius: number;
   readonly frame: number;
+  /** Running shield parry (the fighter's 'parry' shield presentation), if any. */
+  readonly parry?: ShieldBubbleParry | null;
+  /** Actual source-guided mechanical radius, when the fighter supplies it. */
+  readonly activeRadius?:number;
+}
+
+/** Elapsed/total frames of a successful release parry's protected freeze. */
+export interface ShieldBubbleParry {
+  readonly framesElapsed: number;
+  readonly totalFrames: number;
 }
 
 /**
@@ -154,6 +164,11 @@ export const SHIELD_BUBBLE_BROKEN_STROKE_COLOR = 0xff2a2a;
 
 /** Stroke width (px) for the broken-shield ring. */
 export const SHIELD_BUBBLE_BROKEN_STROKE_WIDTH = 5;
+
+/** Parry flash: near-white core with a gold rim, fading from full strength. */
+export const SHIELD_BUBBLE_PARRY_COLOR = 0xffffff;
+export const SHIELD_BUBBLE_PARRY_STROKE_COLOR = 0xffd84a;
+export const SHIELD_BUBBLE_PARRY_STROKE_WIDTH = 5;
 
 /**
  * Period (frames) of the broken-shield strobe. Two on / two off feel —
@@ -252,7 +267,23 @@ export function shieldBubbleBrokenStrobeOn(frame: number): boolean {
 export function computeShieldBubbleVisual(
   input: ShieldBubbleInput,
 ): ShieldBubbleVisual {
-  const { state, maxHealth, bodyRadius, frame } = input;
+  const { state, maxHealth, bodyRadius, frame, parry } = input;
+
+  if (parry) {
+    // Ultimate's parry reads as a much brighter flash than a block; it fades
+    // over the protected freeze. Rendering only — no simulation state.
+    const remaining = parry.totalFrames > 0
+      ? 1 - Math.min(1, Math.max(0, parry.framesElapsed / parry.totalFrames)) : 1;
+    return {
+      visible: true,
+      radius: shieldBubbleActiveRadius(bodyRadius, 1) + 6 * (1 - remaining),
+      fillColor: SHIELD_BUBBLE_PARRY_COLOR,
+      fillAlpha: 0.2 + 0.6 * remaining,
+      strokeColor: SHIELD_BUBBLE_PARRY_STROKE_COLOR,
+      strokeAlpha: 0.4 + 0.6 * remaining,
+      strokeWidth: SHIELD_BUBBLE_PARRY_STROKE_WIDTH,
+    };
+  }
 
   if (state.name === 'idle') {
     return {
@@ -288,7 +319,7 @@ export function computeShieldBubbleVisual(
   const color = shieldBubbleHealthColor(fraction);
   return {
     visible: true,
-    radius: shieldBubbleActiveRadius(bodyRadius, fraction),
+    radius: input.activeRadius??shieldBubbleActiveRadius(bodyRadius, fraction),
     fillColor: color,
     fillAlpha: SHIELD_BUBBLE_ACTIVE_FILL_ALPHA,
     strokeColor: color,

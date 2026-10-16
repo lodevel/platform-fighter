@@ -2,16 +2,12 @@ import { describe, it, expect } from 'vitest';
 import {
   BASELINE_MASS,
   DI_MAX_ROTATION_DEGREES,
-  HITLAG_HEAVY_FRAMES,
-  HITLAG_HIGH_PERCENT_BONUS_FRAMES,
   HITLAG_HIGH_PERCENT_THRESHOLD,
   HITLAG_LIGHT_DAMAGE_THRESHOLD,
-  HITLAG_LIGHT_FRAMES,
   HITLAG_MAX_FRAMES,
   HITLAG_MEDIUM_DAMAGE_THRESHOLD,
-  HITLAG_MEDIUM_FRAMES,
-  HITLAG_SWEET_SPOT_BONUS_FRAMES,
   HITSTUN_FRAMES_PER_KNOCKBACK_UNIT,
+  LAUNCH_SPEED_DECAY_PER_FRAME,
   MAX_DAMAGE_PERCENT,
   MAX_HITSTUN_FRAMES,
   MIN_HITSTUN_FRAMES,
@@ -33,6 +29,7 @@ import {
   computeScreenShake,
   computeShieldstun,
   computeStaleMultiplier,
+  decayLaunchVelocity,
   type HitInfo,
   KNOCKBACK_PERCENT_TEMPER,
   RAGE_MAX_MULTIPLIER,
@@ -86,6 +83,25 @@ describe('combat — constants', () => {
 
   it('HITSTUN_FRAMES_PER_KNOCKBACK_UNIT is positive', () => {
     expect(HITSTUN_FRAMES_PER_KNOCKBACK_UNIT).toBeGreaterThan(0);
+  });
+});
+
+describe('combat — launch velocity decay', () => {
+  it('reduces magnitude by the sourced normalized amount while preserving angle', () => {
+    const initial = { x: 6, y: -8 };
+    const next = decayLaunchVelocity(initial);
+    expect(Math.hypot(next.x, next.y)).toBeCloseTo(
+      10 - LAUNCH_SPEED_DECAY_PER_FRAME,
+      8,
+    );
+    expect(Math.atan2(next.y, next.x)).toBeCloseTo(
+      Math.atan2(initial.y, initial.x),
+      8,
+    );
+  });
+
+  it('stops at zero instead of reversing a weak launch', () => {
+    expect(decayLaunchVelocity({ x: 0.1, y: 0 })).toEqual({ x: 0, y: 0 });
   });
 });
 
@@ -525,43 +541,43 @@ describe('combat — combined behaviours', () => {
 // Hit-feel helpers (post-M2)
 // ---------------------------------------------------------------------------
 
-describe('computeHitlag — tier mapping', () => {
-  it('returns light tier for damage at or below the light threshold', () => {
-    expect(computeHitlag({ damage: 1, targetPercent: 0 })).toBe(HITLAG_LIGHT_FRAMES);
+describe('computeHitlag — reference damage formula', () => {
+  it('floors ordinary low-damage hit-stop', () => {
+    expect(computeHitlag({ damage: 1, targetPercent: 0 })).toBe(6);
     expect(computeHitlag({ damage: HITLAG_LIGHT_DAMAGE_THRESHOLD, targetPercent: 0 })).toBe(
-      HITLAG_LIGHT_FRAMES,
+      11,
     );
   });
 
-  it('returns medium tier between light and medium thresholds', () => {
+  it('scales ordinary medium-damage hit-stop', () => {
     expect(
       computeHitlag({ damage: HITLAG_LIGHT_DAMAGE_THRESHOLD + 1, targetPercent: 0 }),
-    ).toBe(HITLAG_MEDIUM_FRAMES);
+    ).toBe(11);
     expect(
       computeHitlag({ damage: HITLAG_MEDIUM_DAMAGE_THRESHOLD, targetPercent: 0 }),
-    ).toBe(HITLAG_MEDIUM_FRAMES);
+    ).toBe(15);
   });
 
-  it('returns heavy tier above the medium threshold', () => {
+  it('scales ordinary heavy-damage hit-stop', () => {
     expect(
       computeHitlag({ damage: HITLAG_MEDIUM_DAMAGE_THRESHOLD + 1, targetPercent: 0 }),
-    ).toBe(HITLAG_HEAVY_FRAMES);
-    expect(computeHitlag({ damage: 30, targetPercent: 0 })).toBe(HITLAG_HEAVY_FRAMES);
+    ).toBe(16);
+    expect(computeHitlag({ damage: 30, targetPercent: 0 })).toBe(25);
   });
 
-  it('adds the sweet-spot bonus on top of the base tier', () => {
+  it('does not invent a generic sweet-spot bonus', () => {
     expect(computeHitlag({ damage: 5, targetPercent: 0, sweetSpot: true })).toBe(
-      HITLAG_LIGHT_FRAMES + HITLAG_SWEET_SPOT_BONUS_FRAMES,
+      9,
     );
     expect(computeHitlag({ damage: 12, targetPercent: 0, sweetSpot: true })).toBe(
-      HITLAG_MEDIUM_FRAMES + HITLAG_SWEET_SPOT_BONUS_FRAMES,
+      13,
     );
   });
 
-  it('adds the high-% bonus when target.percent ≥ threshold', () => {
+  it('does not add a high-percent bonus', () => {
     expect(
       computeHitlag({ damage: 5, targetPercent: HITLAG_HIGH_PERCENT_THRESHOLD }),
-    ).toBe(HITLAG_LIGHT_FRAMES + HITLAG_HIGH_PERCENT_BONUS_FRAMES);
+    ).toBe(9);
   });
 
   it('caps at HITLAG_MAX_FRAMES even when bonuses stack', () => {
@@ -597,23 +613,32 @@ describe('applyDIToLaunchAngle', () => {
     expect(result).toBeCloseTo(angle, 6);
   });
 
-  it('rotates by the maximum when stick is perpendicular to launch', () => {
-    const angle = 0; // launching right
-    // stick pointing fully down — perp = cos(0)*1 - sin(0)*0 = 1
-    const downResult = applyDIToLaunchAngle(angle, { stickX: 0, stickY: 1 });
-    const expected = (DI_MAX_ROTATION_DEGREES * Math.PI) / 180;
-    expect(Math.abs(downResult - expected)).toBeLessThan(radEpsilon);
-    // stick pointing fully up — perp = -1
-    const upResult = applyDIToLaunchAngle(angle, { stickX: 0, stickY: -1 });
-    expect(Math.abs(upResult - -expected)).toBeLessThan(radEpsilon);
+  it('uses the Ultimate 0.17-radian limit on an eligible vertical launch', () => {
+    const angle = -Math.PI / 2;
+    expect(applyDIToLaunchAngle(angle, { stickX: 1, stickY: 0 }) - angle).toBeCloseTo(0.17, 8);
+    expect(applyDIToLaunchAngle(angle, { stickX: -1, stickY: 0 }) - angle).toBeCloseTo(-0.17, 8);
+    expect(DI_MAX_ROTATION_DEGREES).toBeCloseTo(9.740282517, 7);
   });
 
-  it('clamps wild stick magnitudes to [-1, 1] perp', () => {
-    const angle = 0;
-    // stickY = 5 should clamp to perp = 1, not multiply 5x.
-    const result = applyDIToLaunchAngle(angle, { stickX: 0, stickY: 5 });
-    const expected = (DI_MAX_ROTATION_DEGREES * Math.PI) / 180;
-    expect(Math.abs(result - expected)).toBeLessThan(radEpsilon);
+  it('normalizes a keyboard diagonal to the same direction as a unit analog stick', () => {
+    const angle = -Math.PI / 2;
+    const diagonal = applyDIToLaunchAngle(angle, { stickX: 1, stickY: 1 });
+    const analog = applyDIToLaunchAngle(angle, { stickX: Math.SQRT1_2, stickY: Math.SQRT1_2 });
+    expect(diagonal).toBeCloseTo(analog, 8);
+    expect(diagonal - angle).toBeCloseTo(0.17 * Math.SQRT1_2, 8);
+    const oversized = applyDIToLaunchAngle(angle, { stickX: 5, stickY: 0 });
+    expect(Math.abs(oversized - angle - 0.17)).toBeLessThan(radEpsilon);
+  });
+
+  it.each([0, 0.1, -0.1, Math.PI, Math.PI - 0.1, -Math.PI + 0.1])(
+    'does not redirect a nearly horizontal launch at %s radians', (angle) => {
+      expect(applyDIToLaunchAngle(angle, { stickX: 0, stickY: 1 })).toBe(angle);
+    },
+  );
+
+  it('preserves partial analog magnitude below the unit boundary', () => {
+    const angle = -Math.PI / 2;
+    expect(applyDIToLaunchAngle(angle, { stickX: 0.5, stickY: 0 }) - angle).toBeCloseTo(0.085, 8);
   });
 
   it('is deterministic across repeated calls', () => {
@@ -651,13 +676,13 @@ describe('computeRageMultiplier (Tier 3 — rage)', () => {
 });
 
 describe('computeStaleMultiplier (Tier 3 — stale-move negation)', () => {
-  it('is 1.0 for a fresh move (0 occurrences)', () => {
-    expect(computeStaleMultiplier(0)).toBe(1);
+  it('applies the 1.05 freshness bonus to an absent move', () => {
+    expect(computeStaleMultiplier(0)).toBe(1.05);
   });
 
-  it('shaves STALE_STEP per prior occurrence', () => {
+  it('uses the weighted slots for consecutive prior uses', () => {
     expect(computeStaleMultiplier(1)).toBeCloseTo(1 - STALE_STEP, 6);
-    expect(computeStaleMultiplier(3)).toBeCloseTo(1 - 3 * STALE_STEP, 6);
+    expect(computeStaleMultiplier(3)).toBeCloseTo(1 - 0.09 - 0.08545 - 0.07635, 6);
   });
 
   it('floors at STALE_MIN_MULTIPLIER for a fully-staled move', () => {
@@ -677,12 +702,12 @@ describe('computeStaleMultiplier (Tier 3 — stale-move negation)', () => {
 
 describe('computeShieldstun', () => {
   it('returns at least the floor for tiny damage', () => {
-    expect(computeShieldstun(1)).toBe(SHIELDSTUN_MIN_FRAMES);
+    expect(computeShieldstun(1)).toBe(2);
     expect(computeShieldstun(0)).toBe(SHIELDSTUN_MIN_FRAMES);
   });
 
   it('returns at most the cap for large damage', () => {
-    expect(computeShieldstun(50)).toBe(SHIELDSTUN_MAX_FRAMES);
+    expect(computeShieldstun(50)).toBe(42);
     expect(computeShieldstun(999)).toBe(SHIELDSTUN_MAX_FRAMES);
   });
 

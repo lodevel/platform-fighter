@@ -33,6 +33,9 @@
  *      hit again.
  *
  *   2. **Invulnerability frames.**
+ *      Fighters (`beginRevivalPlatform`) wait on the Ultimate revival platform instead: intangible until they move or
+ *      attack (at most 300 frames), then 120→60 frames of invincibility (src/match/revivalPlatform.ts); their
+ *      platform overlay lasts exactly as long as the wait. Other targets keep the fixed window below.
  *      The respawn handler reads `RespawnEvent.invincibilityFrames`
  *      from {@link StockTracker} and forwards it to the fighter via
  *      `Character.setInvincibility(frames)`. Default is 90 frames
@@ -76,6 +79,7 @@
  */
 
 import type { RespawnEvent } from './StockTracker';
+import { REVIVAL_PLATFORM_MAX_FRAMES } from './revivalPlatform';
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -114,6 +118,10 @@ export interface RespawnTarget {
   setDamagePercent(percent: number): void;
   setInvincibility(frames: number): void;
   setFacing(facing: 1 | -1): void;
+  /** Fighters wait on the revival platform (src/match/revivalPlatform.ts) instead of taking a fixed window; the
+   * platform overlay lasts while `isOnRevivalPlatform()` is true. */
+  beginRevivalPlatform?(): void;
+  isOnRevivalPlatform?(): boolean;
 }
 
 /**
@@ -363,7 +371,8 @@ export class RespawnHandler {
       // 2. Damage percent → 0.
       target.setDamagePercent(0);
       // 3. Invincibility window.
-      target.setInvincibility(invFrames);
+      if (target.beginRevivalPlatform) target.beginRevivalPlatform();
+      else target.setInvincibility(invFrames);
       // 4. Face inward.
       target.setFacing(slot.faceOnSpawn);
 
@@ -379,8 +388,9 @@ export class RespawnHandler {
         width: this.geometry.width,
         height: this.geometry.height,
         spawnedFrame: safeFrame,
-        expireFrame: safeFrame + invFrames,
-        invincibilityFrames: invFrames,
+        // A revival platform waits for its fighter at most REVIVAL_PLATFORM_MAX_FRAMES (it leaves earlier on dismount).
+        expireFrame: safeFrame + (target.beginRevivalPlatform ? REVIVAL_PLATFORM_MAX_FRAMES + 1 : invFrames),
+        invincibilityFrames: target.beginRevivalPlatform ? REVIVAL_PLATFORM_MAX_FRAMES : invFrames,
       });
 
       const record: AppliedRespawn = {
@@ -424,7 +434,7 @@ export class RespawnHandler {
     const expired: SpawnPlatform[] = [];
     for (let i = this.platforms.length - 1; i >= 0; i -= 1) {
       const p = this.platforms[i]!;
-      if (currentFrame >= p.expireFrame) {
+      if (currentFrame >= p.expireFrame || this.slots.get(p.playerIndex)?.target.isOnRevivalPlatform?.() === false) {
         expired.push(p);
         this.platforms.splice(i, 1);
       }

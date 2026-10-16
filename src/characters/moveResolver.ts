@@ -486,8 +486,8 @@ function groundedPatternToSlot(
  *
  *   2. **Aerial branch.** If `airborne`, delegate to
  *      `classifyAerialAttack` with a slots table built from the
- *      moveset's nair / fair / bair entries. Heavy presses are dropped
- *      airborne (smashes are grounded moves) — same rule the existing
+ *      moveset's nair / fair / bair entries. A heavy press fires the
+ *      aerial too (there is no airborne smash) — same rule the
  *      runtime applies. Aerial direction (`neutral` / `forward` /
  *      `back`) is classified relative to `prevFacing` so a stick press
  *      that also flipped facing this frame still reads as "stick away

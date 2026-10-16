@@ -89,10 +89,12 @@
  * plain Node (vitest) and reusable from headless replay tooling.
  */
 
+import { LINK_FORMAT_FIELD, LINK_FORMAT_LEGACY } from '../characters/persistedFormatMarker';
 import {
   REPLAY_FORMAT_MAGIC,
   REPLAY_FORMAT_VERSION,
 } from './replayTypes';
+import { REPLAY_ACTION_DEFAULTS, REPLAY_ATTACK_STICK_DEFAULTS, REPLAY_APPEAL_DEFAULTS } from './InputCaptureBuffer';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -427,10 +429,136 @@ const migrateV2ToV3: ReplayMigration = Object.freeze({
   },
 });
 
+/** Older recordings discarded these channels. Neutral defaults make their
+ * schema readable; migration cannot recover actions absent from the original. */
+/**
+ * Copy `payload` at `version`, filling `defaults` under every recorded
+ * input that is a plain object (recorded values win). Malformed shapes
+ * pass through untouched so the strict parser reports them.
+ */
+function withInputDefaults(
+  payload: Record<string, unknown>,
+  version: number,
+  defaults: Readonly<Record<string, unknown>>,
+): Record<string, unknown> {
+  const next: Record<string, unknown> = { ...payload, version };
+  const timeline = payload['inputTimeline'];
+  if (timeline !== null && typeof timeline === 'object' && !Array.isArray(timeline)) {
+    const t = timeline as Record<string, unknown>;
+    if (Array.isArray(t['entries'])) {
+      next['inputTimeline'] = {
+        ...t,
+        entries: t['entries'].map((entry: unknown) => {
+          if (entry === null || typeof entry !== 'object' || Array.isArray(entry)) return entry;
+          const e = entry as Record<string, unknown>;
+          if (!Array.isArray(e['inputs'])) return entry;
+          return {
+            ...e,
+            inputs: e['inputs'].map((input: unknown) =>
+              input !== null && typeof input === 'object' && !Array.isArray(input)
+                ? { ...defaults, ...input }
+                : input),
+          };
+        }),
+      };
+    }
+  }
+  return next;
+}
+
+const migrateV3ToV4: ReplayMigration = Object.freeze({
+  from: 3,
+  to: 4,
+  description: 'v3 → v4: default unrecorded combat and ledge actions to neutral',
+  migrate(payload: Record<string, unknown>): Record<string, unknown> {
+    if (payload['version'] !== 3) {
+      throw new ReplayMigrationError(3, 4,
+        `migrateV3ToV4: expected version 3, got ${JSON.stringify(payload['version'])}`);
+    }
+    return withInputDefaults(payload, 4, REPLAY_ACTION_DEFAULTS);
+  },
+});
+
+const migrateV4ToV5: ReplayMigration = Object.freeze({
+  from: 4,
+  to: 5,
+  description: 'v4 → v5: preserve optional authored fighters, participant identity and item rules',
+  migrate(payload: Record<string, unknown>): Record<string, unknown> {
+    if (payload['version'] !== 4) throw new ReplayMigrationError(4, 5, 'Expected replay version 4');
+    // Previous writers omitted these optional fields. Do not invent a tune or
+    // item rule that was not recorded; old fidelity limitations still apply.
+    return { ...payload, version: 5 };
+  },
+});
+
+/**
+ * v5 → v6: fills `attackStickX` / `attackStickY` with 0. Builds before v6
+ * had no right-stick attack, so no recorded press had a stick direction.
+ *
+ * This does not make a v5 replay replay exactly. The v6 build also changed
+ * what `attackHeavy` does: an airborne heavy press (ignored before) fires
+ * an aerial, and an up-aimed one during jumpsquat cancels the jump into
+ * the up smash. Human input could not produce `attackHeavy` before v6 (the
+ * input resolver never set it; v1–v3 did not even record it), so only CPU
+ * players' recorded heavy presses change meaning, and a v4 / v5 replay with
+ * a CPU can diverge from its match from the first such press. The heavy
+ * channel is deliberately left as recorded: telling an airborne press from
+ * a grounded one needs simulation state the file does not hold, and
+ * rewriting inputs would not undo the rest of the engine change anyway
+ * (the metadata's `engineVersion` differs too).
+ */
+const migrateV5ToV6: ReplayMigration = Object.freeze({
+  from: 5,
+  to: 6,
+  description: 'v5 → v6: default the right-stick attack direction to neutral (CPU airborne / jumpsquat heavy presses change meaning)',
+  migrate(payload: Record<string, unknown>): Record<string, unknown> {
+    if (payload['version'] !== 5) {
+      throw new ReplayMigrationError(5, 6,
+        `migrateV5ToV6: expected version 5, got ${JSON.stringify(payload['version'])}`);
+    }
+    return withInputDefaults(payload, 6, REPLAY_ATTACK_STICK_DEFAULTS);
+  },
+});
+
+const migrateV6ToV7: ReplayMigration = Object.freeze({
+  from: 6, to: 7,
+  description: 'v6 → v7: default distinct taunt appeal channel to released',
+  migrate(payload: Record<string, unknown>): Record<string, unknown> {
+    if (payload['version'] !== 6) throw new ReplayMigrationError(6, 7, 'expected replay version6');
+    return withInputDefaults(payload, 7, REPLAY_APPEAL_DEFAULTS);
+  },
+});
+
+/** Historical payloads never acquire a newly introduced Final resource or
+ * fresh Link implementation simply by being opened in a newer engine. */
+const migrateV7ToV8: ReplayMigration = Object.freeze({
+  from: 7, to: 8,
+  description: 'v7 → v8: explicit historical Final rules and Link revision',
+  migrate(payload: Record<string, unknown>): Record<string, unknown> {
+    if (payload['version'] !== 7) throw new ReplayMigrationError(7, 8, 'expected replay version7');
+    const raw = payload['matchConfig'];
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw))
+      throw new ReplayMigrationError(7, 8, 'missing matchConfig');
+    const config = raw as Record<string, unknown>;
+    const players = Array.isArray(config['players']) ? config['players'].map(player => {
+      if (!player || typeof player !== 'object' || Array.isArray(player)) return player;
+      const slot = player as Record<string, unknown>;
+      return slot['characterId'] === 'link' ? { ...slot, [LINK_FORMAT_FIELD]: LINK_FORMAT_LEGACY } : { ...slot };
+    }) : config['players'];
+    return { ...payload, version: 8, matchConfig: { ...config, players,
+      linkIntroPolicy:'none',finalSmashRules: { schemaVersion: 1, meterEnabled: false, smashBallEnabled: false } } };
+  },
+});
+
 export const REPLAY_MIGRATIONS: ReadonlyArray<ReplayMigration> = Object.freeze([
   migrateV0ToV1,
   migrateV1ToV2,
   migrateV2ToV3,
+  migrateV3ToV4,
+  migrateV4ToV5,
+  migrateV5ToV6,
+  migrateV6ToV7,
+  migrateV7ToV8,
 ]);
 
 // Self-check at module load. The chain is small enough today that this

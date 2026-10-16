@@ -71,17 +71,15 @@
  *
  * Allowed transitions (the only ones any caller may legally request):
  *
- *   `falling`   →   `grounded` | `despawned`
+ *   `falling`   →   `grounded` | `held` (explicit catch) | `despawned`
  *   `grounded`  →   `held`     | `broken`   | `despawned`
  *   `held`      →   `grounded` | `broken`   | `despawned`
  *   `broken`    →                              `despawned`
  *   `despawned` →   (terminal)
  *
  *   • `falling`   — item just spawned, falling from the drop-in point
- *                   toward its anchor. Not pickable yet (a player who
- *                   could grab a still-falling item would shortcut the
- *                   "watch it fall" beat the spawn manager pays for —
- *                   see ITEM_SPAWN_DROP_HEIGHT_PX rationale).
+ *                   toward its anchor. Ordinary ground pickup rejects it;
+ *                   an explicit action-window catch can acquire it.
  *   • `grounded`  — settled on a platform, free to be picked up. The
  *                   default state for a freshly-spawned item once the
  *                   drop animation finishes, and the state items return

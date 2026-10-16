@@ -1,0 +1,135 @@
+[
+  {
+    "script": "ItemBatSwing1",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ItemBatSwing1.txt",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "script": "ItemBatSwing3",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ItemBatSwing3.txt",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "script": "ItemBatSwing4",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ItemBatSwing4.txt",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "script": "ItemBatSwingDash",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ItemBatSwingDash.txt",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "script": "ItemLgunShoot",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ItemLgunShoot.txt",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "script": "ItemLgunShootUpper",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ItemLgunShootUpper.txt",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "script": "ItemLgunShootAir",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ItemLgunShootAir.txt",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "script": "ItemLgunShootEmpty",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ItemLgunShootEmpty.txt",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "script": "ItemLgunShootUpperEmpty",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ItemLgunShootUpperEmpty.txt",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "script": "ItemLgunShootAirEmpty",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ItemLgunShootAirEmpty.txt",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "script": "ItemShootLegsWalkF",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ItemShootLegsWalkF.txt",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "script": "ItemShootLegsWalkB",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ItemShootLegsWalkB.txt",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "script": "ItemShootLegsJumpSquat",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ItemShootLegsJumpSquat.txt",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "script": "ItemShootLegsLanding",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ItemShootLegsLanding.txt",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "script": "ItemHeavyGet",
+    "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/items/ItemHeavyGet.txt",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ItemHeavyGet.txt",
+    "revision": "59004685238a3f6f93bae905d3a4e079701c40b4",
+    "sha256": "f973c938fb3caeea1e0583d7cba6965b0ad04d952829610d6388a9aa4cbc3cf0"
+  },
+  {
+    "script": "ItemHeavyThrowF",
+    "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/items/ItemHeavyThrowF.txt",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ItemHeavyThrowF.txt",
+    "revision": "59004685238a3f6f93bae905d3a4e079701c40b4",
+    "sha256": "119dd4dd8c833fd2d4f8a146bc3b5fe312345029f8fcccf04e38fdb4f28a6a52"
+  },
+  {
+    "script": "ItemHeavyThrowF4",
+    "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/items/ItemHeavyThrowF4.txt",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ItemHeavyThrowF4.txt",
+    "revision": "59004685238a3f6f93bae905d3a4e079701c40b4",
+    "sha256": "ead5a15ea5de065d52f55da84436acb338587061dca8de56e6683675bde4789b"
+  },
+  {
+    "script": "ItemHeavyThrowB",
+    "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/items/ItemHeavyThrowB.txt",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ItemHeavyThrowB.txt",
+    "revision": "59004685238a3f6f93bae905d3a4e079701c40b4",
+    "sha256": "1ba6dc250db20ad43a6967874d415793c1e20acb0c42e19650032c2e79fc618a"
+  },
+  {
+    "script": "ItemHeavyThrowB4",
+    "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/items/ItemHeavyThrowB4.txt",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ItemHeavyThrowB4.txt",
+    "revision": "59004685238a3f6f93bae905d3a4e079701c40b4",
+    "sha256": "5f866581265d56ec45c30976ba275c629df2c495f0c77f37ca73fa7ce91fd142"
+  },
+  {
+    "script": "ItemHeavyThrowHi",
+    "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/items/ItemHeavyThrowHi.txt",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ItemHeavyThrowHi.txt",
+    "revision": "59004685238a3f6f93bae905d3a4e079701c40b4",
+    "sha256": "073b250ebdea1842706e845a7256712e3f5e62dd2998150f7df4c07edc13074b"
+  },
+  {
+    "script": "ItemHeavyThrowHi4",
+    "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/items/ItemHeavyThrowHi4.txt",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ItemHeavyThrowHi4.txt",
+    "revision": "59004685238a3f6f93bae905d3a4e079701c40b4",
+    "sha256": "0cb2985f76228af20fedcf36d89c70be1c87ffae2e785a270298eebf8b42c779"
+  },
+  {
+    "script": "ItemHeavyThrowLw",
+    "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/items/ItemHeavyThrowLw.txt",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ItemHeavyThrowLw.txt",
+    "revision": "59004685238a3f6f93bae905d3a4e079701c40b4",
+    "sha256": "c13537fbf688b35a0b6ca1067ddcd05ab91fa9e6ec61152b069ebbd3b048e3de"
+  },
+  {
+    "script": "ItemHeavyThrowLw4",
+    "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/items/ItemHeavyThrowLw4.txt",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ItemHeavyThrowLw4.txt",
+    "revision": "59004685238a3f6f93bae905d3a4e079701c40b4",
+    "sha256": "e05a40fabbd6c285a21179217b554acf527822d288fccc50240d3a3fc9702411"
+  }
+]

@@ -25,7 +25,9 @@
  */
 
 import type { MoveType } from '../types';
+import type { ReferenceKnockbackSpec } from './referenceKnockback';
 import { COLLISION_CATEGORIES, COLLISION_MASKS } from '../engine/collisionCategories';
+import type { PhysicsHost } from '../physics/PhysicsWorld';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -62,7 +64,201 @@ export const HITBOX_COLLISION_FILTER = {
  *   can begin. Combined "lockout" from press → next press is therefore
  *   `startup + active + recovery + cooldown`.
  */
+/** One super-armour interval on a move (zero-based half-open elapsed steps). */
+export interface AttackArmorWindow {
+  readonly startFrame: number;
+  readonly endFrame: number;
+  /**
+   * Optional charge gate in [0, 1]: the window only armours the fighter when
+   * the move was released with at least this fraction of its full charge
+   * (Donkey Kong's Giant Punch armours only at full charge).
+   */
+  readonly minChargeRatio?: number;
+}
+
+export interface AttackHitWindow {
+  readonly statusEffect?:'bury';
+  /** Native additive trip probability; omitted keeps legacy no-trip behavior. */
+  readonly tripChance?: number;
+  readonly setoff?: 'on' | 'off' | 'through';
+  readonly shieldDamage?: number;
+  /** Native shield-push multiplier; independent of shield damage/stun. */
+  readonly shieldSetoffMultiplier?: number;
+  /** Original native packet metadata; omission remains unknown. */
+  readonly nativeAttackHeight?:'low'|'high';
+  readonly nativeAttackHeightSource?:import('./attackHeightMetadata').AttackHeightSourceReceipt;
+  readonly nativeCollisionAttribute?: string;
+  readonly nativeForceReaction?: boolean;
+  /** Native ATTACK direct flag; omitted selects direct contact. */
+  readonly direct?:boolean;
+  readonly reflectable?:boolean;readonly absorbable?:boolean;
+  readonly launchDirection?: 'forward' | 'back' | 'position';
+  readonly collisionHits?: readonly AttackCollisionHit[];
+  readonly hitlagMultiplier?: number;
+  /** Source electric collision attribute; separate from authored hitbox hit-stop factor. */
+  readonly electricCollision?: boolean;
+  readonly sdiMultiplier?: number;
+  /** Minimum post-hitlag action lockout, independent of launch strength. */
+  readonly minHitstunFrames?: number;
+  /** Carry the attacker's motion into an airborne victim's linking launch. */
+  readonly airborneVelocityCarry?: boolean;
+  /** Whole-action elapsed frames, inclusive start and exclusive end. */
+  readonly startFrame: number;
+  readonly endFrame: number;
+  /** Windows sharing a group can hit each victim only once per attack. */
+  readonly group?: string;
+  readonly damage?: number;
+  readonly knockback?: AttackMove['knockback'];
+  readonly groundedKnockback?: AttackMove['knockback'];
+  readonly hitbox?: AttackMove['hitbox'];
+  readonly sweetSpot?: AttackMove['sweetSpot'];
+  /** Relative to the facing latched when the attack started. */
+  readonly facing?: 1 | -1;
+}
+
+/** A source hitbox projected into the fighter's local 2D coordinates.
+ * Source ID priority applies within the single supported part (part zero). */
+export interface AttackCollisionHit {
+  readonly statusEffect?:'bury';
+  readonly tripChance?: number;
+  readonly setoff?: 'on' | 'off' | 'through';
+  /** Minimum frames from this target's last confirmed contact in the injected
+   * gameplay clock. Zero/absent retains once-per-strike confirmation. */
+  readonly rehitFrames?: number;
+  readonly shieldDamage?: number;
+  /** Native shield-push multiplier; independent of shield damage/stun. */
+  readonly shieldSetoffMultiplier?: number;
+  /** Original native packet metadata; omission remains unknown. */
+  readonly nativeAttackHeight?:'low'|'high';
+  readonly nativeAttackHeightSource?:import('./attackHeightMetadata').AttackHeightSourceReceipt;
+  readonly nativeCollisionAttribute?: string;
+  readonly nativeForceReaction?: boolean;
+  /** Native ATTACK direct flag; omitted selects direct contact. */
+  readonly direct?:boolean;
+  readonly reflectable?:boolean;readonly absorbable?:boolean;
+  /** Per-record override of the move's unblockable flag (shield bubbles are ignored). */
+  readonly unblockable?:boolean;
+  readonly launchDirection?: 'forward' | 'back' | 'position';
+  readonly minHitstunFrames?: number;
+  readonly airborneVelocityCarry?: boolean;
+  readonly id: number;
+  readonly capsule: {
+    readonly start: { readonly x: number; readonly y: number };
+    readonly end: { readonly x: number; readonly y: number };
+    readonly radius: number;
+  };
+  readonly situation?: 'ground' | 'air';
+  readonly targetCategory?: 'fighter' | 'all';
+  readonly damage?: number;
+  readonly knockback?: AttackMove['knockback'];
+  readonly groundedKnockback?: AttackMove['knockback'];
+  readonly hitlagMultiplier?: number;
+  /** Source electric collision attribute; separate from authored hitbox hit-stop factor. */
+  readonly electricCollision?: boolean;
+  readonly sdiMultiplier?: number;
+}
+
+/**
+ * A reflector field a move carries over `[startFrame, endFrame)` of its own
+ * zero-based action age. `body` is body-centre px authored facing right.
+ * `swingOnReflect`: a reflect during startup jumps the move to its first
+ * active frame (the Ultimate Home-Run Bat forward smash).
+ */
+export interface AttackReflectWindow {
+  readonly startFrame: number;
+  readonly endFrame: number;
+  readonly body: { readonly offsetX: number; readonly offsetY: number; readonly width: number; readonly height: number };
+  readonly damageMultiplier: number;
+  readonly speedMultiplier: number;
+  readonly swingOnReflect?: boolean;
+}
+
+/** A projectile a held item fires (Star Rod star, Ray Gun / Super Scope shots, Fire Flower flames): a straight
+ * sensor box flying along the facing (the MatchScene projectile pipeline, gravity-free by design: the native shot
+ * items have gravity_accel 0), with its own damage packet. Offsets are world px from the body centre. */
+export interface ItemShot {
+  readonly reflectable?:boolean;readonly absorbable?:boolean;
+  readonly id: string;
+  readonly damage: number;
+  readonly knockback: AttackMove['knockback'];
+  readonly speed: number;
+  readonly lifetimeFrames: number;
+  readonly width: number;
+  readonly height: number;
+  readonly spawnOffsetX: number;
+  readonly spawnOffsetY: number;
+  /** How MatchScene draws it over its exact damage area. */
+  readonly visual: 'star' | 'laser' | 'scope' | 'flame';
+}
+
 export interface AttackMove {
+  /** Stable source action lineage, independent from authored input/queue ID. */
+  readonly sourcePoseId?: string;
+  readonly absorber?:import('./attackAbsorber').AttackAbsorbWindow;
+  /** New source-based fighters require matched posed geometry. Missing
+   * profile cannot silently become the broadphase placeholder hitbox. */
+  readonly sourcePoseRequired?: boolean;
+  /** A fighter-owned controller consumes this action's articles/events.
+   * Generic projectile/trap callbacks must not duplicate those effects. */
+  readonly sourceRuntimeOwned?: boolean;
+  /** Native item motion this held-item use plays (e.g. `item_bat_swing_3`). A fighter
+   * without that clip shows the attack sheet of the move's `type`. */
+  readonly itemClip?: string;
+  /** A held item's projectile, fired on the use's first active frame while the item has ammo (Star Rod star). */
+  readonly itemShot?: ItemShot;
+  readonly reflectWindow?: AttackReflectWindow;
+  readonly statusEffect?:'bury';
+  /** Move-owned grounded steering; absent retains ordinary locomotion. */
+  readonly groundedMotion?: { readonly acceleration: number; readonly friction: number; readonly maxSpeed: number;
+    readonly postHitFriction?: number; readonly postHitFrame?: number };
+  /** Source status entry momentum multipliers, selected by actual entry situation. */
+  readonly entryVelocityScale?: { readonly xGround: number; readonly xAir: number; readonly yGround: number; readonly yAir: number };
+  readonly gravityScale?: number;
+  /** Regional receiving protection, in zero-based half-open action ages.
+   * Regions name authored receiving bones, not hitbox IDs or sprite pixels. */
+  readonly protectionWindows?: readonly {
+    readonly startFrame: number;
+    readonly endFrame: number;
+    readonly regions: readonly string[];
+  }[];
+  /** Source-guided corner/foot-root ledge attachment adapter, sampled once per action age. */
+  readonly ledgeRootMotion?: readonly import('./ledgeRootMotionSchema').LedgeRootPoint[];
+  readonly tripChance?: number;
+  readonly setoff?: 'on' | 'off' | 'through';
+  /** Versioned published mechanic preset, transported with saved fighters. */
+  readonly pikachuSpecial?: import('./pikachuSpecialMoves').PikachuSpecialPreset;
+  /** Native per-state records, selected at action entry/release. */
+  readonly airborneVariant?: import('./moveSchema').AttackMoveWithAnimation;
+  readonly fullChargeVariant?: import('./moveSchema').AttackMoveWithAnimation;
+  readonly angledVariants?: {
+    readonly up: import('./moveSchema').AttackMoveWithAnimation;
+    readonly down: import('./moveSchema').AttackMoveWithAnimation;
+  };
+  readonly shieldDamage?: number;
+  /** Native shield-push multiplier; independent of shield damage/stun. */
+  readonly shieldSetoffMultiplier?: number;
+  /** Original native packet metadata; omission remains unknown. */
+  readonly nativeAttackHeight?:'low'|'high';
+  readonly nativeAttackHeightSource?:import('./attackHeightMetadata').AttackHeightSourceReceipt;
+  readonly nativeCollisionAttribute?: string;
+  readonly nativeForceReaction?: boolean;
+  /** Native ATTACK direct flag; omitted selects direct contact. */
+  readonly direct?:boolean;
+  readonly reflectable?:boolean;readonly absorbable?:boolean;
+  readonly launchDirection?: 'forward' | 'back' | 'position';
+  /** Exact narrowphase records; one enclosing Matter sensor is used for detection. */
+  readonly collisionHits?: readonly AttackCollisionHit[];
+  /** Source hitlag/SDI factors; omitted keeps the default factor of one. */
+  readonly hitlagMultiplier?: number;
+  /** Source electric collision attribute; separate from authored hitbox hit-stop factor. */
+  readonly electricCollision?: boolean;
+  readonly sdiMultiplier?: number;
+  /** Orient the launch axis toward the target's side; angles above 90 can pull inward. */
+  readonly launchAwayFromSource?: boolean;
+  readonly minHitstunFrames?: number;
+  readonly airborneVelocityCarry?: boolean;
+  /** Alternate launch for grounded victims (e.g. an air-only meteor). */
+  readonly groundedKnockback?: AttackMove['knockback'];
   /** Stable identifier — used by AI / replay logs / debug overlays. */
   readonly id: string;
   /** Ontology bucket for this move — jab / tilt / smash / aerial / … */
@@ -91,6 +287,8 @@ export interface AttackMove {
    *     `scaling`.
    */
   readonly knockback: {
+    /** Opt-in reference units; the legacy vector is inactive when present. */
+    readonly reference?: ReferenceKnockbackSpec;
     readonly x: number;
     readonly y: number;
     readonly scaling: number;
@@ -110,12 +308,31 @@ export interface AttackMove {
   };
   /** Frames between input press and hitbox going active. */
   readonly startupFrames: number;
-  /** Frames the hitbox is live and can connect. */
+  /** Active envelope length, including any gaps declared by hitWindows. */
   readonly activeFrames: number;
   /** Frames the fighter is committed after the hitbox ends. */
   readonly recoveryFrames: number;
   /** Frames after the move ends before any attack can start again. */
   readonly cooldownFrames: number;
+  /** Landing commitment after an airborne special, including its helpless fall. */
+  readonly specialLandingLagFrames?: number;
+  /** Optional intermittent strikes or early/late strengths within the active envelope. */
+  readonly hitWindows?: readonly AttackHitWindow[];
+  /**
+   * Optional super-armor windows in zero-based half-open elapsed steps.
+   * While the move is inside one, an incoming hit still connects — the
+   * fighter takes the damage and the attacker freezes in hitlag — but it
+   * cannot launch, stun or interrupt the fighter. Source frames `[a, b]`
+   * map to `[a − 1, b)`. Sourced example: Donkey Kong's Headbutt armour on
+   * frames 5–14 → `[4, 14)`.
+   */
+  readonly armorWindows?: readonly AttackArmorWindow[];
+  /**
+   * Presentation-only hint set by the runtime when it swaps in a special's
+   * airborne/grounded variant, so the sprite router can pick a dedicated
+   * `<sheet>_air` / `<sheet>_ground` strip when the fighter ships one.
+   */
+  readonly sheetVariant?: 'air' | 'ground' | 'first' | 'second' | 'end' | 'start' | 'hold' | 'release' | 'hit' | 'ground-hit' | 'air-hit' | 'up' | 'down';
   /**
    * Optional "sweet spot" sub-region — the canonical Smash idiom
    * where a portion of the move's hitbox (e.g. Marth's tipper, Falcon's
@@ -128,6 +345,7 @@ export interface AttackMove {
    *   • Optional damage / knockback multipliers applied on top of the
    *     authored base values. Defaults of 1.0 mean "same damage, same
    *     knockback" — most moves only use the hitlag bonus.
+   *   • Optional distinct knockback record, selected before its multiplier.
    *
    * Geometry is authored in the same coordinate system as `hitbox` —
    * `offsetX` mirrored by attacker facing, `offsetY` taken as-is. The
@@ -139,6 +357,9 @@ export interface AttackMove {
    * tend to author one (Wolf bair, smash sweet-spots, etc.).
    */
   readonly sweetSpot?: {
+    /** Optional distinct launch record, selected before the spot's multiplier.
+     * Charge in damage-only mode leaves this record unchanged. */
+    readonly knockback?: AttackMove['knockback'];
     readonly hitbox: {
       readonly offsetX: number;
       readonly offsetY: number;
@@ -148,21 +369,11 @@ export interface AttackMove {
     readonly damageMultiplier?: number;
     readonly knockbackMultiplier?: number;
   };
-  /**
-   * When `true`, the fighter's sprite stays in its non-attack pose
-   * (idle / run / jump / fall) while this move is in flight. The move
-   * still applies damage / knockback / projectile spawning normally —
-   * only the holder's *visual* swing animation is suppressed.
-   *
-   * Use case: ranged-weapon item moves (ray gun shot, etc.) where the
-   * weapon does the visible work and the fighter's punch pose would
-   * read as "I just punched air, AND somehow a laser also came out."
-   * Melee item moves like the bat swing leave this `false` so the
-   * arc of the swing is still visible.
-   *
-   * Defaults to `false` — existing moves keep their pose.
-   */
-  readonly suppressFighterPose?: boolean;
+}
+
+/** Charge changes authored damage while preserving each source launch record. */
+export function scaleAttackCollisionHitDamage(hits: readonly AttackCollisionHit[] | undefined, factor: number): readonly AttackCollisionHit[] | undefined {
+  return hits?.map(hit => ({ ...hit, ...(hit.damage === undefined ? {} : { damage: hit.damage * factor }) }));
 }
 
 /**
@@ -178,7 +389,7 @@ export interface ActiveAttack {
   /**
    * Phase of the attack:
    *   - 'startup'  : `framesElapsed < startupFrames` (no hitbox yet)
-   *   - 'active'   : hitbox is in the world and can connect
+   *   - 'active'   : active envelope; hitWindows may contain harmless gaps
    *   - 'recovery' : hitbox is gone; fighter still committed
    */
   readonly phase: 'startup' | 'active' | 'recovery';
@@ -207,6 +418,46 @@ export interface ActiveAttack {
 
 /** Plugin metadata stamped on every hitbox body. Read by damage/KO handlers. */
 export interface HitboxPlugin {
+  readonly sourcePoseRequired?: boolean;
+  readonly statusEffect?:'bury';
+  /** Runtime move classification, independent of a fighter's current support. */
+  readonly attackKind?: 'ground' | 'aerial';
+  readonly tripChance?: number;
+  readonly setoff?: 'on' | 'off' | 'through';
+  /** Selected per-region repeat interval; a scene must inject its clock. */
+  readonly rehitFrames?: number;
+  readonly shieldDamage?: number;
+  /** Native shield-push multiplier; independent of shield damage/stun. */
+  readonly shieldSetoffMultiplier?: number;
+  /** Original native packet metadata; omission remains unknown. */
+  readonly nativeAttackHeight?:'low'|'high';
+  readonly nativeAttackHeightSource?:import('./attackHeightMetadata').AttackHeightSourceReceipt;
+  readonly nativeCollisionAttribute?: string;
+  readonly nativeForceReaction?: boolean;
+  /** Native ATTACK direct flag; omitted selects direct contact. */
+  readonly direct?:boolean;
+  readonly reflectable?:boolean;readonly absorbable?:boolean;
+  readonly launchDirection?: 'forward' | 'back' | 'position';
+  /** Stale queue identity when a diagnostic sensor ID names an individual rung. */
+  readonly staleMoveId?: string;
+  readonly collisionHits?: readonly AttackCollisionHit[];
+  readonly hitlagMultiplier?: number;
+  /** Source electric collision attribute; separate from authored hitbox hit-stop factor. */
+  readonly electricCollision?: boolean;
+  readonly sdiMultiplier?: number;
+  readonly launchAwayFromSource?: boolean;
+  readonly minHitstunFrames?: number;
+  readonly airborneVelocityCarry?: boolean;
+  /** Snapshot before collision callbacks can freeze the attacking fighter. */
+  readonly attackerVelocity?: { readonly x: number; readonly y: number };
+  /** Detached damage credits its owner without freezing/pushing that owner. */
+  readonly projectile?: boolean;
+  readonly groundedKnockback?: AttackMove['knockback'];
+  /** Runtime identity shared across replacement sensors for one strike. */
+  readonly hitGroup?: object;
+  /** One move execution across all victims/strikes, used to snapshot staleness. */
+  readonly attackInstance?: object;
+  readonly hitWindowIndex?: number;
   readonly ownerId: string;
   /**
    * Numeric id of the attacker's Matter body. Used by the damage
@@ -219,10 +470,26 @@ export interface HitboxPlugin {
    * attacker's body graph and stack-overflow at construction.
    */
   readonly ownerBodyId?: number;
+  /** Opt-in body attachment: exact contact uses the live owner's origin
+   * during world events; its sensor is also reanchored after integration. */
+  readonly ownerAnchoredContact?: boolean;
+  /** Runtime-only opt-in: contact is evaluated after stage collision resolution. */
+  readonly postPhysicsContactOnly?: boolean;
+  /** Runtime-only prior completed sample of an opted-in spherical contact.
+   * A new strike has no prior sample; stretched capsules keep their shape. */
+  readonly previousPointContact?: {
+    readonly hitId: number;
+    readonly position: { readonly x: number; readonly y: number };
+    readonly radius: number;
+  };
   readonly moveId: string;
   readonly damage: number;
   readonly knockback: AttackMove['knockback'];
   readonly facing: 1 | -1;
+  /** Parent hitbox geometry, used to recover attacker origin from the sensor. */
+  readonly hitbox?: AttackMove['hitbox'];
+  /** Optional authored sweet-spot geometry and multipliers. */
+  readonly sweetSpot?: AttackMove['sweetSpot'];
   /**
    * Optional discriminator that distinguishes a regular attack
    * hitbox from a grab range-sensor (post-M2 grab/throw subsystem).
@@ -248,36 +515,14 @@ export interface HitboxPlugin {
   readonly unblockable?: boolean;
 }
 
-/**
- * Abstract scene shape we need to spawn / remove a Matter sensor.
- * Mirrors the surface used by `Character` — pulling it into a tiny
- * interface lets the unit tests construct fake scenes without a full
- * Phaser import (same pattern as `StageRenderer` and `Character`).
- *
- * `body.setPosition` is required by AC 60103 Sub-AC 3 — aerial hitboxes
- * track the attacker's position each fixed step so a fighter drifting
- * through the air during a fair / nair / bair carries the sensor with
- * him instead of leaving it where the body was on the spawn frame.
- */
-export interface HitboxScene {
-  matter: {
-    add: {
-      rectangle(
-        x: number,
-        y: number,
-        w: number,
-        h: number,
-        options: Record<string, unknown>,
-      ): MatterJS.BodyType;
-    };
-    body: {
-      setInertia(body: MatterJS.BodyType, inertia: number): void;
-      setPosition(body: MatterJS.BodyType, vec: { x: number; y: number }): void;
-    };
-    world: {
-      remove(body: MatterJS.BodyType): void;
-    };
-  };
+/** Launch side of a hitbox's hit: behind for 'back', away from the attacker for
+ * 'position' (or the legacy launchAwayFromSource), else the hitbox's facing.
+ * `separationX` is the struck body's x minus the attacker's. */
+export function hitLaunchFacing(plugin: Pick<HitboxPlugin, 'facing' | 'launchDirection' | 'launchAwayFromSource'>,
+  separationX: number): 1 | -1 {
+  if (plugin.launchDirection === 'back') return -plugin.facing as 1 | -1;
+  const away = plugin.launchDirection === 'position' || (plugin.launchDirection === undefined && plugin.launchAwayFromSource);
+  return away && separationX !== 0 ? (separationX > 0 ? 1 : -1) : plugin.facing;
 }
 
 // ---------------------------------------------------------------------------
@@ -306,7 +551,7 @@ export interface HitboxScene {
  *     rotating if a future change drops `isSensor`.
  */
 export function spawnHitbox(
-  scene: HitboxScene,
+  scene: PhysicsHost,
   attacker: {
     id: string;
     position: { x: number; y: number };
@@ -324,17 +569,41 @@ export function spawnHitbox(
   move: AttackMove,
   facing: 1 | -1,
 ): MatterJS.BodyType {
-  const offsetX = move.hitbox.offsetX * facing;
+  const geometry = attackSensorGeometry(move);
+  const offsetX = geometry.offsetX * facing;
   const cx = attacker.position.x + offsetX;
-  const cy = attacker.position.y + move.hitbox.offsetY;
+  const cy = attacker.position.y + geometry.offsetY;
 
   const plugin: HitboxPlugin = {
+    ...(move.statusEffect===undefined?{}:{statusEffect:move.statusEffect}),
     ownerId: attacker.id,
     ownerBodyId: attacker.bodyId,
     moveId: move.id,
+    attackKind: move.type === 'aerial' ? 'aerial' : 'ground',
     damage: move.damage,
+    shieldDamage: move.shieldDamage,
+    shieldSetoffMultiplier: move.shieldSetoffMultiplier,
+    direct: move.direct,
+    nativeAttackHeight:move.nativeAttackHeight,nativeAttackHeightSource:move.nativeAttackHeightSource,
+    nativeCollisionAttribute: move.nativeCollisionAttribute,
+    nativeForceReaction: move.nativeForceReaction,
+    launchDirection: move.launchDirection,
     knockback: move.knockback,
+    reflectable:move.reflectable,absorbable:move.absorbable,
+    ...(move.tripChance === undefined ? {} : { tripChance: move.tripChance }),
+    ...(move.setoff === undefined ? {} : { setoff: move.setoff }),
+    ...(move.hitlagMultiplier === undefined ? {} : { hitlagMultiplier: move.hitlagMultiplier }),
+    ...(move.electricCollision === undefined ? {} : { electricCollision: move.electricCollision }),
+    ...(move.sdiMultiplier === undefined ? {} : { sdiMultiplier: move.sdiMultiplier }),
+    ...(move.launchAwayFromSource ? { launchAwayFromSource: true } : {}),
+    ...(move.minHitstunFrames === undefined ? {} : { minHitstunFrames: move.minHitstunFrames }),
+    ...(move.airborneVelocityCarry ? { airborneVelocityCarry: true } : {}),
+    ...(move.groundedKnockback ? { groundedKnockback: move.groundedKnockback } : {}),
     facing,
+    hitbox: geometry,
+    ...(move.collisionHits ? { collisionHits: move.collisionHits } : {}),
+    ...(move.sourcePoseRequired ? { sourcePoseRequired: true } : {}),
+    ...(move.sweetSpot ? { sweetSpot: move.sweetSpot } : {}),
     // Carry the unblockable tag (command grabs) through to the damage
     // handler. Read defensively — only synthetic command-grab spawn-moves
     // set it; every authored AttackMove omits it.
@@ -343,8 +612,11 @@ export function spawnHitbox(
       : {}),
   };
 
-  const body = scene.matter.add.rectangle(cx, cy, move.hitbox.width, move.hitbox.height, {
+  const body = scene.matter.add.rectangle(cx, cy, geometry.width, geometry.height, {
     label: HITBOX_LABEL,
+    // Sensors are positioned by the attack timeline, including during hitlag.
+    // Gravity otherwise drifts their position and inflates swept bounds.
+    ignoreGravity: true,
     isSensor: true,
     isStatic: false,
     // Hitboxes are short-lived sensors. Mass needs to be non-zero to
@@ -365,7 +637,7 @@ export function spawnHitbox(
 }
 
 /** Remove a previously spawned hitbox body from the world. Idempotent. */
-export function despawnHitbox(scene: HitboxScene, body: MatterJS.BodyType | null): void {
+export function despawnHitbox(scene: PhysicsHost, body: MatterJS.BodyType | null): void {
   if (!body) return;
   scene.matter?.world?.remove(body);
 }
@@ -388,17 +660,19 @@ export function despawnHitbox(scene: HitboxScene, body: MatterJS.BodyType | null
  * deterministic given identical attacker positions and facing.
  */
 export function spawnGrabHitbox(
-  scene: HitboxScene,
+  scene: PhysicsHost,
   attacker: { id: string; position: { x: number; y: number }; bodyId?: number },
   grab: {
     id: string;
     hitbox: { offsetX: number; offsetY: number; width: number; height: number };
+    collisionHits?: readonly AttackCollisionHit[];
   },
   facing: 1 | -1,
 ): MatterJS.BodyType {
-  const offsetX = grab.hitbox.offsetX * facing;
+  const geometry = attackSensorGeometry(grab);
+  const offsetX = geometry.offsetX * facing;
   const cx = attacker.position.x + offsetX;
-  const cy = attacker.position.y + grab.hitbox.offsetY;
+  const cy = attacker.position.y + geometry.offsetY;
 
   const plugin: HitboxPlugin = {
     ownerId: attacker.id,
@@ -408,15 +682,17 @@ export function spawnGrabHitbox(
     knockback: { x: 0, y: 0, scaling: 0 },
     facing,
     kind: 'grab',
+    ...(grab.collisionHits ? { hitbox: geometry, collisionHits: grab.collisionHits } : {}),
   };
 
   const body = scene.matter.add.rectangle(
     cx,
     cy,
-    grab.hitbox.width,
-    grab.hitbox.height,
+    geometry.width,
+    geometry.height,
     {
       label: HITBOX_LABEL,
+      ignoreGravity: true,
       isSensor: true,
       isStatic: false,
       mass: 0.0001,
@@ -457,10 +733,25 @@ export function computeHitboxCenter(
   move: AttackMove,
   facing: 1 | -1,
 ): { x: number; y: number } {
+  const geometry = attackSensorGeometry(move);
   return {
-    x: attackerPosition.x + move.hitbox.offsetX * facing,
-    y: attackerPosition.y + move.hitbox.offsetY,
+    x: attackerPosition.x + geometry.offsetX * facing,
+    y: attackerPosition.y + geometry.offsetY,
   };
+}
+
+/** Broadphase bounds follow the complete selected record set, including tips. */
+export function attackSensorGeometry(move: Pick<AttackMove, 'hitbox' | 'collisionHits'>): AttackMove['hitbox'] {
+  if (!move.collisionHits?.length) return move.hitbox;
+  let left = Infinity, right = -Infinity, top = Infinity, bottom = -Infinity;
+  for (const { capsule: { start, end, radius } } of move.collisionHits) {
+    left = Math.min(left, start.x - radius, end.x - radius);
+    right = Math.max(right, start.x + radius, end.x + radius);
+    top = Math.min(top, start.y - radius, end.y - radius);
+    bottom = Math.max(bottom, start.y + radius, end.y + radius);
+  }
+  return { offsetX: (left + right) / 2, offsetY: (top + bottom) / 2,
+    width: right - left, height: bottom - top };
 }
 
 /**
@@ -493,7 +784,7 @@ export function computeHitboxCenter(
  * frame.
  */
 export function updateHitboxPosition(
-  scene: HitboxScene,
+  scene: PhysicsHost,
   body: MatterJS.BodyType | null,
   attackerPosition: { readonly x: number; readonly y: number },
   move: AttackMove,

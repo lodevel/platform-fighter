@@ -208,22 +208,28 @@ export interface LedgeHangState {
  * reserved for a balance pass.
  */
 export interface LedgeHangTuning {
+  /** Native catch-motion duration before voluntary options; zero preserves legacy immediate options. */
+  readonly catchFrames?: number;
+  /** Motion playback rate for each successive grab. The final entry repeats. */
+  readonly catchMotionRatesByGrab?: readonly number[];
+  /** Consecutive catches allowed until ground contact or damaging launch; zero disables the limit. */
+  readonly maxGrabsWithoutGround?: number;
+  /** Exact authored ledge-attack protection budgets by grab; the final entry repeats. */
+  readonly attackProtectionFramesByGrab?: readonly number[];
+  /** Multiplier on the getup / roll / jump / attack release intangibility for each
+   * successive grab (floored); the final entry repeats. Empty keeps full budgets. */
+  readonly optionIntangibilityScaleByGrab?: readonly number[];
   /**
    * Maximum frames a fighter can hang on a ledge before the game
    * forcibly drops them off. The canonical "ledge-stall protection"
-   * timer. Default 360 (≈ 6 s at 60 Hz) — long enough for a deliberate
-   * stalling tactic, short enough that "ledge-hog forever" isn't a
-   * winning strategy. Set to a non-positive value to disable the auto-
+   * timer. Default 390: SmashWiki Edge, "Hang time" — "SSB4 and SSBU ... 6.5 seconds"
+   * (both under and over 100 %). Set to a non-positive value to disable the auto-
    * drop entirely.
    */
   readonly maxHangFrames?: number;
   /**
-   * Frames of invulnerability granted on a fresh ledge grab. The
-   * fighter is immune to incoming hits while these tick down — the
-   * canonical "ledge-snap i-frame" window that prevents an opponent
-   * from spiking a recovering fighter the instant they latch on.
-   *
-   * Default 24 (≈ 0.4 s at 60 Hz).
+   * Explicit override of the fresh-grab invulnerability. Omitted (the default) uses
+   * Ultimate's airtime/percent formula ({@link ultimateLedgeHangIntangibilityFrames}).
    */
   readonly hangIframeFrames?: number;
   /**
@@ -307,7 +313,7 @@ export interface LedgeHangTuning {
   /**
    * SMASH-PARITY (ledge-stall fix) — number of consecutive ledge grabs
    * (without touching the ground in between) the fighter may make at FULL
-   * fresh-grab intangibility. Default 2. The first
+   * fresh-grab intangibility. Default 1. The first
    * `regrabIframeThreshold` grabs latch with the full `hangIframeFrames`
    * budget; each grab beyond it loses `regrabIframePenalty` i-frames.
    */
@@ -315,10 +321,9 @@ export interface LedgeHangTuning {
   /**
    * SMASH-PARITY (ledge-stall fix) — i-frames removed from the fresh-grab
    * budget for each regrab beyond `regrabIframeThreshold`, clamped so the
-   * budget never goes negative. Default 8 — with the default 24-frame
-   * window and threshold 2, grab #3 latches with 16 i-frames, #4 with 8,
-   * and #5+ with 0 (no intangibility at all), closing the infinite
-   * ledge-stall loop. Set to 0 to disable depletion entirely.
+   * budget never goes negative. Default 24 removes the entire default
+   * hang budget on the second and later catches. Option invulnerability
+   * is a separate budget. Set to 0 for custom depletion-free rules.
    */
   readonly regrabIframePenalty?: number;
 }
@@ -328,8 +333,13 @@ export interface LedgeHangTuning {
  * so call sites that read tuning don't have to optional-chain.
  */
 export interface ResolvedLedgeHangTuning {
+  readonly catchFrames: number;
+  readonly catchMotionRatesByGrab: readonly number[];
+  readonly maxGrabsWithoutGround: number;
+  readonly attackProtectionFramesByGrab: readonly number[];
+  readonly optionIntangibilityScaleByGrab: readonly number[];
   readonly maxHangFrames: number;
-  readonly hangIframeFrames: number;
+  readonly hangIframeFrames?: number;
   readonly climbFrames: number;
   readonly tetherCooldownFrames: number;
   readonly dropDownClearance: number;
@@ -370,6 +380,10 @@ export interface LedgeHangInput {
   readonly forceRelease?: boolean;
   readonly airborne: boolean;
   readonly facing: 1 | -1;
+  /** Frames airborne since last grounded, for a fresh catch's intangibility. Default 0. */
+  readonly airtimeFrames?: number;
+  /** Damage percent at the catch, for a fresh catch's intangibility. Default 0. */
+  readonly percent?: number;
 }
 
 /**
@@ -393,9 +407,25 @@ export interface LedgeHangTickResult {
  * `CharacterTuning` (a follow-up sub-AC plumbs them through the
  * character class).
  */
+/**
+ * Fresh ledge-grab intangibility. SmashWiki Edge, "Intangibility duration", SSB4/SSBU row:
+ * "(60 * (a / 300)) + (44 - (p / 120 * 44)) frames (plus the duration of the edge-grabbing
+ * animation, which is 19 frames) (a = airtime in frames with max 300, p = percentage with max
+ * 120) (minimum 23 frames, maximum 123 frames)". Fractional results round down.
+ */
+export const LEDGE_HANG_INTANGIBILITY_MIN_FRAMES = 23;
+export const LEDGE_HANG_INTANGIBILITY_MAX_FRAMES = 123;
+export function ultimateLedgeHangIntangibilityFrames(airtimeFrames: number, percent: number): number {
+  const a = Math.min(300, Math.max(0, Number.isFinite(airtimeFrames) ? airtimeFrames : 0));
+  const p = Math.min(120, Math.max(0, Number.isFinite(percent) ? percent : 0));
+  const frames = Math.floor(19 + 60 * (a / 300) + 44 - (p / 120) * 44);
+  return Math.min(LEDGE_HANG_INTANGIBILITY_MAX_FRAMES, Math.max(LEDGE_HANG_INTANGIBILITY_MIN_FRAMES, frames));
+}
+
 export const LEDGE_HANG_DEFAULTS: ResolvedLedgeHangTuning = Object.freeze({
-  maxHangFrames: 360,
-  hangIframeFrames: 24,
+  catchFrames: 0, catchMotionRatesByGrab: Object.freeze([]), maxGrabsWithoutGround: 0,
+  attackProtectionFramesByGrab: Object.freeze([]), optionIntangibilityScaleByGrab: Object.freeze([]),
+  maxHangFrames: 390,
   climbFrames: 28,
   tetherCooldownFrames: 30,
   dropDownClearance: 20,
@@ -409,9 +439,41 @@ export const LEDGE_HANG_DEFAULTS: ResolvedLedgeHangTuning = Object.freeze({
   rollDistance: 96,
   // SMASH-PARITY (2-frame punish + ledge-stall fix).
   grabVulnerableFrames: 2,
-  regrabIframeThreshold: 2,
-  regrabIframePenalty: 8,
+  // Ultimate: only the first catch receives hang protection (SmashWiki Edge: "fighters no
+  // longer receiving ledge intangibility when regrabbing the ledge without landing or sustaining
+  // hitstun"). The default penalty removes the largest possible budget. Option invulnerability is
+  // a separate budget.
+  regrabIframeThreshold: 1,
+  regrabIframePenalty: LEDGE_HANG_INTANGIBILITY_MAX_FRAMES,
 });
+
+/**
+ * Ultimate's universal regrab penalties (SmashWiki Edge, "Ledge regrab penalties"):
+ * at most 6 grabs before landing, and the catch animation slows from the 3rd grab
+ * (1, 1, 0.9375, 0.875, 0.8125, 0.75). Fighters opt in by spreading this record.
+ */
+export const ULTIMATE_LEDGE_REGRAB_PENALTIES = Object.freeze({
+  maxGrabsWithoutGround: 6,
+  catchMotionRatesByGrab: Object.freeze([1, 1, 0.9375, 0.875, 0.8125, 0.75]),
+});
+
+/** SmashWiki Edge: getup-option intangibility is ×0.8 after the first regrab, ×0.5 after
+ * the second and disabled from the third. Opt-in per fighter (`optionIntangibilityScaleByGrab`). */
+export const ULTIMATE_LEDGE_OPTION_INTANGIBILITY_SCALE_BY_GRAB = Object.freeze([1, 0.8, 0.5, 0]);
+
+/** Entry for the current grab (1-based count since ground); the final entry repeats. */
+export function ledgeRegrabEntry<T>(entries: readonly T[], grabsSinceGround: number): T | undefined {
+  return entries[Math.min(Math.max(0, grabsSinceGround - 1), entries.length - 1)];
+}
+
+/** Presentation clock of a hang: the catch motion plays at this grab's regrab rate, then the
+ * hang loop starts once the slowed catch has finished. `age` is the drawing age of `sheet`. */
+export function ledgeHangPresentationClock(hangAge: number, grabsSinceGround: number, catchFrames: number,
+  catchMotionRatesByGrab: readonly number[]): { readonly sheet: 'ledge_catch' | 'ledge'; readonly age: number } {
+  const rate = ledgeRegrabEntry(catchMotionRatesByGrab, grabsSinceGround) ?? 1;
+  return hangAge * rate < catchFrames ? { sheet: 'ledge_catch', age: hangAge * rate }
+    : { sheet: 'ledge', age: hangAge - Math.ceil(catchFrames / rate) };
+}
 
 // ---------------------------------------------------------------------------
 // Constructors / queries
@@ -448,14 +510,19 @@ export function resolveLedgeHangTuning(
 ): ResolvedLedgeHangTuning {
   if (!overrides) return LEDGE_HANG_DEFAULTS;
   return Object.freeze({
+    catchFrames: nonNegativeInt(overrides.catchFrames, LEDGE_HANG_DEFAULTS.catchFrames),
+    catchMotionRatesByGrab: Object.freeze((overrides.catchMotionRatesByGrab ?? []).map(rate =>
+      Number.isFinite(rate) && rate > 0 ? rate : 1)),
+    maxGrabsWithoutGround: nonNegativeInt(overrides.maxGrabsWithoutGround, LEDGE_HANG_DEFAULTS.maxGrabsWithoutGround),
+    attackProtectionFramesByGrab: Object.freeze((overrides.attackProtectionFramesByGrab ?? []).map(frames =>
+      Number.isFinite(frames) ? Math.max(0, Math.floor(frames)) : 0)),
+    optionIntangibilityScaleByGrab: Object.freeze((overrides.optionIntangibilityScaleByGrab ?? []).map(scale =>
+      Number.isFinite(scale) ? Math.max(0, scale) : 1)),
     maxHangFrames: nonNegativeInt(
       overrides.maxHangFrames,
       LEDGE_HANG_DEFAULTS.maxHangFrames,
     ),
-    hangIframeFrames: nonNegativeInt(
-      overrides.hangIframeFrames,
-      LEDGE_HANG_DEFAULTS.hangIframeFrames,
-    ),
+    ...(overrides.hangIframeFrames === undefined ? {} : { hangIframeFrames: nonNegativeInt(overrides.hangIframeFrames, 0) }),
     climbFrames: nonNegativeInt(
       overrides.climbFrames,
       LEDGE_HANG_DEFAULTS.climbFrames,
@@ -766,7 +833,8 @@ export function tickLedgeHang(
 
     // Detection produces a fresh grab only if the fighter is airborne
     // (the canonical "you must be in the air to ledge-grab" rule).
-    if (input.detection !== null && input.airborne) {
+    if (input.detection !== null && input.airborne &&
+      (tuning.maxGrabsWithoutGround === 0 || groundedReset < tuning.maxGrabsWithoutGround)) {
       // SMASH-PARITY (ledge-stall fix) — the first `regrabIframeThreshold`
       // grabs latch with the FULL i-frame budget; each grab beyond it
       // loses `regrabIframePenalty` i-frames (clamped to 0). The counter
@@ -775,9 +843,11 @@ export function tickLedgeHang(
       // `groundedReset + 1`.
       const grabIndex = groundedReset + 1;
       const excessGrabs = Math.max(0, grabIndex - tuning.regrabIframeThreshold);
+      const freshIframes = tuning.hangIframeFrames
+        ?? ultimateLedgeHangIntangibilityFrames(input.airtimeFrames ?? 0, input.percent ?? 0);
       const depletedIframes = Math.max(
         0,
-        tuning.hangIframeFrames - excessGrabs * tuning.regrabIframePenalty,
+        freshIframes - excessGrabs * tuning.regrabIframePenalty,
       );
       const armed = Object.freeze({
         name: 'hanging' as const,
@@ -786,7 +856,10 @@ export function tickLedgeHang(
           latchX: input.detection.latchX,
           latchY: input.detection.latchY,
           framesElapsed: 0,
-          facing: input.facing,
+          // The catch turns toward the stage even when detection accepts a
+          // backwards grab. Attachment, receiving and art use this latched
+          // facing, so it must agree with the actor's inward-facing latch.
+          facing: input.detection.candidate.side === 'left' ? 1 as const : -1 as const,
         }),
         hangIframesRemaining: depletedIframes,
         cooldownRemaining: 0,
@@ -858,7 +931,8 @@ export function tickLedgeHang(
   // ---- 3. Hanging --------------------------------------------------------
   if (state.name === 'hanging' && state.active !== null) {
     // Player-initiated release.
-    if (input.release !== null) {
+    const rate = ledgeRegrabEntry(tuning.catchMotionRatesByGrab, state.ledgeGrabsSinceGround) ?? 1;
+    if (input.release !== null && (state.active.framesElapsed + 1) * rate >= tuning.catchFrames) {
       return resolveRelease(state.active, input.release, tuning, state);
     }
     const nextFrames = state.active.framesElapsed + 1;
@@ -1025,6 +1099,9 @@ function resolveRelease(
   // ground touch, so the depletion persists until the fighter actually
   // lands (handled in the idle / cooldown branches).
   const grabsSinceGround = prev.ledgeGrabsSinceGround;
+  // Regrab penalty on every getup option's intangibility (floored).
+  const scale = ledgeRegrabEntry(tuning.optionIntangibilityScaleByGrab, grabsSinceGround) ?? 1;
+  const iframes = (frames: number): number => Math.floor(frames * scale);
   if (action === 'getUp') {
     // Climb begins on the next tick; we transition the state but do
     // NOT count the current frame against `climbFrames` (the player
@@ -1041,7 +1118,7 @@ function resolveRelease(
           framesElapsed: 0,
           facing: active.facing,
         }),
-        hangIframesRemaining: tuning.getupIframes,
+        hangIframesRemaining: iframes(tuning.getupIframes),
         cooldownRemaining: 0,
         grabVulnerableRemaining: 0,
         ledgeGrabsSinceGround: grabsSinceGround,
@@ -1062,7 +1139,7 @@ function resolveRelease(
           framesElapsed: 0,
           facing: active.facing,
         }),
-        hangIframesRemaining: tuning.rollIframes,
+        hangIframesRemaining: iframes(tuning.rollIframes),
         cooldownRemaining: 0,
         grabVulnerableRemaining: 0,
         ledgeGrabsSinceGround: grabsSinceGround,
@@ -1077,8 +1154,8 @@ function resolveRelease(
   // the runtime's `isLedgeHangInvincible` query covers the brief
   // post-release invuln window without a separate state branch.
   let releaseIframes = 0;
-  if (action === 'jump') releaseIframes = tuning.jumpIframes;
-  else if (action === 'attack') releaseIframes = tuning.attackIframes;
+  if (action === 'jump') releaseIframes = iframes(tuning.jumpIframes);
+  else if (action === 'attack') releaseIframes = iframes(tuning.attackIframes);
   // 'dropDown' has no i-frames — a clean drop is intentionally vulnerable.
   return {
     state: Object.freeze({

@@ -1,0 +1,471 @@
+{
+  "url": "https://ultimateframedata.com/pikachu",
+  "checked": "2026-10-06",
+  "patch_label": null,
+  "moves": [
+    {
+      "movename": "Jab",
+      "startup": "2",
+      "totalframes": "17",
+      "landinglag": "--",
+      "notes": "Transitions to next Jab as early as frame 7",
+      "basedamage": "1.4/1.2",
+      "shieldlag": "4/4",
+      "shieldstun": "3/2",
+      "whichhitbox": "--",
+      "advantage": "-12/-13",
+      "activeframes": "2\u20143",
+      "endlag": "14",
+      "motion_urls": [
+        "https://ultimateframedata.com/hitboxes/pikachu/PikachuJab.gif"
+      ]
+    },
+    {
+      "movename": "Forward Tilt",
+      "startup": "6",
+      "totalframes": "29",
+      "landinglag": "--",
+      "notes": "--",
+      "basedamage": "9.0/8.0/10.0",
+      "shieldlag": "11/11/12",
+      "shieldstun": "9/8/10",
+      "whichhitbox": "Neutral/Down/Up",
+      "advantage": "-14/-15/-13",
+      "activeframes": "6\u20148",
+      "endlag": "21",
+      "motion_urls": [
+        "https://ultimateframedata.com/hitboxes/pikachu/PikachuFTilt.gif",
+        "https://ultimateframedata.com/hitboxes/pikachu/PikachuFTiltUp.gif",
+        "https://ultimateframedata.com/hitboxes/pikachu/PikachuFTiltDown.gif"
+      ]
+    },
+    {
+      "movename": "Up Tilt",
+      "startup": "7",
+      "totalframes": "26",
+      "landinglag": "--",
+      "notes": "--",
+      "basedamage": "5.0",
+      "shieldlag": "6",
+      "shieldstun": "6",
+      "whichhitbox": "--",
+      "advantage": "-13",
+      "activeframes": "7\u201413",
+      "endlag": "13",
+      "motion_urls": [
+        "https://ultimateframedata.com/hitboxes/pikachu/PikachuUTilt.gif"
+      ]
+    },
+    {
+      "movename": "Down Tilt",
+      "startup": "7",
+      "totalframes": "18",
+      "landinglag": "--",
+      "notes": "--",
+      "basedamage": "6.0",
+      "shieldlag": "6",
+      "shieldstun": "7",
+      "whichhitbox": "--",
+      "advantage": "-4",
+      "activeframes": "7\u20148",
+      "endlag": "10",
+      "motion_urls": [
+        "https://ultimateframedata.com/hitboxes/pikachu/PikachuDTilt.gif"
+      ]
+    },
+    {
+      "movename": "Dash Attack",
+      "startup": "6",
+      "totalframes": "35",
+      "landinglag": "--",
+      "notes": "--",
+      "basedamage": "11.0/6.0",
+      "shieldlag": "13/9",
+      "shieldstun": "18/10",
+      "whichhitbox": "Early/Late",
+      "advantage": "-11",
+      "activeframes": "6\u20148(9\u201412)",
+      "endlag": "23",
+      "motion_urls": [
+        "https://ultimateframedata.com/hitboxes/pikachu/PikachuDashAttack.gif"
+      ]
+    },
+    {
+      "movename": "Forward Smash",
+      "startup": "15",
+      "totalframes": "53",
+      "landinglag": "--",
+      "notes": "Charge hold is frame 9",
+      "basedamage": "15.0/18.0/12.0",
+      "shieldlag": "15/15/13",
+      "shieldstun": "9/12/8",
+      "whichhitbox": "Early/late/latest",
+      "advantage": "-29",
+      "activeframes": "15\u201416/17\u201419/20\u201429",
+      "endlag": "24",
+      "motion_urls": [
+        "https://ultimateframedata.com/hitboxes/pikachu/PikachuFSmash.gif"
+      ]
+    },
+    {
+      "movename": "Up Smash",
+      "startup": "10",
+      "totalframes": "44",
+      "landinglag": "--",
+      "notes": "Charge hold is frame 2",
+      "basedamage": "(14.0/13.0)/11.0/7.0",
+      "shieldlag": "10/9/8",
+      "shieldstun": "10/9/8",
+      "whichhitbox": "Clean/Mid/Late",
+      "advantage": "-24",
+      "activeframes": "10\u201412/13\u201414/15\u201417",
+      "endlag": "27",
+      "motion_urls": [
+        "https://ultimateframedata.com/hitboxes/pikachu/PikachuUSmash.gif"
+      ]
+    },
+    {
+      "movename": "Down Smash",
+      "startup": "8/11/14/17/20/23",
+      "totalframes": "65",
+      "landinglag": "--",
+      "notes": "Charge hold is frame 2",
+      "basedamage": "2.0/3.0",
+      "shieldlag": "7/7",
+      "shieldstun": "3/3",
+      "whichhitbox": "Multi/Final",
+      "advantage": "-39",
+      "activeframes": "8\u20149/11\u201412/14\u201415/17\u201418/20\u201421",
+      "endlag": "44",
+      "motion_urls": [
+        "https://ultimateframedata.com/hitboxes/pikachu/PikachuDSmash.gif"
+      ]
+    },
+    {
+      "movename": "Neutral Air",
+      "startup": "3/9/15/21",
+      "totalframes": "38",
+      "landinglag": "9",
+      "notes": "Autocancels on frame 37 onward",
+      "basedamage": "1.7/3.5",
+      "shieldlag": "7/8",
+      "shieldstun": "2/2",
+      "whichhitbox": "Multi/Final",
+      "advantage": "-7",
+      "activeframes": "3\u20146/9\u201412/15\u201418/21\u201422",
+      "endlag": "16",
+      "motion_urls": [
+        "https://ultimateframedata.com/hitboxes/pikachu/PikachuNAir.gif"
+      ]
+    },
+    {
+      "movename": "Forward Air",
+      "startup": "11...",
+      "totalframes": "41",
+      "landinglag": "12",
+      "notes": "Autocancels on frame 1-4 and 32 onward",
+      "basedamage": "1.3/4.8",
+      "shieldlag": "6/13",
+      "shieldstun": "2/3",
+      "whichhitbox": "Multi/Final",
+      "advantage": "-10/-9",
+      "activeframes": "11\u201425/27 (rehit: 3)",
+      "endlag": "14",
+      "motion_urls": [
+        "https://ultimateframedata.com/hitboxes/pikachu/PikachuFAir.gif"
+      ]
+    },
+    {
+      "movename": "Back Air",
+      "startup": "4/8/12/16/20/24",
+      "totalframes": "43",
+      "landinglag": "18",
+      "notes": "Landing hit on frame 1. Autocancels on frame 1-3 and 38 onward",
+      "basedamage": "1.0/3.5/4.0",
+      "shieldlag": "4/11/5",
+      "shieldstun": "2/2/5",
+      "whichhitbox": "Multi/Final/Landing",
+      "advantage": "-12",
+      "activeframes": "4\u20145/8\u20149/12\u201413/16\u201417/20\u201421/24\u201425/1\u20142",
+      "endlag": "18",
+      "motion_urls": [
+        "https://ultimateframedata.com/hitboxes/pikachu/PikachuBAir.gif",
+        "https://ultimateframedata.com/hitboxes/pikachu/PikachuBAirLanding.gif"
+      ]
+    },
+    {
+      "movename": "Up Air",
+      "startup": "4",
+      "totalframes": "26",
+      "landinglag": "14",
+      "notes": "Autocancels on frame 1-3 and 18 onward",
+      "basedamage": "6.0/5.0/4.0",
+      "shieldlag": "6/5",
+      "shieldstun": "3/3",
+      "whichhitbox": "Clean tail/Clean tip/Late",
+      "advantage": "-11/-11",
+      "activeframes": "4\u20146/7\u20148",
+      "endlag": "18",
+      "motion_urls": [
+        "https://ultimateframedata.com/hitboxes/pikachu/PikachuUAir.gif"
+      ]
+    },
+    {
+      "movename": "Down Air",
+      "startup": "14",
+      "totalframes": "47",
+      "landinglag": "22",
+      "notes": "Landing hit on frame 1. Autocancels on frame 38 onward",
+      "basedamage": "13.0/12.0/4.0",
+      "shieldlag": "14/13/8",
+      "shieldstun": "5/5/5",
+      "whichhitbox": "Meteor/Late/Landing",
+      "advantage": "-16",
+      "activeframes": "14\u201415/16\u201426/1\u20142",
+      "endlag": "21",
+      "motion_urls": [
+        "https://ultimateframedata.com/hitboxes/pikachu/PikachuDAir.gif",
+        "https://ultimateframedata.com/hitboxes/pikachu/PikachuDAirLanding.gif"
+      ]
+    },
+    {
+      "movename": "Neutral B (Thunderjolt)",
+      "startup": "19",
+      "totalframes": "51",
+      "landinglag": "--",
+      "notes": "--",
+      "basedamage": "6.0/4.8",
+      "shieldlag": "9/9",
+      "shieldstun": "3/3",
+      "whichhitbox": "Arc/Projectile",
+      "advantage": "-20",
+      "activeframes": "19\u201452(53\u201485/86\u2014114)",
+      "endlag": "--",
+      "motion_urls": [
+        "https://ultimateframedata.com/hitboxes/pikachu/PikachuThunderjoltAerial.gif"
+      ]
+    },
+    {
+      "movename": "Side B (Skull Bash)",
+      "startup": "18/18",
+      "totalframes": "96/74",
+      "landinglag": "--",
+      "notes": "Startup is 10 on release. On hit endlag is 21 frames. On level ground, total frames is 96, 74 in the air.",
+      "basedamage": "10.0\u201421.4",
+      "shieldlag": "8\u201413",
+      "shieldstun": "10\u201419",
+      "whichhitbox": "Ground/Air",
+      "advantage": "-11 to -2",
+      "activeframes": "18\u201452",
+      "endlag": "44",
+      "motion_urls": [
+        "https://ultimateframedata.com/hitboxes/pikachu/PikachuSkullBash.gif"
+      ]
+    },
+    {
+      "movename": "Up B (Quick Attack)",
+      "startup": "15/29",
+      "totalframes": "52/66",
+      "landinglag": "24",
+      "notes": "Total frames assumes you end on the ground.",
+      "basedamage": "3.0/2.0",
+      "shieldlag": "7/7",
+      "shieldstun": "3/3",
+      "whichhitbox": "Early/Late",
+      "advantage": "-33",
+      "activeframes": "15\u201419/29\u201433",
+      "endlag": "19",
+      "motion_urls": [
+        "https://ultimateframedata.com/hitboxes/pikachu/PikachuQuickAttack.gif"
+      ]
+    },
+    {
+      "movename": "Down B (Thunder)",
+      "startup": "13/**",
+      "totalframes": "86/74",
+      "landinglag": "--",
+      "notes": "First total frames is when the thunder bolt misses you. Invulnerable on frame 34-43 if bolt hits you. Spikes on frames 13\u201415.",
+      "basedamage": "6.0/8.0/15.0",
+      "shieldlag": "11/15",
+      "shieldstun": "3/14",
+      "whichhitbox": "Projectile Early / Projectile Late / Contact",
+      "advantage": "-26",
+      "activeframes": "13\u201415(16\u201485): Early // 21\u201423(24\u201493): Late // 1-2: Contact",
+      "endlag": "84",
+      "motion_urls": [
+        "https://ultimateframedata.com/hitboxes/pikachu/PikachuThunder.gif",
+        "https://ultimateframedata.com/hitboxes/pikachu/PikachuThunderHit.gif"
+      ]
+    },
+    {
+      "movename": "Grab",
+      "startup": "7",
+      "totalframes": "36",
+      "landinglag": "--",
+      "notes": "--",
+      "basedamage": "--",
+      "activeframes": "7\u20148",
+      "endlag": "28",
+      "motion_urls": [
+        "https://ultimateframedata.com/hitboxes/pikachu/PikachuGrab.gif"
+      ]
+    },
+    {
+      "movename": "Dash Grab",
+      "startup": "11",
+      "totalframes": "44",
+      "landinglag": "--",
+      "notes": "--",
+      "basedamage": "--",
+      "activeframes": "11\u201412",
+      "endlag": "32",
+      "motion_urls": [
+        "https://ultimateframedata.com/hitboxes/pikachu/PikachuDashGrab.gif"
+      ]
+    },
+    {
+      "movename": "Pivot Grab",
+      "startup": "12",
+      "totalframes": "39",
+      "landinglag": "--",
+      "notes": "--",
+      "basedamage": "--",
+      "activeframes": "12\u201413",
+      "endlag": "26",
+      "motion_urls": [
+        "https://ultimateframedata.com/hitboxes/pikachu/PikachuPivotGrab.gif"
+      ]
+    },
+    {
+      "movename": "Pummel",
+      "startup": "1",
+      "totalframes": "16",
+      "landinglag": "--",
+      "notes": "Total frames includes 11 frames of hitlag",
+      "basedamage": "1.0",
+      "motion_urls": [
+        "https://ultimateframedata.com/hitboxes/pikachu/PikachuPummel.gif"
+      ]
+    },
+    {
+      "movename": "Forward Throw",
+      "startup": "11/15/19/23/30",
+      "totalframes": "43",
+      "landinglag": "--",
+      "notes": "--",
+      "basedamage": "2.0/2.0",
+      "motion_urls": [
+        "https://ultimateframedata.com/hitboxes/pikachu/PikachuFThrow.gif"
+      ]
+    },
+    {
+      "movename": "Backward Throw",
+      "startup": "26",
+      "totalframes": "49",
+      "landinglag": "--",
+      "notes": "--",
+      "basedamage": "9.0",
+      "motion_urls": [
+        "https://ultimateframedata.com/hitboxes/pikachu/PikachuBThrow.gif"
+      ]
+    },
+    {
+      "movename": "Up Throw",
+      "startup": "14/16",
+      "totalframes": "35",
+      "landinglag": "--",
+      "notes": "--",
+      "basedamage": "3.0/5.0",
+      "motion_urls": [
+        "https://ultimateframedata.com/hitboxes/pikachu/PikachuUThrow.gif"
+      ]
+    },
+    {
+      "movename": "Down Throw",
+      "startup": "29",
+      "totalframes": "51",
+      "landinglag": "--",
+      "notes": "--",
+      "basedamage": "5.0",
+      "motion_urls": [
+        "https://ultimateframedata.com/hitboxes/pikachu/PikachuDThrow.gif"
+      ]
+    },
+    {
+      "movename": "Spot Dodge",
+      "totalframes": "19/24",
+      "landinglag": "--",
+      "notes": "Intangible on frame 3-16",
+      "motion_urls": []
+    },
+    {
+      "movename": "Forward Roll",
+      "totalframes": "28",
+      "landinglag": "--",
+      "notes": "Intangible on frame 4-14",
+      "motion_urls": []
+    },
+    {
+      "movename": "Backward Roll",
+      "totalframes": "33",
+      "landinglag": "--",
+      "notes": "Intangible on frame 4-15",
+      "motion_urls": []
+    },
+    {
+      "movename": "Neutral Air Dodge",
+      "totalframes": "50",
+      "landinglag": "10",
+      "notes": "Intangible on frame 2-26",
+      "motion_urls": []
+    },
+    {
+      "movename": "Air Dodge, Down",
+      "totalframes": "69",
+      "landinglag": "11-19",
+      "notes": "Intangible on frame 2-19",
+      "motion_urls": []
+    },
+    {
+      "movename": "Air Dodge, Diagonally Down",
+      "totalframes": "76",
+      "landinglag": "11-19",
+      "notes": "Intangible on frame 2-19",
+      "motion_urls": []
+    },
+    {
+      "movename": "Air Dodge, Left/Right",
+      "totalframes": "85",
+      "landinglag": "11-19",
+      "notes": "Intangible on frame 2-19",
+      "motion_urls": []
+    },
+    {
+      "movename": "Air Dodge, Diagonally Up",
+      "totalframes": "97",
+      "landinglag": "11-19",
+      "notes": "Intangible on frame 2-19",
+      "motion_urls": []
+    },
+    {
+      "movename": "Air Dodge, Up",
+      "totalframes": "109",
+      "landinglag": "11-19",
+      "notes": "Intangible on frame 2-19",
+      "motion_urls": [
+        "https://ultimateframedata.com/ledgegrabs/Pikachu Ledgegrab 1.png",
+        "https://ultimateframedata.com/ledgehangs/PikachuLedgehang.gif",
+        "https://ultimateframedata.com/ledgerolls/Pikachu.gif"
+      ]
+    },
+    {
+      "movename": "Getup Attacks",
+      "motion_urls": [
+        "https://ultimateframedata.com/hitboxes/pikachu/pikachuGetupAttackU.gif",
+        "https://ultimateframedata.com/hitboxes/pikachu/pikachuGetupAttackD.gif",
+        "https://ultimateframedata.com/hitboxes/pikachu/pikachuTripAttack.gif",
+        "https://ultimateframedata.com/hitboxes/pikachu/pikachuLedgeAttack.gif"
+      ]
+    }
+  ]
+}

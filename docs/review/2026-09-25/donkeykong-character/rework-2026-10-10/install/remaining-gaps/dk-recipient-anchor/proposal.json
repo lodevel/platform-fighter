@@ -1,0 +1,306 @@
+{
+  "state": "DK_RECIPIENT_TARGET_ANCHORS_REVIEWED_BY_VIEWING_OVERLAYS",
+  "dkMetadata": {
+    "path": "assets/characters/donkeykong/frames.json",
+    "sha256": "535c9e890aeea08c99608a556c8180271b486bf529ea31c295cc183a19bb9d6f"
+  },
+  "method": [
+    {
+      "path": ".tmp/dk-review-ordinary-grip-anchors.py",
+      "sha256": "ab9a162b4c412a5b8332b576544882c977b8bfa61ea49ea0ee8c8294190daaa5"
+    },
+    {
+      "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/remaining-gaps/pikachu-captured-hit-anchor/derive_captured_hit_anchors.py",
+      "sha256": "fc97573b01138c828177f4a6959e16842babdcfd4f84595a0add820eb7a7554b"
+    }
+  ],
+  "recipientProposals": [
+    {
+      "poseKey": "captured",
+      "context": "ordinary-held",
+      "profileKey": "dk-ordinary-grab-target-v1",
+      "dimensions": {
+        "width": 60,
+        "height": 84
+      },
+      "artFrameIndex": 0,
+      "nativeSample": 1,
+      "point": {
+        "x": 5.8333337499999995,
+        "y": -6.300003449999998
+      },
+      "provenance": "authored-reviewed-target",
+      "targetPixel": [
+        136,
+        147
+      ],
+      "targetRGBA": [
+        238,
+        193,
+        137,
+        255
+      ],
+      "view": {
+        "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/remaining-gaps/dk-recipient-anchor/dk-captured-cell0-anchor.png",
+        "sha256": "e475c0148bba176846d1d8607e4721572e413bc84d3b9577194ae6df543bb923"
+      }
+    },
+    {
+      "poseKey": "captured",
+      "context": "ordinary-held",
+      "profileKey": "dk-ordinary-grab-target-v1",
+      "dimensions": {
+        "width": 60,
+        "height": 84
+      },
+      "artFrameIndex": 1,
+      "nativeSample": 9,
+      "point": {
+        "x": 3.03333355,
+        "y": -7.700003549999998
+      },
+      "provenance": "authored-reviewed-target",
+      "targetPixel": [
+        130,
+        144
+      ],
+      "targetRGBA": [
+        238,
+        193,
+        136,
+        255
+      ],
+      "view": {
+        "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/remaining-gaps/dk-recipient-anchor/dk-captured-cell1-anchor.png",
+        "sha256": "6b3885ca4417f6e89f0d0ba0abffd11779303bc43e2d4f8dc19b7c441f6cd545"
+      }
+    },
+    {
+      "poseKey": "captured",
+      "context": "ordinary-held",
+      "profileKey": "dk-ordinary-grab-target-v1",
+      "dimensions": {
+        "width": 60,
+        "height": 84
+      },
+      "artFrameIndex": 2,
+      "nativeSample": 17,
+      "point": {
+        "x": 3.03333355,
+        "y": -11.900003849999997
+      },
+      "provenance": "authored-reviewed-target",
+      "targetPixel": [
+        130,
+        135
+      ],
+      "targetRGBA": [
+        234,
+        186,
+        130,
+        255
+      ],
+      "view": {
+        "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/remaining-gaps/dk-recipient-anchor/dk-captured-cell2-anchor.png",
+        "sha256": "17710aaafb208c7095bbf085782e2c6e854b0a28c12cd361301351121078499a"
+      }
+    },
+    {
+      "poseKey": "captured",
+      "context": "ordinary-held",
+      "profileKey": "dk-ordinary-grab-target-v1",
+      "dimensions": {
+        "width": 60,
+        "height": 84
+      },
+      "artFrameIndex": 3,
+      "nativeSample": 24,
+      "point": {
+        "x": 3.50000025,
+        "y": -14.700004049999997
+      },
+      "provenance": "authored-reviewed-target",
+      "targetPixel": [
+        131,
+        129
+      ],
+      "targetRGBA": [
+        233,
+        185,
+        129,
+        255
+      ],
+      "view": {
+        "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/remaining-gaps/dk-recipient-anchor/dk-captured-cell3-anchor.png",
+        "sha256": "f913173c82480831b2cf30cf5b950dd854ed7d3f9142bc4fe7c79039db01957b"
+      }
+    },
+    {
+      "poseKey": "captured",
+      "context": "ordinary-held",
+      "profileKey": "dk-ordinary-grab-target-v1",
+      "dimensions": {
+        "width": 60,
+        "height": 84
+      },
+      "artFrameIndex": 4,
+      "nativeSample": 32,
+      "point": {
+        "x": 3.50000025,
+        "y": -14.700004049999997
+      },
+      "provenance": "authored-reviewed-target",
+      "targetPixel": [
+        131,
+        129
+      ],
+      "targetRGBA": [
+        234,
+        187,
+        131,
+        255
+      ],
+      "view": {
+        "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/remaining-gaps/dk-recipient-anchor/dk-captured-cell4-anchor.png",
+        "sha256": "e27ca9598fa9753b1590981bd960e1bdccaa23f607aa35a9eebac5d628b9f1c1"
+      }
+    },
+    {
+      "poseKey": "captured_hit",
+      "context": "ordinary-damage",
+      "profileKey": "dk-ordinary-grab-target-v1",
+      "dimensions": {
+        "width": 60,
+        "height": 84
+      },
+      "artFrameIndex": 0,
+      "nativeSample": 1,
+      "point": {
+        "x": 12.83333425,
+        "y": -26.366671549999992
+      },
+      "provenance": "authored-reviewed-target",
+      "targetPixel": [
+        155,
+        120
+      ],
+      "targetRGBA": [
+        112,
+        64,
+        35,
+        255
+      ],
+      "view": {
+        "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/remaining-gaps/dk-recipient-anchor/dk-captured_hit-cell0-anchor.png",
+        "sha256": "9c1ecc364de2329807ce8c0e3a35da0ed7c70191deeb7f1bedfe003f27d1c065"
+      }
+    },
+    {
+      "poseKey": "captured_hit",
+      "context": "ordinary-damage",
+      "profileKey": "dk-ordinary-grab-target-v1",
+      "dimensions": {
+        "width": 60,
+        "height": 84
+      },
+      "artFrameIndex": 1,
+      "nativeSample": 7,
+      "point": {
+        "x": 13.30000095,
+        "y": -10.966670450000002
+      },
+      "provenance": "authored-reviewed-target",
+      "targetPixel": [
+        156,
+        153
+      ],
+      "targetRGBA": [
+        235,
+        185,
+        131,
+        255
+      ],
+      "view": {
+        "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/remaining-gaps/dk-recipient-anchor/dk-captured_hit-cell1-anchor.png",
+        "sha256": "07622116fbada2516de22fc97f984535bddbf6e36902d741ea3fc90a36897aac"
+      }
+    },
+    {
+      "poseKey": "captured_hit",
+      "context": "ordinary-damage",
+      "profileKey": "dk-ordinary-grab-target-v1",
+      "dimensions": {
+        "width": 60,
+        "height": 84
+      },
+      "artFrameIndex": 2,
+      "nativeSample": 14,
+      "point": {
+        "x": 15.63333445,
+        "y": -13.300003949999997
+      },
+      "provenance": "authored-reviewed-target",
+      "targetPixel": [
+        161,
+        148
+      ],
+      "targetRGBA": [
+        235,
+        186,
+        133,
+        255
+      ],
+      "view": {
+        "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/remaining-gaps/dk-recipient-anchor/dk-captured_hit-cell2-anchor.png",
+        "sha256": "d89323e0c5b0027296c3ef1ebf1a973e0a7b4f355fa594446335a6044b09b147"
+      }
+    },
+    {
+      "poseKey": "captured_hit",
+      "context": "ordinary-damage",
+      "profileKey": "dk-ordinary-grab-target-v1",
+      "dimensions": {
+        "width": 60,
+        "height": 84
+      },
+      "artFrameIndex": 3,
+      "nativeSample": 20,
+      "point": {
+        "x": 6.30000045,
+        "y": -5.366670049999996
+      },
+      "provenance": "authored-reviewed-target",
+      "targetPixel": [
+        141,
+        165
+      ],
+      "targetRGBA": [
+        236,
+        186,
+        134,
+        255
+      ],
+      "view": {
+        "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/remaining-gaps/dk-recipient-anchor/dk-captured_hit-cell3-anchor.png",
+        "sha256": "810b018f251c0fff98b4febc5fff08d31c195e71c776da306935410365d82dc7"
+      }
+    }
+  ],
+  "floorMeasurement": {
+    "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/remaining-gaps/dk-recipient-anchor/dk-captured-alpha32-floor-measurement.json",
+    "sha256": "6a1c7e74e08656983ae8853b1470205cbc6c948eb83e5b3346d0f7f944d7b031"
+  },
+  "contactSheet": {
+    "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/remaining-gaps/dk-recipient-anchor/dk-recipient-anchors-contact.png",
+    "sha256": "3fd1956453fe56e91a0aa09a6ca2a26dafa7a5f1f861df654fae3b9ae09d73aa"
+  },
+  "limits": [
+    "Authored upper-torso material points; no native capture-joint parity.",
+    "Throw contexts (ordinary-throw, cargo-throw) get no rows: DK captor clips carry no throw grips either.",
+    "DK art/metadata read-only (sha asserted)."
+  ],
+  "tool": {
+    "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/remaining-gaps/dk-recipient-anchor/derive_dk_recipient_anchors.py",
+    "sha256": "07b9083c90ce00e732d15ea6767a774238228e4ff5867fde5cc98c2c3b93b5dc"
+  }
+}

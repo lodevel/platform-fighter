@@ -1,0 +1,1867 @@
+{
+  "url": "https://raw.githubusercontent.com/Coolsonickirby/SmashUltimateToolsRewrite/609dc95fca419b428f481741a5751559d9098577/defaults/prcFighterParam.json",
+  "revision": "609dc95fca419b428f481741a5751559d9098577",
+  "checked": "2026-10-06",
+  "sha256_full_export": "47b729182cc61e1bdf531e74a55675a84a9f9b177efa725ff0bbb9aafe8acdad",
+  "matches_prior_capture": true,
+  "game_patch": null,
+  "fighter_kind": "pikachu",
+  "native_entry": {
+    "@index": "7",
+    "hash40": [
+      {
+        "@hash": "fighter_kind",
+        "#text": "fighter_kind_pikachu"
+      },
+      {
+        "@hash": "bury_r_depth_node",
+        "#text": "bust"
+      },
+      {
+        "@hash": "bitten_wario_adjust_scale_node",
+        "#text": "top"
+      },
+      {
+        "@hash": "palutena_autoaimbullet_target_node",
+        "#text": "hip"
+      },
+      {
+        "@hash": "ridley_stabbed_node",
+        "#text": "top"
+      },
+      {
+        "@hash": "tantan_dragon_beam_target_node",
+        "#text": "hip"
+      },
+      {
+        "@hash": "0x223ce059e4",
+        "#text": "damage_hi_1"
+      },
+      {
+        "@hash": "0x23ca50df2b",
+        "#text": "tail1"
+      },
+      {
+        "@hash": "edge_flare_node",
+        "#text": "waist"
+      },
+      {
+        "@hash": "0x1bdbd2b750",
+        "#text": "damage_hi_1"
+      },
+      {
+        "@hash": "0x187367db00",
+        "#text": "waist"
+      },
+      {
+        "@hash": "0x1fc14378fa",
+        "#text": "rebound"
+      },
+      {
+        "@hash": "0x1c08c51661",
+        "#text": "0x0c158f6721"
+      },
+      {
+        "@hash": "damage_fly_smoke_node",
+        "#text": "virtualcenter"
+      },
+      {
+        "@hash": "damage_fly_roll_smoke_node",
+        "#text": "virtualcenter"
+      },
+      {
+        "@hash": "fire_hit_size",
+        "#text": "s"
+      },
+      {
+        "@hash": "ice_node",
+        "#text": "rot"
+      },
+      {
+        "@hash": "0x1a786b5238",
+        "#text": "virtualmouth"
+      },
+      {
+        "@hash": "0x2080da265f",
+        "#text": "virtualdriver"
+      },
+      {
+        "@hash": "0x204850f761",
+        "#text": "virtualclaptrapf"
+      },
+      {
+        "@hash": "zoom_camera_range_center_y",
+        "#text": "neck"
+      },
+      {
+        "@hash": "clip_sphere_node",
+        "#text": "bust"
+      },
+      {
+        "@hash": "ladder_hand_node_1",
+        "#text": "handl"
+      },
+      {
+        "@hash": "ladder_hand_node_2",
+        "#text": "handr"
+      },
+      {
+        "@hash": "barrel_shoot_node",
+        "#text": "top"
+      },
+      {
+        "@hash": "barrel_attack_node",
+        "#text": "top"
+      },
+      {
+        "@hash": "size",
+        "#text": "fighter_size_m"
+      },
+      {
+        "@hash": "skin_kind",
+        "#text": "fighter_skin_kind_bio"
+      },
+      {
+        "@hash": "metal_sound_level",
+        "#text": "fighter_metal_sound_level_s"
+      },
+      {
+        "@hash": "bury_motion_height",
+        "#text": "hit_height_low"
+      },
+      {
+        "@hash": "bury_r_motion_height",
+        "#text": "hit_height_low"
+      },
+      {
+        "@hash": "attack_combo_type",
+        "#text": "fighter_combo_type_none"
+      },
+      {
+        "@hash": "aerial_type",
+        "#text": "fighter_jump_aerial_type_normal"
+      }
+    ],
+    "float": [
+      {
+        "@hash": "walk_accel_mul",
+        "#text": "0.158"
+      },
+      {
+        "@hash": "walk_accel_add",
+        "#text": "0.105"
+      },
+      {
+        "@hash": "walk_speed_max",
+        "#text": "1.302"
+      },
+      {
+        "@hash": "walk_slow_speed_mul",
+        "#text": "0.2"
+      },
+      {
+        "@hash": "walk_middle_ratio",
+        "#text": "0.38"
+      },
+      {
+        "@hash": "walk_fast_ratio",
+        "#text": "0.75"
+      },
+      {
+        "@hash": "ground_brake",
+        "#text": "0.132"
+      },
+      {
+        "@hash": "dash_speed",
+        "#text": "1.98"
+      },
+      {
+        "@hash": "run_accel_mul",
+        "#text": "0.132"
+      },
+      {
+        "@hash": "run_accel_add",
+        "#text": "0.044"
+      },
+      {
+        "@hash": "run_speed_max",
+        "#text": "2.039"
+      },
+      {
+        "@hash": "jump_speed_x",
+        "#text": "0.78"
+      },
+      {
+        "@hash": "jump_speed_x_mul",
+        "#text": "0.8"
+      },
+      {
+        "@hash": "jump_speed_x_max",
+        "#text": "1.8"
+      },
+      {
+        "@hash": "jump_aerial_speed_x_mul",
+        "#text": "0.8"
+      },
+      {
+        "@hash": "jump_initial_y",
+        "#text": "19.525"
+      },
+      {
+        "@hash": "jump_y",
+        "#text": "35.5"
+      },
+      {
+        "@hash": "mini_jump_y",
+        "#text": "17.12"
+      },
+      {
+        "@hash": "jump_aerial_y",
+        "#text": "35.5"
+      },
+      {
+        "@hash": "air_accel_x_mul",
+        "#text": "0.09"
+      },
+      {
+        "@hash": "air_accel_x_add",
+        "#text": "0.01"
+      },
+      {
+        "@hash": "air_speed_x_stable",
+        "#text": "0.957"
+      },
+      {
+        "@hash": "air_brake_x",
+        "#text": "0.0075"
+      },
+      {
+        "@hash": "air_accel_y",
+        "#text": "0.095"
+      },
+      {
+        "@hash": "air_speed_y_stable",
+        "#text": "1.55"
+      },
+      {
+        "@hash": "damage_fly_top_air_accel_y",
+        "#text": "0.068544"
+      },
+      {
+        "@hash": "damage_fly_top_speed_y_stable",
+        "#text": "1.8"
+      },
+      {
+        "@hash": "air_brake_y",
+        "#text": "0.008"
+      },
+      {
+        "@hash": "dive_speed_y",
+        "#text": "2.48"
+      },
+      {
+        "@hash": "weight",
+        "#text": "79"
+      },
+      {
+        "@hash": "air_ground_speed_brake",
+        "#text": "0.0225"
+      },
+      {
+        "@hash": "landing_attack_air_frame_n",
+        "#text": "9"
+      },
+      {
+        "@hash": "landing_attack_air_frame_f",
+        "#text": "12"
+      },
+      {
+        "@hash": "landing_attack_air_frame_b",
+        "#text": "18"
+      },
+      {
+        "@hash": "landing_attack_air_frame_hi",
+        "#text": "14"
+      },
+      {
+        "@hash": "landing_attack_air_frame_lw",
+        "#text": "22"
+      },
+      {
+        "@hash": "landing_frame_light",
+        "#text": "1"
+      },
+      {
+        "@hash": "landing_frame",
+        "#text": "3"
+      },
+      {
+        "@hash": "scale",
+        "#text": "0.96"
+      },
+      {
+        "@hash": "shield_radius",
+        "#text": "9.1"
+      },
+      {
+        "@hash": "shield_break_y",
+        "#text": "36.2"
+      },
+      {
+        "@hash": "guard_speed_limit",
+        "#text": "1.3"
+      },
+      {
+        "@hash": "jostle_front",
+        "#text": "1.5"
+      },
+      {
+        "@hash": "jostle_back",
+        "#text": "0.8"
+      },
+      {
+        "@hash": "jostle_weight",
+        "#text": "3.9"
+      },
+      {
+        "@hash": "cliff_jump_x_speed",
+        "#text": "0.6"
+      },
+      {
+        "@hash": "cliff_jump_y",
+        "#text": "37.75"
+      },
+      {
+        "@hash": "combo_attack_12_end",
+        "#text": "0"
+      },
+      {
+        "@hash": "combo_attack_13_end",
+        "#text": "0"
+      },
+      {
+        "@hash": "combo_attack_32_end",
+        "#text": "0"
+      },
+      {
+        "@hash": "combo_attack_33_end",
+        "#text": "0"
+      },
+      {
+        "@hash": "combo_attack_42_end",
+        "#text": "0"
+      },
+      {
+        "@hash": "attack_100_rebound_distance",
+        "#text": "35"
+      },
+      {
+        "@hash": "attack_lw3_rebound_distance",
+        "#text": "45"
+      },
+      {
+        "@hash": "attack_s4_smash_hold_attack_up",
+        "#text": "1.4"
+      },
+      {
+        "@hash": "attack_hi4_smash_hold_attack_up",
+        "#text": "1.4"
+      },
+      {
+        "@hash": "attack_lw4_smash_hold_attack_up",
+        "#text": "1.4"
+      },
+      {
+        "@hash": "attack_4_hold_scale",
+        "#text": "0.8"
+      },
+      {
+        "@hash": "attach_wall_ignore_cliff_dist",
+        "#text": "0"
+      },
+      {
+        "@hash": "0x271984ee09",
+        "#text": "0"
+      },
+      {
+        "@hash": "0x2bf4bef265",
+        "#text": "0"
+      },
+      {
+        "@hash": "tread_jump_speed_y_mul",
+        "#text": "1.3"
+      },
+      {
+        "@hash": "tread_mini_jump_speed_y_mul",
+        "#text": "0.7"
+      },
+      {
+        "@hash": "tread_range_offset_y",
+        "#text": "1"
+      },
+      {
+        "@hash": "tread_range_w",
+        "#text": "6"
+      },
+      {
+        "@hash": "tread_range_h",
+        "#text": "6"
+      },
+      {
+        "@hash": "tread_range_add_w",
+        "#text": "2"
+      },
+      {
+        "@hash": "tread_range_add_h",
+        "#text": "2"
+      },
+      {
+        "@hash": "entry_stand_scale",
+        "#text": "0.9"
+      },
+      {
+        "@hash": "cursor_offset_y",
+        "#text": "6"
+      },
+      {
+        "@hash": "special_s_brake",
+        "#text": "0.2"
+      },
+      {
+        "@hash": "wind_resistance",
+        "#text": "0.8"
+      },
+      {
+        "@hash": "height",
+        "#text": "10"
+      },
+      {
+        "@hash": "expand_height",
+        "#text": "14"
+      },
+      {
+        "@hash": "result_scale_mul",
+        "#text": "1.33"
+      },
+      {
+        "@hash": "bury_r_x_offset",
+        "#text": "0"
+      },
+      {
+        "@hash": "bury_r_x_offset_robot",
+        "#text": "0.5"
+      },
+      {
+        "@hash": "bury_r_y_offset",
+        "#text": "-2.5"
+      },
+      {
+        "@hash": "bury_r_rot_angle",
+        "#text": "200"
+      },
+      {
+        "@hash": "slope_top_angle_max",
+        "#text": "40"
+      },
+      {
+        "@hash": "slope_front_up_max",
+        "#text": "3"
+      },
+      {
+        "@hash": "slope_back_up_max",
+        "#text": "3"
+      },
+      {
+        "@hash": "slope_loose_angle",
+        "#text": "10"
+      },
+      {
+        "@hash": "passive_wall_x_speed",
+        "#text": "0.5"
+      },
+      {
+        "@hash": "passive_wall_jump_x_speed",
+        "#text": "1.3"
+      },
+      {
+        "@hash": "passive_wall_jump_y_speed",
+        "#text": "2.6"
+      },
+      {
+        "@hash": "wall_jump_enable_x_speed",
+        "#text": "0.2"
+      },
+      {
+        "@hash": "passive_ceil_x_speed",
+        "#text": "0.8"
+      },
+      {
+        "@hash": "damage_model_scale_x",
+        "#text": "0.9"
+      },
+      {
+        "@hash": "is_blend_motion_kind",
+        "#text": "0.9"
+      },
+      {
+        "@hash": "damage_model_scale_z",
+        "#text": "0.9"
+      },
+      {
+        "@hash": "se_pitch_big",
+        "#text": "0.89"
+      },
+      {
+        "@hash": "se_pitch_small",
+        "#text": "1.4"
+      },
+      {
+        "@hash": "se_pitch_big_mushroom",
+        "#text": "0.75"
+      },
+      {
+        "@hash": "se_pitch_small_mushroom",
+        "#text": "1.12"
+      },
+      {
+        "@hash": "se_pitch_big_mushd",
+        "#text": "1.12"
+      },
+      {
+        "@hash": "se_pitch_small_mushd",
+        "#text": "2"
+      },
+      {
+        "@hash": "se_pitch_big_thunder",
+        "#text": "1.12"
+      },
+      {
+        "@hash": "se_pitch_small_thunder",
+        "#text": "2"
+      },
+      {
+        "@hash": "scroll_rate",
+        "#text": "0"
+      },
+      {
+        "@hash": "final_end_jump_y",
+        "#text": "15"
+      },
+      {
+        "@hash": "charge_final_attack_mul",
+        "#text": "0.7"
+      },
+      {
+        "@hash": "charge_final_attack_reaction_mul",
+        "#text": "0.96"
+      },
+      {
+        "@hash": "star_scale",
+        "#text": "2.295"
+      },
+      {
+        "@hash": "egg_scale",
+        "#text": "1.35"
+      },
+      {
+        "@hash": "egg_collision_offset_1_x",
+        "#text": "0"
+      },
+      {
+        "@hash": "egg_collision_offset_1_y",
+        "#text": "4.9"
+      },
+      {
+        "@hash": "egg_collision_offset_1_z",
+        "#text": "0"
+      },
+      {
+        "@hash": "egg_collision_offset_2_x",
+        "#text": "0"
+      },
+      {
+        "@hash": "egg_collision_offset_2_y",
+        "#text": "6.41667"
+      },
+      {
+        "@hash": "egg_collision_offset_2_z",
+        "#text": "0"
+      },
+      {
+        "@hash": "egg_collision_size",
+        "#text": "5.5"
+      },
+      {
+        "@hash": "bitten_wario_adjust_scale_value",
+        "#text": "1"
+      },
+      {
+        "@hash": "palutena_autoaimbullet_target_offset_x",
+        "#text": "2"
+      },
+      {
+        "@hash": "palutena_autoaimbullet_target_offset_y",
+        "#text": "0"
+      },
+      {
+        "@hash": "palutena_autoaimbullet_target_offset_z",
+        "#text": "0"
+      },
+      {
+        "@hash": "psychobreak_offset_y",
+        "#text": "-1"
+      },
+      {
+        "@hash": "damage_fall_center_offset_y",
+        "#text": "3"
+      },
+      {
+        "@hash": "zelda_triforce_scale",
+        "#text": "20"
+      },
+      {
+        "@hash": "zelda_triforce_offset_y",
+        "#text": "4"
+      },
+      {
+        "@hash": "ridley_stabbed_offset_x",
+        "#text": "-2"
+      },
+      {
+        "@hash": "ridley_stabbed_offset_y",
+        "#text": "-4.5"
+      },
+      {
+        "@hash": "ridley_stabbed_offset_z",
+        "#text": "0"
+      },
+      {
+        "@hash": "ridley_stabbed_rhombus_offset_y",
+        "#text": "-5"
+      },
+      {
+        "@hash": "gamewatch_stockicon_scale",
+        "#text": "0.7"
+      },
+      {
+        "@hash": "packun_final_capture_offset_y",
+        "#text": "5"
+      },
+      {
+        "@hash": "packun_final_capture_scale",
+        "#text": "0.5"
+      },
+      {
+        "@hash": "0x2ab2a23d0d",
+        "#text": "10"
+      },
+      {
+        "@hash": "0x2a3504f64e",
+        "#text": "10"
+      },
+      {
+        "@hash": "jack_final_target_scale",
+        "#text": "1.3"
+      },
+      {
+        "@hash": "jack_final_target_rot_y",
+        "#text": "0"
+      },
+      {
+        "@hash": "jack_final_target_effect_offset_x",
+        "#text": "-2.1"
+      },
+      {
+        "@hash": "jack_final_target_effect_offset_y",
+        "#text": "4.2"
+      },
+      {
+        "@hash": "jack_final_target_effect_offset_z",
+        "#text": "-4"
+      },
+      {
+        "@hash": "buddy_final_target_offset_x",
+        "#text": "0"
+      },
+      {
+        "@hash": "buddy_final_target_offset_y",
+        "#text": "1"
+      },
+      {
+        "@hash": "buddy_final_target_offset_z",
+        "#text": "-2"
+      },
+      {
+        "@hash": "buddy_final_target_scale",
+        "#text": "1"
+      },
+      {
+        "@hash": "dolly_super_special2_offset_x",
+        "#text": "0"
+      },
+      {
+        "@hash": "dolly_super_special2_offset_y",
+        "#text": "2"
+      },
+      {
+        "@hash": "dolly_super_special2_offset_z",
+        "#text": "3"
+      },
+      {
+        "@hash": "dolly_super_special2_offset_x_ground",
+        "#text": "0"
+      },
+      {
+        "@hash": "dolly_super_special2_offset_y_ground",
+        "#text": "7"
+      },
+      {
+        "@hash": "dolly_super_special2_offset_z_ground",
+        "#text": "2"
+      },
+      {
+        "@hash": "0x23b5b18326",
+        "#text": "0"
+      },
+      {
+        "@hash": "0x23c2b6b3b0",
+        "#text": "0"
+      },
+      {
+        "@hash": "0x235bbfe20a",
+        "#text": "-2"
+      },
+      {
+        "@hash": "0x23576d985f",
+        "#text": "-2"
+      },
+      {
+        "@hash": "0x23206aa8c9",
+        "#text": "1"
+      },
+      {
+        "@hash": "0x23b963f973",
+        "#text": "-2"
+      },
+      {
+        "@hash": "0x294bf073a1",
+        "#text": "-3"
+      },
+      {
+        "@hash": "0x293cf74337",
+        "#text": "4"
+      },
+      {
+        "@hash": "0x29a5fe128d",
+        "#text": "-2"
+      },
+      {
+        "@hash": "master_final_target_offset_x",
+        "#text": "0"
+      },
+      {
+        "@hash": "master_final_target_offset_y",
+        "#text": "0"
+      },
+      {
+        "@hash": "master_final_target_offset_z",
+        "#text": "0"
+      },
+      {
+        "@hash": "tantan_dragon_beam_target_offset_x",
+        "#text": "2"
+      },
+      {
+        "@hash": "tantan_dragon_beam_target_offset_y",
+        "#text": "0"
+      },
+      {
+        "@hash": "tantan_dragon_beam_target_offset_z",
+        "#text": "0"
+      },
+      {
+        "@hash": "0x2456dfb0c0",
+        "#text": "0"
+      },
+      {
+        "@hash": "0x2421d88056",
+        "#text": "5"
+      },
+      {
+        "@hash": "0x24b8d1d1ec",
+        "#text": "0"
+      },
+      {
+        "@hash": "0x24b91ddbfe",
+        "#text": "0.5"
+      },
+      {
+        "@hash": "0x24ce1aeb68",
+        "#text": "2"
+      },
+      {
+        "@hash": "0x245713bad2",
+        "#text": "0"
+      },
+      {
+        "@hash": "0x23ed975439",
+        "#text": "0"
+      },
+      {
+        "@hash": "0x1f905c13fb",
+        "#text": "0"
+      },
+      {
+        "@hash": "0x1fe75b236d",
+        "#text": "1"
+      },
+      {
+        "@hash": "0x1f7e5272d7",
+        "#text": "0"
+      },
+      {
+        "@hash": "0x1cba8b77b5",
+        "#text": "1"
+      },
+      {
+        "@hash": "0x295785c851",
+        "#text": "0.1"
+      },
+      {
+        "@hash": "0x24dea774ab",
+        "#text": "1.1"
+      },
+      {
+        "@hash": "0x2be31da05e",
+        "#text": "0"
+      },
+      {
+        "@hash": "0x2b7e124128",
+        "#text": "2.45"
+      },
+      {
+        "@hash": "pickel_final_target_scale",
+        "#text": "1.3"
+      },
+      {
+        "@hash": "pickel_capture_fence_scale",
+        "#text": "0.74"
+      },
+      {
+        "@hash": "pickel_capture_fence_offset_x",
+        "#text": "3"
+      },
+      {
+        "@hash": "pickel_capture_fence_offset_y",
+        "#text": "-12"
+      },
+      {
+        "@hash": "edge_flare_offset_x",
+        "#text": "2"
+      },
+      {
+        "@hash": "edge_flare_offset_y",
+        "#text": "0"
+      },
+      {
+        "@hash": "edge_flare_offset_z",
+        "#text": "0"
+      },
+      {
+        "@hash": "edge_flare_radius",
+        "#text": "13.5"
+      },
+      {
+        "@hash": "0x161eafe03d",
+        "#text": "0.1"
+      },
+      {
+        "@hash": "0x1607b4d17c",
+        "#text": "0.1"
+      },
+      {
+        "@hash": "0x1687a6b187",
+        "#text": "-0.1"
+      },
+      {
+        "@hash": "0x169ebd80c6",
+        "#text": "-0.1"
+      },
+      {
+        "@hash": "0x2c816b267a",
+        "#text": "0"
+      },
+      {
+        "@hash": "0x1b467ce4f2",
+        "#text": "6"
+      },
+      {
+        "@hash": "0x1a0ac3b7cf",
+        "#text": "5"
+      },
+      {
+        "@hash": "0x152c88b901",
+        "#text": "25"
+      },
+      {
+        "@hash": "0x1a3a0acd2a",
+        "#text": "30"
+      },
+      {
+        "@hash": "0x1c217c1142",
+        "#text": "0"
+      },
+      {
+        "@hash": "0x1a71149713",
+        "#text": "30"
+      },
+      {
+        "@hash": "0x281b06d9e5",
+        "#text": "6"
+      },
+      {
+        "@hash": "0x1b4157159a",
+        "#text": "0"
+      },
+      {
+        "@hash": "0x1b3650250c",
+        "#text": "0"
+      },
+      {
+        "@hash": "0x1baf5974b6",
+        "#text": "0"
+      },
+      {
+        "@hash": "item_lift_accel_mul",
+        "#text": "0.0607692"
+      },
+      {
+        "@hash": "item_lift_accel_add",
+        "#text": "0.03"
+      },
+      {
+        "@hash": "item_lift_speed_max",
+        "#text": "0.84208"
+      },
+      {
+        "@hash": "throw_item_speed_mul",
+        "#text": "0.93"
+      },
+      {
+        "@hash": "throw_item_power_mul",
+        "#text": "1"
+      },
+      {
+        "@hash": "shoot_walk_accel_mul",
+        "#text": "0.1264"
+      },
+      {
+        "@hash": "shoot_walk_accel_add",
+        "#text": "0.084"
+      },
+      {
+        "@hash": "shoot_walk_speed_max",
+        "#text": "1.302"
+      },
+      {
+        "@hash": "shoot_dash_speed_f",
+        "#text": "1.584"
+      },
+      {
+        "@hash": "shoot_dash_speed_b",
+        "#text": "1.2672"
+      },
+      {
+        "@hash": "item_range_front",
+        "#text": "11.5"
+      },
+      {
+        "@hash": "item_range_front_max",
+        "#text": "14.5"
+      },
+      {
+        "@hash": "item_range_back",
+        "#text": "5.72857"
+      },
+      {
+        "@hash": "item_range_h",
+        "#text": "8"
+      },
+      {
+        "@hash": "item_range_air_front",
+        "#text": "8.625"
+      },
+      {
+        "@hash": "item_range_air_back",
+        "#text": "5.72857"
+      },
+      {
+        "@hash": "item_range_air_h",
+        "#text": "10"
+      },
+      {
+        "@hash": "item_grip_offset_x",
+        "#text": "0"
+      },
+      {
+        "@hash": "item_grip_offset_y",
+        "#text": "-0.1"
+      },
+      {
+        "@hash": "item_grip_offset_z",
+        "#text": "0"
+      },
+      {
+        "@hash": "item_grip_offset_rot_x",
+        "#text": "0"
+      },
+      {
+        "@hash": "item_grip_offset_rot_y",
+        "#text": "0"
+      },
+      {
+        "@hash": "item_grip_offset_rot_z",
+        "#text": "0"
+      },
+      {
+        "@hash": "badge_scale",
+        "#text": "1"
+      },
+      {
+        "@hash": "superleaftail_scale",
+        "#text": "1"
+      },
+      {
+        "@hash": "backshield_offset_y",
+        "#text": "6.2"
+      },
+      {
+        "@hash": "bossgalaga_offset_y",
+        "#text": "12.4"
+      },
+      {
+        "@hash": "baitocrane_offset_y",
+        "#text": "5"
+      },
+      {
+        "@hash": "driver_offset_x",
+        "#text": "4"
+      },
+      {
+        "@hash": "driver_scale",
+        "#text": "0.7"
+      },
+      {
+        "@hash": "effect_scale",
+        "#text": "0.9"
+      },
+      {
+        "@hash": "common_effect_0_r",
+        "#text": "0.4"
+      },
+      {
+        "@hash": "common_effect_0_g",
+        "#text": "0.9"
+      },
+      {
+        "@hash": "common_effect_0_b",
+        "#text": "3"
+      },
+      {
+        "@hash": "damage_fly_smoke_offset_x",
+        "#text": "0"
+      },
+      {
+        "@hash": "damage_fly_smoke_offset_y",
+        "#text": "0"
+      },
+      {
+        "@hash": "damage_fly_roll_smoke_offset_x",
+        "#text": "0"
+      },
+      {
+        "@hash": "damage_fly_roll_smoke_offset_y",
+        "#text": "0"
+      },
+      {
+        "@hash": "ice_offset_y",
+        "#text": "1"
+      },
+      {
+        "@hash": "ice_offset_z",
+        "#text": "0"
+      },
+      {
+        "@hash": "ice_radius",
+        "#text": "7.4"
+      },
+      {
+        "@hash": "ice_jump_speed_y_mul",
+        "#text": "0.83"
+      },
+      {
+        "@hash": "ice_jump_speed_x",
+        "#text": "1"
+      },
+      {
+        "@hash": "photo_camera_depth",
+        "#text": "15"
+      },
+      {
+        "@hash": "photo_camera_depth_ortho",
+        "#text": "50"
+      },
+      {
+        "@hash": "camera_range_center_y",
+        "#text": "6"
+      },
+      {
+        "@hash": "camera_range_front",
+        "#text": "22"
+      },
+      {
+        "@hash": "camera_range_back",
+        "#text": "-9"
+      },
+      {
+        "@hash": "camera_range_up",
+        "#text": "9"
+      },
+      {
+        "@hash": "camera_range_down",
+        "#text": "-6"
+      },
+      {
+        "@hash": "camera_range_2nd_center_y",
+        "#text": "6"
+      },
+      {
+        "@hash": "camera_range_2nd_front",
+        "#text": "9"
+      },
+      {
+        "@hash": "camera_range_2nd_back",
+        "#text": "-9"
+      },
+      {
+        "@hash": "camera_range_2nd_up",
+        "#text": "6"
+      },
+      {
+        "@hash": "camera_range_2nd_down",
+        "#text": "-7"
+      },
+      {
+        "@hash": "zoom_camera_range_front",
+        "#text": "0"
+      },
+      {
+        "@hash": "zoom_camera_range_back",
+        "#text": "0.5"
+      },
+      {
+        "@hash": "zoom_camera_range_up",
+        "#text": "0.75"
+      },
+      {
+        "@hash": "zoom_camera_range_down",
+        "#text": "13.5"
+      },
+      {
+        "@hash": "clip_sphere_offset_x",
+        "#text": "1.5"
+      },
+      {
+        "@hash": "clip_sphere_offset_y",
+        "#text": "-2"
+      },
+      {
+        "@hash": "clip_sphere_offset_z",
+        "#text": "-1.5"
+      },
+      {
+        "@hash": "clip_sphere_radius",
+        "#text": "5.3"
+      },
+      {
+        "@hash": "pose_offset_y",
+        "#text": "-0.5"
+      },
+      {
+        "@hash": "dead_up_camera_hit_offset",
+        "#text": "0"
+      },
+      {
+        "@hash": "dead_up_camera_hit_rot_min",
+        "#text": "30"
+      },
+      {
+        "@hash": "dead_up_camera_hit_rot_max",
+        "#text": "150"
+      },
+      {
+        "@hash": "dead_up_camera_hit_distance",
+        "#text": "1"
+      },
+      {
+        "@hash": "dead_up_camera_hit_offset_y",
+        "#text": "2"
+      },
+      {
+        "@hash": "finish_camera_zoom_mul",
+        "#text": "1"
+      },
+      {
+        "@hash": "finish_camera_zoom_mul_thrown",
+        "#text": "1"
+      },
+      {
+        "@hash": "critical_hit_camera_zoom_mul",
+        "#text": "1"
+      },
+      {
+        "@hash": "ladder_range_offset_y",
+        "#text": "8"
+      },
+      {
+        "@hash": "ladder_range_w",
+        "#text": "6"
+      },
+      {
+        "@hash": "ladder_range_h",
+        "#text": "3"
+      },
+      {
+        "@hash": "barrel_smoke_offset_y",
+        "#text": "4.5"
+      },
+      {
+        "@hash": "barrel_attack_offset_x",
+        "#text": "0"
+      },
+      {
+        "@hash": "barrel_attack_offset_y",
+        "#text": "5.5"
+      },
+      {
+        "@hash": "barrel_attack_offset_z",
+        "#text": "0"
+      },
+      {
+        "@hash": "barrel_attack_size",
+        "#text": "5"
+      },
+      {
+        "@hash": "dolly_stage_wall_fly_n_offset_x",
+        "#text": "1"
+      },
+      {
+        "@hash": "dolly_stage_wall_fly_n_offset_y",
+        "#text": "-1"
+      },
+      {
+        "@hash": "dolly_stage_wall_fly_roll_offset_x",
+        "#text": "4"
+      },
+      {
+        "@hash": "dolly_stage_wall_fly_roll_offset_y",
+        "#text": "0"
+      },
+      {
+        "@hash": "dolly_stage_wall_wall_damage_offset_x",
+        "#text": "4"
+      },
+      {
+        "@hash": "dolly_stage_wall_wall_damage_offset_y",
+        "#text": "-1"
+      },
+      {
+        "@hash": "dolly_stage_wall_check_dead_offset_x",
+        "#text": "10"
+      },
+      {
+        "@hash": "0x2a23dea6e7",
+        "#text": "3"
+      },
+      {
+        "@hash": "damage_attack_size",
+        "#text": "2.73"
+      },
+      {
+        "@hash": "fly_speed_y_mul",
+        "#text": "1"
+      },
+      {
+        "@hash": "high_speed_dash_attack_offset_x",
+        "#text": "0"
+      },
+      {
+        "@hash": "high_speed_dash_attack_offset_y",
+        "#text": "5"
+      },
+      {
+        "@hash": "high_speed_dash_attack_offset_z",
+        "#text": "3"
+      },
+      {
+        "@hash": "item_range_offset_y",
+        "#text": "4"
+      },
+      {
+        "@hash": "item_range_air_offset_y",
+        "#text": "5"
+      }
+    ],
+    "int": [
+      {
+        "@hash": "jump_squat_frame",
+        "#text": "3"
+      },
+      {
+        "@hash": "landing_heavy_frame",
+        "#text": "4"
+      },
+      {
+        "@hash": "attack_combo_max",
+        "#text": "1"
+      },
+      {
+        "@hash": "s3_combo_max",
+        "#text": "1"
+      },
+      {
+        "@hash": "s4_combo_max",
+        "#text": "1"
+      },
+      {
+        "@hash": "attack_100_enable_cnt",
+        "#text": "0"
+      },
+      {
+        "@hash": "attack_100_rebound_count",
+        "#text": "4"
+      },
+      {
+        "@hash": "attack_lw3_rebound_count",
+        "#text": "3"
+      },
+      {
+        "@hash": "attack_s4_hold_frame",
+        "#text": "60"
+      },
+      {
+        "@hash": "attack_s4_hold_keep_frame",
+        "#text": "120"
+      },
+      {
+        "@hash": "attack_hi4_hold_frame",
+        "#text": "60"
+      },
+      {
+        "@hash": "attack_hi4_hold_keep_frame",
+        "#text": "120"
+      },
+      {
+        "@hash": "attack_lw4_hold_frame",
+        "#text": "60"
+      },
+      {
+        "@hash": "attack_lw4_hold_keep_frame",
+        "#text": "120"
+      },
+      {
+        "@hash": "jump_count_max",
+        "#text": "2"
+      },
+      {
+        "@hash": "tread_fall_recovery_frame",
+        "#text": "37"
+      },
+      {
+        "@hash": "dead_rare_se_rate",
+        "#text": "6"
+      },
+      {
+        "@hash": "damage_model_no_hit_frame",
+        "#text": "14"
+      },
+      {
+        "@hash": "final_start_turn_frame",
+        "#text": "4"
+      },
+      {
+        "@hash": "scroll_rate_change_frame",
+        "#text": "30"
+      },
+      {
+        "@hash": "star_attack_power",
+        "#text": "12"
+      },
+      {
+        "@hash": "pickel_capture_fence_type",
+        "#text": "0"
+      },
+      {
+        "@hash": "0x19f190006a",
+        "#text": "5"
+      },
+      {
+        "@hash": "escape_air_landing_frame",
+        "#text": "35"
+      },
+      {
+        "@hash": "lw4_combo_max",
+        "#text": "1"
+      }
+    ],
+    "bool": [
+      {
+        "@hash": "attack100_type",
+        "#text": "False"
+      },
+      {
+        "@hash": "squat_walk_type",
+        "#text": "True"
+      },
+      {
+        "@hash": "wall_jump_type",
+        "#text": "True"
+      },
+      {
+        "@hash": "attach_wall_type",
+        "#text": "False"
+      },
+      {
+        "@hash": "air_lasso_type",
+        "#text": "False"
+      },
+      {
+        "@hash": "0x2ea659cf56",
+        "#text": "False"
+      },
+      {
+        "@hash": "0x13e3bcfb18",
+        "#text": "True"
+      },
+      {
+        "@hash": "0x18f0607a99",
+        "#text": "False"
+      },
+      {
+        "@hash": "0x1408832504",
+        "#text": "False"
+      },
+      {
+        "@hash": "dead_end_final",
+        "#text": "True"
+      },
+      {
+        "@hash": "ladder_attack_lw_fall",
+        "#text": "False"
+      },
+      {
+        "@hash": "water_not_good",
+        "#text": "False"
+      },
+      {
+        "@hash": "0x17e10662a4",
+        "#text": "False"
+      },
+      {
+        "@hash": "attack_s4_turn",
+        "#text": "True"
+      },
+      {
+        "@hash": "0x145620fd97",
+        "#text": "False"
+      },
+      {
+        "@hash": "0x13042acb2d",
+        "#text": "False"
+      },
+      {
+        "@hash": "0x12326f1f2a",
+        "#text": "False"
+      },
+      {
+        "@hash": "0x187608007b",
+        "#text": "False"
+      },
+      {
+        "@hash": "0x13cf982a55",
+        "#text": "False"
+      }
+    ]
+  },
+  "parameters": {
+    "walk_accel_mul": 0.158,
+    "walk_accel_add": 0.105,
+    "walk_speed_max": 1.302,
+    "walk_slow_speed_mul": 0.2,
+    "walk_middle_ratio": 0.38,
+    "walk_fast_ratio": 0.75,
+    "ground_brake": 0.132,
+    "dash_speed": 1.98,
+    "run_accel_mul": 0.132,
+    "run_accel_add": 0.044,
+    "run_speed_max": 2.039,
+    "jump_speed_x": 0.78,
+    "jump_speed_x_mul": 0.8,
+    "jump_speed_x_max": 1.8,
+    "jump_aerial_speed_x_mul": 0.8,
+    "jump_initial_y": 19.525,
+    "jump_y": 35.5,
+    "mini_jump_y": 17.12,
+    "jump_aerial_y": 35.5,
+    "air_accel_x_mul": 0.09,
+    "air_accel_x_add": 0.01,
+    "air_speed_x_stable": 0.957,
+    "air_brake_x": 0.0075,
+    "air_accel_y": 0.095,
+    "air_speed_y_stable": 1.55,
+    "damage_fly_top_air_accel_y": 0.068544,
+    "damage_fly_top_speed_y_stable": 1.8,
+    "air_brake_y": 0.008,
+    "dive_speed_y": 2.48,
+    "weight": 79.0,
+    "air_ground_speed_brake": 0.0225,
+    "landing_attack_air_frame_n": 9.0,
+    "landing_attack_air_frame_f": 12.0,
+    "landing_attack_air_frame_b": 18.0,
+    "landing_attack_air_frame_hi": 14.0,
+    "landing_attack_air_frame_lw": 22.0,
+    "landing_frame_light": 1.0,
+    "landing_frame": 3.0,
+    "scale": 0.96,
+    "shield_radius": 9.1,
+    "shield_break_y": 36.2,
+    "guard_speed_limit": 1.3,
+    "jostle_front": 1.5,
+    "jostle_back": 0.8,
+    "jostle_weight": 3.9,
+    "cliff_jump_x_speed": 0.6,
+    "cliff_jump_y": 37.75,
+    "combo_attack_12_end": 0.0,
+    "combo_attack_13_end": 0.0,
+    "combo_attack_32_end": 0.0,
+    "combo_attack_33_end": 0.0,
+    "combo_attack_42_end": 0.0,
+    "attack_100_rebound_distance": 35.0,
+    "attack_lw3_rebound_distance": 45.0,
+    "attack_s4_smash_hold_attack_up": 1.4,
+    "attack_hi4_smash_hold_attack_up": 1.4,
+    "attack_lw4_smash_hold_attack_up": 1.4,
+    "attack_4_hold_scale": 0.8,
+    "attach_wall_ignore_cliff_dist": 0.0,
+    "0x271984ee09": 0.0,
+    "0x2bf4bef265": 0.0,
+    "tread_jump_speed_y_mul": 1.3,
+    "tread_mini_jump_speed_y_mul": 0.7,
+    "tread_range_offset_y": 1.0,
+    "tread_range_w": 6.0,
+    "tread_range_h": 6.0,
+    "tread_range_add_w": 2.0,
+    "tread_range_add_h": 2.0,
+    "entry_stand_scale": 0.9,
+    "cursor_offset_y": 6.0,
+    "special_s_brake": 0.2,
+    "wind_resistance": 0.8,
+    "height": 10.0,
+    "expand_height": 14.0,
+    "result_scale_mul": 1.33,
+    "bury_r_x_offset": 0.0,
+    "bury_r_x_offset_robot": 0.5,
+    "bury_r_y_offset": -2.5,
+    "bury_r_rot_angle": 200.0,
+    "slope_top_angle_max": 40.0,
+    "slope_front_up_max": 3.0,
+    "slope_back_up_max": 3.0,
+    "slope_loose_angle": 10.0,
+    "passive_wall_x_speed": 0.5,
+    "passive_wall_jump_x_speed": 1.3,
+    "passive_wall_jump_y_speed": 2.6,
+    "wall_jump_enable_x_speed": 0.2,
+    "passive_ceil_x_speed": 0.8,
+    "damage_model_scale_x": 0.9,
+    "is_blend_motion_kind": 0.9,
+    "damage_model_scale_z": 0.9,
+    "se_pitch_big": 0.89,
+    "se_pitch_small": 1.4,
+    "se_pitch_big_mushroom": 0.75,
+    "se_pitch_small_mushroom": 1.12,
+    "se_pitch_big_mushd": 1.12,
+    "se_pitch_small_mushd": 2.0,
+    "se_pitch_big_thunder": 1.12,
+    "se_pitch_small_thunder": 2.0,
+    "scroll_rate": 0.0,
+    "final_end_jump_y": 15.0,
+    "charge_final_attack_mul": 0.7,
+    "charge_final_attack_reaction_mul": 0.96,
+    "star_scale": 2.295,
+    "egg_scale": 1.35,
+    "egg_collision_offset_1_x": 0.0,
+    "egg_collision_offset_1_y": 4.9,
+    "egg_collision_offset_1_z": 0.0,
+    "egg_collision_offset_2_x": 0.0,
+    "egg_collision_offset_2_y": 6.41667,
+    "egg_collision_offset_2_z": 0.0,
+    "egg_collision_size": 5.5,
+    "bitten_wario_adjust_scale_value": 1.0,
+    "palutena_autoaimbullet_target_offset_x": 2.0,
+    "palutena_autoaimbullet_target_offset_y": 0.0,
+    "palutena_autoaimbullet_target_offset_z": 0.0,
+    "psychobreak_offset_y": -1.0,
+    "damage_fall_center_offset_y": 3.0,
+    "zelda_triforce_scale": 20.0,
+    "zelda_triforce_offset_y": 4.0,
+    "ridley_stabbed_offset_x": -2.0,
+    "ridley_stabbed_offset_y": -4.5,
+    "ridley_stabbed_offset_z": 0.0,
+    "ridley_stabbed_rhombus_offset_y": -5.0,
+    "gamewatch_stockicon_scale": 0.7,
+    "packun_final_capture_offset_y": 5.0,
+    "packun_final_capture_scale": 0.5,
+    "0x2ab2a23d0d": 10.0,
+    "0x2a3504f64e": 10.0,
+    "jack_final_target_scale": 1.3,
+    "jack_final_target_rot_y": 0.0,
+    "jack_final_target_effect_offset_x": -2.1,
+    "jack_final_target_effect_offset_y": 4.2,
+    "jack_final_target_effect_offset_z": -4.0,
+    "buddy_final_target_offset_x": 0.0,
+    "buddy_final_target_offset_y": 1.0,
+    "buddy_final_target_offset_z": -2.0,
+    "buddy_final_target_scale": 1.0,
+    "dolly_super_special2_offset_x": 0.0,
+    "dolly_super_special2_offset_y": 2.0,
+    "dolly_super_special2_offset_z": 3.0,
+    "dolly_super_special2_offset_x_ground": 0.0,
+    "dolly_super_special2_offset_y_ground": 7.0,
+    "dolly_super_special2_offset_z_ground": 2.0,
+    "0x23b5b18326": 0.0,
+    "0x23c2b6b3b0": 0.0,
+    "0x235bbfe20a": -2.0,
+    "0x23576d985f": -2.0,
+    "0x23206aa8c9": 1.0,
+    "0x23b963f973": -2.0,
+    "0x294bf073a1": -3.0,
+    "0x293cf74337": 4.0,
+    "0x29a5fe128d": -2.0,
+    "master_final_target_offset_x": 0.0,
+    "master_final_target_offset_y": 0.0,
+    "master_final_target_offset_z": 0.0,
+    "tantan_dragon_beam_target_offset_x": 2.0,
+    "tantan_dragon_beam_target_offset_y": 0.0,
+    "tantan_dragon_beam_target_offset_z": 0.0,
+    "0x2456dfb0c0": 0.0,
+    "0x2421d88056": 5.0,
+    "0x24b8d1d1ec": 0.0,
+    "0x24b91ddbfe": 0.5,
+    "0x24ce1aeb68": 2.0,
+    "0x245713bad2": 0.0,
+    "0x23ed975439": 0.0,
+    "0x1f905c13fb": 0.0,
+    "0x1fe75b236d": 1.0,
+    "0x1f7e5272d7": 0.0,
+    "0x1cba8b77b5": 1.0,
+    "0x295785c851": 0.1,
+    "0x24dea774ab": 1.1,
+    "0x2be31da05e": 0.0,
+    "0x2b7e124128": 2.45,
+    "pickel_final_target_scale": 1.3,
+    "pickel_capture_fence_scale": 0.74,
+    "pickel_capture_fence_offset_x": 3.0,
+    "pickel_capture_fence_offset_y": -12.0,
+    "edge_flare_offset_x": 2.0,
+    "edge_flare_offset_y": 0.0,
+    "edge_flare_offset_z": 0.0,
+    "edge_flare_radius": 13.5,
+    "0x161eafe03d": 0.1,
+    "0x1607b4d17c": 0.1,
+    "0x1687a6b187": -0.1,
+    "0x169ebd80c6": -0.1,
+    "0x2c816b267a": 0.0,
+    "0x1b467ce4f2": 6.0,
+    "0x1a0ac3b7cf": 5.0,
+    "0x152c88b901": 25.0,
+    "0x1a3a0acd2a": 30.0,
+    "0x1c217c1142": 0.0,
+    "0x1a71149713": 30.0,
+    "0x281b06d9e5": 6.0,
+    "0x1b4157159a": 0.0,
+    "0x1b3650250c": 0.0,
+    "0x1baf5974b6": 0.0,
+    "item_lift_accel_mul": 0.0607692,
+    "item_lift_accel_add": 0.03,
+    "item_lift_speed_max": 0.84208,
+    "throw_item_speed_mul": 0.93,
+    "throw_item_power_mul": 1.0,
+    "shoot_walk_accel_mul": 0.1264,
+    "shoot_walk_accel_add": 0.084,
+    "shoot_walk_speed_max": 1.302,
+    "shoot_dash_speed_f": 1.584,
+    "shoot_dash_speed_b": 1.2672,
+    "item_range_front": 11.5,
+    "item_range_front_max": 14.5,
+    "item_range_back": 5.72857,
+    "item_range_h": 8.0,
+    "item_range_air_front": 8.625,
+    "item_range_air_back": 5.72857,
+    "item_range_air_h": 10.0,
+    "item_grip_offset_x": 0.0,
+    "item_grip_offset_y": -0.1,
+    "item_grip_offset_z": 0.0,
+    "item_grip_offset_rot_x": 0.0,
+    "item_grip_offset_rot_y": 0.0,
+    "item_grip_offset_rot_z": 0.0,
+    "badge_scale": 1.0,
+    "superleaftail_scale": 1.0,
+    "backshield_offset_y": 6.2,
+    "bossgalaga_offset_y": 12.4,
+    "baitocrane_offset_y": 5.0,
+    "driver_offset_x": 4.0,
+    "driver_scale": 0.7,
+    "effect_scale": 0.9,
+    "common_effect_0_r": 0.4,
+    "common_effect_0_g": 0.9,
+    "common_effect_0_b": 3.0,
+    "damage_fly_smoke_offset_x": 0.0,
+    "damage_fly_smoke_offset_y": 0.0,
+    "damage_fly_roll_smoke_offset_x": 0.0,
+    "damage_fly_roll_smoke_offset_y": 0.0,
+    "ice_offset_y": 1.0,
+    "ice_offset_z": 0.0,
+    "ice_radius": 7.4,
+    "ice_jump_speed_y_mul": 0.83,
+    "ice_jump_speed_x": 1.0,
+    "photo_camera_depth": 15.0,
+    "photo_camera_depth_ortho": 50.0,
+    "camera_range_center_y": 6.0,
+    "camera_range_front": 22.0,
+    "camera_range_back": -9.0,
+    "camera_range_up": 9.0,
+    "camera_range_down": -6.0,
+    "camera_range_2nd_center_y": 6.0,
+    "camera_range_2nd_front": 9.0,
+    "camera_range_2nd_back": -9.0,
+    "camera_range_2nd_up": 6.0,
+    "camera_range_2nd_down": -7.0,
+    "zoom_camera_range_front": 0.0,
+    "zoom_camera_range_back": 0.5,
+    "zoom_camera_range_up": 0.75,
+    "zoom_camera_range_down": 13.5,
+    "clip_sphere_offset_x": 1.5,
+    "clip_sphere_offset_y": -2.0,
+    "clip_sphere_offset_z": -1.5,
+    "clip_sphere_radius": 5.3,
+    "pose_offset_y": -0.5,
+    "dead_up_camera_hit_offset": 0.0,
+    "dead_up_camera_hit_rot_min": 30.0,
+    "dead_up_camera_hit_rot_max": 150.0,
+    "dead_up_camera_hit_distance": 1.0,
+    "dead_up_camera_hit_offset_y": 2.0,
+    "finish_camera_zoom_mul": 1.0,
+    "finish_camera_zoom_mul_thrown": 1.0,
+    "critical_hit_camera_zoom_mul": 1.0,
+    "ladder_range_offset_y": 8.0,
+    "ladder_range_w": 6.0,
+    "ladder_range_h": 3.0,
+    "barrel_smoke_offset_y": 4.5,
+    "barrel_attack_offset_x": 0.0,
+    "barrel_attack_offset_y": 5.5,
+    "barrel_attack_offset_z": 0.0,
+    "barrel_attack_size": 5.0,
+    "dolly_stage_wall_fly_n_offset_x": 1.0,
+    "dolly_stage_wall_fly_n_offset_y": -1.0,
+    "dolly_stage_wall_fly_roll_offset_x": 4.0,
+    "dolly_stage_wall_fly_roll_offset_y": 0.0,
+    "dolly_stage_wall_wall_damage_offset_x": 4.0,
+    "dolly_stage_wall_wall_damage_offset_y": -1.0,
+    "dolly_stage_wall_check_dead_offset_x": 10.0,
+    "0x2a23dea6e7": 3.0,
+    "damage_attack_size": 2.73,
+    "fly_speed_y_mul": 1.0,
+    "high_speed_dash_attack_offset_x": 0.0,
+    "high_speed_dash_attack_offset_y": 5.0,
+    "high_speed_dash_attack_offset_z": 3.0,
+    "item_range_offset_y": 4.0,
+    "item_range_air_offset_y": 5.0,
+    "jump_squat_frame": 3,
+    "landing_heavy_frame": 4,
+    "attack_combo_max": 1,
+    "s3_combo_max": 1,
+    "s4_combo_max": 1,
+    "attack_100_enable_cnt": 0,
+    "attack_100_rebound_count": 4,
+    "attack_lw3_rebound_count": 3,
+    "attack_s4_hold_frame": 60,
+    "attack_s4_hold_keep_frame": 120,
+    "attack_hi4_hold_frame": 60,
+    "attack_hi4_hold_keep_frame": 120,
+    "attack_lw4_hold_frame": 60,
+    "attack_lw4_hold_keep_frame": 120,
+    "jump_count_max": 2,
+    "tread_fall_recovery_frame": 37,
+    "dead_rare_se_rate": 6,
+    "damage_model_no_hit_frame": 14,
+    "final_start_turn_frame": 4,
+    "scroll_rate_change_frame": 30,
+    "star_attack_power": 12,
+    "pickel_capture_fence_type": 0,
+    "0x19f190006a": 5,
+    "escape_air_landing_frame": 35,
+    "lw4_combo_max": 1,
+    "attack100_type": false,
+    "squat_walk_type": true,
+    "wall_jump_type": true,
+    "attach_wall_type": false,
+    "air_lasso_type": false,
+    "0x2ea659cf56": false,
+    "0x13e3bcfb18": true,
+    "0x18f0607a99": false,
+    "0x1408832504": false,
+    "dead_end_final": true,
+    "ladder_attack_lw_fall": false,
+    "water_not_good": false,
+    "0x17e10662a4": false,
+    "attack_s4_turn": true,
+    "0x145620fd97": false,
+    "0x13042acb2d": false,
+    "0x12326f1f2a": false,
+    "0x187608007b": false,
+    "0x13cf982a55": false,
+    "fighter_kind": "fighter_kind_pikachu",
+    "bury_r_depth_node": "bust",
+    "bitten_wario_adjust_scale_node": "top",
+    "palutena_autoaimbullet_target_node": "hip",
+    "ridley_stabbed_node": "top",
+    "tantan_dragon_beam_target_node": "hip",
+    "0x223ce059e4": "damage_hi_1",
+    "0x23ca50df2b": "tail1",
+    "edge_flare_node": "waist",
+    "0x1bdbd2b750": "damage_hi_1",
+    "0x187367db00": "waist",
+    "0x1fc14378fa": "rebound",
+    "0x1c08c51661": "0x0c158f6721",
+    "damage_fly_smoke_node": "virtualcenter",
+    "damage_fly_roll_smoke_node": "virtualcenter",
+    "fire_hit_size": "s",
+    "ice_node": "rot",
+    "0x1a786b5238": "virtualmouth",
+    "0x2080da265f": "virtualdriver",
+    "0x204850f761": "virtualclaptrapf",
+    "zoom_camera_range_center_y": "neck",
+    "clip_sphere_node": "bust",
+    "ladder_hand_node_1": "handl",
+    "ladder_hand_node_2": "handr",
+    "barrel_shoot_node": "top",
+    "barrel_attack_node": "top",
+    "size": "fighter_size_m",
+    "skin_kind": "fighter_skin_kind_bio",
+    "metal_sound_level": "fighter_metal_sound_level_s",
+    "bury_motion_height": "hit_height_low",
+    "bury_r_motion_height": "hit_height_low",
+    "attack_combo_type": "fighter_combo_type_none",
+    "aerial_type": "fighter_jump_aerial_type_normal"
+  }
+}

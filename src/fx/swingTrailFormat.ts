@@ -1,7 +1,7 @@
 /**
  * Pure formatter helpers for melee SWING TRAILS.
  *
- * Held weapons (sword / bat / hammer / spear) and heavy attacks (smash
+ * Held weapons (battering item) and heavy attacks (smash
  * finishers) spawn a real Matter hitbox via the canonical attack path,
  * but the generic fighter sprites ship no swing-animation frames — so a
  * player sees damage land with no visible "the blade swept through
@@ -38,27 +38,12 @@
  *     never lies about the weapon's reach.
  */
 
+import { isBatteringItemMove } from '../items/itemCatalog';
 import type { AttackMove } from '../characters/attacks';
 
 // ---------------------------------------------------------------------------
 // Tuning constants (frozen)
 // ---------------------------------------------------------------------------
-
-/**
- * Move ids that always get a swing trail regardless of their `type`
- * bucket — the held-weapon item moves. These read as deliberate weapon
- * swings (the sword slash especially was the user's "0 visual cue"
- * complaint) and benefit most from a visible arc.
- *
- * Frozen so a future move-data edit can't accidentally mutate the set
- * at runtime.
- */
-export const SWING_TRAIL_WEAPON_MOVE_IDS: ReadonlySet<string> = new Set([
-  'item.sword.slash',
-  'item.bat.swing',
-  'item.hammer.smash',
-  'item.spear.thrust',
-]);
 
 /**
  * Move `type` buckets that get a swing trail. Smashes are the heavy
@@ -191,7 +176,7 @@ function clamp(value: number, lo: number, hi: number): number {
  */
 export function swingTrailAppliesTo(moveId: string, moveType: string): boolean {
   return (
-    SWING_TRAIL_WEAPON_MOVE_IDS.has(moveId) ||
+    isBatteringItemMove(moveId) ||
     SWING_TRAIL_MOVE_TYPES.has(moveType)
   );
 }

@@ -178,6 +178,9 @@ describe('remapSlotBindings', () => {
         threshold: 0.5,
       });
     }
+    // The right-stick smash half-axes follow the pad like every other binding.
+    expect(remapped.bindings.smash).toHaveLength(4);
+    expect(remapped.bindings.smash.every(entry => entry.kind === 'gamepad' && entry.gamepadIndex === 2)).toBe(true);
     expect(remapped.playerIndex).toBe(3);
   });
 

@@ -44,6 +44,7 @@ import {
   buildPlayerSlotsFromState,
 } from './characterSelect';
 import type { CharacterSelectState } from './characterSelect';
+import { FALLBACK_FIGHTER_ID } from '../characters/activeFighters';
 
 // ---------------------------------------------------------------------------
 // Public type model
@@ -157,10 +158,16 @@ export interface HandCursorSlotState {
   readonly index: 1 | 2 | 3 | 4;
   readonly mode: SlotMode;
   readonly inputType: InputType;
+  /** Controls edits the profile named by the player column. */
+  readonly bindingProfileIndex?: PlayerSlot['bindingProfileIndex'];
+  /** Reusable control layout; independent of this hand's physical owner. */
+  readonly bindingProfileId?: string;
   readonly aiDifficulty?: AiDifficulty;
   readonly cursor: HandCursorPosition;
   readonly hovered: HoveredTarget;
   readonly pickedCharacterId: CharacterId | null;
+  /** Selected saved tune; the snapshot travels with the lobby and match. */
+  readonly customCharacter?: PlayerSlot['customCharacter'];
   readonly paletteIndex: number;
 }
 
@@ -186,6 +193,37 @@ function defaultInputTypeForSlot(slotIndex: 1 | 2 | 3 | 4): InputType {
   // already have a real device id; this is just the suggestion shown
   // before any device is detected.
   return 'gamepad';
+}
+
+/** P1/P2 keyboard profiles belong to their numbered slots, even when another
+ * slot is a CPU. Extra slots can use an available keyboard layout. Never take
+ * a layout already owned by another human or silently substitute the other one. */
+export function keyboardInputTypeForSlot(
+  state: HandCursorState,
+  slotIndex: 1 | 2 | 3 | 4,
+): 'keyboard_p1' | 'keyboard_p2' | null {
+  const slot = state.slots[slotIndex - 1];
+  if (!slot) return null;
+  const used = new Set(state.slots.filter(other => other.index !== slotIndex && other.mode === 'human')
+    .map(other => other.inputType));
+  const preferred = slotIndex === 1 ? 'keyboard_p1' : slotIndex === 2 ? 'keyboard_p2'
+    : slot.inputType === 'keyboard_p1' || slot.inputType === 'keyboard_p2' ? slot.inputType : null;
+  if (preferred && !used.has(preferred)) return preferred;
+  if (slotIndex <= 2) return null;
+  return (['keyboard_p1', 'keyboard_p2'] as const).find(layout => !used.has(layout)) ?? null;
+}
+
+/** Repair older lobby joins that assigned P2 the unused P1 layout. Existing
+ * ownership wins if another human already occupies the slot's usual layout. */
+export function restoreKeyboardSlotDefaults(state: HandCursorState): HandCursorState {
+  let next = state;
+  for (const slot of state.slots) {
+    if (slot.bindingProfileId !== undefined || slot.bindingProfileIndex !== undefined || slot.index > 2 || slot.mode !== 'human'
+      || (slot.inputType !== 'keyboard_p1' && slot.inputType !== 'keyboard_p2')) continue;
+    const layout = keyboardInputTypeForSlot(next, slot.index);
+    if (layout) next = setSlotInputType(next, slot.index, layout);
+  }
+  return next;
 }
 
 /**
@@ -247,7 +285,12 @@ function replaceSlot(
   if (!target) {
     throw new Error(`slot ${slotIndex} not found`);
   }
-  const nextSlot = update(target);
+  let nextSlot = update(target);
+  if (nextSlot.customCharacter && (nextSlot.mode === 'empty'
+    || nextSlot.customCharacter.spec.id !== nextSlot.pickedCharacterId)) {
+    const { customCharacter: _discarded, ...base } = nextSlot;
+    nextSlot = Object.freeze(base);
+  }
   if (nextSlot === target) return state;
   const nextSlots = state.slots.map((s, i) =>
     i === slotIndex - 1 ? nextSlot : s,
@@ -799,7 +842,7 @@ export function toCharacterSelectState(
           slot.pickedCharacterId ??
           SELECTABLE_CHARACTER_SPECS[(slot.index - 1) % SELECTABLE_CHARACTER_SPECS.length]
             ?.id ??
-          'wolf';
+          FALLBACK_FIGHTER_ID;
         const cursorIndex =
           slot.hovered.kind === 'portrait'
             ? clamp(
@@ -864,5 +907,15 @@ export function buildPlayerSlotsFromHandCursor(
       }),
     ),
   });
-  return buildPlayerSlotsFromState(readyOnly);
+  return Object.freeze(buildPlayerSlotsFromState(readyOnly).map((player) => {
+    const source = state.slots.find((slot) => slot.index === player.index);
+    const customCharacter = source?.customCharacter;
+    const selected = { ...player,
+      ...(source?.bindingProfileId ? { bindingProfileId: source.bindingProfileId } : {}),
+      ...(source?.bindingProfileIndex !== undefined ? { bindingProfileIndex: source.bindingProfileIndex } : {}),
+    };
+    return customCharacter?.spec.id === player.characterId
+      ? Object.freeze({ ...selected, customCharacter })
+      : Object.freeze(selected);
+  }));
 }

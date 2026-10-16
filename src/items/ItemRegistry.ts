@@ -6,9 +6,8 @@
  * the {@link ItemSpawnManager}'s cap calculation by reporting the
  * active count.
  *
- * Phaser-free — the registry tracks lifecycle state only; a Phaser
- * adapter layer attaches sprite / Matter handles via
- * {@link ItemEntity.attachedRender}.
+ * Phaser-free — the registry tracks lifecycle state only; renderers
+ * keep their own drawings keyed by the entity's stable id.
  */
 
 import type { ItemEntity } from './ItemEntity';
@@ -18,6 +17,8 @@ export class ItemRegistry {
   private readonly entities: ItemEntity[] = [];
   private nextId = 0;
 
+  /** Read-only deterministic ledger including consumed/despawned generations. */
+  getHistoryEvidence(){return {nextId:this.nextId,entities:this.entities.map(e=>e.getHistoryEvidence())};}
   /** Total entities tracked, including despawned ones (for diagnostics). */
   size(): number {
     return this.entities.length;

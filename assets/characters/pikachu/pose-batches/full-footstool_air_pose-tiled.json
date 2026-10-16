@@ -1,0 +1,1631 @@
+{
+  "state": "packed_cells_visually_reviewed_runtime_pending",
+  "coordinateContract": {
+    "frameWidth": 512,
+    "frameHeight": 640,
+    "root": [
+      256,
+      416
+    ],
+    "scaleToWorld": 0.4666666666666667
+  },
+  "animations": {
+    "footstool_air_pose": {
+      "strip": "animations/footstool_air_pose.png",
+      "frameCount": 3,
+      "sha256": "423ff8bccbc80a74230c0a14ac6d233bd1a0009f2ed42fa81e5f28fd30572ecf",
+      "frameWindows": [
+        {
+          "startFrame": 0,
+          "endFrame": 4,
+          "artFrameIndex": 0
+        },
+        {
+          "startFrame": 4,
+          "endFrame": 8,
+          "artFrameIndex": 1
+        }
+      ],
+      "frameWidth": 512,
+      "frameHeight": 640,
+      "root": [
+        256,
+        416
+      ],
+      "scaleToWorld": 0.4666666666666667,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "nativeSampleIndices": [
+        0,
+        4,
+        8
+      ],
+      "nativeWindows": [
+        {
+          "nativeStart": 0,
+          "nativeEnd": 4,
+          "artFrameIndex": 0,
+          "nativeSample": 0
+        },
+        {
+          "nativeStart": 4,
+          "nativeEnd": 8,
+          "artFrameIndex": 1,
+          "nativeSample": 4
+        }
+      ],
+      "runtimeClock": "Explicit authored beta footstool victim cue: ground native0..8; air native0..7 then source StepFall loop16. Physical owner controls state/input/gravity; no added victim impulse.",
+      "packingMetadata": "assets/characters/pikachu/pose-batches/full-footstool_air_pose-tiled.json"
+    }
+  },
+  "sources": [
+    {
+      "key": "full-completion-states-footstool-air-pose-sample0-source0",
+      "sheet": "footstool_air_pose",
+      "motion": "a06stepairpose",
+      "nativeSample": 0,
+      "sourceOnlyEndpoint": false,
+      "source_path": "docs/review/2026-10-06/pikachu-character/art/completion-states-footstool/full-completion-states-footstool-air-pose-sample0-source0-reference.png",
+      "source_sha256": "221a1476b539205e467b4ee1844d9d6e736469df793285900146bb72267c9e0e",
+      "nativeMetadata": "docs/review/2026-10-06/pikachu-character/art/completion-states-footstool/full-completion-states-footstool-air-pose-sample0-source0.json",
+      "nativeMetadataSha256": "d2f7286b89575486f19e4a183178aad2e00d099941abb8f6e0ed797f4ddea3e7",
+      "sourceMotion": {
+        "skeleton": {
+          "path": "assets/gen/pikachu-native-reference/raw-model/fighter/pikachu/model/body/c00/model.nusktb",
+          "sha256": "09b80e92fa89921c4d895abe36f23252c2ba69c1ed2a787953185572d2b19b04"
+        },
+        "helper": {
+          "path": "assets/gen/pikachu-native-reference/raw-model/fighter/pikachu/model/body/c00/model.nuhlpb",
+          "sha256": "2362c0d133764a5f909e037c93ff9caf5e09f63da1aaa3ab9c3f0c22984a1555"
+        },
+        "motion": {
+          "path": "assets/gen/pikachu-native-reference/raw-motion/fighter/pikachu/motion/body/c00/a06stepairpose.nuanmb",
+          "sha256": "226436ba42777d702e0910f6dfda40c6ba7ab3d021cf90a54ba2ae7eb3eaceba"
+        },
+        "native_final_frame_index": 8.0,
+        "matrix_convention": "row-major arrays; column vectors; native x/y/z, no game or camera transform",
+        "helper_constraints": "Excluded; requested bones and ancestors reject any constraint target",
+        "game_patch": null,
+        "unmodified_vanilla_verified": false,
+        "gameplay_frame_mapping": null,
+        "runtime_consumer": null
+      },
+      "capturedTransTranslation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "hurtboxes": [
+        {
+          "id": "pikachu.footstool_air_pose.0.hip",
+          "offsetX": -9.558349895909288,
+          "offsetY": 11.106067816182696,
+          "width": 38.74268398728432,
+          "height": 33.283094065736975,
+          "capsule": {
+            "start": {
+              "x": -6.1870079793002315,
+              "y": 10.464520860347317
+            },
+            "end": {
+              "x": -12.929691812518344,
+              "y": 11.747614772018075
+            },
+            "radius": 16.000000077033107
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.1.head",
+          "offsetX": 12.869039746430325,
+          "offsetY": 10.301650076261751,
+          "width": 31.012308630725713,
+          "height": 34.05580222812344,
+          "capsule": {
+            "start": {
+              "x": 12.862884920768012,
+              "y": 11.829551700622927
+            },
+            "end": {
+              "x": 12.875194572092635,
+              "y": 8.773748451900573
+            },
+            "radius": 15.499999489700544
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.2.shoulderr",
+          "offsetX": 6.392506922962195,
+          "offsetY": 9.168488613526826,
+          "width": 12.51141257324387,
+          "height": 10.393938551292996,
+          "capsule": {
+            "start": {
+              "x": 4.63680064852698,
+              "y": 9.865457876986605
+            },
+            "end": {
+              "x": 8.14821319739741,
+              "y": 8.471519350067048
+            },
+            "radius": 4.500000012186719
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.3.shoulderl",
+          "offsetX": 3.417835995202871,
+          "offsetY": 21.860332034374238,
+          "width": 12.865071295751722,
+          "height": 15.028969118397836,
+          "capsule": {
+            "start": {
+              "x": 1.485300203819155,
+              "y": 18.845847331667468
+            },
+            "end": {
+              "x": 5.350371786586587,
+              "y": 24.874816737081012
+            },
+            "radius": 4.4999998564921455
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.4.armr",
+          "offsetX": 10.164849215330896,
+          "offsetY": 7.670967833818864,
+          "width": 6.755706393545262,
+          "height": 5.696969382569826,
+          "capsule": {
+            "start": {
+              "x": 9.286996078113289,
+              "y": 8.019452465548753
+            },
+            "end": {
+              "x": 11.042702352548503,
+              "y": 7.322483202088975
+            },
+            "radius": 2.500000059555024
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.5.arml",
+          "offsetX": 7.8523942951939105,
+          "offsetY": 27.6028962598455,
+          "width": 7.931563646459147,
+          "height": 7.223378843911779,
+          "capsule": {
+            "start": {
+              "x": 6.386612498081412,
+              "y": 26.491206864006685
+            },
+            "end": {
+              "x": 9.318176092306409,
+              "y": 28.714585655684314
+            },
+            "radius": 2.500000026117075
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.6.legr",
+          "offsetX": -17.03766345216166,
+          "offsetY": 10.044089501773543,
+          "width": 22.96139970598415,
+          "height": 19.085120997951115,
+          "capsule": {
+            "start": {
+              "x": -14.556963306524672,
+              "y": 9.501528710153075
+            },
+            "end": {
+              "x": -19.518363597798643,
+              "y": 10.586650293394012
+            },
+            "radius": 8.999999707355089
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.7.legl",
+          "offsetX": -11.547566287058482,
+          "offsetY": 22.310196657724177,
+          "width": 21.979342358865612,
+          "height": 22.452052895946423,
+          "capsule": {
+            "start": {
+              "x": -9.55789488971881,
+              "y": 20.0841699918441
+            },
+            "end": {
+              "x": -13.537237684398153,
+              "y": 24.536223323604254
+            },
+            "radius": 8.999999782093134
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.8.kneer",
+          "offsetX": -25.480091651699503,
+          "offsetY": 10.421095046646078,
+          "width": 18.98659005133384,
+          "height": 10.97344033284177,
+          "capsule": {
+            "start": {
+              "x": -20.98679651911688,
+              "y": 10.907815319982666
+            },
+            "end": {
+              "x": -29.973386784282123,
+              "y": 9.934374773309491
+            },
+            "radius": 4.999999893084298
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.9.kneel",
+          "offsetX": -19.061718879656958,
+          "offsetY": 24.479251062846092,
+          "width": 19.791888121593384,
+          "height": 11.520348496487646,
+          "capsule": {
+            "start": {
+              "x": -14.165774927796939,
+              "y": 25.239425202153242
+            },
+            "end": {
+              "x": -23.957662831516977,
+              "y": 23.719076923538942
+            },
+            "radius": 5.000000108936673
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.10.tail1",
+          "offsetX": -27.897592241145603,
+          "offsetY": 1.6475544296089772,
+          "width": 23.918234643344945,
+          "height": 23.54237815140491,
+          "capsule": {
+            "start": {
+              "x": -32.856709794689955,
+              "y": -3.123634877965358
+            },
+            "end": {
+              "x": -22.93847468760125,
+              "y": 6.418743737183313
+            },
+            "radius": 6.999999768128121
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.11.tail3",
+          "offsetX": -29.29189214732591,
+          "offsetY": -9.709473619883397,
+          "width": 20.90952447390371,
+          "height": 24.320567974472315,
+          "capsule": {
+            "start": {
+              "x": -31.74665426291524,
+              "y": -13.869757485757027
+            },
+            "end": {
+              "x": -26.837130031736585,
+              "y": -5.549189754009767
+            },
+            "radius": 8.000000121362527
+          }
+        }
+      ],
+      "hashes": {
+        "seed": "0bb98e6e94521c2a83e96afbcc01f5c60869a55c01be170d0cc5eb644aef557f",
+        "generation-guide": "18d2dadbe7a4fc7932fc0bc2995826cc92459f25403466af139b0011cde941db",
+        "render-mask": "4b52a5611aae068002cadaafee642c7b31614fface61b64ddd8eb398942e8eda",
+        "anatomy-mask": "f85226c73bafb79c1eb4d73a7d0d8da3ea7ddc2af4c9a65a4f6a3748f1061eb4"
+      },
+      "state": "inputs_visually_reviewed",
+      "offset": [
+        1024,
+        1280
+      ],
+      "sourceHurtboxes": [
+        {
+          "id": "pikachu.footstool_air_pose.0.hip",
+          "offsetX": -9.558349895909288,
+          "offsetY": 11.106067816182696,
+          "width": 38.74268398728432,
+          "height": 33.283094065736975,
+          "capsule": {
+            "start": {
+              "x": -6.1870079793002315,
+              "y": 10.464520860347317
+            },
+            "end": {
+              "x": -12.929691812518344,
+              "y": 11.747614772018075
+            },
+            "radius": 16.000000077033107
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.1.head",
+          "offsetX": 12.869039746430325,
+          "offsetY": 10.301650076261751,
+          "width": 31.012308630725713,
+          "height": 34.05580222812344,
+          "capsule": {
+            "start": {
+              "x": 12.862884920768012,
+              "y": 11.829551700622927
+            },
+            "end": {
+              "x": 12.875194572092635,
+              "y": 8.773748451900573
+            },
+            "radius": 15.499999489700544
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.2.shoulderr",
+          "offsetX": 6.392506922962195,
+          "offsetY": 9.168488613526826,
+          "width": 12.51141257324387,
+          "height": 10.393938551292996,
+          "capsule": {
+            "start": {
+              "x": 4.63680064852698,
+              "y": 9.865457876986605
+            },
+            "end": {
+              "x": 8.14821319739741,
+              "y": 8.471519350067048
+            },
+            "radius": 4.500000012186719
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.3.shoulderl",
+          "offsetX": 3.417835995202871,
+          "offsetY": 21.860332034374238,
+          "width": 12.865071295751722,
+          "height": 15.028969118397836,
+          "capsule": {
+            "start": {
+              "x": 1.485300203819155,
+              "y": 18.845847331667468
+            },
+            "end": {
+              "x": 5.350371786586587,
+              "y": 24.874816737081012
+            },
+            "radius": 4.4999998564921455
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.4.armr",
+          "offsetX": 10.164849215330896,
+          "offsetY": 7.670967833818864,
+          "width": 6.755706393545262,
+          "height": 5.696969382569826,
+          "capsule": {
+            "start": {
+              "x": 9.286996078113289,
+              "y": 8.019452465548753
+            },
+            "end": {
+              "x": 11.042702352548503,
+              "y": 7.322483202088975
+            },
+            "radius": 2.500000059555024
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.5.arml",
+          "offsetX": 7.8523942951939105,
+          "offsetY": 27.6028962598455,
+          "width": 7.931563646459147,
+          "height": 7.223378843911779,
+          "capsule": {
+            "start": {
+              "x": 6.386612498081412,
+              "y": 26.491206864006685
+            },
+            "end": {
+              "x": 9.318176092306409,
+              "y": 28.714585655684314
+            },
+            "radius": 2.500000026117075
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.6.legr",
+          "offsetX": -17.03766345216166,
+          "offsetY": 10.044089501773543,
+          "width": 22.96139970598415,
+          "height": 19.085120997951115,
+          "capsule": {
+            "start": {
+              "x": -14.556963306524672,
+              "y": 9.501528710153075
+            },
+            "end": {
+              "x": -19.518363597798643,
+              "y": 10.586650293394012
+            },
+            "radius": 8.999999707355089
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.7.legl",
+          "offsetX": -11.547566287058482,
+          "offsetY": 22.310196657724177,
+          "width": 21.979342358865612,
+          "height": 22.452052895946423,
+          "capsule": {
+            "start": {
+              "x": -9.55789488971881,
+              "y": 20.0841699918441
+            },
+            "end": {
+              "x": -13.537237684398153,
+              "y": 24.536223323604254
+            },
+            "radius": 8.999999782093134
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.8.kneer",
+          "offsetX": -25.480091651699503,
+          "offsetY": 10.421095046646078,
+          "width": 18.98659005133384,
+          "height": 10.97344033284177,
+          "capsule": {
+            "start": {
+              "x": -20.98679651911688,
+              "y": 10.907815319982666
+            },
+            "end": {
+              "x": -29.973386784282123,
+              "y": 9.934374773309491
+            },
+            "radius": 4.999999893084298
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.9.kneel",
+          "offsetX": -19.061718879656958,
+          "offsetY": 24.479251062846092,
+          "width": 19.791888121593384,
+          "height": 11.520348496487646,
+          "capsule": {
+            "start": {
+              "x": -14.165774927796939,
+              "y": 25.239425202153242
+            },
+            "end": {
+              "x": -23.957662831516977,
+              "y": 23.719076923538942
+            },
+            "radius": 5.000000108936673
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.10.tail1",
+          "offsetX": -27.897592241145603,
+          "offsetY": 1.6475544296089772,
+          "width": 23.918234643344945,
+          "height": 23.54237815140491,
+          "capsule": {
+            "start": {
+              "x": -32.856709794689955,
+              "y": -3.123634877965358
+            },
+            "end": {
+              "x": -22.93847468760125,
+              "y": 6.418743737183313
+            },
+            "radius": 6.999999768128121
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.11.tail3",
+          "offsetX": -29.29189214732591,
+          "offsetY": -9.709473619883397,
+          "width": 20.90952447390371,
+          "height": 24.320567974472315,
+          "capsule": {
+            "start": {
+              "x": -31.74665426291524,
+              "y": -13.869757485757027
+            },
+            "end": {
+              "x": -26.837130031736585,
+              "y": -5.549189754009767
+            },
+            "radius": 8.000000121362527
+          }
+        }
+      ],
+      "authoredGeometryAdaptation": null,
+      "bounds": [
+        173,
+        257,
+        343,
+        429
+      ],
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/completion-states-footstool/full-completion-states-footstool-batch0-source0-attempt1-cutout.png",
+      "atlasSha256": "94ffe512801fed380656dffbefc8b7b3b1b16ffa3f8a576c249b1424b91d0b5c",
+      "job": "full-completion-states-footstool-batch0-source0-attempt1"
+    },
+    {
+      "key": "full-completion-states-footstool-air-pose-sample4-source4",
+      "sheet": "footstool_air_pose",
+      "motion": "a06stepairpose",
+      "nativeSample": 4,
+      "sourceOnlyEndpoint": false,
+      "source_path": "docs/review/2026-10-06/pikachu-character/art/completion-states-footstool/full-completion-states-footstool-air-pose-sample4-source4-reference.png",
+      "source_sha256": "b434019867a99d6b02a0acc38659412f5f633c5a29588c74e71359b2a95a0f82",
+      "nativeMetadata": "docs/review/2026-10-06/pikachu-character/art/completion-states-footstool/full-completion-states-footstool-air-pose-sample4-source4.json",
+      "nativeMetadataSha256": "4dca73689c78fdeb98695cf48e1696b3af94554f3b04975636fdbde816fb141c",
+      "sourceMotion": {
+        "skeleton": {
+          "path": "assets/gen/pikachu-native-reference/raw-model/fighter/pikachu/model/body/c00/model.nusktb",
+          "sha256": "09b80e92fa89921c4d895abe36f23252c2ba69c1ed2a787953185572d2b19b04"
+        },
+        "helper": {
+          "path": "assets/gen/pikachu-native-reference/raw-model/fighter/pikachu/model/body/c00/model.nuhlpb",
+          "sha256": "2362c0d133764a5f909e037c93ff9caf5e09f63da1aaa3ab9c3f0c22984a1555"
+        },
+        "motion": {
+          "path": "assets/gen/pikachu-native-reference/raw-motion/fighter/pikachu/motion/body/c00/a06stepairpose.nuanmb",
+          "sha256": "226436ba42777d702e0910f6dfda40c6ba7ab3d021cf90a54ba2ae7eb3eaceba"
+        },
+        "native_final_frame_index": 8.0,
+        "matrix_convention": "row-major arrays; column vectors; native x/y/z, no game or camera transform",
+        "helper_constraints": "Excluded; requested bones and ancestors reject any constraint target",
+        "game_patch": null,
+        "unmodified_vanilla_verified": false,
+        "gameplay_frame_mapping": null,
+        "runtime_consumer": null
+      },
+      "capturedTransTranslation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "hurtboxes": [
+        {
+          "id": "pikachu.footstool_air_pose.0.hip",
+          "offsetX": -9.014930545079732,
+          "offsetY": 9.706869771955706,
+          "width": 38.94817298120533,
+          "height": 32.41493330031114,
+          "capsule": {
+            "start": {
+              "x": -5.540844017698783,
+              "y": 9.914336458889561
+            },
+            "end": {
+              "x": -12.489017072460683,
+              "y": 9.499403085021852
+            },
+            "radius": 15.999999963221715
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.1.head",
+          "offsetX": 12.4253393108669,
+          "offsetY": 16.41255205404638,
+          "width": 31.39256608254442,
+          "height": 33.438233705991124,
+          "capsule": {
+            "start": {
+              "x": 12.229055799185469,
+              "y": 17.631669377451164
+            },
+            "end": {
+              "x": 12.621622822548332,
+              "y": 15.193434730641592
+            },
+            "radius": 15.499999529590777
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.2.shoulderr",
+          "offsetX": 4.834064281165464,
+          "offsetY": 9.202752674547238,
+          "width": 12.340396624040523,
+          "height": 11.94932228736114,
+          "capsule": {
+            "start": {
+              "x": 3.1638659972077363,
+              "y": 10.677413790165273
+            },
+            "end": {
+              "x": 6.5042625651231925,
+              "y": 7.728091558929201
+            },
+            "radius": 4.500000028062534
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.3.shoulderl",
+          "offsetX": 1.0643220836520797,
+          "offsetY": 25.319935294350365,
+          "width": 11.086758752267187,
+          "height": 16.554678658819356,
+          "capsule": {
+            "start": {
+              "x": 0.020942899133587767,
+              "y": 21.542596156555792
+            },
+            "end": {
+              "x": 2.1077012681705716,
+              "y": 29.097274432144943
+            },
+            "radius": 4.500000191615102
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.4.armr",
+          "offsetX": 8.384276555165675,
+          "offsetY": 6.068178748239397,
+          "width": 6.670198461966582,
+          "height": 6.4746612936268875,
+          "capsule": {
+            "start": {
+              "x": 7.54917741318681,
+              "y": 6.805509306048414
+            },
+            "end": {
+              "x": 9.219375697144539,
+              "y": 5.33084819043038
+            },
+            "radius": 2.500000089004427
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.5.arml",
+          "offsetX": 3.453187301150203,
+          "offsetY": 33.332792227736896,
+          "width": 6.3869249372628,
+          "height": 8.75000096147928,
+          "capsule": {
+            "start": {
+              "x": 2.759725016367689,
+              "y": 31.457791930846142
+            },
+            "end": {
+              "x": 4.146649585932717,
+              "y": 35.20779252462765
+            },
+            "radius": 2.5000001838488863
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.6.legr",
+          "offsetX": -14.168621699484685,
+          "offsetY": 4.198082654489927,
+          "width": 22.491493989926646,
+          "height": 20.262138984462467,
+          "capsule": {
+            "start": {
+              "x": -11.922874187752665,
+              "y": 5.329152663489857
+            },
+            "end": {
+              "x": -16.414369211216705,
+              "y": 3.0670126454899957
+            },
+            "radius": 8.999999483231303
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.7.legl",
+          "offsetX": -15.514172328926584,
+          "offsetY": 20.097609320826493,
+          "width": 24.505054108235814,
+          "height": 19.608142218432775,
+          "capsule": {
+            "start": {
+              "x": -12.261644823568492,
+              "y": 19.29353776036992
+            },
+            "end": {
+              "x": -18.766699834284676,
+              "y": 20.901680881283063
+            },
+            "radius": 8.999999548759815
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.8.kneer",
+          "offsetX": -21.96677125397421,
+          "offsetY": 0.469199575826158,
+          "width": 17.88907667073975,
+          "height": 13.576026072513901,
+          "capsule": {
+            "start": {
+              "x": -18.022232925746806,
+              "y": 2.2572126049406336
+            },
+            "end": {
+              "x": -25.911309582201607,
+              "y": -1.3188134532883176
+            },
+            "radius": 5.000000007142475
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.9.kneel",
+          "offsetX": -25.261371458844017,
+          "offsetY": 18.800144897126433,
+          "width": 18.336548356293044,
+          "height": 15.353309410891326,
+          "capsule": {
+            "start": {
+              "x": -21.09309714138366,
+              "y": 21.476799741885934
+            },
+            "end": {
+              "x": -29.429645776304376,
+              "y": 16.123490052366932
+            },
+            "radius": 4.999999860686162
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.10.tail1",
+          "offsetX": -28.524966150213217,
+          "offsetY": 1.6056057861436912,
+          "width": 27.706251156275968,
+          "height": 16.129405603130856,
+          "capsule": {
+            "start": {
+              "x": -35.37809208352905,
+              "y": 0.5409026294004171
+            },
+            "end": {
+              "x": -21.671840216897387,
+              "y": 2.6703089428869653
+            },
+            "radius": 6.999999644822154
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.11.tail3",
+          "offsetX": -35.71840438057441,
+          "offsetY": -6.988321599606055,
+          "width": 24.586666706798177,
+          "height": 20.595588211110616,
+          "capsule": {
+            "start": {
+              "x": -40.01173788168283,
+              "y": -9.286115852870694
+            },
+            "end": {
+              "x": -31.425070879465995,
+              "y": -4.690527346341415
+            },
+            "radius": 7.999999852290669
+          }
+        }
+      ],
+      "hashes": {
+        "seed": "8f183125f678ff4eb28b70989fb6d9edb20d7d9877da7ce04743ee1fe3e14687",
+        "generation-guide": "e8110e597c82d69b9a155261e572c0b8cf8aa3fb8a5b2dddf1e3bcdba4dbfbbe",
+        "render-mask": "8e90935733d064bc9da1c1ead9a5e9984c746c3aabaa75ba6de3411c5112f474",
+        "anatomy-mask": "72422ca8bed1e39f0cb0252ab099a562d6e4547a990227b5ec80bfdeb88aebb5"
+      },
+      "state": "inputs_visually_reviewed",
+      "offset": [
+        0,
+        0
+      ],
+      "sourceHurtboxes": [
+        {
+          "id": "pikachu.footstool_air_pose.0.hip",
+          "offsetX": -9.014930545079732,
+          "offsetY": 9.706869771955706,
+          "width": 38.94817298120533,
+          "height": 32.41493330031114,
+          "capsule": {
+            "start": {
+              "x": -5.540844017698783,
+              "y": 9.914336458889561
+            },
+            "end": {
+              "x": -12.489017072460683,
+              "y": 9.499403085021852
+            },
+            "radius": 15.999999963221715
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.1.head",
+          "offsetX": 12.4253393108669,
+          "offsetY": 16.41255205404638,
+          "width": 31.39256608254442,
+          "height": 33.438233705991124,
+          "capsule": {
+            "start": {
+              "x": 12.229055799185469,
+              "y": 17.631669377451164
+            },
+            "end": {
+              "x": 12.621622822548332,
+              "y": 15.193434730641592
+            },
+            "radius": 15.499999529590777
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.2.shoulderr",
+          "offsetX": 4.834064281165464,
+          "offsetY": 9.202752674547238,
+          "width": 12.340396624040523,
+          "height": 11.94932228736114,
+          "capsule": {
+            "start": {
+              "x": 3.1638659972077363,
+              "y": 10.677413790165273
+            },
+            "end": {
+              "x": 6.5042625651231925,
+              "y": 7.728091558929201
+            },
+            "radius": 4.500000028062534
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.3.shoulderl",
+          "offsetX": 1.0643220836520797,
+          "offsetY": 25.319935294350365,
+          "width": 11.086758752267187,
+          "height": 16.554678658819356,
+          "capsule": {
+            "start": {
+              "x": 0.020942899133587767,
+              "y": 21.542596156555792
+            },
+            "end": {
+              "x": 2.1077012681705716,
+              "y": 29.097274432144943
+            },
+            "radius": 4.500000191615102
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.4.armr",
+          "offsetX": 8.384276555165675,
+          "offsetY": 6.068178748239397,
+          "width": 6.670198461966582,
+          "height": 6.4746612936268875,
+          "capsule": {
+            "start": {
+              "x": 7.54917741318681,
+              "y": 6.805509306048414
+            },
+            "end": {
+              "x": 9.219375697144539,
+              "y": 5.33084819043038
+            },
+            "radius": 2.500000089004427
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.5.arml",
+          "offsetX": 3.453187301150203,
+          "offsetY": 33.332792227736896,
+          "width": 6.3869249372628,
+          "height": 8.75000096147928,
+          "capsule": {
+            "start": {
+              "x": 2.759725016367689,
+              "y": 31.457791930846142
+            },
+            "end": {
+              "x": 4.146649585932717,
+              "y": 35.20779252462765
+            },
+            "radius": 2.5000001838488863
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.6.legr",
+          "offsetX": -14.168621699484685,
+          "offsetY": 4.198082654489927,
+          "width": 22.491493989926646,
+          "height": 20.262138984462467,
+          "capsule": {
+            "start": {
+              "x": -11.922874187752665,
+              "y": 5.329152663489857
+            },
+            "end": {
+              "x": -16.414369211216705,
+              "y": 3.0670126454899957
+            },
+            "radius": 8.999999483231303
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.7.legl",
+          "offsetX": -15.514172328926584,
+          "offsetY": 20.097609320826493,
+          "width": 24.505054108235814,
+          "height": 19.608142218432775,
+          "capsule": {
+            "start": {
+              "x": -12.261644823568492,
+              "y": 19.29353776036992
+            },
+            "end": {
+              "x": -18.766699834284676,
+              "y": 20.901680881283063
+            },
+            "radius": 8.999999548759815
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.8.kneer",
+          "offsetX": -21.96677125397421,
+          "offsetY": 0.469199575826158,
+          "width": 17.88907667073975,
+          "height": 13.576026072513901,
+          "capsule": {
+            "start": {
+              "x": -18.022232925746806,
+              "y": 2.2572126049406336
+            },
+            "end": {
+              "x": -25.911309582201607,
+              "y": -1.3188134532883176
+            },
+            "radius": 5.000000007142475
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.9.kneel",
+          "offsetX": -25.261371458844017,
+          "offsetY": 18.800144897126433,
+          "width": 18.336548356293044,
+          "height": 15.353309410891326,
+          "capsule": {
+            "start": {
+              "x": -21.09309714138366,
+              "y": 21.476799741885934
+            },
+            "end": {
+              "x": -29.429645776304376,
+              "y": 16.123490052366932
+            },
+            "radius": 4.999999860686162
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.10.tail1",
+          "offsetX": -28.524966150213217,
+          "offsetY": 1.6056057861436912,
+          "width": 27.706251156275968,
+          "height": 16.129405603130856,
+          "capsule": {
+            "start": {
+              "x": -35.37809208352905,
+              "y": 0.5409026294004171
+            },
+            "end": {
+              "x": -21.671840216897387,
+              "y": 2.6703089428869653
+            },
+            "radius": 6.999999644822154
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.11.tail3",
+          "offsetX": -35.71840438057441,
+          "offsetY": -6.988321599606055,
+          "width": 24.586666706798177,
+          "height": 20.595588211110616,
+          "capsule": {
+            "start": {
+              "x": -40.01173788168283,
+              "y": -9.286115852870694
+            },
+            "end": {
+              "x": -31.425070879465995,
+              "y": -4.690527346341415
+            },
+            "radius": 7.999999852290669
+          }
+        }
+      ],
+      "authoredGeometryAdaptation": null,
+      "bounds": [
+        141,
+        257,
+        354,
+        443
+      ],
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/completion-states-footstool/full-completion-states-footstool-batch1-source0-attempt1-cutout.png",
+      "atlasSha256": "ff93cb3de495a87233051c5834b331cb7d1fadfcea4a2860006713d7d6afc57a",
+      "job": "full-completion-states-footstool-batch1-source0-attempt1"
+    },
+    {
+      "key": "full-completion-states-footstool-air-pose-sample8-source8",
+      "sheet": "footstool_air_pose",
+      "motion": "a06stepairpose",
+      "nativeSample": 8,
+      "sourceOnlyEndpoint": true,
+      "source_path": "docs/review/2026-10-06/pikachu-character/art/completion-states-footstool/full-completion-states-footstool-air-pose-sample8-source8-reference.png",
+      "source_sha256": "38cf53adfe0d7182abc997543fe5ae1a09afe830c074813856d352b72cbccac6",
+      "nativeMetadata": "docs/review/2026-10-06/pikachu-character/art/completion-states-footstool/full-completion-states-footstool-air-pose-sample8-source8.json",
+      "nativeMetadataSha256": "e30b48862cc95f52aac81de569e32e5131bb9d09163c7ace761116969490d24c",
+      "sourceMotion": {
+        "skeleton": {
+          "path": "assets/gen/pikachu-native-reference/raw-model/fighter/pikachu/model/body/c00/model.nusktb",
+          "sha256": "09b80e92fa89921c4d895abe36f23252c2ba69c1ed2a787953185572d2b19b04"
+        },
+        "helper": {
+          "path": "assets/gen/pikachu-native-reference/raw-model/fighter/pikachu/model/body/c00/model.nuhlpb",
+          "sha256": "2362c0d133764a5f909e037c93ff9caf5e09f63da1aaa3ab9c3f0c22984a1555"
+        },
+        "motion": {
+          "path": "assets/gen/pikachu-native-reference/raw-motion/fighter/pikachu/motion/body/c00/a06stepairpose.nuanmb",
+          "sha256": "226436ba42777d702e0910f6dfda40c6ba7ab3d021cf90a54ba2ae7eb3eaceba"
+        },
+        "native_final_frame_index": 8.0,
+        "matrix_convention": "row-major arrays; column vectors; native x/y/z, no game or camera transform",
+        "helper_constraints": "Excluded; requested bones and ancestors reject any constraint target",
+        "game_patch": null,
+        "unmodified_vanilla_verified": false,
+        "gameplay_frame_mapping": null,
+        "runtime_consumer": null
+      },
+      "capturedTransTranslation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "hurtboxes": [
+        {
+          "id": "pikachu.footstool_air_pose.0.hip",
+          "offsetX": -8.670084195258784,
+          "offsetY": 11.078205225515084,
+          "width": 38.664569722037925,
+          "height": 33.91447755058725,
+          "capsule": {
+            "start": {
+              "x": -5.337799757053144,
+              "y": 12.035443577995387
+            },
+            "end": {
+              "x": -12.002368633464426,
+              "y": 10.120966873034781
+            },
+            "radius": 16.000000422813322
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.1.head",
+          "offsetX": 10.761165397410238,
+          "offsetY": 6.7619036101639125,
+          "width": 34.224865823913376,
+          "height": 31.049837457478425,
+          "capsule": {
+            "start": {
+              "x": 12.373598642978882,
+              "y": 6.786822672515079
+            },
+            "end": {
+              "x": 9.148732151841596,
+              "y": 6.736984547812746
+            },
+            "radius": 15.499999666388046
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.2.shoulderr",
+          "offsetX": 4.731379414137987,
+          "offsetY": 6.470633626089156,
+          "width": 9.947044315740436,
+          "height": 15.735681924371328,
+          "capsule": {
+            "start": {
+              "x": 4.257857369668244,
+              "y": 9.838474474874344
+            },
+            "end": {
+              "x": 5.204901458607729,
+              "y": 3.102792777303968
+            },
+            "radius": 4.500000113400476
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.3.shoulderl",
+          "offsetX": 11.387208190866186,
+          "offsetY": 21.462565075411312,
+          "width": 14.972390667752531,
+          "height": 11.26386288218124,
+          "capsule": {
+            "start": {
+              "x": 8.401013057760627,
+              "y": 20.330633835091398
+            },
+            "end": {
+              "x": 14.373403323971745,
+              "y": 22.594496315731224
+            },
+            "radius": 4.500000200770707
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.4.armr",
+          "offsetX": 5.92361514759941,
+          "offsetY": -0.5700243330772778,
+          "width": 5.843117210473896,
+          "height": 8.11870792934328,
+          "capsule": {
+            "start": {
+              "x": 5.502056666804348,
+              "y": 0.9893295071524761
+            },
+            "end": {
+              "x": 6.345173628394472,
+              "y": -2.129378173307032
+            },
+            "radius": 2.500000124441886
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.5.arml",
+          "offsetX": 17.915077122772665,
+          "offsetY": 23.76804785142859,
+          "width": 8.335449472011483,
+          "height": 5.926444959553582,
+          "capsule": {
+            "start": {
+              "x": 16.24735255786048,
+              "y": 23.304825542745355
+            },
+            "end": {
+              "x": 19.58280168768485,
+              "y": 24.231270160111823
+            },
+            "radius": 2.5000001710935575
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.6.legr",
+          "offsetX": -10.006936633064129,
+          "offsetY": 1.8460804538872644,
+          "width": 20.31998052562125,
+          "height": 23.339697833706953,
+          "capsule": {
+            "start": {
+              "x": -8.846946757730645,
+              "y": 4.515928983263599
+            },
+            "end": {
+              "x": -11.166926508397612,
+              "y": -0.8237680754890704
+            },
+            "radius": 9.000000387477142
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.7.legl",
+          "offsetX": -17.94113258927622,
+          "offsetY": 19.492750076327514,
+          "width": 24.72836573476461,
+          "height": 19.88015937893157,
+          "capsule": {
+            "start": {
+              "x": -14.576949550437826,
+              "y": 20.432829937249387
+            },
+            "end": {
+              "x": -21.30531562811461,
+              "y": 18.55267021540564
+            },
+            "radius": 8.999999828543912
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.8.kneer",
+          "offsetX": -15.384385113163798,
+          "offsetY": -5.162097537156701,
+          "width": 16.768405887663626,
+          "height": 14.840993078850735,
+          "capsule": {
+            "start": {
+              "x": -12.000182415343161,
+              "y": -2.741601243742508
+            },
+            "end": {
+              "x": -18.768587810984435,
+              "y": -7.582593830570893
+            },
+            "radius": 5.000000246011175
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.9.kneel",
+          "offsetX": -26.29405118492342,
+          "offsetY": 14.494009864588346,
+          "width": 15.144293197426896,
+          "height": 16.766748187955052,
+          "capsule": {
+            "start": {
+              "x": -23.72190460271529,
+              "y": 17.87738394206055
+            },
+            "end": {
+              "x": -28.866197767131542,
+              "y": 11.110635787116141
+            },
+            "radius": 5.000000016505322
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.10.tail1",
+          "offsetX": -27.46236221220912,
+          "offsetY": 1.1583685058832796,
+          "width": 27.710076680832934,
+          "height": 16.75486288668238,
+          "capsule": {
+            "start": {
+              "x": -34.31740080676499,
+              "y": -0.2190631915973107
+            },
+            "end": {
+              "x": -20.60732361765325,
+              "y": 2.53580020336387
+            },
+            "radius": 6.999999745860599
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.11.tail3",
+          "offsetX": -36.78749831972943,
+          "offsetY": -7.200168701129302,
+          "width": 25.62802442037704,
+          "height": 18.543970235295756,
+          "capsule": {
+            "start": {
+              "x": -41.60151056791336,
+              "y": -8.472153856772586
+            },
+            "end": {
+              "x": -31.973486071545505,
+              "y": -5.928183545486018
+            },
+            "radius": 7.999999962004594
+          }
+        }
+      ],
+      "hashes": {
+        "seed": "b0c151daa7596db259c5c5de94f9d2325829cbcb1ea773ce3ef2c7cc7e88723a",
+        "generation-guide": "f104aac2cc2a82db559ec69a9c519cd5c8c10bdab23463ab8ef4309db33dee33",
+        "render-mask": "31b8d35458da95d415a3738b2973ae8520b79563a715cb404418b7b7222af446",
+        "anatomy-mask": "29dce5ec8f7442dd5e000122a2162e0579f5cca3bb8c5003f9b5415b1d5d1caf"
+      },
+      "state": "inputs_visually_reviewed",
+      "offset": [
+        1024,
+        0
+      ],
+      "sourceHurtboxes": [
+        {
+          "id": "pikachu.footstool_air_pose.0.hip",
+          "offsetX": -8.670084195258784,
+          "offsetY": 11.078205225515084,
+          "width": 38.664569722037925,
+          "height": 33.91447755058725,
+          "capsule": {
+            "start": {
+              "x": -5.337799757053144,
+              "y": 12.035443577995387
+            },
+            "end": {
+              "x": -12.002368633464426,
+              "y": 10.120966873034781
+            },
+            "radius": 16.000000422813322
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.1.head",
+          "offsetX": 10.761165397410238,
+          "offsetY": 6.7619036101639125,
+          "width": 34.224865823913376,
+          "height": 31.049837457478425,
+          "capsule": {
+            "start": {
+              "x": 12.373598642978882,
+              "y": 6.786822672515079
+            },
+            "end": {
+              "x": 9.148732151841596,
+              "y": 6.736984547812746
+            },
+            "radius": 15.499999666388046
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.2.shoulderr",
+          "offsetX": 4.731379414137987,
+          "offsetY": 6.470633626089156,
+          "width": 9.947044315740436,
+          "height": 15.735681924371328,
+          "capsule": {
+            "start": {
+              "x": 4.257857369668244,
+              "y": 9.838474474874344
+            },
+            "end": {
+              "x": 5.204901458607729,
+              "y": 3.102792777303968
+            },
+            "radius": 4.500000113400476
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.3.shoulderl",
+          "offsetX": 11.387208190866186,
+          "offsetY": 21.462565075411312,
+          "width": 14.972390667752531,
+          "height": 11.26386288218124,
+          "capsule": {
+            "start": {
+              "x": 8.401013057760627,
+              "y": 20.330633835091398
+            },
+            "end": {
+              "x": 14.373403323971745,
+              "y": 22.594496315731224
+            },
+            "radius": 4.500000200770707
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.4.armr",
+          "offsetX": 5.92361514759941,
+          "offsetY": -0.5700243330772778,
+          "width": 5.843117210473896,
+          "height": 8.11870792934328,
+          "capsule": {
+            "start": {
+              "x": 5.502056666804348,
+              "y": 0.9893295071524761
+            },
+            "end": {
+              "x": 6.345173628394472,
+              "y": -2.129378173307032
+            },
+            "radius": 2.500000124441886
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.5.arml",
+          "offsetX": 17.915077122772665,
+          "offsetY": 23.76804785142859,
+          "width": 8.335449472011483,
+          "height": 5.926444959553582,
+          "capsule": {
+            "start": {
+              "x": 16.24735255786048,
+              "y": 23.304825542745355
+            },
+            "end": {
+              "x": 19.58280168768485,
+              "y": 24.231270160111823
+            },
+            "radius": 2.5000001710935575
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.6.legr",
+          "offsetX": -10.006936633064129,
+          "offsetY": 1.8460804538872644,
+          "width": 20.31998052562125,
+          "height": 23.339697833706953,
+          "capsule": {
+            "start": {
+              "x": -8.846946757730645,
+              "y": 4.515928983263599
+            },
+            "end": {
+              "x": -11.166926508397612,
+              "y": -0.8237680754890704
+            },
+            "radius": 9.000000387477142
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.7.legl",
+          "offsetX": -17.94113258927622,
+          "offsetY": 19.492750076327514,
+          "width": 24.72836573476461,
+          "height": 19.88015937893157,
+          "capsule": {
+            "start": {
+              "x": -14.576949550437826,
+              "y": 20.432829937249387
+            },
+            "end": {
+              "x": -21.30531562811461,
+              "y": 18.55267021540564
+            },
+            "radius": 8.999999828543912
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.8.kneer",
+          "offsetX": -15.384385113163798,
+          "offsetY": -5.162097537156701,
+          "width": 16.768405887663626,
+          "height": 14.840993078850735,
+          "capsule": {
+            "start": {
+              "x": -12.000182415343161,
+              "y": -2.741601243742508
+            },
+            "end": {
+              "x": -18.768587810984435,
+              "y": -7.582593830570893
+            },
+            "radius": 5.000000246011175
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.9.kneel",
+          "offsetX": -26.29405118492342,
+          "offsetY": 14.494009864588346,
+          "width": 15.144293197426896,
+          "height": 16.766748187955052,
+          "capsule": {
+            "start": {
+              "x": -23.72190460271529,
+              "y": 17.87738394206055
+            },
+            "end": {
+              "x": -28.866197767131542,
+              "y": 11.110635787116141
+            },
+            "radius": 5.000000016505322
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.10.tail1",
+          "offsetX": -27.46236221220912,
+          "offsetY": 1.1583685058832796,
+          "width": 27.710076680832934,
+          "height": 16.75486288668238,
+          "capsule": {
+            "start": {
+              "x": -34.31740080676499,
+              "y": -0.2190631915973107
+            },
+            "end": {
+              "x": -20.60732361765325,
+              "y": 2.53580020336387
+            },
+            "radius": 6.999999745860599
+          }
+        },
+        {
+          "id": "pikachu.footstool_air_pose.11.tail3",
+          "offsetX": -36.78749831972943,
+          "offsetY": -7.200168701129302,
+          "width": 25.62802442037704,
+          "height": 18.543970235295756,
+          "capsule": {
+            "start": {
+              "x": -41.60151056791336,
+              "y": -8.472153856772586
+            },
+            "end": {
+              "x": -31.973486071545505,
+              "y": -5.928183545486018
+            },
+            "radius": 7.999999962004594
+          }
+        }
+      ],
+      "authoredGeometryAdaptation": null,
+      "bounds": [
+        124,
+        262,
+        314,
+        421
+      ],
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/completion-states-footstool/full-completion-states-footstool-batch1-source0-attempt1-cutout.png",
+      "atlasSha256": "ff93cb3de495a87233051c5834b331cb7d1fadfcea4a2860006713d7d6afc57a",
+      "job": "full-completion-states-footstool-batch1-source0-attempt1"
+    }
+  ],
+  "sourceMotion": {
+    "skeleton": {
+      "path": "assets/gen/pikachu-native-reference/raw-model/fighter/pikachu/model/body/c00/model.nusktb",
+      "sha256": "09b80e92fa89921c4d895abe36f23252c2ba69c1ed2a787953185572d2b19b04"
+    },
+    "helper": {
+      "path": "assets/gen/pikachu-native-reference/raw-model/fighter/pikachu/model/body/c00/model.nuhlpb",
+      "sha256": "2362c0d133764a5f909e037c93ff9caf5e09f63da1aaa3ab9c3f0c22984a1555"
+    },
+    "motion": {
+      "path": "assets/gen/pikachu-native-reference/raw-motion/fighter/pikachu/motion/body/c00/a06stepairpose.nuanmb",
+      "sha256": "226436ba42777d702e0910f6dfda40c6ba7ab3d021cf90a54ba2ae7eb3eaceba"
+    },
+    "native_final_frame_index": 8.0,
+    "matrix_convention": "row-major arrays; column vectors; native x/y/z, no game or camera transform",
+    "helper_constraints": "Excluded; requested bones and ancestors reject any constraint target",
+    "game_patch": null,
+    "unmodified_vanilla_verified": false,
+    "gameplay_frame_mapping": null,
+    "runtime_consumer": null
+  },
+  "sourceDeclaration": {
+    "game_script": "game_stepposeair",
+    "flags": {
+      "turn": false,
+      "loop": false,
+      "move": false,
+      "fix_trans": false,
+      "fix_rot": false,
+      "fix_scale": false,
+      "unk_40": false,
+      "unk_80": true,
+      "unk_100": false,
+      "unk_200": false,
+      "unk_400": false,
+      "unk_800": false,
+      "unk_1000": false,
+      "unk_2000": false
+    },
+    "blend_frames": 0,
+    "animations": [
+      {
+        "name": "a06stepairpose.nuanmb",
+        "unk": 0
+      }
+    ],
+    "scripts": [
+      "expression_stepposeair",
+      "sound_stepposeair",
+      "effect_stepposeair"
+    ],
+    "extra": {
+      "xlu_start": 0,
+      "xlu_end": 0,
+      "cancel_frame": 8,
+      "no_stop_intp": false
+    }
+  },
+  "sourceOnlyEndpointIndices": [
+    2
+  ],
+  "limits": [
+    "New bounded generated source pose; no generic body alias.",
+    "Common status conditions are explicit beta physical owners, not native common selector parity.",
+    "Ground underside has scoped anatomy adaptation and paired lower endpoints; radii exact.",
+    "Actual running-match qualification pending."
+  ],
+  "actualVisualReview": {
+    "file": "docs/review/2026-10-06/pikachu-character/art/completion-states-footstool/staged/actual-visual-review.json",
+    "sha256": "95338f9c0f138400f60ed9bc4d23f585f39fccab09f38f6e1cd2d6a058dc800a",
+    "bodyDrawings": 3,
+    "pairedSourceCapsules": 36,
+    "runtimeQualified": false
+  }
+}

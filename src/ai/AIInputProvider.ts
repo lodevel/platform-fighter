@@ -167,7 +167,8 @@ export type AIMoveCommand =
   | { readonly kind: 'moveRight' }
   | { readonly kind: 'moveUp' }
   | { readonly kind: 'moveDown' }
-  | { readonly kind: 'moveAxis'; readonly value: number };
+  | { readonly kind: 'moveAxis'; readonly value: number }
+  | { readonly kind: 'moveYAxis'; readonly value: number };
 
 /**
  * Press verbs the AI can emit. Each maps onto exactly one bit of the
@@ -183,11 +184,11 @@ export type AIMoveCommand =
  *                      verb to produce tilts; combined with
  *                      `attackHeavy` for smashes.
  *   • `attackHeavy`  — held smash / heavy-attack button.
- *   • `special`      — neutral special. Currently routed through the
- *                      `attackHeavy` slot in the engine until a
- *                      dedicated `special` field lands; subclasses
- *                      that don't want this collapse should override
- *                      `translateCommands`.
+ *   • `special`      — the dedicated special button, combined with
+ *                      stick direction to select the move family.
+ *   • `upSpecial`    — special plus upward aim, preserving horizontal
+ *                      steering for directional recovery.
+ *   • `grab`         — the dedicated grab button.
  *   • `shield`       — held shield button (the "block" verb in the AC
  *                      brief).
  *   • `dodge`        — held dodge button (rolls / spot-dodge / air-
@@ -211,6 +212,8 @@ export type AIPressCommand =
   | { readonly kind: 'attack' }
   | { readonly kind: 'attackHeavy' }
   | { readonly kind: 'special' }
+  | { readonly kind: 'upSpecial' }
+  | { readonly kind: 'grab' }
   | { readonly kind: 'shield' }
   | { readonly kind: 'dodge' }
   | { readonly kind: 'dropThrough' }
@@ -332,6 +335,7 @@ export abstract class AIInputProvider implements PlayerInputProvider {
    * `perceive()`).
    */
   private latestSnapshot: WorldSnapshot | null;
+  private liveSelfPerception: WorldSnapshot | null = null;
 
   constructor(options: AIInputProviderOptions) {
     this.slotIndex = options.slotIndex;
@@ -398,7 +402,12 @@ export abstract class AIInputProvider implements PlayerInputProvider {
     // smoke-test) pay no overhead. The result is cached so debug
     // tooling can read the bot's view post-sample, and forwarded to
     // `decide()` as the second arg.
-    const snapshot = this.perceive(frame);
+    const delayed = this.perceive(frame);
+    const live = this.liveSelfPerception;
+    const snapshot = delayed && live ? {
+      ...delayed, self: live.self, stage: live.stage,
+      opponents: delayed.opponents.filter((opponent) => live.opponents.some((current) => current.slotIndex === opponent.slotIndex)),
+    } : delayed;
     this.latestSnapshot = snapshot;
 
     // Run the subclass.
@@ -406,8 +415,14 @@ export abstract class AIInputProvider implements PlayerInputProvider {
 
     // Apply press emits to the hold map.
     let movement: AIMoveCommand | null = null;
+    let moveY = 0;
     for (const cmd of commands) {
       if (isMoveCommand(cmd)) {
+        if (cmd.kind === 'moveUp' || cmd.kind === 'moveDown' || cmd.kind === 'moveYAxis') {
+          moveY = cmd.kind === 'moveUp' ? -1 : cmd.kind === 'moveDown' ? 1
+            : Number.isFinite(cmd.value) ? Math.max(-1, Math.min(1, cmd.value)) : 0;
+          continue;
+        }
         // Last-emit-wins on movement: a tick that emits both
         // `moveLeft` and `moveRight` lands on whichever was last in
         // the batch. Subclasses that want explicit cancellation can
@@ -435,9 +450,12 @@ export abstract class AIInputProvider implements PlayerInputProvider {
 
     const input = closeCharacterInput({
       moveX,
+      moveY: this.isHeld('upSpecial') ? -1 : moveY,
       jump: this.isHeld('jump'),
       attack: this.isHeld('attack'),
-      attackHeavy: this.isHeld('attackHeavy') || this.isHeld('special'),
+      attackHeavy: this.isHeld('attackHeavy'),
+      special: this.isHeld('special') || this.isHeld('upSpecial'),
+      grab: this.isHeld('grab'),
       shield: this.isHeld('shield'),
       dodge: this.isHeld('dodge'),
       dropThrough: this.isHeld('dropThrough'),
@@ -467,6 +485,7 @@ export abstract class AIInputProvider implements PlayerInputProvider {
     this.pendingLedgeRelease = null;
     this.latestSnapshot = null;
     this.onReset();
+    this.liveSelfPerception = null;
   }
 
   /**
@@ -482,6 +501,11 @@ export abstract class AIInputProvider implements PlayerInputProvider {
    */
   getLatestSnapshot(): WorldSnapshot | null {
     return this.latestSnapshot;
+  }
+
+  /** Own body/resources and stage geometry are immediate; opponent reactions remain delayed. */
+  setLiveSelfPerception(world: WorldSnapshot): void {
+    this.liveSelfPerception = world;
   }
 
   // -------------------------------------------------------------------------
@@ -580,6 +604,7 @@ function isMoveCommand(cmd: AIInputCommand): cmd is AIMoveCommand {
     cmd.kind === 'moveRight' ||
     cmd.kind === 'moveUp' ||
     cmd.kind === 'moveDown' ||
+    cmd.kind === 'moveYAxis' ||
     cmd.kind === 'moveAxis'
   );
 }
@@ -601,6 +626,7 @@ function resolveMoveAxis(cmd: AIMoveCommand): number {
       return 1;
     case 'moveUp':
     case 'moveDown':
+    case 'moveYAxis':
       return 0;
     case 'moveAxis': {
       const v = cmd.value;

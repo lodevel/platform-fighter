@@ -6,11 +6,15 @@ import {
   formatActionLabel,
   formatBinding,
   formatBindingList,
+  formatControlsHelpLine,
   formatDeviceLabel,
   formatGamepadBinding,
   formatGamepadSource,
   formatKeyCode,
+  formatStickLabel,
+  groupStickBindings,
   inferDeviceOption,
+  inferKeyboardHalf,
   nextDeviceOption,
 } from './rebindingScreenFormat';
 import { KEY_CODE } from '../input/keyCodes';
@@ -20,6 +24,7 @@ import {
   DEFAULT_GAMEPAD_P3_BINDINGS,
   DEFAULT_GAMEPAD_P4_BINDINGS,
   DEFAULT_PLAYER_BINDINGS,
+  buildStickHalfAxisBindings,
 } from '../input/InputBindingsStore';
 import {
   LOGICAL_ACTIONS,
@@ -58,14 +63,15 @@ import {
 // ---------------------------------------------------------------------------
 
 describe('rebindingScreenFormat — device options', () => {
-  it('REBINDING_DEVICE_OPTIONS is a frozen, ordered list of all 5 options', () => {
+  it('cycles keyboard layouts and four physical controllers without unassigning a player', () => {
     expect(Object.isFrozen(REBINDING_DEVICE_OPTIONS)).toBe(true);
     expect(REBINDING_DEVICE_OPTIONS).toEqual([
       'keyboard_p1',
       'keyboard_p2',
       'gamepad_0',
       'gamepad_1',
-      'none',
+      'gamepad_2',
+      'gamepad_3',
     ]);
   });
 
@@ -82,11 +88,12 @@ describe('rebindingScreenFormat — device options', () => {
       expect(formatDeviceLabel(opt).length).toBeGreaterThan(0);
     }
     // Spot-check a couple to lock the wording.
-    expect(formatDeviceLabel('keyboard_p1')).toBe('Keyboard P1 (WASD)');
-    expect(formatDeviceLabel('keyboard_p2')).toBe('Keyboard P2 (Arrows)');
-    expect(formatDeviceLabel('gamepad_0')).toBe('Gamepad 1');
-    expect(formatDeviceLabel('gamepad_1')).toBe('Gamepad 2');
-    expect(formatDeviceLabel('none')).toBe('No Device');
+    expect(formatDeviceLabel('keyboard_p1')).toBe('Device: Keys WASD ›');
+    expect(formatDeviceLabel('keyboard_p2')).toBe('Device: Keys Arrows ›');
+    expect(formatDeviceLabel('gamepad_0')).toBe('Device: Controller 1 ›');
+    expect(formatDeviceLabel('gamepad_3')).toBe('Device: Controller 4 ›');
+    expect(formatDeviceLabel('gamepad_6')).toBe('Device: Controller 7 ›');
+    expect(formatDeviceLabel('none')).toBe('Device: None ›');
   });
 
   it('nextDeviceOption walks through every option and wraps around', () => {
@@ -117,7 +124,22 @@ describe('rebindingScreenFormat — action labels', () => {
     expect(formatActionLabel('left')).toBe('Left');
     expect(formatActionLabel('jump')).toBe('Jump');
     expect(formatActionLabel('attack')).toBe('Attack');
-    expect(formatActionLabel('taunt')).toBe('Taunt');
+    expect(formatActionLabel('taunt')).toBe('Dodge');
+    expect(formatActionLabel('smash')).toBe('Smash');
+  });
+});
+
+describe('rebindingScreenFormat — smash keys', () => {
+  it('labels the default smash keys and the rest of the numpad', () => {
+    expect(formatKeyCode(KEY_CODE.V)).toBe('V');
+    expect(formatKeyCode(KEY_CODE.NUMPAD_0)).toBe('Numpad 0');
+    for (const digit of [6, 7, 8, 9]) expect(formatKeyCode(96 + digit)).toBe(`Numpad ${digit}`);
+  });
+
+  it('treats every numpad digit as a P2-half key and V as a P1-half key', () => {
+    for (let digit = 0; digit <= 9; digit += 1) expect(inferKeyboardHalf(96 + digit)).toBe('keyboard_p2');
+    expect(inferKeyboardHalf(KEY_CODE.ARROW_UP)).toBe('keyboard_p2');
+    expect(inferKeyboardHalf(KEY_CODE.V)).toBe('keyboard_p1');
   });
 });
 
@@ -231,6 +253,41 @@ describe('rebindingScreenFormat — binding lists', () => {
     expect(formatBindingList([b, a])).toBe('Space / W');
   });
 
+  it('formatBindingList shows a complete stick as one entry with its pad tag', () => {
+    expect(formatBindingList(DEFAULT_GAMEPAD_P3_BINDINGS.smash)).toBe('[1] Right Stick');
+    expect(formatBindingList(DEFAULT_GAMEPAD_P4_BINDINGS.smash)).toBe('[2] Right Stick');
+    expect(formatBindingList(buildStickHalfAxisBindings(null, 2, 0.6))).toBe('[any] Right Stick');
+    expect(formatBindingList(buildStickHalfAxisBindings(0, 0, 0.5))).toBe('[1] Left Stick');
+  });
+
+  it('formatBindingList collapses the stick in place and keeps other entries around it', () => {
+    const key: KeyboardBinding = { kind: 'keyboard', keyCode: KEY_CODE.V };
+    const button: GamepadBinding = { kind: 'gamepad', gamepadIndex: 0, source: { type: 'button', buttonIndex: 7 } };
+    const stick = buildStickHalfAxisBindings(0, 3, 0.6);
+    expect(formatBindingList([key, ...stick, button])).toBe('V / [1] Right Stick / [1] RT');
+    // Any order of the four halves still reads as the stick, placed at the first half.
+    expect(formatBindingList([stick[3]!, button, stick[0]!, stick[2]!, stick[1]!])).toBe('[1] Right Stick / [1] RT');
+  });
+
+  it('formatBindingList keeps partial sticks and sticks split across pads as half-axes', () => {
+    const stick = buildStickHalfAxisBindings(0, 2, 0.6);
+    expect(formatBindingList(stick.slice(0, 3))).toBe('[1] RS-X − / [1] RS-X + / [1] RS-Y −');
+    const otherPad = buildStickHalfAxisBindings(1, 2, 0.6);
+    expect(formatBindingList([...stick.slice(0, 2), ...otherPad.slice(2)]))
+      .toBe('[1] RS-X − / [1] RS-X + / [2] RS-Y − / [2] RS-Y +');
+    // Unnamed axis pairs are never collapsed.
+    expect(formatBindingList(buildStickHalfAxisBindings(0, 4, 0.5))).toBe('[1] Axis 4 − / [1] Axis 4 + / [1] Axis 5 − / [1] Axis 5 +');
+  });
+
+  it('groupStickBindings reports the stick and its pad', () => {
+    expect(groupStickBindings(DEFAULT_GAMEPAD_P4_BINDINGS.smash)).toEqual([
+      { kind: 'stick', gamepadIndex: 1, label: 'Right Stick' },
+    ]);
+    expect(groupStickBindings(DEFAULT_KEYBOARD_P1_BINDINGS.smash)).toEqual([
+      { kind: 'binding', binding: DEFAULT_KEYBOARD_P1_BINDINGS.smash[0] },
+    ]);
+  });
+
   it('formatBindingList is byte-stable for identical inputs (determinism)', () => {
     const a: KeyboardBinding = { kind: 'keyboard', keyCode: KEY_CODE.A };
     const b: KeyboardBinding = { kind: 'keyboard', keyCode: KEY_CODE.D };
@@ -301,6 +358,7 @@ describe('rebindingScreenFormat — inferDeviceOption', () => {
         shield: [],
         grab: [],
         taunt: [],
+        smash: [],
       },
     };
     expect(inferDeviceOption(empty)).toBe('none');
@@ -319,5 +377,33 @@ describe('rebindingScreenFormat — inferDeviceOption', () => {
     expect(
       inferDeviceOption({ playerIndex: 4, bindings: DEFAULT_GAMEPAD_P4_BINDINGS }),
     ).toBe('gamepad_1');
+  });
+});
+
+describe('formatStickLabel', () => {
+  it('names the two sticks of the standard mapping by pad and returns null for other axes', () => {
+    expect(formatStickLabel(0, 0)).toBe('[1] Left Stick');
+    expect(formatStickLabel(0, 1)).toBe('[1] Left Stick');
+    expect(formatStickLabel(2, 3)).toBe('[3] Right Stick');
+    expect(formatStickLabel(null, 2)).toBe('[any] Right Stick');
+    expect(formatStickLabel(0, 4)).toBeNull();
+    expect(formatStickLabel(0, -1)).toBeNull();
+  });
+});
+
+describe('formatControlsHelpLine (in-match controls cheat-sheet)', () => {
+  it('lists move, attack, smash, special, shield, dodge and grab from the live bindings', () => {
+    expect(formatControlsHelpLine('P1', DEFAULT_KEYBOARD_P1_BINDINGS))
+      .toBe('P1: A/D/W/S move | F attack | V smash | G special | H shield | R dodge | T grab | B taunt');
+    expect(formatControlsHelpLine('P2', DEFAULT_KEYBOARD_P2_BINDINGS)).toBe('P2: Left Arrow/Right Arrow/Up Arrow/'
+      + 'Down Arrow move | Numpad 1 attack | Numpad 0 smash | Numpad 2 special | Numpad 3 shield | Numpad 5 dodge | Numpad 4 grab | Numpad 7 taunt');
+    expect(formatControlsHelpLine('P3', DEFAULT_GAMEPAD_P3_BINDINGS)).toBe('P3: [1] LS-X −/[1] LS-X +/[1] LS-Y −/'
+      + '[1] LS-Y + move | [1] X attack | [1] Right Stick smash | [1] Y special | [1] RB shield | [1] B dodge | [1] LB grab | [1] Back taunt');
+  });
+
+  it('shows a remap and an unbound smash', () => {
+    const remapped = { ...DEFAULT_KEYBOARD_P1_BINDINGS, smash: [], taunt: [{ kind: 'keyboard' as const, keyCode: KEY_CODE.SHIFT }] };
+    expect(formatControlsHelpLine('P1', remapped)).toContain('| — smash |');
+    expect(formatControlsHelpLine('P1', remapped)).toContain('| Shift dodge |');
   });
 });

@@ -73,6 +73,7 @@ import {
   PLAYABLE_CHARACTER_SPECS,
   getCharacterSpec,
 } from '../characters/roster';
+import { ACTIVE_FIGHTER_IDS, FALLBACK_FIGHTER_ID } from '../characters/activeFighters';
 import {
   getCharacterPalette,
   getCharacterPalettes,
@@ -109,7 +110,8 @@ export const MAX_PLAYER_SLOTS = 4;
  * grey out non-playable specs but still expose them as cells so the
  * grid layout stays stable across the M1→M2 reveal.
  */
-export const SELECTABLE_CHARACTER_SPECS = CHARACTER_SPECS_IN_ROSTER_ORDER;
+export const SELECTABLE_CHARACTER_SPECS = ACTIVE_FIGHTER_IDS.flatMap((id) =>
+  CHARACTER_SPECS_IN_ROSTER_ORDER.filter((s) => s.id === id));
 
 // ---------------------------------------------------------------------------
 // Selection state model
@@ -211,7 +213,7 @@ function defaultCharacterIdForSlot(slotIndex: 1 | 2 | 3 | 4): CharacterId {
   // guard against an ever-shrinking roster to keep the helper safe under
   // `noUncheckedIndexedAccess`.
   const idx = (slotIndex - 1) % SELECTABLE_CHARACTER_SPECS.length;
-  return SELECTABLE_CHARACTER_SPECS[idx]?.id ?? 'wolf';
+  return SELECTABLE_CHARACTER_SPECS[idx]?.id ?? FALLBACK_FIGHTER_ID;
 }
 
 /**

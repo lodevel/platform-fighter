@@ -30,6 +30,7 @@ jobs:
 
       - run: npm ci
       - run: npm run build
+      - run: npm run assets:copy
 
       # Pages must be enabled manually once (Settings → Pages → Source:
       # GitHub Actions). The `enablement: true` shortcut needs admin

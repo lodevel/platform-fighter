@@ -52,7 +52,7 @@
  *       - version: {@link ReplayFile.version} — monotonically-increasing
  *         schema version integer, distinct from
  *         {@link ReplayMetadata.engineVersion} which captures the
- *         producing engine's `package.json` version.
+ *         producing build's source, authored content, and dependency digest.
  *
  * Determinism contract
  * --------------------
@@ -113,8 +113,27 @@ export const REPLAY_FORMAT_MAGIC = 'platform-fighter-replay' as const;
  *     spawn deterministically. Migrated from v1 by `migrateV1ToV2`,
  *     which backfills an empty `itemSpawnEvents` array (v1 replays
  *     predate the items framework so the empty default is correct).
+ *   • v3 — adds vertical analog input (`moveY`).
+ *   • v4 — records heavy attack, special, shield, dodge, grab, and explicit
+ *     ledge release. Migration defaults absent channels to neutral; it cannot
+ *     reconstruct actions discarded by older recording code.
+ *   • v5 — preserves authored fighter snapshots, participant/device identity,
+ *     binding profiles, and item-frequency rules in the match configuration.
+ *   • v6 — records the right-stick attack direction (`attackStickX` /
+ *     `attackStickY`) per input. Migration fills 0, which matches what was
+ *     played: older builds had no right-stick attack. The v6 build also
+ *     changed what a recorded `attackHeavy` does: airborne, a heavy press
+ *     now fires the aerial for its direction (earlier builds ignored it),
+ *     and an up-aimed heavy press during jumpsquat now cancels the jump
+ *     into the up smash. Human input never set `attackHeavy` before v6
+ *     (the input resolver left it false) and v1–v3 did not record it at
+ *     all, so the reinterpretation reaches only CPU players' heavy presses
+ *     in v4 / v5 replays. Migration leaves those presses as recorded, so a
+ *     v4 / v5 replay with a CPU is not guaranteed to reproduce its match:
+ *     playback can diverge from the first such press. `tools/replay-resim.mjs`
+ *     warns when it loads one.
  */
-export const REPLAY_FORMAT_VERSION = 3 as const;
+export const REPLAY_FORMAT_VERSION = 8 as const;
 
 /**
  * Recommended file extension for saved replays. The serialiser does not

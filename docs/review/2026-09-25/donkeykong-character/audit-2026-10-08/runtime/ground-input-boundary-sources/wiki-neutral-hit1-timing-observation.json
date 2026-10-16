@@ -1,0 +1,18 @@
+{
+  "source_url": "https://www.ssbwiki.com/Donkey_Kong_(SSBU)/Neutral_attack/Hit_1",
+  "revision_url": "https://www.ssbwiki.com/index.php?title=Donkey_Kong_(SSBU)/Neutral_attack/Hit_1&oldid=1789606",
+  "acquisition": "Web tool rendered page independently opened 2026-10-09; revision URL from retrieved-from footer. Direct urllib revision HTML request returned HTTP403, no original HTML file asserted.",
+  "timing": {
+    "hitbox_native_frames": [
+      5,
+      6
+    ],
+    "continuability_native_frames": [
+      8,
+      28
+    ],
+    "interruptible_native_frame": 25,
+    "animation_length_native_frames": 34
+  },
+  "limits": "Technical timing is a secondary source. ENABLE_COMBO flag timing is separately pinned raw ACMD. Native status composition and late continuation after selected action retirement remain unresolved."
+}

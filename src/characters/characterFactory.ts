@@ -12,7 +12,7 @@
  * `MatchScene` via `scene.start('MatchScene', { matchConfig })`. The
  * missing glue this module fills is the *instantiation* side: given a
  * `CharacterId` string from a `PlayerSlot`, produce the correctly-
- * typed concrete subclass (`Wolf` / `Cat` / `Owl` / `Bear`) so the
+ * typed concrete subclass (`DonkeyKong` / `Pikachu` / `Link`) so the
  * fighter spawns into the match with the moveset its character spec
  * declares.
  *
@@ -24,7 +24,7 @@
  *   1. `Fighter.ts` (the per-player runtime entity) — it already shipped
  *      a private `defaultCharacterFactory` for the same purpose.
  *   2. `MatchScene.ts` (the M1/M2 fight scene) — currently hard-codes
- *      `new Wolf(...)` for slot 1 and `new Cat(...)` for slot 2. With
+ *      one subclass per slot. With
  *      this factory it can resolve a slot's `characterId` from the
  *      `MatchConfig.players[]` lineup and instantiate the right
  *      subclass without re-writing the switch in each scene file.
@@ -37,9 +37,9 @@
  *     missing case immediately — same `never` guard pattern used in
  *     `Fighter.defaultCharacterFactory`.
  *   • The factory stays Phaser-free at the *type* level (we accept
- *     `Phaser.Scene` only as an opaque parameter passed through to the
+ *     `PhysicsHost` only as an opaque parameter passed through to the
  *     subclass constructors). Tests can pass a mock scene shaped like
- *     `Phaser.Scene` — the same MockScene pattern used in
+ *     `PhysicsHost` — the same MockScene pattern used in
  *     `Roster.test.ts` and `Character.test.ts` — and exercise every
  *     branch of the switch under plain Node.
  *
@@ -54,22 +54,26 @@
  * ensures no scene-specific construction path can drift.
  */
 
-import type Phaser from 'phaser';
+import type { PhysicsHost } from '../physics/PhysicsWorld';
 import type { CharacterId } from '../types';
-import { Character } from './Character';
+import { Character, type CharacterTuning } from './Character';
+import type { AttackMove } from './attacks';
+import type { CharacterDataSpec } from './characterSerializer';
+import { registerFighterAttack } from './attackRegistration';
 import { instantiateFighter, isRegisteredFighterId } from './fighterRegistry';
 
 /**
  * Spawn-point and optional-tuning options forwarded to the resolved
  * subclass constructor. Mirrors the shape every concrete subclass
- * (`WolfOptions`, `CatOptions`, `OwlOptions`, `BearOptions`) accepts —
+ * options type (`PikachuOptions`, `LinkOptions`, …) accepts —
  * `spawnX` / `spawnY` are required, the rest are optional tuning
  * overrides used by Sub-AC 4.5 of AC 6 (per-character balance pass).
  *
  * Tests inject custom mass / runSpeed via the optional fields without
  * having to know which subclass is on the other end of the dispatch.
  */
-export interface CreateCharacterOptions {
+export interface CreateCharacterOptions extends CharacterTuning {
+  readonly donkeykongOrdinaryVertical?: import('./movesetContract').DonkeyKongOrdinaryVerticalProfile;
   readonly spawnX: number;
   readonly spawnY: number;
   /**
@@ -95,19 +99,63 @@ export interface CreateCharacterOptions {
 }
 
 /**
+ * Replace the compiled move records that have an authored counterpart in a
+ * character-data spec. The subclass still supplies every omitted move, so a
+ * partially-authored tune remains a complete fighter.
+ */
+export function applyCharacterMoveOverrides(
+  character: Character,
+  spec: CharacterDataSpec,
+): void {
+  if (character.id !== spec.id) throw new Error(`Character override '${spec.id}' does not match '${character.id}'`);
+  if(spec.captureAttachmentCalibration!==undefined)character.setCaptureAttachmentCalibration(spec.captureAttachmentCalibration);
+  if (!spec.moves) return;
+  for (const [slot, move] of Object.entries(spec.moves)) {
+    if (!move) continue;
+    if (slot === 'grab') {
+      character.setGrabSpec(move);
+      continue;
+    }
+    if (slot === 'taunts') {
+      character.setTauntSpec(move as import('./tauntSchema').TauntSet);
+      continue;
+    }
+    const attack = move as AttackMove;
+    registerFighterAttack(character, attack);
+    // Saved slots can use new IDs. Registration deliberately preserves the
+    // compiled opener, so replace these authored dispatch slots explicitly.
+    if (slot === 'jab') character.setLightAttack(attack.id);
+    if (slot === 'tilt') character.setTiltAttack(attack.id);
+    if (slot === 'smash') character.setHeavyAttack(attack.id);
+    if (slot === 'upLight') character.setUpTilt(attack.id);
+    if (slot === 'upSmash') character.setUpSmash(attack.id);
+    if (slot === 'downLight') character.setDownTilt(attack.id);
+    if (slot === 'downSmash') character.setDownSmash(attack.id);
+    if (slot === 'dashAttack') character.setDashAttack(attack.id);
+    if (slot === 'neutralSpecial') character.setNeutralSpecial(attack.id);
+    if (slot === 'sideSpecial') character.setSideSpecial(attack.id);
+    if (slot === 'upSpecial') character.setUpSpecial(attack.id);
+    if (slot === 'downSpecial') character.setDownSpecial(attack.id);
+    // Registration preserves the first aerial in each direction. Saved moves
+    // can use a different ID, so explicitly replace the authored dispatch slot.
+    if (slot === 'fair') character.setAerialForward(attack.id);
+    if (slot === 'bair') character.setAerialBack(attack.id);
+    if (slot === 'nair') character.setAerialNeutral(attack.id);
+    if (slot === 'uair') character.setAerialUp(attack.id);
+    if (slot === 'dair') character.setAerialDown(attack.id);
+  }
+}
+
+/**
  * Instantiate the concrete subclass for a given `CharacterId`.
  *
- *   • `'wolf'`  → {@link Wolf}  (bruiser archetype)
- *   • `'cat'`   → {@link Cat}   (ninja archetype)
- *   • `'owl'`   → {@link Owl}   (mage archetype)
- *   • `'bear'`  → {@link Bear}  (grappler archetype)
+ *   • `'link'`       → {@link Link}
+ *   • `'donkeykong'` → {@link DonkeyKong}
+ *   • `'pikachu'`    → {@link Pikachu}
  *
  * Each returned instance has its full authored moveset registered by
  * the subclass constructor — the same moveset declared in the
- * character spec (see `roster.ts`). The Seed's "4 characters with
- * ~10 moves each" requirement is satisfied for every dispatch branch
- * because each subclass calls `registerAttack(...)` on every move in
- * `*_MOVES` during construction.
+ * character spec (see `roster.ts`).
  *
  * Throws on an unknown id rather than silently picking a default —
  * a corrupted `MatchConfig` should fail loud at scene start, not
@@ -117,33 +165,15 @@ export interface CreateCharacterOptions {
  * future replay file with a stale id.
  */
 export function createCharacterById(
-  scene: Phaser.Scene,
+  scene: PhysicsHost,
   characterId: CharacterId,
   options: CreateCharacterOptions,
 ): Character {
-  // Sub-AC 3 of the T2 refactor — dispatch is now delegated to
-  // `fighterRegistry.ts`, the single source of truth that maps
-  // `CharacterId` onto its concrete per-fighter subclass + frozen
-  // {@link FighterContract}. The legacy in-line `switch (id)` block
-  // (with its parallel `case` lines hard-coding `new Wolf(scene, ...)`
-  // / `new Cat(...)` / etc.) is intentionally gone — adding a 5th
-  // roster slot now only requires editing the registry, not this
-  // factory and `Fighter.defaultCharacterFactory` in lockstep.
-  //
-  // Behaviour preservation: the registry's `instantiateFighter`
-  // invokes the same `new Wolf(scene, opts)` / `new Cat(scene, opts)`
-  // / etc. that this factory called previously, so the runtime fighter
-  // surface (registered moveset, tuning, body geometry, palette,
-  // animation drivers, ...) is byte-for-byte identical to the pre-
-  // registry path. The fail-loud behaviour for an unknown id is
-  // preserved too: the registry's lookup throws with a descriptive
-  // message that mentions the offending id.
-  //
-  // Defence-in-depth: gate-keep with `isRegisteredFighterId` so a
-  // corrupted `MatchConfig` JSON loaded from a stale replay file
-  // (e.g. a future `'fox'` literal that doesn't match the current
-  // `CharacterId` union) gets a descriptive error here rather than a
-  // surprising TypeError downstream.
+  // Dispatch goes through `fighterRegistry.ts`, the single source of
+  // truth for the roster. Gate-keep with `isRegisteredFighterId` so a
+  // corrupted `MatchConfig` JSON (e.g. a stale replay naming a removed
+  // fighter) gets a descriptive error here rather than a TypeError
+  // downstream.
   if (!isRegisteredFighterId(characterId)) {
     throw new Error(
       `createCharacterById: unknown characterId '${String(characterId)}'`,

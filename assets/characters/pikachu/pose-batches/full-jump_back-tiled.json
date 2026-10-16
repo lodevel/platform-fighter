@@ -1,0 +1,216 @@
+{
+  "state": "packed_cells_visually_reviewed_runtime_pending",
+  "coordinateContract": {
+    "canonicalCanvas": [
+      2048,
+      2048
+    ],
+    "canonicalRoot": [
+      1024,
+      1664
+    ],
+    "frameWidth": 512,
+    "frameHeight": 512,
+    "root": [
+      256,
+      416
+    ],
+    "scaleToWorld": 0.4666666666666667,
+    "bodyCentreFromRoot": [
+      0,
+      -25
+    ]
+  },
+  "clockContract": "docs/review/2026-10-06/pikachu-character/sources/state-runtime-clock-contract.json",
+  "clockContractSha256": "66ba9368ffe7118410fb965fa6b095902f881ce8473644791cf0e406370165f0",
+  "animations": {
+    "jump_back": {
+      "strip": "animations/jump_back.png",
+      "frameCount": 5,
+      "sha256": "dad0332c9cb449d61561b1bad9e0790d703128616a9426874c4f8cf18c5ab358",
+      "columns": 5,
+      "rows": 1,
+      "frameWindows": [
+        {
+          "startFrame": 0,
+          "endFrame": 8,
+          "artFrameIndex": 0,
+          "nativeStart": 0,
+          "nativeEnd": 8
+        },
+        {
+          "startFrame": 8,
+          "endFrame": 20,
+          "artFrameIndex": 1,
+          "nativeStart": 8,
+          "nativeEnd": 20
+        },
+        {
+          "startFrame": 20,
+          "endFrame": 32,
+          "artFrameIndex": 2,
+          "nativeStart": 20,
+          "nativeEnd": 32
+        },
+        {
+          "startFrame": 32,
+          "endFrame": 45,
+          "artFrameIndex": 3,
+          "nativeStart": 32,
+          "nativeEnd": 45
+        },
+        {
+          "startFrame": 45,
+          "endFrame": 46,
+          "artFrameIndex": 4,
+          "nativeStart": 45,
+          "nativeEnd": 46
+        }
+      ],
+      "loopDuration": null,
+      "nativeSampleIndices": [
+        0,
+        8,
+        20,
+        32,
+        45
+      ],
+      "nativeWindows": [
+        {
+          "nativeStart": 0,
+          "nativeEnd": 8,
+          "artFrameIndex": 0
+        },
+        {
+          "nativeStart": 8,
+          "nativeEnd": 20,
+          "artFrameIndex": 1
+        },
+        {
+          "nativeStart": 20,
+          "nativeEnd": 32,
+          "artFrameIndex": 2
+        },
+        {
+          "nativeStart": 32,
+          "nativeEnd": 45,
+          "artFrameIndex": 3
+        },
+        {
+          "nativeStart": 45,
+          "nativeEnd": 46,
+          "artFrameIndex": 4
+        }
+      ],
+      "drawingFacingBinding": "actor entry facing; native orientation candidates must be checked before accepting both-facing render",
+      "holdRule": "native nonloop holds final available drawing until status exit; looping clips wrap native loopDuration; endpoint sample is not action commitment",
+      "specialPhase": null,
+      "specialClockKind": null,
+      "dynamicCutoff": null,
+      "playableEndExclusive": null,
+      "runtimeBindingStatus": "missing explicit status/branch/attachment hook; preserve samples without asserting playable route"
+    }
+  },
+  "sources": [
+    {
+      "sourceKey": "full-jump-backward-sample0-source0",
+      "nativeSample": 0,
+      "sourceReferenceSha256": "8ed1417d7930c58f0c8be0c6e5cc72a20e3a6d2352af5566d134fc2bab1ab9ca",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-locomotion-batch014-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "ba12149911902ccfa358072d3c770f718820a261cb0771de1174f653daf7fe41",
+      "atlasCell": 2,
+      "cellOffset": [
+        0,
+        1024
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-locomotion-batch014-bounded-source0-attempt1.review.json",
+      "reviewSha256": "8f61e1f08d4e92d23c10da45478d616e90a93c1712de886ea28bb65528335612"
+    },
+    {
+      "sourceKey": "full-jump-backward-sample8-source8",
+      "nativeSample": 8,
+      "sourceReferenceSha256": "bc3fc0704bb42f7871e059ab23ad10521d4338bf09d8e67de08d9b49154f005f",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-locomotion-batch014-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "ba12149911902ccfa358072d3c770f718820a261cb0771de1174f653daf7fe41",
+      "atlasCell": 3,
+      "cellOffset": [
+        1024,
+        1024
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-locomotion-batch014-bounded-source0-attempt1.review.json",
+      "reviewSha256": "8f61e1f08d4e92d23c10da45478d616e90a93c1712de886ea28bb65528335612"
+    },
+    {
+      "sourceKey": "full-jump-backward-sample20-source20",
+      "nativeSample": 20,
+      "sourceReferenceSha256": "ecca4f10c8ab0d85eb86aa740889b64c58c861d781a0f821b2e150b987db45bd",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-locomotion-batch015-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "dfdce27f0db759076979db216d9d4d613cdb888df879632a160cfa6e707efaa0",
+      "atlasCell": 0,
+      "cellOffset": [
+        0,
+        0
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-locomotion-batch015-bounded-source0-attempt1.review.json",
+      "reviewSha256": "a110a9f74fb03ec115a120fb77b7ac9e2cf49a2db66ce48e4736acacb85b485f"
+    },
+    {
+      "sourceKey": "full-jump-backward-sample32-source32",
+      "nativeSample": 32,
+      "sourceReferenceSha256": "cbe0caab7fafbf347f5ab2cefb327734572c7ef036223ae0bcc97e931bc285a1",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-locomotion-batch015-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "dfdce27f0db759076979db216d9d4d613cdb888df879632a160cfa6e707efaa0",
+      "atlasCell": 1,
+      "cellOffset": [
+        1024,
+        0
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-locomotion-batch015-bounded-source0-attempt1.review.json",
+      "reviewSha256": "a110a9f74fb03ec115a120fb77b7ac9e2cf49a2db66ce48e4736acacb85b485f"
+    },
+    {
+      "sourceKey": "full-jump-backward-sample45-source45",
+      "nativeSample": 45,
+      "sourceReferenceSha256": "07d5095558396698babc8030c841c53eec825ed5f04b207e07f6f31d5d475b05",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-locomotion-batch015-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "dfdce27f0db759076979db216d9d4d613cdb888df879632a160cfa6e707efaa0",
+      "atlasCell": 2,
+      "cellOffset": [
+        0,
+        1024
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-locomotion-batch015-bounded-source0-attempt1.review.json",
+      "reviewSha256": "a110a9f74fb03ec115a120fb77b7ac9e2cf49a2db66ce48e4736acacb85b485f"
+    }
+  ],
+  "galleries": {
+    "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/jump_back-cells-1.png": "833d46ef1b174e939f2ee953806193c0e9f7c8208539fa18397fbf34ced565e3",
+    "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/jump_back-cells-2.png": "a725014e21cc67437a0074223c66cbeb0492f7715edfdb90bcd437657f8211fd"
+  },
+  "limits": [
+    "Actual packed-cell inspection required before aggregate registration.",
+    "Authored beta presentation windows do not establish native status rate parity.",
+    "Actual running-game qualification remains separate."
+  ],
+  "packedVisualReview": {
+    "reviewer": "pikachu_art_motion",
+    "state": "actual_saved_packed_cells_reviewed",
+    "inspectedGalleries": {
+      "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/jump_back-cells-1.png": "833d46ef1b174e939f2ee953806193c0e9f7c8208539fa18397fbf34ced565e3",
+      "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/jump_back-cells-2.png": "a725014e21cc67437a0074223c66cbeb0492f7715edfdb90bcd437657f8211fd"
+    },
+    "observations": [
+      "Actually inspected all five saved512px native[0,8,20,32,45] light/dark bodies. Acquired upward/right entry, tucked rotation, inverted left/down, right final spread preserve source silhouette/root/face/tail attachment. Native head inversion adds no facing flip. Source-status motion-rate and launch-floor clearance remain separate pending gates."
+    ]
+  }
+}

@@ -29,7 +29,7 @@
  *     so a formatter consumer can't mutate the lookup at runtime.
  */
 
-import { KEY_CODE } from '../input/keyCodes';
+import { KEY_CODE, isP2KeyboardHalfKey } from '../input/keyCodes';
 import type {
   ActionBindings,
   GamepadBinding,
@@ -66,8 +66,7 @@ import type {
 export type RebindingDeviceOption =
   | 'keyboard_p1'
   | 'keyboard_p2'
-  | 'gamepad_0'
-  | 'gamepad_1'
+  | `gamepad_${number}`
   | 'none';
 
 /**
@@ -81,7 +80,8 @@ export const REBINDING_DEVICE_OPTIONS: ReadonlyArray<RebindingDeviceOption> =
     'keyboard_p2',
     'gamepad_0',
     'gamepad_1',
-    'none',
+    'gamepad_2',
+    'gamepad_3',
   ]);
 
 /**
@@ -100,11 +100,13 @@ export const DEFAULT_REBINDING_DEVICE_FOR_SLOT: Readonly<
 
 const DEVICE_LABELS: Readonly<Record<RebindingDeviceOption, string>> =
   Object.freeze({
-    keyboard_p1: 'Keyboard P1 (WASD)',
-    keyboard_p2: 'Keyboard P2 (Arrows)',
-    gamepad_0: 'Gamepad 1',
-    gamepad_1: 'Gamepad 2',
-    none: 'No Device',
+    keyboard_p1: 'Device: Keys WASD ›',
+    keyboard_p2: 'Device: Keys Arrows ›',
+    gamepad_0: 'Device: Controller 1 ›',
+    gamepad_1: 'Device: Controller 2 ›',
+    gamepad_2: 'Device: Controller 3 ›',
+    gamepad_3: 'Device: Controller 4 ›',
+    none: 'Device: None ›',
   });
 
 /**
@@ -112,7 +114,10 @@ const DEVICE_LABELS: Readonly<Record<RebindingDeviceOption, string>> =
  * on every player panel.
  */
 export function formatDeviceLabel(option: RebindingDeviceOption): string {
-  return DEVICE_LABELS[option];
+  if (option.startsWith('gamepad_')) {
+    return `Device: Controller ${Number(option.slice(8)) + 1} ›`;
+  }
+  return DEVICE_LABELS[option]!;
 }
 
 /**
@@ -159,38 +164,25 @@ export function inferDeviceOption(
     'attack',
   ];
   for (const action of probeOrder) {
-    const list = bindings.bindings[action];
+    const list = (bindings.bindings[action] ?? []);
     if (list.length === 0) continue;
     const first = list[0]!;
     if (first.kind === 'keyboard') {
       return inferKeyboardHalf(first.keyCode);
     }
     if (first.kind === 'gamepad') {
-      if (first.gamepadIndex === 1) return 'gamepad_1';
-      return 'gamepad_0';
+      return `gamepad_${first.gamepadIndex ?? 0}`;
     }
   }
   return 'none';
 }
 
-function inferKeyboardHalf(keyCode: number): RebindingDeviceOption {
-  // P2's keyboard half is the arrow cluster — arrow up / down / left /
-  // right + numpad. Anything else (W / arrows / etc.) lands on P1.
-  if (
-    keyCode === KEY_CODE.ARROW_UP ||
-    keyCode === KEY_CODE.ARROW_DOWN ||
-    keyCode === KEY_CODE.ARROW_LEFT ||
-    keyCode === KEY_CODE.ARROW_RIGHT ||
-    keyCode === KEY_CODE.NUMPAD_0 ||
-    keyCode === KEY_CODE.NUMPAD_1 ||
-    keyCode === KEY_CODE.NUMPAD_2 ||
-    keyCode === KEY_CODE.NUMPAD_3 ||
-    keyCode === KEY_CODE.NUMPAD_4 ||
-    keyCode === KEY_CODE.NUMPAD_5
-  ) {
-    return 'keyboard_p2';
-  }
-  return 'keyboard_p1';
+/**
+ * Which keyboard half a key belongs to: the arrow cluster + numpad
+ * (including the Numpad 0 smash key) is P2, anything else is P1.
+ */
+export function inferKeyboardHalf(keyCode: number): 'keyboard_p1' | 'keyboard_p2' {
+  return isP2KeyboardHalfKey(keyCode) ? 'keyboard_p2' : 'keyboard_p1';
 }
 
 // ---------------------------------------------------------------------------
@@ -207,7 +199,12 @@ const ACTION_LABELS: Readonly<Record<LogicalAction, string>> = Object.freeze({
   special: 'Special',
   shield: 'Shield',
   grab: 'Grab',
-  taunt: 'Taunt',
+  // Persisted as `taunt` for profile compatibility; gameplay consumes it as
+  // the dedicated dodge action.
+  taunt: 'Dodge',
+  smash: 'Smash',
+  appeal: 'Taunt',
+  walk: 'Walk / tilt (hold)',
 });
 
 /**
@@ -248,6 +245,7 @@ const KEY_LABELS: Readonly<Record<number, string>> = Object.freeze({
   [KEY_CODE.R]: 'R',
   [KEY_CODE.S]: 'S',
   [KEY_CODE.T]: 'T',
+  [KEY_CODE.V]: 'V',
   [KEY_CODE.W]: 'W',
   // Arrows used by the default keyboard P2 preset.
   [KEY_CODE.ARROW_LEFT]: 'Left Arrow',
@@ -261,6 +259,10 @@ const KEY_LABELS: Readonly<Record<number, string>> = Object.freeze({
   [KEY_CODE.NUMPAD_3]: 'Numpad 3',
   [KEY_CODE.NUMPAD_4]: 'Numpad 4',
   [KEY_CODE.NUMPAD_5]: 'Numpad 5',
+  [KEY_CODE.NUMPAD_6]: 'Numpad 6',
+  [KEY_CODE.NUMPAD_7]: 'Numpad 7',
+  [KEY_CODE.NUMPAD_8]: 'Numpad 8',
+  [KEY_CODE.NUMPAD_9]: 'Numpad 9',
   // Common rebind candidates the table makes sense to label up front.
   [KEY_CODE.SHIFT]: 'Shift',
   [KEY_CODE.CTRL]: 'Ctrl',
@@ -343,11 +345,84 @@ export function formatGamepadSource(source: GamepadBindingSource): string {
  * two pads share the same standard mapping.
  */
 export function formatGamepadBinding(binding: GamepadBinding): string {
-  const padTag =
-    binding.gamepadIndex === null
-      ? '[any]'
-      : `[${binding.gamepadIndex + 1}]`;
-  return `${padTag} ${formatGamepadSource(binding.source)}`;
+  return `${formatPadTag(binding.gamepadIndex)} ${formatGamepadSource(binding.source)}`;
+}
+
+function formatPadTag(gamepadIndex: number | null): string {
+  return gamepadIndex === null ? '[any]' : `[${gamepadIndex + 1}]`;
+}
+
+// ---------------------------------------------------------------------------
+// Whole-stick display
+// ---------------------------------------------------------------------------
+
+/** Names for sticks on the standard mapping, keyed by their X axis. */
+const STICK_LABELS: Readonly<Record<number, string>> = Object.freeze({
+  0: 'Left Stick',
+  2: 'Right Stick',
+});
+
+/**
+ * "[1] Left Stick" / "[any] Right Stick" for any axis of a named stick
+ * (0/1 left, 2/3 right on the standard mapping); `null` for any other
+ * axis. Used where a whole stick stands in for its half-axes.
+ */
+export function formatStickLabel(gamepadIndex: number | null, axisIndex: number): string | null {
+  const label = STICK_LABELS[axisIndex & ~1];
+  return label === undefined || axisIndex < 0 ? null : `${formatPadTag(gamepadIndex)} ${label}`;
+}
+
+/**
+ * One entry of a binding list as displayed: either a single binding, or
+ * a whole stick standing in for its four half-axis bindings.
+ */
+export type BindingDisplayItem =
+  | { readonly kind: 'binding'; readonly binding: InputBinding }
+  | { readonly kind: 'stick'; readonly gamepadIndex: number | null; readonly label: string };
+
+function stickKey(gamepadIndex: number | null, xAxis: number): string {
+  return `${gamepadIndex === null ? 'any' : gamepadIndex}:${xAxis}`;
+}
+
+/**
+ * Collapse every complete four-half-axis set of one named stick on one
+ * pad (X−, X+, Y−, Y+ in any order and threshold) into a single stick
+ * item at the position of its first half-axis. Partial sets stay as
+ * individual half-axes so the player can see which directions are bound.
+ */
+export function groupStickBindings(
+  bindings: ReadonlyArray<InputBinding>,
+): BindingDisplayItem[] {
+  const halves = new Map<string, Set<string>>();
+  for (const binding of bindings) {
+    if (binding.kind !== 'gamepad' || binding.source.type !== 'axis') continue;
+    const xAxis = binding.source.axisIndex & ~1;
+    if (STICK_LABELS[xAxis] === undefined) continue;
+    const key = stickKey(binding.gamepadIndex, xAxis);
+    const set = halves.get(key) ?? new Set<string>();
+    set.add(`${binding.source.axisIndex}:${binding.source.direction}`);
+    halves.set(key, set);
+  }
+  const complete = new Set(
+    [...halves].filter(([, set]) => set.size === 4).map(([key]) => key),
+  );
+  const items: BindingDisplayItem[] = [];
+  const emitted = new Set<string>();
+  for (const binding of bindings) {
+    if (binding.kind === 'gamepad' && binding.source.type === 'axis') {
+      const xAxis = binding.source.axisIndex & ~1;
+      const key = stickKey(binding.gamepadIndex, xAxis);
+      if (complete.has(key)) {
+        if (!emitted.has(key)) {
+          emitted.add(key);
+          items.push({ kind: 'stick', gamepadIndex: binding.gamepadIndex, label: STICK_LABELS[xAxis]! });
+        }
+        continue;
+      }
+    }
+    items.push({ kind: 'binding', binding });
+  }
+  return items;
 }
 
 // ---------------------------------------------------------------------------
@@ -371,7 +446,27 @@ export function formatBindingList(
   bindings: ReadonlyArray<InputBinding>,
 ): string {
   if (bindings.length === 0) return '—';
-  return bindings.map(formatBinding).join(' / ');
+  // A whole stick reads "[1] Right Stick" rather than four half-axes,
+  // which would not fit the row.
+  return groupStickBindings(bindings)
+    .map((item) => item.kind === 'stick'
+      ? `${formatPadTag(item.gamepadIndex)} ${item.label}`
+      : formatBinding(item.binding))
+    .join(' / ');
+}
+
+/**
+ * One player's line of the in-match controls cheat-sheet, e.g.
+ * "P1: A/D/W/S move | F attack | V smash | G special | H shield | R dodge | T grab".
+ * Every label comes from {@link formatBindingList}, so a remap shows the
+ * player's real inputs and a whole stick reads "[1] Right Stick". Dodge
+ * is the `taunt` action (its persisted name).
+ */
+export function formatControlsHelpLine(tag: string, bindings: ActionBindings): string {
+  const label = (action: LogicalAction) => formatBindingList((bindings[action] ?? []));
+  const move = (['left', 'right', 'up', 'down'] as const).map(label).join('/');
+  return `${tag}: ${move} move | ${label('attack')} attack | ${label('smash')} smash | `
+    + `${label('special')} special | ${label('shield')} shield | ${label('taunt')} dodge | ${label('grab')} grab | ${label('appeal')} taunt`;
 }
 
 // ---------------------------------------------------------------------------
@@ -404,7 +499,7 @@ export function buildActionRows(
     rows.push({
       action,
       actionLabel: formatActionLabel(action),
-      bindingLabel: formatBindingList(bindings[action]),
+      bindingLabel: formatBindingList((bindings[action] ?? [])),
     });
   }
   return rows;

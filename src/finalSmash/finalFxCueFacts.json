@@ -1,0 +1,3494 @@
+{
+  "schema": "source-guided-final-fx-cues/1",
+  "status": "SOURCE_CUES_SELECTED",
+  "cues": [
+    {
+      "key": "donkeykong.final_air_attack.donkey_final_rashhit.line70",
+      "fighter": "donkeykong",
+      "motion": "final_air_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalairattack",
+        "path": "sources/native/donkey/FinalAirAttack.txt",
+        "sha256": "c7893b100c3e862ed1d989ff4b20b70766de9a0f803cd1ccaeab1f415dd3e4fb",
+        "effectName": "donkey_final_rashhit",
+        "line": 70,
+        "lexicalNativeFrame": 7.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 7.0,
+        "endAgeExclusive": 11.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -65.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_air_attack.donkey_final_rash.line71",
+      "fighter": "donkeykong",
+      "motion": "final_air_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalairattack",
+        "path": "sources/native/donkey/FinalAirAttack.txt",
+        "sha256": "c7893b100c3e862ed1d989ff4b20b70766de9a0f803cd1ccaeab1f415dd3e4fb",
+        "effectName": "donkey_final_rash",
+        "line": 71,
+        "lexicalNativeFrame": 7.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 7.0,
+        "endAgeExclusive": 11.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -35.0
+        },
+        "angleDegrees": 0,
+        "scale": 2.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_air_attack.donkey_final_rash.line75",
+      "fighter": "donkeykong",
+      "motion": "final_air_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalairattack",
+        "path": "sources/native/donkey/FinalAirAttack.txt",
+        "sha256": "c7893b100c3e862ed1d989ff4b20b70766de9a0f803cd1ccaeab1f415dd3e4fb",
+        "effectName": "donkey_final_rash",
+        "line": 75,
+        "lexicalNativeFrame": 10.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 10.0,
+        "endAgeExclusive": 14.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -60.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.6,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_air_attack.donkey_final_rash.line79",
+      "fighter": "donkeykong",
+      "motion": "final_air_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalairattack",
+        "path": "sources/native/donkey/FinalAirAttack.txt",
+        "sha256": "c7893b100c3e862ed1d989ff4b20b70766de9a0f803cd1ccaeab1f415dd3e4fb",
+        "effectName": "donkey_final_rash",
+        "line": 79,
+        "lexicalNativeFrame": 14.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 14.0,
+        "endAgeExclusive": 18.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -75.0
+        },
+        "angleDegrees": 0,
+        "scale": 2.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_air_attack.donkey_final_rashhit.line84",
+      "fighter": "donkeykong",
+      "motion": "final_air_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalairattack",
+        "path": "sources/native/donkey/FinalAirAttack.txt",
+        "sha256": "c7893b100c3e862ed1d989ff4b20b70766de9a0f803cd1ccaeab1f415dd3e4fb",
+        "effectName": "donkey_final_rashhit",
+        "line": 84,
+        "lexicalNativeFrame": 18.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 18.0,
+        "endAgeExclusive": 22.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -65.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_air_attack.donkey_final_rash.line85",
+      "fighter": "donkeykong",
+      "motion": "final_air_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalairattack",
+        "path": "sources/native/donkey/FinalAirAttack.txt",
+        "sha256": "c7893b100c3e862ed1d989ff4b20b70766de9a0f803cd1ccaeab1f415dd3e4fb",
+        "effectName": "donkey_final_rash",
+        "line": 85,
+        "lexicalNativeFrame": 18.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 18.0,
+        "endAgeExclusive": 22.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -30.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.6,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_air_attack.donkey_final_rash.line89",
+      "fighter": "donkeykong",
+      "motion": "final_air_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalairattack",
+        "path": "sources/native/donkey/FinalAirAttack.txt",
+        "sha256": "c7893b100c3e862ed1d989ff4b20b70766de9a0f803cd1ccaeab1f415dd3e4fb",
+        "effectName": "donkey_final_rash",
+        "line": 89,
+        "lexicalNativeFrame": 22.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 22.0,
+        "endAgeExclusive": 26.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 175.0,
+          "y": -60.0
+        },
+        "angleDegrees": 0,
+        "scale": 2.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_air_attack.donkey_final_rash.line93",
+      "fighter": "donkeykong",
+      "motion": "final_air_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalairattack",
+        "path": "sources/native/donkey/FinalAirAttack.txt",
+        "sha256": "c7893b100c3e862ed1d989ff4b20b70766de9a0f803cd1ccaeab1f415dd3e4fb",
+        "effectName": "donkey_final_rash",
+        "line": 93,
+        "lexicalNativeFrame": 26.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 26.0,
+        "endAgeExclusive": 30.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -70.0
+        },
+        "angleDegrees": 0,
+        "scale": 2.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_air_attack.donkey_final_rashhit.line95",
+      "fighter": "donkeykong",
+      "motion": "final_air_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalairattack",
+        "path": "sources/native/donkey/FinalAirAttack.txt",
+        "sha256": "c7893b100c3e862ed1d989ff4b20b70766de9a0f803cd1ccaeab1f415dd3e4fb",
+        "effectName": "donkey_final_rashhit",
+        "line": 95,
+        "lexicalNativeFrame": 26.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 26.0,
+        "endAgeExclusive": 30.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -65.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_air_attack.donkey_final_rash.line99",
+      "fighter": "donkeykong",
+      "motion": "final_air_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalairattack",
+        "path": "sources/native/donkey/FinalAirAttack.txt",
+        "sha256": "c7893b100c3e862ed1d989ff4b20b70766de9a0f803cd1ccaeab1f415dd3e4fb",
+        "effectName": "donkey_final_rash",
+        "line": 99,
+        "lexicalNativeFrame": 30.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 30.0,
+        "endAgeExclusive": 34.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -75.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.6,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_air_attack.donkey_final_rash.line103",
+      "fighter": "donkeykong",
+      "motion": "final_air_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalairattack",
+        "path": "sources/native/donkey/FinalAirAttack.txt",
+        "sha256": "c7893b100c3e862ed1d989ff4b20b70766de9a0f803cd1ccaeab1f415dd3e4fb",
+        "effectName": "donkey_final_rash",
+        "line": 103,
+        "lexicalNativeFrame": 34.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 34.0,
+        "endAgeExclusive": 38.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -85.0
+        },
+        "angleDegrees": 0,
+        "scale": 2.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_air_attack.donkey_final_rash.line107",
+      "fighter": "donkeykong",
+      "motion": "final_air_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalairattack",
+        "path": "sources/native/donkey/FinalAirAttack.txt",
+        "sha256": "c7893b100c3e862ed1d989ff4b20b70766de9a0f803cd1ccaeab1f415dd3e4fb",
+        "effectName": "donkey_final_rash",
+        "line": 107,
+        "lexicalNativeFrame": 38.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 38.0,
+        "endAgeExclusive": 42.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -35.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.6,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_air_attack.donkey_final_rashhit.line109",
+      "fighter": "donkeykong",
+      "motion": "final_air_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalairattack",
+        "path": "sources/native/donkey/FinalAirAttack.txt",
+        "sha256": "c7893b100c3e862ed1d989ff4b20b70766de9a0f803cd1ccaeab1f415dd3e4fb",
+        "effectName": "donkey_final_rashhit",
+        "line": 109,
+        "lexicalNativeFrame": 38.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 38.0,
+        "endAgeExclusive": 42.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -65.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_air_attack.donkey_final_rash.line113",
+      "fighter": "donkeykong",
+      "motion": "final_air_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalairattack",
+        "path": "sources/native/donkey/FinalAirAttack.txt",
+        "sha256": "c7893b100c3e862ed1d989ff4b20b70766de9a0f803cd1ccaeab1f415dd3e4fb",
+        "effectName": "donkey_final_rash",
+        "line": 113,
+        "lexicalNativeFrame": 42.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 42.0,
+        "endAgeExclusive": 46.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -60.0
+        },
+        "angleDegrees": 0,
+        "scale": 2.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_air_attack.donkey_final_rash.line117",
+      "fighter": "donkeykong",
+      "motion": "final_air_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalairattack",
+        "path": "sources/native/donkey/FinalAirAttack.txt",
+        "sha256": "c7893b100c3e862ed1d989ff4b20b70766de9a0f803cd1ccaeab1f415dd3e4fb",
+        "effectName": "donkey_final_rash",
+        "line": 117,
+        "lexicalNativeFrame": 46.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 46.0,
+        "endAgeExclusive": 50.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -90.0
+        },
+        "angleDegrees": 0,
+        "scale": 2.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_air_attack.donkey_final_rash.line121",
+      "fighter": "donkeykong",
+      "motion": "final_air_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalairattack",
+        "path": "sources/native/donkey/FinalAirAttack.txt",
+        "sha256": "c7893b100c3e862ed1d989ff4b20b70766de9a0f803cd1ccaeab1f415dd3e4fb",
+        "effectName": "donkey_final_rash",
+        "line": 121,
+        "lexicalNativeFrame": 50.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 50.0,
+        "endAgeExclusive": 54.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -30.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.6,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_air_attack.donkey_final_rashhit.line123",
+      "fighter": "donkeykong",
+      "motion": "final_air_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalairattack",
+        "path": "sources/native/donkey/FinalAirAttack.txt",
+        "sha256": "c7893b100c3e862ed1d989ff4b20b70766de9a0f803cd1ccaeab1f415dd3e4fb",
+        "effectName": "donkey_final_rashhit",
+        "line": 123,
+        "lexicalNativeFrame": 50.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 50.0,
+        "endAgeExclusive": 54.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -65.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_air_attack.donkey_final_rash.line127",
+      "fighter": "donkeykong",
+      "motion": "final_air_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalairattack",
+        "path": "sources/native/donkey/FinalAirAttack.txt",
+        "sha256": "c7893b100c3e862ed1d989ff4b20b70766de9a0f803cd1ccaeab1f415dd3e4fb",
+        "effectName": "donkey_final_rash",
+        "line": 127,
+        "lexicalNativeFrame": 54.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 54.0,
+        "endAgeExclusive": 58.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 175.0,
+          "y": -55.0
+        },
+        "angleDegrees": 0,
+        "scale": 2.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_air_attack.donkey_final_rash.line131",
+      "fighter": "donkeykong",
+      "motion": "final_air_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalairattack",
+        "path": "sources/native/donkey/FinalAirAttack.txt",
+        "sha256": "c7893b100c3e862ed1d989ff4b20b70766de9a0f803cd1ccaeab1f415dd3e4fb",
+        "effectName": "donkey_final_rash",
+        "line": 131,
+        "lexicalNativeFrame": 58.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 58.0,
+        "endAgeExclusive": 62.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -60.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.6,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_air_attack.donkey_final_rash.line135",
+      "fighter": "donkeykong",
+      "motion": "final_air_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalairattack",
+        "path": "sources/native/donkey/FinalAirAttack.txt",
+        "sha256": "c7893b100c3e862ed1d989ff4b20b70766de9a0f803cd1ccaeab1f415dd3e4fb",
+        "effectName": "donkey_final_rash",
+        "line": 135,
+        "lexicalNativeFrame": 62.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 62.0,
+        "endAgeExclusive": 66.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -90.0
+        },
+        "angleDegrees": 0,
+        "scale": 2.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_air_attack.donkey_final_rashhit.line137",
+      "fighter": "donkeykong",
+      "motion": "final_air_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalairattack",
+        "path": "sources/native/donkey/FinalAirAttack.txt",
+        "sha256": "c7893b100c3e862ed1d989ff4b20b70766de9a0f803cd1ccaeab1f415dd3e4fb",
+        "effectName": "donkey_final_rashhit",
+        "line": 137,
+        "lexicalNativeFrame": 62.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 62.0,
+        "endAgeExclusive": 66.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -65.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_air_attack.donkey_final_rash.line141",
+      "fighter": "donkeykong",
+      "motion": "final_air_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalairattack",
+        "path": "sources/native/donkey/FinalAirAttack.txt",
+        "sha256": "c7893b100c3e862ed1d989ff4b20b70766de9a0f803cd1ccaeab1f415dd3e4fb",
+        "effectName": "donkey_final_rash",
+        "line": 141,
+        "lexicalNativeFrame": 66.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 66.0,
+        "endAgeExclusive": 70.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -85.0
+        },
+        "angleDegrees": 0,
+        "scale": 2.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_air_attack.donkey_final_rash.line145",
+      "fighter": "donkeykong",
+      "motion": "final_air_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalairattack",
+        "path": "sources/native/donkey/FinalAirAttack.txt",
+        "sha256": "c7893b100c3e862ed1d989ff4b20b70766de9a0f803cd1ccaeab1f415dd3e4fb",
+        "effectName": "donkey_final_rash",
+        "line": 145,
+        "lexicalNativeFrame": 70.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 70.0,
+        "endAgeExclusive": 74.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -35.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.6,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_air_attack.donkey_final_rash.line149",
+      "fighter": "donkeykong",
+      "motion": "final_air_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalairattack",
+        "path": "sources/native/donkey/FinalAirAttack.txt",
+        "sha256": "c7893b100c3e862ed1d989ff4b20b70766de9a0f803cd1ccaeab1f415dd3e4fb",
+        "effectName": "donkey_final_rash",
+        "line": 149,
+        "lexicalNativeFrame": 74.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 74.0,
+        "endAgeExclusive": 78.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -60.0
+        },
+        "angleDegrees": 0,
+        "scale": 2.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_air_attack.donkey_final_rashhit.line151",
+      "fighter": "donkeykong",
+      "motion": "final_air_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalairattack",
+        "path": "sources/native/donkey/FinalAirAttack.txt",
+        "sha256": "c7893b100c3e862ed1d989ff4b20b70766de9a0f803cd1ccaeab1f415dd3e4fb",
+        "effectName": "donkey_final_rashhit",
+        "line": 151,
+        "lexicalNativeFrame": 74.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 74.0,
+        "endAgeExclusive": 78.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -65.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_air_attack.donkey_final_rash.line155",
+      "fighter": "donkeykong",
+      "motion": "final_air_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalairattack",
+        "path": "sources/native/donkey/FinalAirAttack.txt",
+        "sha256": "c7893b100c3e862ed1d989ff4b20b70766de9a0f803cd1ccaeab1f415dd3e4fb",
+        "effectName": "donkey_final_rash",
+        "line": 155,
+        "lexicalNativeFrame": 79.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 79.0,
+        "endAgeExclusive": 83.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -90.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.6,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_air_attack.donkey_final_rash.line159",
+      "fighter": "donkeykong",
+      "motion": "final_air_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalairattack",
+        "path": "sources/native/donkey/FinalAirAttack.txt",
+        "sha256": "c7893b100c3e862ed1d989ff4b20b70766de9a0f803cd1ccaeab1f415dd3e4fb",
+        "effectName": "donkey_final_rash",
+        "line": 159,
+        "lexicalNativeFrame": 83.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 83.0,
+        "endAgeExclusive": 87.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -25.0
+        },
+        "angleDegrees": 0,
+        "scale": 2.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_air_attack.donkey_final_rash.line163",
+      "fighter": "donkeykong",
+      "motion": "final_air_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalairattack",
+        "path": "sources/native/donkey/FinalAirAttack.txt",
+        "sha256": "c7893b100c3e862ed1d989ff4b20b70766de9a0f803cd1ccaeab1f415dd3e4fb",
+        "effectName": "donkey_final_rash",
+        "line": 163,
+        "lexicalNativeFrame": 87.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 87.0,
+        "endAgeExclusive": 91.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 175.0,
+          "y": -35.0
+        },
+        "angleDegrees": 0,
+        "scale": 2.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_air_attack.donkey_final_rashhit.line165",
+      "fighter": "donkeykong",
+      "motion": "final_air_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalairattack",
+        "path": "sources/native/donkey/FinalAirAttack.txt",
+        "sha256": "c7893b100c3e862ed1d989ff4b20b70766de9a0f803cd1ccaeab1f415dd3e4fb",
+        "effectName": "donkey_final_rashhit",
+        "line": 165,
+        "lexicalNativeFrame": 87.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 87.0,
+        "endAgeExclusive": 91.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -65.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_air_attack.donkey_final_rash.line169",
+      "fighter": "donkeykong",
+      "motion": "final_air_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalairattack",
+        "path": "sources/native/donkey/FinalAirAttack.txt",
+        "sha256": "c7893b100c3e862ed1d989ff4b20b70766de9a0f803cd1ccaeab1f415dd3e4fb",
+        "effectName": "donkey_final_rash",
+        "line": 169,
+        "lexicalNativeFrame": 91.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 91.0,
+        "endAgeExclusive": 95.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -60.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.6,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_air_attack.donkey_final_rash.line173",
+      "fighter": "donkeykong",
+      "motion": "final_air_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalairattack",
+        "path": "sources/native/donkey/FinalAirAttack.txt",
+        "sha256": "c7893b100c3e862ed1d989ff4b20b70766de9a0f803cd1ccaeab1f415dd3e4fb",
+        "effectName": "donkey_final_rash",
+        "line": 173,
+        "lexicalNativeFrame": 95.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 95.0,
+        "endAgeExclusive": 99.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -75.0
+        },
+        "angleDegrees": 0,
+        "scale": 2.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_air_attack.donkey_final_rash.line177",
+      "fighter": "donkeykong",
+      "motion": "final_air_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalairattack",
+        "path": "sources/native/donkey/FinalAirAttack.txt",
+        "sha256": "c7893b100c3e862ed1d989ff4b20b70766de9a0f803cd1ccaeab1f415dd3e4fb",
+        "effectName": "donkey_final_rash",
+        "line": 177,
+        "lexicalNativeFrame": 99.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 99.0,
+        "endAgeExclusive": 103.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -85.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.6,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_air_attack.donkey_final_rashhit.line179",
+      "fighter": "donkeykong",
+      "motion": "final_air_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalairattack",
+        "path": "sources/native/donkey/FinalAirAttack.txt",
+        "sha256": "c7893b100c3e862ed1d989ff4b20b70766de9a0f803cd1ccaeab1f415dd3e4fb",
+        "effectName": "donkey_final_rashhit",
+        "line": 179,
+        "lexicalNativeFrame": 99.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 99.0,
+        "endAgeExclusive": 103.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -65.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_air_attack.donkey_final_rash.line183",
+      "fighter": "donkeykong",
+      "motion": "final_air_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalairattack",
+        "path": "sources/native/donkey/FinalAirAttack.txt",
+        "sha256": "c7893b100c3e862ed1d989ff4b20b70766de9a0f803cd1ccaeab1f415dd3e4fb",
+        "effectName": "donkey_final_rash",
+        "line": 183,
+        "lexicalNativeFrame": 103.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 103.0,
+        "endAgeExclusive": 107.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -35.0
+        },
+        "angleDegrees": 0,
+        "scale": 2.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_air_attack.donkey_final_rash.line187",
+      "fighter": "donkeykong",
+      "motion": "final_air_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalairattack",
+        "path": "sources/native/donkey/FinalAirAttack.txt",
+        "sha256": "c7893b100c3e862ed1d989ff4b20b70766de9a0f803cd1ccaeab1f415dd3e4fb",
+        "effectName": "donkey_final_rash",
+        "line": 187,
+        "lexicalNativeFrame": 107.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 107.0,
+        "endAgeExclusive": 111.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -35.0
+        },
+        "angleDegrees": 0,
+        "scale": 2.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_air_attack.donkey_final_rash.line191",
+      "fighter": "donkeykong",
+      "motion": "final_air_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalairattack",
+        "path": "sources/native/donkey/FinalAirAttack.txt",
+        "sha256": "c7893b100c3e862ed1d989ff4b20b70766de9a0f803cd1ccaeab1f415dd3e4fb",
+        "effectName": "donkey_final_rash",
+        "line": 191,
+        "lexicalNativeFrame": 111.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 111.0,
+        "endAgeExclusive": 115.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -90.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.6,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_air_attack.donkey_final_rashhit.line193",
+      "fighter": "donkeykong",
+      "motion": "final_air_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalairattack",
+        "path": "sources/native/donkey/FinalAirAttack.txt",
+        "sha256": "c7893b100c3e862ed1d989ff4b20b70766de9a0f803cd1ccaeab1f415dd3e4fb",
+        "effectName": "donkey_final_rashhit",
+        "line": 193,
+        "lexicalNativeFrame": 111.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 111.0,
+        "endAgeExclusive": 115.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -65.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_air_attack.donkey_final_rash.line197",
+      "fighter": "donkeykong",
+      "motion": "final_air_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalairattack",
+        "path": "sources/native/donkey/FinalAirAttack.txt",
+        "sha256": "c7893b100c3e862ed1d989ff4b20b70766de9a0f803cd1ccaeab1f415dd3e4fb",
+        "effectName": "donkey_final_rash",
+        "line": 197,
+        "lexicalNativeFrame": 115.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 115.0,
+        "endAgeExclusive": 119.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -20.0
+        },
+        "angleDegrees": 0,
+        "scale": 2.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_air_attack.donkey_final_rash.line201",
+      "fighter": "donkeykong",
+      "motion": "final_air_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalairattack",
+        "path": "sources/native/donkey/FinalAirAttack.txt",
+        "sha256": "c7893b100c3e862ed1d989ff4b20b70766de9a0f803cd1ccaeab1f415dd3e4fb",
+        "effectName": "donkey_final_rash",
+        "line": 201,
+        "lexicalNativeFrame": 119.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 119.0,
+        "endAgeExclusive": 123.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 175.0,
+          "y": -60.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.6,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_air_attack.donkey_final_rash.line205",
+      "fighter": "donkeykong",
+      "motion": "final_air_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalairattack",
+        "path": "sources/native/donkey/FinalAirAttack.txt",
+        "sha256": "c7893b100c3e862ed1d989ff4b20b70766de9a0f803cd1ccaeab1f415dd3e4fb",
+        "effectName": "donkey_final_rash",
+        "line": 205,
+        "lexicalNativeFrame": 123.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 123.0,
+        "endAgeExclusive": 127.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -50.0
+        },
+        "angleDegrees": 0,
+        "scale": 2.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_air_attack.donkey_final_rashhit.line207",
+      "fighter": "donkeykong",
+      "motion": "final_air_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalairattack",
+        "path": "sources/native/donkey/FinalAirAttack.txt",
+        "sha256": "c7893b100c3e862ed1d989ff4b20b70766de9a0f803cd1ccaeab1f415dd3e4fb",
+        "effectName": "donkey_final_rashhit",
+        "line": 207,
+        "lexicalNativeFrame": 123.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 123.0,
+        "endAgeExclusive": 127.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -65.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_air_attack.donkey_final_rash.line211",
+      "fighter": "donkeykong",
+      "motion": "final_air_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalairattack",
+        "path": "sources/native/donkey/FinalAirAttack.txt",
+        "sha256": "c7893b100c3e862ed1d989ff4b20b70766de9a0f803cd1ccaeab1f415dd3e4fb",
+        "effectName": "donkey_final_rash",
+        "line": 211,
+        "lexicalNativeFrame": 127.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 127.0,
+        "endAgeExclusive": 131.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -40.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.6,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_air_end.donkey_final_arc.line113",
+      "fighter": "donkeykong",
+      "motion": "final_air_end",
+      "phases": [
+        "end"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalairend",
+        "path": "sources/native/donkey/FinalAirEnd.txt",
+        "sha256": "5a8ba66f0e6cb76c5da5aa62e59c72f0ae808c605717b3464cc500046098dc06",
+        "effectName": "donkey_final_arc",
+        "line": 113,
+        "lexicalNativeFrame": 7.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 7.0,
+        "endAgeExclusive": 16.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 9,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 20.0,
+          "y": -70.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_air_end.donkey_final_lasthit.line117",
+      "fighter": "donkeykong",
+      "motion": "final_air_end",
+      "phases": [
+        "end"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalairend",
+        "path": "sources/native/donkey/FinalAirEnd.txt",
+        "sha256": "5a8ba66f0e6cb76c5da5aa62e59c72f0ae808c605717b3464cc500046098dc06",
+        "effectName": "donkey_final_lasthit",
+        "line": 117,
+        "lexicalNativeFrame": 7.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 7.0,
+        "endAgeExclusive": 16.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 9,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 165.0,
+          "y": -55.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_air_start.donkey_giantpunch.line70",
+      "fighter": "donkeykong",
+      "motion": "final_air_start",
+      "phases": [
+        "start"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalairstart",
+        "path": "sources/native/donkey/FinalAirStart.txt",
+        "sha256": "7a51d0af1c877f8dd6a327430849ea103b5dbc92ae24fa960d26ea2e3e0e67d7",
+        "effectName": "donkey_giantpunch",
+        "line": 70,
+        "lexicalNativeFrame": 28.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 28.0,
+        "endAgeExclusive": 32.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 90.0,
+          "y": -60.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_attack.donkey_final_rashhit.line70",
+      "fighter": "donkeykong",
+      "motion": "final_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalattack",
+        "path": "sources/native/donkey/FinalAttack.txt",
+        "sha256": "d436baea2a47ac81ca3fb544f0a4c520d347890b39767b739513f17c8cfacc32",
+        "effectName": "donkey_final_rashhit",
+        "line": 70,
+        "lexicalNativeFrame": 7.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 7.0,
+        "endAgeExclusive": 11.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -65.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_attack.donkey_final_rash.line71",
+      "fighter": "donkeykong",
+      "motion": "final_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalattack",
+        "path": "sources/native/donkey/FinalAttack.txt",
+        "sha256": "d436baea2a47ac81ca3fb544f0a4c520d347890b39767b739513f17c8cfacc32",
+        "effectName": "donkey_final_rash",
+        "line": 71,
+        "lexicalNativeFrame": 7.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 7.0,
+        "endAgeExclusive": 11.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -35.0
+        },
+        "angleDegrees": 0,
+        "scale": 2.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_attack.donkey_final_rash.line75",
+      "fighter": "donkeykong",
+      "motion": "final_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalattack",
+        "path": "sources/native/donkey/FinalAttack.txt",
+        "sha256": "d436baea2a47ac81ca3fb544f0a4c520d347890b39767b739513f17c8cfacc32",
+        "effectName": "donkey_final_rash",
+        "line": 75,
+        "lexicalNativeFrame": 10.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 10.0,
+        "endAgeExclusive": 14.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -60.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.6,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_attack.donkey_final_rash.line79",
+      "fighter": "donkeykong",
+      "motion": "final_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalattack",
+        "path": "sources/native/donkey/FinalAttack.txt",
+        "sha256": "d436baea2a47ac81ca3fb544f0a4c520d347890b39767b739513f17c8cfacc32",
+        "effectName": "donkey_final_rash",
+        "line": 79,
+        "lexicalNativeFrame": 14.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 14.0,
+        "endAgeExclusive": 18.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -75.0
+        },
+        "angleDegrees": 0,
+        "scale": 2.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_attack.donkey_final_rashhit.line84",
+      "fighter": "donkeykong",
+      "motion": "final_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalattack",
+        "path": "sources/native/donkey/FinalAttack.txt",
+        "sha256": "d436baea2a47ac81ca3fb544f0a4c520d347890b39767b739513f17c8cfacc32",
+        "effectName": "donkey_final_rashhit",
+        "line": 84,
+        "lexicalNativeFrame": 18.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 18.0,
+        "endAgeExclusive": 22.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -65.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_attack.donkey_final_rash.line85",
+      "fighter": "donkeykong",
+      "motion": "final_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalattack",
+        "path": "sources/native/donkey/FinalAttack.txt",
+        "sha256": "d436baea2a47ac81ca3fb544f0a4c520d347890b39767b739513f17c8cfacc32",
+        "effectName": "donkey_final_rash",
+        "line": 85,
+        "lexicalNativeFrame": 18.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 18.0,
+        "endAgeExclusive": 22.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -30.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.6,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_attack.donkey_final_rash.line89",
+      "fighter": "donkeykong",
+      "motion": "final_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalattack",
+        "path": "sources/native/donkey/FinalAttack.txt",
+        "sha256": "d436baea2a47ac81ca3fb544f0a4c520d347890b39767b739513f17c8cfacc32",
+        "effectName": "donkey_final_rash",
+        "line": 89,
+        "lexicalNativeFrame": 22.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 22.0,
+        "endAgeExclusive": 26.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 175.0,
+          "y": -60.0
+        },
+        "angleDegrees": 0,
+        "scale": 2.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_attack.donkey_final_rash.line93",
+      "fighter": "donkeykong",
+      "motion": "final_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalattack",
+        "path": "sources/native/donkey/FinalAttack.txt",
+        "sha256": "d436baea2a47ac81ca3fb544f0a4c520d347890b39767b739513f17c8cfacc32",
+        "effectName": "donkey_final_rash",
+        "line": 93,
+        "lexicalNativeFrame": 26.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 26.0,
+        "endAgeExclusive": 30.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -70.0
+        },
+        "angleDegrees": 0,
+        "scale": 2.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_attack.donkey_final_rashhit.line95",
+      "fighter": "donkeykong",
+      "motion": "final_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalattack",
+        "path": "sources/native/donkey/FinalAttack.txt",
+        "sha256": "d436baea2a47ac81ca3fb544f0a4c520d347890b39767b739513f17c8cfacc32",
+        "effectName": "donkey_final_rashhit",
+        "line": 95,
+        "lexicalNativeFrame": 26.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 26.0,
+        "endAgeExclusive": 30.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -65.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_attack.donkey_final_rash.line99",
+      "fighter": "donkeykong",
+      "motion": "final_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalattack",
+        "path": "sources/native/donkey/FinalAttack.txt",
+        "sha256": "d436baea2a47ac81ca3fb544f0a4c520d347890b39767b739513f17c8cfacc32",
+        "effectName": "donkey_final_rash",
+        "line": 99,
+        "lexicalNativeFrame": 30.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 30.0,
+        "endAgeExclusive": 34.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -75.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.6,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_attack.donkey_final_rash.line103",
+      "fighter": "donkeykong",
+      "motion": "final_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalattack",
+        "path": "sources/native/donkey/FinalAttack.txt",
+        "sha256": "d436baea2a47ac81ca3fb544f0a4c520d347890b39767b739513f17c8cfacc32",
+        "effectName": "donkey_final_rash",
+        "line": 103,
+        "lexicalNativeFrame": 34.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 34.0,
+        "endAgeExclusive": 38.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -85.0
+        },
+        "angleDegrees": 0,
+        "scale": 2.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_attack.donkey_final_rash.line107",
+      "fighter": "donkeykong",
+      "motion": "final_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalattack",
+        "path": "sources/native/donkey/FinalAttack.txt",
+        "sha256": "d436baea2a47ac81ca3fb544f0a4c520d347890b39767b739513f17c8cfacc32",
+        "effectName": "donkey_final_rash",
+        "line": 107,
+        "lexicalNativeFrame": 38.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 38.0,
+        "endAgeExclusive": 42.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -35.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.6,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_attack.donkey_final_rashhit.line109",
+      "fighter": "donkeykong",
+      "motion": "final_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalattack",
+        "path": "sources/native/donkey/FinalAttack.txt",
+        "sha256": "d436baea2a47ac81ca3fb544f0a4c520d347890b39767b739513f17c8cfacc32",
+        "effectName": "donkey_final_rashhit",
+        "line": 109,
+        "lexicalNativeFrame": 38.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 38.0,
+        "endAgeExclusive": 42.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -65.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_attack.donkey_final_rash.line113",
+      "fighter": "donkeykong",
+      "motion": "final_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalattack",
+        "path": "sources/native/donkey/FinalAttack.txt",
+        "sha256": "d436baea2a47ac81ca3fb544f0a4c520d347890b39767b739513f17c8cfacc32",
+        "effectName": "donkey_final_rash",
+        "line": 113,
+        "lexicalNativeFrame": 42.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 42.0,
+        "endAgeExclusive": 46.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -60.0
+        },
+        "angleDegrees": 0,
+        "scale": 2.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_attack.donkey_final_rash.line117",
+      "fighter": "donkeykong",
+      "motion": "final_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalattack",
+        "path": "sources/native/donkey/FinalAttack.txt",
+        "sha256": "d436baea2a47ac81ca3fb544f0a4c520d347890b39767b739513f17c8cfacc32",
+        "effectName": "donkey_final_rash",
+        "line": 117,
+        "lexicalNativeFrame": 46.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 46.0,
+        "endAgeExclusive": 50.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -90.0
+        },
+        "angleDegrees": 0,
+        "scale": 2.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_attack.donkey_final_rash.line121",
+      "fighter": "donkeykong",
+      "motion": "final_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalattack",
+        "path": "sources/native/donkey/FinalAttack.txt",
+        "sha256": "d436baea2a47ac81ca3fb544f0a4c520d347890b39767b739513f17c8cfacc32",
+        "effectName": "donkey_final_rash",
+        "line": 121,
+        "lexicalNativeFrame": 50.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 50.0,
+        "endAgeExclusive": 54.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -30.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.6,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_attack.donkey_final_rashhit.line123",
+      "fighter": "donkeykong",
+      "motion": "final_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalattack",
+        "path": "sources/native/donkey/FinalAttack.txt",
+        "sha256": "d436baea2a47ac81ca3fb544f0a4c520d347890b39767b739513f17c8cfacc32",
+        "effectName": "donkey_final_rashhit",
+        "line": 123,
+        "lexicalNativeFrame": 50.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 50.0,
+        "endAgeExclusive": 54.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -65.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_attack.donkey_final_rash.line127",
+      "fighter": "donkeykong",
+      "motion": "final_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalattack",
+        "path": "sources/native/donkey/FinalAttack.txt",
+        "sha256": "d436baea2a47ac81ca3fb544f0a4c520d347890b39767b739513f17c8cfacc32",
+        "effectName": "donkey_final_rash",
+        "line": 127,
+        "lexicalNativeFrame": 54.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 54.0,
+        "endAgeExclusive": 58.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 175.0,
+          "y": -55.0
+        },
+        "angleDegrees": 0,
+        "scale": 2.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_attack.donkey_final_rash.line131",
+      "fighter": "donkeykong",
+      "motion": "final_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalattack",
+        "path": "sources/native/donkey/FinalAttack.txt",
+        "sha256": "d436baea2a47ac81ca3fb544f0a4c520d347890b39767b739513f17c8cfacc32",
+        "effectName": "donkey_final_rash",
+        "line": 131,
+        "lexicalNativeFrame": 58.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 58.0,
+        "endAgeExclusive": 62.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -60.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.6,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_attack.donkey_final_rash.line135",
+      "fighter": "donkeykong",
+      "motion": "final_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalattack",
+        "path": "sources/native/donkey/FinalAttack.txt",
+        "sha256": "d436baea2a47ac81ca3fb544f0a4c520d347890b39767b739513f17c8cfacc32",
+        "effectName": "donkey_final_rash",
+        "line": 135,
+        "lexicalNativeFrame": 62.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 62.0,
+        "endAgeExclusive": 66.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -90.0
+        },
+        "angleDegrees": 0,
+        "scale": 2.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_attack.donkey_final_rashhit.line137",
+      "fighter": "donkeykong",
+      "motion": "final_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalattack",
+        "path": "sources/native/donkey/FinalAttack.txt",
+        "sha256": "d436baea2a47ac81ca3fb544f0a4c520d347890b39767b739513f17c8cfacc32",
+        "effectName": "donkey_final_rashhit",
+        "line": 137,
+        "lexicalNativeFrame": 62.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 62.0,
+        "endAgeExclusive": 66.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -65.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_attack.donkey_final_rash.line141",
+      "fighter": "donkeykong",
+      "motion": "final_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalattack",
+        "path": "sources/native/donkey/FinalAttack.txt",
+        "sha256": "d436baea2a47ac81ca3fb544f0a4c520d347890b39767b739513f17c8cfacc32",
+        "effectName": "donkey_final_rash",
+        "line": 141,
+        "lexicalNativeFrame": 66.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 66.0,
+        "endAgeExclusive": 70.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -85.0
+        },
+        "angleDegrees": 0,
+        "scale": 2.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_attack.donkey_final_rash.line145",
+      "fighter": "donkeykong",
+      "motion": "final_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalattack",
+        "path": "sources/native/donkey/FinalAttack.txt",
+        "sha256": "d436baea2a47ac81ca3fb544f0a4c520d347890b39767b739513f17c8cfacc32",
+        "effectName": "donkey_final_rash",
+        "line": 145,
+        "lexicalNativeFrame": 70.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 70.0,
+        "endAgeExclusive": 74.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -35.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.6,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_attack.donkey_final_rash.line149",
+      "fighter": "donkeykong",
+      "motion": "final_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalattack",
+        "path": "sources/native/donkey/FinalAttack.txt",
+        "sha256": "d436baea2a47ac81ca3fb544f0a4c520d347890b39767b739513f17c8cfacc32",
+        "effectName": "donkey_final_rash",
+        "line": 149,
+        "lexicalNativeFrame": 74.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 74.0,
+        "endAgeExclusive": 78.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -60.0
+        },
+        "angleDegrees": 0,
+        "scale": 2.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_attack.donkey_final_rashhit.line151",
+      "fighter": "donkeykong",
+      "motion": "final_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalattack",
+        "path": "sources/native/donkey/FinalAttack.txt",
+        "sha256": "d436baea2a47ac81ca3fb544f0a4c520d347890b39767b739513f17c8cfacc32",
+        "effectName": "donkey_final_rashhit",
+        "line": 151,
+        "lexicalNativeFrame": 74.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 74.0,
+        "endAgeExclusive": 78.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -65.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_attack.donkey_final_rash.line155",
+      "fighter": "donkeykong",
+      "motion": "final_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalattack",
+        "path": "sources/native/donkey/FinalAttack.txt",
+        "sha256": "d436baea2a47ac81ca3fb544f0a4c520d347890b39767b739513f17c8cfacc32",
+        "effectName": "donkey_final_rash",
+        "line": 155,
+        "lexicalNativeFrame": 79.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 79.0,
+        "endAgeExclusive": 83.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -90.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.6,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_attack.donkey_final_rash.line159",
+      "fighter": "donkeykong",
+      "motion": "final_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalattack",
+        "path": "sources/native/donkey/FinalAttack.txt",
+        "sha256": "d436baea2a47ac81ca3fb544f0a4c520d347890b39767b739513f17c8cfacc32",
+        "effectName": "donkey_final_rash",
+        "line": 159,
+        "lexicalNativeFrame": 83.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 83.0,
+        "endAgeExclusive": 87.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -25.0
+        },
+        "angleDegrees": 0,
+        "scale": 2.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_attack.donkey_final_rash.line163",
+      "fighter": "donkeykong",
+      "motion": "final_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalattack",
+        "path": "sources/native/donkey/FinalAttack.txt",
+        "sha256": "d436baea2a47ac81ca3fb544f0a4c520d347890b39767b739513f17c8cfacc32",
+        "effectName": "donkey_final_rash",
+        "line": 163,
+        "lexicalNativeFrame": 87.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 87.0,
+        "endAgeExclusive": 91.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 175.0,
+          "y": -35.0
+        },
+        "angleDegrees": 0,
+        "scale": 2.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_attack.donkey_final_rashhit.line165",
+      "fighter": "donkeykong",
+      "motion": "final_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalattack",
+        "path": "sources/native/donkey/FinalAttack.txt",
+        "sha256": "d436baea2a47ac81ca3fb544f0a4c520d347890b39767b739513f17c8cfacc32",
+        "effectName": "donkey_final_rashhit",
+        "line": 165,
+        "lexicalNativeFrame": 87.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 87.0,
+        "endAgeExclusive": 91.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -65.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_attack.donkey_final_rash.line169",
+      "fighter": "donkeykong",
+      "motion": "final_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalattack",
+        "path": "sources/native/donkey/FinalAttack.txt",
+        "sha256": "d436baea2a47ac81ca3fb544f0a4c520d347890b39767b739513f17c8cfacc32",
+        "effectName": "donkey_final_rash",
+        "line": 169,
+        "lexicalNativeFrame": 91.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 91.0,
+        "endAgeExclusive": 95.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -60.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.6,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_attack.donkey_final_rash.line173",
+      "fighter": "donkeykong",
+      "motion": "final_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalattack",
+        "path": "sources/native/donkey/FinalAttack.txt",
+        "sha256": "d436baea2a47ac81ca3fb544f0a4c520d347890b39767b739513f17c8cfacc32",
+        "effectName": "donkey_final_rash",
+        "line": 173,
+        "lexicalNativeFrame": 95.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 95.0,
+        "endAgeExclusive": 99.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -75.0
+        },
+        "angleDegrees": 0,
+        "scale": 2.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_attack.donkey_final_rash.line177",
+      "fighter": "donkeykong",
+      "motion": "final_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalattack",
+        "path": "sources/native/donkey/FinalAttack.txt",
+        "sha256": "d436baea2a47ac81ca3fb544f0a4c520d347890b39767b739513f17c8cfacc32",
+        "effectName": "donkey_final_rash",
+        "line": 177,
+        "lexicalNativeFrame": 99.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 99.0,
+        "endAgeExclusive": 103.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -85.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.6,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_attack.donkey_final_rashhit.line179",
+      "fighter": "donkeykong",
+      "motion": "final_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalattack",
+        "path": "sources/native/donkey/FinalAttack.txt",
+        "sha256": "d436baea2a47ac81ca3fb544f0a4c520d347890b39767b739513f17c8cfacc32",
+        "effectName": "donkey_final_rashhit",
+        "line": 179,
+        "lexicalNativeFrame": 99.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 99.0,
+        "endAgeExclusive": 103.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -65.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_attack.donkey_final_rash.line183",
+      "fighter": "donkeykong",
+      "motion": "final_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalattack",
+        "path": "sources/native/donkey/FinalAttack.txt",
+        "sha256": "d436baea2a47ac81ca3fb544f0a4c520d347890b39767b739513f17c8cfacc32",
+        "effectName": "donkey_final_rash",
+        "line": 183,
+        "lexicalNativeFrame": 103.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 103.0,
+        "endAgeExclusive": 107.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -35.0
+        },
+        "angleDegrees": 0,
+        "scale": 2.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_attack.donkey_final_rash.line187",
+      "fighter": "donkeykong",
+      "motion": "final_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalattack",
+        "path": "sources/native/donkey/FinalAttack.txt",
+        "sha256": "d436baea2a47ac81ca3fb544f0a4c520d347890b39767b739513f17c8cfacc32",
+        "effectName": "donkey_final_rash",
+        "line": 187,
+        "lexicalNativeFrame": 107.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 107.0,
+        "endAgeExclusive": 111.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -35.0
+        },
+        "angleDegrees": 0,
+        "scale": 2.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_attack.donkey_final_rash.line191",
+      "fighter": "donkeykong",
+      "motion": "final_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalattack",
+        "path": "sources/native/donkey/FinalAttack.txt",
+        "sha256": "d436baea2a47ac81ca3fb544f0a4c520d347890b39767b739513f17c8cfacc32",
+        "effectName": "donkey_final_rash",
+        "line": 191,
+        "lexicalNativeFrame": 111.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 111.0,
+        "endAgeExclusive": 115.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -90.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.6,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_attack.donkey_final_rashhit.line193",
+      "fighter": "donkeykong",
+      "motion": "final_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalattack",
+        "path": "sources/native/donkey/FinalAttack.txt",
+        "sha256": "d436baea2a47ac81ca3fb544f0a4c520d347890b39767b739513f17c8cfacc32",
+        "effectName": "donkey_final_rashhit",
+        "line": 193,
+        "lexicalNativeFrame": 111.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 111.0,
+        "endAgeExclusive": 115.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -65.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_attack.donkey_final_rash.line197",
+      "fighter": "donkeykong",
+      "motion": "final_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalattack",
+        "path": "sources/native/donkey/FinalAttack.txt",
+        "sha256": "d436baea2a47ac81ca3fb544f0a4c520d347890b39767b739513f17c8cfacc32",
+        "effectName": "donkey_final_rash",
+        "line": 197,
+        "lexicalNativeFrame": 115.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 115.0,
+        "endAgeExclusive": 119.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -20.0
+        },
+        "angleDegrees": 0,
+        "scale": 2.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_attack.donkey_final_rash.line201",
+      "fighter": "donkeykong",
+      "motion": "final_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalattack",
+        "path": "sources/native/donkey/FinalAttack.txt",
+        "sha256": "d436baea2a47ac81ca3fb544f0a4c520d347890b39767b739513f17c8cfacc32",
+        "effectName": "donkey_final_rash",
+        "line": 201,
+        "lexicalNativeFrame": 119.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 119.0,
+        "endAgeExclusive": 123.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 175.0,
+          "y": -60.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.6,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_attack.donkey_final_rash.line205",
+      "fighter": "donkeykong",
+      "motion": "final_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalattack",
+        "path": "sources/native/donkey/FinalAttack.txt",
+        "sha256": "d436baea2a47ac81ca3fb544f0a4c520d347890b39767b739513f17c8cfacc32",
+        "effectName": "donkey_final_rash",
+        "line": 205,
+        "lexicalNativeFrame": 123.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 123.0,
+        "endAgeExclusive": 127.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -50.0
+        },
+        "angleDegrees": 0,
+        "scale": 2.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_attack.donkey_final_rashhit.line207",
+      "fighter": "donkeykong",
+      "motion": "final_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalattack",
+        "path": "sources/native/donkey/FinalAttack.txt",
+        "sha256": "d436baea2a47ac81ca3fb544f0a4c520d347890b39767b739513f17c8cfacc32",
+        "effectName": "donkey_final_rashhit",
+        "line": 207,
+        "lexicalNativeFrame": 123.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 123.0,
+        "endAgeExclusive": 127.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -65.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_attack.donkey_final_rash.line211",
+      "fighter": "donkeykong",
+      "motion": "final_attack",
+      "phases": [
+        "success"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalattack",
+        "path": "sources/native/donkey/FinalAttack.txt",
+        "sha256": "d436baea2a47ac81ca3fb544f0a4c520d347890b39767b739513f17c8cfacc32",
+        "effectName": "donkey_final_rash",
+        "line": 211,
+        "lexicalNativeFrame": 127.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 127.0,
+        "endAgeExclusive": 131.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 200.0,
+          "y": -40.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.6,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_end.donkey_final_arc.line115",
+      "fighter": "donkeykong",
+      "motion": "final_end",
+      "phases": [
+        "end"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalend",
+        "path": "sources/native/donkey/FinalEnd.txt",
+        "sha256": "d46683b66dfcad482a1b053a6e10489d65c6f6792df1947edb5250b094fe1a1c",
+        "effectName": "donkey_final_arc",
+        "line": 115,
+        "lexicalNativeFrame": 7.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 7.0,
+        "endAgeExclusive": 16.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 9,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 20.0,
+          "y": -70.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_end.donkey_final_lasthit.line119",
+      "fighter": "donkeykong",
+      "motion": "final_end",
+      "phases": [
+        "end"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalend",
+        "path": "sources/native/donkey/FinalEnd.txt",
+        "sha256": "d46683b66dfcad482a1b053a6e10489d65c6f6792df1947edb5250b094fe1a1c",
+        "effectName": "donkey_final_lasthit",
+        "line": 119,
+        "lexicalNativeFrame": 7.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 7.0,
+        "endAgeExclusive": 16.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 9,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 165.0,
+          "y": -55.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "donkeykong.final_start.donkey_giantpunch.line70",
+      "fighter": "donkeykong",
+      "motion": "final_start",
+      "phases": [
+        "start"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalstart",
+        "path": "sources/native/donkey/FinalStart.txt",
+        "sha256": "63c5131027583e09ff28152a57d19d51781d07ef7bfa83d1f454442d0cc01511",
+        "effectName": "donkey_giantpunch",
+        "line": 70,
+        "lexicalNativeFrame": 28.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 28.0,
+        "endAgeExclusive": 32.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 1,
+        "localOffset": {
+          "x": 90.0,
+          "y": -60.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.0,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "pikachu.final.pikachu_final_hold.line56",
+      "fighter": "pikachu",
+      "motion": "final",
+      "phases": [
+        "startup"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_final",
+        "path": "sources/native/pikachu/Final.txt",
+        "sha256": "7aa8f4206f72be98d5522630da58ac5a6a1bd11aff53e50965e716de0e4b0397",
+        "effectName": "pikachu_final_hold",
+        "line": 56,
+        "lexicalNativeFrame": 10.0,
+        "bone": "hip"
+      },
+      "selection": {
+        "startAge": 10.0,
+        "endAgeExclusive": 50.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 40,
+        "bodyAgeOffset": 0,
+        "localOffset": {
+          "x": 0.0,
+          "y": -0.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.0,
+        "layer": "behind-body"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "pikachu.final.pikachu_final_sphere_start.line61",
+      "fighter": "pikachu",
+      "motion": "final",
+      "phases": [
+        "startup",
+        "dash",
+        "hit",
+        "attack",
+        "attack2",
+        "attack-finish",
+        "return"
+      ],
+      "clockDomain": "run-flight",
+      "carryAdmission": {
+        "motion": "final",
+        "phase": "startup",
+        "startAge": 50
+      },
+      "source": {
+        "function": "effect_final",
+        "path": "sources/native/pikachu/Final.txt",
+        "sha256": "7aa8f4206f72be98d5522630da58ac5a6a1bd11aff53e50965e716de0e4b0397",
+        "effectName": "pikachu_final_sphere_start",
+        "line": 61,
+        "lexicalNativeFrame": 50.0,
+        "bone": "hip"
+      },
+      "selection": {
+        "startAge": 0,
+        "endAgeExclusive": null,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": null,
+        "bodyAgeOffset": 0,
+        "localOffset": {
+          "x": 0.0,
+          "y": -0.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.0,
+        "layer": "behind-body"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "pikachu.final2.pikachu_final_hold.line25",
+      "fighter": "pikachu",
+      "motion": "final2",
+      "phases": [
+        "finish"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_final2",
+        "path": "sources/native/pikachu/Final2.txt",
+        "sha256": "9e818492a0c1edcaba7796ce0ae3eb1ed516ecbe40faaadf22e35b9f71b6ea6f",
+        "effectName": "pikachu_final_hold",
+        "line": 25,
+        "lexicalNativeFrame": 0,
+        "bone": "hip"
+      },
+      "selection": {
+        "startAge": 0,
+        "endAgeExclusive": 10,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 10,
+        "bodyAgeOffset": 0,
+        "localOffset": {
+          "x": 0.0,
+          "y": -0.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.2,
+        "layer": "behind-body"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "pikachu.final2.pikachu_final_elec.line29",
+      "fighter": "pikachu",
+      "motion": "final2",
+      "phases": [
+        "finish"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_final2",
+        "path": "sources/native/pikachu/Final2.txt",
+        "sha256": "9e818492a0c1edcaba7796ce0ae3eb1ed516ecbe40faaadf22e35b9f71b6ea6f",
+        "effectName": "pikachu_final_elec",
+        "line": 29,
+        "lexicalNativeFrame": 5.0,
+        "bone": "hip"
+      },
+      "selection": {
+        "startAge": 5.0,
+        "endAgeExclusive": 39.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 34,
+        "bodyAgeOffset": 0,
+        "localOffset": {
+          "x": 0.0,
+          "y": -65.0
+        },
+        "angleDegrees": 0,
+        "scale": 0.8,
+        "layer": "behind-body"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "pikachu.final2.pikachu_final_explosion.line34",
+      "fighter": "pikachu",
+      "motion": "final2",
+      "phases": [
+        "finish"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_final2",
+        "path": "sources/native/pikachu/Final2.txt",
+        "sha256": "9e818492a0c1edcaba7796ce0ae3eb1ed516ecbe40faaadf22e35b9f71b6ea6f",
+        "effectName": "pikachu_final_explosion",
+        "line": 34,
+        "lexicalNativeFrame": 10.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 10.0,
+        "endAgeExclusive": 14.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 0,
+        "localOffset": {
+          "x": 0.0,
+          "y": -65.0
+        },
+        "angleDegrees": 0,
+        "scale": 0.9,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "pikachu.final_air.pikachu_final_hold.line56",
+      "fighter": "pikachu",
+      "motion": "final_air",
+      "phases": [
+        "startup"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalair",
+        "path": "sources/native/pikachu/FinalAir.txt",
+        "sha256": "a803c986ba71c6d33fa1bd79d78decfa33a42590c493692b5cdd93904466ec5a",
+        "effectName": "pikachu_final_hold",
+        "line": 56,
+        "lexicalNativeFrame": 10.0,
+        "bone": "hip"
+      },
+      "selection": {
+        "startAge": 10.0,
+        "endAgeExclusive": 50.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 40,
+        "bodyAgeOffset": 0,
+        "localOffset": {
+          "x": 0.0,
+          "y": -0.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.0,
+        "layer": "behind-body"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "pikachu.final_air.pikachu_final_sphere_start.line61",
+      "fighter": "pikachu",
+      "motion": "final_air",
+      "phases": [
+        "startup",
+        "dash",
+        "hit",
+        "attack",
+        "attack2",
+        "attack-finish",
+        "return"
+      ],
+      "clockDomain": "run-flight",
+      "carryAdmission": {
+        "motion": "final_air",
+        "phase": "startup",
+        "startAge": 50
+      },
+      "source": {
+        "function": "effect_finalair",
+        "path": "sources/native/pikachu/FinalAir.txt",
+        "sha256": "a803c986ba71c6d33fa1bd79d78decfa33a42590c493692b5cdd93904466ec5a",
+        "effectName": "pikachu_final_sphere_start",
+        "line": 61,
+        "lexicalNativeFrame": 50.0,
+        "bone": "hip"
+      },
+      "selection": {
+        "startAge": 0,
+        "endAgeExclusive": null,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": null,
+        "bodyAgeOffset": 0,
+        "localOffset": {
+          "x": 0.0,
+          "y": -0.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.0,
+        "layer": "behind-body"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "pikachu.final_air2.pikachu_final_hold.line25",
+      "fighter": "pikachu",
+      "motion": "final_air2",
+      "phases": [
+        "finish"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalair2",
+        "path": "sources/native/pikachu/FinalAir2.txt",
+        "sha256": "e711ad8fc77a83afc3a282cc626e128e9c370a1a9ac6d295468e02b7fadff525",
+        "effectName": "pikachu_final_hold",
+        "line": 25,
+        "lexicalNativeFrame": 0,
+        "bone": "hip"
+      },
+      "selection": {
+        "startAge": 0,
+        "endAgeExclusive": 10,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 10,
+        "bodyAgeOffset": 0,
+        "localOffset": {
+          "x": 0.0,
+          "y": -0.0
+        },
+        "angleDegrees": 0,
+        "scale": 1.2,
+        "layer": "behind-body"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "pikachu.final_air2.pikachu_final_elec.line29",
+      "fighter": "pikachu",
+      "motion": "final_air2",
+      "phases": [
+        "finish"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalair2",
+        "path": "sources/native/pikachu/FinalAir2.txt",
+        "sha256": "e711ad8fc77a83afc3a282cc626e128e9c370a1a9ac6d295468e02b7fadff525",
+        "effectName": "pikachu_final_elec",
+        "line": 29,
+        "lexicalNativeFrame": 5.0,
+        "bone": "hip"
+      },
+      "selection": {
+        "startAge": 5.0,
+        "endAgeExclusive": 39.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 34,
+        "bodyAgeOffset": 0,
+        "localOffset": {
+          "x": 0.0,
+          "y": -65.0
+        },
+        "angleDegrees": 0,
+        "scale": 0.8,
+        "layer": "behind-body"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "pikachu.final_air2.pikachu_final_explosion.line34",
+      "fighter": "pikachu",
+      "motion": "final_air2",
+      "phases": [
+        "finish"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalair2",
+        "path": "sources/native/pikachu/FinalAir2.txt",
+        "sha256": "e711ad8fc77a83afc3a282cc626e128e9c370a1a9ac6d295468e02b7fadff525",
+        "effectName": "pikachu_final_explosion",
+        "line": 34,
+        "lexicalNativeFrame": 10.0,
+        "bone": "top"
+      },
+      "selection": {
+        "startAge": 10.0,
+        "endAgeExclusive": 14.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 4,
+        "bodyAgeOffset": 0,
+        "localOffset": {
+          "x": 0.0,
+          "y": -65.0
+        },
+        "angleDegrees": 0,
+        "scale": 0.9,
+        "layer": "in-front"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "pikachu.final_air_dash_end.pikachu_final_elec.line12",
+      "fighter": "pikachu",
+      "motion": "final_air_dash_end",
+      "phases": [
+        "miss"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finalairdashend",
+        "path": "sources/native/pikachu/FinalAirDashEnd.txt",
+        "sha256": "69cfba955cfbc4e8d6c53ac3cb776f28d42da2fc13c508baba0aea8f4f306859",
+        "effectName": "pikachu_final_elec",
+        "line": 12,
+        "lexicalNativeFrame": 1.0,
+        "bone": "hip"
+      },
+      "selection": {
+        "startAge": 1.0,
+        "endAgeExclusive": 50.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 49,
+        "bodyAgeOffset": 0,
+        "localOffset": {
+          "x": 0.0,
+          "y": -0.0
+        },
+        "angleDegrees": 0,
+        "scale": 0.8,
+        "layer": "behind-body"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    },
+    {
+      "key": "pikachu.final_dash_end.pikachu_final_elec.line14",
+      "fighter": "pikachu",
+      "motion": "final_dash_end",
+      "phases": [
+        "miss"
+      ],
+      "clockDomain": "owner-motion",
+      "carryAdmission": null,
+      "source": {
+        "function": "effect_finaldashend",
+        "path": "sources/native/pikachu/FinalDashEnd.txt",
+        "sha256": "c0621dae257d163c7cf98300e60f49e66554235453b11ab8c49159f787f45025",
+        "effectName": "pikachu_final_elec",
+        "line": 14,
+        "lexicalNativeFrame": 1.0,
+        "bone": "hip"
+      },
+      "selection": {
+        "startAge": 1.0,
+        "endAgeExclusive": 50.0,
+        "repeatEveryFrames": null,
+        "lifetimeFrames": 49,
+        "bodyAgeOffset": 0,
+        "localOffset": {
+          "x": 0.0,
+          "y": -0.0
+        },
+        "angleDegrees": 0,
+        "scale": 0.8,
+        "layer": "behind-body"
+      },
+      "precision": "SOURCE_GUIDED_AUTHORED_FINAL_FX_CLOCK"
+    }
+  ]
+}

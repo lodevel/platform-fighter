@@ -82,6 +82,8 @@ export interface StockTrackerOptions {
    * `stock_count: 3` ontology entry).
    */
   readonly stockCount?: number;
+  /** Time matches respawn after every fall until sudden death begins. */
+  readonly unlimitedStocks?: boolean;
   /**
    * Delay between losing a stock and respawning, in 60 Hz frames.
    * Default 0 — instant respawn at the spawn point. Callers wanting a
@@ -186,6 +188,8 @@ export class StockTracker {
 
   private readonly stocks: number[];
   private readonly respawnFrames: number[]; // -1 means "not respawning"
+  private unlimitedStocks: boolean;
+  private readonly initialUnlimitedStocks: boolean;
 
   constructor(options: StockTrackerOptions) {
     if (
@@ -199,6 +203,8 @@ export class StockTracker {
       );
     }
     this.playerCount = options.playerCount;
+    this.unlimitedStocks = options.unlimitedStocks ?? false;
+    this.initialUnlimitedStocks = this.unlimitedStocks;
     this.initialStocks = options.stockCount ?? DEFAULT_STOCK_COUNT;
     if (this.initialStocks < 1 || Math.floor(this.initialStocks) !== this.initialStocks) {
       throw new Error(
@@ -331,7 +337,7 @@ export class StockTracker {
       };
     }
 
-    const after = before - 1;
+    const after = this.unlimitedStocks ? before : before - 1;
     this.stocks[playerIndex] = after;
 
     if (after > 0) {
@@ -387,6 +393,7 @@ export class StockTracker {
    * Used by the (later AC) match-restart and replay rewind flows.
    */
   reset(): void {
+    this.unlimitedStocks = this.initialUnlimitedStocks;
     for (let i = 0; i < this.playerCount; i += 1) {
       this.stocks[i] = this.initialStocks;
       this.respawnFrames[i] = -1;
@@ -426,6 +433,11 @@ export class StockTracker {
     // path doesn't want a tied player getting a phantom respawn from
     // a pre-sudden-death KO).
     this.respawnFrames[playerIndex] = -1;
+  }
+
+  /** Switch to finite lives before assigning sudden-death stocks. */
+  setUnlimitedStocks(enabled: boolean): void {
+    this.unlimitedStocks = enabled;
   }
 
   // -------------------------------------------------------------------------

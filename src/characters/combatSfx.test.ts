@@ -6,7 +6,7 @@ import { Character, type CharacterInput } from './Character';
 // extraction story.
 import './attackRegistration';
 import type { AttackMove } from './attacks';
-import { PLATFORM_LABELS } from '../stages/StageRenderer';
+import { PLATFORM_LABELS } from '../stages/stageBodies';
 import { ASSET_KEYS } from '../assets/manifest';
 import type { CombatSfxSink } from '../audio/combatAudio';
 
@@ -129,9 +129,10 @@ function makePlatform(x: number, y: number) {
   return { label: PLATFORM_LABELS.solid, position: { x, y } };
 }
 
-function ground(ch: Character, m: MockScene): void {
+function ground(ch: Character, m: MockScene) {
   const plat = makePlatform(ch.getPosition().x, ch.getPosition().y + 100);
   m.emit('collisionstart', [{ bodyA: ch.body, bodyB: plat }]);
+  return plat;
 }
 
 // ---------------------------------------------------------------------------
@@ -198,6 +199,18 @@ const NAIR: AttackMove = {
   cooldownFrames: 1,
 };
 
+/**
+ * Real roster profiles spend frames in landing recovery right after the mock
+ * scene's first ground contact, which holds off shield / dodge / jump. These
+ * tests are about SFX wiring, so remove the landing lag (same idea as
+ * Character.test.ts's GENERIC_FIXTURE).
+ */
+const LANDING_FREE_FIXTURE = {
+  id: 'donkeykong',
+  softLandingFrames: 0,
+  hardLandingFrames: 0,
+} as const;
+
 const NEUTRAL: CharacterInput = { moveX: 0, jump: false };
 
 // ---------------------------------------------------------------------------
@@ -209,7 +222,7 @@ describe('Character — attack SFX firing (AC 10302 Sub-AC 2)', () => {
     const m = createMockScene();
     const sink = new RecorderSink();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...LANDING_FREE_FIXTURE,
       spawnX: 0,
       spawnY: 0,
       sfxSink: sink,
@@ -235,7 +248,7 @@ describe('Character — attack SFX firing (AC 10302 Sub-AC 2)', () => {
     const m = createMockScene();
     const sink = new RecorderSink();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...LANDING_FREE_FIXTURE,
       spawnX: 0,
       spawnY: 0,
       sfxSink: sink,
@@ -255,7 +268,7 @@ describe('Character — attack SFX firing (AC 10302 Sub-AC 2)', () => {
     const m = createMockScene();
     const sink = new RecorderSink();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...LANDING_FREE_FIXTURE,
       spawnX: 0,
       spawnY: 0,
       sfxSink: sink,
@@ -274,7 +287,7 @@ describe('Character — attack SFX firing (AC 10302 Sub-AC 2)', () => {
     const m = createMockScene();
     const sink = new RecorderSink();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...LANDING_FREE_FIXTURE,
       spawnX: 0,
       spawnY: 0,
       sfxSink: sink,
@@ -294,7 +307,7 @@ describe('Character — attack SFX firing (AC 10302 Sub-AC 2)', () => {
     const m = createMockScene();
     const sink = new RecorderSink();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...LANDING_FREE_FIXTURE,
       spawnX: 0,
       spawnY: 0,
       sfxSink: sink,
@@ -311,7 +324,7 @@ describe('Character — attack SFX firing (AC 10302 Sub-AC 2)', () => {
 
   it('does not fire any cue when the sink is not wired', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...LANDING_FREE_FIXTURE, spawnX: 0, spawnY: 0 });
     ground(ch, m);
     ch.registerAttack(JAB);
     ch.attemptAttack(JAB.id);
@@ -325,7 +338,7 @@ describe('Character — attack SFX firing (AC 10302 Sub-AC 2)', () => {
     const m = createMockScene();
     const sink = new RecorderSink();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...LANDING_FREE_FIXTURE,
       spawnX: 0,
       spawnY: 0,
       sfxSink: sink,
@@ -352,7 +365,7 @@ describe('Character — attack SFX firing (AC 10302 Sub-AC 2)', () => {
       },
     };
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...LANDING_FREE_FIXTURE,
       spawnX: 0,
       spawnY: 0,
       sfxSink: throwingSink,
@@ -375,7 +388,7 @@ describe('Character — shield SFX firing (AC 10302 Sub-AC 2)', () => {
     const m = createMockScene();
     const sink = new RecorderSink();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...LANDING_FREE_FIXTURE,
       spawnX: 0,
       spawnY: 0,
       sfxSink: sink,
@@ -389,7 +402,7 @@ describe('Character — shield SFX firing (AC 10302 Sub-AC 2)', () => {
     const m = createMockScene();
     const sink = new RecorderSink();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...LANDING_FREE_FIXTURE,
       spawnX: 0,
       spawnY: 0,
       sfxSink: sink,
@@ -406,7 +419,7 @@ describe('Character — shield SFX firing (AC 10302 Sub-AC 2)', () => {
     const m = createMockScene();
     const sink = new RecorderSink();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...LANDING_FREE_FIXTURE,
       spawnX: 0,
       spawnY: 0,
       sfxSink: sink,
@@ -415,7 +428,12 @@ describe('Character — shield SFX firing (AC 10302 Sub-AC 2)', () => {
     ch.applyInput({ moveX: 0, jump: false, shield: true });
     // Release for a frame. The runtime needs the held=false transition
     // so the next press is a fresh rising edge.
+    ch.applyInput({ moveX: 0, jump: false, shield: true });
+    ch.applyInput({ moveX: 0, jump: false, shield: true });
     ch.applyInput({ moveX: 0, jump: false, shield: false });
+    // Re-raising is locked during the eleven-step release commitment.
+    // Keep the sound assertion tied to an actual second shield raise.
+    while (ch.getShieldReleaseRemaining() > 0) ch.applyInput(NEUTRAL);
     ch.applyInput({ moveX: 0, jump: false, shield: true });
     expect(sink.calls).toEqual([ASSET_KEYS.sfxShield, ASSET_KEYS.sfxShield]);
   });
@@ -424,7 +442,7 @@ describe('Character — shield SFX firing (AC 10302 Sub-AC 2)', () => {
     const m = createMockScene();
     const sink = new RecorderSink();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...LANDING_FREE_FIXTURE,
       spawnX: 0,
       spawnY: 0,
       sfxSink: sink,
@@ -444,7 +462,7 @@ describe('Character — dodge SFX firing (AC 10302 Sub-AC 2)', () => {
     const m = createMockScene();
     const sink = new RecorderSink();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...LANDING_FREE_FIXTURE,
       spawnX: 0,
       spawnY: 0,
       sfxSink: sink,
@@ -458,7 +476,7 @@ describe('Character — dodge SFX firing (AC 10302 Sub-AC 2)', () => {
     const m = createMockScene();
     const sink = new RecorderSink();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...LANDING_FREE_FIXTURE,
       spawnX: 0,
       spawnY: 0,
       sfxSink: sink,
@@ -472,7 +490,7 @@ describe('Character — dodge SFX firing (AC 10302 Sub-AC 2)', () => {
     const m = createMockScene();
     const sink = new RecorderSink();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...LANDING_FREE_FIXTURE,
       spawnX: 0,
       spawnY: 0,
       sfxSink: sink,
@@ -491,7 +509,7 @@ describe('Character — dodge SFX firing (AC 10302 Sub-AC 2)', () => {
     const m = createMockScene();
     const sink = new RecorderSink();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...LANDING_FREE_FIXTURE,
       spawnX: 0,
       spawnY: 0,
       sfxSink: sink,
@@ -506,10 +524,9 @@ describe('Character — dodge SFX firing (AC 10302 Sub-AC 2)', () => {
 // Jump SFX — AC 10304 (ground vs air-jump variants)
 // ---------------------------------------------------------------------------
 
-function unground(ch: Character, m: MockScene): void {
+function unground(ch: Character, m: MockScene, plat: ReturnType<typeof makePlatform>): void {
   // Drop every platform support so `isGrounded()` reads false — mirrors
   // the fighter walking off / being launched off a ledge.
-  const plat = makePlatform(ch.getPosition().x, ch.getPosition().y + 100);
   m.emit('collisionend', [{ bodyA: ch.body, bodyB: plat }]);
 }
 
@@ -518,13 +535,17 @@ describe('Character — jump SFX firing (AC 10304)', () => {
     const m = createMockScene();
     const sink = new RecorderSink();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...LANDING_FREE_FIXTURE,
       spawnX: 0,
       spawnY: 0,
       sfxSink: sink,
     });
     ground(ch, m);
     ch.applyInput({ moveX: 0, jump: true });
+    for (let frame = 0; frame < 3; frame += 1) {
+      expect(sink.calls).toEqual([]);
+      ch.applyInput({ moveX: 0, jump: true });
+    }
     expect(sink.calls).toEqual([ASSET_KEYS.sfxJump]);
   });
 
@@ -532,17 +553,20 @@ describe('Character — jump SFX firing (AC 10304)', () => {
     const m = createMockScene();
     const sink = new RecorderSink();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...LANDING_FREE_FIXTURE,
       spawnX: 0,
       spawnY: 0,
       sfxSink: sink,
     });
-    ground(ch, m);
+    const platform = ground(ch, m);
     // First jump off the ground → sfx.jump.
     ch.applyInput({ moveX: 0, jump: true });
+    for (let frame = 0; frame < 3; frame += 1) {
+      ch.applyInput({ moveX: 0, jump: true });
+    }
     // Leave the ground + release the button so the next press is a fresh
     // rising edge consuming the air jump.
-    unground(ch, m);
+    unground(ch, m, platform);
     ch.applyInput({ moveX: 0, jump: false });
     ch.applyInput({ moveX: 0, jump: true });
     expect(sink.calls).toEqual([ASSET_KEYS.sfxJump, ASSET_KEYS.sfxJumpAir]);
@@ -552,7 +576,7 @@ describe('Character — jump SFX firing (AC 10304)', () => {
     const m = createMockScene();
     const sink = new RecorderSink();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...LANDING_FREE_FIXTURE,
       spawnX: 0,
       spawnY: 0,
       sfxSink: sink,
@@ -583,7 +607,7 @@ describe('Character — landing SFX firing (AC 10304)', () => {
     const m = createMockScene();
     const sink = new RecorderSink();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      id: 'donkeykong',
       spawnX: 0,
       spawnY: 0,
       sfxSink: sink,
@@ -604,13 +628,14 @@ describe('Character — landing SFX firing (AC 10304)', () => {
     const m = createMockScene();
     const sink = new RecorderSink();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      id: 'donkeykong',
       spawnX: 0,
       spawnY: 0,
       sfxSink: sink,
     });
-    ch.applyInput(NEUTRAL); // airborne, velocity.y == 0
+    ch.applyInput(NEUTRAL); // airborne
     ground(ch, m);
+    ch.body.velocity.y = 0; // the airborne step above applied the profile's gravity; settle with no descent
     ch.applyInput(NEUTRAL); // grounded but never descended — silent
     expect(sink.calls).toEqual([]);
   });
@@ -619,7 +644,7 @@ describe('Character — landing SFX firing (AC 10304)', () => {
     const m = createMockScene();
     const sink = new RecorderSink();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      id: 'donkeykong',
       spawnX: 0,
       spawnY: 0,
       sfxSink: sink,
@@ -636,7 +661,7 @@ describe('Character — landing SFX firing (AC 10304)', () => {
     const m = createMockScene();
     const sink = new RecorderSink();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      id: 'donkeykong',
       spawnX: 0,
       spawnY: 0,
       sfxSink: sink,
@@ -644,8 +669,13 @@ describe('Character — landing SFX firing (AC 10304)', () => {
     ch.applyInput(NEUTRAL); // airborne, jump released
     ground(ch, m);
     setFalling(ch);
-    // Land + jump on the same frame — the jump cue owns the frame, no thud.
+    // Land + jump starts squat silently; the jump cue belongs to takeoff.
     ch.applyInput({ moveX: 0, jump: true });
+    // The roster profile's jumpsquat is longer than the old generic fixture's: hold
+    // until takeoff. Only the jump cue may sound (a land thud would show up first).
+    for (let frame = 0; frame < 20 && sink.calls.length === 0; frame += 1) {
+      ch.applyInput({ moveX: 0, jump: true });
+    }
     expect(sink.calls).toEqual([ASSET_KEYS.sfxJump]);
   });
 });
@@ -659,7 +689,7 @@ describe('Character — shield-break SFX firing (AC 10304)', () => {
     const m = createMockScene();
     const sink = new RecorderSink();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...LANDING_FREE_FIXTURE,
       spawnX: 0,
       spawnY: 0,
       sfxSink: sink,
@@ -688,7 +718,7 @@ describe('Character — shield-break SFX firing (AC 10304)', () => {
     const m = createMockScene();
     const sink = new RecorderSink();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...LANDING_FREE_FIXTURE,
       spawnX: 0,
       spawnY: 0,
       sfxSink: sink,
@@ -717,7 +747,7 @@ describe('Character — setSfxSink (AC 10302 Sub-AC 2)', () => {
   it('attaches a sink post-construction so subsequent events fire', () => {
     const m = createMockScene();
     const sink = new RecorderSink();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...LANDING_FREE_FIXTURE, spawnX: 0, spawnY: 0 });
     ground(ch, m);
     expect(ch.getSfxSink()).toBe(null);
 
@@ -732,7 +762,7 @@ describe('Character — setSfxSink (AC 10302 Sub-AC 2)', () => {
     const m = createMockScene();
     const sink = new RecorderSink();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...LANDING_FREE_FIXTURE,
       spawnX: 0,
       spawnY: 0,
       sfxSink: sink,

@@ -88,12 +88,16 @@
  * the M4 milestone introduces.
  */
 
-import type { MatchConfig, MatchMode, PlayerSlot } from '../types';
+import { LINK_FORMAT_CURRENT, LINK_FORMAT_FIELD, LINK_FORMAT_LEGACY } from '../characters/persistedFormatMarker';
+import { CHARACTER_IDS, type MatchConfig, type MatchMode, type PlayerSlot } from '../types';
+import { NEW_MATCH_FINAL_RULES, parseFinalSmashRules } from '../finalSmash/finalSmashSchema';
+import { snapshotCustomCharacter } from '../match/characterSnapshot';
 import type {
   CapturedFrame,
   RecordedCharacterInput,
 } from './InputCaptureBuffer';
 import type { ItemSpawnEvent } from './ItemSpawnEventLog';
+import { isRecordedLedgeRelease } from './InputCaptureBuffer';
 import {
   REPLAY_FORMAT_MAGIC,
   REPLAY_FORMAT_VERSION,
@@ -515,6 +519,9 @@ function validateMatchConfigForWrite(config: MatchConfig | undefined | null): vo
   for (let i = 0; i < config.players.length; i += 1) {
     validatePlayerSlotForWrite(config.players[i] as PlayerSlot, i);
   }
+  parseItemFrequency(config.itemFrequency);
+  parseItemSwitch(config.itemSwitch);
+  if (config.finalSmashRules !== undefined) parseReplayFinalRules(config.finalSmashRules);
 }
 
 function validatePlayerSlotForWrite(slot: PlayerSlot, idx: number): void {
@@ -551,6 +558,7 @@ function validatePlayerSlotForWrite(slot: PlayerSlot, idx: number): void {
         `non-empty string`,
     );
   }
+  parsePlayerExtras({ ...slot }, slot.characterId);
 }
 
 function freezeCapturedFramesForWrite(
@@ -657,6 +665,7 @@ function canonicaliseInputForWrite(
     jump: input.jump,
     attack: input.attack,
     dropThrough: input.dropThrough,
+    ...parseAdditionalInputFields(input, `serializeReplay: capturedFrames[${frameIdx}].inputs[${playerIdx}]`, true),
   });
 }
 
@@ -674,10 +683,16 @@ function freezeMatchConfigForWrite(
         ...(slot.aiDifficulty !== undefined
           ? { aiDifficulty: slot.aiDifficulty }
           : {}),
+        ...parsePlayerExtras({ ...slot }, slot.characterId),
+        // Write-only marker (not part of PlayerSlot): parseMatchConfig drops it on read.
+        ...(slot.characterId === 'link' ? { [LINK_FORMAT_FIELD]: LINK_FORMAT_CURRENT } : {}),
       }),
     ),
   ) as ReadonlyArray<PlayerSlot>;
   return Object.freeze({
+    finalSmashRules: parseReplayFinalRules(config.finalSmashRules ?? NEW_MATCH_FINAL_RULES),
+    // Always explicit, like the Final Smash rules: an omitted policy reads back as 'none' (see parseMatchConfig).
+    linkIntroPolicy: parseLinkIntroPolicy(config.linkIntroPolicy ?? 'none'),
     mode: config.mode,
     stockCount: config.stockCount,
     ...(config.timeLimitSeconds !== undefined
@@ -686,6 +701,8 @@ function freezeMatchConfigForWrite(
     stageId: config.stageId,
     players,
     rngSeed,
+    ...(config.itemFrequency !== undefined ? { itemFrequency: config.itemFrequency } : {}),
+    ...(config.itemSwitch !== undefined ? { itemSwitch: Object.freeze({ ...config.itemSwitch }) } : {}),
   });
 }
 
@@ -843,12 +860,16 @@ function parseMatchConfig(raw: unknown): MatchConfig {
   const rngSeed = parseRngSeed(c['rngSeed']);
 
   const built: MatchConfig = {
+    finalSmashRules: parseReplayFinalRules(c['finalSmashRules']),
+    linkIntroPolicy:c['linkIntroPolicy']===undefined?'none':parseLinkIntroPolicy(c['linkIntroPolicy']),
     mode: mode as MatchMode,
     stockCount,
     ...(timeLimitSeconds !== undefined ? { timeLimitSeconds } : {}),
     stageId: c['stageId'],
     players: Object.freeze(players),
     rngSeed,
+    ...(c['itemFrequency'] !== undefined ? { itemFrequency: parseItemFrequency(c['itemFrequency'])! } : {}),
+    ...(c['itemSwitch'] !== undefined ? { itemSwitch: parseItemSwitch(c['itemSwitch'])! } : {}),
   };
   return Object.freeze(built);
 }
@@ -869,6 +890,11 @@ function parsePlayerSlot(raw: unknown, idx: number): PlayerSlot {
   if (typeof s['characterId'] !== 'string' || s['characterId'].length === 0) {
     throw new ReplayFileError(
       `Replay matchConfig.players[${idx}].characterId must be a non-empty string`,
+    );
+  }
+  if (!(CHARACTER_IDS as ReadonlyArray<string>).includes(s['characterId'])) {
+    throw new ReplayFileError(
+      `Replay matchConfig.players[${idx}] uses fighter '${s['characterId']}', which is no longer in the game`,
     );
   }
   const paletteIndex = s['paletteIndex'];
@@ -904,7 +930,74 @@ function parsePlayerSlot(raw: unknown, idx: number): PlayerSlot {
     paletteIndex,
     inputType: s['inputType'] as PlayerSlot['inputType'],
     ...(aiDifficulty !== undefined ? { aiDifficulty } : {}),
+    ...parsePlayerExtras(s, s['characterId'] as PlayerSlot['characterId']),
   });
+}
+
+/** Item Switch: item type → boolean; absent = every item on. */
+function parseLinkIntroPolicy(value:unknown):NonNullable<MatchConfig['linkIntroPolicy']>{
+  if(value!=='source-entry-121'&&value!=='none')throw new ReplayFileError('Replay linkIntroPolicy must identify the explicit initial presentation clock');
+  return value;
+}
+function parseReplayFinalRules(value: unknown): NonNullable<MatchConfig['finalSmashRules']> {
+  try { return parseFinalSmashRules(value); }
+  catch (error) { throw new ReplayFileError(`Invalid Final rules: ${error instanceof Error ? error.message : String(error)}`); }
+}
+
+function parseItemSwitch(value: unknown): MatchConfig['itemSwitch'] {
+  if (value === undefined) return undefined;
+  if (value === null || typeof value !== 'object' || Array.isArray(value)
+    || !Object.values(value).every(enabled => typeof enabled === 'boolean')) {
+    throw new ReplayFileError('Replay itemSwitch must map item types to booleans');
+  }
+  return Object.freeze({ ...(value as Record<string, boolean>) });
+}
+
+function parseItemFrequency(value: unknown): MatchConfig['itemFrequency'] {
+  if (value === undefined || value === 'off' || value === 'low' || value === 'med' || value === 'high') return value;
+  throw new ReplayFileError('Replay itemFrequency must be off, low, med or high');
+}
+
+function parsePlayerExtras(s: Record<string, unknown>, characterId: PlayerSlot['characterId']): Partial<PlayerSlot> {
+  const extras: { participantId?: string; bindingProfileIndex?: PlayerSlot['bindingProfileIndex']; bindingProfileId?: string; inputDevice?: PlayerSlot['inputDevice']; customCharacter?: PlayerSlot['customCharacter'] } = {};
+  const linkFormat = s[LINK_FORMAT_FIELD];
+  if (linkFormat !== undefined) {
+    if (characterId === 'link' && linkFormat === LINK_FORMAT_LEGACY)
+      throw new ReplayFileError('Replay was recorded with the pre-rebuild Link, which is no longer in the game');
+    if (characterId !== 'link' || linkFormat !== LINK_FORMAT_CURRENT)
+      throw new ReplayFileError('Invalid Link format marker');
+  }
+  if (s['participantId'] !== undefined) {
+    if (typeof s['participantId'] !== 'string' || !s['participantId'].trim()) throw new ReplayFileError('Invalid participantId');
+    extras.participantId = s['participantId'];
+  }
+  const profile = s['bindingProfileIndex'];
+  if (profile !== undefined) {
+    if (profile !== 1 && profile !== 2 && profile !== 3 && profile !== 4) throw new ReplayFileError('Invalid bindingProfileIndex');
+    extras.bindingProfileIndex = profile;
+  }
+  const profileId = s['bindingProfileId'];
+  if (profileId !== undefined) {
+    if (typeof profileId !== 'string' || !profileId.trim() || profileId.length > 128) throw new ReplayFileError('Invalid bindingProfileId');
+    extras.bindingProfileId = profileId;
+  }
+  if (s['inputDevice'] !== undefined) {
+    const raw = s['inputDevice'];
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) throw new ReplayFileError('Invalid inputDevice');
+    const device = raw as Record<string, unknown>;
+    if (device['kind'] === 'ai') extras.inputDevice = Object.freeze({ kind: 'ai' });
+    else if (device['kind'] === 'keyboard' && (device['layout'] === 'keyboard_p1' || device['layout'] === 'keyboard_p2')) {
+      extras.inputDevice = Object.freeze({ kind: 'keyboard', layout: device['layout'] });
+    } else if (device['kind'] === 'gamepad' && typeof device['gamepadIndex'] === 'number' && Number.isInteger(device['gamepadIndex']) && device['gamepadIndex'] >= 0) {
+      if (device['gamepadId'] !== undefined && typeof device['gamepadId'] !== 'string') throw new ReplayFileError('Invalid gamepadId');
+      extras.inputDevice = Object.freeze({ kind: 'gamepad', gamepadIndex: device['gamepadIndex'], ...(device['gamepadId'] !== undefined ? { gamepadId: device['gamepadId'] as string } : {}) });
+    } else throw new ReplayFileError('Invalid inputDevice');
+  }
+  if (s['customCharacter'] !== undefined) {
+    try { extras.customCharacter = snapshotCustomCharacter(s['customCharacter'], characterId); }
+    catch (error) { throw new ReplayFileError(`Invalid customCharacter: ${error instanceof Error ? error.message : String(error)}`); }
+  }
+  return extras;
 }
 
 function parseRngSeed(raw: unknown): number {
@@ -1068,7 +1161,39 @@ function parseRecordedInput(
     jump,
     attack,
     dropThrough,
+    ...parseAdditionalInputFields(i, `Replay inputTimeline.entries[${frameIdx}].inputs[${playerIdx}]`),
   });
+}
+
+/** Current-format files must carry every action. Legacy in-memory writer
+ * callers may omit optional CharacterInput fields; the writer emits their
+ * explicit defaults. */
+function parseAdditionalInputFields(input: object, location: string, allowMissing = false) {
+  const record = input as Record<string, unknown>;
+  const button = (key: string): boolean => {
+    const value = record[key];
+    if (value === undefined && allowMissing) return false;
+    if (typeof value !== 'boolean') throw new ReplayFileError(`${location}.${key} must be a boolean`);
+    return value;
+  };
+  const axis = (key: string): number => {
+    const value = record[key];
+    if (value === undefined && allowMissing) return 0;
+    if (typeof value !== 'number' || !Number.isFinite(value) || value < -1 || value > 1) {
+      throw new ReplayFileError(`${location}.${key} must be a finite number in [-1, 1]`);
+    }
+    return value;
+  };
+  const ledgeRelease = record['ledgeRelease'] === undefined && allowMissing ? null : record['ledgeRelease'];
+  if (!isRecordedLedgeRelease(ledgeRelease)) {
+    throw new ReplayFileError(`${location}.ledgeRelease must be null or a supported ledge action`);
+  }
+  return {
+    attackHeavy: button('attackHeavy'), special: button('special'), appeal: button('appeal'),
+    shield: button('shield'), dodge: button('dodge'), grab: button('grab'),
+    ledgeRelease,
+    attackStickX: axis('attackStickX'), attackStickY: axis('attackStickY'),
+  };
 }
 
 // ---------------------------------------------------------------------------

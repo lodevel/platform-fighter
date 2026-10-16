@@ -180,6 +180,9 @@ describe('closeCharacterInput', () => {
       dodge: false,
       dropThrough: false,
       ledgeRelease: null,
+      // Right-stick attack direction closes to 0 when absent.
+      attackStickX: 0,
+      attackStickY: 0,
     });
   });
 
@@ -209,6 +212,8 @@ describe('closeCharacterInput', () => {
       dodge: true,
       dropThrough: true,
       ledgeRelease: 'getUp',
+      attackStickX: -1,
+      attackStickY: 0,
     });
     expect(closed).toEqual({
       moveX: 1, moveY: 0,
@@ -221,6 +226,8 @@ describe('closeCharacterInput', () => {
       dodge: true,
       dropThrough: true,
       ledgeRelease: 'getUp',
+      attackStickX: -1,
+      attackStickY: 0,
     });
   });
 
@@ -582,6 +589,7 @@ describe('createBindingsKeyboardInputProvider — AC 40102 Sub-AC 2', () => {
         shield: [],
         grab: [],
         taunt: [],
+        smash: [],
       },
     };
     const fixture: PlayerBindingsProvider = {
@@ -1180,6 +1188,7 @@ describe('createBindingsGamepadInputProvider — AC 40103 Sub-AC 3', () => {
         shield: [],
         grab: [],
         taunt: [],
+        smash: [],
       },
     };
     const fixture: PlayerBindingsProvider = {
@@ -1290,6 +1299,7 @@ describe('createBindingsGamepadInputProvider — AC 40103 Sub-AC 3', () => {
         shield: [],
         grab: [],
         taunt: [],
+        smash: [],
       },
     };
     const fixture: PlayerBindingsProvider = { get: () => profile };
@@ -1333,6 +1343,7 @@ describe('createBindingsGamepadInputProvider — AC 40103 Sub-AC 3', () => {
         shield: [],
         grab: [],
         taunt: [],
+        smash: [],
       },
     };
     const fixture: PlayerBindingsProvider = { get: () => profile };

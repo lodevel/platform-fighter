@@ -455,6 +455,24 @@ describe('InputService — gamepad analog movement', () => {
 // ---------------------------------------------------------------------------
 
 describe('InputService — dodge resolution (default resolver)', () => {
+  it('fires from the persisted direct-dodge binding without shield or direction', () => {
+    const { service, keyboard } = build();
+    keyboard.press(KEY_CODE.R); // legacy `taunt` slot, presented as Dodge
+    const state = service.resolve(1);
+    expect(state.shield).toBe(false);
+    expect(state.move).toEqual({ x: 0, y: 0 });
+    expect(state.dodge).toBe(true);
+  });
+
+  it('does not synthesize dodge when the same physical key is rebound to jump', () => {
+    const { service, keyboard, store } = build();
+    store.setAction(1, 'jump', [{ kind: 'keyboard', keyCode: KEY_CODE.R }]);
+    keyboard.press(KEY_CODE.R);
+    const state = service.resolve(1);
+    expect(state.jump).toBe(true);
+    expect(state.dodge).toBe(false);
+  });
+
   it('returns false when shield is not held, regardless of stick', () => {
     const { service, keyboard } = build();
     keyboard.press(KEY_CODE.A); // pure left, no shield
@@ -500,6 +518,90 @@ describe('InputService — dodge resolution (default resolver)', () => {
     expect(state.move.y).toBe(-1);
   });
 
+  it('does not dodge when the dodge key and the smash key are pressed together', () => {
+    const { service, keyboard } = build();
+    keyboard.press(KEY_CODE.R, KEY_CODE.V); // Dodge (taunt slot) + Smash
+    expect(service.resolve(1).dodge).toBe(false);
+    keyboard.release(KEY_CODE.V);
+    expect(service.resolve(1).dodge).toBe(true);
+  });
+
+  it('held shield+special leaves a full keyboard direction available for actual shield shifting',()=>{
+    const {service,keyboard}=build();
+    keyboard.press(KEY_CODE.H,KEY_CODE.G,KEY_CODE.A);
+    const held=service.resolve(1);expect(held.shield).toBe(true);expect(held.special).toBe(true);
+    expect(held.move.x).toBe(-1);expect(held.dodge).toBe(false);
+    keyboard.release(KEY_CODE.G);expect(service.resolve(1).dodge).toBe(true);
+    keyboard.release(KEY_CODE.H,KEY_CODE.A);keyboard.press(KEY_CODE.R);
+    expect(service.resolve(1).dodge).toBe(true);
+  });
+
+  it('shield + up + smash is left to the out-of-shield up smash, not an up dodge', () => {
+    const { service, keyboard } = build();
+    keyboard.press(KEY_CODE.H, KEY_CODE.W, KEY_CODE.V);
+    const state = service.resolve(1);
+    expect(state.shield).toBe(true);
+    expect(state.move.y).toBe(-1);
+    expect(state.dodge).toBe(false);
+  });
+
+  it('a smash press only overrides the UP chord: shield + side / down + smash still dodge', () => {
+    const { service, keyboard } = build();
+    keyboard.press(KEY_CODE.H, KEY_CODE.A, KEY_CODE.V);
+    expect(service.resolve(1).dodge).toBe(true);
+    keyboard.release(KEY_CODE.A);
+    keyboard.press(KEY_CODE.S);
+    expect(service.resolve(1).dodge).toBe(true);
+  });
+
+  it('the up-chord override follows smashPressed (the edge) when the caller supplies it', () => {
+    const held = {
+      left: false, right: false, up: true, down: false, jump: true, attack: false,
+      special: false, shield: true, grab: false, taunt: false, smash: true,
+    };
+    const ctx: DodgeResolverContext = {
+      slot: 1, move: { x: 0, y: -1 }, jump: true, attack: false, special: false,
+      shield: true, grab: false, held,
+    };
+    expect(defaultDodgeResolver(ctx)).toBe(false); // no edge info: held smash suppresses
+    expect(defaultDodgeResolver({ ...ctx, smashPressed: true })).toBe(false);
+    // Smash held from an earlier frame (no press now): the chord is a dodge again.
+    expect(defaultDodgeResolver({ ...ctx, smashPressed: false })).toBe(true);
+  });
+
+  it('the direct dodge is blocked by a smash key / button or a smash press, not by a held smash stick', () => {
+    const held = {
+      left: false, right: false, up: false, down: false, jump: false, attack: false,
+      special: false, shield: false, grab: false, taunt: true, smash: true,
+    };
+    const ctx: DodgeResolverContext = {
+      slot: 3, move: { x: 0, y: 0 }, jump: false, attack: false, special: false,
+      shield: false, grab: false, held,
+    };
+    expect(defaultDodgeResolver(ctx)).toBe(false); // no split info: held smash blocks
+    // Right stick held deflected from an earlier frame: not a button, not a press.
+    expect(defaultDodgeResolver({ ...ctx, smashPressed: false, smashButtonHeld: false })).toBe(true);
+    expect(defaultDodgeResolver({ ...ctx, smashPressed: true, smashButtonHeld: false, smashStick: { x: 1, y: 0 } })).toBe(false);
+    expect(defaultDodgeResolver({ ...ctx, smashPressed: false, smashButtonHeld: true })).toBe(false);
+  });
+
+  it('the up-chord override needs an UP-aimed smash press (stick direction, else the left stick)', () => {
+    const held = {
+      left: false, right: false, up: true, down: false, jump: false, attack: false,
+      special: false, shield: true, grab: false, taunt: false, smash: true,
+    };
+    const ctx: DodgeResolverContext = {
+      slot: 3, move: { x: 0, y: -1 }, jump: false, attack: false, special: false,
+      shield: true, grab: false, held, smashPressed: true, smashButtonHeld: false,
+    };
+    expect(defaultDodgeResolver({ ...ctx, smashStick: { x: 0, y: -1 } })).toBe(false); // RS up: OoS up smash
+    expect(defaultDodgeResolver({ ...ctx, smashStick: { x: 1, y: 0 } })).toBe(true); // RS forward: dodge
+    expect(defaultDodgeResolver({ ...ctx, smashStick: { x: 0, y: 1 } })).toBe(true); // RS down: dodge
+    // No stick direction (a smash key / button): aims with the left stick, up here.
+    expect(defaultDodgeResolver({ ...ctx, smashButtonHeld: true, smashStick: { x: 0, y: 0 } })).toBe(false);
+    expect(defaultDodgeResolver({ ...ctx, smashButtonHeld: true })).toBe(false);
+  });
+
   it('default resolver respects the DODGE_DIRECTIONAL_THRESHOLD constant', () => {
     // Below the threshold should not fire; at-or-above should fire.
     const ctxBelow: DodgeResolverContext = {
@@ -521,6 +623,7 @@ describe('InputService — dodge resolution (default resolver)', () => {
         shield: true,
         grab: false,
         taunt: false,
+        smash: false,
       },
     };
     const ctxAtThreshold: DodgeResolverContext = {

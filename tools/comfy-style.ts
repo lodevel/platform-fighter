@@ -12,10 +12,18 @@
  */
 
 // ─── Canonical models (validated, see TODO.md) ──────────────────────────────
+// The bf16 defaults need ~20 GB of model memory. A machine that cannot hold
+// that (e.g. 8 GB VRAM / 16 GB WSL RAM) can point the whole pipeline at the
+// official smaller variants from the same Comfy-Org repo without editing code:
+//   PF_COMFY_UNET=z_image_turbo_int8_convrot.safetensors
+//   PF_COMFY_CLIP=qwen_3_4b_fp8_mixed.safetensors
+// Every generator (gen-sprite, build-canny-library, gen-frames-cn) reads MODELS,
+// and build-canny-library records MODELS.unet in its manifest, so the override
+// is captured as provenance rather than hidden.
 export const MODELS = {
-  unet: 'z_image_turbo_bf16.safetensors',
-  clip: 'qwen_3_4b.safetensors',
-  vae: 'ae.safetensors',
+  unet: process.env.PF_COMFY_UNET ?? 'z_image_turbo_bf16.safetensors',
+  clip: process.env.PF_COMFY_CLIP ?? 'qwen_3_4b.safetensors',
+  vae: process.env.PF_COMFY_VAE ?? 'ae.safetensors',
   /** Z-Image's qwen text encoder is loaded as the "lumina2" clip type in ComfyUI. */
   clipType: 'lumina2' as const,
 } as const;

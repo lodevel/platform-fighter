@@ -38,6 +38,7 @@ import {
   parseCharacterDataFile,
   serializeCharacterDataSpec,
 } from '../characters/characterSerializer';
+import { LINK_FORMAT_CURRENT, LINK_FORMAT_FIELD } from '../characters/persistedFormatMarker';
 
 /** Top-level localStorage namespace shared by all builder tools. */
 export const STORAGE_APP_NAMESPACE = 'platformfighter';
@@ -73,6 +74,8 @@ export const CHARACTER_RECORD_SCHEMA_VERSION = 2;
 const ACCEPTED_RECORD_SCHEMA_VERSIONS: ReadonlySet<number> = new Set([1, 2]);
 
 const PREFIX = `${STORAGE_APP_NAMESPACE}:${STORAGE_CHARACTERS_DOMAIN}:${STORAGE_CHARACTERS_VERSION_SEGMENT}`;
+const SLOT_ID_PATTERN = /^[a-z0-9][a-z0-9_-]{0,39}$/i;
+const RESERVED_SLOT_IDS: ReadonlySet<string> = new Set(['_index']);
 
 /** Compose the full localStorage key for a given slot id. */
 export function characterStorageKey(slotId: string): string {
@@ -148,27 +151,38 @@ export function saveCharacter(
   if (backend === null) {
     throw new Error('saveCharacter: no localStorage backend available');
   }
-  if (typeof slotId !== 'string' || slotId.length === 0) {
-    throw new Error('saveCharacter: slotId must be a non-empty string');
+  if (
+    typeof slotId !== 'string' ||
+    !SLOT_ID_PATTERN.test(slotId) ||
+    RESERVED_SLOT_IDS.has(slotId.toLowerCase())
+  ) {
+    throw new Error(
+      'saveCharacter: slotId must be 1-40 letters, numbers, dashes, or underscores and cannot be reserved',
+    );
   }
+  // Re-run the public parser at the persistence boundary. The editor can move
+  // individually valid fields into an invalid cross-field combination (for
+  // example a counter start after its end); never write an unloadable slot.
+  const validatedSpec = parseCharacterDataFile(
+    serializeCharacterDataSpec(spec),
+    `saveCharacter slot '${slotId}'`,
+  );
   const record: CharacterRecord = {
     schemaVersion: CHARACTER_RECORD_SCHEMA_VERSION,
     slotId,
     savedAtMs: nowMs,
-    spec,
+    spec: validatedSpec,
   };
   backend.setItem(
     characterStorageKey(slotId),
     JSON.stringify({
       ...record,
-      spec: serializeCharacterDataSpec(spec),
+      spec: serializeCharacterDataSpec(validatedSpec),
     }),
   );
-  const ids = readIndex(backend);
-  if (!ids.includes(slotId)) {
-    ids.unshift(slotId);
-    writeIndex(backend, ids);
-  }
+  const ids = readIndex(backend).filter((id) => id !== slotId);
+  ids.unshift(slotId);
+  writeIndex(backend, ids);
   return record;
 }
 
@@ -206,8 +220,12 @@ export function loadCharacter(
   }
   if (typeof r.slotId !== 'string') return null;
   if (typeof r.savedAtMs !== 'number') return null;
+  // A Link save without the current format marker predates the Ultimate rebuild: dropped.
+  const rawSpec = r.spec as Record<string, unknown> | null;
+  if (rawSpec?.id === 'link' && rawSpec[LINK_FORMAT_FIELD] !== LINK_FORMAT_CURRENT) return null;
   let spec: CharacterDataSpec;
   try {
+    // Saves of removed fighters throw here and are dropped.
     spec = parseCharacterDataFile(r.spec, `slot '${slotId}'`);
   } catch {
     return null;

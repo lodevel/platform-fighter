@@ -1,0 +1,440 @@
+{
+  "catch": {
+    "motion": "catch",
+    "source": {
+      "function": "expression_catch",
+      "path": "sources/native/scripts/Catch.txt",
+      "sha256": "227b0aad92e62e6602a1a63c6fcf13b684eae4be2b94aab0df82e47e4efe267b"
+    },
+    "events": [
+      {
+        "scriptNativeFrame": 0,
+        "changes": {
+          "shield": "back"
+        },
+        "sourceLine": 34,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_back\") as i64);"
+      },
+      {
+        "scriptNativeFrame": 40,
+        "changes": {
+          "shield": "normal"
+        },
+        "sourceLine": 42,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_normal\") as i64);"
+      }
+    ],
+    "nativeMetadata": {
+      "gameScript": "game_catch",
+      "animations": [
+        "e00catch.nuanmb"
+      ],
+      "cancelFrame": "35",
+      "xluStart": "0",
+      "xluEnd": "0",
+      "loop": "false",
+      "sourceMotion": "catch"
+    },
+    "nativeAsset": {
+      "path": "assets/gen/link-native-reference/extracted/fighter/link/motion/body/c00/e00catch.nuanmb",
+      "sha256": "c76e7d12f25df4ffb5ab8e30294848674153034475b0cf3aea865a7e578d3f98",
+      "finalFrameIndex": 55.0
+    }
+  },
+  "catch_dash": {
+    "motion": "catch_dash",
+    "source": {
+      "function": "expression_catchdash",
+      "path": "sources/native/scripts/CatchDash.txt",
+      "sha256": "391b15f1d0165027098d150c46c3b97b8d047ee9c42bd5fee3b1f65da29b671a"
+    },
+    "events": [
+      {
+        "scriptNativeFrame": 2,
+        "changes": {
+          "shield": "back"
+        },
+        "sourceLine": 37,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_back\") as i64);"
+      },
+      {
+        "scriptNativeFrame": 42,
+        "changes": {
+          "shield": "normal"
+        },
+        "sourceLine": 49,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_normal\") as i64);"
+      }
+    ],
+    "nativeMetadata": {
+      "gameScript": "game_catchdash",
+      "animations": [
+        "e00catchdash.nuanmb"
+      ],
+      "cancelFrame": "43",
+      "xluStart": "0",
+      "xluEnd": "0",
+      "loop": "false",
+      "sourceMotion": "catch_dash"
+    },
+    "nativeAsset": {
+      "path": "assets/gen/link-native-reference/extracted/fighter/link/motion/body/c00/e00catchdash.nuanmb",
+      "sha256": "9426e76abf5a457572d8522d9af4ec3e503380fb2e1f4d05775dc4ad74edd656",
+      "finalFrameIndex": 57.0
+    }
+  },
+  "catch_turn": {
+    "motion": "catch_turn",
+    "source": {
+      "function": "expression_catchturn",
+      "path": "sources/native/scripts/CatchTurn.txt",
+      "sha256": "d59b7833e21f836596a9a6bfb64186dfe8611d4cbf375118452a1c98c997daab"
+    },
+    "events": [
+      {
+        "scriptNativeFrame": 3,
+        "changes": {
+          "shield": "back"
+        },
+        "sourceLine": 37,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_back\") as i64);"
+      },
+      {
+        "scriptNativeFrame": 40,
+        "changes": {
+          "shield": "normal"
+        },
+        "sourceLine": 49,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_normal\") as i64);"
+      }
+    ],
+    "nativeMetadata": {
+      "gameScript": "game_catchturn",
+      "animations": [
+        "e00catchturn.nuanmb"
+      ],
+      "cancelFrame": "38",
+      "xluStart": "0",
+      "xluEnd": "0",
+      "loop": "false",
+      "sourceMotion": "catch_turn"
+    },
+    "nativeAsset": {
+      "path": "assets/gen/link-native-reference/extracted/fighter/link/motion/body/c00/e00catchturn.nuanmb",
+      "sha256": "b67b67c834be86815c41ea90841ecea24843e3b2595832a7844863b573ef7271",
+      "finalFrameIndex": 58.0
+    }
+  },
+  "catch_pull": {
+    "motion": "catch_pull",
+    "source": {
+      "function": "expression_catchpull",
+      "path": "sources/native/scripts/CatchPull.txt",
+      "sha256": "24bfe58423faf4792a8a32926394a3566d7ae16fce20d3fd4f065499e5ae6b59"
+    },
+    "events": [
+      {
+        "scriptNativeFrame": 0,
+        "changes": {
+          "shield": "back"
+        },
+        "sourceLine": 4,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_back\") as i64);"
+      }
+    ],
+    "nativeMetadata": {
+      "gameScript": "game_catchpull",
+      "animations": [
+        "e00catchpull.nuanmb"
+      ],
+      "cancelFrame": "2",
+      "xluStart": "0",
+      "xluEnd": "0",
+      "loop": "false",
+      "sourceMotion": "catch_pull"
+    },
+    "nativeAsset": {
+      "path": "assets/gen/link-native-reference/extracted/fighter/link/motion/body/c00/e00catchpull.nuanmb",
+      "sha256": "aa169f682bbafd5cad71904118d73393613dd2685e6aedbdccd7cddfbde97557",
+      "finalFrameIndex": 20.0
+    }
+  },
+  "catch_wait": {
+    "motion": "catch_wait",
+    "source": {
+      "function": "expression_catchwait",
+      "path": "sources/native/scripts/CatchWait.txt",
+      "sha256": "311da700633b3bc3d5f607bcbefb617830e6bf58b2f4159d4fe90d96edabfe00"
+    },
+    "events": [
+      {
+        "scriptNativeFrame": 0,
+        "changes": {
+          "shield": "back"
+        },
+        "sourceLine": 4,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_back\") as i64);"
+      }
+    ],
+    "nativeMetadata": {
+      "gameScript": "game_catchwait",
+      "animations": [
+        "e00catchwait.nuanmb"
+      ],
+      "cancelFrame": "0",
+      "xluStart": "0",
+      "xluEnd": "0",
+      "loop": "true",
+      "sourceMotion": "catch_wait"
+    },
+    "nativeAsset": {
+      "path": "assets/gen/link-native-reference/extracted/fighter/link/motion/body/c00/e00catchwait.nuanmb",
+      "sha256": "3fe0494a47fd07ec4c6d6c0fda843f07caa6f6fb0179ed836e179ceee7677947",
+      "finalFrameIndex": 63.0
+    }
+  },
+  "catch_cut": {
+    "motion": "catch_cut",
+    "source": {
+      "function": "expression_catchcut",
+      "path": "sources/native/scripts/CatchCut.txt",
+      "sha256": "432099e963c1e56bf06b0e9e465b126740f63bb0db5a71410e98ad5f382e994a"
+    },
+    "events": [
+      {
+        "scriptNativeFrame": 0,
+        "changes": {
+          "shield": "back"
+        },
+        "sourceLine": 5,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_back\") as i64);"
+      },
+      {
+        "scriptNativeFrame": 27,
+        "changes": {
+          "shield": "normal"
+        },
+        "sourceLine": 9,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_normal\") as i64);"
+      }
+    ],
+    "nativeMetadata": {
+      "gameScript": "game_catchcut",
+      "animations": [
+        "e00catchcut.nuanmb"
+      ],
+      "cancelFrame": "30",
+      "xluStart": "0",
+      "xluEnd": "0",
+      "loop": "false",
+      "sourceMotion": "catch_cut"
+    },
+    "nativeAsset": {
+      "path": "assets/gen/link-native-reference/extracted/fighter/link/motion/body/c00/e00catchcut.nuanmb",
+      "sha256": "8a1af6e83bede227a65d98abee793af043d461d64acfc7a203b97bba74efbe9a",
+      "finalFrameIndex": 46.0
+    }
+  },
+  "catch_attack": {
+    "motion": "catch_attack",
+    "source": {
+      "function": "expression_catchattack",
+      "path": "sources/native/scripts/CatchAttack.txt",
+      "sha256": "a99f82b0bb62ffc9399eec4731d5fce95b6ebf40a2d2bf526b3d6278246bb29c"
+    },
+    "events": [
+      {
+        "scriptNativeFrame": 0,
+        "changes": {
+          "shield": "back"
+        },
+        "sourceLine": 16,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_back\") as i64);"
+      }
+    ],
+    "nativeMetadata": {
+      "gameScript": "game_catchattack",
+      "animations": [
+        "e00catchattack.nuanmb"
+      ],
+      "cancelFrame": "7",
+      "xluStart": "0",
+      "xluEnd": "0",
+      "loop": "false",
+      "sourceMotion": "catch_attack"
+    },
+    "nativeAsset": {
+      "path": "assets/gen/link-native-reference/extracted/fighter/link/motion/body/c00/e00catchattack.nuanmb",
+      "sha256": "2a58fabba8c330c79c547a9c79c44b35e9e6d4f8980ea17af5d8e74bcee04ca9",
+      "finalFrameIndex": 24.0
+    }
+  },
+  "throw_f": {
+    "motion": "throw_f",
+    "source": {
+      "function": "expression_throwf",
+      "path": "sources/native/scripts/ThrowF.txt",
+      "sha256": "6f79d17d4f57e709e518ae689c547603429fb237d9c5c3be0bab7989e1b5f110"
+    },
+    "events": [
+      {
+        "scriptNativeFrame": 0,
+        "changes": {
+          "shield": "back"
+        },
+        "sourceLine": 57,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_back\") as i64);"
+      },
+      {
+        "scriptNativeFrame": 33,
+        "changes": {
+          "shield": "normal"
+        },
+        "sourceLine": 71,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_normal\") as i64);"
+      }
+    ],
+    "nativeMetadata": {
+      "gameScript": "game_throwf",
+      "animations": [
+        "e01throwf.nuanmb"
+      ],
+      "cancelFrame": "38",
+      "xluStart": "0",
+      "xluEnd": "0",
+      "loop": "false",
+      "sourceMotion": "throw_f"
+    },
+    "nativeAsset": {
+      "path": "assets/gen/link-native-reference/extracted/fighter/link/motion/body/c00/e01throwf.nuanmb",
+      "sha256": "f368c3a1d4676181070b066992bc401713af50b568d86de3d6be5e08a5de64ad",
+      "finalFrameIndex": 56.0
+    }
+  },
+  "throw_b": {
+    "motion": "throw_b",
+    "source": {
+      "function": "expression_throwb",
+      "path": "sources/native/scripts/ThrowB.txt",
+      "sha256": "f4e096f23df8e609d53aa6652cba1081a2fb6a6cdeb5614f4c86de81ef267835"
+    },
+    "events": [
+      {
+        "scriptNativeFrame": 0,
+        "changes": {
+          "shield": "back"
+        },
+        "sourceLine": 49,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_back\") as i64);"
+      },
+      {
+        "scriptNativeFrame": 35,
+        "changes": {
+          "shield": "normal"
+        },
+        "sourceLine": 66,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_normal\") as i64);"
+      }
+    ],
+    "nativeMetadata": {
+      "gameScript": "game_throwb",
+      "animations": [
+        "e01throwb.nuanmb"
+      ],
+      "cancelFrame": "39",
+      "xluStart": "0",
+      "xluEnd": "0",
+      "loop": "false",
+      "sourceMotion": "throw_b"
+    },
+    "nativeAsset": {
+      "path": "assets/gen/link-native-reference/extracted/fighter/link/motion/body/c00/e01throwb.nuanmb",
+      "sha256": "934d049dc8082ff97f7ad32f2d13cdb874652b06fcc8fce0e142087623313c97",
+      "finalFrameIndex": 57.0
+    }
+  },
+  "throw_hi": {
+    "motion": "throw_hi",
+    "source": {
+      "function": "expression_throwhi",
+      "path": "sources/native/scripts/ThrowHi.txt",
+      "sha256": "2ef497dd7bb0571388da45ef1176f797243f04a6ecea25d6131a500e11007e5d"
+    },
+    "events": [
+      {
+        "scriptNativeFrame": 0,
+        "changes": {
+          "shield": "back"
+        },
+        "sourceLine": 70,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_back\") as i64);"
+      },
+      {
+        "scriptNativeFrame": 58,
+        "changes": {
+          "shield": "normal"
+        },
+        "sourceLine": 98,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_normal\") as i64);"
+      }
+    ],
+    "nativeMetadata": {
+      "gameScript": "game_throwhi",
+      "animations": [
+        "e01throwhi.nuanmb"
+      ],
+      "cancelFrame": "50",
+      "xluStart": "0",
+      "xluEnd": "0",
+      "loop": "false",
+      "sourceMotion": "throw_hi"
+    },
+    "nativeAsset": {
+      "path": "assets/gen/link-native-reference/extracted/fighter/link/motion/body/c00/e01throwhi.nuanmb",
+      "sha256": "4ce586049a26deae21d5db4f5dce4f004af090930d66a69b6fe1c48fcc989bb1",
+      "finalFrameIndex": 72.0
+    }
+  },
+  "throw_lw": {
+    "motion": "throw_lw",
+    "source": {
+      "function": "expression_throwlw",
+      "path": "sources/native/scripts/ThrowLw.txt",
+      "sha256": "393c3a64287ca6905a3d59533fdda1ecbf3108efed0a795c0d58c0a966086a9e"
+    },
+    "events": [
+      {
+        "scriptNativeFrame": 0,
+        "changes": {
+          "shield": "back"
+        },
+        "sourceLine": 53,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_back\") as i64);"
+      },
+      {
+        "scriptNativeFrame": 57,
+        "changes": {
+          "shield": "normal"
+        },
+        "sourceLine": 70,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_normal\") as i64);"
+      }
+    ],
+    "nativeMetadata": {
+      "gameScript": "game_throwlw",
+      "animations": [
+        "e01throwlw.nuanmb"
+      ],
+      "cancelFrame": "49",
+      "xluStart": "0",
+      "xluEnd": "0",
+      "loop": "false",
+      "sourceMotion": "throw_lw"
+    },
+    "nativeAsset": {
+      "path": "assets/gen/link-native-reference/extracted/fighter/link/motion/body/c00/e01throwlw.nuanmb",
+      "sha256": "0ab2123a7b4ed22a48e45b81c5f602e283d3c5ad10c5f75923f3d4f92098bd31",
+      "finalFrameIndex": 64.0
+    }
+  }
+}

@@ -1,0 +1,2225 @@
+{
+  "checked": "2026-10-06",
+  "source_kind": "original parameter-research export/table, not binary PRC",
+  "url": "https://docs.google.com/spreadsheets/d/1rwDPL1jhE-KuEbbcBkkTb44z1smJp9rYme_xb4BIJTk/edit#gid=1036933026",
+  "title": "vl param (Ultimate)",
+  "tab": "pikachu",
+  "gid": 1036933026,
+  "download_url": "https://docs.google.com/spreadsheets/d/1rwDPL1jhE-KuEbbcBkkTb44z1smJp9rYme_xb4BIJTk/export?format=csv&gid=1036933026",
+  "csv_sha256": "8e7cf2ce2e4f21ae77f607ab775d4cdaefdc54b4a9c73f130861029d8f61285f",
+  "page_sha256": "92f8a9de595e572b4998d10218bba32b00d365d8fc864d2f0d6a531aca3442db",
+  "game_patch": null,
+  "publisher_attribution": {
+    "name": "Meshima",
+    "evidence": "Secondary attribution at https://www.ssbwiki.com/index.php?title=King_K._Rool_(SSBU)/Down_special&oldid=1656300 calls this exact document Meshima's vl param spreadsheet; actual export creator/revision metadata unavailable."
+  },
+  "discovery_link": "https://w.atwiki.jp/smashsp_kensyou/pages/22.html",
+  "columns": [
+    "section",
+    "hash40",
+    "Smash4",
+    "Ultimate",
+    "field label",
+    "description",
+    "note"
+  ],
+  "native_status_revision": "413d42149b8a4d74c71bf9bd955d747b496e7577",
+  "labels_revision": "06ead522c1a294afbf6e71025d05e9c5829465f6",
+  "rows": [
+    {
+      "csv_row": 2,
+      "display_section": "Neutral B",
+      "hash40": "0x1a266592e0",
+      "sheet_label": "special_n_offset_ground_x_",
+      "pinned_label": "special_n_offset_ground_x_",
+      "smash4_raw": "6.5",
+      "ultimate_raw": "6.5",
+      "ultimate_value": 6.5,
+      "native_prc_type": null,
+      "description": "Grounded X offset",
+      "note": null,
+      "matching_native_status_parameter_reads": []
+    },
+    {
+      "csv_row": 3,
+      "display_section": "Neutral B",
+      "hash40": "0x1a3f7ea3a1",
+      "sheet_label": "special_n_offset_ground_y_",
+      "pinned_label": "special_n_offset_ground_y_",
+      "smash4_raw": "1",
+      "ultimate_raw": "1",
+      "ultimate_value": 1,
+      "native_prc_type": null,
+      "description": "Grounded Y offset",
+      "note": null,
+      "matching_native_status_parameter_reads": []
+    },
+    {
+      "csv_row": 4,
+      "display_section": "Neutral B",
+      "hash40": "0x1709bdfdd1",
+      "sheet_label": "special_n_offset_air_x_",
+      "pinned_label": "special_n_offset_air_x_",
+      "smash4_raw": "6.5",
+      "ultimate_raw": "6.5",
+      "ultimate_value": 6.5,
+      "native_prc_type": null,
+      "description": "Aerial X offset",
+      "note": null,
+      "matching_native_status_parameter_reads": []
+    },
+    {
+      "csv_row": 5,
+      "display_section": "Neutral B",
+      "hash40": "0x1710a6cc90",
+      "sheet_label": "special_n_offset_air_y_",
+      "pinned_label": "special_n_offset_air_y_",
+      "smash4_raw": "1",
+      "ultimate_raw": "1",
+      "ultimate_value": 1,
+      "native_prc_type": null,
+      "description": "Aerial Y offset",
+      "note": null,
+      "matching_native_status_parameter_reads": []
+    },
+    {
+      "csv_row": 6,
+      "display_section": "dengekidama",
+      "hash40": "0x0573cab1cd",
+      "sheet_label": "life_",
+      "pinned_label": "life_",
+      "smash4_raw": "100",
+      "ultimate_raw": "100",
+      "ultimate_value": 100,
+      "native_prc_type": null,
+      "description": "Aerial lifetime (frames)",
+      "note": null,
+      "matching_native_status_parameter_reads": []
+    },
+    {
+      "csv_row": 7,
+      "display_section": "dengekidama",
+      "hash40": "0x067d07d23f",
+      "sheet_label": "speed_",
+      "pinned_label": "speed_",
+      "smash4_raw": "2",
+      "ultimate_raw": "2",
+      "ultimate_value": 2,
+      "native_prc_type": null,
+      "description": "Aerial jolt speed",
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/cloud/status/Regular/map_correct.c",
+          "line": 66,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xb8a53b1e9",
+              "label": "param_cloud"
+            },
+            {
+              "hash": "0x67d07d23f",
+              "label": "speed_"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 8,
+      "display_section": "dengekidama",
+      "hash40": "0x06500a9a09",
+      "sheet_label": "angle_",
+      "pinned_label": "angle_",
+      "smash4_raw": "-1.012291",
+      "ultimate_raw": "-1.01229",
+      "ultimate_value": -1.01229,
+      "native_prc_type": null,
+      "description": "Aerial jolt angle (radians)",
+      "note": null,
+      "matching_native_status_parameter_reads": []
+    },
+    {
+      "csv_row": 9,
+      "display_section": "dengeki",
+      "hash40": "0x0abfc8ae64",
+      "sheet_label": "move_life_",
+      "pinned_label": "move_life_",
+      "smash4_raw": "84",
+      "ultimate_raw": "84",
+      "ultimate_value": 84,
+      "native_prc_type": null,
+      "description": "Grounded lifetime (frames)",
+      "note": null,
+      "matching_native_status_parameter_reads": []
+    },
+    {
+      "csv_row": 10,
+      "display_section": "dengeki",
+      "hash40": "0x0aba0ed876",
+      "sheet_label": "move_rate_",
+      "pinned_label": "move_rate_",
+      "smash4_raw": "0.9",
+      "ultimate_raw": "0.9",
+      "ultimate_value": 0.9,
+      "native_prc_type": null,
+      "description": "Grounded jolt frame speed multiplier",
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/dengeki/status/Regular/main.c",
+          "line": 50,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xde47e8b56",
+              "label": "param_dengeki"
+            },
+            {
+              "hash": "0xaba0ed876",
+              "label": "move_rate_"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 11,
+      "display_section": "dengeki",
+      "hash40": "0x0bc9cfa200",
+      "sheet_label": "trans_rate_",
+      "pinned_label": "trans_rate_",
+      "smash4_raw": null,
+      "ultimate_raw": "1",
+      "ultimate_value": 1,
+      "native_prc_type": null,
+      "description": null,
+      "note": null,
+      "matching_native_status_parameter_reads": []
+    },
+    {
+      "csv_row": 12,
+      "display_section": "Side B",
+      "hash40": "0x12bfb56a34",
+      "sheet_label": "special_s_speed_x_",
+      "pinned_label": "special_s_speed_x_",
+      "smash4_raw": "0.8",
+      "ultimate_raw": "0.8",
+      "ultimate_value": 0.8,
+      "native_prc_type": null,
+      "description": "H speed multiplier on startup",
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/status/SpecialS/init.c",
+          "line": 198,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xfea97fe73",
+              "label": "param_special_s"
+            },
+            {
+              "hash": "0x12bfb56a34",
+              "label": "special_s_speed_x_"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 13,
+      "display_section": "Side B",
+      "hash40": "0x12c4f011c3",
+      "sheet_label": "special_s_accel_x_",
+      "pinned_label": "special_s_accel_x_",
+      "smash4_raw": "0.02",
+      "ultimate_raw": "0.02",
+      "ultimate_value": 0.02,
+      "native_prc_type": null,
+      "description": "H air friction during startup/charge",
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/status/SpecialS/init.c",
+          "line": 230,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xfea97fe73",
+              "label": "param_special_s"
+            },
+            {
+              "hash": "0x12c4f011c3",
+              "label": "special_s_accel_x_"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 14,
+      "display_section": "Side B",
+      "hash40": "0x12ddeb2082",
+      "sheet_label": "special_s_accel_y_",
+      "pinned_label": "special_s_accel_y_",
+      "smash4_raw": "0.04",
+      "ultimate_raw": "0.04",
+      "ultimate_value": 0.04,
+      "native_prc_type": null,
+      "description": "Gravity during startup/charge",
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/status/SpecialS/init.c",
+          "line": 175,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xfea97fe73",
+              "label": "param_special_s"
+            },
+            {
+              "hash": "0x12ddeb2082",
+              "label": "special_s_accel_y_"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 15,
+      "display_section": "Side B",
+      "hash40": "0x1429aebbfd",
+      "sheet_label": "special_s_tame_time_",
+      "pinned_label": "special_s_tame_time_",
+      "smash4_raw": "90",
+      "ultimate_raw": "80",
+      "ultimate_value": 80,
+      "native_prc_type": null,
+      "description": "Charge time (frames)",
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/status/SpecialSAttack/init.c",
+          "line": 41,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xfea97fe73",
+              "label": "param_special_s"
+            },
+            {
+              "hash": "0x1429aebbfd",
+              "label": "special_s_tame_time_"
+            }
+          ]
+        },
+        {
+          "file": "status/pikachu/status/SpecialSAttack/main_loop.c",
+          "line": 78,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xfea97fe73",
+              "label": "param_special_s"
+            },
+            {
+              "hash": "0x1429aebbfd",
+              "label": "special_s_tame_time_"
+            }
+          ]
+        },
+        {
+          "file": "status/pikachu/status/SpecialSEnd/exec.c",
+          "line": 45,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xfea97fe73",
+              "label": "param_special_s"
+            },
+            {
+              "hash": "0x1429aebbfd",
+              "label": "special_s_tame_time_"
+            }
+          ]
+        },
+        {
+          "file": "status/pikachu/status/SpecialSHold/main_loop.c",
+          "line": 29,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xfea97fe73",
+              "label": "param_special_s"
+            },
+            {
+              "hash": "0x1429aebbfd",
+              "label": "special_s_tame_time_"
+            }
+          ]
+        },
+        {
+          "file": "status/pikachu/status/SpecialSWeak/init.c",
+          "line": 33,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xfea97fe73",
+              "label": "param_special_s"
+            },
+            {
+              "hash": "0x1429aebbfd",
+              "label": "special_s_tame_time_"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 16,
+      "display_section": "Side B",
+      "hash40": "0x0f49a1aee2",
+      "sheet_label": "special_s_tame_",
+      "pinned_label": "special_s_tame_",
+      "smash4_raw": "20",
+      "ultimate_raw": "20",
+      "ultimate_value": 20,
+      "native_prc_type": null,
+      "description": "Initial charged frames of smash input",
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/status/SpecialSHold/init.c",
+          "line": 40,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xfea97fe73",
+              "label": "param_special_s"
+            },
+            {
+              "hash": "0xf49a1aee2",
+              "label": "special_s_tame_"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 17,
+      "display_section": "Side B",
+      "hash40": "0x1637f74829",
+      "sheet_label": null,
+      "pinned_label": null,
+      "smash4_raw": "0xC",
+      "ultimate_raw": "0xC",
+      "ultimate_value": 12,
+      "native_prc_type": null,
+      "description": "Affects the amount of time after button release before Pikachu fires",
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/status/SpecialSWeak/init.c",
+          "line": 50,
+          "type": "int",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xfea97fe73",
+              "label": "param_special_s"
+            },
+            {
+              "hash": "0x1637f74829",
+              "label": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 18,
+      "display_section": "Side B",
+      "hash40": "0x146340034b",
+      "sheet_label": "special_s_power_min_",
+      "pinned_label": "special_s_power_min_",
+      "smash4_raw": "7",
+      "ultimate_raw": "6.2",
+      "ultimate_value": 6.2,
+      "native_prc_type": null,
+      "description": "Minimum charge damage",
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/status/SpecialSAttack/main_loop.c",
+          "line": 60,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xfea97fe73",
+              "label": "param_special_s"
+            },
+            {
+              "hash": "0x146340034b",
+              "label": "special_s_power_min_"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 19,
+      "display_section": "Side B",
+      "hash40": "0x154710c6cf",
+      "sheet_label": "special_s_power_tame_",
+      "pinned_label": "special_s_power_tame_",
+      "smash4_raw": "25",
+      "ultimate_raw": "21.4",
+      "ultimate_value": 21.4,
+      "native_prc_type": null,
+      "description": "Maximum charge damage",
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/status/SpecialSAttack/main_loop.c",
+          "line": 69,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xfea97fe73",
+              "label": "param_special_s"
+            },
+            {
+              "hash": "0x154710c6cf",
+              "label": "special_s_power_tame_"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 20,
+      "display_section": "Side B",
+      "hash40": "0x15f1d0cd41",
+      "sheet_label": "special_s_move_spd_x_",
+      "pinned_label": "special_s_move_spd_x_",
+      "smash4_raw": "1.6",
+      "ultimate_raw": "1.6",
+      "ultimate_value": 1.6,
+      "native_prc_type": null,
+      "description": "Base H firing speed",
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/status/SpecialSAttack/init.c",
+          "line": 58,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xfea97fe73",
+              "label": "param_special_s"
+            },
+            {
+              "hash": "0x15f1d0cd41",
+              "label": "special_s_move_spd_x_"
+            }
+          ]
+        },
+        {
+          "file": "status/pikachu/status/SpecialSAttack/init.c",
+          "line": 74,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xfea97fe73",
+              "label": "param_special_s"
+            },
+            {
+              "hash": "0x15f1d0cd41",
+              "label": "special_s_move_spd_x_"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 21,
+      "display_section": "Side B",
+      "hash40": "0x151437db10",
+      "sheet_label": "special_s_tame_spd_x_",
+      "pinned_label": "special_s_tame_spd_x_",
+      "smash4_raw": "3.2",
+      "ultimate_raw": "3.2",
+      "ultimate_value": 3.2,
+      "native_prc_type": null,
+      "description": "Full charge H firing speed",
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/status/SpecialSAttack/init.c",
+          "line": 68,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xfea97fe73",
+              "label": "param_special_s"
+            },
+            {
+              "hash": "0x151437db10",
+              "label": "special_s_tame_spd_x_"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 22,
+      "display_section": "Side B",
+      "hash40": "0x1995a5e45a",
+      "sheet_label": "special_s_move_spd_y_min_",
+      "pinned_label": "special_s_move_spd_y_min_",
+      "smash4_raw": null,
+      "ultimate_raw": "0.185",
+      "ultimate_value": 0.185,
+      "native_prc_type": null,
+      "description": null,
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/status/SpecialSAttack/init.c",
+          "line": 137,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xfea97fe73",
+              "label": "param_special_s"
+            },
+            {
+              "hash": "0x1995a5e45a",
+              "label": "special_s_move_spd_y_min_"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 23,
+      "display_section": "Side B",
+      "hash40": "0x19872e0035",
+      "sheet_label": "special_s_move_spd_y_max_",
+      "pinned_label": "special_s_move_spd_y_max_",
+      "smash4_raw": null,
+      "ultimate_raw": "0.23",
+      "ultimate_value": 0.23,
+      "native_prc_type": null,
+      "description": null,
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/status/SpecialSAttack/init.c",
+          "line": 147,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xfea97fe73",
+              "label": "param_special_s"
+            },
+            {
+              "hash": "0x19872e0035",
+              "label": "special_s_move_spd_y_max_"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 24,
+      "display_section": "Side B",
+      "hash40": "0x1544219a2d",
+      "sheet_label": "special_s_move_acl_y_",
+      "pinned_label": "special_s_move_acl_y_",
+      "smash4_raw": null,
+      "ultimate_raw": "0.01",
+      "ultimate_value": 0.01,
+      "native_prc_type": null,
+      "description": null,
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/status/SpecialSAttack/exec.c",
+          "line": 44,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xfea97fe73",
+              "label": "param_special_s"
+            },
+            {
+              "hash": "0x1544219a2d",
+              "label": "special_s_move_acl_y_"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 25,
+      "display_section": "Side B",
+      "hash40": "0x159658c9fe",
+      "sheet_label": "special_s_move_max_y_",
+      "pinned_label": "special_s_move_max_y_",
+      "smash4_raw": null,
+      "ultimate_raw": "1.1",
+      "ultimate_value": 1.1,
+      "native_prc_type": null,
+      "description": null,
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/status/SpecialSAttack/exec.c",
+          "line": 55,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xfea97fe73",
+              "label": "param_special_s"
+            },
+            {
+              "hash": "0x159658c9fe",
+              "label": "special_s_move_max_y_"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 26,
+      "display_section": "Side B",
+      "hash40": "0x1c405dcf42",
+      "sheet_label": "special_s_slope_start_degree",
+      "pinned_label": "special_s_slope_start_degree",
+      "smash4_raw": null,
+      "ultimate_raw": "10",
+      "ultimate_value": 10,
+      "native_prc_type": null,
+      "description": null,
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/functions/FUN_7100021f30.c",
+          "line": 88,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xfea97fe73",
+              "label": "param_special_s"
+            },
+            {
+              "hash": "0x1c405dcf42",
+              "label": "special_s_slope_start_degree"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 27,
+      "display_section": "Side B",
+      "hash40": "0x1ef5c3fe60",
+      "sheet_label": "special_s_attack_speed_mul_min",
+      "pinned_label": "special_s_attack_speed_mul_min",
+      "smash4_raw": null,
+      "ultimate_raw": "0.4",
+      "ultimate_value": 0.4,
+      "native_prc_type": null,
+      "description": null,
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/functions/FUN_7100021f30.c",
+          "line": 119,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xfea97fe73",
+              "label": "param_special_s"
+            },
+            {
+              "hash": "0x1ef5c3fe60",
+              "label": "special_s_attack_speed_mul_min"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 28,
+      "display_section": "Side B",
+      "hash40": "0x1a994cfbc9",
+      "sheet_label": "special_s_slope_degree_mul",
+      "pinned_label": "special_s_slope_degree_mul",
+      "smash4_raw": null,
+      "ultimate_raw": "0.3",
+      "ultimate_value": 0.3,
+      "native_prc_type": null,
+      "description": null,
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/functions/FUN_7100021f30.c",
+          "line": 226,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xfea97fe73",
+              "label": "param_special_s"
+            },
+            {
+              "hash": "0x1a994cfbc9",
+              "label": "special_s_slope_degree_mul"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 29,
+      "display_section": "Side B",
+      "hash40": "0x1b0bc7c1ca",
+      "sheet_label": null,
+      "pinned_label": null,
+      "smash4_raw": null,
+      "ultimate_raw": "-0.3",
+      "ultimate_value": -0.3,
+      "native_prc_type": null,
+      "description": null,
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/status/SpecialSEnd/init.c",
+          "line": 72,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xfea97fe73",
+              "label": "param_special_s"
+            },
+            {
+              "hash": "0x1b0bc7c1ca",
+              "label": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 30,
+      "display_section": "Side B",
+      "hash40": "0x1b12dcf08b",
+      "sheet_label": null,
+      "pinned_label": null,
+      "smash4_raw": null,
+      "ultimate_raw": "1.3",
+      "ultimate_value": 1.3,
+      "native_prc_type": null,
+      "description": null,
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/status/SpecialSEnd/init.c",
+          "line": 88,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xfea97fe73",
+              "label": "param_special_s"
+            },
+            {
+              "hash": "0x1b12dcf08b",
+              "label": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 31,
+      "display_section": "Side B",
+      "hash40": "0x18864f3c21",
+      "sheet_label": "special_s_end_hit_acl_y_",
+      "pinned_label": "special_s_end_hit_acl_y_",
+      "smash4_raw": null,
+      "ultimate_raw": "0.1",
+      "ultimate_value": 0.1,
+      "native_prc_type": null,
+      "description": null,
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/status/SpecialSEnd/exec.c",
+          "line": 120,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xfea97fe73",
+              "label": "param_special_s"
+            },
+            {
+              "hash": "0x18864f3c21",
+              "label": "special_s_end_hit_acl_y_"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 32,
+      "display_section": "Side B",
+      "hash40": "0x148220997f",
+      "sheet_label": "special_s_end_spd_x_",
+      "pinned_label": "special_s_end_spd_x_",
+      "smash4_raw": null,
+      "ultimate_raw": "0.7",
+      "ultimate_value": 0.7,
+      "native_prc_type": null,
+      "description": null,
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/status/SpecialSEnd/init.c",
+          "line": 48,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xfea97fe73",
+              "label": "param_special_s"
+            },
+            {
+              "hash": "0x148220997f",
+              "label": "special_s_end_spd_x_"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 33,
+      "display_section": "Side B",
+      "hash40": "0x189dfbcbee",
+      "sheet_label": "special_s_end_acl_x_min_",
+      "pinned_label": "special_s_end_acl_x_min_",
+      "smash4_raw": null,
+      "ultimate_raw": "0.032",
+      "ultimate_value": 0.032,
+      "native_prc_type": null,
+      "description": null,
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/status/SpecialSEnd/exec.c",
+          "line": 63,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xfea97fe73",
+              "label": "param_special_s"
+            },
+            {
+              "hash": "0x189dfbcbee",
+              "label": "special_s_end_acl_x_min_"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 34,
+      "display_section": "Side B",
+      "hash40": "0x1437d1ce13",
+      "sheet_label": "special_s_end_acl_y_",
+      "pinned_label": "special_s_end_acl_y_",
+      "smash4_raw": null,
+      "ultimate_raw": "0.075",
+      "ultimate_value": 0.075,
+      "native_prc_type": null,
+      "description": null,
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/status/SpecialSEnd/exec.c",
+          "line": 110,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xfea97fe73",
+              "label": "param_special_s"
+            },
+            {
+              "hash": "0x1437d1ce13",
+              "label": "special_s_end_acl_y_"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 35,
+      "display_section": "Side B",
+      "hash40": "0x188f702f81",
+      "sheet_label": "special_s_end_acl_x_max_",
+      "pinned_label": "special_s_end_acl_x_max_",
+      "smash4_raw": null,
+      "ultimate_raw": "0.031",
+      "ultimate_value": 0.031,
+      "native_prc_type": null,
+      "description": null,
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/status/SpecialSEnd/exec.c",
+          "line": 74,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xfea97fe73",
+              "label": "param_special_s"
+            },
+            {
+              "hash": "0x188f702f81",
+              "label": "special_s_end_acl_x_max_"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 36,
+      "display_section": "Side B",
+      "hash40": "0x1ec9cec139",
+      "sheet_label": "special_s_attack_speed_mul_max",
+      "pinned_label": "special_s_attack_speed_mul_max",
+      "smash4_raw": null,
+      "ultimate_raw": "1",
+      "ultimate_value": 1,
+      "native_prc_type": null,
+      "description": null,
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/functions/FUN_7100021f30.c",
+          "line": 128,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xfea97fe73",
+              "label": "param_special_s"
+            },
+            {
+              "hash": "0x1ec9cec139",
+              "label": "special_s_attack_speed_mul_max"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 37,
+      "display_section": "Up B",
+      "hash40": "0x12e6bbfce1",
+      "sheet_label": "special_hi_stop_y_",
+      "pinned_label": "special_hi_stop_y_",
+      "smash4_raw": "0xA",
+      "ultimate_raw": "0xA",
+      "ultimate_value": 10,
+      "native_prc_type": null,
+      "description": "Delay before SpecialAirHiStart uses vertical acceleration (frames)",
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/status/SpecialHi/init.c",
+          "line": 37,
+          "type": "int",
+          "preceding_hash_literals": [
+            {
+              "hash": "0x1086bc4a93",
+              "label": "param_special_hi"
+            },
+            {
+              "hash": "0x12e6bbfce1",
+              "label": "special_hi_stop_y_"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 38,
+      "display_section": "Up B",
+      "hash40": "0x16f738d149",
+      "sheet_label": "special_hi_warp_stick_",
+      "pinned_label": "special_hi_warp_stick_",
+      "smash4_raw": "0.5",
+      "ultimate_raw": "0.5",
+      "ultimate_value": 0.5,
+      "native_prc_type": null,
+      "description": "Sensitivity for choosing an angle",
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/functions/FUN_710000ad30.c",
+          "line": 70,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0x1086bc4a93",
+              "label": "param_special_hi"
+            },
+            {
+              "hash": "0x16f738d149",
+              "label": "special_hi_warp_stick_"
+            }
+          ]
+        },
+        {
+          "file": "status/pikachu/functions/FUN_710000c820.c",
+          "line": 39,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0x1086bc4a93",
+              "label": "param_special_hi"
+            },
+            {
+              "hash": "0x16f738d149",
+              "label": "special_hi_warp_stick_"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 39,
+      "display_section": "Up B",
+      "hash40": "0x1800709950",
+      "sheet_label": "special_hi_warp_spd_add_",
+      "pinned_label": "special_hi_warp_spd_add_",
+      "smash4_raw": "11",
+      "ultimate_raw": "11",
+      "ultimate_value": 11,
+      "native_prc_type": null,
+      "description": "Base Segment speed",
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/functions/FUN_710000c820.c",
+          "line": 199,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0x1086bc4a93",
+              "label": "param_special_hi"
+            },
+            {
+              "hash": "0x1800709950",
+              "label": "special_hi_warp_spd_add_"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 40,
+      "display_section": "Up B",
+      "hash40": "0x1ae6b40717",
+      "sheet_label": "special_hi_warp_spd_multi_",
+      "pinned_label": "special_hi_warp_spd_multi_",
+      "smash4_raw": "0",
+      "ultimate_raw": "0",
+      "ultimate_value": 0,
+      "native_prc_type": null,
+      "description": "Max additional Segment speed",
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/functions/FUN_710000c820.c",
+          "line": 186,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0x1086bc4a93",
+              "label": "param_special_hi"
+            },
+            {
+              "hash": "0x1ae6b40717",
+              "label": "special_hi_warp_spd_multi_"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 41,
+      "display_section": "Up B",
+      "hash40": "0x157cbabb70",
+      "sheet_label": "special_hi_move_time_",
+      "pinned_label": "special_hi_move_time_",
+      "smash4_raw": "0x5",
+      "ultimate_raw": "0x5",
+      "ultimate_value": 5,
+      "native_prc_type": null,
+      "description": "Segment length duration (frames)",
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/status/SpecialHiWarp/main.c",
+          "line": 73,
+          "type": "int",
+          "preceding_hash_literals": [
+            {
+              "hash": "0x1086bc4a93",
+              "label": "param_special_hi"
+            },
+            {
+              "hash": "0x157cbabb70",
+              "label": "special_hi_move_time_"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 42,
+      "display_section": "Up B",
+      "hash40": "0x172b6d941c",
+      "sheet_label": "special_hi_warp2_angle_",
+      "pinned_label": "special_hi_warp2_angle_",
+      "smash4_raw": "0x23",
+      "ultimate_raw": "0x23",
+      "ultimate_value": 35,
+      "native_prc_type": null,
+      "description": "Min angle change requirement for second segment (degrees)",
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/functions/FUN_710000ad30.c",
+          "line": 110,
+          "type": "int",
+          "preceding_hash_literals": [
+            {
+              "hash": "0x1086bc4a93",
+              "label": "param_special_hi"
+            },
+            {
+              "hash": "0x172b6d941c",
+              "label": "special_hi_warp2_angle_"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 43,
+      "display_section": "Up B",
+      "hash40": "0x17d4b439f9",
+      "sheet_label": "special_hi_warp_second_",
+      "pinned_label": "special_hi_warp_second_",
+      "smash4_raw": "0.9",
+      "ultimate_raw": "0.9",
+      "ultimate_value": 0.9,
+      "native_prc_type": null,
+      "description": "Second segment speed multiplier",
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/functions/FUN_710000c820.c",
+          "line": 224,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0x1086bc4a93",
+              "label": "param_special_hi"
+            },
+            {
+              "hash": "0x17d4b439f9",
+              "label": "special_hi_warp_second_"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 44,
+      "display_section": "Up B",
+      "hash40": "0x16e676e07a",
+      "sheet_label": "special_hi_warp_angle_",
+      "pinned_label": "special_hi_warp_angle_",
+      "smash4_raw": "0x37",
+      "ultimate_raw": "0x39",
+      "ultimate_value": 57,
+      "native_prc_type": null,
+      "description": "Max angle difference between segment and wall/ceiling to slide along it (degrees)",
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/status/SpecialHiWarp/main_loop.c",
+          "line": 130,
+          "type": "int",
+          "preceding_hash_literals": [
+            {
+              "hash": "0x1086bc4a93",
+              "label": "param_special_hi"
+            },
+            {
+              "hash": "0x16e676e07a",
+              "label": "special_hi_warp_angle_"
+            }
+          ]
+        },
+        {
+          "file": "status/pikachu/status/SpecialHiWarp/main_loop.c",
+          "line": 189,
+          "type": "int",
+          "preceding_hash_literals": [
+            {
+              "hash": "0x1086bc4a93",
+              "label": "param_special_hi"
+            },
+            {
+              "hash": "0x16e676e07a",
+              "label": "special_hi_warp_angle_"
+            }
+          ]
+        },
+        {
+          "file": "status/pikachu/status/SpecialHiWarp/main_loop.c",
+          "line": 251,
+          "type": "int",
+          "preceding_hash_literals": [
+            {
+              "hash": "0x1086bc4a93",
+              "label": "param_special_hi"
+            },
+            {
+              "hash": "0x16e676e07a",
+              "label": "special_hi_warp_angle_"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 45,
+      "display_section": "Up B",
+      "hash40": "0x1589bc237e",
+      "sheet_label": "special_hi_warp_xmax_",
+      "pinned_label": "special_hi_warp_xmax_",
+      "smash4_raw": "0.6",
+      "ultimate_raw": "0.6",
+      "ultimate_value": 0.6,
+      "native_prc_type": null,
+      "description": "H momentum preservation",
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/status/SpecialHiEnd/exec.c",
+          "line": 113,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0x1086bc4a93",
+              "label": "param_special_hi"
+            },
+            {
+              "hash": "0x1589bc237e",
+              "label": "special_hi_warp_xmax_"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 46,
+      "display_section": "Up B",
+      "hash40": "0x1c6cd3de13",
+      "sheet_label": "special_hi_fall_x_mul_value_",
+      "pinned_label": "special_hi_fall_x_mul_value_",
+      "smash4_raw": "0.4",
+      "ultimate_raw": "0.4",
+      "ultimate_value": 0.4,
+      "native_prc_type": null,
+      "description": "Air mobility",
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/status/SpecialHiEnd/exit.c",
+          "line": 23,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0x1086bc4a93",
+              "label": "param_special_hi"
+            },
+            {
+              "hash": "0x1c6cd3de13",
+              "label": "special_hi_fall_x_mul_value_"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 47,
+      "display_section": "Up B",
+      "hash40": "0x1981e1a200",
+      "sheet_label": "special_hi_landing_frame_",
+      "pinned_label": "special_hi_landing_frame_",
+      "smash4_raw": "24",
+      "ultimate_raw": "24",
+      "ultimate_value": 24,
+      "native_prc_type": null,
+      "description": "Landing lag (frames)",
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/status/SpecialHiEnd/exit.c",
+          "line": 41,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0x1086bc4a93",
+              "label": "param_special_hi"
+            },
+            {
+              "hash": "0x1981e1a200",
+              "label": "special_hi_landing_frame_"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 48,
+      "display_section": "Up B",
+      "hash40": "0x1b0a953b9e",
+      "sheet_label": "special_hi_guide_show_frame",
+      "pinned_label": "special_hi_guide_show_frame",
+      "smash4_raw": null,
+      "ultimate_raw": "0x0",
+      "ultimate_value": 0,
+      "native_prc_type": null,
+      "description": null,
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/functions/FUN_710000b2a0.c",
+          "line": 98,
+          "type": "int",
+          "preceding_hash_literals": [
+            {
+              "hash": "0x1086bc4a93",
+              "label": "param_special_hi"
+            },
+            {
+              "hash": "0x1b0a953b9e",
+              "label": "special_hi_guide_show_frame"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 49,
+      "display_section": "Up B",
+      "hash40": "0x1c9b2f4207",
+      "sheet_label": "special_hi_guide_after_frame",
+      "pinned_label": "special_hi_guide_after_frame",
+      "smash4_raw": null,
+      "ultimate_raw": "0x3",
+      "ultimate_value": 3,
+      "native_prc_type": null,
+      "description": null,
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/functions/FUN_710000b2a0.c",
+          "line": 162,
+          "type": "int",
+          "preceding_hash_literals": [
+            {
+              "hash": "0x1086bc4a93",
+              "label": "param_special_hi"
+            },
+            {
+              "hash": "0x1c9b2f4207",
+              "label": "special_hi_guide_after_frame"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 50,
+      "display_section": "Down B",
+      "hash40": "0x17c53adebe",
+      "sheet_label": "special_lw_speed_x_mul_",
+      "pinned_label": "special_lw_speed_x_mul_",
+      "smash4_raw": "1",
+      "ultimate_raw": "1",
+      "ultimate_value": 1,
+      "native_prc_type": null,
+      "description": "Grounded H speed multiplier on startup",
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/status/SpecialLw/main.c",
+          "line": 115,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0x1018dfb2f4",
+              "label": "param_special_lw"
+            },
+            {
+              "hash": "0x17c53adebe",
+              "label": "special_lw_speed_x_mul_"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 51,
+      "display_section": "Down B",
+      "hash40": "0x1bb9137718",
+      "sheet_label": "special_lw_air_speed_x_mul_",
+      "pinned_label": "special_lw_air_speed_x_mul_",
+      "smash4_raw": "0.85",
+      "ultimate_raw": "0.85",
+      "ultimate_value": 0.85,
+      "native_prc_type": null,
+      "description": "Aerial H speed multiplier on startup",
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/status/SpecialLw/main.c",
+          "line": 72,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0x1018dfb2f4",
+              "label": "param_special_lw"
+            },
+            {
+              "hash": "0x1bb9137718",
+              "label": "special_lw_air_speed_x_mul_"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 52,
+      "display_section": "Down B",
+      "hash40": "0x1436851a02",
+      "sheet_label": "special_lw_offset_y_",
+      "pinned_label": "special_lw_offset_y_",
+      "smash4_raw": "10.5",
+      "ultimate_raw": "10.5",
+      "ultimate_value": 10.5,
+      "native_prc_type": null,
+      "description": "Cloud height (this * 10)",
+      "note": null,
+      "matching_native_status_parameter_reads": []
+    },
+    {
+      "csv_row": 53,
+      "display_section": "Down B",
+      "hash40": "0x1430228157",
+      "sheet_label": "special_lw_air_yspd_",
+      "pinned_label": "special_lw_air_yspd_",
+      "smash4_raw": "0.66",
+      "ultimate_raw": "0.66",
+      "ultimate_value": 0.66,
+      "native_prc_type": null,
+      "description": "Initial V speed and max fall speed after aerial thunder hit",
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/status/SpecialLwHit/exec.c",
+          "line": 55,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0x1018dfb2f4",
+              "label": "param_special_lw"
+            },
+            {
+              "hash": "0x1430228157",
+              "label": "special_lw_air_yspd_"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 54,
+      "display_section": "Down B",
+      "hash40": "0x16c175240b",
+      "sheet_label": "special_lw_air_yaccel_",
+      "pinned_label": "special_lw_air_yaccel_",
+      "smash4_raw": "0.016",
+      "ultimate_raw": "0.016",
+      "ultimate_value": 0.016,
+      "native_prc_type": null,
+      "description": "Gravity on aerial thunder hit",
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/status/SpecialLwHit/exec.c",
+          "line": 66,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0x1018dfb2f4",
+              "label": "param_special_lw"
+            },
+            {
+              "hash": "0x16c175240b",
+              "label": "special_lw_air_yaccel_"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 55,
+      "display_section": "kaminari",
+      "hash40": "0x067d07d23f",
+      "sheet_label": "speed_",
+      "pinned_label": "speed_",
+      "smash4_raw": "-4",
+      "ultimate_raw": "-4",
+      "ultimate_value": -4,
+      "native_prc_type": null,
+      "description": "Vertical speed of thunder",
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/cloud/status/Regular/map_correct.c",
+          "line": 66,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xb8a53b1e9",
+              "label": "param_cloud"
+            },
+            {
+              "hash": "0x67d07d23f",
+              "label": "speed_"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 56,
+      "display_section": "kaminari",
+      "hash40": "0x0ca6eca78f",
+      "sheet_label": "flying_dist_",
+      "pinned_label": "flying_dist_",
+      "smash4_raw": "30",
+      "ultimate_raw": "30",
+      "ultimate_value": 30,
+      "native_prc_type": null,
+      "description": "Distance thunder travels to disappear (this * 10)",
+      "note": null,
+      "matching_native_status_parameter_reads": []
+    },
+    {
+      "csv_row": 57,
+      "display_section": "kaminari",
+      "hash40": "0x0f12365ab5",
+      "sheet_label": "pass_fall_dist_",
+      "pinned_label": "pass_fall_dist_",
+      "smash4_raw": "8",
+      "ultimate_raw": "8",
+      "ultimate_value": 8,
+      "native_prc_type": null,
+      "description": "Distance thunder travels before it can collide with ground (this * 10)",
+      "note": null,
+      "matching_native_status_parameter_reads": []
+    },
+    {
+      "csv_row": 58,
+      "display_section": "kaminari",
+      "hash40": "0x06828b84f4",
+      "sheet_label": "width_",
+      "pinned_label": "width_",
+      "smash4_raw": "1.7",
+      "ultimate_raw": "1.7",
+      "ultimate_value": 1.7,
+      "native_prc_type": null,
+      "description": "Collision-detection-box size (this * 10)",
+      "note": null,
+      "matching_native_status_parameter_reads": []
+    },
+    {
+      "csv_row": 59,
+      "display_section": "cloud",
+      "hash40": "0x067d07d23f",
+      "sheet_label": "speed_",
+      "pinned_label": "speed_",
+      "smash4_raw": null,
+      "ultimate_raw": "-4",
+      "ultimate_value": -4,
+      "native_prc_type": null,
+      "description": null,
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/cloud/status/Regular/map_correct.c",
+          "line": 66,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xb8a53b1e9",
+              "label": "param_cloud"
+            },
+            {
+              "hash": "0x67d07d23f",
+              "label": "speed_"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 60,
+      "display_section": "cloud",
+      "hash40": "0x06828b84f4",
+      "sheet_label": "width_",
+      "pinned_label": "width_",
+      "smash4_raw": null,
+      "ultimate_raw": "1.7",
+      "ultimate_value": 1.7,
+      "native_prc_type": null,
+      "description": null,
+      "note": null,
+      "matching_native_status_parameter_reads": []
+    },
+    {
+      "csv_row": 61,
+      "display_section": "cloud",
+      "hash40": "0x10dd543a76",
+      "sheet_label": "final_dash_speed",
+      "pinned_label": "final_dash_speed",
+      "smash4_raw": null,
+      "ultimate_raw": "8",
+      "ultimate_value": 8,
+      "native_prc_type": null,
+      "description": null,
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/status/FinalDash/main.c",
+          "line": 118,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xdf05c072b",
+              "label": "param_private"
+            },
+            {
+              "hash": "0x10dd543a76",
+              "label": "final_dash_speed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 62,
+      "display_section": "cloud",
+      "hash40": "0x10678af84d",
+      "sheet_label": "final_dash_frame",
+      "pinned_label": "final_dash_frame",
+      "smash4_raw": null,
+      "ultimate_raw": "0x10",
+      "ultimate_value": 16,
+      "native_prc_type": null,
+      "description": null,
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/status/FinalDash/main.c",
+          "line": 37,
+          "type": "int",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xdf05c072b",
+              "label": "param_private"
+            },
+            {
+              "hash": "0x10678af84d",
+              "label": "final_dash_frame"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 63,
+      "display_section": "cloud",
+      "hash40": "0x1edf52714a",
+      "sheet_label": "final_dash_cliff_no_stop_frame",
+      "pinned_label": "final_dash_cliff_no_stop_frame",
+      "smash4_raw": null,
+      "ultimate_raw": "0x6",
+      "ultimate_value": 6,
+      "native_prc_type": null,
+      "description": null,
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/status/FinalDash/main.c",
+          "line": 51,
+          "type": "int",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xdf05c072b",
+              "label": "param_private"
+            },
+            {
+              "hash": "0x1edf52714a",
+              "label": "final_dash_cliff_no_stop_frame"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 64,
+      "display_section": "cloud",
+      "hash40": "0x167aea33ba",
+      "sheet_label": "final_dash_end_brake_x",
+      "pinned_label": "final_dash_end_brake_x",
+      "smash4_raw": null,
+      "ultimate_raw": "0.09",
+      "ultimate_value": 0.09,
+      "native_prc_type": null,
+      "description": null,
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/status/FinalDashEnd/main.c",
+          "line": 32,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xdf05c072b",
+              "label": "param_private"
+            },
+            {
+              "hash": "0x167aea33ba",
+              "label": "final_dash_end_brake_x"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 65,
+      "display_section": "cloud",
+      "hash40": "0x21ec862be4",
+      "sheet_label": null,
+      "pinned_label": null,
+      "smash4_raw": null,
+      "ultimate_raw": "2",
+      "ultimate_value": 2,
+      "native_prc_type": null,
+      "description": null,
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/status/FinalHit/main.c",
+          "line": 93,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xdf05c072b",
+              "label": "param_private"
+            },
+            {
+              "hash": "0x21ec862be4",
+              "label": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 66,
+      "display_section": "cloud",
+      "hash40": "0x15ae1776b4",
+      "sheet_label": "final_ground_offset_y",
+      "pinned_label": "final_ground_offset_y",
+      "smash4_raw": null,
+      "ultimate_raw": "20",
+      "ultimate_value": 20,
+      "native_prc_type": null,
+      "description": null,
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/status/FinalHit/main.c",
+          "line": 105,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xdf05c072b",
+              "label": "param_private"
+            },
+            {
+              "hash": "0x15ae1776b4",
+              "label": "final_ground_offset_y"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 67,
+      "display_section": "cloud",
+      "hash40": "0x11fd2d1aa4",
+      "sheet_label": "final_camera_dist",
+      "pinned_label": "final_camera_dist",
+      "smash4_raw": null,
+      "ultimate_raw": "150",
+      "ultimate_value": 150,
+      "native_prc_type": null,
+      "description": null,
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/vortex/status/Hit/main.c",
+          "line": 140,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xdf05c072b",
+              "label": "param_private"
+            },
+            {
+              "hash": "0x11fd2d1aa4",
+              "label": "final_camera_dist"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 68,
+      "display_section": "cloud",
+      "hash40": "0x0efd979d9b",
+      "sheet_label": "final_base_fov",
+      "pinned_label": "final_base_fov",
+      "smash4_raw": null,
+      "ultimate_raw": "30",
+      "ultimate_value": 30,
+      "native_prc_type": null,
+      "description": null,
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/vortex/status/Hit/main.c",
+          "line": 155,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xdf05c072b",
+              "label": "param_private"
+            },
+            {
+              "hash": "0xefd979d9b",
+              "label": "final_base_fov"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 69,
+      "display_section": "cloud",
+      "hash40": "0x0d79e0e5ae",
+      "sheet_label": "final_min_fov",
+      "pinned_label": "final_min_fov",
+      "smash4_raw": null,
+      "ultimate_raw": "5",
+      "ultimate_value": 5,
+      "native_prc_type": null,
+      "description": null,
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/vortex/status/Hit/main.c",
+          "line": 164,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xdf05c072b",
+              "label": "param_private"
+            },
+            {
+              "hash": "0xd79e0e5ae",
+              "label": "final_min_fov"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 70,
+      "display_section": "cloud",
+      "hash40": "0x1191537e52",
+      "sheet_label": "final_min_fov_mul",
+      "pinned_label": "final_min_fov_mul",
+      "smash4_raw": null,
+      "ultimate_raw": "6",
+      "ultimate_value": 6,
+      "native_prc_type": null,
+      "description": null,
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/vortex/status/Hit/main.c",
+          "line": 173,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xdf05c072b",
+              "label": "param_private"
+            },
+            {
+              "hash": "0x1191537e52",
+              "label": "final_min_fov_mul"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 71,
+      "display_section": "cloud",
+      "hash40": "0x15058bed3f",
+      "sheet_label": "final_all_accel_y_mul",
+      "pinned_label": "final_all_accel_y_mul",
+      "smash4_raw": null,
+      "ultimate_raw": "0.5",
+      "ultimate_value": 0.5,
+      "native_prc_type": null,
+      "description": null,
+      "note": null,
+      "matching_native_status_parameter_reads": []
+    },
+    {
+      "csv_row": 72,
+      "display_section": "cloud",
+      "hash40": "0x1b0d6fe99c",
+      "sheet_label": null,
+      "pinned_label": null,
+      "smash4_raw": null,
+      "ultimate_raw": "1",
+      "ultimate_value": 1,
+      "native_prc_type": null,
+      "description": null,
+      "note": null,
+      "matching_native_status_parameter_reads": []
+    },
+    {
+      "csv_row": 73,
+      "display_section": "cloud",
+      "hash40": "0x1d60267da9",
+      "sheet_label": "final_center_dist_brake_meter",
+      "pinned_label": "final_center_dist_brake_meter",
+      "smash4_raw": null,
+      "ultimate_raw": "2",
+      "ultimate_value": 2,
+      "native_prc_type": null,
+      "description": null,
+      "note": null,
+      "matching_native_status_parameter_reads": []
+    },
+    {
+      "csv_row": 74,
+      "display_section": "cloud",
+      "hash40": "0x19e5815239",
+      "sheet_label": "final_center_dist_brake_x",
+      "pinned_label": "final_center_dist_brake_x",
+      "smash4_raw": null,
+      "ultimate_raw": "0.2",
+      "ultimate_value": 0.2,
+      "native_prc_type": null,
+      "description": null,
+      "note": null,
+      "matching_native_status_parameter_reads": []
+    },
+    {
+      "csv_row": 75,
+      "display_section": "cloud",
+      "hash40": "0x19928662af",
+      "sheet_label": "final_center_dist_brake_y",
+      "pinned_label": "final_center_dist_brake_y",
+      "smash4_raw": null,
+      "ultimate_raw": "0.3",
+      "ultimate_value": 0.3,
+      "native_prc_type": null,
+      "description": null,
+      "note": null,
+      "matching_native_status_parameter_reads": []
+    },
+    {
+      "csv_row": 76,
+      "display_section": "cloud",
+      "hash40": "0x12680db1db",
+      "sheet_label": "final_vortex_frame",
+      "pinned_label": "final_vortex_frame",
+      "smash4_raw": null,
+      "ultimate_raw": "0x78",
+      "ultimate_value": 120,
+      "native_prc_type": null,
+      "description": null,
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/status/FinalHit/end.c",
+          "line": 22,
+          "type": "int",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xdf05c072b",
+              "label": "param_private"
+            },
+            {
+              "hash": "0x12680db1db",
+              "label": "final_vortex_frame"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 77,
+      "display_section": "cloud",
+      "hash40": "0x12d2d373e0",
+      "sheet_label": "final_vortex_speed",
+      "pinned_label": "final_vortex_speed",
+      "smash4_raw": null,
+      "ultimate_raw": "20",
+      "ultimate_value": 20,
+      "native_prc_type": null,
+      "description": null,
+      "note": null,
+      "matching_native_status_parameter_reads": [
+        {
+          "file": "status/pikachu/functions/FUN_7100008730.c",
+          "line": 41,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xdf05c072b",
+              "label": "param_private"
+            },
+            {
+              "hash": "0x12d2d373e0",
+              "label": "final_vortex_speed"
+            }
+          ]
+        },
+        {
+          "file": "status/pikachu/functions/FUN_7100009210.c",
+          "line": 51,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xdf05c072b",
+              "label": "param_private"
+            },
+            {
+              "hash": "0x12d2d373e0",
+              "label": "final_vortex_speed"
+            }
+          ]
+        },
+        {
+          "file": "status/pikachu/status/FinalReturn/init.c",
+          "line": 36,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xdf05c072b",
+              "label": "param_private"
+            },
+            {
+              "hash": "0x12d2d373e0",
+              "label": "final_vortex_speed"
+            }
+          ]
+        },
+        {
+          "file": "status/pikachu/status/FinalReturn/main_loop.c",
+          "line": 41,
+          "type": "float",
+          "preceding_hash_literals": [
+            {
+              "hash": "0xdf05c072b",
+              "label": "param_private"
+            },
+            {
+              "hash": "0x12d2d373e0",
+              "label": "final_vortex_speed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "csv_row": 78,
+      "display_section": "cloud",
+      "hash40": "0x1dbb5c9580",
+      "sheet_label": null,
+      "pinned_label": null,
+      "smash4_raw": null,
+      "ultimate_raw": "10",
+      "ultimate_value": 10,
+      "native_prc_type": null,
+      "description": null,
+      "note": null,
+      "matching_native_status_parameter_reads": []
+    },
+    {
+      "csv_row": 79,
+      "display_section": "cloud",
+      "hash40": "0x20e60779f8",
+      "sheet_label": null,
+      "pinned_label": null,
+      "smash4_raw": null,
+      "ultimate_raw": "150",
+      "ultimate_value": 150,
+      "native_prc_type": null,
+      "description": null,
+      "note": null,
+      "matching_native_status_parameter_reads": []
+    }
+  ],
+  "limits": [
+    "Game patch, original dump hash and native PRC value types are unstated; separate common parameter sheet version13.0.1 cannot date this document.",
+    "Values are parsed exclusively from explicitly Ultimate column; Smash4 retained for audit only.",
+    "Display sections do not establish complete native struct layout, especially unlabeled FinalSmash fields after cloud.",
+    "This table has78 scalar data rows; this sheet has no hit_data hurtbox struct rows or posed matrices; the separately captured typed PRC fixture is described in native-vl-prcrs-contract.md.",
+    "Thunder sheet notes multiply cloudheight10.5/bolt distances30,8/detection1.7 by10; conversion still requires primary engine consumer proof.",
+    "Nearest-hash matches in raw table record remain contextual. required-special-parameters.json separately verifies both native group and field hashes and getter type for all44 prior mandatory fields."
+  ],
+  "sheet_model_revision": 14813,
+  "later_binary_comparison": "native-vl-prcrs-sheet-comparison.json; all78 rows match storage precision; patch and original extraction unverified"
+}

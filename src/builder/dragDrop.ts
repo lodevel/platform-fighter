@@ -57,7 +57,7 @@ import {
   type GridSpec,
 } from './builderGrid';
 import type { CatalogPiece, BuilderPieceType } from './catalogPieces';
-import type { CatalogRowHitRect } from './CatalogPanel';
+import type { CatalogRowHitRect } from './catalogPieces';
 import {
   validatePlacement,
   type PlacementRejectionReason,

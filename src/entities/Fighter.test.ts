@@ -7,20 +7,16 @@ import {
   type FighterOptions,
 } from './Fighter';
 import { CHARACTER_LABEL } from '../characters/Character';
-import { Wolf, WOLF_TUNING } from '../characters/Wolf';
-import { Cat, CAT_TUNING } from '../characters/Cat';
-import { Owl, OWL_TUNING } from '../characters/Owl';
-import { Bear, BEAR_TUNING } from '../characters/Bear';
+import { DonkeyKong, DONKEYKONG_TUNING } from '../characters/DonkeyKong';
+import { Pikachu, PIKACHU_TUNING, PIKACHU_MOVES } from '../characters/Pikachu';
 import type { HitInfo } from '../characters/combat';
 import {
-  CAT_SPEC,
-  WOLF_SPEC,
-  WOLF_PLACEHOLDER,
-  CAT_PLACEHOLDER,
-  WOLF_MOVES,
-  CAT_MOVES,
+  PIKACHU_SPEC,
+  DONKEYKONG_SPEC,
+  DONKEYKONG_PLACEHOLDER,
+  DONKEYKONG_MOVES,
 } from '../characters/roster';
-import { PLATFORM_LABELS } from '../stages/StageRenderer';
+import { PLATFORM_LABELS } from '../stages/stageBodies';
 
 /**
  * Sub-AC 3.1 of AC 201: the `Fighter` entity wraps a `Character` with
@@ -37,8 +33,8 @@ import { PLATFORM_LABELS } from '../stages/StageRenderer';
  *      stored exactly as supplied; out-of-range values throw at
  *      construction.
  *   2. Body construction — the right Character subclass is built for
- *      each characterId (Wolf for 'wolf', Cat for 'cat', baseline
- *      Character placeholders for 'owl' / 'bear' until M2).
+ *      each characterId (DonkeyKong for 'donkeykong', Pikachu for
+ *      'pikachu').
  *   3. Damage / health — getDamagePercent, setDamagePercent,
  *      addDamage all delegate correctly and clamp at the engine's
  *      limits.
@@ -140,7 +136,7 @@ function createMockScene(): MockScene {
 function baseOptions(overrides: Partial<FighterOptions> = {}): FighterOptions {
   return {
     playerIndex: 1,
-    characterId: 'wolf',
+    characterId: 'donkeykong',
     paletteIndex: 0,
     spawnX: 100,
     spawnY: 200,
@@ -157,10 +153,10 @@ describe('Fighter — slot identity', () => {
     const m = createMockScene();
     const f = new Fighter(
       m.scene,
-      baseOptions({ playerIndex: 2, characterId: 'cat', paletteIndex: 5, stockCount: 4 }),
+      baseOptions({ playerIndex: 2, characterId: 'pikachu', paletteIndex: 5, stockCount: 4 }),
     );
     expect(f.playerIndex).toBe(2);
-    expect(f.characterId).toBe('cat');
+    expect(f.characterId).toBe('pikachu');
     expect(f.paletteIndex).toBe(5);
     expect(f.initialStocks).toBe(4);
     expect(f.getStocks()).toBe(4);
@@ -227,45 +223,22 @@ describe('Fighter — body construction', () => {
     expect(f.body).toBe(m.bodies[0]!);
   });
 
-  it("uses Wolf subclass for characterId 'wolf'", () => {
+  it("uses DonkeyKong subclass for characterId 'donkeykong'", () => {
     const m = createMockScene();
-    const f = new Fighter(m.scene, baseOptions({ characterId: 'wolf' }));
-    expect(f.getCharacter()).toBeInstanceOf(Wolf);
-    // Wolf-specific tuning is stamped onto the body via the rectangle's
-    // dimensions (width / height come from WOLF_TUNING).
-    expect(m.bodies[0]!.options['_w']).toBe(WOLF_TUNING.width);
-    expect(m.bodies[0]!.options['_h']).toBe(WOLF_TUNING.height);
+    const f = new Fighter(m.scene, baseOptions({ characterId: 'donkeykong' }));
+    expect(f.getCharacter()).toBeInstanceOf(DonkeyKong);
+    // DK-specific tuning is stamped onto the body via the rectangle's
+    // dimensions (width / height come from DONKEYKONG_TUNING).
+    expect(m.bodies[0]!.options['_w']).toBe(DONKEYKONG_TUNING.width);
+    expect(m.bodies[0]!.options['_h']).toBe(DONKEYKONG_TUNING.height);
   });
 
-  it("uses Cat subclass for characterId 'cat'", () => {
+  it("uses Pikachu subclass for characterId 'pikachu'", () => {
     const m = createMockScene();
-    const f = new Fighter(m.scene, baseOptions({ characterId: 'cat' }));
-    expect(f.getCharacter()).toBeInstanceOf(Cat);
-    expect(m.bodies[0]!.options['_w']).toBe(CAT_TUNING.width);
-    expect(m.bodies[0]!.options['_h']).toBe(CAT_TUNING.height);
-  });
-
-  it("uses Owl subclass for characterId 'owl'", () => {
-    // AC 60004 Sub-AC 4 promoted Owl from placeholder to a fully-wired
-    // mage subclass. The factory builds Owl with the mage tuning so the
-    // body geometry on the Matter rectangle matches OWL_TUNING.
-    const m = createMockScene();
-    const f = new Fighter(m.scene, baseOptions({ characterId: 'owl' }));
-    expect(f.getCharacter()).toBeInstanceOf(Owl);
-    expect(m.bodies[0]!.options['_w']).toBe(OWL_TUNING.width);
-    expect(m.bodies[0]!.options['_h']).toBe(OWL_TUNING.height);
-  });
-
-  it("uses Bear subclass for characterId 'bear'", () => {
-    // AC 60001 Sub-AC 1 promoted Bear from placeholder to a fully-wired
-    // grappler subclass alongside the rest of the M2 grounded triplet
-    // expansion. The factory builds Bear with the grappler tuning so
-    // the body geometry on the Matter rectangle matches BEAR_TUNING.
-    const m = createMockScene();
-    const f = new Fighter(m.scene, baseOptions({ characterId: 'bear' }));
-    expect(f.getCharacter()).toBeInstanceOf(Bear);
-    expect(m.bodies[0]!.options['_w']).toBe(BEAR_TUNING.width);
-    expect(m.bodies[0]!.options['_h']).toBe(BEAR_TUNING.height);
+    const f = new Fighter(m.scene, baseOptions({ characterId: 'pikachu' }));
+    expect(f.getCharacter()).toBeInstanceOf(Pikachu);
+    expect(m.bodies[0]!.options['_w']).toBe(PIKACHU_TUNING.width);
+    expect(m.bodies[0]!.options['_h']).toBe(PIKACHU_TUNING.height);
   });
 
   it('honours a custom characterFactory override (test injection)', () => {
@@ -274,7 +247,7 @@ describe('Fighter — body construction', () => {
     const f = new Fighter(
       m.scene,
       baseOptions({
-        characterId: 'wolf',
+        characterId: 'donkeykong',
         spawnX: 42,
         spawnY: 99,
         characterFactory: (scene, id, x, y) => {
@@ -285,8 +258,8 @@ describe('Fighter — body construction', () => {
         },
       }),
     );
-    expect(built).toEqual([{ id: 'wolf', x: 42, y: 99 }]);
-    expect(f.getCharacter()).toBeInstanceOf(Wolf);
+    expect(built).toEqual([{ id: 'donkeykong', x: 42, y: 99 }]);
+    expect(f.getCharacter()).toBeInstanceOf(DonkeyKong);
   });
 
   it('exposes the body and getCharacter() consistently', () => {
@@ -346,7 +319,7 @@ describe('Fighter — knockback / applyHit', () => {
 
   it('returns a non-zero knockback vector and accumulates damage', () => {
     const m = createMockScene();
-    const f = new Fighter(m.scene, baseOptions({ characterId: 'wolf' }));
+    const f = new Fighter(m.scene, baseOptions({ characterId: 'donkeykong' }));
     const before = f.getDamagePercent();
     const result = f.applyHit(HIT);
     expect(f.getDamagePercent()).toBe(before + HIT.damage);
@@ -370,22 +343,22 @@ describe('Fighter — knockback / applyHit', () => {
     expect(f.body.velocity.y).not.toBe(0);
   });
 
-  it('lighter characters take more knockback (Cat vs Wolf)', () => {
-    const wolfScene = createMockScene();
-    const wolf = new Fighter(
-      wolfScene.scene,
-      baseOptions({ characterId: 'wolf', playerIndex: 1 }),
+  it('lighter characters take more knockback (Pikachu vs Donkey Kong)', () => {
+    const dkScene = createMockScene();
+    const dk = new Fighter(
+      dkScene.scene,
+      baseOptions({ characterId: 'donkeykong', playerIndex: 1 }),
     );
-    const catScene = createMockScene();
-    const cat = new Fighter(
-      catScene.scene,
-      baseOptions({ characterId: 'cat', playerIndex: 2 }),
+    const pikachuScene = createMockScene();
+    const pikachu = new Fighter(
+      pikachuScene.scene,
+      baseOptions({ characterId: 'pikachu', playerIndex: 2 }),
     );
-    const wolfKb = wolf.applyHit(HIT);
-    const catKb = cat.applyHit(HIT);
-    // Cat is lighter (mass 8) than Wolf (mass 16) — same hit sends Cat
-    // farther.
-    expect(catKb.magnitude).toBeGreaterThan(wolfKb.magnitude);
+    const dkKb = dk.applyHit(HIT);
+    const pikachuKb = pikachu.applyHit(HIT);
+    // Pikachu is lighter than Donkey Kong — same hit sends Pikachu farther.
+    expect(PIKACHU_TUNING.mass).toBeLessThan(DONKEYKONG_TUNING.mass);
+    expect(pikachuKb.magnitude).toBeGreaterThan(dkKb.magnitude);
   });
 
   it('returns a zero result for a destroyed fighter', () => {
@@ -441,7 +414,7 @@ describe('Fighter — AC 8 hitstun lockout (hurt state)', () => {
 
   it('a landed hit drops the fighter into hurt state once hitlag drains', () => {
     const m = createMockScene();
-    const f = new Fighter(m.scene, baseOptions({ characterId: 'wolf' }));
+    const f = new Fighter(m.scene, baseOptions({ characterId: 'donkeykong' }));
     expect(f.isInHitstun()).toBe(false);
     expect(f.getHitstunRemaining()).toBe(0);
     const r = f.applyHit(HIT);
@@ -458,7 +431,7 @@ describe('Fighter — AC 8 hitstun lockout (hurt state)', () => {
     // locked into hurt state for more than the documented upper bound,
     // so the player never feels frozen for an unfair stretch.
     const m = createMockScene();
-    const f = new Fighter(m.scene, baseOptions({ characterId: 'cat' }));
+    const f = new Fighter(m.scene, baseOptions({ characterId: 'pikachu' }));
     f.setDamagePercent(999);
     const massive: HitInfo = {
       damage: 30,
@@ -473,7 +446,7 @@ describe('Fighter — AC 8 hitstun lockout (hurt state)', () => {
 
   it('horizontal stick input is suppressed while in hurt state', () => {
     const m = createMockScene();
-    const f = new Fighter(m.scene, baseOptions({ characterId: 'wolf' }));
+    const f = new Fighter(m.scene, baseOptions({ characterId: 'donkeykong' }));
     groundFighter(f, m);
     f.applyHit(HIT);
     const vxPostHit = f.body.velocity.x;
@@ -485,7 +458,7 @@ describe('Fighter — AC 8 hitstun lockout (hurt state)', () => {
 
   it('jump input is suppressed while in hurt state', () => {
     const m = createMockScene();
-    const f = new Fighter(m.scene, baseOptions({ characterId: 'wolf' }));
+    const f = new Fighter(m.scene, baseOptions({ characterId: 'donkeykong' }));
     groundFighter(f, m);
     f.applyHit(HIT);
     const jumpsBefore = f.getJumpsUsed();
@@ -496,17 +469,17 @@ describe('Fighter — AC 8 hitstun lockout (hurt state)', () => {
 
   it('attack input is suppressed while in hurt state', () => {
     const m = createMockScene();
-    const f = new Fighter(m.scene, baseOptions({ characterId: 'wolf' }));
+    const f = new Fighter(m.scene, baseOptions({ characterId: 'donkeykong' }));
     groundFighter(f, m);
     f.applyHit(HIT);
     f.applyInput({ moveX: 0, jump: false, attack: true });
-    // Wolf's jab can't trigger because we're hurt.
+    // DK's jab can't trigger because we're hurt.
     expect(f.isAttacking()).toBe(false);
   });
 
   it('hitstun decrements by exactly 1 per applyInput call (post-hitlag)', () => {
     const m = createMockScene();
-    const f = new Fighter(m.scene, baseOptions({ characterId: 'wolf' }));
+    const f = new Fighter(m.scene, baseOptions({ characterId: 'donkeykong' }));
     const r = f.applyHit(HIT);
     tickPastHitlagFighter(f);
     const start = r.hitstunFrames;
@@ -519,7 +492,7 @@ describe('Fighter — AC 8 hitstun lockout (hurt state)', () => {
 
   it('exits hurt state after exactly hitstunFrames frames pass (post-hitlag)', () => {
     const m = createMockScene();
-    const f = new Fighter(m.scene, baseOptions({ characterId: 'wolf' }));
+    const f = new Fighter(m.scene, baseOptions({ characterId: 'donkeykong' }));
     groundFighter(f, m);
     const r = f.applyHit(HIT);
     tickPastHitlagFighter(f);
@@ -534,7 +507,7 @@ describe('Fighter — AC 8 hitstun lockout (hurt state)', () => {
 
   it('regains player control once the hurt state ends', () => {
     const m = createMockScene();
-    const f = new Fighter(m.scene, baseOptions({ characterId: 'wolf' }));
+    const f = new Fighter(m.scene, baseOptions({ characterId: 'donkeykong' }));
     groundFighter(f, m);
     const r = f.applyHit(HIT);
     tickPastHitlagFighter(f);
@@ -542,16 +515,17 @@ describe('Fighter — AC 8 hitstun lockout (hurt state)', () => {
     for (let i = 0; i < r.hitstunFrames; i += 1) {
       f.applyInput({ moveX: 0, jump: false });
     }
-    // Now movement input must take effect again (facing + velocity push).
-    f.applyInput({ moveX: 1, jump: false });
+    // Now movement input must take effect again (facing follows the stick
+    // once the authored turn finishes).
+    holdStick(f, 1);
     expect(f.getFacing()).toBe(1);
-    f.applyInput({ moveX: -1, jump: false });
+    holdStick(f, -1);
     expect(f.getFacing()).toBe(-1);
   });
 
   it('a respawn (setPosition) clears the hurt state — fighter is free immediately', () => {
     const m = createMockScene();
-    const f = new Fighter(m.scene, baseOptions({ characterId: 'wolf' }));
+    const f = new Fighter(m.scene, baseOptions({ characterId: 'donkeykong' }));
     f.applyHit(HIT);
     tickPastHitlagFighter(f);
     expect(f.isInHitstun()).toBe(true);
@@ -567,7 +541,7 @@ describe('Fighter — AC 8 hitstun lockout (hurt state)', () => {
     // (damage %, mass, hit). No wall-clock, no random seed.
     const buildAndHit = () => {
       const m = createMockScene();
-      const f = new Fighter(m.scene, baseOptions({ characterId: 'wolf' }));
+      const f = new Fighter(m.scene, baseOptions({ characterId: 'donkeykong' }));
       const r = f.applyHit(HIT);
       return { stun: f.getHitstunRemaining(), frames: r.hitstunFrames };
     };
@@ -692,7 +666,7 @@ describe('Fighter — respawn', () => {
 describe('Fighter — applyInput delegation', () => {
   it('drives horizontal velocity through the underlying Character', () => {
     const m = createMockScene();
-    const f = new Fighter(m.scene, baseOptions({ characterId: 'wolf' }));
+    const f = new Fighter(m.scene, baseOptions({ characterId: 'donkeykong' }));
     // One step of full-right input — body should accelerate from 0.
     f.applyInput({ moveX: 1, jump: false });
     expect(f.body.velocity.x).toBeGreaterThan(0);
@@ -722,10 +696,11 @@ describe('Fighter — applyInput delegation', () => {
 
 /**
  * Drop a fake platform under the fighter so subsequent applyInput calls
- * see grounded=true. Mirrors the helper in Character.test.ts but goes
- * through the Fighter's body accessor.
+ * see grounded=true, then ride out the initial landing recovery so the
+ * fighter starts from a settled stance. Mirrors the helper in
+ * Character.test.ts but goes through the Fighter's body accessor.
  */
-function groundFighter(f: Fighter, m: MockScene): void {
+function groundFighter(f: Fighter, m: MockScene) {
   const pos = f.getPosition();
   const platform = {
     label: PLATFORM_LABELS.solid,
@@ -736,6 +711,13 @@ function groundFighter(f: Fighter, m: MockScene): void {
       l.fn({ pairs: [{ bodyA: f.body, bodyB: platform }] });
     }
   }
+  // The first neutral step processes the touchdown; keep stepping until
+  // the landing recovery has drained and the fighter is actionable.
+  let frames = 0;
+  do {
+    f.applyInput({ moveX: 0, jump: false });
+  } while (!f.getCharacter().canAttack() && ++frames < 30);
+  return platform;
 }
 
 /**
@@ -754,13 +736,16 @@ function tickPastHitlagFighter(f: Fighter, maxFrames = 32): void {
   }
 }
 
+/**
+ * Hold the stick long enough for the fighter's authored pivot / dash turn
+ * to finish, so facing reflects the held direction.
+ */
+function holdStick(f: Fighter, moveX: number, frames = 30): void {
+  for (let i = 0; i < frames; i += 1) f.applyInput({ moveX, jump: false });
+}
+
 /** Lift the fighter off any current ground contact (simulate walk-off / takeoff). */
-function unground(f: Fighter, m: MockScene): void {
-  const pos = f.getPosition();
-  const platform = {
-    label: PLATFORM_LABELS.solid,
-    position: { x: pos.x, y: pos.y + 100 },
-  };
+function unground(f: Fighter, m: MockScene, platform: ReturnType<typeof groundFighter>): void {
   for (const l of m.listeners.slice()) {
     if (l.event === 'collisionend') {
       l.fn({ pairs: [{ bodyA: f.body, bodyB: platform }] });
@@ -771,7 +756,7 @@ function unground(f: Fighter, m: MockScene): void {
 describe('Fighter — movement (Sub-AC 3.2)', () => {
   it('walks rightward when moveX = 1 (positive horizontal velocity)', () => {
     const m = createMockScene();
-    const f = new Fighter(m.scene, baseOptions({ characterId: 'wolf' }));
+    const f = new Fighter(m.scene, baseOptions({ characterId: 'donkeykong' }));
     groundFighter(f, m);
     f.applyInput({ moveX: 1, jump: false });
     expect(f.getVelocity().x).toBeGreaterThan(0);
@@ -780,7 +765,7 @@ describe('Fighter — movement (Sub-AC 3.2)', () => {
 
   it('walks leftward when moveX = -1 (negative horizontal velocity)', () => {
     const m = createMockScene();
-    const f = new Fighter(m.scene, baseOptions({ characterId: 'wolf' }));
+    const f = new Fighter(m.scene, baseOptions({ characterId: 'donkeykong' }));
     groundFighter(f, m);
     f.applyInput({ moveX: -1, jump: false });
     expect(f.getVelocity().x).toBeLessThan(0);
@@ -790,20 +775,20 @@ describe('Fighter — movement (Sub-AC 3.2)', () => {
   it('runs to the character-tuned top speed under sustained input', () => {
     // "Run" in this game is "hold the stick — there's no separate run
     // button". Verify we converge to maxRunSpeed within a finite number
-    // of fixed steps. Wolf is the bruiser tuning so we read its top
-    // speed from the published tuning constant.
+    // of fixed steps. We read DK's top speed from the published tuning
+    // constant.
     const m = createMockScene();
-    const f = new Fighter(m.scene, baseOptions({ characterId: 'wolf' }));
+    const f = new Fighter(m.scene, baseOptions({ characterId: 'donkeykong' }));
     groundFighter(f, m);
     for (let i = 0; i < 60; i += 1) {
       f.applyInput({ moveX: 1, jump: false });
     }
-    expect(f.getVelocity().x).toBeCloseTo(WOLF_TUNING.maxRunSpeed!);
+    expect(f.getVelocity().x).toBeCloseTo(DONKEYKONG_TUNING.maxRunSpeed!);
   });
 
   it('decelerates to a stop when the stick is released on the ground', () => {
     const m = createMockScene();
-    const f = new Fighter(m.scene, baseOptions({ characterId: 'wolf' }));
+    const f = new Fighter(m.scene, baseOptions({ characterId: 'donkeykong' }));
     groundFighter(f, m);
     // Get up to speed first.
     for (let i = 0; i < 60; i += 1) f.applyInput({ moveX: 1, jump: false });
@@ -817,13 +802,13 @@ describe('Fighter — movement (Sub-AC 3.2)', () => {
     // right input. Ground delta should exceed air delta because air
     // accel is tuned lower.
     const groundScene = createMockScene();
-    const groundF = new Fighter(groundScene.scene, baseOptions({ characterId: 'wolf' }));
+    const groundF = new Fighter(groundScene.scene, baseOptions({ characterId: 'donkeykong' }));
     groundFighter(groundF, groundScene);
     groundF.applyInput({ moveX: 1, jump: false });
     const groundDelta = groundF.getVelocity().x;
 
     const airScene = createMockScene();
-    const airF = new Fighter(airScene.scene, baseOptions({ characterId: 'wolf' }));
+    const airF = new Fighter(airScene.scene, baseOptions({ characterId: 'donkeykong' }));
     // No ground event → airborne from spawn.
     airF.applyInput({ moveX: 1, jump: false });
     const airDelta = airF.getVelocity().x;
@@ -837,34 +822,47 @@ describe('Fighter — movement (Sub-AC 3.2)', () => {
     // airborne fighter should respond to stick deflection. (Gravity is
     // Matter's job; the entity contract is that input still routes.)
     const m = createMockScene();
-    const f = new Fighter(m.scene, baseOptions({ characterId: 'wolf' }));
+    const f = new Fighter(m.scene, baseOptions({ characterId: 'donkeykong' }));
     // Spawn airborne — never trigger a ground event.
     expect(f.isGrounded()).toBe(false);
     f.applyInput({ moveX: 1, jump: false });
-    expect(f.getVelocity().x).toBeGreaterThan(0);
+    const rightwardSpeed = f.getVelocity().x;
+    expect(rightwardSpeed).toBeGreaterThan(0);
     f.applyInput({ moveX: -1, jump: false });
     // Velocity may not flip sign in one frame because air accel is
     // small, but it must move toward leftward (delta < previous).
-    expect(f.getFacing()).toBe(-1);
+    expect(f.getVelocity().x).toBeLessThan(rightwardSpeed);
+    expect(f.getFacing()).toBe(1); // Air drift changes travel, not orientation.
   });
 });
 
+/** Complete the three grounded preparation frames after the jump press. */
+function finishGroundedJump(f: Fighter): void {
+  expect(f.getJumpsUsed()).toBe(0);
+  for (let frame = 0; frame < 3; frame += 1) {
+    expect(f.getVelocity().y).toBeGreaterThanOrEqual(0);
+    f.applyInput({ moveX: 0, jump: true });
+  }
+}
+
 describe('Fighter — jumping (Sub-AC 3.2)', () => {
-  it('applies an upward impulse on the rising edge of jump while grounded', () => {
+  it('applies an upward impulse after grounded jumpsquat', () => {
     const m = createMockScene();
-    const f = new Fighter(m.scene, baseOptions({ characterId: 'wolf' }));
+    const f = new Fighter(m.scene, baseOptions({ characterId: 'donkeykong' }));
     groundFighter(f, m);
     expect(f.getJumpsUsed()).toBe(0);
     f.applyInput({ moveX: 0, jump: true });
+    finishGroundedJump(f);
     expect(f.getVelocity().y).toBeLessThan(0); // upward in screen-space
     expect(f.getJumpsUsed()).toBe(1);
   });
 
   it('does not double-fire when jump is held across frames', () => {
     const m = createMockScene();
-    const f = new Fighter(m.scene, baseOptions({ characterId: 'wolf' }));
+    const f = new Fighter(m.scene, baseOptions({ characterId: 'donkeykong' }));
     groundFighter(f, m);
     f.applyInput({ moveX: 0, jump: true });
+    finishGroundedJump(f);
     expect(f.getJumpsUsed()).toBe(1);
     // Held — must NOT consume another jump.
     f.applyInput({ moveX: 0, jump: true });
@@ -874,14 +872,15 @@ describe('Fighter — jumping (Sub-AC 3.2)', () => {
 
   it('grants a second jump (double-jump) after release-then-press in the air', () => {
     const m = createMockScene();
-    const f = new Fighter(m.scene, baseOptions({ characterId: 'wolf' }));
-    groundFighter(f, m);
-    // First jump kicks off the ground.
+    const f = new Fighter(m.scene, baseOptions({ characterId: 'donkeykong' }));
+    const platform = groundFighter(f, m);
+    // First jump prepares, then kicks off the ground.
     f.applyInput({ moveX: 0, jump: true });
+    finishGroundedJump(f);
     expect(f.getJumpsUsed()).toBe(1);
-    expect(f.getJumpsRemaining()).toBe(1); // Wolf maxJumps=2 → 1 left
+    expect(f.getJumpsRemaining()).toBe(1); // DK maxJumps=2 → 1 left
     // Leave the platform behind us.
-    unground(f, m);
+    unground(f, m, platform);
     // Release the button so the next press is a real rising edge.
     f.applyInput({ moveX: 0, jump: false });
     // Air-jump press.
@@ -891,31 +890,40 @@ describe('Fighter — jumping (Sub-AC 3.2)', () => {
   });
 
   it('refuses a third jump when the budget is spent', () => {
-    const m = createMockScene();
-    const f = new Fighter(m.scene, baseOptions({ characterId: 'wolf' }));
-    groundFighter(f, m);
-    // Burn the ground jump.
-    f.applyInput({ moveX: 0, jump: true });
-    unground(f, m);
-    // Burn the air jump.
-    f.applyInput({ moveX: 0, jump: false });
-    f.applyInput({ moveX: 0, jump: true });
-    expect(f.getJumpsRemaining()).toBe(0);
-    // Third attempt — denied: vy must not refresh upward.
-    f.applyInput({ moveX: 0, jump: false });
-    const vyBefore = f.getVelocity().y;
-    f.applyInput({ moveX: 0, jump: true });
-    expect(f.getJumpsUsed()).toBe(2);
-    expect(f.getVelocity().y).toBe(vyBefore);
+    // Spend both jumps, then compare a third press against an identical
+    // fighter that does not press: the denied press must change nothing
+    // (no extra jump consumed, no upward velocity refresh).
+    const spendBothJumps = (): Fighter => {
+      const m = createMockScene();
+      const f = new Fighter(m.scene, baseOptions({ characterId: 'donkeykong' }));
+      const platform = groundFighter(f, m);
+      // Burn the ground jump.
+      f.applyInput({ moveX: 0, jump: true });
+      finishGroundedJump(f);
+      unground(f, m, platform);
+      // Burn the air jump.
+      f.applyInput({ moveX: 0, jump: false });
+      f.applyInput({ moveX: 0, jump: true });
+      expect(f.getJumpsRemaining()).toBe(0);
+      f.applyInput({ moveX: 0, jump: false });
+      return f;
+    };
+    const pressed = spendBothJumps();
+    const control = spendBothJumps();
+    pressed.applyInput({ moveX: 0, jump: true });
+    control.applyInput({ moveX: 0, jump: false });
+    expect(pressed.getJumpsUsed()).toBe(2);
+    expect(pressed.getVelocity().y).toBe(control.getVelocity().y);
   });
 
   it('refreshes the jump budget on landing', () => {
     const m = createMockScene();
-    const f = new Fighter(m.scene, baseOptions({ characterId: 'wolf' }));
-    groundFighter(f, m);
+    const f = new Fighter(m.scene, baseOptions({ characterId: 'donkeykong' }));
+    const platform = groundFighter(f, m);
     // Take off and consume both jumps.
     f.applyInput({ moveX: 0, jump: true });
-    unground(f, m);
+    finishGroundedJump(f);
+    unground(f, m, platform);
     f.applyInput({ moveX: 0, jump: false });
     f.applyInput({ moveX: 0, jump: true });
     expect(f.getJumpsUsed()).toBe(2);
@@ -928,27 +936,26 @@ describe('Fighter — jumping (Sub-AC 3.2)', () => {
     expect(f.getJumpsRemaining()).toBe(2);
   });
 
-  it('honours per-character maxJumps (Cat configures the ninja air budget)', () => {
-    // Cat is the ninja class — read its tuning to confirm the entity
-    // wraps the right physics. We're not asserting Cat==3 here (in case
-    // the M2 tuning shifts); we're asserting that whatever the Cat
-    // tuning says, the Fighter exposes that exact budget.
+  it('honours per-character maxJumps (Pikachu air budget)', () => {
+    // Read Pikachu's tuning to confirm the entity wraps the right
+    // physics: whatever the tuning says, the Fighter exposes that exact
+    // budget.
     const m = createMockScene();
-    const f = new Fighter(m.scene, baseOptions({ characterId: 'cat' }));
-    expect(f.getJumpsRemaining()).toBe(CAT_TUNING.maxJumps!);
+    const f = new Fighter(m.scene, baseOptions({ characterId: 'pikachu' }));
+    expect(f.getJumpsRemaining()).toBe(PIKACHU_TUNING.maxJumps!);
   });
 });
 
 describe('Fighter — ground detection (Sub-AC 3.2)', () => {
   it('starts ungrounded before any platform collision fires', () => {
     const m = createMockScene();
-    const f = new Fighter(m.scene, baseOptions({ characterId: 'wolf' }));
+    const f = new Fighter(m.scene, baseOptions({ characterId: 'donkeykong' }));
     expect(f.isGrounded()).toBe(false);
   });
 
   it('becomes grounded when a platform below the centre starts colliding', () => {
     const m = createMockScene();
-    const f = new Fighter(m.scene, baseOptions({ characterId: 'wolf' }));
+    const f = new Fighter(m.scene, baseOptions({ characterId: 'donkeykong' }));
     expect(f.isGrounded()).toBe(false);
     groundFighter(f, m);
     expect(f.isGrounded()).toBe(true);
@@ -956,16 +963,16 @@ describe('Fighter — ground detection (Sub-AC 3.2)', () => {
 
   it('drops back to ungrounded the moment support contact ends (walk-off)', () => {
     const m = createMockScene();
-    const f = new Fighter(m.scene, baseOptions({ characterId: 'wolf' }));
-    groundFighter(f, m);
+    const f = new Fighter(m.scene, baseOptions({ characterId: 'donkeykong' }));
+    const platform = groundFighter(f, m);
     expect(f.isGrounded()).toBe(true);
-    unground(f, m);
+    unground(f, m, platform);
     expect(f.isGrounded()).toBe(false);
   });
 
   it('ignores ceiling thumps and side-wall bumps for ground state', () => {
     const m = createMockScene();
-    const f = new Fighter(m.scene, baseOptions({ characterId: 'wolf', spawnX: 0, spawnY: 100 }));
+    const f = new Fighter(m.scene, baseOptions({ characterId: 'donkeykong', spawnX: 0, spawnY: 100 }));
     const ceiling = { label: PLATFORM_LABELS.solid, position: { x: 0, y: 50 } };
     const wall = { label: PLATFORM_LABELS.solid, position: { x: 80, y: 100 } };
     for (const l of m.listeners.slice()) {
@@ -979,7 +986,7 @@ describe('Fighter — ground detection (Sub-AC 3.2)', () => {
 
   it('recognises pass-through platforms as support surfaces', () => {
     const m = createMockScene();
-    const f = new Fighter(m.scene, baseOptions({ characterId: 'wolf' }));
+    const f = new Fighter(m.scene, baseOptions({ characterId: 'donkeykong' }));
     const passPlat = {
       label: PLATFORM_LABELS.passThrough,
       position: { x: f.getPosition().x, y: f.getPosition().y + 100 },
@@ -996,30 +1003,31 @@ describe('Fighter — ground detection (Sub-AC 3.2)', () => {
 describe('Fighter — getState surfaces movement state (Sub-AC 3.2)', () => {
   it('snapshot includes grounded + jumpsUsed + jumpsRemaining', () => {
     const m = createMockScene();
-    const f = new Fighter(m.scene, baseOptions({ characterId: 'wolf' }));
+    const f = new Fighter(m.scene, baseOptions({ characterId: 'donkeykong' }));
     // Fresh, airborne, full jump budget.
     let s = f.getState();
     expect(s.grounded).toBe(false);
     expect(s.jumpsUsed).toBe(0);
-    expect(s.jumpsRemaining).toBe(WOLF_TUNING.maxJumps!);
+    expect(s.jumpsRemaining).toBe(DONKEYKONG_TUNING.maxJumps!);
     // Land + consume one jump.
     groundFighter(f, m);
     f.applyInput({ moveX: 0, jump: true });
+    finishGroundedJump(f);
     s = f.getState();
     // After takeoff the fighter is still in support contact for one
     // frame (we never end the contact); what matters here is jump
     // budget bookkeeping.
     expect(s.jumpsUsed).toBe(1);
-    expect(s.jumpsRemaining).toBe(WOLF_TUNING.maxJumps! - 1);
+    expect(s.jumpsRemaining).toBe(DONKEYKONG_TUNING.maxJumps! - 1);
   });
 
   it('snapshot facing reflects last horizontal input direction', () => {
     const m = createMockScene();
-    const f = new Fighter(m.scene, baseOptions({ characterId: 'wolf' }));
+    const f = new Fighter(m.scene, baseOptions({ characterId: 'donkeykong' }));
     groundFighter(f, m);
-    f.applyInput({ moveX: -1, jump: false });
+    holdStick(f, -1);
     expect(f.getState().facing).toBe(-1);
-    f.applyInput({ moveX: 1, jump: false });
+    holdStick(f, 1);
     expect(f.getState().facing).toBe(1);
   });
 
@@ -1028,13 +1036,13 @@ describe('Fighter — getState surfaces movement state (Sub-AC 3.2)', () => {
     // must not introduce any non-determinism on top of the Character.
     const runOnce = () => {
       const m = createMockScene();
-      const f = new Fighter(m.scene, baseOptions({ characterId: 'wolf' }));
-      groundFighter(f, m);
+      const f = new Fighter(m.scene, baseOptions({ characterId: 'donkeykong' }));
+      const platform = groundFighter(f, m);
       // A fixed input script: walk right 5 frames, jump, drift 3 frames,
       // air-jump, drift 5 frames.
       for (let i = 0; i < 5; i += 1) f.applyInput({ moveX: 1, jump: false });
       f.applyInput({ moveX: 1, jump: true });
-      unground(f, m);
+      unground(f, m, platform);
       for (let i = 0; i < 3; i += 1) f.applyInput({ moveX: 1, jump: false });
       f.applyInput({ moveX: 1, jump: true });
       for (let i = 0; i < 5; i += 1) f.applyInput({ moveX: 1, jump: false });
@@ -1062,14 +1070,14 @@ describe('Fighter — getState snapshot', () => {
     const m = createMockScene();
     const f = new Fighter(
       m.scene,
-      baseOptions({ playerIndex: 3, characterId: 'cat', paletteIndex: 4, stockCount: 2 }),
+      baseOptions({ playerIndex: 3, characterId: 'pikachu', paletteIndex: 4, stockCount: 2 }),
     );
     f.addDamage(20);
     f.recordKo();
     f.loseStock();
     const s = f.getState();
     expect(s.playerIndex).toBe(3);
-    expect(s.characterId).toBe('cat');
+    expect(s.characterId).toBe('pikachu');
     expect(s.paletteIndex).toBe(4);
     expect(s.stocks).toBe(1);
     expect(s.stocksLost).toBe(1);
@@ -1094,74 +1102,74 @@ describe('Fighter — getState snapshot', () => {
 // Verifies that each Fighter entity surfaces the full `CharacterSpec`
 // for its character — stats, moves, sprite placeholder, display name —
 // without the caller reaching into the roster module by hand. Two
-// distinct fighters (Wolf bruiser, Cat ninja) are constructed and we
+// distinct fighters (Donkey Kong, Pikachu) are constructed and we
 // assert that their entity-level accessors return the expected,
 // distinct data.
 
 describe('Fighter — character spec integration (Sub-AC 3.5 of AC 205)', () => {
   it('getSpec() returns the matching CharacterSpec for the slot', () => {
     const m = createMockScene();
-    const wolf = new Fighter(m.scene, baseOptions({ characterId: 'wolf' }));
+    const dk = new Fighter(m.scene, baseOptions({ characterId: 'donkeykong' }));
     const m2 = createMockScene();
-    const cat = new Fighter(m2.scene, baseOptions({ characterId: 'cat' }));
-    expect(wolf.getSpec()).toBe(WOLF_SPEC);
-    expect(cat.getSpec()).toBe(CAT_SPEC);
+    const pikachu = new Fighter(m2.scene, baseOptions({ characterId: 'pikachu' }));
+    expect(dk.getSpec()).toBe(DONKEYKONG_SPEC);
+    expect(pikachu.getSpec()).toBe(PIKACHU_SPEC);
   });
 
   it('getDisplayName() reads the human-readable name through the spec', () => {
     const m = createMockScene();
-    const wolf = new Fighter(m.scene, baseOptions({ characterId: 'wolf' }));
+    const dk = new Fighter(m.scene, baseOptions({ characterId: 'donkeykong' }));
     const m2 = createMockScene();
-    const cat = new Fighter(m2.scene, baseOptions({ characterId: 'cat' }));
-    expect(wolf.getDisplayName()).toBe('Wolf');
-    expect(cat.getDisplayName()).toBe('Cat');
+    const pikachu = new Fighter(m2.scene, baseOptions({ characterId: 'pikachu' }));
+    expect(dk.getDisplayName()).toBe('Donkey Kong');
+    expect(pikachu.getDisplayName()).toBe('Pikachu');
     // Different characters → different display names.
-    expect(wolf.getDisplayName()).not.toBe(cat.getDisplayName());
+    expect(dk.getDisplayName()).not.toBe(pikachu.getDisplayName());
   });
 
   it('getTuning() returns the live underlying tuning record', () => {
     const m = createMockScene();
-    const wolf = new Fighter(m.scene, baseOptions({ characterId: 'wolf' }));
-    const t = wolf.getTuning();
-    expect(t.maxRunSpeed).toBe(WOLF_TUNING.maxRunSpeed);
-    expect(t.mass).toBe(WOLF_TUNING.mass);
-    expect(t.width).toBe(WOLF_TUNING.width);
-    expect(t.height).toBe(WOLF_TUNING.height);
+    const dk = new Fighter(m.scene, baseOptions({ characterId: 'donkeykong' }));
+    const t = dk.getTuning();
+    expect(t.maxRunSpeed).toBe(DONKEYKONG_TUNING.maxRunSpeed);
+    expect(t.mass).toBe(DONKEYKONG_TUNING.mass);
+    expect(t.width).toBe(DONKEYKONG_TUNING.width);
+    expect(t.height).toBe(DONKEYKONG_TUNING.height);
   });
 
   it('getMoves() returns the moveset wired into the live Character', () => {
     const m = createMockScene();
-    const wolf = new Fighter(m.scene, baseOptions({ characterId: 'wolf' }));
-    const moves = wolf.getMoves();
+    const dk = new Fighter(m.scene, baseOptions({ characterId: 'donkeykong' }));
+    const moves = dk.getMoves();
     // Same array reference as the roster — single source of truth.
-    expect(moves).toBe(WOLF_MOVES);
+    expect(moves).toBe(DONKEYKONG_MOVES);
     // And every move id is reachable through the wrapped Character.
     for (const move of moves) {
-      expect(wolf.getAttack(move.id)).toBe(move);
+      expect(dk.getAttack(move.id)).toBe(move);
     }
   });
 
-  it("Cat's getMoves() returns Cat's moveset, not Wolf's", () => {
+  it("Pikachu's getMoves() returns Pikachu's moveset, not Donkey Kong's", () => {
     const m = createMockScene();
-    const cat = new Fighter(m.scene, baseOptions({ characterId: 'cat' }));
-    expect(cat.getMoves()).toBe(CAT_MOVES);
-    // Cat must not expose a Wolf move id.
-    for (const wolfMove of WOLF_MOVES) {
-      expect(cat.getAttack(wolfMove.id)).toBeUndefined();
+    const pikachu = new Fighter(m.scene, baseOptions({ characterId: 'pikachu' }));
+    expect(pikachu.getMoves()).toBe(PIKACHU_MOVES);
+    // Pikachu must not expose a DK move id.
+    for (const dkMove of DONKEYKONG_MOVES) {
+      expect(pikachu.getAttack(dkMove.id)).toBeUndefined();
     }
   });
 
   it('getPlaceholder() returns the sprite-placeholder visual descriptor', () => {
     const m = createMockScene();
-    const wolf = new Fighter(m.scene, baseOptions({ characterId: 'wolf' }));
+    const dk = new Fighter(m.scene, baseOptions({ characterId: 'donkeykong' }));
     const m2 = createMockScene();
-    const cat = new Fighter(m2.scene, baseOptions({ characterId: 'cat' }));
-    expect(wolf.getPlaceholder()).toBe(WOLF_PLACEHOLDER);
-    expect(cat.getPlaceholder()).toBe(CAT_PLACEHOLDER);
+    const pikachu = new Fighter(m2.scene, baseOptions({ characterId: 'pikachu' }));
+    expect(dk.getPlaceholder()).toBe(DONKEYKONG_PLACEHOLDER);
+    expect(pikachu.getPlaceholder()).toBe(PIKACHU_SPEC.placeholder);
     // Placeholder colours are distinct so the on-screen rectangles read
     // as belonging to different fighters at a glance.
-    expect(wolf.getPlaceholder().primaryColor).not.toBe(
-      cat.getPlaceholder().primaryColor,
+    expect(dk.getPlaceholder().primaryColor).not.toBe(
+      pikachu.getPlaceholder().primaryColor,
     );
   });
 
@@ -1169,37 +1177,37 @@ describe('Fighter — character spec integration (Sub-AC 3.5 of AC 205)', () => 
     // Mirror tuning.width / tuning.height so the rendered rectangle
     // covers the same area the Matter body collides on.
     const m = createMockScene();
-    const wolf = new Fighter(m.scene, baseOptions({ characterId: 'wolf' }));
-    expect(wolf.getPlaceholder().width).toBe(wolf.getTuning().width);
-    expect(wolf.getPlaceholder().height).toBe(wolf.getTuning().height);
+    const dk = new Fighter(m.scene, baseOptions({ characterId: 'donkeykong' }));
+    expect(dk.getPlaceholder().width).toBe(dk.getTuning().width);
+    expect(dk.getPlaceholder().height).toBe(dk.getTuning().height);
     const m2 = createMockScene();
-    const cat = new Fighter(m2.scene, baseOptions({ characterId: 'cat' }));
-    expect(cat.getPlaceholder().width).toBe(cat.getTuning().width);
-    expect(cat.getPlaceholder().height).toBe(cat.getTuning().height);
+    const pikachu = new Fighter(m2.scene, baseOptions({ characterId: 'pikachu' }));
+    expect(pikachu.getPlaceholder().width).toBe(pikachu.getTuning().width);
+    expect(pikachu.getPlaceholder().height).toBe(pikachu.getTuning().height);
   });
 
   it('two distinct fighters produce two distinct integrated specs', () => {
     // The single sub-AC contract: instantiate two playable characters
     // through the Fighter entity and confirm every dimension of the
     // roster spec (stats, moves, placeholder) differs between them.
-    const wolfScene = createMockScene();
-    const wolf = new Fighter(wolfScene.scene, baseOptions({ characterId: 'wolf' }));
-    const catScene = createMockScene();
-    const cat = new Fighter(catScene.scene, baseOptions({ characterId: 'cat' }));
+    const dkScene = createMockScene();
+    const dk = new Fighter(dkScene.scene, baseOptions({ characterId: 'donkeykong' }));
+    const pikachuScene = createMockScene();
+    const pikachu = new Fighter(pikachuScene.scene, baseOptions({ characterId: 'pikachu' }));
 
     // Stats differ.
-    expect(wolf.getTuning().mass).not.toBe(cat.getTuning().mass);
-    expect(wolf.getTuning().maxRunSpeed).not.toBe(cat.getTuning().maxRunSpeed);
+    expect(dk.getTuning().mass).not.toBe(pikachu.getTuning().mass);
+    expect(dk.getTuning().maxRunSpeed).not.toBe(pikachu.getTuning().maxRunSpeed);
     // Moves differ — no overlap of move ids.
-    const wolfMoveIds = wolf.getMoves().map((m) => m.id);
-    const catMoveIds = cat.getMoves().map((m) => m.id);
-    expect(wolfMoveIds.some((id) => catMoveIds.includes(id))).toBe(false);
+    const dkMoveIds = dk.getMoves().map((m) => m.id);
+    const pikachuMoveIds = pikachu.getMoves().map((m) => m.id);
+    expect(dkMoveIds.some((id) => pikachuMoveIds.includes(id))).toBe(false);
     // Placeholder visuals differ.
-    expect(wolf.getPlaceholder().primaryColor).not.toBe(
-      cat.getPlaceholder().primaryColor,
+    expect(dk.getPlaceholder().primaryColor).not.toBe(
+      pikachu.getPlaceholder().primaryColor,
     );
     // Display names differ.
-    expect(wolf.getDisplayName()).not.toBe(cat.getDisplayName());
+    expect(dk.getDisplayName()).not.toBe(pikachu.getDisplayName());
   });
 });
 

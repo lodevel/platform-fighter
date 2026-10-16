@@ -37,9 +37,10 @@
  *     Phaser layer strokes / fills them.
  */
 
-import type { AttackMove } from '../characters/attacks';
-import { computeHitboxCenter } from '../characters/attacks';
+import type { AttackMove, HitboxPlugin } from '../characters/attacks';
+import { computeHitboxCenter, HITBOX_LABEL } from '../characters/attacks';
 import type { Hurtbox } from '../characters/moveSchema';
+import { capsuleBounds, posedCapsule, type CollisionCapsule } from '../characters/capsuleGeometry';
 
 // ---------------------------------------------------------------------------
 // Tuning constants (frozen)
@@ -94,6 +95,8 @@ export interface HitboxDebugBox {
   readonly y: number;
   readonly width: number;
   readonly height: number;
+  /** Exact world-space collision shape; x/y/width/height are its broad enclosure. */
+  readonly capsule?: CollisionCapsule;
   readonly color: number;
   readonly fillAlpha: number;
   readonly strokeColor: number;
@@ -172,10 +175,49 @@ export function attackDebugBox(
   };
 }
 
+/** Live sensors include detached articles and conditional special hitboxes.
+ * Draw narrowphase capsules rather than their broadphase enclosing rectangle.
+ * Origin recovery mirrors HitboxDamageHandler; attached contacts use the owner.
+ */
+export function attackSensorDebugBoxes(sensor: {
+  readonly label: string;
+  readonly position: { readonly x: number; readonly y: number };
+  readonly bounds: { readonly min: { readonly x: number; readonly y: number }; readonly max: { readonly x: number; readonly y: number } };
+  readonly plugin?: Partial<HitboxPlugin>;
+}, ownerPosition?: { readonly x: number; readonly y: number }): HitboxDebugBox[] {
+  if (sensor.label !== HITBOX_LABEL) return [];
+  const plugin = sensor.plugin;
+  const style = { kind: 'attack' as const, color: HITBOX_DEBUG_ATTACK_COLOR,
+    fillAlpha: HITBOX_DEBUG_ATTACK_FILL_ALPHA, strokeColor: HITBOX_DEBUG_ATTACK_COLOR,
+    strokeAlpha: HITBOX_DEBUG_ATTACK_STROKE_ALPHA, strokeWidth: HITBOX_DEBUG_STROKE_WIDTH };
+  if (plugin?.collisionHits?.length && plugin.hitbox && plugin.facing !== undefined) {
+    const origin = plugin.ownerAnchoredContact && ownerPosition ? ownerPosition : {
+      x: sensor.position.x - plugin.hitbox.offsetX * plugin.facing,
+      y: sensor.position.y - plugin.hitbox.offsetY,
+    };
+    return analyticAttackDebugBoxes(plugin.collisionHits.map(row => posedCapsule(row.capsule, origin, plugin.facing!)));
+  }
+  return [{ ...style, x: (sensor.bounds.min.x + sensor.bounds.max.x) / 2,
+    y: (sensor.bounds.min.y + sensor.bounds.max.y) / 2,
+    width: sensor.bounds.max.x - sensor.bounds.min.x, height: sensor.bounds.max.y - sensor.bounds.min.y }];
+}
+
+/** World capsules actually queried by a simulation-owned analytical attack,
+ * including Final contacts that do not allocate a Matter sensor body. */
+export function analyticAttackDebugBoxes(capsules: readonly CollisionCapsule[]): HitboxDebugBox[] {
+  return capsules.map(capsule => {
+    const bounds = capsuleBounds(capsule);
+    return {kind: 'attack' as const, capsule, x: (bounds.min.x + bounds.max.x) / 2,
+      y: (bounds.min.y + bounds.max.y) / 2, width: bounds.max.x - bounds.min.x,
+      height: bounds.max.y - bounds.min.y, color: HITBOX_DEBUG_ATTACK_COLOR,
+      fillAlpha: HITBOX_DEBUG_ATTACK_FILL_ALPHA, strokeColor: HITBOX_DEBUG_ATTACK_COLOR,
+      strokeAlpha: HITBOX_DEBUG_ATTACK_STROKE_ALPHA, strokeWidth: HITBOX_DEBUG_STROKE_WIDTH};
+  });
+}
+
 /**
  * Build the world-space hurtbox outline boxes for a fighter. A hurtbox
- * is authored body-relative; the offset is taken as-is (hurtboxes are
- * not facing-mirrored — they wrap the body symmetrically). Returns one
+ * is authored body-relative and mirrored by the defender facing. Returns one
  * box per live hurtbox (usually just the body default, more during a
  * move with per-phase hurtbox modifiers).
  */
@@ -184,12 +226,15 @@ export function hurtboxDebugBoxes(
 ): HitboxDebugBox[] {
   const boxes: HitboxDebugBox[] = [];
   for (const hb of snapshot.hurtboxes) {
+    const capsule = hb.capsule ? posedCapsule(hb.capsule, { x: snapshot.bodyX, y: snapshot.bodyY }, snapshot.facing) : undefined;
+    const bounds = capsule ? capsuleBounds(capsule) : undefined;
     boxes.push({
       kind: 'hurtbox',
-      x: snapshot.bodyX + hb.offsetX,
-      y: snapshot.bodyY + hb.offsetY,
-      width: hb.width,
-      height: hb.height,
+      x: bounds ? (bounds.min.x + bounds.max.x) / 2 : snapshot.bodyX + hb.offsetX * snapshot.facing,
+      y: bounds ? (bounds.min.y + bounds.max.y) / 2 : snapshot.bodyY + hb.offsetY,
+      width: bounds ? bounds.max.x - bounds.min.x : hb.width,
+      height: bounds ? bounds.max.y - bounds.min.y : hb.height,
+      ...(capsule ? { capsule } : {}),
       color: HITBOX_DEBUG_HURTBOX_COLOR,
       fillAlpha: HITBOX_DEBUG_HURTBOX_FILL_ALPHA,
       strokeColor: HITBOX_DEBUG_HURTBOX_COLOR,

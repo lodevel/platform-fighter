@@ -91,7 +91,7 @@ import type {
   AttackMoveWithAnimation,
   KnockbackSpec,
 } from './moveSchema';
-import { computeAttackPhase, getMoveBusyFrames } from './moveSchema';
+import { computeAttackPhase, getMoveBusyFrames, validateSpecialLandingLagFrames } from './moveSchema';
 import {
   type ChargeSpec,
   computeChargeTFromSpec,
@@ -216,6 +216,9 @@ export interface NeutralSpecialProjectileSpec {
  * no wall-clock. Identical hold durations always fire identical shots.
  */
 export interface ProjectileChargeSpec {
+  readonly airCharge?: boolean;
+  readonly storeCharge?: boolean;
+  readonly autoFire?: boolean;
   /**
    * Damage / knockback ramp. The `min*` endpoint MUST match the parent
    * move's authored `damage` / `knockback` (the un-charged bare-press
@@ -554,7 +557,7 @@ export function computeChargedKnockback(
   move: ChargeSpecialMove,
   heldFrames: number,
 ): KnockbackSpec {
-  return computeChargedKnockbackFromSpec(move.charge, heldFrames);
+  return computeChargedKnockbackFromSpec(move.charge, heldFrames, move.knockback);
 }
 
 // ---------------------------------------------------------------------------
@@ -625,6 +628,7 @@ export function validateNeutralSpecialMove(
       `NeutralSpecialMove '${move.id}': type must be 'special', got '${move.type}'`,
     );
   }
+  validateSpecialLandingLagFrames(move);
   const busyTotal = getMoveBusyFrames(move);
 
   switch (move.specialKind) {
@@ -650,6 +654,11 @@ export function validateNeutralSpecialMove(
       // here must be >= them and the ramp itself must be a valid ChargeSpec.
       const cp = move.chargedProjectile;
       if (cp) {
+        for (const flag of [cp.airCharge, cp.storeCharge, cp.autoFire]) {
+          if (flag !== undefined && typeof flag !== 'boolean') {
+            throw new Error(`NeutralSpecialMove '${move.id}': charge behavior flags must be boolean`);
+          }
+        }
         validateChargeSpec(cp.charge, `NeutralSpecialMove '${move.id}'`);
         if (!Number.isFinite(cp.maxSpeed) || cp.maxSpeed === 0) {
           throw new Error(

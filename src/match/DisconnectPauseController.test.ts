@@ -377,6 +377,14 @@ describe('DisconnectPauseController.acknowledgeAndResume', () => {
 // ---------------------------------------------------------------------------
 
 describe('DisconnectPauseController pause ownership', () => {
+  it('preserves a real manual pause across a qualifying disconnect and reconnect', () => {
+    const store=new InputBindingsStore(),sim=new FakeSimulation();sim.pause();sim.pauseCount=0;
+    const {monitor,controller}=buildController(store,{initialActive:true,simulation:sim});
+    monitor.emitDisconnect(0);expect(controller.getDisconnectedPadIndices()).toEqual([0]);
+    expect(controller.isPausedDueToDisconnect()).toBe(false);
+    monitor.emitConnect(0);expect(sim.isPaused()).toBe(true);expect(sim.pauseCount).toBe(0);expect(sim.resumeCount).toBe(0);
+    controller.stop();monitor.stop();expect(sim.isPaused()).toBe(true);
+  });
   it('does not call resume() when the engine was paused before our subscription', () => {
     const store = new InputBindingsStore();
     const sim = new FakeSimulation();

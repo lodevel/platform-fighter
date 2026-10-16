@@ -431,11 +431,9 @@ describe('MediumTierAI — contextual move selection', () => {
     bot.sample(0);
     bot.pushPerception(1, mid(1));
     const input = bot.sample(1);
-    // Ranged branch emits a `special` verb; the AIInputProvider
-    // composites `special` into the `attackHeavy` field for engine
-    // dispatch (per AC 50202 Sub-AC 2 routing). The bot must NOT emit
-    // a basic jab (that's the melee branch's job).
-    expect(input.attackHeavy).toBe(true);
+    // Ranged decisions use the same dedicated special button as a human.
+    expect(input.special).toBe(true);
+    expect(input.attackHeavy).toBe(false);
     expect(input.attack).toBe(false);
   });
 

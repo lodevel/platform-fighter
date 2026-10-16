@@ -30,12 +30,12 @@
  *
  * Where:
  *
- *   • `characterId`   — `'wolf' | 'cat' | 'owl' | 'bear'` (the
+ *   • `characterId`   — a `CharacterId` (the
  *                       `CharacterId` union; one slot per roster fighter).
  *   • `movePartId`    — the *short* move identifier (the part *after*
  *                       the leading `'{characterId}.'` prefix on
- *                       `AttackMove.id`). E.g. for `WOLF_JAB.id =
- *                       'wolf.jab'` the part id is `'jab'`. This keeps
+ *                       `AttackMove.id`). E.g. for `DONKEYKONG_JAB.id =
+ *                       'donkeykong.jab'` the part id is `'jab'`. This keeps
  *                       the key compact and stable even if a future move
  *                       gets renamed within a character namespace.
  *   • `phase`         — `'startup' | 'active' | 'recovery'` — the live
@@ -163,6 +163,14 @@ import {
   selectAnimationFrame,
 } from './moveSchema';
 
+/**
+ * Fighters whose moves the generic animation catalogs enumerate
+ * (`GROUNDED_NORMAL_MOVES`, `MOVESET_ENTRIES`, the cue bundles, the
+ * defensive keys). Pikachu's moves carry registered-art animation data
+ * resolved by its own presentation, so it is left out.
+ */
+export const ANIMATED_MOVESET_IDS = ['link', 'donkeykong'] as const;
+
 // ---------------------------------------------------------------------------
 // Public types
 // ---------------------------------------------------------------------------
@@ -249,20 +257,20 @@ export const IDLE_ANIMATION_SUFFIX = 'idle';
 /**
  * Extract the *short* move part id from a fully-qualified
  * `AttackMove.id`. The roster convention is
- * `'{characterId}.{movePartId}'` — e.g. `'wolf.jab'`, `'cat.tilt'`,
- * `'owl.smash'`, `'bear.jab'`. This helper returns the trailing
+ * `'{characterId}.{movePartId}'` — e.g. `'donkeykong.jab'`, `'pikachu.tilt'`,
+ * `'link.smash'`, `'bear.jab'`. This helper returns the trailing
  * `movePartId` half so the animation key generator doesn't end up with
- * a doubled prefix like `'wolf.wolf.jab.startup.0'`.
+ * a doubled prefix like `'donkeykong.wolf.jab.startup.0'`.
  *
  * Behaviour:
  *
- *   • `'wolf.jab'`   → `'jab'`
- *   • `'cat.smash'`  → `'smash'`
+ *   • `'donkeykong.jab'`   → `'jab'`
+ *   • `'pikachu.smash'`  → `'smash'`
  *   • `'someid'`     → `'someid'`   (no dot → return whole id)
  *   • `'a.b.c'`      → `'b.c'`      (only the first dot is the prefix
  *                                    separator; preserves anything
  *                                    after for forward-compat with
- *                                    e.g. `'wolf.special.flash'`)
+ *                                    e.g. `'donkeykong.special.flash'`)
  *
  * Pure / deterministic. Returns the input as-is for ids that don't
  * follow the convention so a hand-authored test move (id `'sample.jab'`)
@@ -281,7 +289,7 @@ export function getMovePartId(moveId: string): string {
 /**
  * Build the canonical idle / no-attack animation key for a character.
  *
- *   getIdleAnimationKey('wolf') → 'wolf.idle'
+ *   getIdleAnimationKey('donkeykong') → 'donkeykong.idle'
  *
  * The renderer falls back to this key any frame the fighter is not
  * mid-attack (or is destroyed / hurt — the hurt-state classifier in
@@ -295,9 +303,8 @@ export function getIdleAnimationKey(characterId: CharacterId): string {
  * Build the canonical animation key for a single (characterId, moveId,
  * phase, artFrameIndex) tuple.
  *
- *   getAnimationKey('wolf', 'wolf.jab', 'startup', 0) → 'wolf.jab.startup.0'
- *   getAnimationKey('cat',  'cat.tilt', 'active',  1) → 'cat.tilt.active.1'
- *   getAnimationKey('bear', 'bear.smash','recovery',3) → 'bear.smash.recovery.3'
+ *   getAnimationKey('donkeykong', 'donkeykong.jab', 'startup', 0) → 'donkeykong.jab.startup.0'
+ *   getAnimationKey('link', 'link.smash', 'recovery', 3) → 'link.smash.recovery.3'
  *
  * Throws on `'done'` — by contract the live key is only emitted for
  * `LIVE_ATTACK_PHASES`. Callers wanting the idle fallback should call
@@ -490,7 +497,7 @@ export interface AnimationStateSubscriber {
  *
  * Callers wire it like this:
  *
- *   const hooks = makeAnimationStateHooks('wolf', {
+ *   const hooks = makeAnimationStateHooks('donkeykong', {
  *     onAnimationKeyChange: (prev, next) =>
  *       sprite.setTexture(next.key),
  *     onMoveEnd: (id) => sprite.setTexture(getIdleAnimationKey(id)),

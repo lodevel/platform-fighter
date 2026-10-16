@@ -1,0 +1,62 @@
+{
+  "result": "PASS",
+  "buildIdentity": "platform-fighter-sha256-8801bf0c4941c9a7c639cf2e69652ebf398af18acdabbc36bd02a82cb722b757",
+  "gameBundle": "game-CDiv0wP3.js",
+  "legacyBaselineMatchedTicks": 2247,
+  "mixedMatchMatchedAuthoritativeFrames": 450,
+  "installedCharacterAssetHashesUnchanged": 785,
+  "memoryReportsByteEqual": true,
+  "sourceAndBuildManifestCurrent": true,
+  "fullSuite": {
+    "files": 565,
+    "tests": 12110,
+    "note": "Before final host lifecycle changes; affected focused tests, final build and browser checks passed afterward."
+  },
+  "reports": [
+    {
+      "file": "after-browser/report.json",
+      "result": "PASS",
+      "sha256": "3cf752ce60e361479a1a781bfbb1de404d88a2dc1ed369b86cbeb41d83286758"
+    },
+    {
+      "file": "after-interactions/report.json",
+      "result": "PASS",
+      "sha256": "6be966318e7e2bf3195e24b20dfd7d8bf16a614a161db86c6edcbe524b86eeb6"
+    },
+    {
+      "file": "after-menus/report.json",
+      "result": "PASS",
+      "sha256": "423267909afb07ad74beb05b33e82d2d21f3a8595db681525af8c639ea3507c6"
+    },
+    {
+      "file": "after-ko/report.json",
+      "result": "PASS",
+      "sha256": "b240363e94dbaa372fb70a0c9a5056533e523c397d9e216f85bbfef4e971cdec"
+    },
+    {
+      "file": "geometry-browser/report.json",
+      "result": "PASS",
+      "sha256": "c39a3ebdc952b55e52f17720d6a52dbd0dc9f0bb7a84c7670d02dd13bb2d910b"
+    },
+    {
+      "file": "mixed-match-browser/report.json",
+      "result": "PASS",
+      "sha256": "0dd42fce5a4f07571eea1413da032c0a3bc298415b36d53eda76900e2653cb30"
+    },
+    {
+      "file": "shader-lifecycle/report.json",
+      "result": "PASS",
+      "sha256": "067820ee0bfcd7c2d20990b8148e9f5c5f9a40ddeaf509128b54786fd8e8a899"
+    },
+    {
+      "file": "recovery-browser/report.json",
+      "result": "PASS",
+      "sha256": "774ffb52e90f53735330bd2e91a3f826282829d8a18a2b6df27beded04f7a840"
+    },
+    {
+      "file": "resource-comparison.json",
+      "result": "PASS",
+      "sha256": "48220d02cf8784ec14794181bf0a1dcef71fe5d023c819915d41ef9e2bf82943"
+    }
+  ]
+}

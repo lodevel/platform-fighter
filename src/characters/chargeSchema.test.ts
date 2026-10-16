@@ -18,6 +18,16 @@ const FIXTURE: ChargeSpec = Object.freeze({
 });
 
 describe('chargeSchema', () => {
+  it('switches the reference launch at full charge without changing partial-charge records', () => {
+    const ordinary = { x: 1, y: -1, scaling: 0, reference: { base: 45, growth: 70, angle: 361 } };
+    const full = { x: 1, y: -1, scaling: 0, reference: { base: 35, growth: 73, angle: 361 } };
+    const spec: ChargeSpec = { ...FIXTURE, knockbackMode: 'damage-only', fullChargeKnockback: full };
+    expect(computeChargedKnockbackFromSpec(spec, 63, ordinary)).toEqual(ordinary);
+    expect(computeChargedKnockbackFromSpec(spec, 64, ordinary)).toEqual(full);
+    expect(computeChargedKnockbackFromSpec(spec, 200, ordinary)).toEqual(full);
+    expect(() => validateChargeSpec({ ...FIXTURE, fullChargeKnockback: full }, 'fixture'))
+      .toThrow('fullChargeKnockback requires damage-only mode');
+  });
   describe('computeChargeTFromSpec', () => {
     it('returns 0 at or below minChargeFrames', () => {
       expect(computeChargeTFromSpec(FIXTURE, 0)).toBe(0);
@@ -66,6 +76,22 @@ describe('chargeSchema', () => {
   });
 
   describe('computeChargedKnockbackFromSpec', () => {
+    it.each([0, 30, 60])('damage-only charge preserves reference units at %i held frames', frames => {
+      const spec: ChargeSpec = { ...FIXTURE, knockbackMode: 'damage-only',
+        minChargeFrames: 0, maxChargeFrames: 60, minDamage: 7, maxDamage: 9.8 };
+      const authored = { x: 4, y: -1.4, scaling: 0.4,
+        reference: { base: 45, growth: 12, angle: 69 } };
+      expect(computeChargedDamageFromSpec(spec, frames)).toBeCloseTo(7 * (1 + frames / 150), 12);
+      expect(computeChargedKnockbackFromSpec(spec, frames, authored)).toBe(authored);
+      expect(authored.reference).toEqual({ base: 45, growth: 12, angle: 69 });
+    });
+
+    it('cannot silently substitute an inactive endpoint for a missing reference launch', () => {
+      const spec: ChargeSpec = { ...FIXTURE, knockbackMode: 'damage-only' };
+      expect(() => computeChargedKnockbackFromSpec(spec, 30)).toThrow('reference knockback');
+      expect(() => computeChargedKnockbackFromSpec(spec, 30, FIXTURE.minKnockback)).toThrow('reference knockback');
+    });
+
     it('returns minKnockback at or below minChargeFrames', () => {
       const kb = computeChargedKnockbackFromSpec(FIXTURE, 0);
       expect(kb).toEqual(FIXTURE.minKnockback);
@@ -126,6 +152,11 @@ describe('chargeSchema', () => {
   });
 
   describe('validateChargeSpec', () => {
+    it('rejects an unknown knockback mode', () => {
+      expect(() => validateChargeSpec({ ...FIXTURE, knockbackMode: 'scaled' } as unknown as ChargeSpec, 'test'))
+        .toThrow('charge.knockbackMode');
+    });
+
     it('returns the spec unchanged on success', () => {
       expect(validateChargeSpec(FIXTURE, 'test')).toBe(FIXTURE);
     });
@@ -176,9 +207,9 @@ describe('chargeSchema', () => {
       expect(() =>
         validateChargeSpec(
           { ...FIXTURE, minChargeFrames: -1 },
-          "move 'wolf.sideLight'",
+          "move 'donkeykong.smash'",
         ),
-      ).toThrow(/move 'wolf\.sideLight'/);
+      ).toThrow(/move 'donkeykong\.smash'/);
     });
   });
 });

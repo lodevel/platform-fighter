@@ -102,7 +102,7 @@ import '../characters/attackRegistration';
 import type { AttackMove } from '../characters/attacks';
 import type { PlayerBindingsIndex } from '../types/inputBindings';
 import type { CharacterId } from '../types';
-import { PLATFORM_LABELS } from '../stages/StageRenderer';
+import { PLATFORM_LABELS } from '../stages/stageBodies';
 
 /**
  * Slot → character id assignment used to instantiate the four fighters.
@@ -111,10 +111,10 @@ import { PLATFORM_LABELS } from '../stages/StageRenderer';
  * the same ids the real match scene wires up.
  */
 const SLOT_CHARACTER_ID: Readonly<Record<PlayerBindingsIndex, CharacterId>> = {
-  1: 'wolf',
-  2: 'cat',
-  3: 'owl',
-  4: 'bear',
+  1: 'donkeykong',
+  2: 'pikachu',
+  3: 'donkeykong',
+  4: 'pikachu',
 };
 
 // ---------------------------------------------------------------------------
@@ -367,6 +367,10 @@ function buildMixedInputFixture(
       id: SLOT_CHARACTER_ID[slot],
       spawnX: 100 * slot,
       spawnY: 0,
+      // The mock scene's first ground contact would otherwise start the roster
+      // profile's landing recovery and delay the first jump/shield/dodge a frame.
+      softLandingFrames: 0,
+      hardLandingFrames: 0,
     });
     const jab = makeJab(slot);
     character.registerAttack(jab);
@@ -395,6 +399,26 @@ function buildMixedInputFixture(
 // 1. Per-slot end-to-end remap → in-game action contract
 // ---------------------------------------------------------------------------
 
+/** Check immediate input recognition and delayed takeoff through the full pipeline. */
+function finishGroundedJumps(
+  fx: MixedInputFixture,
+  slots: readonly PlayerBindingsIndex[],
+): void {
+  for (let frame = 0; frame < 3; frame += 1) {
+    for (const slot of slots) {
+      const ch = fx.fighters[slot].character;
+      expect(ch.getJumpsquatRemaining()).toBe(3 - frame);
+      expect(ch.getJumpsUsed()).toBe(0);
+      expect(ch.getVelocity().y).toBeGreaterThanOrEqual(0);
+    }
+    fx.step();
+  }
+  for (const slot of slots) {
+    expect(fx.fighters[slot].character.getJumpsUsed()).toBe(1);
+    expect(fx.fighters[slot].character.getVelocity().y).toBeLessThan(0);
+  }
+}
+
 describe('AC 40304 Sub-AC 4 — remapped input drives the corresponding character', () => {
   it('keyboard slot 1 jump rebind: pressing the new key applies a jump impulse on the slot-1 character only', () => {
     const fx = buildMixedInputFixture();
@@ -414,6 +438,7 @@ describe('AC 40304 Sub-AC 4 — remapped input drives the corresponding characte
     fx.keyboard.releaseAll();
     fx.keyboard.press(KEY_CODE.SPACE);
     fx.step();
+    finishGroundedJumps(fx, [1]);
     expect(fx.fighters[1].character.getJumpsUsed()).toBe(1);
     expect(fx.fighters[1].character.getVelocity().y).toBeLessThan(0);
     // Slots 2/3/4 must be untouched.
@@ -469,6 +494,7 @@ describe('AC 40304 Sub-AC 4 — remapped input drives the corresponding characte
     fx.gamepad.setButton(0, 0, Object.freeze({ pressed: false, value: 0 }));
     fx.gamepad.setButton(0, 7, Object.freeze({ pressed: true, value: 1 }));
     fx.step();
+    finishGroundedJumps(fx, [3]);
     expect(fx.fighters[3].character.getJumpsUsed()).toBe(1);
     expect(fx.fighters[3].character.getVelocity().y).toBeLessThan(0);
     // Other slots are untouched.
@@ -483,7 +509,10 @@ describe('AC 40304 Sub-AC 4 — remapped input drives the corresponding characte
     fx.gamepad.connect(1);
 
     // Re-bind slot 4 left/right onto the right stick (axis 2) instead
-    // of the default left stick (axis 0).
+    // of the default left stick (axis 0). The right stick is the default
+    // smash input, so unbind smash as the smash back-fill would for a
+    // saved layout that walks on it.
+    fx.lifecycle.setAction(4, 'smash', []);
     fx.lifecycle.setAction(4, 'left', [
       {
         kind: 'gamepad',
@@ -550,6 +579,7 @@ describe('AC 40304 Sub-AC 4 — mixed simultaneous press across keyboard + gamep
     fx.gamepad.setButton(0, 7, Object.freeze({ pressed: true, value: 1 }));
     fx.gamepad.setButton(1, 6, Object.freeze({ pressed: true, value: 1 }));
     fx.step();
+    finishGroundedJumps(fx, [1, 2, 3, 4]);
 
     for (const slot of [1, 2, 3, 4] as const) {
       expect(
@@ -579,8 +609,11 @@ describe('AC 40304 Sub-AC 4 — mixed simultaneous press across keyboard + gamep
       { kind: 'keyboard', keyCode: KEY_CODE.CTRL },
     ]);
     fx.lifecycle.setAction(2, 'left', [
-      { kind: 'keyboard', keyCode: KEY_CODE.SHIFT },
+      { kind: 'keyboard', keyCode: KEY_CODE.NUMPAD_9 },
     ]);
+    // P3/P4 walk on the right stick, which is also the default smash.
+    fx.lifecycle.setAction(3, 'smash', []);
+    fx.lifecycle.setAction(4, 'smash', []);
     fx.lifecycle.setAction(3, 'right', [
       {
         kind: 'gamepad',
@@ -599,7 +632,7 @@ describe('AC 40304 Sub-AC 4 — mixed simultaneous press across keyboard + gamep
     // Press all four on the same frame, then run several fixed steps so
     // velocity ramps to the cap and the assertion is robust against
     // single-step accel jitter.
-    fx.keyboard.press(KEY_CODE.CTRL, KEY_CODE.SHIFT);
+    fx.keyboard.press(KEY_CODE.CTRL, KEY_CODE.NUMPAD_9);
     fx.gamepad.setAxis(0, 3, 1);
     fx.gamepad.setAxis(1, 3, -1);
     for (let i = 0; i < 50; i += 1) fx.step();
@@ -631,10 +664,12 @@ describe('AC 40304 Sub-AC 4 — mixed simultaneous press across keyboard + gamep
     // dispatcher boundary — the strongest cross-action isolation check
     // we can write without instantiating the full match scene.
     fx.lifecycle.setAction(1, 'jump', [{ kind: 'keyboard', keyCode: KEY_CODE.SPACE }]);
-    fx.lifecycle.setAction(2, 'attack', [{ kind: 'keyboard', keyCode: KEY_CODE.NUMPAD_0 }]);
+    fx.lifecycle.setAction(2, 'attack', [{ kind: 'keyboard', keyCode: KEY_CODE.NUMPAD_7 }]);
     fx.lifecycle.setAction(3, 'shield', [
       { kind: 'gamepad', gamepadIndex: 0, source: { type: 'button', buttonIndex: 4 } },
     ]);
+    // P4 walks on the right stick, which is also the default smash.
+    fx.lifecycle.setAction(4, 'smash', []);
     fx.lifecycle.setAction(4, 'left', [
       {
         kind: 'gamepad',
@@ -643,13 +678,14 @@ describe('AC 40304 Sub-AC 4 — mixed simultaneous press across keyboard + gamep
       },
     ]);
 
-    fx.keyboard.press(KEY_CODE.SPACE, KEY_CODE.NUMPAD_0);
+    fx.keyboard.press(KEY_CODE.SPACE, KEY_CODE.NUMPAD_7);
     fx.gamepad.setButton(0, 4, Object.freeze({ pressed: true, value: 1 }));
     fx.gamepad.setAxis(1, 2, -1);
     fx.step();
 
-    // P1 jumped — and DID NOT attack / shield.
-    expect(fx.fighters[1].character.getJumpsUsed()).toBe(1);
+    // P1 began jumpsquat immediately and did not attack or shield.
+    expect(fx.fighters[1].character.getJumpsquatRemaining()).toBe(3);
+    expect(fx.fighters[1].character.getJumpsUsed()).toBe(0);
     expect(fx.fighters[1].character.isAttacking()).toBe(false);
     expect(fx.fighters[1].character.isShielding()).toBe(false);
 
@@ -670,6 +706,7 @@ describe('AC 40304 Sub-AC 4 — mixed simultaneous press across keyboard + gamep
     expect(fx.fighters[4].character.getJumpsUsed()).toBe(0);
     expect(fx.fighters[4].character.isAttacking()).toBe(false);
     expect(fx.fighters[4].character.isShielding()).toBe(false);
+    finishGroundedJumps(fx, [1]);
   });
 });
 
@@ -691,7 +728,8 @@ describe('AC 40304 Sub-AC 4 — cross-device isolation under remap', () => {
     fx.keyboard.press(KEY_CODE.SPACE);
     fx.step();
 
-    // Both fired their jumps independently, on the same frame.
+    // Both prepare and take off independently, on the same frame.
+    finishGroundedJumps(fx, [1, 3]);
     expect(fx.fighters[1].character.getJumpsUsed()).toBe(1);
     expect(fx.fighters[3].character.getJumpsUsed()).toBe(1);
     // Slots 2/4 untouched.
@@ -736,6 +774,7 @@ describe('AC 40304 Sub-AC 4 — cross-device isolation under remap', () => {
 
     fx.keyboard.press(KEY_CODE.SPACE);
     fx.step();
+    finishGroundedJumps(fx, [1, 2]);
 
     expect(fx.fighters[1].character.getJumpsUsed()).toBe(1);
     expect(fx.fighters[2].character.getJumpsUsed()).toBe(1);
@@ -768,9 +807,10 @@ describe('AC 40304 Sub-AC 4 — mid-match rebind takes effect immediately', () =
     // very next sample.)
     fx.lifecycle.setAction(1, 'jump', [{ kind: 'keyboard', keyCode: KEY_CODE.SPACE }]);
 
-    // Press SPACE — slot 1 should jump on the very next step.
+    // Press SPACE — slot 1 must begin squat on the very next step.
     fx.keyboard.press(KEY_CODE.SPACE);
     fx.step();
+    finishGroundedJumps(fx, [1]);
     expect(fx.fighters[1].character.getJumpsUsed()).toBe(1);
     expect(fx.fighters[1].character.getVelocity().y).toBeLessThan(0);
   });
@@ -831,7 +871,7 @@ describe('AC 40304 Sub-AC 4 — remap survives a session boundary end-to-end', (
       { kind: 'keyboard', keyCode: KEY_CODE.SPACE },
     ]);
     sessionA.lifecycle.setAction(2, 'attack', [
-      { kind: 'keyboard', keyCode: KEY_CODE.NUMPAD_0 },
+      { kind: 'keyboard', keyCode: KEY_CODE.NUMPAD_7 },
     ]);
     sessionA.lifecycle.setAction(3, 'jump', [
       { kind: 'gamepad', gamepadIndex: 0, source: { type: 'button', buttonIndex: 7 } },
@@ -852,15 +892,16 @@ describe('AC 40304 Sub-AC 4 — remap survives a session boundary end-to-end', (
     // Press all four remapped inputs on one frame in session B — every
     // fighter must do the right thing without session B ever calling
     // `setAction`.
-    sessionB.keyboard.press(KEY_CODE.SPACE, KEY_CODE.NUMPAD_0);
+    sessionB.keyboard.press(KEY_CODE.SPACE, KEY_CODE.NUMPAD_7);
     sessionB.gamepad.setButton(0, 7, Object.freeze({ pressed: true, value: 1 }));
     sessionB.gamepad.setButton(1, 9, Object.freeze({ pressed: true, value: 1 }));
     sessionB.step();
 
-    expect(sessionB.fighters[1].character.getJumpsUsed()).toBe(1);
+    expect(sessionB.fighters[1].character.getJumpsquatRemaining()).toBe(3);
     expect(sessionB.fighters[2].character.isAttacking()).toBe(true);
-    expect(sessionB.fighters[3].character.getJumpsUsed()).toBe(1);
+    expect(sessionB.fighters[3].character.getJumpsquatRemaining()).toBe(3);
     expect(sessionB.fighters[4].character.isAttacking()).toBe(true);
+    finishGroundedJumps(sessionB, [1, 3]);
 
     // Cross-checks — pressing the OLD defaults in session B must NOT
     // fire any of these actions, proving the persisted remap is the
@@ -930,6 +971,7 @@ describe('AC 40304 Sub-AC 4 — service / lifecycle / character share one bindin
       { kind: 'gamepad', gamepadIndex: 1, source: { type: 'button', buttonIndex: 6 } },
     ]);
     fx.step();
+    finishGroundedJumps(fx, [1, 2, 3, 4]);
     for (const slot of [1, 2, 3, 4] as const) {
       expect(
         fx.fighters[slot].character.getJumpsUsed(),

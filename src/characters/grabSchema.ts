@@ -40,6 +40,7 @@
  */
 
 import { type ThrowSet, validateThrowSet } from './throwSchema';
+import {parseAuthoredCaptureMotionFamily,type CaptureMotionFamilyProvenance} from './authoredCaptureMotionFamily';
 
 /**
  * Geometry of the grab's range hitbox. Same shape as
@@ -67,6 +68,14 @@ export interface GrabHitbox {
  * 100%-from-grab loop.
  */
 export interface PummelSpec {
+  /** Independent unfrozen presentation duration; omitted keeps the legacy cooldown clock. */
+  readonly motionFrames?: number;
+  readonly electricCollision?: boolean;
+  readonly hitlagFrames?: number;
+  readonly startupFrames?: number;
+  readonly hitlagMultiplier?: number;
+  readonly sdiMultiplier?: number;
+  readonly knockback?: import('./attacks').AttackMove['knockback'];
   /** % added to the held target on each pummel. */
   readonly damage: number;
   /** Frames after a pummel before the next can fire. */
@@ -79,6 +88,11 @@ export interface PummelSpec {
  * dash-grab; absent → grabbing while running just does a standing grab.
  */
 export interface DashGrabSpec {
+  readonly collisionHits?: readonly import('./attacks').AttackCollisionHit[];
+  readonly startupFrames?: number;
+  readonly activeFrames?: number;
+  readonly whiffRecoveryFrames?: number;
+  readonly hitbox?: GrabHitbox;
   /**
    * Forward px added to the grab hitbox's `offsetX` when dash-grabbing —
    * the canonical "dash grab reaches further than a standing grab".
@@ -127,6 +141,11 @@ export function validatePummelSpec(
   spec: PummelSpec,
   contextLabel: string,
 ): PummelSpec {
+  if (spec.motionFrames !== undefined && (!Number.isInteger(spec.motionFrames) || spec.motionFrames <= 0))
+    throw new Error(`${contextLabel}.pummel.motionFrames must be a positive integer`);
+  if (spec.electricCollision !== undefined && typeof spec.electricCollision !== 'boolean') {
+    throw new Error(`${contextLabel}.pummel.electricCollision must be a boolean`);
+  }
   if (!Number.isFinite(spec.damage) || spec.damage < 0) {
     throw new Error(
       `${contextLabel}.pummel: damage must be a non-negative finite number, got ${spec.damage}`,
@@ -152,6 +171,19 @@ export function validatePummelSpec(
  *     punish windows.
  */
 export interface GrabSpec {
+  readonly authoredCaptureMotionFamily?:'low'|'high';
+  readonly captureMotionFamilyProvenance?:CaptureMotionFamilyProvenance;
+  /** Explicit DK-only target-anchor beta adapter; omission retains legacy attachment. */
+  readonly attachmentPolicy?: 'pose-anchors-beta-v1';
+  /** Native sample N releases at elapsed N-1; adds one recovery step to preserve commitment. */
+  readonly throwClock?: 'native-sample-one';
+  /** Published Ultimate ordinary-capture rules; legacy flat hold remains default. */
+  readonly ultimateCapture?: boolean;
+  readonly collisionHits?: readonly import('./attacks').AttackCollisionHit[];
+  readonly pivotGrab?: DashGrabSpec;
+  readonly cargo?: { readonly entryMotionFrames?:number;readonly startupFrames: number; readonly holdFramesMax: number; readonly offsetX: number; readonly offsetY: number; readonly throws: ThrowSet; readonly airThrows?:ThrowSet;readonly breakDamage?:number;
+    /** Walk speed and walk acceleration multiplier while carrying (omitted = 1). */
+    readonly walkMultiplier?: number }; 
   /**
    * Stable id (e.g. `'wolf.grab'`). Lets the runtime tag spawned
    * sensor bodies for replay logging + AI prediction.
@@ -180,7 +212,7 @@ export interface GrabSpec {
   /**
    * Maximum frames the grabber can hold the target before the
    * target auto-releases. Smash uses a percent-scaled formula
-   * (higher target % = shorter hold), but for the M0 cut we use a
+   * (higher entry target % = longer hold), but for the M0 cut we use a
    * flat per-character cap. Authors can tune per-character so a
    * grappler archetype (Bear) holds longer than a featherweight.
    */
@@ -208,6 +240,14 @@ export function validateGrabSpec(
   spec: GrabSpec,
   contextLabel = `GrabSpec '${spec.id}'`,
 ): GrabSpec {
+  parseAuthoredCaptureMotionFamily(spec,contextLabel);
+  if(spec.attachmentPolicy!==undefined&&spec.attachmentPolicy!=='pose-anchors-beta-v1')throw new Error(`${contextLabel}.attachmentPolicy must be pose-anchors-beta-v1`);
+  if (spec.throwClock !== undefined && spec.throwClock !== 'native-sample-one') throw new Error(`${contextLabel}.throwClock must be native-sample-one`);
+  if (spec.cargo?.walkMultiplier !== undefined && (!Number.isFinite(spec.cargo.walkMultiplier) || spec.cargo.walkMultiplier <= 0))
+    throw new Error(`${contextLabel}.cargo.walkMultiplier must be a positive finite number`);
+  if (spec.cargo?.entryMotionFrames !== undefined && (!Number.isInteger(spec.cargo.entryMotionFrames) || spec.cargo.entryMotionFrames <= 0 || spec.cargo.entryMotionFrames < spec.cargo.startupFrames))
+    throw new Error(`${contextLabel}.cargo.entryMotionFrames must be a positive integer at least startupFrames`);
+  if (spec.ultimateCapture !== undefined && typeof spec.ultimateCapture !== 'boolean') throw new Error(`${contextLabel}.ultimateCapture must be a boolean`);
   if (typeof spec.id !== 'string' || spec.id.length === 0) {
     throw new Error(`${contextLabel}: id must be a non-empty string`);
   }
@@ -265,6 +305,11 @@ export function validateGrabSpec(
 
   // Throws
   validateThrowSet(spec.throws, `${contextLabel}.throws`);
+  if (spec.throwClock) {
+    const ordinary = Object.entries(spec.throws).filter(([direction]) => !(direction === 'forward' && spec.cargo));
+    const selected = [...ordinary.map(([,move]) => move), ...Object.values(spec.cargo?.throws ?? {}), ...Object.values(spec.cargo?.airThrows ?? {})];
+    if (selected.some(move => move.animationFrames < 2)) throw new Error(`${contextLabel}.throwClock requires release frames >= 2`);
+  }
 
   return spec;
 }

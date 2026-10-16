@@ -69,7 +69,7 @@ function makeFighter(
 ): StateFighterSnapshot {
   return {
     playerIndex: 0,
-    characterId: 'wolf',
+    characterId: 'donkeykong',
     paletteIndex: 0,
     stocks: 3,
     stocksLost: 0,
@@ -91,8 +91,8 @@ function makeSnapshot(frame: number, p1Damage = 0): MatchStateSnapshot {
   return {
     frame,
     fighters: [
-      makeFighter({ playerIndex: 0, characterId: 'wolf', damagePercent: p1Damage }),
-      makeFighter({ playerIndex: 1, characterId: 'cat' }),
+      makeFighter({ playerIndex: 0, characterId: 'donkeykong', damagePercent: p1Damage }),
+      makeFighter({ playerIndex: 1, characterId: 'pikachu' }),
     ],
   };
 }

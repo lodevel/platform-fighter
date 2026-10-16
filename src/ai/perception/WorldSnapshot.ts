@@ -148,6 +148,8 @@ export interface PerceivedSelf {
   readonly isInHitstun: boolean;
   readonly isOnLedge: boolean;
   readonly currentMove?: PerceivedMoveState | null;
+  readonly jumpsRemaining?: number;
+  readonly upSpecialAvailable?: boolean;
 }
 
 /**
@@ -269,6 +271,7 @@ export interface PerceivedOpponent {
  *     in mortal danger).
  */
 export interface PerceivedStage {
+  readonly nearestLedge?: { readonly x: number; readonly y: number; readonly side: 'left' | 'right' } | null;
   readonly stageLeft: number;
   readonly stageRight: number;
   readonly stageTop: number;

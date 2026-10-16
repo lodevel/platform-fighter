@@ -11,6 +11,7 @@ import {
   WIND_STAGE,
   CRUMBLING_STAGE,
   MOVING_PLATFORM_STAGE,
+  INFERNO_STAGE,
 } from '../stages';
 
 /**
@@ -24,13 +25,14 @@ import {
  */
 
 describe('buildStageSelectEntries', () => {
-  it('exposes the canonical five built-in stage ids in stable order', () => {
+  it('exposes the canonical six built-in stage ids in stable order', () => {
     expect(BUILT_IN_STAGE_ENTRIES.map((e) => e.id)).toEqual([
       FLAT_STAGE.id,
       LAVA_STAGE.id,
       WIND_STAGE.id,
       CRUMBLING_STAGE.id,
       MOVING_PLATFORM_STAGE.id,
+      INFERNO_STAGE.id,
     ]);
   });
 

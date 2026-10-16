@@ -48,9 +48,9 @@
  *
  *   • Across-event semantics — AC 60103 Sub-AC 3 "hit confirmation
  *     and cleanup": within the lifetime of a single hitbox sensor
- *     body, each registered character can be hit AT MOST ONCE. This
- *     enforces the canonical Smash-style "one hit per move per
- *     target per swing" rule deterministically.
+ *     body, each registered character is hit at most once. Sensors
+ *     with a shared hit group retain that confirmation across physical
+ *     body replacements within the same swing.
  *
  *     In practice, Matter fires `collisionstart` once per first-
  *     contact between two bodies, so for most attacks a per-event
@@ -82,11 +82,16 @@
  * byte-identical hit callbacks in identical order.
  */
 
-import type { HitInfo } from '../characters/combat';
+import { scaleKnockbackSpec, type HitInfo } from '../characters/combat';
+import { capsuleIntersectsBounds, selectAttackCollisionHit } from '../characters/attackCollisionShapes';
+import { interpolatePointContactRows } from '../characters/pointContactInterpolation';
+import { capsuleBounds, capsulesIntersect, posedCapsule, type CollisionCapsule } from '../characters/capsuleGeometry';
+import { AttackContactLedger } from './AttackContactLedger';
 import type { HitboxPlugin } from '../characters/attacks';
 import { CHARACTER_LABEL } from '../characters/Character';
-import { HITBOX_LABEL } from '../characters/attacks';
+import { HITBOX_LABEL, hitLaunchFacing } from '../characters/attacks';
 import {
+  type Hitbox,
   type Hurtbox,
   isAllHurtboxesIntangible,
   resolveHurtboxDamageMultiplier,
@@ -103,6 +108,7 @@ import {
  */
 export interface CharacterBodyPlugin {
   readonly characterId?: string;
+  readonly sourceReceivingRequired?:boolean;
 }
 
 /**
@@ -119,6 +125,11 @@ export interface HitboxOrCharacterBody {
    * stack-overflow Matter's `Common.extend` deep-clone).
    */
   readonly id?: number;
+  readonly position?: { readonly x: number; readonly y: number };
+  readonly bounds?: {
+    readonly min: { readonly x: number; readonly y: number };
+    readonly max: { readonly x: number; readonly y: number };
+  };
   readonly plugin?:
     | HitboxPlugin
     | CharacterBodyPlugin
@@ -144,8 +155,36 @@ export interface HitboxCollisionEvent {
  *   • Attribute KOs to the right player for "WOLF KOs CAT" banners.
  */
 export interface HitContext {
+  readonly activeShieldReceipt?:NonNullable<HitInfo['combatShieldContact']>;
+  /** Internal receipt from the actual earliest translated article-shape sweep,
+   * never an authorable move flag. The resolver revalidates actor/surface. */
+  readonly passiveShieldReceipt?:{readonly actorGeneration:number;readonly surfaceId:string};
+  readonly sourceArticleSweepArbitrated?:boolean;
+  readonly sourceAttackOriginWorld?:{readonly x:number;readonly y:number};
+  /** Actual selected source outgoing geometry, retained for an attached
+   * reflectable packet meeting a posed passive shield. */
+  readonly receivingRegions?:readonly {readonly id:string;readonly centreWorld:{readonly x:number;readonly y:number}}[];
+  readonly contactCapsuleWorld?:CollisionCapsule;
+  readonly contactBoundsWorld?:{readonly min:{readonly x:number;readonly y:number};readonly max:{readonly x:number;readonly y:number}};
+  readonly contactCircleSweepWorld?:{readonly from:{readonly x:number;readonly y:number};readonly to:{readonly x:number;readonly y:number};readonly radius:number};
+  readonly contactSweepWorld?:{readonly from:{x:number;y:number};readonly to:{x:number;y:number};
+    readonly projectile:{width:number;height:number};readonly bodyContactFraction?:number};
+  /** Source opt-in for detached items that neither stale nor refresh the
+   * fighter queue. Ordinary fighter and authored item swings keep defaults. */
+  readonly ignoreStaleMoves?:boolean;
+  readonly staleMoveId?: string;
+  /** Selected source hitbox ID, when exact collision records are authored. */
+  readonly collisionHitId?: number;
+  /** All strikes in a multihit attack share one stale-move registration. */
+  readonly attackInstance?: object;
+  /** Detached projectiles credit hits without freezing/pushing the remote owner. */
+  readonly projectile?: boolean;
   /** Character id of the attacker that owns the hitbox. */
   readonly attackerOwnerId: string;
+  /** Registered player index resolved from the attacker's unique Matter body id. */
+  readonly attackerPlayerIndex?: number;
+  /** Unique Matter body id carried by the hitbox, when available. */
+  readonly attackerBodyId?: number;
   /** Move id from the attacker's moveset that spawned the hitbox. */
   readonly moveId: string;
   /**
@@ -179,7 +218,14 @@ export type HitConnectCallback = (
   targetIndex: number,
   hit: HitInfo,
   context: HitContext,
-) => void;
+) => HitConnectResult | void;
+
+export interface HitConnectResult {
+  /** Actual reaction admission, distinct from invulnerable contact confirmation. */
+  readonly reactionApplied?: boolean;
+  /** False when contact was ignored and may connect again later this swing. */
+  readonly confirmed: boolean;
+}
 
 /**
  * Sub-AC 2 of AC 10002 — per-target hurtbox lookup.
@@ -247,8 +293,11 @@ export type FriendlyFirePredicate = (
  *   handler.unregisterPlayer(0); // when a player is eliminated
  */
 export class HitboxDamageHandler {
+  private beforeContacts: (() => void) | null = null;
+  private attackContactGate: ((sensor: HitboxOrCharacterBody, targetBodyId: number | undefined) => boolean) | null = null;
   private readonly players: Map<number, HitboxOrCharacterBody> = new Map();
   private readonly bodyToIndex: Map<HitboxOrCharacterBody, number> = new Map();
+  private readonly bodyIdToIndex: Map<number, number> = new Map();
   private readonly callback: HitConnectCallback;
 
   /**
@@ -262,6 +311,9 @@ export class HitboxDamageHandler {
    * intangible / damage-multiplier modifiers from the move data.
    */
   private hurtboxLookup: HurtboxLookup | null = null;
+  private activeShieldLookup:((targetIndex:number)=>NonNullable<HitInfo['combatShieldContact']>|null)|null=null;
+  private groundedLookup: ((targetIndex: number) => boolean) | null = null;
+  private facingLookup: ((targetIndex: number) => 1 | -1) | null = null;
 
   /**
    * Optional friendly-fire predicate (post-M6.7). Default `null` —
@@ -274,12 +326,10 @@ export class HitboxDamageHandler {
   /**
    * AC 60103 Sub-AC 3 — per-hitbox-lifetime confirmed-hit registry.
    *
-   * Keyed on the hitbox body object identity. The value is the set of
-   * `targetIndex`es that this specific hitbox sensor has already
-   * connected with at least once during its current active phase. A
-   * pair whose `(hitboxBody, targetIndex)` tuple already appears in
-   * this registry is silently dropped before the callback fires, so
-   * the same swing never double-hits the same target.
+   * Keyed on a shared hit group when present, otherwise the physical
+   * sensor body. Ordinary swings confirm once per target. Explicit regional
+   * re-hit intervals permit later confirmations using the injected gameplay
+   * clock; replacement sensors never reset that target's history.
    *
    * `WeakMap` semantics:
    *   • Entries are auto-reclaimed when the hitbox body is GC'd —
@@ -291,9 +341,12 @@ export class HitboxDamageHandler {
    *   • {@link reset} purges the entire registry by replacing the
    *     map (the previous WeakMap is itself GC'd).
    */
-  private confirmedHits: WeakMap<HitboxOrCharacterBody, Set<number>> =
-    new WeakMap();
+  private confirmedHits = new AttackContactLedger();
+  private rehitClockLookup: ((ownerBodyId: number | undefined, sensor: HitboxOrCharacterBody) => number | null) | null = null;
 
+  getLiveStrikeHistory(sensor:HitboxOrCharacterBody){
+    return this.confirmedHits.snapshotFor((sensor.plugin as HitboxPlugin|undefined)?.hitGroup??sensor);
+  }
   constructor(callback: HitConnectCallback) {
     this.callback = callback;
   }
@@ -310,9 +363,13 @@ export class HitboxDamageHandler {
       );
     }
     const existing = this.players.get(playerIndex);
-    if (existing) this.bodyToIndex.delete(existing);
+    if (existing) {
+      this.bodyToIndex.delete(existing);
+      if (typeof existing.id === 'number') this.bodyIdToIndex.delete(existing.id);
+    }
     this.players.set(playerIndex, body);
     this.bodyToIndex.set(body, playerIndex);
+    if (typeof body.id === 'number') this.bodyIdToIndex.set(body.id, playerIndex);
   }
 
   /**
@@ -322,7 +379,10 @@ export class HitboxDamageHandler {
    */
   unregisterPlayer(playerIndex: number): void {
     const body = this.players.get(playerIndex);
-    if (body) this.bodyToIndex.delete(body);
+    if (body) {
+      this.bodyToIndex.delete(body);
+      if (typeof body.id === 'number') this.bodyIdToIndex.delete(body.id);
+    }
     this.players.delete(playerIndex);
   }
 
@@ -348,7 +408,8 @@ export class HitboxDamageHandler {
   reset(): void {
     this.players.clear();
     this.bodyToIndex.clear();
-    this.confirmedHits = new WeakMap();
+    this.bodyIdToIndex.clear();
+    this.confirmedHits.reset();
   }
 
   /**
@@ -368,6 +429,69 @@ export class HitboxDamageHandler {
    */
   setHurtboxLookup(lookup: HurtboxLookup | null): void {
     this.hurtboxLookup = lookup;
+  }
+  setActiveShieldLookup(lookup:((targetIndex:number)=>NonNullable<HitInfo['combatShieldContact']>|null)|null):void{
+    this.activeShieldLookup=lookup;
+  }
+
+  /** Required only for repeating contacts. Policy belongs to the caller, never
+   * wall time or Matter substeps; a frozen clock cannot expire an interval.
+   * The live sensor lets the caller reject stale or detached attack ownership. */
+  setRehitClockLookup(lookup: ((ownerBodyId: number | undefined, sensor: HitboxOrCharacterBody) => number | null) | null): void {
+    this.rehitClockLookup = lookup;
+  }
+
+  setGroundedLookup(lookup: ((targetIndex: number) => boolean) | null): void {
+    this.groundedLookup = lookup;
+  }
+
+  /** Hurtbox offsets use the defender's facing, independently of the attack axis. */
+  setFacingLookup(lookup: ((targetIndex: number) => 1 | -1) | null): void {
+    this.facingLookup = lookup;
+  }
+  /** Source attack priority is evaluated before any body-damage callbacks. */
+  setAttackClankHooks(beforeContacts: (() => void) | null,
+    gate: ((sensor: HitboxOrCharacterBody, targetBodyId: number | undefined) => boolean) | null): void {
+    this.beforeContacts = beforeContacts;
+    this.attackContactGate = gate;
+  }
+
+  /** Sample live hurtboxes independently of the movement collider. Matter's
+   * body pairs cannot find an extended limb outside that collider. The real
+   * attack sensors provide candidates here; the normal capsule/mask/priority
+   * and confirmation path still makes the damage decision.
+   */
+  sampleHurtboxContacts(bodies: readonly HitboxOrCharacterBody[]): void {
+    if (!this.hurtboxLookup) return;
+    const pairs: HitboxPair[] = [];
+    for (const sensor of bodies) {
+      if (sensor.label !== HITBOX_LABEL) continue;
+      const currentBounds = boundsFromBody(sensor);
+      if (!currentBounds) continue;
+      const payload = sensor.plugin as HitboxPlugin | undefined;
+      const previous = payload?.ownerAnchoredContact ? payload.previousPointContact : undefined;
+      const sensorBounds: WorldBounds = previous && Number.isFinite(previous.position.x)
+        && Number.isFinite(previous.position.y) && Number.isFinite(previous.radius) && previous.radius > 0
+        ? { minX: Math.min(currentBounds.minX, previous.position.x - previous.radius),
+          minY: Math.min(currentBounds.minY, previous.position.y - previous.radius),
+          maxX: Math.max(currentBounds.maxX, previous.position.x + previous.radius),
+          maxY: Math.max(currentBounds.maxY, previous.position.y + previous.radius) }
+        : currentBounds;
+      for (const [index, target] of this.players) {
+        if (!target.position) continue;
+        const hurtboxes = this.hurtboxLookup(index);
+        if (!hurtboxes?.length) continue;
+        const facing = this.facingLookup?.(index) ?? 1;
+        const shield=payload?.kind==='grab'?null:this.activeShieldLookup?.(index),shieldBounds=shield?{
+          minX:shield.centre.x-shield.radius,maxX:shield.centre.x+shield.radius,
+          minY:shield.centre.y-shield.radius,maxY:shield.centre.y+shield.radius}:null;
+        if (hurtboxes.some(hurtbox => boundsOverlap(sensorBounds,
+          boundsFromHurtbox(target.position!, hurtbox, facing)))||shieldBounds&&boundsOverlap(sensorBounds,shieldBounds)) {
+          pairs.push({ bodyA: sensor, bodyB: target });
+        }
+      }
+    }
+    this.handleCollisionStart({ pairs }, true);
   }
 
   /**
@@ -411,7 +535,9 @@ export class HitboxDamageHandler {
    */
   forgetHitbox(body: HitboxOrCharacterBody | null | undefined): void {
     if (!body) return;
-    this.confirmedHits.delete(body);
+    // Shared groups survive individual sensor replacement. Their history
+    // expires with the group identity, or with a handler reset.
+    this.confirmedHits.forget(body);
   }
 
   /**
@@ -435,8 +561,9 @@ export class HitboxDamageHandler {
    *   5. Drop self-hits (hitbox owner === target's character id).
    *   6. Per-event dedup by `(hitboxBody, targetIndex)`.
    */
-  handleCollisionStart(event: HitboxCollisionEvent): void {
+  handleCollisionStart(event: HitboxCollisionEvent, completedPhysics = false): void {
     if (!event || !event.pairs || event.pairs.length === 0) return;
+    this.beforeContacts?.();
 
     // Per-event dedup: keyed on the (hitboxBody object identity,
     // targetIndex) tuple so the same hitbox can hit two different
@@ -466,6 +593,11 @@ export class HitboxDamageHandler {
       // through).
       const targetIndex = this.bodyToIndex.get(otherBody);
       if (targetIndex === undefined) continue;
+      // A fresh posed receiver requires its actual provider even when the
+      // incoming shape is an authored rectangle. Movement bounds never stand
+      // in for a missing/null/empty source receiving set.
+      if((otherBody.plugin as CharacterBodyPlugin|undefined)?.sourceReceivingRequired&&
+        !this.hurtboxLookup?.(targetIndex)?.length)continue;
       // Defensive: if the registered body somehow lost its character
       // label (should never happen — the label is set at construction
       // and Matter doesn't mutate it), treat the pair as suspect and
@@ -475,8 +607,10 @@ export class HitboxDamageHandler {
       // Read the hitbox plugin payload. Type-narrow via the known
       // `ownerId` field — `HitboxPlugin` is the only plugin shape
       // that has it on a hitbox-labelled body.
-      const plugin = (hitboxBody.plugin ?? null) as HitboxPlugin | null;
+      let plugin = (hitboxBody.plugin ?? null) as HitboxPlugin | null;
       if (!plugin || typeof plugin.ownerId !== 'string') continue;
+      if (plugin.postPhysicsContactOnly && !completedPhysics) continue;
+      if (this.attackContactGate && !this.attackContactGate(hitboxBody, otherBody.id)) continue;
 
       // Self-hit suppression — a fighter cannot damage themselves.
       // Compare the attacker's Matter BODY ID (each body has a unique
@@ -509,14 +643,48 @@ export class HitboxDamageHandler {
       if (fired.has(dedupKey)) continue;
       fired.add(dedupKey);
 
-      // AC 60103 Sub-AC 3 — per-lifetime hit confirmation. If THIS
-      // hitbox body has already connected with this target during its
-      // active phase, drop the pair. Together with the per-event
-      // dedup above this enforces "one hit per move per target per
-      // swing", regardless of whether duplicate Matter events would
-      // otherwise re-trigger the same connect.
-      let confirmed = this.confirmedHits.get(hitboxBody);
-      if (confirmed && confirmed.has(targetIndex)) continue;
+      // Replacement sensors share a logical strike's per-target confirmation
+      // history, including any explicitly configured re-hit interval.
+      const hitIdentity = plugin.hitGroup ?? hitboxBody;
+
+      const attachedOwner = plugin.ownerAnchoredContact && typeof plugin.ownerBodyId === 'number'
+        ? [...this.players.values()].find(body => body.id === plugin!.ownerBodyId) : undefined;
+      const collisionOrigin = attachedOwner?.position ?? (hitboxBody.position && plugin.hitbox ? {
+        x: hitboxBody.position.x - plugin.hitbox.offsetX * plugin.facing,
+        y: hitboxBody.position.y - plugin.hitbox.offsetY,
+      } : undefined);
+      const targetFacing = this.facingLookup?.(targetIndex) ?? 1;
+      const shield=plugin.kind==='grab'?null:this.activeShieldLookup?.(targetIndex)??null,
+        shieldShape=shield?{start:shield.centre,end:shield.centre,radius:shield.radius}:null;
+      let selectedCollisionHit: import('../characters/attacks').AttackCollisionHit | undefined;
+      let selectedCollisionCapsule: import('../characters/attacks').AttackCollisionHit['capsule'] | undefined;
+      if (plugin.sourcePoseRequired && !plugin.collisionHits?.length) continue;
+      if (plugin.collisionHits?.length) {
+        if (!collisionOrigin) continue;
+        const live = this.hurtboxLookup?.(targetIndex);
+        if((otherBody.plugin as CharacterBodyPlugin|undefined)?.sourceReceivingRequired&&!live?.length)continue;
+        const bounds = live?.length && otherBody.position
+          ? live.filter(box => !box.intangible).map(box => hurtboxCollisionShape(otherBody.position!, box, targetFacing))
+          : otherBody.bounds ? [otherBody.bounds] : [];
+        const collisionRows = interpolatePointContactRows(plugin.collisionHits, collisionOrigin, plugin.facing,
+          plugin.ownerAnchoredContact ? plugin.previousPointContact : undefined);
+        for(const row of collisionRows){const targets=shieldShape&&!(row.unblockable??plugin.unblockable)?[...bounds,shieldShape]:bounds;
+          const contact=selectAttackCollisionHit([row],collisionOrigin,plugin.facing,targets,this.groundedLookup?.(targetIndex)??false);
+          if(contact&&(!selectedCollisionHit||contact.id<selectedCollisionHit.id))selectedCollisionHit=contact;}
+        if (!selectedCollisionHit) continue;
+        selectedCollisionCapsule = selectedCollisionHit.capsule;
+        // Interpolation changes collision coverage, not the authored current
+        // contact used for hit metadata, autolink targets or launch direction.
+        selectedCollisionHit = plugin.collisionHits.find(row => row.id === selectedCollisionHit!.id)
+          ?? selectedCollisionHit;
+        plugin = { ...plugin, ...selectedCollisionHit,
+          nativeCollisionAttribute: selectedCollisionHit.nativeCollisionAttribute,
+          nativeForceReaction: selectedCollisionHit.nativeForceReaction };
+      }
+
+      const rehitFrames = plugin.rehitFrames ?? 0;
+      const contactFrame = rehitFrames > 0 ? this.rehitClockLookup?.(plugin.ownerBodyId, hitboxBody) ?? null : null;
+      if (!this.confirmedHits.canConfirm(hitIdentity, targetIndex, rehitFrames, contactFrame)) continue;
 
       // Sub-AC 2 of AC 10002 — consult the per-target hurtbox set
       // BEFORE dispatching. The lookup is optional (null → unmodified
@@ -543,10 +711,28 @@ export class HitboxDamageHandler {
       // null / empty) keeps the legacy unmodified dispatch path so
       // every existing test fixture still works.
       let damage = plugin.damage;
+      let overlappingHurtboxes: ReadonlyArray<Hurtbox> | null = null;
+      const hitboxBounds=boundsFromBody(hitboxBody),shieldContact=shieldShape&&!plugin.unblockable&&
+        (selectedCollisionCapsule&&collisionOrigin?capsulesIntersect(posedCapsule(selectedCollisionCapsule,collisionOrigin,plugin.facing),shieldShape):
+          hitboxBounds?capsuleIntersectsBounds(shieldShape,{x:0,y:0},1,collisionBounds(hitboxBounds)):false);
       if (this.hurtboxLookup !== null) {
         const set = this.hurtboxLookup(targetIndex);
+        if((otherBody.plugin as CharacterBodyPlugin|undefined)?.sourceReceivingRequired&&!set?.length)continue;
         if (set !== null && set.length > 0) {
-          if (isAllHurtboxesIntangible(set)) {
+          const hitboxBounds = boundsFromBody(hitboxBody);
+          overlappingHurtboxes =
+            hitboxBounds && otherBody.position
+              ? set.filter((hurtbox) =>
+                  (selectedCollisionCapsule && collisionOrigin ? attackCapsuleTouchesHurtbox(
+                    selectedCollisionCapsule, collisionOrigin, plugin!.facing,
+                    otherBody.position!, hurtbox, targetFacing,
+                  ) : rectangleTouchesHurtbox(hitboxBounds, otherBody.position!, hurtbox, targetFacing)),
+                )
+              : set;
+          // Matter reported overlap against the broad character body, but the
+          // authored live hurtboxes did not touch this sensor.
+          if (overlappingHurtboxes.length === 0&&!shieldContact) continue;
+          if (shieldContact?isAllHurtboxesIntangible(set):isAllHurtboxesIntangible(overlappingHurtboxes)) {
             // Drop the hit. Confirmation is NOT registered — the same
             // swing remains free to connect with this target after the
             // intangible window closes (the canonical "dodge through
@@ -554,24 +740,101 @@ export class HitboxDamageHandler {
             // recovery overlap" outcome).
             continue;
           }
-          const mult = resolveHurtboxDamageMultiplier(set);
+          const mult = shieldContact?1:resolveHurtboxDamageMultiplier(overlappingHurtboxes);
           if (mult !== 1) {
             damage = damage * mult;
           }
         }
       }
 
+      const sweetSpotHit = !selectedCollisionHit && doesSweetSpotConnect(
+        plugin,
+        hitboxBody,
+        otherBody,
+        overlappingHurtboxes,
+        targetFacing,
+      );
+      const baseKnockback = plugin.groundedKnockback && this.groundedLookup?.(targetIndex)
+        ? plugin.groundedKnockback : plugin.knockback;
+      let knockback = sweetSpotHit && plugin.sweetSpot?.knockback
+        ? plugin.sweetSpot.knockback : baseKnockback;
+      if (sweetSpotHit && plugin.sweetSpot) {
+        const damageMultiplier = finitePositiveOrOne(
+          plugin.sweetSpot.damageMultiplier,
+        );
+        const knockbackMultiplier = finitePositiveOrOne(
+          plugin.sweetSpot.knockbackMultiplier,
+        );
+        damage *= damageMultiplier;
+        if (knockbackMultiplier !== 1) {
+          knockback = scaleKnockbackSpec(knockback, knockbackMultiplier);
+        }
+      }
+
       // Build the canonical HitInfo from the hitbox's plugin payload
       // and dispatch. The plugin already carries everything `applyHit`
       // needs.
+      const sourceX = collisionOrigin?.x;
+      const separationX = sourceX === undefined || !otherBody.position ? 0 : otherBody.position.x - sourceX;
+      const launchFacing = hitLaunchFacing(plugin, separationX);
+      // Only airborne 367 hits replace angle-based launch with contextual
+      // transport. A capsule's world midpoint is a sampled contact anchor;
+      // it remains fixed through hitlag. Exact source anchor behavior is not
+      // recovered. Rectangular custom moves use their sensor center.
+      const autolinkTarget = knockback.reference?.angle === 367
+        && !(this.groundedLookup?.(targetIndex) ?? false)
+        ? selectedCollisionHit && collisionOrigin ? {
+          x: collisionOrigin.x + (selectedCollisionHit.capsule.start.x
+            + selectedCollisionHit.capsule.end.x) / 2 * plugin.facing,
+          y: collisionOrigin.y + (selectedCollisionHit.capsule.start.y
+            + selectedCollisionHit.capsule.end.y) / 2,
+        } : hitboxBody.position ? { ...hitboxBody.position } : undefined
+        : undefined;
       const hit: HitInfo = {
+        ...(plugin.statusEffect===undefined?{}:{statusEffect:plugin.statusEffect}),
+        ...(autolinkTarget ? { autolink: {
+          target: autolinkTarget,
+          sourceVelocity: plugin.attackerVelocity ? { ...plugin.attackerVelocity } : { x: 0, y: 0 },
+        } } : {}),
         damage,
-        knockback: plugin.knockback,
-        facing: plugin.facing,
+        ...(plugin.tripChance === undefined ? {} : { tripChance: plugin.tripChance }),
+        knockback,
+        facing: launchFacing,
+        shieldDamage: plugin.shieldDamage,
+        shieldSetoffMultiplier: plugin.shieldSetoffMultiplier,
+        direct: plugin.direct,
+        reflectable:plugin.reflectable,absorbable:plugin.absorbable,
+        nativeAttackHeight:plugin.nativeAttackHeight,nativeAttackHeightSource:plugin.nativeAttackHeightSource,
+        nativeCollisionAttribute: plugin.nativeCollisionAttribute,
+        nativeForceReaction: plugin.nativeForceReaction,
+        ...(plugin.electricCollision === undefined ? {} : { electricCollision: plugin.electricCollision }),
+        ...(plugin.projectile ? { hitlagProjectile: true } : {}),
+        ...(plugin.hitlagMultiplier === undefined ? {} : { hitlagMultiplier: plugin.hitlagMultiplier }),
+        ...(plugin.sdiMultiplier === undefined ? {} : { sdiMultiplier: plugin.sdiMultiplier }),
+        ...(plugin.minHitstunFrames === undefined ? {} : { minHitstunFrames: plugin.minHitstunFrames }),
+        ...(plugin.airborneVelocityCarry && this.groundedLookup?.(targetIndex) === false
+          && plugin.attackerVelocity ? { velocityCarry: { ...plugin.attackerVelocity } } : {}),
+        ...(sweetSpotHit ? { sweetSpot: true } : {}),
         ...(plugin.unblockable ? { unblockable: true } : {}),
       };
       const context: HitContext = {
+        ...(shieldContact&&shield?{activeShieldReceipt:shield}:{}),
+        ...(selectedCollisionCapsule===undefined&&hitboxBounds?{contactBoundsWorld:collisionBounds(hitboxBounds)}:{}),
+        ...(overlappingHurtboxes&&otherBody.position?{receivingRegions:overlappingHurtboxes.filter(h=>!h.intangible).map(h=>({id:h.id,centreWorld:{x:otherBody.position!.x+h.offsetX*targetFacing,y:otherBody.position!.y+h.offsetY}}))}:{}),
+        ...(selectedCollisionCapsule&&collisionOrigin?{contactCapsuleWorld:posedCapsule(selectedCollisionCapsule,collisionOrigin,plugin.facing)}:{}),
+        ...(plugin.staleMoveId === undefined ? {} : { staleMoveId: plugin.staleMoveId }),
+        ...(selectedCollisionHit ? { collisionHitId: selectedCollisionHit.id } : {}),
+        ...(plugin.projectile ? { projectile: true } : {}),
+        ...(plugin.attackInstance ? { attackInstance: plugin.attackInstance } : {}),
         attackerOwnerId: plugin.ownerId,
+        ...(typeof plugin.ownerBodyId === 'number'
+          ? {
+              attackerBodyId: plugin.ownerBodyId,
+              ...(this.bodyIdToIndex.has(plugin.ownerBodyId)
+                ? { attackerPlayerIndex: this.bodyIdToIndex.get(plugin.ownerBodyId)! }
+                : {}),
+            }
+          : {}),
         moveId: plugin.moveId,
         kind: plugin.kind === 'grab' ? 'grab' : 'attack',
       };
@@ -587,20 +850,14 @@ export class HitboxDamageHandler {
       ) {
         continue;
       }
-      this.callback(targetIndex, hit, context);
+      const callbackResult = this.callback(targetIndex, hit, context);
+      if (callbackResult?.confirmed === false) continue;
 
       // Mark the connect as confirmed AFTER the callback — so a
       // throwing callback doesn't poison the registry with a
       // half-applied hit (the next event would still get the
-      // chance to fire). On a re-entrant callback that re-enters
-      // `handleCollisionStart`, the confirmation is already in the
-      // map by the time the inner call's read happens, because the
-      // OUTER read happened before the callback.
-      if (!confirmed) {
-        confirmed = new Set<number>();
-        this.confirmedHits.set(hitboxBody, confirmed);
-      }
-      confirmed.add(targetIndex);
+      // chance to fire). Rejected contacts do not consume the swing.
+      this.confirmedHits.confirm(hitIdentity, targetIndex, rehitFrames, contactFrame);
     }
   }
 }
@@ -652,3 +909,107 @@ function makeDedupKey(
 
 const ephemeralIds = new WeakMap<HitboxOrCharacterBody, number>();
 let nextEphemeralId = 1;
+
+interface WorldBounds {
+  readonly minX: number;
+  readonly minY: number;
+  readonly maxX: number;
+  readonly maxY: number;
+}
+
+function collisionBounds(bounds: WorldBounds) {
+  return { min: { x: bounds.minX, y: bounds.minY }, max: { x: bounds.maxX, y: bounds.maxY } };
+}
+
+function hurtboxCollisionShape(origin: { x: number; y: number }, hurtbox: Hurtbox, facing: 1 | -1) {
+  return hurtbox.capsule ? posedCapsule(hurtbox.capsule, origin, facing)
+    : collisionBounds(boundsFromHitbox(origin, hurtbox, facing));
+}
+
+function boundsFromHurtbox(origin: { x: number; y: number }, hurtbox: Hurtbox, facing: 1 | -1): WorldBounds {
+  if (!hurtbox.capsule) return boundsFromHitbox(origin, hurtbox, facing);
+  const bounds = capsuleBounds(posedCapsule(hurtbox.capsule, origin, facing));
+  return { minX: bounds.min.x, minY: bounds.min.y, maxX: bounds.max.x, maxY: bounds.max.y };
+}
+
+function attackCapsuleTouchesHurtbox(capsule: CollisionCapsule, attackOrigin: { x: number; y: number },
+  attackFacing: 1 | -1, hurtboxOrigin: { x: number; y: number }, hurtbox: Hurtbox, hurtboxFacing: 1 | -1) {
+  return hurtbox.capsule ? capsulesIntersect(posedCapsule(capsule, attackOrigin, attackFacing),
+    posedCapsule(hurtbox.capsule, hurtboxOrigin, hurtboxFacing))
+    : capsuleIntersectsBounds(capsule, attackOrigin, attackFacing,
+      collisionBounds(boundsFromHitbox(hurtboxOrigin, hurtbox, hurtboxFacing)));
+}
+
+function rectangleTouchesHurtbox(bounds: WorldBounds, origin: { x: number; y: number }, hurtbox: Hurtbox, facing: 1 | -1) {
+  return hurtbox.capsule ? capsuleIntersectsBounds(posedCapsule(hurtbox.capsule, origin, facing),
+    { x: 0, y: 0 }, 1, collisionBounds(bounds)) : boundsOverlap(bounds, boundsFromHitbox(origin, hurtbox, facing));
+}
+
+function boundsFromBody(body: HitboxOrCharacterBody): WorldBounds | null {
+  if (!body.bounds) return null;
+  return {
+    minX: body.bounds.min.x,
+    minY: body.bounds.min.y,
+    maxX: body.bounds.max.x,
+    maxY: body.bounds.max.y,
+  };
+}
+
+function boundsFromHitbox(
+  origin: { readonly x: number; readonly y: number },
+  hitbox: Hitbox,
+  facing: 1 | -1,
+): WorldBounds {
+  const centerX = origin.x + hitbox.offsetX * facing;
+  const centerY = origin.y + hitbox.offsetY;
+  return {
+    minX: centerX - hitbox.width / 2,
+    minY: centerY - hitbox.height / 2,
+    maxX: centerX + hitbox.width / 2,
+    maxY: centerY + hitbox.height / 2,
+  };
+}
+
+function boundsOverlap(a: WorldBounds, b: WorldBounds): boolean {
+  return (
+    a.minX <= b.maxX &&
+    a.maxX >= b.minX &&
+    a.minY <= b.maxY &&
+    a.maxY >= b.minY
+  );
+}
+
+function doesSweetSpotConnect(
+  plugin: HitboxPlugin,
+  hitboxBody: HitboxOrCharacterBody,
+  targetBody: HitboxOrCharacterBody,
+  overlappingHurtboxes: ReadonlyArray<Hurtbox> | null,
+  targetFacing: 1 | -1,
+): boolean {
+  if (!plugin.sweetSpot || !plugin.hitbox || !hitboxBody.position) return false;
+  const attackerOrigin = {
+    x: hitboxBody.position.x - plugin.hitbox.offsetX * plugin.facing,
+    y: hitboxBody.position.y - plugin.hitbox.offsetY,
+  };
+  const sweetBounds = boundsFromHitbox(
+    attackerOrigin,
+    plugin.sweetSpot.hitbox,
+    plugin.facing,
+  );
+
+  if (overlappingHurtboxes && targetBody.position) {
+    return overlappingHurtboxes.some(
+      (hurtbox) =>
+        hurtbox.intangible !== true &&
+        rectangleTouchesHurtbox(sweetBounds, targetBody.position!, hurtbox, targetFacing),
+    );
+  }
+  const targetBounds = boundsFromBody(targetBody);
+  return targetBounds !== null && boundsOverlap(sweetBounds, targetBounds);
+}
+
+function finitePositiveOrOne(value: number | undefined): number {
+  return typeof value === 'number' && Number.isFinite(value) && value > 0
+    ? value
+    : 1;
+}

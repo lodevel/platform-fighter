@@ -49,7 +49,7 @@ async function main() {
   if (!(await client.isUp())) throw new Error('ComfyUI not up');
   await mkdir('assets/gen/_spike', { recursive: true });
   // strength 0.6: enough structure, room for clean redraw
-  const { bytes } = await client.render(cnWorkflow(0.6, 201));
+  const { bytes } = await client.render(cnWorkflow(0.6, 201), '9');
   await writeFile('assets/gen/_spike/cn-link.png', bytes);
   console.log(`[spike-cn] -> assets/gen/_spike/cn-link.png (${(bytes.length / 1024) | 0}KB)`);
 }

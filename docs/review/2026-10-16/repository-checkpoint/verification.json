@@ -1,0 +1,24 @@
+{
+  "result": "PASS",
+  "nodeVersion": "20.20.2",
+  "sourceIdentity": "platform-fighter-sha256-8801bf0c4941c9a7c639cf2e69652ebf398af18acdabbc36bd02a82cb722b757",
+  "method": "Exported Git index with git checkout-index; reused installed node_modules via symlink. No temporary or raw audit fallback files copied.",
+  "tests": {
+    "files": 566,
+    "tests": 12115,
+    "result": "PASS"
+  },
+  "build": {
+    "command": "npm run build:static",
+    "qualificationFixtureFlag": false,
+    "fixturePagesAbsent": true,
+    "runtimeAssetsCopied": 723,
+    "gameBundle": "game-DvS4dCBF.js",
+    "gameBundleSha256": "03be999ab622c073810e20b7425fbcf3d6e664a68e81577e0d03c9e533d6f92a",
+    "result": "PASS"
+  },
+  "logs": {
+    "tests.log": "65b8b2c20f62dc0adf88ed9809ccbaac0c7fc4e7ef6ccbb6519c1ed5c57c2893",
+    "build.log": "1f2ff8d9f204c16362ce2dfd64caea36dfa203f3ccfc715957711c272758b81a"
+  }
+}

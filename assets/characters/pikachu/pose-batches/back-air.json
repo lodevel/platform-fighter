@@ -1,0 +1,792 @@
+{
+  "state": "packed_output_visual_and_runtime_review_required",
+  "scope": "Partial registered normal batch; no roster/manifest/full-fighter acceptance",
+  "coordinateContract": {
+    "canonicalCanvas": [
+      2048,
+      1536
+    ],
+    "canonicalRoot": [
+      1024,
+      1152
+    ],
+    "frameWidth": 512,
+    "frameHeight": 384,
+    "root": [
+      256,
+      288
+    ],
+    "scaleToWorld": 0.4666666666666667,
+    "bodyCentreFromRoot": [
+      0,
+      -25
+    ]
+  },
+  "approvalSha256": "816c1c749f6413cbd8072f72604bd7c4391972c206d937263ab387bdeeb8efb8",
+  "animations": {
+    "bair": {
+      "strip": "animations/bair.png",
+      "frameCount": 24,
+      "sha256": "40dee49bb1c165a79815650b62de89c68f0f74ea3e09ced87c0121986156f348",
+      "frameWindows": [
+        {
+          "startFrame": 0,
+          "endFrame": 2,
+          "artFrameIndex": 0
+        },
+        {
+          "startFrame": 2,
+          "endFrame": 3,
+          "artFrameIndex": 1
+        },
+        {
+          "startFrame": 3,
+          "endFrame": 4,
+          "artFrameIndex": 2
+        },
+        {
+          "startFrame": 4,
+          "endFrame": 5,
+          "artFrameIndex": 3
+        },
+        {
+          "startFrame": 5,
+          "endFrame": 7,
+          "artFrameIndex": 4
+        },
+        {
+          "startFrame": 7,
+          "endFrame": 8,
+          "artFrameIndex": 5
+        },
+        {
+          "startFrame": 8,
+          "endFrame": 9,
+          "artFrameIndex": 6
+        },
+        {
+          "startFrame": 9,
+          "endFrame": 11,
+          "artFrameIndex": 7
+        },
+        {
+          "startFrame": 11,
+          "endFrame": 12,
+          "artFrameIndex": 8
+        },
+        {
+          "startFrame": 12,
+          "endFrame": 13,
+          "artFrameIndex": 9
+        },
+        {
+          "startFrame": 13,
+          "endFrame": 15,
+          "artFrameIndex": 10
+        },
+        {
+          "startFrame": 15,
+          "endFrame": 16,
+          "artFrameIndex": 11
+        },
+        {
+          "startFrame": 16,
+          "endFrame": 17,
+          "artFrameIndex": 12
+        },
+        {
+          "startFrame": 17,
+          "endFrame": 19,
+          "artFrameIndex": 13
+        },
+        {
+          "startFrame": 19,
+          "endFrame": 20,
+          "artFrameIndex": 14
+        },
+        {
+          "startFrame": 20,
+          "endFrame": 21,
+          "artFrameIndex": 15
+        },
+        {
+          "startFrame": 21,
+          "endFrame": 23,
+          "artFrameIndex": 16
+        },
+        {
+          "startFrame": 23,
+          "endFrame": 24,
+          "artFrameIndex": 17
+        },
+        {
+          "startFrame": 24,
+          "endFrame": 25,
+          "artFrameIndex": 18
+        },
+        {
+          "startFrame": 25,
+          "endFrame": 29,
+          "artFrameIndex": 19
+        },
+        {
+          "startFrame": 29,
+          "endFrame": 34,
+          "artFrameIndex": 20
+        },
+        {
+          "startFrame": 34,
+          "endFrame": 39,
+          "artFrameIndex": 21
+        },
+        {
+          "startFrame": 39,
+          "endFrame": 42,
+          "artFrameIndex": 22
+        },
+        {
+          "startFrame": 42,
+          "endFrame": 43,
+          "artFrameIndex": 23
+        }
+      ],
+      "columns": 8,
+      "rows": 3,
+      "atlasRepack": {
+        "sheet": "bair",
+        "previousLayout": "docs/review/2026-10-06/pikachu-character/art/texture-atlas-repack/bair-reviewed-linear.png",
+        "previousSha256": "a3ad96dfdeef1f164900bce59a30c01d1ff2c055f42350fc8c0532af5dbf7271",
+        "sha256": "40dee49bb1c165a79815650b62de89c68f0f74ea3e09ced87c0121986156f348",
+        "dimensions": [
+          4096,
+          1152
+        ],
+        "columns": 8,
+        "rows": 3,
+        "cellPixelsUnchanged": true,
+        "cells": [
+          {
+            "index": 0,
+            "cell": [
+              0,
+              0
+            ],
+            "rgbaSha256": "2b5f29023ce418c2317e8ea463317458c4a79b134c5037468071f495d14390ca"
+          },
+          {
+            "index": 1,
+            "cell": [
+              1,
+              0
+            ],
+            "rgbaSha256": "eb2910a102e9cba6cb9cb3dfcd72d65608158377185dd122b5f4878b7e12ddf9"
+          },
+          {
+            "index": 2,
+            "cell": [
+              2,
+              0
+            ],
+            "rgbaSha256": "ad17a8950bffdc3182682b8d736e29183cea3afa85aa75fbd2b7dd1aac14c859"
+          },
+          {
+            "index": 3,
+            "cell": [
+              3,
+              0
+            ],
+            "rgbaSha256": "1d89c42f9af879c8ae0833578f81bf8567451901d64b3b2b9a1bed162091a6b3"
+          },
+          {
+            "index": 4,
+            "cell": [
+              4,
+              0
+            ],
+            "rgbaSha256": "3a38ac4356208c5649e81997d512aeb0fedef6c29d018c454c3ece00d205d5f8"
+          },
+          {
+            "index": 5,
+            "cell": [
+              5,
+              0
+            ],
+            "rgbaSha256": "9e8a8882932815ac77c85962e9e18bae1f96f299d430ac113d515e5d2d976ce2"
+          },
+          {
+            "index": 6,
+            "cell": [
+              6,
+              0
+            ],
+            "rgbaSha256": "2e1b5b088656474cb2ca7c61f317bb91864a5412360f0b41d4641826b042cd24"
+          },
+          {
+            "index": 7,
+            "cell": [
+              7,
+              0
+            ],
+            "rgbaSha256": "ab98ae1a2c11f7db251915519d7a0e8f6949961b5b40f2bcc0026cccc6448220"
+          },
+          {
+            "index": 8,
+            "cell": [
+              0,
+              1
+            ],
+            "rgbaSha256": "5c41ddf91341809e418fcd583c75eab60bf9c061c067ce7b227d6afd1734fd28"
+          },
+          {
+            "index": 9,
+            "cell": [
+              1,
+              1
+            ],
+            "rgbaSha256": "c33eaa8c1729c835a21e276a223e7f75cb88e6150afda9c6e15a1f776d0a0e07"
+          },
+          {
+            "index": 10,
+            "cell": [
+              2,
+              1
+            ],
+            "rgbaSha256": "b935a45506850711d606a8896876b14d166e33071741cadbe764c526c5c2e31d"
+          },
+          {
+            "index": 11,
+            "cell": [
+              3,
+              1
+            ],
+            "rgbaSha256": "7eb5ad91e03cf8c814e6753d31aa41a7fe9fe1bf653b7ad60aed9042ab50bf2f"
+          },
+          {
+            "index": 12,
+            "cell": [
+              4,
+              1
+            ],
+            "rgbaSha256": "66c98b7750465225ce93187bbfe8fc2bfe81c0e7bbb3f25f9eccd177a912876b"
+          },
+          {
+            "index": 13,
+            "cell": [
+              5,
+              1
+            ],
+            "rgbaSha256": "8a90bdb9c1fb26e206f6e43b3720ccf541a44a9bc269d977e20171133a4d43a9"
+          },
+          {
+            "index": 14,
+            "cell": [
+              6,
+              1
+            ],
+            "rgbaSha256": "4577c0fbfd409060be816094934e6027557d4a9e6ca527cb57aa6c2b25f3b6af"
+          },
+          {
+            "index": 15,
+            "cell": [
+              7,
+              1
+            ],
+            "rgbaSha256": "52b53db10c4a3843f9e39c754be0bfe27003832c27f16c723fddbac7aae19c6c"
+          },
+          {
+            "index": 16,
+            "cell": [
+              0,
+              2
+            ],
+            "rgbaSha256": "9c6977f3027c82771db1ecc33ccacf0df4d7580e70317ae4f4259af4f32e73ab"
+          },
+          {
+            "index": 17,
+            "cell": [
+              1,
+              2
+            ],
+            "rgbaSha256": "314b0432f4fd6bcc8f5203d304958d5f5a36828a7165a081588cfdc2d6e82756"
+          },
+          {
+            "index": 18,
+            "cell": [
+              2,
+              2
+            ],
+            "rgbaSha256": "964c4c3e451f98f602b94a9822be1d050ca5d04233542f3d41ab141d166dcad6"
+          },
+          {
+            "index": 19,
+            "cell": [
+              3,
+              2
+            ],
+            "rgbaSha256": "58e5a41156c9d3e0bab6dba9c5a672b32bf2da70fde5b9637b2bf5b30182982b"
+          },
+          {
+            "index": 20,
+            "cell": [
+              4,
+              2
+            ],
+            "rgbaSha256": "b62a538a643f0633ffeefbecc4db049a01614f7583c1c2fe628afdfa9656a06c"
+          },
+          {
+            "index": 21,
+            "cell": [
+              5,
+              2
+            ],
+            "rgbaSha256": "d3af59bc8bc3fbbad128a8f4023cc744eeae1413dfcaa22eb6a2402376f97cbd"
+          },
+          {
+            "index": 22,
+            "cell": [
+              6,
+              2
+            ],
+            "rgbaSha256": "b7fed5a4e03c15c08c1232193161375eb808c072e87fd21f166c19fccf9ab3b0"
+          },
+          {
+            "index": 23,
+            "cell": [
+              7,
+              2
+            ],
+            "rgbaSha256": "aba21ce339fc52a12930483bd075628659fc25a918b77f4eec55edf9f263e1ed"
+          }
+        ],
+        "layoutReview": "docs/review/2026-10-06/pikachu-character/art/texture-atlas-repack/bair-layout-review.png",
+        "layoutReviewSha256": "31539fb1cfddb1c129a3591b513218b5de3d41d9ca60181879c28669800dbabb"
+      }
+    },
+    "bair_landing": {
+      "strip": "animations/bair_landing.png",
+      "frameCount": 7,
+      "sha256": "097925bcd7f8e5aca212ad3b706b709d57ba4bddaa064db6b62350b26aa9ea3c",
+      "frameWindows": [
+        {
+          "startFrame": 0,
+          "endFrame": 1,
+          "artFrameIndex": 0
+        },
+        {
+          "startFrame": 1,
+          "endFrame": 2,
+          "artFrameIndex": 1
+        },
+        {
+          "startFrame": 2,
+          "endFrame": 5,
+          "artFrameIndex": 2
+        },
+        {
+          "startFrame": 5,
+          "endFrame": 8,
+          "artFrameIndex": 3
+        },
+        {
+          "startFrame": 8,
+          "endFrame": 12,
+          "artFrameIndex": 4
+        },
+        {
+          "startFrame": 12,
+          "endFrame": 17,
+          "artFrameIndex": 5
+        },
+        {
+          "startFrame": 17,
+          "endFrame": 18,
+          "artFrameIndex": 6
+        }
+      ]
+    }
+  },
+  "sources": [
+    {
+      "action": "back-air",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-back-air-startup-source0-attempt1-cutout.png",
+      "sha256": "66ba10dab727465757a77e653fed7b7635ee7c62a3b9518644cc2c277b1433eb",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "back-air",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-back-air-windup-source2-attempt1-cutout.png",
+      "sha256": "50708b6027efd3fd81adcfd28bb7287dc17f8792ae7f25b53506e3d65d36012d",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "back-air",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-back-air-contact-4-source3-attempt2-cutout.png",
+      "sha256": "55cf67c282b1f683c6614b0cfd7a22f39bf2e5cec228dd9e9a433dfcc59a9ac2",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "back-air",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-back-air-contact-5-source4-attempt1-cutout.png",
+      "sha256": "cb8f98f172cbc02d3a3f9698211f331c5ea2237c606ce438595777b2e0cc1c61",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "back-air",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-back-air-gap-6-source5-attempt1-cutout.png",
+      "sha256": "62567a1b0dfca6d05904625d6404472bc6db8f7d337d7a0ecda731189e1174ad",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "back-air",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-back-air-contact-8-source7-attempt1-cutout.png",
+      "sha256": "fc09fa09ca56f2db8a48580733aab0ee27a53a22bfa89ba7d0ec9489ce8eca30",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "back-air",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-back-air-contact-9-source8-attempt1-cutout.png",
+      "sha256": "c50c49d1b117a27e7957ada128861f033fb5e90224f44c9e4fdfbc978d5b8faf",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "back-air",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-back-air-gap-10-source9-attempt1-cutout.png",
+      "sha256": "043bc6197aee8907ca3d374668d2194bc93c794d34a022784880552c82752443",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "back-air",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-back-air-contact-12-source11-attempt1-cutout.png",
+      "sha256": "760c79401439ea8223dfb91db0a8f5a145c793237a13ce0be3ccadcd7735db05",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "back-air",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-back-air-contact-13-source12-attempt1-cutout.png",
+      "sha256": "068943f22984bf2fa618d4ddc1c9d0adcb99d28682f9cd2d8a7e5cb093c24b76",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "back-air",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-back-air-gap-14-source13-attempt1-cutout.png",
+      "sha256": "f58ae6d400b09ba19c1e82b392b1631a5464c472f011915a008b7f97cac7168f",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "back-air",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-back-air-contact-16-source15-attempt1-cutout.png",
+      "sha256": "f9570672816a375f3a6ec17b3b4e7c4b4100693b5c23c2e2fab1769cb1be17f2",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "back-air",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-back-air-contact-17-source16-attempt1-cutout.png",
+      "sha256": "ec3a648f67a696d116f726def76e302eb7029fb504517c1f8cdc52102a25db12",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "back-air",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-back-air-gap-18-source17-attempt1-cutout.png",
+      "sha256": "7cc73510219c7fe3008f2599608fc226f0563d4d6c58ee10965effed92a2cbff",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "back-air",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-back-air-contact-20-source19-attempt1-cutout.png",
+      "sha256": "38c116fe877445c0fdf86f50adba9281d0280901609a8c730ce6ce8bc40ba403",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "back-air",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-back-air-contact-21-source20-attempt1-cutout.png",
+      "sha256": "91a5feee0c9cb757ff72892072bfe12b923a55b4fd6fb2e1f8bc298653626902",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "back-air",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-back-air-gap-22-source21-attempt1-cutout.png",
+      "sha256": "9cd31d1dddd84511da6c73deb7f277c03805dfa1bc389d8c02e019f12a260b0c",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "back-air",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-back-air-contact-24-source23-attempt1-cutout.png",
+      "sha256": "3a3eb3178a7d9b09f18a1331871f426db53f8ce51488679022394a9e4ec73039",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "back-air",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-back-air-contact-25-source24-attempt1-cutout.png",
+      "sha256": "d136e1ddf19ae2850ae28e02dcf91c0581def41685972686276951410164fa42",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "back-air",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-back-air-clear-source25-attempt1-cutout.png",
+      "sha256": "2757b65db0a6fa1523da17cc311e2f05033b3c331bba93eeff80200afe383822",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "back-air",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-back-air-recover-source29-attempt1-cutout.png",
+      "sha256": "6af5335067b7dc41aee169a84739182448597427d44fb79c7ea7f1f72fbd8c69",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "back-air",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-back-air-late-recover-source34-attempt1-cutout.png",
+      "sha256": "a5e70819b8502e4c42cab68ad673b469bec3dad131e8eb2c08d3d1c951cfcf6a",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "back-air",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-back-air-unwind-source39-attempt1-cutout.png",
+      "sha256": "e07579444846ff985a94b9e7c01fdf4f081b66b85f276f35c954524959fd5032",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "back-air",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-back-air-return-source42-attempt1-cutout.png",
+      "sha256": "c568a7980c60edf6681f05627d84fc4b409d4870a6cdbb13895178a4a93fc15a",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "back-air-landing",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-back-air-landing-impact-one-source0-attempt1-cutout.png",
+      "sha256": "fb51a508927d7ad87f08e561236859a3dc3620a8edb7bf8d9494196bd1f9e4b7",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "back-air-landing",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-back-air-landing-impact-two-source1-attempt1-cutout.png",
+      "sha256": "b0bf59514f8890b984c02cbbb6ac50eb31ebec3b56bfa061f0a9bbdf6dc8c02f",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "back-air-landing",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-back-air-landing-clear-source2-attempt1-cutout.png",
+      "sha256": "55b4e7dcdc1c035c44bdd5bec72015450a29fdf5b36d3432b6f014c9e2c743af",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "back-air-landing",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-back-air-landing-turn-source5-attempt1-cutout.png",
+      "sha256": "51f21d513fb356272c96c6e2139ed0c2df5dd3f2b85acb566fce6373945f96e8",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "back-air-landing",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-back-air-landing-front-source8-attempt1-cutout.png",
+      "sha256": "62589ad3bf67a5f468f655512e0bf18720f85733ce7b118bd27542ef1d71ebef",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "back-air-landing",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-back-air-landing-rest-source12-attempt1-cutout.png",
+      "sha256": "e95e2ffa2f20c35f4adf2ce24caf1054c41c439d2196efe18147d3a1df6bfce5",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "back-air-landing",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-back-air-landing-return-source17-attempt1-cutout.png",
+      "sha256": "b8f8b6c8cc035f92e08b07fa3f544785228f50aec1c6c4fabf48ad65744db02d",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    }
+  ],
+  "galleries": {
+    "bair-cells-1.png": "deea10f14d91dab9c970b7d3b16d3bc96a08b16f5537728689c00891ca6785e6",
+    "bair-cells-2.png": "365c69b07b4f5699d48ff2150e0da8abc189db7ad5d3fdda3304eaa9be264adc",
+    "bair-cells-3.png": "5b6705b7ab231ba413394dc35909654986736ae56424a9aa4229a0a74eea78de",
+    "bair-cells-4.png": "03a3af01a158be0dad4849020cebc6d9407324e22e2ced394c70fbefd3805a05",
+    "bair-cells-5.png": "c165c482f2a8ca0e7769ef43a2eb0ef8cb7e6204f51efa8674b53f55b1444c06",
+    "bair-cells-6.png": "52e01288d14e5dfeaf564de3b3659000b120d2f25d2019d7988a7af9881c6a63",
+    "bair_landing-cells-1.png": "c45bc8234be1104ecbae88ef4dddd8c53bba7eeed32e34db555666b0d5bb7073",
+    "bair_landing-cells-2.png": "873981fc1b3dae2423acffb7fc83027c4e7538ffe8962b966392f7658d02004a"
+  }
+}

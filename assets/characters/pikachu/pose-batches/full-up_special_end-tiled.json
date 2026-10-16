@@ -1,0 +1,230 @@
+{
+  "state": "packed_cells_visually_reviewed_runtime_pending",
+  "coordinateContract": {
+    "canonicalCanvas": [
+      2048,
+      2048
+    ],
+    "canonicalRoot": [
+      1024,
+      1664
+    ],
+    "frameWidth": 512,
+    "frameHeight": 512,
+    "root": [
+      256,
+      416
+    ],
+    "scaleToWorld": 0.4666666666666667,
+    "bodyCentreFromRoot": [
+      0,
+      -25
+    ]
+  },
+  "clockContract": "docs/review/2026-10-06/pikachu-character/sources/special-body-runtime-clock-contract.json",
+  "clockContractSha256": "afa3d371760c55b27d6e910c9ac6beccbf26decad48271fd1339c69df6021b4a",
+  "animations": {
+    "up_special_end": {
+      "strip": "animations/up_special_end.png",
+      "frameCount": 5,
+      "sha256": "3b6b584b4ccc6d3119a3e7b036b557281dc9eb75abe09acfb3104e0deb7524c3",
+      "columns": 5,
+      "rows": 1,
+      "frameWindows": [
+        {
+          "startFrame": 0,
+          "endFrame": 10,
+          "artFrameIndex": 0
+        },
+        {
+          "startFrame": 10,
+          "endFrame": 25,
+          "artFrameIndex": 1
+        },
+        {
+          "startFrame": 25,
+          "endFrame": 33,
+          "artFrameIndex": 2
+        }
+      ],
+      "loopDuration": null,
+      "nativeSampleIndices": [
+        0,
+        10,
+        25,
+        40,
+        50
+      ],
+      "nativeWindows": [
+        {
+          "source_key": "full-quick-attack-ground-end-sample0-source0",
+          "native_sample_index": 0,
+          "start_elapsed": 0,
+          "end_elapsed": 10
+        },
+        {
+          "source_key": "full-quick-attack-ground-end-sample10-source10",
+          "native_sample_index": 10,
+          "start_elapsed": 10,
+          "end_elapsed": 25
+        },
+        {
+          "source_key": "full-quick-attack-ground-end-sample25-source25",
+          "native_sample_index": 25,
+          "start_elapsed": 25,
+          "end_elapsed": 33
+        }
+      ],
+      "drawingFacingBinding": null,
+      "holdRule": null,
+      "specialPhase": "end",
+      "specialClockKind": "identity",
+      "dynamicCutoff": "Actual situation switches to airborne sheet if airborne. END local anchors most recently ended burst, including first ending during optional second decision.",
+      "playableEndExclusive": 33,
+      "runtimeBindingStatus": "qualified source-clock resolver; body runtime visual review pending"
+    }
+  },
+  "sources": [
+    {
+      "sourceKey": "full-quick-attack-ground-end-sample0-source0",
+      "nativeSample": 0,
+      "sourceReferenceSha256": "9fc55caf1ce5e1c4720ece6e3f2f5c6c9b78281042b0841088117e6881c28e85",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-specials-batch018-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "356e7afa8ec8f02d66f3398e00518683cd3a1b63df1611bc9bded9cfa65a9cae",
+      "atlasCell": 2,
+      "cellOffset": [
+        0,
+        1024
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-specials-batch018-bounded-source0-attempt1.review.json",
+      "reviewSha256": "974207457b92ac7f090edf40bf5a1a2e553c41ea268063d52212f3ea5c5dd353"
+    },
+    {
+      "sourceKey": "full-quick-attack-ground-end-sample10-source10",
+      "nativeSample": 10,
+      "sourceReferenceSha256": "056ea4de3b630a42382d86dc3bd0c5737668cb163fca78d556669b3e5384eb62",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-specials-batch018-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "356e7afa8ec8f02d66f3398e00518683cd3a1b63df1611bc9bded9cfa65a9cae",
+      "atlasCell": 3,
+      "cellOffset": [
+        1024,
+        1024
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-specials-batch018-bounded-source0-attempt1.review.json",
+      "reviewSha256": "974207457b92ac7f090edf40bf5a1a2e553c41ea268063d52212f3ea5c5dd353"
+    },
+    {
+      "sourceKey": "full-quick-attack-ground-end-sample25-source25",
+      "nativeSample": 25,
+      "sourceReferenceSha256": "95d001d5c720f6809f10f5b26e97fe19e9c6fadbd933f37f13ab2d99cc2ab533",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-specials-batch019-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "025f23dfda295a37bd2bec4a884a0b48217b606fca064623be33b944e57f27c0",
+      "atlasCell": 0,
+      "cellOffset": [
+        0,
+        0
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-specials-batch019-bounded-source0-attempt1.review.json",
+      "reviewSha256": "98ce0c652d08d241681c803441006579e23defe59baedefa0d2506c0a870cc64"
+    },
+    {
+      "sourceKey": "full-quick-attack-ground-end-sample40-source40",
+      "nativeSample": 40,
+      "sourceReferenceSha256": "0c0948682e721b31990cc66033f081b3a8de57f72c79d05a257e97b5fa9082ed",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-specials-batch019-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "025f23dfda295a37bd2bec4a884a0b48217b606fca064623be33b944e57f27c0",
+      "atlasCell": 1,
+      "cellOffset": [
+        1024,
+        0
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-specials-batch019-bounded-source0-attempt1.review.json",
+      "reviewSha256": "98ce0c652d08d241681c803441006579e23defe59baedefa0d2506c0a870cc64"
+    },
+    {
+      "sourceKey": "full-quick-attack-ground-end-sample50-source50",
+      "nativeSample": 50,
+      "sourceReferenceSha256": "a05f8b76cefe67aa5a17d4bd700b522827500fc08a549f8dfa03a319e3a0dba7",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-specials-batch019-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "025f23dfda295a37bd2bec4a884a0b48217b606fca064623be33b944e57f27c0",
+      "atlasCell": 2,
+      "cellOffset": [
+        0,
+        1024
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-specials-batch019-bounded-source0-attempt1.review.json",
+      "reviewSha256": "98ce0c652d08d241681c803441006579e23defe59baedefa0d2506c0a870cc64"
+    }
+  ],
+  "galleries": {
+    "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/up_special_end-cells-1.png": "3f9ab084958322e93f05fab7d93c22059e02b365fd10d8bc3052d3b9c5406657",
+    "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/up_special_end-cells-2.png": "27f7824d4787dc42182f285bfd6bbcdc69e3bb2c53bc2be2e2a0684c5b8c1f3b"
+  },
+  "limits": [
+    "Actual packed-cell inspection required before aggregate registration.",
+    "Authored beta presentation windows do not establish native status rate parity.",
+    "Actual running-game qualification remains separate."
+  ],
+  "packedVisualReview": {
+    "reviewer": "pikachu_art_motion",
+    "state": "actual_saved_packed_cells_reviewed",
+    "inspectedGalleries": {
+      "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/up_special_end-cells-1.png": "3f9ab084958322e93f05fab7d93c22059e02b365fd10d8bc3052d3b9c5406657",
+      "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/up_special_end-cells-2.png": "27f7824d4787dc42182f285bfd6bbcdc69e3bb2c53bc2be2e2a0684c5b8c1f3b"
+    },
+    "observations": [
+      "Actually inspected every saved packed cell in light/dark galleries. Ground ending0 suspended head-down right,10 curl crouch,25 low crouch/edge-on tail,40 crouch recovery,50 upright right settle.40/50 retained source-only beyond33 ending.",
+      "Canonical source scale/root/occluded limbs and protected red cheeks retained. No detached tail, duplicated anatomy or FX. Rough isolated body acceptance only; actual runtime phase/rotation/floor checks remain pending."
+    ]
+  },
+  "runtimeEvidence": {
+    "reviewer": "pikachu_integration",
+    "receipt": "docs/review/2026-10-06/pikachu-character/integration/quick-bodies-contact-fixed/visual-review.json",
+    "receiptSha256": "40646007df971e79e5b249e6ed74bd9329492aee2fc86956c639dd776998a171",
+    "bundle": "http://127.0.0.1:4231/platform-fighter/assets/index-XKDonEXs.js",
+    "bundleSha256": "b045101dde696ce5221ed9a3b0c52940199d303a21cbe64991dc5f9988e8699c",
+    "state": "actual_match_numeric_contact_pass_visual_gap_remaining",
+    "scope": "Integration actually inspected57 body images plus4 real tiny-receiver contact images against immutable XKDonEXs97/644. Both-facing source startup/canonical warp and ground/air END body windows, source pivot rotation and twelve receiving capsules observed; current-owner Neck contact hits and stale55px-behind contact rejects. Grounded END25 remains conditional and unobserved.",
+    "findings": [
+      "Both-facing sourced startup, canonical warp and ground/air END body windows actually visible; mirrored authored pose roots and distinct source joint pivot match measured sprite positions/rotation.",
+      "Four airborne one/two-burst69/83 timelines, source startup tiny upward acceleration, AIR END reset/phase gravity/cap/control and6 real stage contacts pass numeric assertions.",
+      "Both-facing current post-physics source Neck endpoints damage the real tiny8x8 receiver2.1 after shared fresh1.05; stale55px-behind points damage0.",
+      "All12 reviewed receiving capsules and source Neck contact use the same rotation about native body-relative pivot. Ground-entry horizontal body renders observed until actual floor departure."
+    ],
+    "visualFailures": [
+      {
+        "kind": "hud_occlusion",
+        "screenshots": [
+          "quick-1-two-30.png",
+          "quick-1-two-33.png",
+          "quick-1-two-43.png"
+        ],
+        "finding": "Center STOCK BATTLE/LOCAL BATTLE header overlays head/body during right-facing second burst and early recovery. Requires presentation fix and fresh image acceptance."
+      }
+    ],
+    "limits": [
+      "Numeric source body/contact acceptance does not resolve native common groundEND STOP cap/brake or CTRL input algorithms; grounded52/66 remains conditional on actual situation.",
+      "Blue round trail/charge rings remain authored presentation, not qualified native electric effect parity.",
+      "Some source receiving radii overhang the2D silhouette; sparse native pose fits do not prove exact continuous3D collision parity.",
+      "Injected actual InputResolver action/vector routes do not replace keyboard or human controller feel acceptance.",
+      "Grounded END25 body drawing not independently observed; floor departure changes situation. No whole-special visual completion claim."
+    ],
+    "immutableAssetSnapshot": {
+      "sheets": 97,
+      "cells": 644
+    },
+    "precedingFailureRecords": [
+      "integration/quick-bodies-initial/visual-review.json"
+    ]
+  }
+}

@@ -695,8 +695,12 @@ describe('buildCharacterInputFromController — gameplay translator', () => {
     expect(input.special).toBe(true);
     expect(input.shield).toBe(true);
     expect(input.grab).toBe(true);
-    // Shield + right deflection past threshold → dodge fires through
-    // the default resolver chord — the eighth action category.
-    expect(input.dodge).toBe(true);
+    // Held Shield+Special is the shield-shift modifier, not a dodge chord.
+    expect(input.dodge).toBe(false);
+    // Shield + right deflection past threshold (special released) → dodge
+    // fires through the default resolver chord — the eighth action category.
+    keyboard.release(KEY_CODE.NUMPAD_1);
+    controller.update(1);
+    expect(buildCharacterInputFromController(controller).dodge).toBe(true);
   });
 });

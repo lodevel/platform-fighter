@@ -700,7 +700,7 @@ describe('PlaybackSimulationStateManager — determinism', () => {
 // ---------------------------------------------------------------------------
 
 function makePlayerSlots(count: number): PlayerSlot[] {
-  const ids = ['wolf', 'cat', 'owl', 'bear'] as const;
+  const ids = ['donkeykong', 'pikachu', 'donkeykong', 'pikachu'] as const;
   return Array.from({ length: count }, (_, i) => ({
     index: (i + 1) as PlayerSlot['index'],
     characterId: ids[i]!,

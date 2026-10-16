@@ -156,7 +156,7 @@ export const STATE_CHECKSUM_HEX_LENGTH = CHECKSUM_HEX_LENGTH;
  * Picked so they cannot appear inside any of the field values we emit:
  *
  *   • Player slots are joined with `|` — `characterId` is a closed
- *     enum (`'wolf' | 'cat' | 'owl' | 'bear'`) that never contains
+ *     enum (`CharacterId`) that never contains
  *     `|`.
  *   • Fields inside a slot are joined with `;` — none of our numeric
  *     formats produce `;`.
@@ -205,7 +205,7 @@ const HEADER_SEPARATOR = '#';
 export interface StateFighterSnapshot {
   /** Player slot index (0..3). */
   readonly playerIndex: number;
-  /** Character roster id (`'wolf'` etc.). */
+  /** Character roster id (`'donkeykong'` etc.). */
   readonly characterId: string;
   /** Palette index — included because it discriminates 8 distinct skin tones (purely visual but stable per match). */
   readonly paletteIndex: number;

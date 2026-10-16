@@ -1,0 +1,47 @@
+
+> platform-fighter@0.1.0 test
+> vitest run port/src/fighters/appearance.check.ts port/src/engine/presentation/submission.check.ts port/src/match/matchView.check.ts
+
+
+ RUN  v1.6.1 /home/lombet/Workspace/platform-fighter
+
+ ✓ port/src/engine/presentation/submission.check.ts  (4 tests) 10ms
+stderr | new ImageBitmapLoader (file:/home/lombet/Workspace/platform-fighter/port/node_modules/three/build/three.module.js:48198:12)
+THREE.ImageBitmapLoader: createImageBitmap() not supported.
+
+stderr | new ImageBitmapLoader (file:/home/lombet/Workspace/platform-fighter/port/node_modules/three/build/three.module.js:48198:12)
+THREE.ImageBitmapLoader: createImageBitmap() not supported.
+
+ ✓ port/src/match/matchView.check.ts  (4 tests) 13ms
+stderr | new ImageBitmapLoader (file:/home/lombet/Workspace/platform-fighter/port/node_modules/three/build/three.module.js:48198:12)
+THREE.ImageBitmapLoader: createImageBitmap() not supported.
+
+stderr | new ImageBitmapLoader (file:/home/lombet/Workspace/platform-fighter/port/node_modules/three/build/three.module.js:48198:12)
+THREE.ImageBitmapLoader: createImageBitmap() not supported.
+
+stderr | port/src/fighters/appearance.check.ts > appearance capability boundary > replaces stored art with real geometry, mixes both capabilities, then returns to the original drawing and attachment
+THREE.ImageBitmapLoader: createImageBitmap() not supported.
+
+stderr | port/src/fighters/appearance.check.ts > appearance capability boundary > holds computed motion on freeze/hitlag and restores deterministically while keeping screen pass explicit
+THREE.ImageBitmapLoader: createImageBitmap() not supported.
+
+stderr | port/src/fighters/appearance.check.ts > appearance capability boundary > keeps authoritative world attachments fixed through facing, scale and rotation
+THREE.ImageBitmapLoader: createImageBitmap() not supported.
+
+stderr | port/src/fighters/appearance.check.ts > appearance capability boundary > keeps the hidden legacy selector on authoritative freeze/hitlag ticks across route transitions
+THREE.ImageBitmapLoader: createImageBitmap() not supported.
+
+stderr | port/src/fighters/appearance.check.ts > appearance capability boundary > cancels stale preparation on replacement and disposes owned geometry exactly once without touching shared textures
+THREE.ImageBitmapLoader: createImageBitmap() not supported.
+
+stderr | port/src/fighters/appearance.check.ts > appearance capability boundary > validates backend support before preparation and includes visual revision/capability in preview identities
+THREE.ImageBitmapLoader: createImageBitmap() not supported.
+THREE.ImageBitmapLoader: createImageBitmap() not supported.
+
+ ✓ port/src/fighters/appearance.check.ts  (9 tests) 43ms
+
+ Test Files  3 passed (3)
+      Tests  17 passed (17)
+   Start at  11:00:03
+   Duration  5.76s (transform 4.60s, setup 0ms, collect 8.12s, tests 66ms, environment 0ms, prepare 416ms)
+

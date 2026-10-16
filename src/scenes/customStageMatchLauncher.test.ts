@@ -74,7 +74,7 @@ class InMemoryStorage implements StorageLike {
 function makePlayer(overrides: Partial<PlayerSlot> = {}): PlayerSlot {
   return {
     index: 1,
-    characterId: 'wolf',
+    characterId: 'donkeykong',
     paletteIndex: 0,
     inputType: 'keyboard_p1',
     ...overrides,
@@ -86,7 +86,7 @@ function makeMatchConfig(overrides: Partial<MatchConfig> = {}): MatchConfig {
     mode: 'stocks',
     stockCount: 3,
     stageId: 'placeholder-id',
-    players: [makePlayer({ index: 1 }), makePlayer({ index: 2, characterId: 'cat', paletteIndex: 1 })],
+    players: [makePlayer({ index: 1 }), makePlayer({ index: 2, characterId: 'pikachu', paletteIndex: 1 })],
     rngSeed: 1234,
     ...overrides,
   } as MatchConfig;

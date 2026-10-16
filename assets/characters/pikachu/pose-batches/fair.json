@@ -1,0 +1,462 @@
+{
+  "state": "packed_output_visual_and_runtime_review_required",
+  "scope": "Reviewed original rough attack drawings; runtime registration qualification separate",
+  "coordinateContract": {
+    "canonicalCanvas": [
+      2048,
+      2112
+    ],
+    "canonicalRoot": [
+      1024,
+      1664
+    ],
+    "frameWidth": 512,
+    "frameHeight": 528,
+    "root": [
+      256,
+      416
+    ],
+    "scaleToWorld": 0.4666666666666667,
+    "bodyCentreFromRoot": [
+      0,
+      -25
+    ]
+  },
+  "approvalSha256": "7d4ea8b6fcac5ce4856c9cec2efa51e07c67ced8ff6decfb4be4ba8bb5deacc2",
+  "sources": [
+    {
+      "file": "docs/review/2026-10-06/pikachu-character/art/fair-startup-source0-attempt1-cutout.png",
+      "sha256": "b8fec4a60d972ed09408fd1b307598da3745c779fae8caabcf5f99323979af10",
+      "translation": [
+        256,
+        784
+      ],
+      "scale": 0.25,
+      "crop": null
+    },
+    {
+      "file": "docs/review/2026-10-06/pikachu-character/art/fair-turn-source5-attempt1-cutout.png",
+      "sha256": "a1aa438cf0bb1bb83382f38a1c317fb2b65d9d493be087552fca7733315d31c5",
+      "translation": [
+        256,
+        784
+      ],
+      "scale": 0.25,
+      "crop": null
+    },
+    {
+      "file": "docs/review/2026-10-06/pikachu-character/art/fair-dive-source9-attempt1-cutout.png",
+      "sha256": "971ff907c1605ae6c4e750cca06a901b6bd8f1e380003a19f3cbcbe71e58fde2",
+      "translation": [
+        256,
+        784
+      ],
+      "scale": 0.25,
+      "crop": null
+    },
+    {
+      "file": "docs/review/2026-10-06/pikachu-character/art/fair-roll-back-source10-attempt1-cutout-padded1280.png",
+      "sha256": "f08a1674afef430fd99e4c906bde659ec2658404767970b5126d208a8f31fd8d",
+      "translation": [
+        256,
+        784
+      ],
+      "scale": 0.25,
+      "crop": null
+    },
+    {
+      "file": "docs/review/2026-10-06/pikachu-character/art/fair-roll-side-source12-attempt1-cutout.png",
+      "sha256": "ae55536ee56e70181463550408405459595af3e90e2507439cbc89411417fb0a",
+      "translation": [
+        256,
+        784
+      ],
+      "scale": 0.25,
+      "crop": null
+    },
+    {
+      "file": "docs/review/2026-10-06/pikachu-character/art/fair-roll-front-source14-attempt1-cutout.png",
+      "sha256": "8d810cd20a9048e9679842b7abd7fd28413a2a2031ec1f20a0999321acfd120a",
+      "translation": [
+        256,
+        784
+      ],
+      "scale": 0.25,
+      "crop": null
+    },
+    {
+      "file": "docs/review/2026-10-06/pikachu-character/art/fair-roll-inverted-source16-attempt1-cutout.png",
+      "sha256": "869c72c91354f8960aaf289546f9f47c5d8fd6b18574368ba7836174132a897e",
+      "translation": [
+        256,
+        784
+      ],
+      "scale": 0.25,
+      "crop": null
+    },
+    {
+      "file": "docs/review/2026-10-06/pikachu-character/art/fair-second-back-source18-attempt1-cutout.png",
+      "sha256": "843363de00349d4cc3c4bc308d00d2433247d574a3abb3732ca758d8e4fa40cb",
+      "translation": [
+        256,
+        784
+      ],
+      "scale": 0.25,
+      "crop": null
+    },
+    {
+      "file": "docs/review/2026-10-06/pikachu-character/art/fair-second-side-source20-attempt1-cutout.png",
+      "sha256": "5234e59aa764386c0178e003dc494bcf4f34649a2be74618ca29b5c188898b4f",
+      "translation": [
+        256,
+        784
+      ],
+      "scale": 0.25,
+      "crop": null
+    },
+    {
+      "file": "docs/review/2026-10-06/pikachu-character/art/fair-second-front-source22-attempt1-cutout.png",
+      "sha256": "3a5c8c5e910326fd91142e5f7e3d7524162d1adf83d9d40c7bbf666f8f75409e",
+      "translation": [
+        256,
+        784
+      ],
+      "scale": 0.25,
+      "crop": null
+    },
+    {
+      "file": "docs/review/2026-10-06/pikachu-character/art/fair-link-close-source24-attempt1-cutout.png",
+      "sha256": "7a02202f60fe0771f07a699c12c22e5458664588d5e2c316f86d702f2934f9fe",
+      "translation": [
+        256,
+        784
+      ],
+      "scale": 0.25,
+      "crop": null
+    },
+    {
+      "file": "docs/review/2026-10-06/pikachu-character/art/fair-clear-source25-attempt1-cutout.png",
+      "sha256": "14ee9a563e4ffa35236d678595635afad90cd5e75c13568c002d023c96511cf8",
+      "translation": [
+        256,
+        784
+      ],
+      "scale": 0.25,
+      "crop": null
+    },
+    {
+      "file": "docs/review/2026-10-06/pikachu-character/art/fair-finisher-source26-attempt1-cutout.png",
+      "sha256": "eac459a3897963af8c1f097812baec741cdf50b1953e72ca22e29e5686097b92",
+      "translation": [
+        256,
+        784
+      ],
+      "scale": 0.25,
+      "crop": null
+    },
+    {
+      "file": "docs/review/2026-10-06/pikachu-character/art/fair-clear-recovery-source27-attempt1-cutout.png",
+      "sha256": "aaae2f91eae4b073b06363aa1baf54fb072ec3dd51cfef875b6860324f5a7022",
+      "translation": [
+        256,
+        784
+      ],
+      "scale": 0.25,
+      "crop": null
+    },
+    {
+      "file": "docs/review/2026-10-06/pikachu-character/art/fair-recovery-source31-attempt1-cutout.png",
+      "sha256": "09f09afca07ccb87ef1b7ae9ff67ff4df2683c603db86d0f9535cae97b500470",
+      "translation": [
+        256,
+        784
+      ],
+      "scale": 0.25,
+      "crop": null
+    },
+    {
+      "file": "docs/review/2026-10-06/pikachu-character/art/fair-return-source40-attempt1-cutout.png",
+      "sha256": "a56d855fb25704a4a201d1d372397bdb218de91b442e3ed705612a31caa3e705",
+      "translation": [
+        256,
+        784
+      ],
+      "scale": 0.25,
+      "crop": null
+    }
+  ],
+  "animations": {
+    "fair": {
+      "strip": "animations/fair.png",
+      "frameCount": 16,
+      "sha256": "722224802fa6538ad7b169771ee2ab166ef92e34ee777f5b9489b000ad292cc5",
+      "frameWindows": [
+        {
+          "pose": "startup",
+          "sourceIndex": 0,
+          "startFrame": 0,
+          "endFrame": 4,
+          "artFrameIndex": 0
+        },
+        {
+          "pose": "turn",
+          "sourceIndex": 5,
+          "startFrame": 4,
+          "endFrame": 8,
+          "artFrameIndex": 1
+        },
+        {
+          "pose": "dive",
+          "sourceIndex": 9,
+          "startFrame": 8,
+          "endFrame": 10,
+          "artFrameIndex": 2
+        },
+        {
+          "pose": "back",
+          "sourceIndex": 10,
+          "startFrame": 10,
+          "endFrame": 12,
+          "artFrameIndex": 3
+        },
+        {
+          "pose": "side",
+          "sourceIndex": 12,
+          "startFrame": 12,
+          "endFrame": 14,
+          "artFrameIndex": 4
+        },
+        {
+          "pose": "front",
+          "sourceIndex": 14,
+          "startFrame": 14,
+          "endFrame": 16,
+          "artFrameIndex": 5
+        },
+        {
+          "pose": "inverted",
+          "sourceIndex": 16,
+          "startFrame": 16,
+          "endFrame": 18,
+          "artFrameIndex": 6
+        },
+        {
+          "pose": "second-back",
+          "sourceIndex": 18,
+          "startFrame": 18,
+          "endFrame": 20,
+          "artFrameIndex": 7
+        },
+        {
+          "pose": "second-side",
+          "sourceIndex": 20,
+          "startFrame": 20,
+          "endFrame": 22,
+          "artFrameIndex": 8
+        },
+        {
+          "pose": "second-front",
+          "sourceIndex": 22,
+          "startFrame": 22,
+          "endFrame": 24,
+          "artFrameIndex": 9
+        },
+        {
+          "pose": "link-close",
+          "sourceIndex": 24,
+          "startFrame": 24,
+          "endFrame": 25,
+          "artFrameIndex": 10
+        },
+        {
+          "pose": "clear",
+          "sourceIndex": 25,
+          "startFrame": 25,
+          "endFrame": 26,
+          "artFrameIndex": 11
+        },
+        {
+          "pose": "finisher",
+          "sourceIndex": 26,
+          "startFrame": 26,
+          "endFrame": 27,
+          "artFrameIndex": 12
+        },
+        {
+          "pose": "clear-recovery",
+          "sourceIndex": 27,
+          "startFrame": 27,
+          "endFrame": 31,
+          "artFrameIndex": 13
+        },
+        {
+          "pose": "recovery",
+          "sourceIndex": 31,
+          "startFrame": 31,
+          "endFrame": 36,
+          "artFrameIndex": 14
+        },
+        {
+          "pose": "return",
+          "sourceIndex": 40,
+          "startFrame": 36,
+          "endFrame": 41,
+          "artFrameIndex": 15
+        }
+      ],
+      "columns": 8,
+      "rows": 2,
+      "atlasRepack": {
+        "sheet": "fair",
+        "previousLayout": "docs/review/2026-10-06/pikachu-character/art/texture-atlas-repack/fair-reviewed-linear.png",
+        "previousSha256": "2dd25a229e14634610de59b547aca3533d39c6b7947468c0c692c311c66e9533",
+        "sha256": "722224802fa6538ad7b169771ee2ab166ef92e34ee777f5b9489b000ad292cc5",
+        "dimensions": [
+          4096,
+          1056
+        ],
+        "columns": 8,
+        "rows": 2,
+        "cellPixelsUnchanged": true,
+        "cells": [
+          {
+            "index": 0,
+            "cell": [
+              0,
+              0
+            ],
+            "rgbaSha256": "1ed468b8490d9782551c38c59c0a5094bd68a88e080f17254116bb71c210999e"
+          },
+          {
+            "index": 1,
+            "cell": [
+              1,
+              0
+            ],
+            "rgbaSha256": "d9e23ebcc88507ef1d24f16e62237ef2b3c39772cb8b96452d78c1c8759f61eb"
+          },
+          {
+            "index": 2,
+            "cell": [
+              2,
+              0
+            ],
+            "rgbaSha256": "bcdf62fbef2eacb676e2822e45bf5418c02fec197b90557943b87f1d3d3829d8"
+          },
+          {
+            "index": 3,
+            "cell": [
+              3,
+              0
+            ],
+            "rgbaSha256": "ec787cdf32e4add5584b2e5743bacd243504309c0c586d2a84ef627849fbc59c"
+          },
+          {
+            "index": 4,
+            "cell": [
+              4,
+              0
+            ],
+            "rgbaSha256": "25244d3de11a5463f130d62126565e0432da801875a64df3a201d026d47709b8"
+          },
+          {
+            "index": 5,
+            "cell": [
+              5,
+              0
+            ],
+            "rgbaSha256": "804f3db73aecdad731b0294bfea1436b9e534c293fd51984b213d061abac9ae8"
+          },
+          {
+            "index": 6,
+            "cell": [
+              6,
+              0
+            ],
+            "rgbaSha256": "097743f51b456602003799d371653bd8c07e5b74350a642b8f632c4d8ac50372"
+          },
+          {
+            "index": 7,
+            "cell": [
+              7,
+              0
+            ],
+            "rgbaSha256": "4e5875771bcc1cd16bd8d011cee2c2d8c5c5e2ccb6d17b785a6999b2e2601f64"
+          },
+          {
+            "index": 8,
+            "cell": [
+              0,
+              1
+            ],
+            "rgbaSha256": "369d972b5dfbbd40422f32371fe13b9743eb94b38d721a54966d3b554f615fc6"
+          },
+          {
+            "index": 9,
+            "cell": [
+              1,
+              1
+            ],
+            "rgbaSha256": "53c35a4640ecd985ec0ec02709ae4278fd0efa77e3d69cc13d56134d5b4f32eb"
+          },
+          {
+            "index": 10,
+            "cell": [
+              2,
+              1
+            ],
+            "rgbaSha256": "c1eda64074471f31bfd5079cbdb61b5715567718369a352dd82432514d447210"
+          },
+          {
+            "index": 11,
+            "cell": [
+              3,
+              1
+            ],
+            "rgbaSha256": "18a4f036694f9e6ebb79c5908c030c0837a07a94b663a209cc98efee0ce34697"
+          },
+          {
+            "index": 12,
+            "cell": [
+              4,
+              1
+            ],
+            "rgbaSha256": "c8bd27c07a8510679e3da4bd5fc4b4ec00968bbe0f9a00cfbd490130213ccb9f"
+          },
+          {
+            "index": 13,
+            "cell": [
+              5,
+              1
+            ],
+            "rgbaSha256": "de76d164e1c136f7a305277ab46ff28a27cdb14d9cf7a98f9962b454e8104f35"
+          },
+          {
+            "index": 14,
+            "cell": [
+              6,
+              1
+            ],
+            "rgbaSha256": "a552a83c125f4191de24ff19fdf031dfd91e45505077eeea7bc62393d0c86009"
+          },
+          {
+            "index": 15,
+            "cell": [
+              7,
+              1
+            ],
+            "rgbaSha256": "13ea85dec902ee1f0cf96f15a6abc867899f0668cd17cbbc3db57998b1b0d99f"
+          }
+        ],
+        "layoutReview": "docs/review/2026-10-06/pikachu-character/art/texture-atlas-repack/fair-layout-review.png",
+        "layoutReviewSha256": "512f2d8124b7cbaf3d2cdce810f759c2f9680306a0b6764a884c0678aa3e8d37"
+      }
+    }
+  },
+  "galleries": {
+    "docs/review/2026-10-06/pikachu-character/fair-motion/packed-preparation/fair-cells-1.png": "b415d15ee0e0af343ec2610f29052882e3aea4a1efb774df0008d84c3d8b8391",
+    "docs/review/2026-10-06/pikachu-character/fair-motion/packed-preparation/fair-cells-2.png": "0776d0265206c79faf047ddcddbfe2bd44d998f944cb2610dcb2775237c9686a",
+    "docs/review/2026-10-06/pikachu-character/fair-motion/packed-preparation/fair-cells-3.png": "df8e7385131f742cb4154e6c2509cb07b07257cffcc20e712b5bd1674d95d310",
+    "docs/review/2026-10-06/pikachu-character/fair-motion/packed-preparation/fair-cells-4.png": "ed4b3c723e7723f5f60aae4540f00de3bf713a7ae6c0f477ba465c58db41d919"
+  }
+}

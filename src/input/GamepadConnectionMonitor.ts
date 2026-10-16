@@ -209,7 +209,7 @@ export function isPlayerBoundToGamepad(
   for (const action in map) {
     /* istanbul ignore next — `for...in` over a frozen Record only iterates own enumerable keys. */
     if (!Object.prototype.hasOwnProperty.call(map, action)) continue;
-    const list = map[action as keyof typeof map];
+    const list = (map[action as keyof typeof map] ?? []);
     for (let i = 0; i < list.length; i += 1) {
       const binding: InputBinding | undefined = list[i];
       if (binding === undefined) continue;

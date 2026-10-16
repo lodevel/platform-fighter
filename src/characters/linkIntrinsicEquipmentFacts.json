@@ -1,0 +1,586 @@
+{
+  "special_n_start": {
+    "source": {
+      "function": "expression_specialnstart",
+      "path": "sources/native/scripts/SpecialNStart.txt",
+      "sha256": "f4b75fb8739cd66e52be6090e13060810999cc620901580c413cfbb445c3cd78"
+    },
+    "events": [
+      {
+        "sourceNativeMotionFrame": 0,
+        "changes": {
+          "heldItemVisible": false
+        },
+        "sourceLine": 34,
+        "raw": "ItemModule::set_have_item_visibility(agent.module_accessor, false, 0)"
+      },
+      {
+        "sourceNativeMotionFrame": 0,
+        "changes": {
+          "sword": "back"
+        },
+        "sourceLine": 36,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"sword\") as i64, hash40(\"sword_back\") as i64)"
+      },
+      {
+        "sourceNativeMotionFrame": 0,
+        "changes": {
+          "shield": "back"
+        },
+        "sourceLine": 37,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_back\") as i64)"
+      },
+      {
+        "sourceNativeMotionFrame": 0,
+        "changes": {
+          "bow": "have"
+        },
+        "sourceLine": 38,
+        "raw": "ArticleModule::change_status_exist(agent.module_accessor, *FIGHTER_LINK_GENERATE_ARTICLE_BOW, *WN_LINK_BOW_STATUS_KIND_HAVE)"
+      }
+    ],
+    "nativeNaturalEnd": 53.0,
+    "nativeCancelMetadata": "0"
+  },
+  "special_n": {
+    "source": {
+      "function": "expression_specialn",
+      "path": "sources/native/scripts/SpecialN.txt",
+      "sha256": "18d0bced31d0ae0cb5713918daa70d4b109c07344d3cb476bb01f7799cf98d61"
+    },
+    "events": [
+      {
+        "sourceNativeMotionFrame": 0,
+        "changes": {
+          "heldItemVisible": false
+        },
+        "sourceLine": 27,
+        "raw": "ItemModule::set_have_item_visibility(agent.module_accessor, false, 0)"
+      }
+    ],
+    "nativeNaturalEnd": 40.0,
+    "nativeCancelMetadata": "0"
+  },
+  "special_n_end": {
+    "source": {
+      "function": "expression_specialnend",
+      "path": "sources/native/scripts/SpecialNEnd.txt",
+      "sha256": "b4fada0b0a064fe6ff0924eaa2b2b4ba33f5091125d6b1557cd184db7714dbe6"
+    },
+    "events": [
+      {
+        "sourceNativeMotionFrame": 0,
+        "changes": {
+          "heldItemVisible": false
+        },
+        "sourceLine": 24,
+        "raw": "ItemModule::set_have_item_visibility(agent.module_accessor, false, 0)"
+      },
+      {
+        "sourceNativeMotionFrame": 0,
+        "changes": {
+          "sword": "back"
+        },
+        "sourceLine": 25,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"sword\") as i64, hash40(\"sword_back\") as i64)"
+      },
+      {
+        "sourceNativeMotionFrame": 0,
+        "changes": {
+          "shield": "back"
+        },
+        "sourceLine": 26,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_back\") as i64)"
+      },
+      {
+        "sourceNativeMotionFrame": 22.0,
+        "changes": {
+          "sword": "normal"
+        },
+        "sourceLine": 43,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"sword\") as i64, hash40(\"sword_normal\") as i64)"
+      },
+      {
+        "sourceNativeMotionFrame": 22.0,
+        "changes": {
+          "bow": "back"
+        },
+        "sourceLine": 44,
+        "raw": "ArticleModule::change_status_exist(agent.module_accessor, *FIGHTER_LINK_GENERATE_ARTICLE_BOW, *WN_LINK_BOW_STATUS_KIND_BACK)"
+      },
+      {
+        "sourceNativeMotionFrame": 23.0,
+        "changes": {
+          "shield": "normal"
+        },
+        "sourceLine": 48,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_normal\") as i64)"
+      }
+    ],
+    "nativeNaturalEnd": 51.0,
+    "nativeCancelMetadata": "30"
+  },
+  "special_air_n_start": {
+    "source": {
+      "function": "expression_specialairnstart",
+      "path": "sources/native/scripts/SpecialAirNStart.txt",
+      "sha256": "9b3e2c5934e0cfd227bd3c18b5297650b78f790e09e6eb44b6a36d32558fd9f7"
+    },
+    "events": [
+      {
+        "sourceNativeMotionFrame": 0,
+        "changes": {
+          "heldItemVisible": false
+        },
+        "sourceLine": 22,
+        "raw": "ItemModule::set_have_item_visibility(agent.module_accessor, false, 0)"
+      },
+      {
+        "sourceNativeMotionFrame": 0,
+        "changes": {
+          "sword": "back"
+        },
+        "sourceLine": 24,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"sword\") as i64, hash40(\"sword_back\") as i64)"
+      },
+      {
+        "sourceNativeMotionFrame": 0,
+        "changes": {
+          "shield": "back"
+        },
+        "sourceLine": 25,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_back\") as i64)"
+      },
+      {
+        "sourceNativeMotionFrame": 0,
+        "changes": {
+          "bow": "have"
+        },
+        "sourceLine": 26,
+        "raw": "ArticleModule::change_status_exist(agent.module_accessor, *FIGHTER_LINK_GENERATE_ARTICLE_BOW, *WN_LINK_BOW_STATUS_KIND_HAVE)"
+      }
+    ],
+    "nativeNaturalEnd": 53.0,
+    "nativeCancelMetadata": "0"
+  },
+  "special_air_n": {
+    "source": {
+      "function": "expression_specialairn",
+      "path": "sources/native/scripts/SpecialAirN.txt",
+      "sha256": "04f3365b748e552c5c28c66566493d4157122e10872de5d95785ebb20ce9ffb3"
+    },
+    "events": [
+      {
+        "sourceNativeMotionFrame": 0,
+        "changes": {
+          "heldItemVisible": false
+        },
+        "sourceLine": 19,
+        "raw": "ItemModule::set_have_item_visibility(agent.module_accessor, false, 0)"
+      }
+    ],
+    "nativeNaturalEnd": 40.0,
+    "nativeCancelMetadata": "0"
+  },
+  "special_air_n_end": {
+    "source": {
+      "function": "expression_specialairnend",
+      "path": "sources/native/scripts/SpecialAirNEnd.txt",
+      "sha256": "deaa25a2d584ccb984b160b42a8dcdc7898b470e84e1c3ebaeecafaa19124fc0"
+    },
+    "events": [
+      {
+        "sourceNativeMotionFrame": 0,
+        "changes": {
+          "heldItemVisible": false
+        },
+        "sourceLine": 20,
+        "raw": "ItemModule::set_have_item_visibility(agent.module_accessor, false, 0)"
+      },
+      {
+        "sourceNativeMotionFrame": 0,
+        "changes": {
+          "sword": "back"
+        },
+        "sourceLine": 21,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"sword\") as i64, hash40(\"sword_back\") as i64)"
+      },
+      {
+        "sourceNativeMotionFrame": 0,
+        "changes": {
+          "shield": "back"
+        },
+        "sourceLine": 22,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_back\") as i64)"
+      },
+      {
+        "sourceNativeMotionFrame": 22.0,
+        "changes": {
+          "sword": "normal"
+        },
+        "sourceLine": 39,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"sword\") as i64, hash40(\"sword_normal\") as i64)"
+      },
+      {
+        "sourceNativeMotionFrame": 22.0,
+        "changes": {
+          "bow": "back"
+        },
+        "sourceLine": 40,
+        "raw": "ArticleModule::change_status_exist(agent.module_accessor, *FIGHTER_LINK_GENERATE_ARTICLE_BOW, *WN_LINK_BOW_STATUS_KIND_BACK)"
+      },
+      {
+        "sourceNativeMotionFrame": 23.0,
+        "changes": {
+          "shield": "normal"
+        },
+        "sourceLine": 44,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_normal\") as i64)"
+      }
+    ],
+    "nativeNaturalEnd": 51.0,
+    "nativeCancelMetadata": "30"
+  },
+  "special_s1": {
+    "source": {
+      "function": "expression_specials1",
+      "path": "sources/native/scripts/SpecialS1.txt",
+      "sha256": "23488b17aeff4ac7a3ab4d6afa0067890be66fa7ec4955075aff21efd005a3b4"
+    },
+    "events": [
+      {
+        "sourceNativeMotionFrame": 3.0,
+        "changes": {
+          "sword": "back"
+        },
+        "sourceLine": 40,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"sword\") as i64, hash40(\"sword_back\") as i64)"
+      },
+      {
+        "sourceNativeMotionFrame": 44.0,
+        "changes": {
+          "sword": "normal"
+        },
+        "sourceLine": 48,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"sword\") as i64, hash40(\"sword_normal\") as i64)"
+      }
+    ],
+    "nativeNaturalEnd": 63.0,
+    "nativeCancelMetadata": "46"
+  },
+  "special_s1_blank": {
+    "source": {
+      "function": "expression_specials1blank",
+      "path": "sources/native/scripts/SpecialS1Blank.txt",
+      "sha256": "2f5fe471ea1c9dcf89914e9da0a41c086ec140ab57ebb08faa2fc80677f20e78"
+    },
+    "events": [
+      {
+        "sourceNativeMotionFrame": 3.0,
+        "changes": {
+          "sword": "back"
+        },
+        "sourceLine": 14,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"sword\") as i64, hash40(\"sword_back\") as i64)"
+      },
+      {
+        "sourceNativeMotionFrame": 38.0,
+        "changes": {
+          "sword": "normal"
+        },
+        "sourceLine": 22,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"sword\") as i64, hash40(\"sword_normal\") as i64)"
+      }
+    ],
+    "nativeNaturalEnd": 63.0,
+    "nativeCancelMetadata": "60"
+  },
+  "special_s2": {
+    "source": {
+      "function": "expression_specials2",
+      "path": "sources/native/scripts/SpecialS2.txt",
+      "sha256": "2428a54e99954ef85b63c9aecfac5af4c35d460d2b491af1e4fd825680d5942f"
+    },
+    "events": [
+      {
+        "sourceNativeMotionFrame": 0,
+        "changes": {
+          "sword": "back"
+        },
+        "sourceLine": 26,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"sword\") as i64, hash40(\"sword_back\") as i64)"
+      },
+      {
+        "sourceNativeMotionFrame": 18.0,
+        "changes": {
+          "sword": "normal"
+        },
+        "sourceLine": 35,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"sword\") as i64, hash40(\"sword_normal\") as i64)"
+      }
+    ],
+    "nativeNaturalEnd": 31.0,
+    "nativeCancelMetadata": "10"
+  },
+  "special_air_s1": {
+    "source": {
+      "function": "expression_specialairs1",
+      "path": "sources/native/scripts/SpecialAirS1.txt",
+      "sha256": "84fc00591c926c0ca1778418375559a8ad98b7467f7f7168693868ae563033fa"
+    },
+    "events": [
+      {
+        "sourceNativeMotionFrame": 3.0,
+        "changes": {
+          "sword": "back"
+        },
+        "sourceLine": 36,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"sword\") as i64, hash40(\"sword_back\") as i64)"
+      },
+      {
+        "sourceNativeMotionFrame": 44.0,
+        "changes": {
+          "sword": "normal"
+        },
+        "sourceLine": 44,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"sword\") as i64, hash40(\"sword_normal\") as i64)"
+      }
+    ],
+    "nativeNaturalEnd": 63.0,
+    "nativeCancelMetadata": "46"
+  },
+  "special_air_s1_blank": {
+    "source": {
+      "function": "expression_specialairs1blank",
+      "path": "sources/native/scripts/SpecialAirS1Blank.txt",
+      "sha256": "87fbcedec78b1289a295be5cb23dcba3e7b946f966537a232801c22324433947"
+    },
+    "events": [
+      {
+        "sourceNativeMotionFrame": 3.0,
+        "changes": {
+          "sword": "back"
+        },
+        "sourceLine": 7,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"sword\") as i64, hash40(\"sword_back\") as i64)"
+      },
+      {
+        "sourceNativeMotionFrame": 38.0,
+        "changes": {
+          "sword": "normal"
+        },
+        "sourceLine": 15,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"sword\") as i64, hash40(\"sword_normal\") as i64)"
+      }
+    ],
+    "nativeNaturalEnd": 63.0,
+    "nativeCancelMetadata": "46"
+  },
+  "special_air_s2": {
+    "source": {
+      "function": "expression_specialairs2",
+      "path": "sources/native/scripts/SpecialAirS2.txt",
+      "sha256": "b6825aa17845809eab6b62541e3acc326f7d02896456b651d04b6508610200d2"
+    },
+    "events": [
+      {
+        "sourceNativeMotionFrame": 0,
+        "changes": {
+          "sword": "back"
+        },
+        "sourceLine": 26,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"sword\") as i64, hash40(\"sword_back\") as i64)"
+      },
+      {
+        "sourceNativeMotionFrame": 18.0,
+        "changes": {
+          "sword": "normal"
+        },
+        "sourceLine": 35,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"sword\") as i64, hash40(\"sword_normal\") as i64)"
+      }
+    ],
+    "nativeNaturalEnd": 31.0,
+    "nativeCancelMetadata": "10"
+  },
+  "special_hi_start": {
+    "source": {
+      "function": "expression_specialhistart",
+      "path": "sources/native/scripts/SpecialHiStart.txt",
+      "sha256": "d882323e4060ccaf949e79de163a4c4fc610089282d91e37a5cea1da3ef5c410"
+    },
+    "events": [],
+    "nativeNaturalEnd": 3.0,
+    "nativeCancelMetadata": "0"
+  },
+  "special_hi": {
+    "source": {
+      "function": "expression_specialhi",
+      "path": "sources/native/scripts/SpecialHi.txt",
+      "sha256": "0ff7a82874f6f2bfd998fe01b05bb5a901332596069333953c306797eccc99c7"
+    },
+    "events": [],
+    "nativeNaturalEnd": 91.0,
+    "nativeCancelMetadata": "74"
+  },
+  "special_hi_hold": {
+    "source": {
+      "function": "expression_specialhihold",
+      "path": "sources/native/scripts/SpecialHiHold.txt",
+      "sha256": "f73a28b1ba5067dcff3f03ee1dd7f20e17f9177fdd9893961b05264c91d6d7bd"
+    },
+    "events": [],
+    "nativeNaturalEnd": 60.0,
+    "nativeCancelMetadata": "0"
+  },
+  "special_air_hi": {
+    "source": {
+      "function": "expression_specialairhi",
+      "path": "sources/native/scripts/SpecialAirHi.txt",
+      "sha256": "d5b9597acd53eba190edbd421fc8882d62e6d469e16d621b4d1f1c3f1316d134"
+    },
+    "events": [],
+    "nativeNaturalEnd": 91.0,
+    "nativeCancelMetadata": "0"
+  },
+  "special_lw": {
+    "source": {
+      "function": "expression_speciallw",
+      "path": "sources/native/scripts/SpecialLw.txt",
+      "sha256": "63121ddb4152c5058041fe9c10cea6bb6b972eadb641bfb5d62f5f0e4ae33b6c"
+    },
+    "events": [
+      {
+        "sourceNativeMotionFrame": 4.0,
+        "changes": {
+          "shield": "back"
+        },
+        "sourceLine": 24,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_back\") as i64)"
+      },
+      {
+        "sourceNativeMotionFrame": 7.0,
+        "changes": {
+          "sword": "back"
+        },
+        "sourceLine": 28,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"sword\") as i64, hash40(\"sword_back\") as i64)"
+      },
+      {
+        "sourceNativeMotionFrame": 34.0,
+        "changes": {
+          "sword": "normal"
+        },
+        "sourceLine": 36,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"sword\") as i64, hash40(\"sword_normal\") as i64)"
+      }
+    ],
+    "nativeNaturalEnd": 69.0,
+    "nativeCancelMetadata": "40"
+  },
+  "special_lw_blast": {
+    "source": {
+      "function": "expression_speciallwblast",
+      "path": "sources/native/scripts/SpecialLwBlast.txt",
+      "sha256": "61f6f441710abc15c19ce934500e61fcf53a84e9398c7417a8fd724ef3b1780c"
+    },
+    "events": [
+      {
+        "sourceNativeMotionFrame": 0,
+        "changes": {
+          "heldItemVisible": false
+        },
+        "sourceLine": 9,
+        "raw": "ItemModule::set_have_item_visibility(agent.module_accessor, false, 0)"
+      },
+      {
+        "sourceNativeMotionFrame": 0,
+        "changes": {
+          "shield": "back"
+        },
+        "sourceLine": 11,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_back\") as i64)"
+      },
+      {
+        "sourceNativeMotionFrame": 34.0,
+        "changes": {
+          "shield": "normal"
+        },
+        "sourceLine": 19,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_normal\") as i64)"
+      }
+    ],
+    "nativeNaturalEnd": 60.0,
+    "nativeCancelMetadata": "40"
+  },
+  "special_air_lw": {
+    "source": {
+      "function": "expression_specialairlw",
+      "path": "sources/native/scripts/SpecialAirLw.txt",
+      "sha256": "9a29d53f9d3f9beea6c2331c450ea33df8a0255480df75871d1e3a7b2c7d4659"
+    },
+    "events": [
+      {
+        "sourceNativeMotionFrame": 4.0,
+        "changes": {
+          "shield": "back"
+        },
+        "sourceLine": 24,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_back\") as i64)"
+      },
+      {
+        "sourceNativeMotionFrame": 7.0,
+        "changes": {
+          "sword": "back"
+        },
+        "sourceLine": 28,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"sword\") as i64, hash40(\"sword_back\") as i64)"
+      },
+      {
+        "sourceNativeMotionFrame": 34.0,
+        "changes": {
+          "sword": "normal"
+        },
+        "sourceLine": 36,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"sword\") as i64, hash40(\"sword_normal\") as i64)"
+      }
+    ],
+    "nativeNaturalEnd": 69.0,
+    "nativeCancelMetadata": "40"
+  },
+  "special_air_lw_blast": {
+    "source": {
+      "function": "expression_specialairlwblast",
+      "path": "sources/native/scripts/SpecialAirLwBlast.txt",
+      "sha256": "dc6b8b0b191fd599c33321e796b09bf543bfde3af7ee3be4cd05d3bb8b367102"
+    },
+    "events": [
+      {
+        "sourceNativeMotionFrame": 0,
+        "changes": {
+          "heldItemVisible": false
+        },
+        "sourceLine": 9,
+        "raw": "ItemModule::set_have_item_visibility(agent.module_accessor, false, 0)"
+      },
+      {
+        "sourceNativeMotionFrame": 0,
+        "changes": {
+          "shield": "back"
+        },
+        "sourceLine": 11,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_back\") as i64)"
+      },
+      {
+        "sourceNativeMotionFrame": 34.0,
+        "changes": {
+          "shield": "normal"
+        },
+        "sourceLine": 19,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_normal\") as i64)"
+      }
+    ],
+    "nativeNaturalEnd": 60.0,
+    "nativeCancelMetadata": "40"
+  }
+}

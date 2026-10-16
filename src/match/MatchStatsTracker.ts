@@ -348,6 +348,11 @@ export class MatchStatsTracker {
    * so a single `restart()` call returns the whole match-state stack
    * to a clean slate.
    */
+  /** New combat round; past damage cannot earn credit for a new-round fall. */
+  clearAttribution(): void {
+    this.lastAttacker.fill(null);
+  }
+
   reset(): void {
     for (let i = 0; i < this.playerCount; i += 1) {
       this.kos[i] = 0;

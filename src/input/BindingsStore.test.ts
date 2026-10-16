@@ -551,8 +551,10 @@ describe('BindingsStore — logical action coverage', () => {
     for (const slot of ALL_SLOTS) {
       const profile = bindings.get(slot);
       for (const action of LOGICAL_ACTIONS) {
-        expect(Array.isArray(profile.bindings[action])).toBe(true);
-        expect(profile.bindings[action].length).toBeGreaterThanOrEqual(1);
+        expect(Array.isArray((profile.bindings[action] ?? []))).toBe(true);
+        // Gamepad slots default `walk` to nothing: the analog stick already walks.
+        if (action === 'walk' && slot >= 3) continue;
+        expect((profile.bindings[action] ?? []).length).toBeGreaterThanOrEqual(1);
       }
     }
   });

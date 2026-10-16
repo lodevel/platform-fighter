@@ -123,6 +123,8 @@ export function registerFighterAttack(
     if (character.getNeutralSpecialId() === null) {
       character.setNeutralSpecial(move.id);
     }
+  } else if(move.type==='sideSpecial'){
+    if(character.getSideSpecialId()===null)character.setSideSpecial(move.id);
   } else if (move.type === 'upSpecial') {
     if (character.getUpSpecialId() === null) {
       character.setUpSpecial(move.id);
@@ -139,7 +141,7 @@ export function registerFighterAttack(
 
     // Directional dispatch. Read `aerialDirection` off the move (only
     // present on full `AerialMove` records); plain `AttackMove`-typed
-    // aerials (legacy WOLF_NAIR / CAT_NAIR) implicitly fall through
+    // aerials (legacy DONKEYKONG_NAIR / PIKACHU_NAIR) implicitly fall through
     // to the neutral slot so they keep dispatching on any airborne
     // press exactly as before.
     const direction: AerialDirection =
@@ -167,12 +169,9 @@ export function registerFighterAttack(
       }
     }
   }
-  // 'sideSpecial' — no dedicated dispatch slot today. The base class's
-  // {@link Character.executeSideSpecial} hook scans the moveset map for
-  // a `'sideSpecial'`-typed move on demand. Future sub-AC may add a
-  // first-class slot field; until then the registration is purely
-  // additive (the move sits in the moveset map and fires when the
-  // hook routes to it).
+  // Saved side-special identity is explicit; existing subclass execution
+  // hooks keep their own behavior. Fresh Link consumes the authored slot.
+
 }
 
 // ---------------------------------------------------------------------------

@@ -1,0 +1,47 @@
+{
+  "status": "native animation sample extent only; not common-status cancel parity",
+  "motions": [
+    {
+      "file": "assets/gen/dk-native-reference/raw-motion/fighter/donkey/motion/body/c00/f05passivewall.nuanmb",
+      "sha256": "8a50e3740f84dfc75aa78a749db1d53ce7b0df98efae7a64f60e6d5f59267de8",
+      "nativeLastSample": 25.0,
+      "nativeIntegerSamples": 26
+    },
+    {
+      "file": "assets/gen/dk-native-reference/raw-motion/fighter/donkey/motion/body/c00/f05passivewalljump.nuanmb",
+      "sha256": "8900231f32543ca07e757ee25e28ea38d19a59fcb5f020ed208f3141c622b627",
+      "nativeLastSample": 40.0,
+      "nativeIntegerSamples": 41
+    },
+    {
+      "file": "assets/gen/dk-native-reference/raw-motion/fighter/donkey/motion/body/c00/f05passiveceil.nuanmb",
+      "sha256": "94f0a693549847c35545e5e3817c70c7dc7e683de5fb156b4f2845455ede604f",
+      "nativeLastSample": 26.0,
+      "nativeIntegerSamples": 27
+    },
+    {
+      "file": "assets/gen/dk-native-reference/raw-motion/fighter/donkey/motion/body/c00/a02turndash.nuanmb",
+      "sha256": "edbbbeb03c4535275478aa96b4d5412c530419221ca2579c11a4b795c4b8c53b",
+      "nativeLastSample": 54.0,
+      "nativeIntegerSamples": 55
+    },
+    {
+      "file": "assets/gen/dk-native-reference/raw-motion/fighter/donkey/motion/body/c00/a02turnrun.nuanmb",
+      "sha256": "5502bb71d464297956e88cea2acd53531fd9a3109ca2844b1487a6f200974569",
+      "nativeLastSample": 33.0,
+      "nativeIntegerSamples": 34
+    },
+    {
+      "file": "assets/gen/dk-native-reference/raw-motion/fighter/donkey/motion/body/c00/a02runbraker.nuanmb",
+      "sha256": "0adb7a89582fd002abfd8ff057ef890d6988eb2d3ee5e410e6cb0b782610190f",
+      "nativeLastSample": 29.0,
+      "nativeIntegerSamples": 30
+    },
+    {
+      "file": "assets/gen/dk-native-reference/raw-motion/fighter/donkey/motion/body/c00/a02runbrakel.nuanmb",
+      "sha256": "950441dece30a2734c694c6400b357350fa20d0426007a2fbf5b41b8f4192aa1",
+      "nativeLastSample": 29.0,
+      "nativeIntegerSamples": 30
+    }
+  ]
+}

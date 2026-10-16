@@ -1,0 +1,201 @@
+{
+  "state": "packed_cells_visually_reviewed_runtime_pending",
+  "coordinateContract": {
+    "canonicalCanvas": [
+      2048,
+      2048
+    ],
+    "canonicalRoot": [
+      1024,
+      1664
+    ],
+    "frameWidth": 512,
+    "frameHeight": 512,
+    "root": [
+      256,
+      416
+    ],
+    "scaleToWorld": 0.4666666666666667,
+    "bodyCentreFromRoot": [
+      0,
+      -25
+    ]
+  },
+  "clockContract": "docs/review/2026-10-06/pikachu-character/sources/state-runtime-clock-contract.json",
+  "clockContractSha256": "66ba9368ffe7118410fb965fa6b095902f881ce8473644791cf0e406370165f0",
+  "animations": {
+    "shield": {
+      "strip": "animations/shield.png",
+      "frameCount": 5,
+      "sha256": "e9395dca3add6f91ec7d73de6a70f8db7b85d0ac4549f0ad7bd418f184b81b68",
+      "columns": 5,
+      "rows": 1,
+      "frameWindows": [
+        {
+          "startFrame": 0,
+          "endFrame": null,
+          "artFrameIndex": 0,
+          "nativeStart": 0,
+          "nativeEnd": 1
+        }
+      ],
+      "loopDuration": null,
+      "nativeSampleIndices": [
+        0,
+        90,
+        180,
+        270,
+        360
+      ],
+      "nativeWindows": [
+        {
+          "nativeStart": 0,
+          "nativeEnd": 90,
+          "artFrameIndex": 0
+        },
+        {
+          "nativeStart": 90,
+          "nativeEnd": 180,
+          "artFrameIndex": 1
+        },
+        {
+          "nativeStart": 180,
+          "nativeEnd": 270,
+          "artFrameIndex": 2
+        },
+        {
+          "nativeStart": 270,
+          "nativeEnd": 360,
+          "artFrameIndex": 3
+        },
+        {
+          "nativeStart": 360,
+          "nativeEnd": 361,
+          "artFrameIndex": 4
+        }
+      ],
+      "drawingFacingBinding": "actor entry facing; native orientation candidates must be checked before accepting both-facing render",
+      "holdRule": "native nonloop holds final available drawing until status exit; looping clips wrap native loopDuration; endpoint sample is not action commitment",
+      "specialPhase": null,
+      "specialClockKind": null,
+      "dynamicCutoff": null,
+      "playableEndExclusive": null,
+      "runtimeBindingStatus": "existing state observable; dedicated reviewed drawing route pending accepted strip"
+    }
+  },
+  "sources": [
+    {
+      "sourceKey": "full-shield-hold-sample0-source0",
+      "nativeSample": 0,
+      "sourceReferenceSha256": "5f8c609d0195f7912c43af5298d9ec6617a289b819d004871f4875e04ef78bb5",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-defense-batch000-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "9f2ff97fe83a68475bcfd785947031052e15d921ee3a4b9f48cfe338d196b66c",
+      "atlasCell": 3,
+      "cellOffset": [
+        1024,
+        1024
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-defense-batch000-bounded-source0-attempt1.review.json",
+      "reviewSha256": "c89fbd4cd590228802695f93996db01e83ed26dc985320d9139612aab86d73e0"
+    },
+    {
+      "sourceKey": "full-shield-hold-sample90-source90",
+      "nativeSample": 90,
+      "sourceReferenceSha256": "b5c47bc6eabdb0ca4f589c8990afe42fbfe8cb4b6b019d3362a0a4ce36042881",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-defense-batch001-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "55257a2a6ed455feebde293b7d78e56cdf31b39092a039931ccd23e174c2a2de",
+      "atlasCell": 0,
+      "cellOffset": [
+        0,
+        0
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-defense-batch001-bounded-source0-attempt1.review.json",
+      "reviewSha256": "d52f14095ed12ec2a13649bfd2f0e7febcf60d9e02ad110f9a42a2dd9f2f1dd6"
+    },
+    {
+      "sourceKey": "full-shield-hold-sample180-source180",
+      "nativeSample": 180,
+      "sourceReferenceSha256": "3a4bbf7f9734ca15d80f9b962e32b048ce661d14c79b3526ed1f2f6c75f5821a",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-defense-batch001-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "55257a2a6ed455feebde293b7d78e56cdf31b39092a039931ccd23e174c2a2de",
+      "atlasCell": 1,
+      "cellOffset": [
+        1024,
+        0
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-defense-batch001-bounded-source0-attempt1.review.json",
+      "reviewSha256": "d52f14095ed12ec2a13649bfd2f0e7febcf60d9e02ad110f9a42a2dd9f2f1dd6"
+    },
+    {
+      "sourceKey": "full-shield-hold-sample270-source270",
+      "nativeSample": 270,
+      "sourceReferenceSha256": "20a5c7cb0a8b4dac1a84cb65ced3be445d6d3a1ce1360e697d3084a72c83a492",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-defense-batch001-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "55257a2a6ed455feebde293b7d78e56cdf31b39092a039931ccd23e174c2a2de",
+      "atlasCell": 2,
+      "cellOffset": [
+        0,
+        1024
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-defense-batch001-bounded-source0-attempt1.review.json",
+      "reviewSha256": "d52f14095ed12ec2a13649bfd2f0e7febcf60d9e02ad110f9a42a2dd9f2f1dd6"
+    },
+    {
+      "sourceKey": "full-shield-hold-sample360-source360",
+      "nativeSample": 360,
+      "sourceReferenceSha256": "5f8c609d0195f7912c43af5298d9ec6617a289b819d004871f4875e04ef78bb5",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-defense-batch001-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "55257a2a6ed455feebde293b7d78e56cdf31b39092a039931ccd23e174c2a2de",
+      "atlasCell": 3,
+      "cellOffset": [
+        1024,
+        1024
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-defense-batch001-bounded-source0-attempt1.review.json",
+      "reviewSha256": "d52f14095ed12ec2a13649bfd2f0e7febcf60d9e02ad110f9a42a2dd9f2f1dd6"
+    }
+  ],
+  "galleries": {
+    "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/shield-cells-1.png": "abefd970df0fc4019adddc81bca35e32b471a83f4cec51fa1e7dd3834a0e5ae1",
+    "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/shield-cells-2.png": "331c15f752936974daa53dec67a6adb8053a5afa6f6ad6235fe918e6b7044f88"
+  },
+  "limits": [
+    "Actual packed-cell inspection required before aggregate registration.",
+    "Authored beta presentation windows do not establish native status rate parity.",
+    "Actual running-game qualification remains separate."
+  ],
+  "packedVisualReview": {
+    "reviewer": "pikachu_art_motion",
+    "state": "actual_saved_packed_cells_reviewed",
+    "inspectedGalleries": {
+      "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/shield-cells-1.png": "abefd970df0fc4019adddc81bca35e32b471a83f4cec51fa1e7dd3834a0e5ae1",
+      "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/shield-cells-2.png": "331c15f752936974daa53dec67a6adb8053a5afa6f6ad6235fe918e6b7044f88"
+    },
+    "observations": [
+      "Actually inspected every saved512 light/dark packed cell; native source order, attached tail, red cheeks, black tips and root preserved.",
+      "shield native90/180/270/360 remain directional source-only poses; live neutral holds actual sample0. Shield startup status clock binding remains pending. Rough beta body-only scope."
+    ]
+  },
+  "runtimeEvidence": {
+    "state": "actual_eligible_hold_body_receiving_accepted",
+    "reviewer": "pikachu_integration actual screenshots; attributed by art specialist",
+    "bundle": "index-o-v7rOTz.js",
+    "bundleSha256": "2369c2f1fdf502aba55431f5a8f45927cadfe00803ce6624aac8eb869fd7bf4b",
+    "review": "docs/review/2026-10-06/pikachu-character/integration/crouch-shield-initial/visual-review.json",
+    "reviewSha256": "6262f721a6f382b4c27b4ed997938f537ca1f9129fb10051e322055f610af601",
+    "actuallyInspectedScreenshots": 16,
+    "numericObservations": 18,
+    "observed": "All16 full-body screenshots actually inspected: crouch native0/15/30/45/59/finalhold90 plus neutralshield0/90 in both facings. Correct native nonloop crouch final59 holds at90 and resets0 after source dtilt commitment. Neutralshield native0 remains constant under actual held input; angular source cells remain unbound. Every drawing has exact12caps receiving and root/origin parity.",
+    "boundary": "Native crouch start/end and crawl selectors are pending; one-native-index per input step is beta presentation. Indefinite shield null window is an explicit neutral pose hold, not an angular animation."
+  }
+}

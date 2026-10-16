@@ -20,7 +20,6 @@ export {
   LocalInputHandler,
   DEFAULT_P1_BINDINGS,
   DEFAULT_P2_BINDINGS,
-  createPhaserKeyboardSource,
 } from './LocalInputHandler';
 export type {
   InputAction,
@@ -632,7 +631,6 @@ export {
   KEYBOARD_DEVICE_SOURCE,
   RawInputSource,
   createBrowserKeyboardEventTarget,
-  createPhaserKeyboardEventTarget,
   gamepadDeviceSource,
 } from './RawInputSource';
 export type {

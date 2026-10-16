@@ -1,0 +1,24 @@
+"""Last bounded eye correction; actual reference features only, no rectangular background."""
+from pathlib import Path
+from PIL import Image,ImageDraw,ImageFilter
+import numpy as np,json,hashlib
+b=Path('docs/review/2026-09-25/donkeykong-character/audit-2026-10-08/art');sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+base=Image.open(b/'pilot2-output-jab2-native3-cutout.png').convert('RGBA');before=Image.open(b/'pilot-output-jab2-native3-cutout.png').convert('RGBA');base.paste(before.crop((680,300,885,490)),(680,300))
+# Erase the two miscolored circular source-generator eyes inside the existing head silhouette.
+seed=np.asarray(base).copy();ma=Image.new('L',base.size,0);d=ImageDraw.Draw(ma);d.polygon([(696,315),(858,303),(869,428),(825,446),(708,449)],fill=255)
+old=np.asarray(ma)>0;opaque=seed[:,:,3]>32;seed[old & opaque,:3]=[178,24,4]
+ref=Image.open('docs/review/2026-09-25/donkeykong-character/art/idle-keyframe.png').convert('RGBA').crop((626,308,735,358));a=np.asarray(ref).copy();rgb=a[:,:,:3].astype(float);white=(rgb[:,:,0]>210)&(rgb[:,:,1]>205)&(rgb[:,:,2]>185);black=(rgb[:,:,0]<65)&(rgb[:,:,1]<65)&(rgb[:,:,2]<65);a[~(white|black),3]=0
+features=Image.fromarray(a).resize((151,70),Image.Resampling.LANCZOS).rotate(13,expand=True,resample=Image.Resampling.BICUBIC)
+cell=Image.fromarray(seed);cell.alpha_composite(features,(698,351));cell.save(b/'pilot3-jab2-eye-feature-seed.png')
+# Blend within native head contour; identity white/black source pixels stay untouched.
+mask=ma.filter(ImageFilter.MaxFilter(31));m=np.asarray(mask).copy();ca=np.asarray(cell);protected=((ca[:,:,0]>210)&(ca[:,:,1]>200)&(ca[:,:,2]>180))|((ca[:,:,0]<65)&(ca[:,:,1]<65)&(ca[:,:,2]<65));m[protected]=0;m[ca[:,:,3]<32]=0;mask=Image.fromarray(m)
+guide=Image.new('L',cell.size,0)
+# Use outer head silhouette only, never the rejected reference-background rectangle.
+alpha=Image.fromarray(ca[:,:,3]);edge=np.asarray(alpha.filter(ImageFilter.MaxFilter(3))).astype(int)-np.asarray(alpha.filter(ImageFilter.MinFilter(3))).astype(int);g=np.clip(edge,0,255).astype('uint8');g[np.asarray(mask)==0]=0;guide=Image.fromarray(g)
+crop=(128,0,1152,1024);seedbg=Image.new('RGBA',cell.size,(204,73,140,255));seedbg.alpha_composite(cell)
+for kind,im in [('seed',seedbg.convert('RGB')),('render-mask',mask),('guide',guide)]:im.crop(crop).save(b/f'dk-uppercut-eye-final-{kind}.png')
+light=Image.new('RGBA',cell.size,(244,244,240,255));light.alpha_composite(cell);light.convert('RGB').save(b/'dk-uppercut-eye-final-input-review.png')
+w=json.loads((b/'dk-identity-contact-pilot-attempt2.workflow.json').read_text());w['7']['inputs']['denoise']=.85;w['4']['inputs']['text']='Repair only red skin/fur seams around the already supplied actual white brows, white eye sclera, black pupils. Preserve every white and black identity feature exactly. Red cartoon Donkey Kong gorilla, flat simple clean red shading consistent with the source identity. The near eyebrow slopes firmly down toward the nose. No extra eyes, no nostrils or mouth changes, no rectangles. Keep the original side uppercut head shape and pose unchanged. All unmasked body pixels stay unchanged.'
+for n,kind in [('10','guide'),('13','seed'),('16','render-mask')]:w[n]['inputs']['image']=f'pf-dk-uppercut-eye-final-{kind}.png'
+w['9']['inputs']['filename_prefix']='pf-dk-20261008-uppercut-eye-attempt3-final';w['20']['inputs']['filename_prefix']='pf-dk-20261008-uppercut-eye-attempt3-raw';(b/'dk-identity-contact-pilot-attempt3.workflow.json').write_text(json.dumps(w,indent=2)+'\n')
+j={'state':'prepared_actual_review_pending','attempt':3,'canvas':[1024,1024],'workflow':'dk-identity-contact-pilot-attempt3.workflow.json','workflow_sha256':sha(b/'dk-identity-contact-pilot-attempt3.workflow.json'),'root':[384,832],'final_original_root':[512,832],'conditioning_crop':crop,'world_scale':5/26,'bodyCentreFromRootY':-42,'inputs':{k:{'file':f'dk-uppercut-eye-final-{k}.png','sha256':sha(b/f'dk-uppercut-eye-final-{k}.png')}for k in ['seed','guide','render-mask']},'identity_mechanism':'actualreference whitebrows/sclera/darkpupils extractedasalpha features, no redrectanglereferencebackground. Protectedactualwhite/black remainoutside sampler/finalmask.','scope':'Finalbounded eyeseam-only correction for provisionalnative3pose; fullmovement/contactage+1packandactualruntime pending','reference':{'path':'docs/review/2026-09-25/donkeykong-character/art/idle-keyframe.png','sha256':sha(Path('docs/review/2026-09-25/donkeykong-character/art/idle-keyframe.png')),'crop':[626,308,735,358],'size':[151,70],'rotation':13,'placement':[698,351]},'output_review':'dk-uppercut-eye-final-input-review.png','output_review_sha256':sha(b/'dk-uppercut-eye-final-input-review.png')};(b/'dk-identity-contact-pilot-third-preparation.json').write_text(json.dumps(j,indent=2)+'\n');print('finalboundedreferencefeaturecorrectionprepared noGPU')

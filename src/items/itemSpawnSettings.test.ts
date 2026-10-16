@@ -56,9 +56,10 @@ describe('ITEM_SPAWN_FREQUENCY_TABLE', () => {
   });
 
   it.each([
-    ['low', 720, 1200],
-    ['med', 360, 720],
-    ['high', 120, 300],
+    // SmashWiki Item_Switch (Ultimate uses the Smash 4 rates): Low 1200-1500, Med 500-800, High 300-500.
+    ['low', 1200, 1500],
+    ['med', 500, 800],
+    ['high', 300, 500],
   ] as const)(
     "maps '%s' to a [%i, %i]-frame interval window",
     (freq, min, max) => {
@@ -107,11 +108,12 @@ describe('ITEM_SPAWN_FREQUENCY_TABLE', () => {
 
 describe('MAX_ITEMS_ON_FIELD_BY_FREQUENCY', () => {
   it.each([
+    // SmashWiki Item: "no more than 64 items can appear on a stage at once" (Ultimate).
     ['off', 0],
-    ['low', 1],
-    ['med', 2],
-    ['high', 4],
-  ] as const)("caps '%s' at %i live items", (freq, expected) => {
+    ['low', 64],
+    ['med', 64],
+    ['high', 64],
+  ] as const)("caps '%s' at %i live items (SmashWiki Ultimate cap 64)", (freq, expected) => {
     expect(MAX_ITEMS_ON_FIELD_BY_FREQUENCY[freq]).toBe(expected);
   });
 

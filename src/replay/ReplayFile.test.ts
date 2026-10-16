@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import type { MatchConfig, PlayerSlot } from '../types';
-import { InputCaptureBuffer } from './InputCaptureBuffer';
+import { InputCaptureBuffer, NEUTRAL_INPUT } from './InputCaptureBuffer';
 import {
   REPLAY_FORMAT_MAGIC,
   REPLAY_FORMAT_VERSION,
@@ -45,7 +45,7 @@ import {
 // ---------------------------------------------------------------------------
 
 function makePlayerSlots(count: number): PlayerSlot[] {
-  const ids = ['wolf', 'cat', 'owl', 'bear'] as const;
+  const ids = ['donkeykong', 'pikachu', 'donkeykong', 'pikachu'] as const;
   return Array.from({ length: count }, (_, i) => ({
     index: (i + 1) as PlayerSlot['index'],
     characterId: ids[i]!,
@@ -80,7 +80,7 @@ describe('ReplayFile constants', () => {
   });
 
   it('exposes a numeric schema version', () => {
-    expect(REPLAY_FORMAT_VERSION).toBe(3);
+    expect(REPLAY_FORMAT_VERSION).toBe(8);
   });
 
   it('exposes the recommended file extension', () => {
@@ -114,7 +114,7 @@ describe('serializeReplay — happy path', () => {
       capturedFrames: buf.getEntries(),
       recordedAt: makeFixedDate(),
       engineVersion: '0.1.0',
-      notes: 'Wolf vs Cat exhibition',
+      notes: 'DK vs Pikachu exhibition',
     });
 
     expect(file.format).toBe(REPLAY_FORMAT_MAGIC);
@@ -125,7 +125,7 @@ describe('serializeReplay — happy path', () => {
     expect(file.metadata.fixedTimestepMs).toBeCloseTo(1000 / 60);
     expect(file.metadata.playerCount).toBe(2);
     expect(file.metadata.engineVersion).toBe('0.1.0');
-    expect(file.metadata.notes).toBe('Wolf vs Cat exhibition');
+    expect(file.metadata.notes).toBe('DK vs Pikachu exhibition');
 
     expect(file.matchConfig.mode).toBe('stocks');
     expect(file.matchConfig.stockCount).toBe(3);
@@ -138,9 +138,11 @@ describe('serializeReplay — happy path', () => {
     expect(file.inputTimeline.entries).toHaveLength(3);
     expect(file.inputTimeline.entries[0]!.frame).toBe(0);
     expect(file.inputTimeline.entries[0]!.inputs[0]).toEqual({
+      ...NEUTRAL_INPUT,
       moveX: 1, moveY: 0, jump: true, attack: false, dropThrough: false,
     });
     expect(file.inputTimeline.entries[2]!.inputs[1]).toEqual({
+      ...NEUTRAL_INPUT,
       moveX: 1, moveY: 0, jump: true, attack: false, dropThrough: false,
     });
   });
@@ -340,7 +342,7 @@ describe('serializeReplay — validation rejects malformed inputs', () => {
 
   it('rejects more than 4 players', () => {
     const players = [...makePlayerSlots(4), {
-      index: 1, characterId: 'wolf', paletteIndex: 0, inputType: 'ai',
+      index: 1, characterId: 'donkeykong', paletteIndex: 0, inputType: 'ai',
     } as PlayerSlot];
     expect(() =>
       serializeReplay({
@@ -565,6 +567,44 @@ describe('deserializeReplay — invalid inputs', () => {
     ).toThrow(/version unsupported/);
   });
 
+  function serializeLinkReplay(): Record<string, any> {
+    const players: PlayerSlot[] = [
+      { index: 1, characterId: 'link', paletteIndex: 0, inputType: 'keyboard_p1' },
+      { index: 2, characterId: 'pikachu', paletteIndex: 0, inputType: 'keyboard_p2' },
+    ];
+    const file = serializeReplay({ matchConfig: makeMatchConfig({ players }), capturedFrames: [] });
+    return JSON.parse(JSON.stringify(file));
+  }
+
+  it('rejects a replay naming a fighter that was removed from the game', () => {
+    const broken = JSON.parse(JSON.stringify(
+      serializeReplay({ matchConfig: makeMatchConfig(), capturedFrames: [] }),
+    ));
+    broken.matchConfig.players[0].characterId = 'wolf';
+    expect(() => deserializeReplay(broken)).toThrow(ReplayFileError);
+    expect(() => deserializeReplay(broken)).toThrow(/fighter 'wolf', which is no longer in the game/);
+  });
+
+  it('rejects a Link slot recorded with the legacy (pre-rebuild) runtime', () => {
+    const broken = serializeLinkReplay();
+    broken.matchConfig.players[0].linkFormat = 'legacy';
+    expect(() => deserializeReplay(broken)).toThrow(/pre-rebuild Link/);
+  });
+
+  it('rejects a v7 Link replay: migration stamps the legacy revision, which no longer loads', () => {
+    const v7 = serializeLinkReplay();
+    v7.version = 7;
+    delete v7.matchConfig.players[0].linkFormat;
+    expect(() => deserializeReplay(v7)).toThrow(/pre-rebuild Link/);
+  });
+
+  it('accepts a Link slot recorded with the rebuilt runtime', () => {
+    const written = serializeLinkReplay();
+    expect(written.matchConfig.players[0].linkFormat).toBe('ultimate-rebuild-v1');
+    expect(written.matchConfig.players[1].linkFormat).toBeUndefined();
+    expect(deserializeReplay(written).matchConfig.players[0]!.characterId).toBe('link');
+  });
+
   it('rejects bad metadata.recordedAt', () => {
     const file = serializeReplay({
       matchConfig: makeMatchConfig(),
@@ -633,11 +673,11 @@ describe('deserializeReplay — invalid inputs', () => {
     broken.inputTimeline.entries = [
       {
         frame: 5,
-        inputs: [{ moveX: 0, moveY: 0, jump: false, attack: false, dropThrough: false }],
+        inputs: [{ ...NEUTRAL_INPUT }],
       },
       {
         frame: 5, // duplicate — must be rejected
-        inputs: [{ moveX: 0, moveY: 0, jump: false, attack: false, dropThrough: false }],
+        inputs: [{ ...NEUTRAL_INPUT }],
       },
     ];
     broken.metadata.durationFrames = 6;

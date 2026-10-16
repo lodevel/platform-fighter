@@ -37,6 +37,12 @@
  * unit test that asserts every key in {@link ASSET_KEYS} is unique.
  */
 
+import {FOOD_VARIANTS} from '../items/Food';
+import {packedLayoutOf,type FrameTrim} from './packedFrames';
+import pikachuReviewedFrameMetadata from '../../assets/characters/pikachu/frames.json';
+import donkeykongFrameMetadata from '../../assets/characters/donkeykong/frames.json';
+import linkFrameMetadata from '../../assets/characters/link/frames.json';
+
 // ---------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------
@@ -82,6 +88,9 @@ export interface SpritesheetAssetEntry extends AssetEntryBase {
   /** Optional spacing/margin for atlases that ship with a 1px gutter. */
   readonly margin?: number;
   readonly spacing?: number;
+  /** Tight-packed sheets (see `packedFrames.ts`): the image size and one trim per drawing. */
+  readonly atlas?: readonly [number, number];
+  readonly trims?: readonly FrameTrim[];
 }
 
 /** Texture atlas (image + JSON companion). */
@@ -122,29 +131,13 @@ export interface AssetManifest {
 }
 
 // ---------------------------------------------------------------------
-// Character sprite cell sizes — MUST match the actual packed PNG cells
-// ---------------------------------------------------------------------
-
-/** HD cell size (px) for fighters regenerated through the 256² pipeline.
- *  Source generation: 1024×1024 per frame (ComfyUI). pack-clips.cjs (with
- *  CELL_H=256) crops and downscales to this size. A fighter may only use
- *  this once its art has actually been repacked at 256 — declaring 256 for
- *  128px art makes Phaser slice multiple cells into one frame (ghosting). */
-const CHAR_FRAME_SIZE_HD = 256;
-
-/** Legacy cell size (px) for AI-pack fighters not yet regenerated at HD.
- *  Their packed strips are still 128px cells. */
-const CHAR_FRAME_SIZE = 128;
-
-// ---------------------------------------------------------------------
 // Cache keys
 // ---------------------------------------------------------------------
 
 /**
  * Every Phaser cache key the runtime ever asks for. Namespaced with a
  * `category.subject.variant` shape so a string match in the texture
- * cache is unambiguous and so future palette-swap variants slot in
- * naturally (e.g. `'char.cat.idle.palette3'`).
+ * cache is unambiguous.
  *
  * Boot-generated procedural textures live in
  * `src/scenes/bootKeys.ts` under the `tex.boot.*` namespace and are
@@ -153,155 +146,218 @@ const CHAR_FRAME_SIZE = 128;
  * preload time instead of silently aliasing the boot pixel.
  */
 export const ASSET_KEYS = {
-  // ---------------- characters: cat ----------------------------------
-  charCatIdle: 'char.cat.idle',
-  charCatRun: 'char.cat.run',
-  charCatJump: 'char.cat.jump',
-  charCatAttack: 'char.cat.attack',
-
-  // ---------------- characters: wolf ---------------------------------
-  charWolfIdle: 'char.wolf.idle',
-  charWolfRun: 'char.wolf.run',
-  charWolfJump: 'char.wolf.jump',
-  charWolfAttack: 'char.wolf.attack',
-
-  // ---------------- characters: owl ----------------------------------
-  charOwlIdle: 'char.owl.idle',
-  charOwlRun: 'char.owl.run',
-  charOwlJump: 'char.owl.jump',
-  charOwlAttack: 'char.owl.attack',
-
-  // ---------------- characters: bear ---------------------------------
-  charBearIdle: 'char.bear.idle',
-  charBearRun: 'char.bear.run',
-  charBearJump: 'char.bear.jump',
-  charBearAttack: 'char.bear.attack',
-
-  // ---------------- characters: blaze --------------------------------
-  charBlazeIdle: 'char.blaze.idle',
-  charBlazeRun: 'char.blaze.run',
-  charBlazeJump: 'char.blaze.jump',
-  charBlazeAttack: 'char.blaze.attack',
-
-  // ---------------- characters: puff ---------------------------------
-  charPuffIdle: 'char.puff.idle',
-  charPuffRun: 'char.puff.run',
-  charPuffJump: 'char.puff.jump',
-  charPuffAttack: 'char.puff.attack',
-
-  // ---------------- characters: aegis --------------------------------
-  charAegisIdle: 'char.aegis.idle',
-  charAegisRun: 'char.aegis.run',
-  charAegisJump: 'char.aegis.jump',
-  charAegisAttack: 'char.aegis.attack',
-  charAegisCrouch: 'char.aegis.crouch',
-  charAegisJab: 'char.aegis.jab',
-  charAegisJab2: 'char.aegis.jab2',
-  charAegisJab3: 'char.aegis.jab3',
-  charAegisTilt: 'char.aegis.tilt',
-  charAegisDtilt: 'char.aegis.dtilt',
-  charAegisSmash: 'char.aegis.smash',
-  charAegisNair: 'char.aegis.nair',
-  charAegisFair: 'char.aegis.fair',
-  charAegisBair: 'char.aegis.bair',
-  charAegisNeutralSpecial: 'char.aegis.neutral_special',
-  charAegisSideSpecial: 'char.aegis.side_special',
-  charAegisUpSpecial: 'char.aegis.up_special',
-  charAegisDownSpecial: 'char.aegis.down_special',
-  charAegisHurt: 'char.aegis.hurt',
-  charAegisShield: 'char.aegis.shield',
-  charAegisGrab: 'char.aegis.grab',
-  charAegisPummel: 'char.aegis.pummel',
-  charAegisFthrow: 'char.aegis.fthrow',
-  charAegisBthrow: 'char.aegis.bthrow',
-  charAegisUthrow: 'char.aegis.uthrow',
-  charAegisDthrow: 'char.aegis.dthrow',
-  charAegisUair: 'char.aegis.uair',
-  charAegisDair: 'char.aegis.dair',
-
-  // ---------------- characters: volt ---------------------------------
-  charVoltIdle: 'char.volt.idle',
-  charVoltRun: 'char.volt.run',
-  charVoltJump: 'char.volt.jump',
-  charVoltAttack: 'char.volt.attack',
-
-  // ---------------- characters: nova ---------------------------------
-  charNovaIdle: 'char.nova.idle',
-  charNovaRun: 'char.nova.run',
-  charNovaJump: 'char.nova.jump',
-  charNovaAttack: 'char.nova.attack',
-
-  // ---------------- characters: bruno --------------------------------
-  charBrunoIdle: 'char.bruno.idle',
-  charBrunoRun: 'char.bruno.run',
-  charBrunoJump: 'char.bruno.jump',
-  charBrunoAttack: 'char.bruno.attack',
 
   // ---------------- characters: link ---------------------------------
-  // First AI-generated sprite pack (Z-Image ControlNet pose-source pipeline,
-  // see docs/ART-PIPELINE.md). 65×64 cells; attack is the collapsed sheet.
+  // The roster sprite key; every Link sheet is `char.link.<clip>` from assets/characters/link/frames.json.
   charLinkIdle: 'char.link.idle',
-  charLinkRun: 'char.link.run',
-  charLinkJump: 'char.link.jump',
-  charLinkAttack: 'char.link.attack',
-  // Full per-move animation set + ducking (the renderer plays char.link.<move>.anim
-  // by the active move; crouch replaces the procedural squash). Each move is its own
-  // clip with a mechanically-correct pose (ranged specials are firing poses).
-  charLinkCrouch: 'char.link.crouch',
-  charLinkJab: 'char.link.jab',
-  charLinkJab2: 'char.link.jab2',
-  charLinkJab3: 'char.link.jab3',
-  charLinkTilt: 'char.link.tilt',
-  charLinkDtilt: 'char.link.dtilt',
-  charLinkSmash: 'char.link.smash',
-  charLinkNair: 'char.link.nair',
-  charLinkFair: 'char.link.fair',
-  charLinkBair: 'char.link.bair',
-  charLinkUair: 'char.link.uair',
-  charLinkDair: 'char.link.dair',
-  charLinkNeutralSpecial: 'char.link.neutral_special',
-  charLinkSideSpecial: 'char.link.side_special',
-  charLinkUpSpecial: 'char.link.up_special',
-  charLinkDownSpecial: 'char.link.down_special',
-  charLinkHurt:    'char.link.hurt',
-  charLinkShield:  'char.link.shield',
-  charLinkGrab:    'char.link.grab',
-  charLinkPummel:  'char.link.pummel',
-  charLinkFthrow:  'char.link.fthrow',
-  charLinkBthrow:  'char.link.bthrow',
-  charLinkUthrow:  'char.link.uthrow',
-  charLinkDthrow:  'char.link.dthrow',
 
-  // ---------------- characters: kirby (full AI sprite set) -----------
-  charKirbyIdle: 'char.kirby.idle',
-  charKirbyRun: 'char.kirby.run',
-  charKirbyJump: 'char.kirby.jump',
-  charKirbyAttack: 'char.kirby.attack',
-  charKirbyCrouch: 'char.kirby.crouch',
-  charKirbyJab: 'char.kirby.jab',
-  charKirbyJab2: 'char.kirby.jab2',
-  charKirbyJab3: 'char.kirby.jab3',
-  charKirbyTilt: 'char.kirby.tilt',
-  charKirbyDtilt: 'char.kirby.dtilt',
-  charKirbySmash: 'char.kirby.smash',
-  charKirbyNair: 'char.kirby.nair',
-  charKirbyFair: 'char.kirby.fair',
-  charKirbyBair: 'char.kirby.bair',
-  charKirbyNeutralSpecial: 'char.kirby.neutral_special',
-  charKirbySideSpecial: 'char.kirby.side_special',
-  charKirbyUpSpecial: 'char.kirby.up_special',
-  charKirbyDownSpecial: 'char.kirby.down_special',
-  charKirbyHurt: 'char.kirby.hurt',
-  charKirbyShield: 'char.kirby.shield',
-  charKirbyGrab: 'char.kirby.grab',
-  charKirbyPummel: 'char.kirby.pummel',
-  charKirbyFthrow: 'char.kirby.fthrow',
-  charKirbyBthrow: 'char.kirby.bthrow',
-  charKirbyUthrow: 'char.kirby.uthrow',
-  charKirbyDthrow: 'char.kirby.dthrow',
-  charKirbyUair: 'char.kirby.uair',
-  charKirbyDair: 'char.kirby.dair',
-
+  // Pikachu — dedicated source kit; only reviewed packed sheets load below.
+  charPikachuIdle: 'char.pikachu.idle',
+  charPikachuFinal: 'char.pikachu.final',
+  charPikachuFinalAir: 'char.pikachu.final_air',
+  charPikachuFinalDash: 'char.pikachu.final_dash',
+  charPikachuFinalDashEnd: 'char.pikachu.final_dash_end',
+  charPikachuFinalAirDashEnd: 'char.pikachu.final_air_dash_end',
+  charPikachuFinal2: 'char.pikachu.final2',
+  charPikachuFinalAir2: 'char.pikachu.final_air2',
+  charPikachuFinalVictimJungleEntry: 'char.pikachu.final_victim_jungle_entry',
+  charPikachuFinalVictimJungleStaggerA: 'char.pikachu.final_victim_jungle_stagger_a',
+  charPikachuFinalVictimJungleStaggerB: 'char.pikachu.final_victim_jungle_stagger_b',
+  charPikachuFinalVictimJungleUppercutPre: 'char.pikachu.final_victim_jungle_uppercut_pre',
+  charPikachuFinalVictimVoltCaught: 'char.pikachu.final_victim_volt_caught',
+  charPikachuFinalVictimVoltVortex: 'char.pikachu.final_victim_volt_vortex',
+  charPikachuFinalVictimVoltBurstPre: 'char.pikachu.final_victim_volt_burst_pre',
+  // Installed source-guided noncombat Final FX own exact registered pages.
+  charPikachuFinalFxElec: 'char.pikachu.fx__pikachu_final_elec',
+  charPikachuFinalFxExplosion: 'char.pikachu.fx__pikachu_final_explosion',
+  charPikachuFinalFxHold: 'char.pikachu.fx__pikachu_final_hold',
+  charPikachuFinalFxSphereStart: 'char.pikachu.fx__pikachu_final_sphere_start',
+  charPikachuRun: 'char.pikachu.run',
+  charPikachuJump: 'char.pikachu.jump',
+  charPikachuAttack: 'char.pikachu.attack',
+  charPikachuCrouch: 'char.pikachu.crouch',
+  charPikachuJab: 'char.pikachu.jab',
+  charPikachuTilt: 'char.pikachu.tilt',
+  charPikachuTiltUp: 'char.pikachu.tilt_up',
+  charPikachuTiltDown: 'char.pikachu.tilt_down',
+  charPikachuUtilt: 'char.pikachu.utilt',
+  charPikachuDtilt: 'char.pikachu.dtilt',
+  charPikachuSmash: 'char.pikachu.smash',
+  charPikachuSmashCharge: 'char.pikachu.smash_charge',
+  charPikachuUsmashCharge: 'char.pikachu.usmash_charge',
+  charPikachuDsmashCharge: 'char.pikachu.dsmash_charge',
+  charPikachuUsmash: 'char.pikachu.usmash',
+  charPikachuDsmash: 'char.pikachu.dsmash',
+  charPikachuDashAttack: 'char.pikachu.dash_attack',
+  charPikachuNair: 'char.pikachu.nair',
+  charPikachuFair: 'char.pikachu.fair',
+  charPikachuBair: 'char.pikachu.bair',
+  charPikachuUair: 'char.pikachu.uair',
+  charPikachuDair: 'char.pikachu.dair',
+  charPikachuBairLanding: 'char.pikachu.bair_landing',
+  charPikachuDairLanding: 'char.pikachu.dair_landing',
+  charPikachuNeutralSpecial: 'char.pikachu.neutral_special',
+  charPikachuNeutralSpecialAir: 'char.pikachu.neutral_special_air',
+  charPikachuUpSpecialStart: 'char.pikachu.up_special_start',
+  charPikachuUpSpecialAirStart: 'char.pikachu.up_special_air_start',
+  charPikachuUpSpecialAirEnd: 'char.pikachu.up_special_air_end',
+  charPikachuSideSpecialStart: 'char.pikachu.side_special_start',
+  charPikachuSideSpecialAirStart: 'char.pikachu.side_special_air_start',
+  charPikachuSideSpecialHold: 'char.pikachu.side_special_hold',
+  charPikachuSideSpecialAirHold: 'char.pikachu.side_special_air_hold',
+  charPikachuSideSpecialReady: 'char.pikachu.side_special_ready',
+  charPikachuSideSpecialAirReady: 'char.pikachu.side_special_air_ready',
+  charPikachuSideSpecialHit: 'char.pikachu.side_special_hit',
+  charPikachuSideSpecialAirHit: 'char.pikachu.side_special_air_hit',
+  charPikachuSideSpecialEnd: 'char.pikachu.side_special_end',
+  charPikachuSideSpecialAirMissEnd: 'char.pikachu.side_special_air_miss_end',
+  charPikachuSideSpecial: 'char.pikachu.side_special',
+  charPikachuUpSpecial: 'char.pikachu.up_special',
+  charPikachuUpSpecialFirst: 'char.pikachu.up_special_first',
+  charPikachuUpSpecialSecond: 'char.pikachu.up_special_second',
+  charPikachuUpSpecialEnd: 'char.pikachu.up_special_end',
+  charPikachuDownSpecial: 'char.pikachu.down_special',
+  charPikachuDownSpecialAir: 'char.pikachu.down_special_air',
+  charPikachuDownSpecialHit: 'char.pikachu.down_special_hit',
+  charPikachuDownSpecialAirHit: 'char.pikachu.down_special_air_hit',
+  charPikachuAirDodge: 'char.pikachu.air_dodge',
+  charPikachuAirjump: 'char.pikachu.airjump',
+  charPikachuAirjumpBack: 'char.pikachu.airjump_back',
+  charPikachuCaptured: 'char.pikachu.captured',
+  charPikachuCapturedHit: 'char.pikachu.captured_hit',
+  charPikachuCapturedRelease: 'char.pikachu.captured_release',
+  charPikachuCrawl: 'char.pikachu.crawl',
+  charPikachuCrawlBack: 'char.pikachu.crawl_back',
+  charPikachuCrouchEnd: 'char.pikachu.crouch_end',
+  charPikachuCrouchStart: 'char.pikachu.crouch_start',
+  charPikachuDash: 'char.pikachu.dash',
+  charPikachuDashGrab: 'char.pikachu.dash_grab',
+  charPikachuDashTurn: 'char.pikachu.dash_turn',
+  charPikachuDownWait: 'char.pikachu.down_wait',
+  charPikachuDownWaitFaceDown: 'char.pikachu.down_wait_face_down',
+  charPikachuEntry: 'char.pikachu.entry',
+  charPikachuFall: 'char.pikachu.fall',
+  charPikachuFallSpecial: 'char.pikachu.fall_special',
+  charPikachuFootstoolFall: 'char.pikachu.footstool_fall',
+  charPikachuFootstoolJump: 'char.pikachu.footstool_jump',
+  charPikachuFootstoolPose: 'char.pikachu.footstool_pose',
+  charPikachuFootstoolAirPose: 'char.pikachu.footstool_air_pose',
+  charPikachuItemCarry: 'char.pikachu.item_carry',
+  charPikachuItemPickupStand: 'char.pikachu.item_pickup_stand',
+  charPikachuItemPickupWalk: 'char.pikachu.item_pickup_walk',
+  charPikachuItemThrowF: 'char.pikachu.item_throw_f',
+  charPikachuItemThrowB: 'char.pikachu.item_throw_b',
+  charPikachuItemThrowHi: 'char.pikachu.item_throw_hi',
+  charPikachuItemThrowLw: 'char.pikachu.item_throw_lw',
+  charPikachuItemThrowAirF: 'char.pikachu.item_throw_air_f',
+  charPikachuItemThrowAirB: 'char.pikachu.item_throw_air_b',
+  charPikachuItemThrowAirHi: 'char.pikachu.item_throw_air_hi',
+  charPikachuItemThrowAirLw: 'char.pikachu.item_throw_air_lw',
+  charPikachuItemThrowDrop: 'char.pikachu.item_throw_drop',
+  charPikachuItemBatSwing1: 'char.pikachu.item_bat_swing_1',
+  charPikachuItemBatSwing3: 'char.pikachu.item_bat_swing_3',
+  charPikachuItemBatSwing4: 'char.pikachu.item_bat_swing_4',
+  charPikachuItemBatSwingDash: 'char.pikachu.item_bat_swing_dash',
+  charPikachuItemSwordSwing4: 'char.pikachu.item_sword_swing_4',
+  charPikachuItemSwordSwing4Hold: 'char.pikachu.item_sword_swing_4_hold',
+  charPikachuItemHammerJump: 'char.pikachu.item_hammer_jump',
+  charPikachuItemHammerMove: 'char.pikachu.item_hammer_move',
+  charPikachuItemHammerWait: 'char.pikachu.item_hammer_wait',
+  charPikachuItemHeavyGet: 'char.pikachu.item_heavy_get',
+  charPikachuItemHeavyWalk: 'char.pikachu.item_heavy_walk',
+  charPikachuItemHeavyThrowF: 'char.pikachu.item_heavy_throw_f',
+  charPikachuItemHeavyThrowB: 'char.pikachu.item_heavy_throw_b',
+  charPikachuItemHeavyThrowHi: 'char.pikachu.item_heavy_throw_hi',
+  charPikachuItemHeavyThrowLw: 'char.pikachu.item_heavy_throw_lw',
+  charPikachuSquatWaitItem: 'char.pikachu.squat_wait_item',
+  charPikachuLandingHeavy: 'char.pikachu.landing_heavy',
+  charPikachuItemLightEat: 'char.pikachu.item_light_eat',
+  charPikachuItemLightWalkEat: 'char.pikachu.item_light_walk_eat',
+  charPikachuItemLgunShoot: 'char.pikachu.item_lgun_shoot',
+  charPikachuItemLgunShootAir: 'char.pikachu.item_lgun_shoot_air',
+  charPikachuItemLgunShootUpper: 'char.pikachu.item_lgun_shoot_upper',
+  charPikachuItemFflowerShootLoop: 'char.pikachu.item_fflower_shoot_loop',
+  charPikachuItemFflowerShootLoopUpper: 'char.pikachu.item_fflower_shoot_loop_upper',
+  charPikachuItemFflowerShootAirLoop: 'char.pikachu.item_fflower_shoot_air_loop',
+  charPikachuItemScopeStart: 'char.pikachu.item_scope_start',
+  charPikachuItemScopeStartUpper: 'char.pikachu.item_scope_start_upper',
+  charPikachuItemScopeWait: 'char.pikachu.item_scope_wait',
+  charPikachuItemScopeWaitUpper: 'char.pikachu.item_scope_wait_upper',
+  charPikachuItemScopeRapid: 'char.pikachu.item_scope_rapid',
+  charPikachuItemScopeRapidUpper: 'char.pikachu.item_scope_rapid_upper',
+  charPikachuItemScopeFire: 'char.pikachu.item_scope_fire',
+  charPikachuItemScopeFireUpper: 'char.pikachu.item_scope_fire_upper',
+  charPikachuItemScopeEnd: 'char.pikachu.item_scope_end',
+  charPikachuItemScopeEndUpper: 'char.pikachu.item_scope_end_upper',
+  charPikachuItemScopeFall: 'char.pikachu.item_scope_fall',
+  charPikachuItemScopeAirStart: 'char.pikachu.item_scope_air_start',
+  charPikachuItemScopeAirRapid: 'char.pikachu.item_scope_air_rapid',
+  charPikachuItemScopeAirFire: 'char.pikachu.item_scope_air_fire',
+  charPikachuItemScopeAirEnd: 'char.pikachu.item_scope_air_end',
+  charPikachuItemShootLegsWalkF: 'char.pikachu.item_shoot_legs_walk_f',
+  charPikachuItemShootLegsWalkB: 'char.pikachu.item_shoot_legs_walk_b',
+  charPikachuItemShootLegsJumpSquat: 'char.pikachu.item_shoot_legs_jump_squat',
+  charPikachuItemShootLegsLanding: 'char.pikachu.item_shoot_legs_landing',
+  charPikachuGetup: 'char.pikachu.getup',
+  charPikachuGetupFaceDown: 'char.pikachu.getup_face_down',
+  charPikachuGetupRoll: 'char.pikachu.getup_roll',
+  charPikachuGetupRollBack: 'char.pikachu.getup_roll_back',
+  charPikachuGetupRollBackFaceDown: 'char.pikachu.getup_roll_back_face_down',
+  charPikachuGetupRollFaceDown: 'char.pikachu.getup_roll_face_down',
+  charPikachuGrabEscape: 'char.pikachu.grab_escape',
+  charPikachuGrabHold: 'char.pikachu.grab_hold',
+  charPikachuGrabPull: 'char.pikachu.grab_pull',
+  charPikachuHurtAir: 'char.pikachu.hurt_air',
+  charPikachuJumpBack: 'char.pikachu.jump_back',
+  charPikachuJumpsquat: 'char.pikachu.jumpsquat',
+  charPikachuLandingHard: 'char.pikachu.landing_hard',
+  charPikachuLandingSoft: 'char.pikachu.landing_soft',
+  charPikachuLandingSpecial: 'char.pikachu.landing_special',
+  charPikachuLedge: 'char.pikachu.ledge',
+  charPikachuLedgeCatch: 'char.pikachu.ledge_catch',
+  charPikachuLedgeGetup: 'char.pikachu.ledge_getup',
+  charPikachuLedgeJump: 'char.pikachu.ledge_jump',
+  charPikachuLedgeJumpStart: 'char.pikachu.ledge_jump_start',
+  charPikachuLedgeRoll: 'char.pikachu.ledge_roll',
+  charPikachuParry: 'char.pikachu.parry',
+  charPikachuPivotGrab: 'char.pikachu.pivot_grab',
+  charPikachuRoll: 'char.pikachu.roll',
+  charPikachuRollBack: 'char.pikachu.roll_back',
+  charPikachuRunBrake: 'char.pikachu.run_brake',
+  charPikachuRunBrakeLeft: 'char.pikachu.run_brake_left',
+  charPikachuRunTurn: 'char.pikachu.run_turn',
+  charPikachuShieldBreak: 'char.pikachu.shield_break',
+  charPikachuShieldBreakEnd: 'char.pikachu.shield_break_end',
+  charPikachuShieldEnd: 'char.pikachu.shield_end',
+  charPikachuShieldHit: 'char.pikachu.shield_hit',
+  charPikachuShieldStart: 'char.pikachu.shield_start',
+  charPikachuSpotDodge: 'char.pikachu.spot_dodge',
+  charPikachuTauntDown: 'char.pikachu.taunt_down',
+  charPikachuTauntSide: 'char.pikachu.taunt_side',
+  charPikachuTauntUp: 'char.pikachu.taunt_up',
+  charPikachuTech: 'char.pikachu.tech',
+  charPikachuTechBack: 'char.pikachu.tech_back',
+  charPikachuTechCeiling: 'char.pikachu.tech_ceiling',
+  charPikachuTechForward: 'char.pikachu.tech_forward',
+  charPikachuTechWall: 'char.pikachu.tech_wall',
+  charPikachuTrip: 'char.pikachu.trip',
+  charPikachuTumble: 'char.pikachu.tumble',
+  charPikachuWalk: 'char.pikachu.walk',
+  charPikachuWalkFast: 'char.pikachu.walk_fast',
+  charPikachuWalkSlow: 'char.pikachu.walk_slow',
+  charPikachuWallJump: 'char.pikachu.wall_jump',
+  charPikachuHurt: 'char.pikachu.hurt',
+  charPikachuShield: 'char.pikachu.shield',
+  charPikachuGrab: 'char.pikachu.grab',
+  charPikachuPummel: 'char.pikachu.pummel',
+  charPikachuFthrow: 'char.pikachu.fthrow',
+  charPikachuBthrow: 'char.pikachu.bthrow',
+  charPikachuUthrow: 'char.pikachu.uthrow',
+  charPikachuDthrow: 'char.pikachu.dthrow',
+  charPikachuGetupAttack: 'char.pikachu.getup_attack',
+  charPikachuGetupAttackFaceDown: 'char.pikachu.getup_attack_face_down',
+  charPikachuTripAttack: 'char.pikachu.trip_attack',
+  charPikachuLedgeAttack: 'char.pikachu.ledge_attack',
   // ---------------- characters: donkeykong (full AI sprite set) ------
   charDonkeykongIdle: 'char.donkeykong.idle',
   charDonkeykongRun: 'char.donkeykong.run',
@@ -310,7 +366,6 @@ export const ASSET_KEYS = {
   charDonkeykongCrouch: 'char.donkeykong.crouch',
   charDonkeykongJab: 'char.donkeykong.jab',
   charDonkeykongJab2: 'char.donkeykong.jab2',
-  charDonkeykongJab3: 'char.donkeykong.jab3',
   charDonkeykongTilt: 'char.donkeykong.tilt',
   charDonkeykongDtilt: 'char.donkeykong.dtilt',
   charDonkeykongSmash: 'char.donkeykong.smash',
@@ -324,6 +379,8 @@ export const ASSET_KEYS = {
   charDonkeykongHurt: 'char.donkeykong.hurt',
   charDonkeykongShield: 'char.donkeykong.shield',
   charDonkeykongGrab: 'char.donkeykong.grab',
+  charDonkeykongGrabPull: 'char.donkeykong.grab_pull',
+  charDonkeykongGrabHold: 'char.donkeykong.grab_hold',
   charDonkeykongPummel: 'char.donkeykong.pummel',
   charDonkeykongFthrow: 'char.donkeykong.fthrow',
   charDonkeykongBthrow: 'char.donkeykong.bthrow',
@@ -331,39 +388,180 @@ export const ASSET_KEYS = {
   charDonkeykongDthrow: 'char.donkeykong.dthrow',
   charDonkeykongUair: 'char.donkeykong.uair',
   charDonkeykongDair: 'char.donkeykong.dair',
-
-  // ---------------- characters: cat — palette variant sheets ---------
-  // Generated by `npm run palette-swap` from the canonical
-  // `assets/characters/cat/cat_source_sheet.png` + the colour mapping
-  // declared in `assets/palettes/cat.json`. Sub-AC 4 of AC 10204 requires
-  // that each of the 8 generated variants is registered under a
-  // deterministic texture key so the runtime can fetch it by
-  // `(characterId, paletteIndex)` without re-deriving the file path.
-  // The naming pattern `char.<id>.palette.<index>` is the namespaced
-  // form of the AC's example `${character}_palette_${index}` — same
-  // determinism, same parameters (character + index), but kept under
-  // the existing `char.` prefix so the manifest's namespacing test
-  // stays honest.
-  charCatPalette0: 'char.cat.palette.0',
-  charCatPalette1: 'char.cat.palette.1',
-  charCatPalette2: 'char.cat.palette.2',
-  charCatPalette3: 'char.cat.palette.3',
-  charCatPalette4: 'char.cat.palette.4',
-  charCatPalette5: 'char.cat.palette.5',
-  charCatPalette6: 'char.cat.palette.6',
-  charCatPalette7: 'char.cat.palette.7',
-
-  // ---------------- characters: wolf — palette variant sheets --------
-  // Same contract as the cat block above; sourced from
-  // `assets/characters/wolf/wolf_source_sheet.png` + `assets/palettes/wolf.json`.
-  charWolfPalette0: 'char.wolf.palette.0',
-  charWolfPalette1: 'char.wolf.palette.1',
-  charWolfPalette2: 'char.wolf.palette.2',
-  charWolfPalette3: 'char.wolf.palette.3',
-  charWolfPalette4: 'char.wolf.palette.4',
-  charWolfPalette5: 'char.wolf.palette.5',
-  charWolfPalette6: 'char.wolf.palette.6',
-  charWolfPalette7: 'char.wolf.palette.7',
+  charDonkeykongUtilt: 'char.donkeykong.utilt',
+  charDonkeykongUsmash: 'char.donkeykong.usmash',
+  charDonkeykongDsmash: 'char.donkeykong.dsmash',
+  charDonkeykongDashAttack: 'char.donkeykong.dash_attack',
+  charDonkeykongUpSpecialGround: 'char.donkeykong.up_special_ground',
+  charDonkeykongDownSpecialAir: 'char.donkeykong.down_special_air',
+  // Reworked locomotion family (native-timed, no frameWindows).
+  charDonkeykongWalk: 'char.donkeykong.walk',
+  charDonkeykongDash: 'char.donkeykong.dash',
+  charDonkeykongDashTurn: 'char.donkeykong.dash_turn',
+  charDonkeykongRunTurn: 'char.donkeykong.run_turn',
+  charDonkeykongRunBrake: 'char.donkeykong.run_brake',
+  charDonkeykongRunBrakeLeft: 'char.donkeykong.run_brake_left',
+  charDonkeykongCrouchStart: 'char.donkeykong.crouch_start',
+  charDonkeykongCrouchEnd: 'char.donkeykong.crouch_end',
+  charDonkeykongJumpsquat: 'char.donkeykong.jumpsquat',
+  charDonkeykongJumpShort: 'char.donkeykong.jump_short',
+  charDonkeykongAirjump: 'char.donkeykong.airjump',
+  charDonkeykongAirDrift: 'char.donkeykong.air_drift',
+  charDonkeykongFall: 'char.donkeykong.fall',
+  charDonkeykongFallFast: 'char.donkeykong.fall_fast',
+  charDonkeykongJumpB: 'char.donkeykong.jump_b',
+  charDonkeykongJumpShortB: 'char.donkeykong.jump_short_b',
+  charDonkeykongAirjumpB: 'char.donkeykong.airjump_b',
+  charDonkeykongFallB: 'char.donkeykong.fall_b',
+  charDonkeykongFallAerial: 'char.donkeykong.fall_aerial',
+  charDonkeykongFallAerialF: 'char.donkeykong.fall_aerial_f',
+  charDonkeykongFallAerialB: 'char.donkeykong.fall_aerial_b',
+  charDonkeykongLandingSoft: 'char.donkeykong.landing_soft',
+  charDonkeykongLandingHard: 'char.donkeykong.landing_hard',
+  // Reworked ground-attacks family: new keys (the other clips reuse existing keys).
+  charDonkeykongTiltUp: 'char.donkeykong.tilt_up',
+  charDonkeykongTiltDown: 'char.donkeykong.tilt_down',
+  charDonkeykongSmashCharge: 'char.donkeykong.smash_charge',
+  charDonkeykongUsmashCharge: 'char.donkeykong.usmash_charge',
+  charDonkeykongDsmashCharge: 'char.donkeykong.dsmash_charge',
+  // Reworked specials family: new keys (the other clips reuse existing keys).
+  charDonkeykongNeutralSpecialCharge: 'char.donkeykong.neutral_special_charge',
+  charDonkeykongNeutralSpecialCancel: 'char.donkeykong.neutral_special_cancel',
+  charDonkeykongNeutralSpecialAir: 'char.donkeykong.neutral_special_air',
+  charDonkeykongNeutralSpecialAirCharge: 'char.donkeykong.neutral_special_air_charge',
+  charDonkeykongNeutralSpecialAirCancel: 'char.donkeykong.neutral_special_air_cancel',
+  charDonkeykongSideSpecialAir: 'char.donkeykong.side_special_air',
+  charDonkeykongUpSpecialAir: 'char.donkeykong.up_special_air',
+  charDonkeykongUpSpecialAirLand: 'char.donkeykong.up_special_air_land',
+  charDonkeykongDownSpecialAirLand: 'char.donkeykong.down_special_air_land',
+  charDonkeykongAirDodge: 'char.donkeykong.air_dodge',
+  charDonkeykongRoll: 'char.donkeykong.roll',
+  charDonkeykongRollBack: 'char.donkeykong.roll_back',
+  charDonkeykongShieldBreak: 'char.donkeykong.shield_break',
+  // Ledge / recovery / downed / footstool / captured / parry art (2026-10-11).
+  charDonkeykongCaptured: 'char.donkeykong.captured',
+  charDonkeykongCapturedHit: 'char.donkeykong.captured_hit',
+  charDonkeykongCapturedRelease: 'char.donkeykong.captured_release',
+  charDonkeykongDownWait: 'char.donkeykong.down_wait',
+  charDonkeykongDownWaitFaceDown: 'char.donkeykong.down_wait_face_down',
+  charDonkeykongEntry: 'char.donkeykong.entry',
+  charDonkeykongFallSpecial: 'char.donkeykong.fall_special',
+  charDonkeykongFootstoolAirPose: 'char.donkeykong.footstool_air_pose',
+  charDonkeykongFootstoolJumpMini: 'char.donkeykong.footstool_jump_mini',
+  charDonkeykongFootstoolPose: 'char.donkeykong.footstool_pose',
+  charDonkeykongGetup: 'char.donkeykong.getup',
+  charDonkeykongGetupAttack: 'char.donkeykong.getup_attack',
+  charDonkeykongGetupAttackFaceDown: 'char.donkeykong.getup_attack_face_down',
+  charDonkeykongGetupRoll: 'char.donkeykong.getup_roll',
+  charDonkeykongLedge: 'char.donkeykong.ledge',
+  charDonkeykongLedgeAttack: 'char.donkeykong.ledge_attack',
+  charDonkeykongLedgeCatch: 'char.donkeykong.ledge_catch',
+  charDonkeykongLedgeGetup: 'char.donkeykong.ledge_getup',
+  charDonkeykongLedgeJump: 'char.donkeykong.ledge_jump',
+  charDonkeykongLedgeRoll: 'char.donkeykong.ledge_roll',
+  charDonkeykongTech: 'char.donkeykong.tech',
+  charDonkeykongTechBack: 'char.donkeykong.tech_back',
+  charDonkeykongTechCeiling: 'char.donkeykong.tech_ceiling',
+  charDonkeykongTechForward: 'char.donkeykong.tech_forward',
+  charDonkeykongTechWall: 'char.donkeykong.tech_wall',
+  charDonkeykongTechWallJump: 'char.donkeykong.tech_wall_jump',
+  charDonkeykongTrip: 'char.donkeykong.trip',
+  charDonkeykongTripAttack: 'char.donkeykong.trip_attack',
+  charDonkeykongTumble: 'char.donkeykong.tumble',
+  charDonkeykongParry: 'char.donkeykong.parry',
+  charDonkeykongItemPickupStand: 'char.donkeykong.item_pickup_stand',
+  charDonkeykongItemCarry: 'char.donkeykong.item_carry',
+  charDonkeykongItemThrowF: 'char.donkeykong.item_throw_f',
+  charDonkeykongTauntUpR: 'char.donkeykong.taunt_up_r',
+  charDonkeykongTauntSideR: 'char.donkeykong.taunt_side_r',
+  charDonkeykongTauntDownR: 'char.donkeykong.taunt_down_r',
+  charDonkeykongItemThrowB: 'char.donkeykong.item_throw_b',
+  charDonkeykongItemThrowHi: 'char.donkeykong.item_throw_hi',
+  charDonkeykongItemThrowLw: 'char.donkeykong.item_throw_lw',
+  charDonkeykongItemThrowAirF: 'char.donkeykong.item_throw_air_f',
+  charDonkeykongItemThrowAirB: 'char.donkeykong.item_throw_air_b',
+  charDonkeykongItemThrowAirHi: 'char.donkeykong.item_throw_air_hi',
+  charDonkeykongItemThrowAirLw: 'char.donkeykong.item_throw_air_lw',
+  charDonkeykongItemThrowDash: 'char.donkeykong.item_throw_dash',
+  charDonkeykongItemThrowDrop: 'char.donkeykong.item_throw_drop',
+  charDonkeykongItemPickupWalk: 'char.donkeykong.item_pickup_walk',
+  charDonkeykongItemBatSwing1: 'char.donkeykong.item_bat_swing_1',
+  charDonkeykongItemBatSwing3: 'char.donkeykong.item_bat_swing_3',
+  charDonkeykongItemBatSwing4: 'char.donkeykong.item_bat_swing_4',
+  charDonkeykongItemSwordSwing4: 'char.donkeykong.item_sword_swing_4',
+  charDonkeykongItemHammerJump: 'char.donkeykong.item_hammer_jump',
+  charDonkeykongItemHammerMove: 'char.donkeykong.item_hammer_move',
+  charDonkeykongItemHammerWait: 'char.donkeykong.item_hammer_wait',
+  charDonkeykongItemLightEat: 'char.donkeykong.item_light_eat',
+  charDonkeykongItemLightWalkEat: 'char.donkeykong.item_light_walk_eat',
+  charDonkeykongItemLgunShoot: 'char.donkeykong.item_lgun_shoot',
+  charDonkeykongItemLgunShootAir: 'char.donkeykong.item_lgun_shoot_air',
+  charDonkeykongItemBatSwingDash: 'char.donkeykong.item_bat_swing_dash',
+  charDonkeykongItemSwordSwing4Hold: 'char.donkeykong.item_sword_swing_4_hold',
+  charDonkeykongItemShootLegsWalkF: 'char.donkeykong.item_shoot_legs_walk_f',
+  charDonkeykongItemShootLegsWalkB: 'char.donkeykong.item_shoot_legs_walk_b',
+  charDonkeykongItemShootLegsJumpSquat: 'char.donkeykong.item_shoot_legs_jump_squat',
+  charDonkeykongItemShootLegsLanding: 'char.donkeykong.item_shoot_legs_landing',
+  charDonkeykongItemLgunShootUpper: 'char.donkeykong.item_lgun_shoot_upper',
+  charDonkeykongItemFflowerShootLoop: 'char.donkeykong.item_fflower_shoot_loop',
+  charDonkeykongItemFflowerShootLoopUpper: 'char.donkeykong.item_fflower_shoot_loop_upper',
+  charDonkeykongItemFflowerShootAirLoop: 'char.donkeykong.item_fflower_shoot_air_loop',
+  charDonkeykongItemScopeStart: 'char.donkeykong.item_scope_start',
+  charDonkeykongItemScopeStartUpper: 'char.donkeykong.item_scope_start_upper',
+  charDonkeykongItemScopeWait: 'char.donkeykong.item_scope_wait',
+  charDonkeykongItemScopeWaitUpper: 'char.donkeykong.item_scope_wait_upper',
+  charDonkeykongItemScopeRapid: 'char.donkeykong.item_scope_rapid',
+  charDonkeykongItemScopeRapidUpper: 'char.donkeykong.item_scope_rapid_upper',
+  charDonkeykongItemScopeFire: 'char.donkeykong.item_scope_fire',
+  charDonkeykongItemScopeFireUpper: 'char.donkeykong.item_scope_fire_upper',
+  charDonkeykongItemScopeEnd: 'char.donkeykong.item_scope_end',
+  charDonkeykongItemScopeEndUpper: 'char.donkeykong.item_scope_end_upper',
+  charDonkeykongItemScopeFall: 'char.donkeykong.item_scope_fall',
+  charDonkeykongItemScopeAirStart: 'char.donkeykong.item_scope_air_start',
+  charDonkeykongItemScopeAirRapid: 'char.donkeykong.item_scope_air_rapid',
+  charDonkeykongItemScopeAirFire: 'char.donkeykong.item_scope_air_fire',
+  charDonkeykongItemScopeAirEnd: 'char.donkeykong.item_scope_air_end',
+  charDonkeykongItemHeavyGet: 'char.donkeykong.item_heavy_get',
+  charDonkeykongItemHeavyThrowF: 'char.donkeykong.item_heavy_throw_f',
+  charDonkeykongItemHeavyThrowB: 'char.donkeykong.item_heavy_throw_b',
+  charDonkeykongItemHeavyThrowHi: 'char.donkeykong.item_heavy_throw_hi',
+  charDonkeykongItemHeavyThrowLw: 'char.donkeykong.item_heavy_throw_lw',
+  charDonkeykongSuperLiftWait: 'char.donkeykong.super_lift_wait',
+  charDonkeykongSuperLiftWalkSlow: 'char.donkeykong.super_lift_walk_slow',
+  charDonkeykongSuperLiftWalkMiddle: 'char.donkeykong.super_lift_walk_middle',
+  charDonkeykongSuperLiftWalkFast: 'char.donkeykong.super_lift_walk_fast',
+  charDonkeykongSuperLiftTurn: 'char.donkeykong.super_lift_turn',
+  charDonkeykongSuperLiftJumpSquat: 'char.donkeykong.super_lift_jump_squat',
+  charDonkeykongSuperLiftJump: 'char.donkeykong.super_lift_jump',
+  charDonkeykongSuperLiftFall: 'char.donkeykong.super_lift_fall',
+  charDonkeykongSuperLiftLanding: 'char.donkeykong.super_lift_landing',
+  charDonkeykongShieldEnd: 'char.donkeykong.shield_end',
+  charDonkeykongShieldHit: 'char.donkeykong.shield_hit',
+  charDonkeykongSpotDodge: 'char.donkeykong.spot_dodge',
+  charDonkeykongDashGrab: 'char.donkeykong.dash_grab',
+  charDonkeykongPivotGrab: 'char.donkeykong.pivot_grab',
+  charDonkeykongGrabEscape: 'char.donkeykong.grab_escape',
+  charDonkeykongCargoBthrow: 'char.donkeykong.cargo_bthrow',
+  charDonkeykongCargoDthrow: 'char.donkeykong.cargo_dthrow',
+  charDonkeykongCargoFthrow: 'char.donkeykong.cargo_fthrow',
+  charDonkeykongCargoHold: 'char.donkeykong.cargo_hold',
+  charDonkeykongCargoHoldAir: 'char.donkeykong.cargo_hold_air',
+  charDonkeykongCargoJump: 'char.donkeykong.cargo_jump',
+  charDonkeykongCargoUthrow: 'char.donkeykong.cargo_uthrow',
+  charDonkeykongCargoWalk: 'char.donkeykong.cargo_walk',
+  charDonkeykongCargoRecipientCarried: 'char.donkeykong.cargo_recipient_carried',
+  charDonkeykongCargoRecipientFthrow: 'char.donkeykong.cargo_recipient_fthrow',
+  charDonkeykongCargoRecipientBthrow: 'char.donkeykong.cargo_recipient_bthrow',
+  charDonkeykongCargoRecipientUthrow: 'char.donkeykong.cargo_recipient_uthrow',
+  charDonkeykongCargoRecipientDthrow: 'char.donkeykong.cargo_recipient_dthrow',
+  // Review-only clips apply at their exact paired contact ages.
+  charDonkeykongReviewPilotJab1Contact: 'char.donkeykong.review_pilot_jab1_contact',
+  charDonkeykongReviewPilotJab2Contact: 'char.donkeykong.review_pilot_jab2_contact',
+  charDonkeykongReviewPilotDtiltContact: 'char.donkeykong.review_pilot_dtilt_contact',
+  charDonkeykongReviewLegacyGrab: 'char.donkeykong.review_legacy_grab',
+  charDonkeykongReviewPilotStandingGrabContact: 'char.donkeykong.review_pilot_standing_grab_contact',
+  charDonkeykongReviewPilotDashGrabContact: 'char.donkeykong.review_pilot_dash_grab_contact',
+  charDonkeykongReviewPilotPivotGrabContact: 'char.donkeykong.review_pilot_pivot_grab_contact',
 
   // ---------------- stage: m1 (flat) ---------------------------------
   /** 18×18 platform tile atlas (gutter variant — pairs with margin/spacing). */
@@ -389,20 +587,71 @@ export const ASSET_KEYS = {
   stageBgHills: 'stage.bg.hills',
 
   // ---------------- items --------------------------------------------
-  /** Bomb item sprite — 40×40 PNG sourced from Kenney Particle Pack `fire_01`. */
-  itemBomb: 'item.bomb.sprite',
-  /** Bomb-detonation explosion strip — 3 frames @ 96×96 (flash → fireball → smoke). */
+  /** Bob-omb item sprite — 80×92 authored PLACEHOLDER (black bomb, wind-up key, feet), feet at the bottom (Ultimate items phase 5). */
+  /** Authored Phase8 container cutouts; bottom-root display registration. */
+  itemCrate: 'item.crate',
+  itemBarrel: 'item.barrel',
+  itemCapsule: 'item.capsule',
+  itemBobOmb: 'item.bobOmb.sprite',
+  /** Banana Peel item sprite — 88×44 authored PLACEHOLDER peel lying flat (Ultimate items phase 5). */
+  itemBananaPeel: 'item.bananaPeel.sprite',
+  /** Explosion strip (Bob-omb) — 3 frames @ 96×96 (flash → fireball → smoke). */
   itemExplosion: 'item.bomb.explosion',
   /** Bat item sprite — 16×48 procedural tapered baseball-bat PNG. */
   itemBat: 'item.bat.sprite',
-  /** Ray-gun item sprite — 70×70 PNG from Kenney Platformer Art Deluxe (`raygun.png`). */
+  /** Ray Gun item sprite — 48×112 authored outlined cartoon, barrel up, grip at the bottom (Ultimate items phase 4). */
   itemRayGun: 'item.raygun.sprite',
-  /** Sword item sprite — 96×96 RGBA. */
-  itemSword: 'item.sword.sprite',
-  /** Spear item sprite — 96×96 RGBA. */
-  itemSpear: 'item.spear.sprite',
+  /** Super Scope item sprite — 56×168 authored outlined cartoon, barrel up, grip at the bottom. */
+  itemSuperScope: 'item.superScope.sprite',
+  /** Fire Flower item sprite — 80×112 authored outlined cartoon, head up, stem at the bottom. */
+  itemFireFlower: 'item.fireFlower.sprite',
+  /** Beam Sword item sprite — 16×64 procedural handle + glowing beam (grip at the bottom). */
+  itemBeamSword: 'item.beamSword.sprite',
+  /** Star Rod item sprite — 24×56 procedural rod + star (grip at the bottom). */
+  itemStarRod: 'item.starRod.sprite',
   /** Hammer item sprite — 96×96 RGBA. */
   itemHammer: 'item.hammer.sprite',
+  itemGoldenHammer:'item.goldenHammer.sprite',
+  itemHeartContainer:'item.heartContainer.sprite',
+  itemFoodApple: 'item.food.Apple.sprite',
+  itemFoodBread: 'item.food.Bread.sprite',
+  itemFoodCheese: 'item.food.Cheese.sprite',
+  itemFoodCherries: 'item.food.Cherries.sprite',
+  itemFoodCherryPie: 'item.food.Cherry pie.sprite',
+  itemFoodChocolate: 'item.food.Chocolate.sprite',
+  itemFoodCola: 'item.food.Cola.sprite',
+  itemFoodCornDog: 'item.food.Corn dog.sprite',
+  itemFoodDimSum: 'item.food.Dim sum.sprite',
+  itemFoodDonut: 'item.food.Donut.sprite',
+  itemFoodDumplings: 'item.food.Dumplings.sprite',
+  itemFoodEggs: 'item.food.Eggs.sprite',
+  itemFoodGrapes: 'item.food.Grapes.sprite',
+  itemFoodHamburger: 'item.food.Hamburger.sprite',
+  itemFoodHotDog: 'item.food.Hot dog.sprite',
+  itemFoodKebab: 'item.food.Kebab.sprite',
+  itemFoodKiwi: 'item.food.Kiwi.sprite',
+  itemFoodLemons: 'item.food.Lemons.sprite',
+  itemFoodLollipop: 'item.food.Lollipop.sprite',
+  itemFoodMilk: 'item.food.Milk.sprite',
+  itemFoodMontBlanc: 'item.food.Mont Blanc.sprite',
+  itemFoodOnigiri: 'item.food.Onigiri.sprite',
+  itemFoodPancakes: 'item.food.Pancakes.sprite',
+  itemFoodPear: 'item.food.Pear.sprite',
+  itemFoodPineapple: 'item.food.Pineapple.sprite',
+  itemFoodPizza: 'item.food.Pizza.sprite',
+  itemFoodPopcorn: 'item.food.Popcorn.sprite',
+  itemFoodSalad: 'item.food.Salad.sprite',
+  itemFoodSalisburySteak: 'item.food.Salisbury steak.sprite',
+  itemFoodSpaghetti: 'item.food.Spaghetti.sprite',
+  itemFoodSquashSoup: 'item.food.Squash soup.sprite',
+  itemFoodSteak: 'item.food.Steak.sprite',
+  itemFoodStrawberryShortcake: 'item.food.Strawberry shortcake.sprite',
+  itemFoodTea: 'item.food.Tea.sprite',
+  itemFoodTempura: 'item.food.Tempura.sprite',
+  itemFoodTurkey: 'item.food.Turkey.sprite',
+  itemMaximTomato:'item.maximTomato.sprite',
+  itemHammerHead:'item.hammerHead.sprite',
+  itemHammerHandle:'item.hammerHandle.sprite',
 
   // ---------------- audio: SFX ---------------------------------------
   sfxJab: 'sfx.jab',
@@ -461,21 +710,16 @@ export type AssetKey = (typeof ASSET_KEYS)[keyof typeof ASSET_KEYS];
 // define `import.meta` but not `import.meta.env`, and they only need
 // the key tables, not resolvable URLs.
 const BASE = import.meta.env?.BASE_URL ?? '/';
+/** Canonical asset-relative sources resolve through the same Vite base as PNGs. */
+export function manifestAssetUrl(relativePath:string):string {
+  if(!relativePath||relativePath.startsWith('/')||relativePath.split('/').includes('..'))throw new TypeError('Expected canonical asset-relative path');
+  return `${BASE}${relativePath}`;
+}
 const CHAR_ROOT = `${BASE}characters`;
 const STAGE_ROOT = `${BASE}stages`;
 const SFX_ROOT = `${BASE}audio/sfx`;
 const MUSIC_ROOT = `${BASE}audio/music`;
 const ITEM_SPRITES_ROOT = `${BASE}sprites/items`;
-
-/**
- * Output root for the palette-swap script's per-character variant PNGs.
- * Mirrors `DEFAULT_GENERATED_SPRITES_DIR` in
- * `scripts/palette-swap/index.ts` — both must change together if the
- * pipeline ever moves the output folder. The Vite `publicDir` mount is
- * `assets/`, so the on-disk path `assets/generated/sprites/<id>/…`
- * resolves to the URL prefix `${BASE}generated/sprites/<id>/…` here.
- */
-const GENERATED_SPRITES_ROOT = `${BASE}generated/sprites`;
 
 // ---------------------------------------------------------------------
 // Character spritesheet entries
@@ -488,706 +732,34 @@ const GENERATED_SPRITES_ROOT = `${BASE}generated/sprites`;
 // than if the JSON were the loader's input. The unit test in
 // `manifest.test.ts` cross-checks both.
 
-const catSpritesheets: readonly SpritesheetAssetEntry[] = [
-  {
-    key: ASSET_KEYS.charCatIdle,
-    kind: 'spritesheet',
-    url: `${CHAR_ROOT}/cat/animations/idle.png`,
-    frameWidth: 50,
-    frameHeight: 50,
-    frameCount: 4,
-  },
-  {
-    key: ASSET_KEYS.charCatRun,
-    kind: 'spritesheet',
-    url: `${CHAR_ROOT}/cat/animations/run.png`,
-    frameWidth: 50,
-    frameHeight: 50,
-    frameCount: 10,
-  },
-  {
-    key: ASSET_KEYS.charCatJump,
-    kind: 'spritesheet',
-    url: `${CHAR_ROOT}/cat/animations/jump.png`,
-    frameWidth: 50,
-    frameHeight: 50,
-    frameCount: 5,
-  },
-  {
-    key: ASSET_KEYS.charCatAttack,
-    kind: 'spritesheet',
-    url: `${CHAR_ROOT}/cat/animations/attack.png`,
-    frameWidth: 50,
-    frameHeight: 50,
-    frameCount: 10,
-  },
-];
-
-const wolfSpritesheets: readonly SpritesheetAssetEntry[] = [
-  {
-    key: ASSET_KEYS.charWolfIdle,
-    kind: 'spritesheet',
-    url: `${CHAR_ROOT}/wolf/animations/idle.png`,
-    frameWidth: 64,
-    frameHeight: 64,
-    frameCount: 4,
-  },
-  {
-    key: ASSET_KEYS.charWolfRun,
-    kind: 'spritesheet',
-    url: `${CHAR_ROOT}/wolf/animations/run.png`,
-    frameWidth: 64,
-    frameHeight: 64,
-    frameCount: 8,
-  },
-  {
-    key: ASSET_KEYS.charWolfJump,
-    kind: 'spritesheet',
-    url: `${CHAR_ROOT}/wolf/animations/jump.png`,
-    frameWidth: 64,
-    frameHeight: 64,
-    frameCount: 5,
-  },
-  {
-    key: ASSET_KEYS.charWolfAttack,
-    kind: 'spritesheet',
-    url: `${CHAR_ROOT}/wolf/animations/attack.png`,
-    frameWidth: 64,
-    frameHeight: 64,
-    // Original source had 4 cells but cell 0 was a stray-pixel artifact;
-    // the real attack animation is 3 frames after the rebuild pass that
-    // detected clean wolf clusters and dropped the noise cell.
-    frameCount: 3,
-  },
-];
-
-const owlSpritesheets: readonly SpritesheetAssetEntry[] = [
-  {
-    key: ASSET_KEYS.charOwlIdle,
-    kind: 'spritesheet',
-    url: `${CHAR_ROOT}/owl/animations/idle.png`,
-    frameWidth: 15,
-    frameHeight: 20,
-    frameCount: 1,
-  },
-  {
-    key: ASSET_KEYS.charOwlRun,
-    kind: 'spritesheet',
-    url: `${CHAR_ROOT}/owl/animations/run.png`,
-    frameWidth: 15,
-    frameHeight: 20,
-    frameCount: 8,
-  },
-  {
-    key: ASSET_KEYS.charOwlJump,
-    kind: 'spritesheet',
-    url: `${CHAR_ROOT}/owl/animations/jump.png`,
-    frameWidth: 15,
-    frameHeight: 20,
-    frameCount: 1,
-  },
-  {
-    key: ASSET_KEYS.charOwlAttack,
-    kind: 'spritesheet',
-    url: `${CHAR_ROOT}/owl/animations/attack.png`,
-    frameWidth: 15,
-    frameHeight: 20,
-    frameCount: 1,
-  },
-];
-
-const bearSpritesheets: readonly SpritesheetAssetEntry[] = [
-  {
-    key: ASSET_KEYS.charBearIdle,
-    kind: 'spritesheet',
-    url: `${CHAR_ROOT}/bear/animations/idle.png`,
-    frameWidth: 60,
-    frameHeight: 72,
-    frameCount: 2,
-  },
-  {
-    key: ASSET_KEYS.charBearRun,
-    kind: 'spritesheet',
-    url: `${CHAR_ROOT}/bear/animations/run.png`,
-    frameWidth: 60,
-    frameHeight: 72,
-    frameCount: 4,
-  },
-  {
-    key: ASSET_KEYS.charBearJump,
-    kind: 'spritesheet',
-    url: `${CHAR_ROOT}/bear/animations/jump.png`,
-    frameWidth: 60,
-    frameHeight: 72,
-    frameCount: 3,
-  },
-  {
-    key: ASSET_KEYS.charBearAttack,
-    kind: 'spritesheet',
-    url: `${CHAR_ROOT}/bear/animations/attack.png`,
-    frameWidth: 60,
-    frameHeight: 72,
-    frameCount: 4,
-  },
-];
-
-// Post-M5 roster expansion — Blaze / Puff / Aegis sprite packs.
-//
-// Blaze ships the *Punk* character from CraftPix.net's "Free 3 Cyberpunk
-// Characters Pixel Art" (OGA-BY 3.0 — see ATTRIBUTION.md). Strips are
-// verbatim copies of the upstream 48×48-cell horizontal strips
-// (idle / run / jump / punch-as-attack).
-const blazeSpritesheets: readonly SpritesheetAssetEntry[] = [
-  {
-    key: ASSET_KEYS.charBlazeIdle,
-    kind: 'spritesheet',
-    url: `${CHAR_ROOT}/blaze/animations/idle.png`,
-    frameWidth: 48,
-    frameHeight: 48,
-    frameCount: 4,
-  },
-  {
-    key: ASSET_KEYS.charBlazeRun,
-    kind: 'spritesheet',
-    url: `${CHAR_ROOT}/blaze/animations/run.png`,
-    frameWidth: 48,
-    frameHeight: 48,
-    frameCount: 6,
-  },
-  {
-    key: ASSET_KEYS.charBlazeJump,
-    kind: 'spritesheet',
-    url: `${CHAR_ROOT}/blaze/animations/jump.png`,
-    frameWidth: 48,
-    frameHeight: 48,
-    frameCount: 4,
-  },
-  {
-    key: ASSET_KEYS.charBlazeAttack,
-    kind: 'spritesheet',
-    url: `${CHAR_ROOT}/blaze/animations/attack.png`,
-    frameWidth: 48,
-    frameHeight: 48,
-    frameCount: 6,
-  },
-];
-
-// Puff ships the *Slime (SLIME04)* character from Segel's CC0
-// "Adventurer and Slime game Sprites" pack. Upstream per-frame
-// 1333×936 canvases were cropped to a fixed union bounding rect and
-// box-filter downscaled ÷4 into 136×89 cells (see
-// `assets/characters/puff/frames.json` for the exact mapping). The
-// jump strip re-extracts the airborne hop arc of the attack lunge —
-// same approach the Owl pack used for its jump frame.
-const puffSpritesheets: readonly SpritesheetAssetEntry[] = [
-  {
-    key: ASSET_KEYS.charPuffIdle,
-    kind: 'spritesheet',
-    url: `${CHAR_ROOT}/puff/animations/idle.png`,
-    frameWidth: 136,
-    frameHeight: 89,
-    frameCount: 12,
-  },
-  {
-    key: ASSET_KEYS.charPuffRun,
-    kind: 'spritesheet',
-    url: `${CHAR_ROOT}/puff/animations/run.png`,
-    frameWidth: 136,
-    frameHeight: 89,
-    frameCount: 10,
-  },
-  {
-    key: ASSET_KEYS.charPuffJump,
-    kind: 'spritesheet',
-    url: `${CHAR_ROOT}/puff/animations/jump.png`,
-    frameWidth: 136,
-    frameHeight: 89,
-    frameCount: 4,
-  },
-  {
-    key: ASSET_KEYS.charPuffAttack,
-    kind: 'spritesheet',
-    url: `${CHAR_ROOT}/puff/animations/attack.png`,
-    frameWidth: 136,
-    frameHeight: 89,
-    frameCount: 8,
-  },
-];
-
-// Aegis — full AI sprite set at HD 256² (elegant blue-armored sword prince,
-// Z-Image ControlNet pipeline). Replaces the original Segel CC0 *Adventurer*
-// 4-clip 128×130 pack. Counts mirror assets/characters/aegis/frames.json.
-const aegisSpritesheets: readonly SpritesheetAssetEntry[] = charSheetEntries('aegis', [
-  [ASSET_KEYS.charAegisIdle, 'idle', 4],
-  [ASSET_KEYS.charAegisRun, 'run', 8],
-  [ASSET_KEYS.charAegisJump, 'jump', 5],
-  [ASSET_KEYS.charAegisAttack, 'attack', 5],
-  [ASSET_KEYS.charAegisCrouch, 'crouch', 1],
-  [ASSET_KEYS.charAegisJab, 'jab', 3],
-  [ASSET_KEYS.charAegisJab2, 'jab2', 4],
-  [ASSET_KEYS.charAegisJab3, 'jab3', 4],
-  [ASSET_KEYS.charAegisTilt, 'tilt', 3],
-  [ASSET_KEYS.charAegisDtilt, 'dtilt', 4],
-  [ASSET_KEYS.charAegisSmash, 'smash', 4],
-  [ASSET_KEYS.charAegisNair, 'nair', 3],
-  [ASSET_KEYS.charAegisFair, 'fair', 3],
-  [ASSET_KEYS.charAegisBair, 'bair', 3],
-  [ASSET_KEYS.charAegisNeutralSpecial, 'neutral_special', 3],
-  [ASSET_KEYS.charAegisSideSpecial, 'side_special', 3],
-  [ASSET_KEYS.charAegisUpSpecial, 'up_special', 3],
-  [ASSET_KEYS.charAegisDownSpecial, 'down_special', 3],
-  [ASSET_KEYS.charAegisHurt, 'hurt', 2],
-  [ASSET_KEYS.charAegisShield, 'shield', 1],
-  [ASSET_KEYS.charAegisGrab, 'grab', 3],
-  [ASSET_KEYS.charAegisPummel, 'pummel', 2],
-  [ASSET_KEYS.charAegisFthrow, 'fthrow', 3],
-  [ASSET_KEYS.charAegisBthrow, 'bthrow', 3],
-  [ASSET_KEYS.charAegisUthrow, 'uthrow', 3],
-  [ASSET_KEYS.charAegisDthrow, 'dthrow', 3],
-  [ASSET_KEYS.charAegisUair, 'uair', 3],
-  [ASSET_KEYS.charAegisDair, 'dair', 3],
-], CHAR_FRAME_SIZE_HD);
-
-// Post-batch-2 roster expansion — Volt / Nova / Bruno sprite packs.
-//
-// Volt ships Segel's CC0 *Tiny Kitten Game Sprite* (a small chibi
-// creature — the Pikachu-inspired tiny fighter). Upstream per-frame
-// PNGs (489×461 canvas) were cropped to a fixed union rect and
-// box-filter downscaled into 64×80 cells (see frames.json +
-// Link — first AI-generated pack (Z-Image ControlNet pose-source pipeline,
-// tools/gen-frames.ts + tools/pack-clips.cjs). 65×64 cells. run is a generated
-// 8-frame cycle; jump 5; attack is the collapsed swing (5 frames); idle is a
-// 4-frame breathing loop from the ControlNet keyframe.
-const linkSpritesheets: readonly SpritesheetAssetEntry[] = charSheetEntries('link', [
-  [ASSET_KEYS.charLinkIdle,   'idle',   4],
-  [ASSET_KEYS.charLinkRun,    'run',    8],
-  [ASSET_KEYS.charLinkJump,   'jump',   5],
-  [ASSET_KEYS.charLinkAttack, 'attack', 5],
-], CHAR_FRAME_SIZE_HD);
-
-// Link — full per-move + ducking set (AI ControlNet pipeline). Frame counts mirror
-// assets/characters/link/frames.json (one cell per generated pose).
-const linkMovesetSpritesheets: readonly SpritesheetAssetEntry[] = [
-  { key: ASSET_KEYS.charLinkCrouch, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/crouch.png`, frameWidth: CHAR_FRAME_SIZE_HD, frameHeight: CHAR_FRAME_SIZE_HD, frameCount: 1 },
-  { key: ASSET_KEYS.charLinkJab, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/jab.png`, frameWidth: CHAR_FRAME_SIZE_HD, frameHeight: CHAR_FRAME_SIZE_HD, frameCount: 3 },
-  { key: ASSET_KEYS.charLinkJab2, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/jab2.png`, frameWidth: CHAR_FRAME_SIZE_HD, frameHeight: CHAR_FRAME_SIZE_HD, frameCount: 4 },
-  { key: ASSET_KEYS.charLinkJab3, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/jab3.png`, frameWidth: CHAR_FRAME_SIZE_HD, frameHeight: CHAR_FRAME_SIZE_HD, frameCount: 4 },
-  { key: ASSET_KEYS.charLinkTilt, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/tilt.png`, frameWidth: CHAR_FRAME_SIZE_HD, frameHeight: CHAR_FRAME_SIZE_HD, frameCount: 3 },
-  { key: ASSET_KEYS.charLinkDtilt, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/dtilt.png`, frameWidth: CHAR_FRAME_SIZE_HD, frameHeight: CHAR_FRAME_SIZE_HD, frameCount: 4 },
-  { key: ASSET_KEYS.charLinkSmash, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/smash.png`, frameWidth: CHAR_FRAME_SIZE_HD, frameHeight: CHAR_FRAME_SIZE_HD, frameCount: 4 },
-  { key: ASSET_KEYS.charLinkNair, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/nair.png`, frameWidth: CHAR_FRAME_SIZE_HD, frameHeight: CHAR_FRAME_SIZE_HD, frameCount: 3 },
-  { key: ASSET_KEYS.charLinkFair, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/fair.png`, frameWidth: CHAR_FRAME_SIZE_HD, frameHeight: CHAR_FRAME_SIZE_HD, frameCount: 3 },
-  { key: ASSET_KEYS.charLinkBair, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/bair.png`, frameWidth: CHAR_FRAME_SIZE_HD, frameHeight: CHAR_FRAME_SIZE_HD, frameCount: 3 },
-  { key: ASSET_KEYS.charLinkUair, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/uair.png`, frameWidth: CHAR_FRAME_SIZE_HD, frameHeight: CHAR_FRAME_SIZE_HD, frameCount: 3 },
-  { key: ASSET_KEYS.charLinkDair, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/dair.png`, frameWidth: CHAR_FRAME_SIZE_HD, frameHeight: CHAR_FRAME_SIZE_HD, frameCount: 3 },
-  { key: ASSET_KEYS.charLinkNeutralSpecial, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/neutral_special.png`, frameWidth: CHAR_FRAME_SIZE_HD, frameHeight: CHAR_FRAME_SIZE_HD, frameCount: 3 },
-  { key: ASSET_KEYS.charLinkSideSpecial, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/side_special.png`, frameWidth: CHAR_FRAME_SIZE_HD, frameHeight: CHAR_FRAME_SIZE_HD, frameCount: 3 },
-  { key: ASSET_KEYS.charLinkUpSpecial, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/up_special.png`, frameWidth: CHAR_FRAME_SIZE_HD, frameHeight: CHAR_FRAME_SIZE_HD, frameCount: 3 },
-  { key: ASSET_KEYS.charLinkDownSpecial, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/down_special.png`, frameWidth: CHAR_FRAME_SIZE_HD, frameHeight: CHAR_FRAME_SIZE_HD, frameCount: 3 },
-  { key: ASSET_KEYS.charLinkHurt,   kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/hurt.png`,   frameWidth: CHAR_FRAME_SIZE_HD, frameHeight: CHAR_FRAME_SIZE_HD, frameCount: 2 },
-  { key: ASSET_KEYS.charLinkShield, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/shield.png`, frameWidth: CHAR_FRAME_SIZE_HD, frameHeight: CHAR_FRAME_SIZE_HD, frameCount: 1 },
-  { key: ASSET_KEYS.charLinkGrab,   kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/grab.png`,   frameWidth: CHAR_FRAME_SIZE_HD, frameHeight: CHAR_FRAME_SIZE_HD, frameCount: 3 },
-  { key: ASSET_KEYS.charLinkPummel, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/pummel.png`, frameWidth: CHAR_FRAME_SIZE_HD, frameHeight: CHAR_FRAME_SIZE_HD, frameCount: 2 },
-  { key: ASSET_KEYS.charLinkFthrow, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/fthrow.png`, frameWidth: CHAR_FRAME_SIZE_HD, frameHeight: CHAR_FRAME_SIZE_HD, frameCount: 3 },
-  { key: ASSET_KEYS.charLinkBthrow, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/bthrow.png`, frameWidth: CHAR_FRAME_SIZE_HD, frameHeight: CHAR_FRAME_SIZE_HD, frameCount: 3 },
-  { key: ASSET_KEYS.charLinkUthrow, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/uthrow.png`, frameWidth: CHAR_FRAME_SIZE_HD, frameHeight: CHAR_FRAME_SIZE_HD, frameCount: 3 },
-  { key: ASSET_KEYS.charLinkDthrow, kind: 'spritesheet', url: `${CHAR_ROOT}/link/animations/dthrow.png`, frameWidth: CHAR_FRAME_SIZE_HD, frameHeight: CHAR_FRAME_SIZE_HD, frameCount: 3 },
-];
-
-// Helper: build a fighter's spritesheet entries from (assetKey, file, frameCount)
-// tuples at the standard AI-pack cell size. Cuts the per-character boilerplate for
-// the full per-move sprite packs.
-function charSheetEntries(
-  fighter: string,
-  defs: ReadonlyArray<readonly [string, string, number]>,
-  cell: number = CHAR_FRAME_SIZE,
+/** One `char.<fighter>.<clip>` sheet per clip of a fighter's frames.json (grid or tight-packed strips). */
+function packedFighterSpritesheets(fighter: string, animations: Readonly<Record<string, {
+  readonly strip: string; readonly frameWidth: number; readonly frameHeight: number; readonly frameCount: number }>>,
 ): readonly SpritesheetAssetEntry[] {
-  return defs.map(([key, file, frameCount]) => ({
-    key,
-    kind: 'spritesheet' as const,
-    url: `${CHAR_ROOT}/${fighter}/animations/${file}.png`,
-    frameWidth: cell,
-    frameHeight: cell,
-    frameCount,
-  }));
+  return Object.entries(animations).map(([sheet, clip]) => ({ key: `char.${fighter}.${sheet}`, kind: 'spritesheet' as const,
+    url: `${CHAR_ROOT}/${fighter}/${clip.strip}`, frameWidth: clip.frameWidth,
+    frameHeight: clip.frameHeight, frameCount: clip.frameCount, ...packedLayoutOf(clip) }));
 }
 
-// Kirby — full AI sprite set (basic + per-move + crouch). Counts mirror
-// assets/characters/kirby/frames.json.
-const kirbySpritesheets: readonly SpritesheetAssetEntry[] = charSheetEntries('kirby', [
-  [ASSET_KEYS.charKirbyIdle, 'idle', 4],
-  [ASSET_KEYS.charKirbyRun, 'run', 8],
-  [ASSET_KEYS.charKirbyJump, 'jump', 5],
-  [ASSET_KEYS.charKirbyAttack, 'attack', 4],
-  [ASSET_KEYS.charKirbyCrouch, 'crouch', 1],
-  [ASSET_KEYS.charKirbyJab, 'jab', 3],
-  [ASSET_KEYS.charKirbyJab2, 'jab2', 4],
-  [ASSET_KEYS.charKirbyJab3, 'jab3', 4],
-  [ASSET_KEYS.charKirbyTilt, 'tilt', 3],
-  [ASSET_KEYS.charKirbyDtilt, 'dtilt', 4],
-  [ASSET_KEYS.charKirbySmash, 'smash', 4],
-  [ASSET_KEYS.charKirbyNair, 'nair', 3],
-  [ASSET_KEYS.charKirbyFair, 'fair', 3],
-  [ASSET_KEYS.charKirbyBair, 'bair', 3],
-  [ASSET_KEYS.charKirbyNeutralSpecial, 'neutral_special', 3],
-  [ASSET_KEYS.charKirbySideSpecial, 'side_special', 3],
-  [ASSET_KEYS.charKirbyUpSpecial, 'up_special', 3],
-  [ASSET_KEYS.charKirbyDownSpecial, 'down_special', 3],
-  [ASSET_KEYS.charKirbyHurt, 'hurt', 2],
-  [ASSET_KEYS.charKirbyShield, 'shield', 1],
-  [ASSET_KEYS.charKirbyGrab, 'grab', 3],
-  [ASSET_KEYS.charKirbyPummel, 'pummel', 2],
-  [ASSET_KEYS.charKirbyFthrow, 'fthrow', 3],
-  [ASSET_KEYS.charKirbyBthrow, 'bthrow', 3],
-  [ASSET_KEYS.charKirbyUthrow, 'uthrow', 3],
-  [ASSET_KEYS.charKirbyDthrow, 'dthrow', 3],
-  [ASSET_KEYS.charKirbyUair, 'uair', 3],
-  [ASSET_KEYS.charKirbyDair, 'dair', 3],
-], CHAR_FRAME_SIZE_HD);
+// Link — fresh native-model renders packed by tools/fighter-pack.py (tight layout).
+const linkSpritesheets = packedFighterSpritesheets('link', linkFrameMetadata.animations);
+
+/** The art-owner aggregate contains only actually reviewed packed strips.
+ * Reserved keys are separate from acceptance: a future key without metadata
+ * never causes a pending/fallback sheet to load. Dimensions/counts follow the
+ * reviewed cell contract, including safe multirow atlases and loop closures.
+ */
+const pikachuSpritesheets: readonly SpritesheetAssetEntry[] = Object.entries(pikachuReviewedFrameMetadata.animations)
+  .map(([sheet, clip]) => {
+    const route = sheet === 'ftilt' ? 'tilt' : sheet;
+    const key = Object.values(ASSET_KEYS).find(candidate => candidate === `char.pikachu.${route}`);
+    if (!key) throw new Error(`Reviewed Pikachu sheet lacks reserved asset key: ${sheet}`);
+    return { key, kind: 'spritesheet' as const, url: `${CHAR_ROOT}/pikachu/animations/${sheet}.png`,
+      frameWidth: clip.frameWidth, frameHeight: clip.frameHeight, frameCount: clip.frameCount, ...packedLayoutOf(clip) };
+  });
 
 // Donkey Kong — full AI sprite set. Counts mirror assets/characters/donkeykong/frames.json.
-const donkeykongSpritesheets: readonly SpritesheetAssetEntry[] = charSheetEntries('donkeykong', [
-  [ASSET_KEYS.charDonkeykongIdle, 'idle', 4],
-  [ASSET_KEYS.charDonkeykongRun, 'run', 8],
-  [ASSET_KEYS.charDonkeykongJump, 'jump', 5],
-  [ASSET_KEYS.charDonkeykongAttack, 'attack', 4],
-  [ASSET_KEYS.charDonkeykongCrouch, 'crouch', 1],
-  [ASSET_KEYS.charDonkeykongJab, 'jab', 3],
-  [ASSET_KEYS.charDonkeykongJab2, 'jab2', 4],
-  [ASSET_KEYS.charDonkeykongJab3, 'jab3', 4],
-  [ASSET_KEYS.charDonkeykongTilt, 'tilt', 3],
-  [ASSET_KEYS.charDonkeykongDtilt, 'dtilt', 4],
-  [ASSET_KEYS.charDonkeykongSmash, 'smash', 4],
-  [ASSET_KEYS.charDonkeykongNair, 'nair', 3],
-  [ASSET_KEYS.charDonkeykongFair, 'fair', 3],
-  [ASSET_KEYS.charDonkeykongBair, 'bair', 3],
-  [ASSET_KEYS.charDonkeykongNeutralSpecial, 'neutral_special', 3],
-  [ASSET_KEYS.charDonkeykongSideSpecial, 'side_special', 3],
-  [ASSET_KEYS.charDonkeykongUpSpecial, 'up_special', 3],
-  [ASSET_KEYS.charDonkeykongDownSpecial, 'down_special', 3],
-  [ASSET_KEYS.charDonkeykongHurt, 'hurt', 2],
-  [ASSET_KEYS.charDonkeykongShield, 'shield', 1],
-  [ASSET_KEYS.charDonkeykongGrab, 'grab', 3],
-  [ASSET_KEYS.charDonkeykongPummel, 'pummel', 2],
-  [ASSET_KEYS.charDonkeykongFthrow, 'fthrow', 3],
-  [ASSET_KEYS.charDonkeykongBthrow, 'bthrow', 3],
-  [ASSET_KEYS.charDonkeykongUthrow, 'uthrow', 3],
-  [ASSET_KEYS.charDonkeykongDthrow, 'dthrow', 3],
-  [ASSET_KEYS.charDonkeykongUair, 'uair', 3],
-  [ASSET_KEYS.charDonkeykongDair, 'dair', 3],
-], CHAR_FRAME_SIZE_HD);
-
-// tools/build-newchar-sprites.cjs). The 'attack' strip reuses the
-// pack's JumpFall pounce pose (no dedicated attack animation).
-const voltSpritesheets: readonly SpritesheetAssetEntry[] = [
-  {
-    key: ASSET_KEYS.charVoltIdle,
-    kind: 'spritesheet',
-    url: `${CHAR_ROOT}/volt/animations/idle.png`,
-    frameWidth: 64,
-    frameHeight: 80,
-    frameCount: 12,
-  },
-  {
-    key: ASSET_KEYS.charVoltRun,
-    kind: 'spritesheet',
-    url: `${CHAR_ROOT}/volt/animations/run.png`,
-    frameWidth: 64,
-    frameHeight: 80,
-    frameCount: 10,
-  },
-  {
-    key: ASSET_KEYS.charVoltJump,
-    kind: 'spritesheet',
-    url: `${CHAR_ROOT}/volt/animations/jump.png`,
-    frameWidth: 64,
-    frameHeight: 80,
-    frameCount: 5,
-  },
-  {
-    key: ASSET_KEYS.charVoltAttack,
-    kind: 'spritesheet',
-    url: `${CHAR_ROOT}/volt/animations/attack.png`,
-    frameWidth: 64,
-    frameHeight: 80,
-    frameCount: 5,
-  },
-];
-
-// Nova ships the CC0 *2D Douche Cyborg* ('CyborgMark') by Darius
-// Guerrero — an armoured cyborg with an arm-cannon (the Samus-inspired
-// zoner). Upstream per-frame PNGs (~114-139 px canvases) were cropped
-// to a fixed union rect and box-filter downscaled into 72×96 cells. The
-// 'attack' strip is the pack's Shoot animation (arm-cannon fire) —
-// fitting the zoner's projectile identity.
-const novaSpritesheets: readonly SpritesheetAssetEntry[] = [
-  {
-    key: ASSET_KEYS.charNovaIdle,
-    kind: 'spritesheet',
-    url: `${CHAR_ROOT}/nova/animations/idle.png`,
-    frameWidth: 72,
-    frameHeight: 96,
-    frameCount: 15,
-  },
-  {
-    key: ASSET_KEYS.charNovaRun,
-    kind: 'spritesheet',
-    url: `${CHAR_ROOT}/nova/animations/run.png`,
-    frameWidth: 72,
-    frameHeight: 96,
-    frameCount: 15,
-  },
-  {
-    key: ASSET_KEYS.charNovaJump,
-    kind: 'spritesheet',
-    url: `${CHAR_ROOT}/nova/animations/jump.png`,
-    frameWidth: 72,
-    frameHeight: 96,
-    frameCount: 15,
-  },
-  {
-    key: ASSET_KEYS.charNovaAttack,
-    kind: 'spritesheet',
-    url: `${CHAR_ROOT}/nova/animations/attack.png`,
-    frameWidth: 72,
-    frameHeight: 96,
-    frameCount: 9,
-  },
-];
-
-// Bruno ships the CC0 *Generic Platformer Pack* main character by
-// bakudas — a compact cap-and-jumpsuit humanoid (the Mario-inspired
-// all-rounder). Native pixel-art frames (22×32) were cropped to a
-// fixed union rect and re-laid near 1:1 into 28×36 cells. The 'attack'
-// strip reuses the run lunge frames (no dedicated attack animation).
-const brunoSpritesheets: readonly SpritesheetAssetEntry[] = [
-  {
-    key: ASSET_KEYS.charBrunoIdle,
-    kind: 'spritesheet',
-    url: `${CHAR_ROOT}/bruno/animations/idle.png`,
-    frameWidth: 28,
-    frameHeight: 36,
-    frameCount: 4,
-  },
-  {
-    key: ASSET_KEYS.charBrunoRun,
-    kind: 'spritesheet',
-    url: `${CHAR_ROOT}/bruno/animations/run.png`,
-    frameWidth: 28,
-    frameHeight: 36,
-    frameCount: 8,
-  },
-  {
-    key: ASSET_KEYS.charBrunoJump,
-    kind: 'spritesheet',
-    url: `${CHAR_ROOT}/bruno/animations/jump.png`,
-    frameWidth: 28,
-    frameHeight: 36,
-    frameCount: 2,
-  },
-  {
-    key: ASSET_KEYS.charBrunoAttack,
-    kind: 'spritesheet',
-    url: `${CHAR_ROOT}/bruno/animations/attack.png`,
-    frameWidth: 28,
-    frameHeight: 36,
-    frameCount: 8,
-  },
-];
-
-// ---------------------------------------------------------------------
-// Palette variant spritesheet entries — Sub-AC 4 of AC 10204
-// ---------------------------------------------------------------------
-//
-// The palette-swap script (`scripts/palette-swap/index.ts`) emits one
-// PNG per `(characterId, paletteIndex)` pair into
-// `assets/generated/sprites/<id>/<index>_<slug>.png`. Each PNG is a
-// pixel-remapped clone of the canonical source sheet (same dimensions,
-// same per-cell layout) — only the pixels matching the palette JSON's
-// source slot colours are recoloured to the variant's target colours.
-//
-// At runtime the renderer needs to fetch the right variant by slot:
-//
-//     const tex = scene.add.image(x, y, paletteVariantTextureKey('wolf', 3));
-//
-// To make that lookup deterministic and free of file-path knowledge,
-// we pre-register all 16 variants (8 wolf + 8 cat) under stable
-// `char.<id>.palette.<index>` cache keys here. Keys are also exposed
-// via {@link paletteVariantTextureKey} so consumers don't recompute
-// the string at every call site.
-//
-// Why these are loaded as `spritesheet` (not `image`):
-//   - The variant PNGs preserve the source sheet's per-cell grid
-//     (16×16 cells of 64×64 px for wolf; 10×10 cells of 50×50 px for
-//     cat — see `frames.json` per character). Loading as a spritesheet
-//     means the renderer can frame-index into them with the same
-//     `(col, row)` offsets the canonical strips use, so a future "play
-//     idle animation in palette 3" lookup is one Phaser API call away
-//     rather than a custom blit.
-//   - Loading as `spritesheet` also keeps these entries inside the
-//     existing PreloadScene dispatch case, so Sub-AC 4 ships without
-//     touching the loader switch.
-
-/**
- * Per-character variant configuration. Slugs match what the
- * palette-swap script writes to disk (`<index>_<slug>.png`) — they are
- * the slugified `name` field from `assets/palettes/<id>.json` and are
- * also the canonical display label for that palette index in
- * `src/characters/palettes.ts`. Frame dimensions mirror the source
- * sheet's `cellWidth`/`cellHeight` from `frames.json`.
- *
- * Owl and Bear have palette JSON files but no canonical source sheet
- * yet (M2 art deliverable), so they are intentionally absent from this
- * table. The runtime falls back to `PaletteSwapRenderer`'s tint pipeline
- * for those characters until the M2 art lands and the script can emit
- * variant PNGs for them.
- */
-export interface PaletteVariantSheetConfig {
-  /** Character id — namespaces the texture key + the on-disk folder. */
-  readonly characterId: 'wolf' | 'cat';
-  /** Cell width in pixels (matches `cellWidth` in `frames.json`). */
-  readonly frameWidth: number;
-  /** Cell height in pixels. */
-  readonly frameHeight: number;
-  /** Total cells in the sheet (`sheetCols * sheetRows`). */
-  readonly frameCount: number;
-  /**
-   * Variant slug per palette index 0..7. Matches the slugified
-   * `variants[i].name` from `assets/palettes/<id>.json` and the
-   * filename written by `slugifyVariantName()` in
-   * `scripts/palette-swap/index.ts`.
-   */
-  readonly slugs: readonly [string, string, string, string, string, string, string, string];
-}
-
-/**
- * Frozen table describing every character that currently ships with
- * palette-swap variant PNGs. Iterating this table is how the manifest
- * generates its variant spritesheet entries — adding a new character
- * (Owl/Bear in M2) is a one-entry change here plus a new `ASSET_KEYS`
- * block above.
- */
-export const PALETTE_VARIANT_CHARACTERS: readonly PaletteVariantSheetConfig[] =
-  Object.freeze([
-    Object.freeze<PaletteVariantSheetConfig>({
-      characterId: 'cat',
-      frameWidth: 50,
-      frameHeight: 50,
-      frameCount: 100, // 10 cols × 10 rows — see assets/characters/cat/frames.json
-      slugs: Object.freeze([
-        'sky',
-        'fuchsia',
-        'mint',
-        'lavender',
-        'coral',
-        'lime',
-        'teal',
-        'shadow',
-      ]) as PaletteVariantSheetConfig['slugs'],
-    }),
-    Object.freeze<PaletteVariantSheetConfig>({
-      characterId: 'wolf',
-      frameWidth: 64,
-      frameHeight: 64,
-      frameCount: 256, // 16 cols × 16 rows — see assets/characters/wolf/frames.json
-      slugs: Object.freeze([
-        'crimson',
-        'cobalt',
-        'sunburst',
-        'forest',
-        'royal',
-        'ember',
-        'lagoon',
-        'rose',
-      ]) as PaletteVariantSheetConfig['slugs'],
-    }),
-  ]);
-
-/** Number of palette variants per character — locked to the Seed's "8". */
-export const PALETTE_VARIANTS_PER_CHARACTER = 8;
-
-/**
- * Compose the deterministic Phaser texture cache key for a palette
- * variant. The format mirrors the AC's example
- * `${character}_palette_${index}` semantically (parameterised by
- * character id + index, deterministic) while staying under the
- * existing `char.` namespace prefix the manifest contract enforces.
- *
- * Usage:
- *
- *     const key = paletteVariantTextureKey('wolf', 3);
- *     // → 'char.wolf.palette.3'
- *     const sprite = scene.add.sprite(x, y, key, frameIndex);
- *
- * Pure / deterministic — same `(id, index)` always returns the same
- * string. Index is wrapped modulo {@link PALETTE_VARIANTS_PER_CHARACTER}
- * so a stale `paletteIndex` (e.g. read from an out-of-date replay)
- * lands on a valid key rather than a `char.wolf.palette.NaN` typo.
- */
-export function paletteVariantTextureKey(
-  characterId: PaletteVariantSheetConfig['characterId'],
-  paletteIndex: number,
-): string {
-  const wrapped = wrapPaletteIndex(paletteIndex);
-  return `char.${characterId}.palette.${wrapped}`;
-}
-
-/**
- * Compose the public URL for a palette variant PNG. Centralised so
- * the manifest registration and any future runtime helper (e.g. a
- * lazy-load fallback for a missing variant) build identical paths.
- */
-export function paletteVariantUrl(
-  config: PaletteVariantSheetConfig,
-  paletteIndex: number,
-): string {
-  const wrapped = wrapPaletteIndex(paletteIndex);
-  const slug = config.slugs[wrapped];
-  // `slug` is a tuple element, but TypeScript still narrows it to
-  // `string | undefined` under `noUncheckedIndexedAccess`. The wrap
-  // above guarantees we land in [0, 8), so the lookup is always
-  // defined — fallback to slot 0 keeps the URL well-formed if the
-  // tuple ever shortens by mistake.
-  const safeSlug = slug ?? config.slugs[0];
-  return `${GENERATED_SPRITES_ROOT}/${config.characterId}/${wrapped}_${safeSlug}.png`;
-}
-
-/**
- * Wrap a palette index into [0, PALETTE_VARIANTS_PER_CHARACTER). Mirrors
- * the same helper inside `src/characters/palettes.ts` so the manifest's
- * key composition agrees with the runtime palette table.
- */
-function wrapPaletteIndex(raw: number): number {
-  if (!Number.isFinite(raw)) return 0;
-  const i = Math.trunc(raw);
-  return (
-    ((i % PALETTE_VARIANTS_PER_CHARACTER) + PALETTE_VARIANTS_PER_CHARACTER) %
-    PALETTE_VARIANTS_PER_CHARACTER
-  );
-}
-
-/**
- * Manifest entries for every palette variant in
- * {@link PALETTE_VARIANT_CHARACTERS}, in `(characterId, paletteIndex)`
- * order. Built once at module load — the inputs are frozen, so
- * iteration here is pure.
- */
-const paletteVariantSpritesheets: readonly SpritesheetAssetEntry[] = (() => {
-  const out: SpritesheetAssetEntry[] = [];
-  for (const config of PALETTE_VARIANT_CHARACTERS) {
-    for (let i = 0; i < PALETTE_VARIANTS_PER_CHARACTER; i++) {
-      out.push({
-        key: paletteVariantTextureKey(config.characterId, i),
-        kind: 'spritesheet',
-        url: paletteVariantUrl(config, i),
-        frameWidth: config.frameWidth,
-        frameHeight: config.frameHeight,
-        frameCount: config.frameCount,
-      });
-    }
-  }
-  return Object.freeze(out);
-})();
+const donkeykongSpritesheets = packedFighterSpritesheets('donkeykong', donkeykongFrameMetadata.animations);
 
 // ---------------------------------------------------------------------
 // Stage tile spritesheet entries
@@ -1255,7 +827,7 @@ const stageBackgroundImages: readonly ImageAssetEntry[] = [
 ];
 
 // ---------------------------------------------------------------------
-// Item entries — bomb sprite + explosion frame strip (Kenney Particle Pack)
+// Item entries — item sprites + the explosion frame strip (Kenney Particle Pack)
 // ---------------------------------------------------------------------
 
 const itemSpritesheets: readonly SpritesheetAssetEntry[] = [
@@ -1274,9 +846,14 @@ const itemSpritesheets: readonly SpritesheetAssetEntry[] = [
 // Single-frame item sprites loaded as plain images, not spritesheets.
 const itemImages: readonly ImageAssetEntry[] = [
   {
-    key: ASSET_KEYS.itemBomb,
+    key: ASSET_KEYS.itemBobOmb,
     kind: 'image',
-    url: `${ITEM_SPRITES_ROOT}/bomb.png`,
+    url: `${ITEM_SPRITES_ROOT}/bob-omb.png`,
+  },
+  {
+    key: ASSET_KEYS.itemBananaPeel,
+    kind: 'image',
+    url: `${ITEM_SPRITES_ROOT}/banana-peel.png`,
   },
   {
     key: ASSET_KEYS.itemBat,
@@ -1286,18 +863,37 @@ const itemImages: readonly ImageAssetEntry[] = [
   {
     key: ASSET_KEYS.itemRayGun,
     kind: 'image',
-    url: `${ITEM_SPRITES_ROOT}/raygun.png`,
+    url: `${ITEM_SPRITES_ROOT}/ray-gun.png`,
   },
   {
-    key: ASSET_KEYS.itemSword,
+    key: ASSET_KEYS.itemSuperScope,
     kind: 'image',
-    url: `${ITEM_SPRITES_ROOT}/sword.png`,
+    url: `${ITEM_SPRITES_ROOT}/super-scope.png`,
   },
   {
-    key: ASSET_KEYS.itemSpear,
+    key: ASSET_KEYS.itemFireFlower,
     kind: 'image',
-    url: `${ITEM_SPRITES_ROOT}/spear.png`,
+    url: `${ITEM_SPRITES_ROOT}/fire-flower.png`,
   },
+  {
+    key: ASSET_KEYS.itemBeamSword,
+    kind: 'image',
+    url: `${ITEM_SPRITES_ROOT}/beam-sword.png`,
+  },
+  {
+    key: ASSET_KEYS.itemStarRod,
+    kind: 'image',
+    url: `${ITEM_SPRITES_ROOT}/star-rod.png`,
+  },
+  {key:ASSET_KEYS.itemCrate,kind:'image',url:`${ITEM_SPRITES_ROOT}/crate.png`},
+  {key:ASSET_KEYS.itemBarrel,kind:'image',url:`${ITEM_SPRITES_ROOT}/barrel.png`},
+  {key:ASSET_KEYS.itemCapsule,kind:'image',url:`${ITEM_SPRITES_ROOT}/capsule.png`},
+  {key:ASSET_KEYS.itemGoldenHammer,kind:'image',url:`${ITEM_SPRITES_ROOT}/golden-hammer.png`},
+  {key:ASSET_KEYS.itemHeartContainer,kind:'image',url:`${ITEM_SPRITES_ROOT}/heart-container.png`},
+  {key:ASSET_KEYS.itemMaximTomato,kind:'image',url:`${ITEM_SPRITES_ROOT}/maxim-tomato.png`},
+  ...FOOD_VARIANTS.map(name=>({key:`item.food.${name}.sprite`,kind:'image' as const,url:`${ITEM_SPRITES_ROOT}/${name.toLowerCase().replace(/[^a-z0-9]+/g,'-')}.png`})),
+  {key:ASSET_KEYS.itemHammerHead,kind:'image',url:`${ITEM_SPRITES_ROOT}/hammer-head.png`},
+  {key:ASSET_KEYS.itemHammerHandle,kind:'image',url:`${ITEM_SPRITES_ROOT}/hammer-handle.png`},
   {
     key: ASSET_KEYS.itemHammer,
     kind: 'image',
@@ -1376,21 +972,9 @@ const musicAudio: readonly AudioAssetEntry[] = [
 export const ASSET_MANIFEST: AssetManifest = {
   images: [...itemImages, ...stageBackgroundImages],
   spritesheets: [
-    ...catSpritesheets,
-    ...wolfSpritesheets,
-    ...owlSpritesheets,
-    ...bearSpritesheets,
-    ...blazeSpritesheets,
-    ...puffSpritesheets,
-    ...aegisSpritesheets,
-    ...voltSpritesheets,
-    ...novaSpritesheets,
-    ...brunoSpritesheets,
     ...linkSpritesheets,
-    ...linkMovesetSpritesheets,
-    ...kirbySpritesheets,
     ...donkeykongSpritesheets,
-    ...paletteVariantSpritesheets,
+    ...pikachuSpritesheets,
     ...stageM1Spritesheets,
     ...itemSpritesheets,
   ],
@@ -1398,35 +982,6 @@ export const ASSET_MANIFEST: AssetManifest = {
   audio: sfxAudio,
   music: musicAudio,
 };
-
-/**
- * Look up a palette variant manifest entry by `(characterId, paletteIndex)`.
- *
- * Convenience wrapper around {@link findAssetEntry} that knows the
- * texture key composition rules so callers don't have to reach into
- * `paletteVariantTextureKey` themselves. Returns `undefined` when the
- * character has no variant sheets registered (Owl/Bear in M1) — that's
- * the runtime's signal to fall back to the tint pipeline.
- */
-export function findPaletteVariantEntry(
-  characterId: string,
-  paletteIndex: number,
-  manifest: AssetManifest = ASSET_MANIFEST,
-): SpritesheetAssetEntry | undefined {
-  // Only `wolf`/`cat` have variants today; calling
-  // `paletteVariantTextureKey` for an unknown id would still produce a
-  // well-formed string, but the lookup below would miss — same effect,
-  // and the caller can treat `undefined` as "not registered".
-  const key = `char.${characterId}.palette.${
-    Number.isFinite(paletteIndex)
-      ? ((Math.trunc(paletteIndex) % PALETTE_VARIANTS_PER_CHARACTER) +
-          PALETTE_VARIANTS_PER_CHARACTER) %
-        PALETTE_VARIANTS_PER_CHARACTER
-      : 0
-  }`;
-  const entry = findAssetEntry(key, manifest);
-  return entry?.kind === 'spritesheet' ? entry : undefined;
-}
 
 // ---------------------------------------------------------------------
 // Helpers

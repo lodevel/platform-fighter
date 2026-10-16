@@ -1,0 +1,2187 @@
+{
+  "state": "packed_output_visual_and_runtime_review_required",
+  "scope": "Partial registered normal batch; no roster/manifest/full-fighter acceptance",
+  "coordinateContract": {
+    "canonicalCanvas": [
+      2048,
+      1536
+    ],
+    "canonicalRoot": [
+      1024,
+      1152
+    ],
+    "frameWidth": 512,
+    "frameHeight": 384,
+    "root": [
+      256,
+      288
+    ],
+    "scaleToWorld": 0.4666666666666667,
+    "bodyCentreFromRoot": [
+      0,
+      -25
+    ]
+  },
+  "approvalSha256": "c449b8febe10392d081fd7724a4bcb40a483f013bbec14ee36ace33b1f1eda6d",
+  "animations": {
+    "smash": {
+      "strip": "animations/smash.png",
+      "frameCount": 13,
+      "sha256": "a6b9b71585d151c7ab250e7dd4d92cab14bd6be1994269d325398ae293c34cd2",
+      "frameWindows": [
+        {
+          "startFrame": 0,
+          "endFrame": 4,
+          "artFrameIndex": 0
+        },
+        {
+          "startFrame": 4,
+          "endFrame": 8,
+          "artFrameIndex": 1
+        },
+        {
+          "startFrame": 8,
+          "endFrame": 12,
+          "artFrameIndex": 2
+        },
+        {
+          "startFrame": 12,
+          "endFrame": 13,
+          "artFrameIndex": 3
+        },
+        {
+          "startFrame": 13,
+          "endFrame": 14,
+          "artFrameIndex": 4
+        },
+        {
+          "startFrame": 14,
+          "endFrame": 16,
+          "artFrameIndex": 5
+        },
+        {
+          "startFrame": 16,
+          "endFrame": 19,
+          "artFrameIndex": 6
+        },
+        {
+          "startFrame": 19,
+          "endFrame": 23,
+          "artFrameIndex": 7
+        },
+        {
+          "startFrame": 23,
+          "endFrame": 29,
+          "artFrameIndex": 8
+        },
+        {
+          "startFrame": 29,
+          "endFrame": 42,
+          "artFrameIndex": 9
+        },
+        {
+          "startFrame": 42,
+          "endFrame": 46,
+          "artFrameIndex": 10
+        },
+        {
+          "startFrame": 46,
+          "endFrame": 52,
+          "artFrameIndex": 11
+        },
+        {
+          "startFrame": 52,
+          "endFrame": 53,
+          "artFrameIndex": 12
+        }
+      ],
+      "columns": 8,
+      "rows": 2,
+      "atlasRepack": {
+        "sheet": "smash",
+        "previousLayout": "docs/review/2026-10-06/pikachu-character/art/texture-atlas-repack/smash-reviewed-linear.png",
+        "previousSha256": "33a9c1b53d79a650afe193b7f4c81e45948f5c8e178f84806339f08b74eed970",
+        "sha256": "a6b9b71585d151c7ab250e7dd4d92cab14bd6be1994269d325398ae293c34cd2",
+        "dimensions": [
+          4096,
+          768
+        ],
+        "columns": 8,
+        "rows": 2,
+        "cellPixelsUnchanged": true,
+        "cells": [
+          {
+            "index": 0,
+            "cell": [
+              0,
+              0
+            ],
+            "rgbaSha256": "509e1c47a0426ac645a7707a0d7af9fcd6617a03f877d452eb7d94eb515f4e2c"
+          },
+          {
+            "index": 1,
+            "cell": [
+              1,
+              0
+            ],
+            "rgbaSha256": "f6eab712e55ddc95d32e65ee8af59a71c02c162179da8a4ff1d9cfe53d047fe4"
+          },
+          {
+            "index": 2,
+            "cell": [
+              2,
+              0
+            ],
+            "rgbaSha256": "b9b1e51164812b1033734335b685236558fc7a70843fb678e302db35f985e6a9"
+          },
+          {
+            "index": 3,
+            "cell": [
+              3,
+              0
+            ],
+            "rgbaSha256": "3d5849971c924cccd2602eed080a53293d58d2b9878a7b88e123bf009f1f8d41"
+          },
+          {
+            "index": 4,
+            "cell": [
+              4,
+              0
+            ],
+            "rgbaSha256": "94512e698812df804b4cb948c6086affd80737bec06d38af2409d8869b0b7a82"
+          },
+          {
+            "index": 5,
+            "cell": [
+              5,
+              0
+            ],
+            "rgbaSha256": "50fb122b4ae1b551c3688336e230db9ce9cb2eaa1e7aed700736499e1f86563a"
+          },
+          {
+            "index": 6,
+            "cell": [
+              6,
+              0
+            ],
+            "rgbaSha256": "6c84234950fcdf440d2cb8a6a8dab06e6ace83a5285e12e0e4da9a5611407e73"
+          },
+          {
+            "index": 7,
+            "cell": [
+              7,
+              0
+            ],
+            "rgbaSha256": "d02998145ccb3e151a848bf1394e37348f49109a71e0bad16336b3b06f12e5b2"
+          },
+          {
+            "index": 8,
+            "cell": [
+              0,
+              1
+            ],
+            "rgbaSha256": "d797782331b97ec56ebf14df72b6a3e01f364f7f1da4d34c521fcddb7037de9c"
+          },
+          {
+            "index": 9,
+            "cell": [
+              1,
+              1
+            ],
+            "rgbaSha256": "da5170645759c2bb81be4a79d60b5a809fa6e3b3e2b6bdcc792bc50f75393f6e"
+          },
+          {
+            "index": 10,
+            "cell": [
+              2,
+              1
+            ],
+            "rgbaSha256": "539b653a2194603134912448c4db605124006fbb47a639add196162cf5d42d34"
+          },
+          {
+            "index": 11,
+            "cell": [
+              3,
+              1
+            ],
+            "rgbaSha256": "68e2a718d1073fb53b53c9bf2156496237ce1ce660c6b5d27292fe9ddddbd0c8"
+          },
+          {
+            "index": 12,
+            "cell": [
+              4,
+              1
+            ],
+            "rgbaSha256": "328595b465b66408f191aa5d523fd135ceeb2e5c67af9a27f6bb136cd812245c"
+          }
+        ],
+        "layoutReview": "docs/review/2026-10-06/pikachu-character/art/texture-atlas-repack/smash-layout-review.png",
+        "layoutReviewSha256": "e09c8451fc436dfaeb5010d5d1873e339a8f4932894433b2beb402f096bb6dac"
+      }
+    },
+    "usmash": {
+      "strip": "animations/usmash.png",
+      "frameCount": 18,
+      "sha256": "cdef088e78e072449b283f25bbf4968b1ce07d7f24f1ba396ba6c0d9cf4336c3",
+      "frameWindows": [
+        {
+          "startFrame": 0,
+          "endFrame": 1,
+          "artFrameIndex": 0
+        },
+        {
+          "startFrame": 1,
+          "endFrame": 4,
+          "artFrameIndex": 1
+        },
+        {
+          "startFrame": 4,
+          "endFrame": 7,
+          "artFrameIndex": 2
+        },
+        {
+          "startFrame": 7,
+          "endFrame": 8,
+          "artFrameIndex": 3
+        },
+        {
+          "startFrame": 8,
+          "endFrame": 9,
+          "artFrameIndex": 4
+        },
+        {
+          "startFrame": 9,
+          "endFrame": 10,
+          "artFrameIndex": 5
+        },
+        {
+          "startFrame": 10,
+          "endFrame": 11,
+          "artFrameIndex": 6
+        },
+        {
+          "startFrame": 11,
+          "endFrame": 12,
+          "artFrameIndex": 7
+        },
+        {
+          "startFrame": 12,
+          "endFrame": 13,
+          "artFrameIndex": 8
+        },
+        {
+          "startFrame": 13,
+          "endFrame": 14,
+          "artFrameIndex": 9
+        },
+        {
+          "startFrame": 14,
+          "endFrame": 15,
+          "artFrameIndex": 10
+        },
+        {
+          "startFrame": 15,
+          "endFrame": 16,
+          "artFrameIndex": 11
+        },
+        {
+          "startFrame": 16,
+          "endFrame": 17,
+          "artFrameIndex": 12
+        },
+        {
+          "startFrame": 17,
+          "endFrame": 23,
+          "artFrameIndex": 13
+        },
+        {
+          "startFrame": 23,
+          "endFrame": 29,
+          "artFrameIndex": 14
+        },
+        {
+          "startFrame": 29,
+          "endFrame": 35,
+          "artFrameIndex": 15
+        },
+        {
+          "startFrame": 35,
+          "endFrame": 43,
+          "artFrameIndex": 16
+        },
+        {
+          "startFrame": 43,
+          "endFrame": 44,
+          "artFrameIndex": 17
+        }
+      ],
+      "columns": 8,
+      "rows": 3,
+      "atlasRepack": {
+        "sheet": "usmash",
+        "previousLayout": "docs/review/2026-10-06/pikachu-character/art/texture-atlas-repack/usmash-reviewed-linear.png",
+        "previousSha256": "94c6a828c64a4a14951cb5b7be63c129e7bda411941d391df21300888658deaa",
+        "sha256": "cdef088e78e072449b283f25bbf4968b1ce07d7f24f1ba396ba6c0d9cf4336c3",
+        "dimensions": [
+          4096,
+          1152
+        ],
+        "columns": 8,
+        "rows": 3,
+        "cellPixelsUnchanged": true,
+        "cells": [
+          {
+            "index": 0,
+            "cell": [
+              0,
+              0
+            ],
+            "rgbaSha256": "f5772f1d6b01dd4ca7feafc2142d4650e8263fd430b53f037997f3e0af09201d"
+          },
+          {
+            "index": 1,
+            "cell": [
+              1,
+              0
+            ],
+            "rgbaSha256": "7702f11cfe7369d6c485dd68be659407b1b946c9bd96f5a049adb07171075792"
+          },
+          {
+            "index": 2,
+            "cell": [
+              2,
+              0
+            ],
+            "rgbaSha256": "aeb564e19f637fd84fb100bc7708fb0cb82d456dd169081d2e8a4b0567211a60"
+          },
+          {
+            "index": 3,
+            "cell": [
+              3,
+              0
+            ],
+            "rgbaSha256": "5dc52955b5f8a4e7fd4f100250c2d19da588ee9a5a461c30d8e2b2c21c45f1ee"
+          },
+          {
+            "index": 4,
+            "cell": [
+              4,
+              0
+            ],
+            "rgbaSha256": "9cc94eede6ab0fae71657b83c3c590bc2a24e347396b27d77899e658761829fd"
+          },
+          {
+            "index": 5,
+            "cell": [
+              5,
+              0
+            ],
+            "rgbaSha256": "f9233052fb344b99bcc7f1bbdea58b31bee89d9c977e95731a4685f1b1db708a"
+          },
+          {
+            "index": 6,
+            "cell": [
+              6,
+              0
+            ],
+            "rgbaSha256": "f081701f40a75d5832357065c314e36c3bf3efaef23a99e18db845fd6f728a58"
+          },
+          {
+            "index": 7,
+            "cell": [
+              7,
+              0
+            ],
+            "rgbaSha256": "498ae187af8f9e8f50663009535af79e651809dbc1c21208a40a77983848b83c"
+          },
+          {
+            "index": 8,
+            "cell": [
+              0,
+              1
+            ],
+            "rgbaSha256": "986fabf7a1b2f00a8447265b91b42ad3f032dd0ef3855969999e5c8987d02599"
+          },
+          {
+            "index": 9,
+            "cell": [
+              1,
+              1
+            ],
+            "rgbaSha256": "ca61fc77aa25906b79116962267a5680457485524d7e0e2442d9eec0ff7ad4b9"
+          },
+          {
+            "index": 10,
+            "cell": [
+              2,
+              1
+            ],
+            "rgbaSha256": "482614d60e65651a1f4f35e6d62d907f063a3422f7f57fc2289a90d6ae1a157d"
+          },
+          {
+            "index": 11,
+            "cell": [
+              3,
+              1
+            ],
+            "rgbaSha256": "50ba03bc45f460de3d9eb1ea10fa31d58a408c7a09c2700fcbba58bdea58b853"
+          },
+          {
+            "index": 12,
+            "cell": [
+              4,
+              1
+            ],
+            "rgbaSha256": "7303970eb83036227a936bb82eab02d99c2c5e7e641009a1a1d6910c53188f56"
+          },
+          {
+            "index": 13,
+            "cell": [
+              5,
+              1
+            ],
+            "rgbaSha256": "bb856bbbc7bd91ea1d8b9b6dc422e753110240527eb896f358f532329146ee47"
+          },
+          {
+            "index": 14,
+            "cell": [
+              6,
+              1
+            ],
+            "rgbaSha256": "5e70c74525bc549b82be395756e5f306daff207102e7e650744b304954c39438"
+          },
+          {
+            "index": 15,
+            "cell": [
+              7,
+              1
+            ],
+            "rgbaSha256": "ec0597264810e6a1b3ab6d5e1318920d9e3c3091a5a9f4b09c7a62d3b21ca627"
+          },
+          {
+            "index": 16,
+            "cell": [
+              0,
+              2
+            ],
+            "rgbaSha256": "d7bffd6399ece297c2487208ce8be812225bcfcdb4c53a6537d1ee2a4a882ab7"
+          },
+          {
+            "index": 17,
+            "cell": [
+              1,
+              2
+            ],
+            "rgbaSha256": "70a229e490ad6e617d40bfcfafc00cefcc7b17249df7b6fa5cac5cf517afd2e0"
+          }
+        ],
+        "layoutReview": "docs/review/2026-10-06/pikachu-character/art/texture-atlas-repack/usmash-layout-review.png",
+        "layoutReviewSha256": "1746c9323b5df9aad80c1898d3149e92bd1be3c4e3f87bc77b432113cdb08204"
+      }
+    },
+    "dsmash": {
+      "strip": "animations/dsmash.png",
+      "frameCount": 26,
+      "sha256": "d103aef41f38da0d9f0ce19dce228108c5b8c60954128c9358747a2529c6a76b",
+      "frameWindows": [
+        {
+          "startFrame": 0,
+          "endFrame": 1,
+          "artFrameIndex": 0
+        },
+        {
+          "startFrame": 1,
+          "endFrame": 4,
+          "artFrameIndex": 1
+        },
+        {
+          "startFrame": 4,
+          "endFrame": 6,
+          "artFrameIndex": 2
+        },
+        {
+          "startFrame": 6,
+          "endFrame": 7,
+          "artFrameIndex": 3
+        },
+        {
+          "startFrame": 7,
+          "endFrame": 8,
+          "artFrameIndex": 4
+        },
+        {
+          "startFrame": 8,
+          "endFrame": 9,
+          "artFrameIndex": 5
+        },
+        {
+          "startFrame": 9,
+          "endFrame": 10,
+          "artFrameIndex": 6
+        },
+        {
+          "startFrame": 10,
+          "endFrame": 11,
+          "artFrameIndex": 7
+        },
+        {
+          "startFrame": 11,
+          "endFrame": 12,
+          "artFrameIndex": 8
+        },
+        {
+          "startFrame": 12,
+          "endFrame": 13,
+          "artFrameIndex": 9
+        },
+        {
+          "startFrame": 13,
+          "endFrame": 14,
+          "artFrameIndex": 10
+        },
+        {
+          "startFrame": 14,
+          "endFrame": 15,
+          "artFrameIndex": 11
+        },
+        {
+          "startFrame": 15,
+          "endFrame": 16,
+          "artFrameIndex": 12
+        },
+        {
+          "startFrame": 16,
+          "endFrame": 17,
+          "artFrameIndex": 13
+        },
+        {
+          "startFrame": 17,
+          "endFrame": 18,
+          "artFrameIndex": 14
+        },
+        {
+          "startFrame": 18,
+          "endFrame": 19,
+          "artFrameIndex": 15
+        },
+        {
+          "startFrame": 19,
+          "endFrame": 20,
+          "artFrameIndex": 16
+        },
+        {
+          "startFrame": 20,
+          "endFrame": 21,
+          "artFrameIndex": 17
+        },
+        {
+          "startFrame": 21,
+          "endFrame": 22,
+          "artFrameIndex": 18
+        },
+        {
+          "startFrame": 22,
+          "endFrame": 23,
+          "artFrameIndex": 19
+        },
+        {
+          "startFrame": 23,
+          "endFrame": 28,
+          "artFrameIndex": 20
+        },
+        {
+          "startFrame": 28,
+          "endFrame": 34,
+          "artFrameIndex": 21
+        },
+        {
+          "startFrame": 34,
+          "endFrame": 42,
+          "artFrameIndex": 22
+        },
+        {
+          "startFrame": 42,
+          "endFrame": 54,
+          "artFrameIndex": 23
+        },
+        {
+          "startFrame": 54,
+          "endFrame": 64,
+          "artFrameIndex": 24
+        },
+        {
+          "startFrame": 64,
+          "endFrame": 65,
+          "artFrameIndex": 25
+        }
+      ],
+      "columns": 8,
+      "rows": 4,
+      "atlasRepack": {
+        "sheet": "dsmash",
+        "previousLayout": "docs/review/2026-10-06/pikachu-character/art/texture-atlas-repack/dsmash-reviewed-linear.png",
+        "previousSha256": "0152fbb50e69947a98431ff86f99fac03433bfb67a30fff42a97204b1c07168f",
+        "sha256": "9128af28de44edacbe82fddd03364e67f79e030185108e9179e19f5a6d9b0351",
+        "dimensions": [
+          4096,
+          1536
+        ],
+        "columns": 8,
+        "rows": 4,
+        "cellPixelsUnchanged": true,
+        "cells": [
+          {
+            "index": 0,
+            "cell": [
+              0,
+              0
+            ],
+            "rgbaSha256": "942d07df0cc28df65bb3af6aad9901e3ff3b9ce873aec74761d121c69eba9945"
+          },
+          {
+            "index": 1,
+            "cell": [
+              1,
+              0
+            ],
+            "rgbaSha256": "6eaed82de4b46ab195acda4641b24f89a4927ceeb65809746d2a86d5caf6b0c3"
+          },
+          {
+            "index": 2,
+            "cell": [
+              2,
+              0
+            ],
+            "rgbaSha256": "45e3833ac95f52a7ebb928fb002cbb0740f65c71490b0f46d889a6f9f0c6338e"
+          },
+          {
+            "index": 3,
+            "cell": [
+              3,
+              0
+            ],
+            "rgbaSha256": "d3632823d918668944d4b01e257c4927e94fc230ef8bcb2626fdcb8e52f0d048"
+          },
+          {
+            "index": 4,
+            "cell": [
+              4,
+              0
+            ],
+            "rgbaSha256": "d665256a4b1be1cff4969ab57f5c9cbd1fb51e901bf88dad742a89203c0c99bd"
+          },
+          {
+            "index": 5,
+            "cell": [
+              5,
+              0
+            ],
+            "rgbaSha256": "4838b5df24a130750b01b7b42a2c7e31acf1d709666de511183ab088f2290682"
+          },
+          {
+            "index": 6,
+            "cell": [
+              6,
+              0
+            ],
+            "rgbaSha256": "d61832a3818f0e2285886e857792e592e923112f5482ebbdc966c30b5c7391b2"
+          },
+          {
+            "index": 7,
+            "cell": [
+              7,
+              0
+            ],
+            "rgbaSha256": "e700ff0649c5d22af6806c2ef91ba5ed9487b71d2e59a4404837192351ef1fb7"
+          },
+          {
+            "index": 8,
+            "cell": [
+              0,
+              1
+            ],
+            "rgbaSha256": "409b676411b976a2ab86598ee8817d069d6a144fa1fe2e3035fb156efa5bddac"
+          },
+          {
+            "index": 9,
+            "cell": [
+              1,
+              1
+            ],
+            "rgbaSha256": "5f37a1ab7c261a07e4ce4a4d8f4094888888c663523248bc64bc014498162f53"
+          },
+          {
+            "index": 10,
+            "cell": [
+              2,
+              1
+            ],
+            "rgbaSha256": "508bb466fa4e2476f17b94eeef7731b7387049482a90a2c7a3a8a9457fe022ee"
+          },
+          {
+            "index": 11,
+            "cell": [
+              3,
+              1
+            ],
+            "rgbaSha256": "daea969417d9fc4e9c3ac296ae0d1ae2a1a8c9844328209cc6258eadf7217b31"
+          },
+          {
+            "index": 12,
+            "cell": [
+              4,
+              1
+            ],
+            "rgbaSha256": "21e910c963bb9c6751b9c5e42260ad431081619ad007135e7b7e9d99d64ca98e"
+          },
+          {
+            "index": 13,
+            "cell": [
+              5,
+              1
+            ],
+            "rgbaSha256": "2b16fb416ad6e0c1d6a4372ca7f272916a3f599fe79a8b2b9ef170b37c5a8b01"
+          },
+          {
+            "index": 14,
+            "cell": [
+              6,
+              1
+            ],
+            "rgbaSha256": "9a54dbf2d796b71583a0b27cbb3e22e36083577c5bc1c3b2a5c8ba9e6cf4abb2"
+          },
+          {
+            "index": 15,
+            "cell": [
+              7,
+              1
+            ],
+            "rgbaSha256": "581a2efd0f56478aa7a83f0506aae22f1097e89f3b3ba236583acdc9332a28fc"
+          },
+          {
+            "index": 16,
+            "cell": [
+              0,
+              2
+            ],
+            "rgbaSha256": "0c9db357aab538fe6c4d6fc9575058085d6e4f4ced680b99a29e4af0535a935a"
+          },
+          {
+            "index": 17,
+            "cell": [
+              1,
+              2
+            ],
+            "rgbaSha256": "58d4fe2332ad99c7b2b03c379aaefde354d902c9ae5a964d4f14d91d2a4bc497"
+          },
+          {
+            "index": 18,
+            "cell": [
+              2,
+              2
+            ],
+            "rgbaSha256": "7a1a8152e6afea375f93e8ed44254c50884b438f32f2e29f5bf0c83d709c5d35"
+          },
+          {
+            "index": 19,
+            "cell": [
+              3,
+              2
+            ],
+            "rgbaSha256": "3fc5fb057059a1d4e4d38d57d4ec52aae7f8e4c5dbd0a8941505fee6d1680280"
+          },
+          {
+            "index": 20,
+            "cell": [
+              4,
+              2
+            ],
+            "rgbaSha256": "306b605329c4f66533b33f4076897b22988e1fa0e60759368572066f768caf54"
+          },
+          {
+            "index": 21,
+            "cell": [
+              5,
+              2
+            ],
+            "rgbaSha256": "7509f5d66409814916c2f762ff59044128a0705f86bb044af0eed4d025e99643"
+          },
+          {
+            "index": 22,
+            "cell": [
+              6,
+              2
+            ],
+            "rgbaSha256": "7b9d82b948d1519e52460e595a3046d539980249062e26f90c5be402386df05b"
+          },
+          {
+            "index": 23,
+            "cell": [
+              7,
+              2
+            ],
+            "rgbaSha256": "aa7dfe8f83f78b980e05142220f7a15de7b32dd8e04e5d0780dfe4c86f60bff0"
+          },
+          {
+            "index": 24,
+            "cell": [
+              0,
+              3
+            ],
+            "rgbaSha256": "a6a47cc8d600552c4e7a2e7156a79571757f784fa62dffe0a2e4ec82cb0e67ff"
+          },
+          {
+            "index": 25,
+            "cell": [
+              1,
+              3
+            ],
+            "rgbaSha256": "f4f6a38a5b520959976bf6eebe18a465d3e0ddb930448ef5c828a423938ef699"
+          }
+        ],
+        "layoutReview": "docs/review/2026-10-06/pikachu-character/art/texture-atlas-repack/dsmash-layout-review.png",
+        "layoutReviewSha256": "2fbf3b53d0350a8921670bfb33e12f10ec54a8ce73e21e62f303a837924d2e3c"
+      }
+    }
+  },
+  "sources": [
+    {
+      "action": "forward-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-forward-smash-sample-0-source0-attempt1-cutout.png",
+      "sha256": "32ba843a0296c3d3d6c946941ac36712403ddda6b66211894be458a90bbf8e00",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "forward-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-forward-smash-sample-4-source4-attempt1-cutout.png",
+      "sha256": "ab4b6e17fe87e4cd3056bf880c36fda531579d6102a24d5d45cecac2b7798f36",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "forward-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-forward-smash-sample-8-source8-attempt1-cutout.png",
+      "sha256": "3f632fee5da98bf01af5d0cef8b511bcb6093136f91e523957da9aa491f0df59",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "forward-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-forward-smash-sample-12-source12-attempt1-cutout.png",
+      "sha256": "a51ae1cddb2de356857c6340671c14dadd0ce82ffcb2cec488bcd21c8ce78cd9",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "forward-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-forward-smash-sample-13-source13-attempt1-cutout.png",
+      "sha256": "92c6f6e10efc1d8e75116d5e94b3762f1c397263f1af83bc5eab2e23cbfdb99b",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "forward-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-forward-smash-sample-14-source14-attempt1-cutout.png",
+      "sha256": "36c3cddf524972280143a8e0e4b400b734bbeed26f0ba3cd854a5cae1d354014",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "forward-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-forward-smash-sample-16-source16-attempt1-cutout.png",
+      "sha256": "821725559652f1c06fd9e87b869ecded637f7e0e6fd18c2815a4f9b59383618a",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "forward-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-forward-smash-sample-19-source19-attempt1-cutout.png",
+      "sha256": "4e925be9cda9f8c75ffa7c60ead032e9d1164302b42ceaf5f0437ea2bbddcbbe",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "forward-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-forward-smash-sample-23-source23-attempt1-cutout.png",
+      "sha256": "4a77fde16d50550d8beddc359e73952f4bf3881c801697fd6e317fbc6fead4c3",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "forward-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-forward-smash-sample-29-source29-attempt1-cutout.png",
+      "sha256": "224f3a0a76ad7bcf8bf246032dbfa0b5620ab46242cf1818731cb003b51d7d5a",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "forward-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-forward-smash-sample-42-source42-attempt1-cutout.png",
+      "sha256": "51a543db80a8e1ec2b717e5dd6565f6e60c5d89a8c299c7889ce22d5cbecde8f",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "forward-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-forward-smash-sample-46-source46-attempt1-cutout.png",
+      "sha256": "93c59233d28795f7b86a12a7106c5c58354bbd853467e437a8398f42d4a8988b",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "forward-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-forward-smash-sample-52-source52-attempt1-cutout.png",
+      "sha256": "441d44b1b6879779bc743297e3c5f8545191d9ced74c2df3964de631e48bb2dd",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "up-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-up-smash-sample-0-source0-attempt1-cutout.png",
+      "sha256": "d5ee197b4ee2223eb8ad53bacf6433a953ad3aeee77e29822bcd0a83b97445dd",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "up-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-up-smash-sample-1-source1-attempt1-cutout.png",
+      "sha256": "1e5ef5ed4bc6f087c81b7965c1640122d96a0e90da3f8aad550b889aa116b9e1",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "up-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-up-smash-sample-4-source4-attempt1-cutout.png",
+      "sha256": "1474255a3658ad42c5d049840513d612902e5f3207c1dea9e282d6c059a8264f",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "up-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-up-smash-sample-7-source7-attempt1-cutout.png",
+      "sha256": "4cb9dc21d499df3e24ba7a859d3cfaa05512b7729b4df53a9508370741a2a09f",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "up-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-up-smash-sample-8-source8-attempt1-cutout.png",
+      "sha256": "8cd436f41046c7945e9b686facc6d2904a07c63004aa8db6a8cac2f959819ec7",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "up-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-up-smash-sample-9-source9-attempt1-cutout.png",
+      "sha256": "06791c18369f8e0b9f4d9e19fd636be57fac461c12220cafa368654307dc61b2",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "up-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-up-smash-sample-10-source10-attempt1-cutout.png",
+      "sha256": "997781956f635712f3764b90c622b47a55f31f06e593a23c25b691ec8959ad89",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "up-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-up-smash-sample-11-source11-attempt1-cutout.png",
+      "sha256": "a0eb509c4f2aef5d4bc91835960da7431635f8555d352a558cc69915381b22e5",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "up-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-up-smash-sample-12-source12-attempt1-cutout.png",
+      "sha256": "93cf716f2dded3c2b5914c01e9b00e97917b2e4d67be15564838003545dad3f1",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "up-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-up-smash-sample-13-source13-attempt1-cutout.png",
+      "sha256": "5f63d22ad263c45845b4b71f2e67f6662dcff91d6438641c76603a3ad170662b",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "up-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-up-smash-sample-14-source14-attempt1-cutout.png",
+      "sha256": "9d632fac68d52e54313a5043d5e67d2f5515d30999f8eb653d8d05f625d6fbc1",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "up-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-up-smash-sample-15-source15-attempt1-cutout.png",
+      "sha256": "d3eca32655cb9b944b441f2b3f074fa5c836f05f506b5261e65d0aa74bef860d",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "up-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-up-smash-sample-16-source16-attempt1-cutout.png",
+      "sha256": "6858871eb4edd5d5953f8265fa4cb89535e11084b7a6c7d42bfa882197513e3a",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "up-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-up-smash-sample-17-source17-attempt1-cutout.png",
+      "sha256": "aa93015ebf7f3167dc7dcf2411a3b8b361a1abd46cd5c594162388f22bf85729",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "up-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-up-smash-sample-23-source23-attempt1-cutout.png",
+      "sha256": "b287edaa446e2a2a9a020977b6766d570ede38d2b4892f8b4b034fe36fae8628",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "up-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-up-smash-sample-29-source29-attempt1-cutout.png",
+      "sha256": "990a470a6a40fdf6d048ee7a1a3a66e6de53f07d8f6b02f3ec810e500a6e9889",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "up-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-up-smash-sample-35-source35-attempt1-cutout.png",
+      "sha256": "38f44170ecfc2ab52269b99b41555e129f9541cc0e541cf216ec7af666060531",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "up-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-up-smash-sample-43-source43-attempt1-cutout.png",
+      "sha256": "086c485c265d9208f135583141a4e4993dbd1ee13af352f57cb0d8d63a8887fe",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "down-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-down-smash-sample-0-source0-attempt1-cutout.png",
+      "sha256": "c7a7ca0d02a4fef2a78a8ec4ffac4b6f28fbc002c6d2c3e07431fc8cfbc20684",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS",
+      "authoredGeometryAdaptation": {
+        "kind": {
+          "kind": "local undersideflex",
+          "originalArtBand": [
+            279,
+            290
+          ],
+          "targetArtBand": [
+            279,
+            289
+          ],
+          "maxDisplacementWorldPx": 0.4666666666666667
+        },
+        "job": "full-completion-states-crouch-floor-uniform-attack0-source0",
+        "output": "docs/review/2026-10-06/pikachu-character/art/completion-states-crouch-floor/full-completion-states-crouch-floor-uniform-attack0-source0-attempt1-cutout.png",
+        "outputSha256": "b742e3d5cf2405c06aecc57f72e7d1a77bf5a7cd76d152ead137c15b849bfd24",
+        "affectedArtFrame": 0,
+        "root": [
+          256,
+          288
+        ],
+        "sourceReceivingUnchanged": true,
+        "unaffectedPixelsExact": true,
+        "betaArtOnly": true
+      }
+    },
+    {
+      "action": "down-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-down-smash-sample-1-source1-attempt1-cutout.png",
+      "sha256": "cc744a29736b1feaa3a45864b584c62dc500bda2b57216d45ccda19823e4e478",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS",
+      "authoredGeometryAdaptation": {
+        "kind": {
+          "kind": "local undersideflex",
+          "originalArtBand": [
+            279,
+            291
+          ],
+          "targetArtBand": [
+            279,
+            289
+          ],
+          "maxDisplacementWorldPx": 0.9333333333333333
+        },
+        "job": "full-completion-states-attack-late-floor-batch1-source0",
+        "output": "docs/review/2026-10-06/pikachu-character/art/completion-states-attack-late-floor/full-completion-states-attack-late-floor-batch1-source0-attempt1-matte-refined-cutout.png",
+        "outputSha256": "cfdc63505c458c897876c30ba57d189351230cbf12f546ac09d6d6920a8a21a1",
+        "affectedArtFrame": 1,
+        "receivingChangedIndices": [],
+        "sourceRadiusChanges": 0,
+        "protectedPixelChanges": 0,
+        "sourceParity": "Authored beta underside flex; root, clock and attack geometry preserved."
+      }
+    },
+    {
+      "action": "down-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-down-smash-sample-4-source4-attempt1-cutout.png",
+      "sha256": "b13f59a9da29d96aa4b49baf51e0ba7d15d0de60baff8edc3faea035b77a1d1d",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS",
+      "authoredGeometryAdaptation": {
+        "kind": {
+          "kind": "local undersideflex",
+          "originalArtBand": [
+            279,
+            291
+          ],
+          "targetArtBand": [
+            279,
+            289
+          ],
+          "maxDisplacementWorldPx": 0.9333333333333333
+        },
+        "job": "full-completion-states-attack-late-floor-batch2-source0",
+        "output": "docs/review/2026-10-06/pikachu-character/art/completion-states-attack-late-floor/full-completion-states-attack-late-floor-batch2-source0-attempt1-matte-refined-cutout.png",
+        "outputSha256": "bff1a0264be136a5b4ded355759e16b9348e37d5174ee926c7bae3238969fb65",
+        "affectedArtFrame": 2,
+        "receivingChangedIndices": [
+          9
+        ],
+        "sourceRadiusChanges": 0,
+        "protectedPixelChanges": 0,
+        "sourceParity": "Authored beta underside flex; root, clock and attack geometry preserved."
+      }
+    },
+    {
+      "action": "down-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-down-smash-sample-6-source6-attempt1-cutout.png",
+      "sha256": "276a24beeb916b1cf6c95fecf86f31ce26b560dc8ea5a62456ffd6c61d5082b0",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS",
+      "authoredGeometryAdaptation": {
+        "kind": {
+          "kind": "local undersideflex",
+          "originalArtBand": [
+            279,
+            291
+          ],
+          "targetArtBand": [
+            279,
+            289
+          ],
+          "maxDisplacementWorldPx": 0.9333333333333333
+        },
+        "job": "full-completion-states-attack-late-floor-batch2-source0",
+        "output": "docs/review/2026-10-06/pikachu-character/art/completion-states-attack-late-floor/full-completion-states-attack-late-floor-batch2-source0-attempt1-matte-refined-cutout.png",
+        "outputSha256": "bff1a0264be136a5b4ded355759e16b9348e37d5174ee926c7bae3238969fb65",
+        "affectedArtFrame": 3,
+        "receivingChangedIndices": [],
+        "sourceRadiusChanges": 0,
+        "protectedPixelChanges": 0,
+        "sourceParity": "Authored beta underside flex; root, clock and attack geometry preserved."
+      }
+    },
+    {
+      "action": "down-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-down-smash-sample-7-source7-attempt1-cutout.png",
+      "sha256": "dcaa01146b7f12e00df348b1afe07c9fb1326fb7784bcca8ea6f2c1757bc25e2",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS",
+      "authoredGeometryAdaptation": {
+        "kind": {
+          "kind": "local undersideflex",
+          "originalArtBand": [
+            279,
+            292
+          ],
+          "targetArtBand": [
+            279,
+            289
+          ],
+          "maxDisplacementWorldPx": 1.4
+        },
+        "job": "full-completion-states-attack-late-floor-batch2-source0",
+        "output": "docs/review/2026-10-06/pikachu-character/art/completion-states-attack-late-floor/full-completion-states-attack-late-floor-batch2-source0-attempt1-matte-refined-cutout.png",
+        "outputSha256": "bff1a0264be136a5b4ded355759e16b9348e37d5174ee926c7bae3238969fb65",
+        "affectedArtFrame": 4,
+        "receivingChangedIndices": [],
+        "sourceRadiusChanges": 0,
+        "protectedPixelChanges": 0,
+        "sourceParity": "Authored beta underside flex; root, clock and attack geometry preserved."
+      }
+    },
+    {
+      "action": "down-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-down-smash-sample-8-source8-attempt1-cutout.png",
+      "sha256": "d87b1c30bc5bd66d6b818d535cf5e08c996c96e9afcb8ee3fbc8b06bc2616210",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS",
+      "authoredGeometryAdaptation": {
+        "kind": {
+          "kind": "local undersideflex",
+          "originalArtBand": [
+            279,
+            292
+          ],
+          "targetArtBand": [
+            279,
+            289
+          ],
+          "maxDisplacementWorldPx": 1.4
+        },
+        "job": "full-completion-states-attack-late-floor-batch2-source0",
+        "output": "docs/review/2026-10-06/pikachu-character/art/completion-states-attack-late-floor/full-completion-states-attack-late-floor-batch2-source0-attempt1-matte-refined-cutout.png",
+        "outputSha256": "bff1a0264be136a5b4ded355759e16b9348e37d5174ee926c7bae3238969fb65",
+        "affectedArtFrame": 5,
+        "receivingChangedIndices": [
+          4
+        ],
+        "sourceRadiusChanges": 0,
+        "protectedPixelChanges": 0,
+        "sourceParity": "Authored beta underside flex; root, clock and attack geometry preserved."
+      }
+    },
+    {
+      "action": "down-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-down-smash-sample-9-source9-attempt1-cutout.png",
+      "sha256": "89a841772911ed182bc894347a35a845288bdbd08c01e0063ec7231b4a00914c",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS",
+      "authoredGeometryAdaptation": {
+        "kind": {
+          "kind": "local undersideflex",
+          "originalArtBand": [
+            279,
+            292
+          ],
+          "targetArtBand": [
+            279,
+            289
+          ],
+          "maxDisplacementWorldPx": 1.4
+        },
+        "job": "full-completion-states-attack-late-floor-batch3-source0",
+        "output": "docs/review/2026-10-06/pikachu-character/art/completion-states-attack-late-floor/full-completion-states-attack-late-floor-batch3-source0-attempt1-matte-refined-cutout.png",
+        "outputSha256": "5ecf826e7b231a367953c920d138ce621ba4689bf42a7f7622e369b71a91719b",
+        "affectedArtFrame": 6,
+        "receivingChangedIndices": [
+          4
+        ],
+        "sourceRadiusChanges": 0,
+        "protectedPixelChanges": 0,
+        "sourceParity": "Authored beta underside flex; root, clock and attack geometry preserved."
+      }
+    },
+    {
+      "action": "down-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-down-smash-sample-10-source10-attempt1-cutout.png",
+      "sha256": "d2640966457c1665d1cfad0dcd7121df91df1170beb6904388ecca56fefd690f",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS",
+      "authoredGeometryAdaptation": {
+        "kind": {
+          "kind": "local undersideflex",
+          "originalArtBand": [
+            279,
+            293
+          ],
+          "targetArtBand": [
+            279,
+            289
+          ],
+          "maxDisplacementWorldPx": 1.8666666666666667
+        },
+        "job": "full-completion-states-attack-late-floor-batch3-source0",
+        "output": "docs/review/2026-10-06/pikachu-character/art/completion-states-attack-late-floor/full-completion-states-attack-late-floor-batch3-source0-attempt1-matte-refined-cutout.png",
+        "outputSha256": "5ecf826e7b231a367953c920d138ce621ba4689bf42a7f7622e369b71a91719b",
+        "affectedArtFrame": 7,
+        "receivingChangedIndices": [
+          4
+        ],
+        "sourceRadiusChanges": 0,
+        "protectedPixelChanges": 0,
+        "sourceParity": "Authored beta underside flex; root, clock and attack geometry preserved."
+      }
+    },
+    {
+      "action": "down-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-down-smash-sample-11-source11-attempt1-cutout.png",
+      "sha256": "482f9f47b6ba1d00978ac0f48e59f25437c6d0881a97af4ca1cc79309ac08429",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS",
+      "authoredGeometryAdaptation": {
+        "kind": {
+          "kind": "local undersideflex",
+          "originalArtBand": [
+            279,
+            294
+          ],
+          "targetArtBand": [
+            279,
+            289
+          ],
+          "maxDisplacementWorldPx": 2.3333333333333335
+        },
+        "job": "full-completion-states-attack-late-floor-batch3-source0",
+        "output": "docs/review/2026-10-06/pikachu-character/art/completion-states-attack-late-floor/full-completion-states-attack-late-floor-batch3-source0-attempt1-matte-refined-cutout.png",
+        "outputSha256": "5ecf826e7b231a367953c920d138ce621ba4689bf42a7f7622e369b71a91719b",
+        "affectedArtFrame": 8,
+        "receivingChangedIndices": [
+          4
+        ],
+        "sourceRadiusChanges": 0,
+        "protectedPixelChanges": 0,
+        "sourceParity": "Authored beta underside flex; root, clock and attack geometry preserved."
+      }
+    },
+    {
+      "action": "down-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-down-smash-sample-12-source12-attempt1-cutout.png",
+      "sha256": "58e127e8c0edb79a39e26ab3a5f4ba5290112741a2d7950102d3996ab5e55c30",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS",
+      "authoredGeometryAdaptation": {
+        "kind": {
+          "kind": "local undersideflex",
+          "originalArtBand": [
+            279,
+            294
+          ],
+          "targetArtBand": [
+            279,
+            289
+          ],
+          "maxDisplacementWorldPx": 2.3333333333333335
+        },
+        "job": "full-completion-states-attack-late-floor-batch3-source0",
+        "output": "docs/review/2026-10-06/pikachu-character/art/completion-states-attack-late-floor/full-completion-states-attack-late-floor-batch3-source0-attempt1-matte-refined-cutout.png",
+        "outputSha256": "5ecf826e7b231a367953c920d138ce621ba4689bf42a7f7622e369b71a91719b",
+        "affectedArtFrame": 9,
+        "receivingChangedIndices": [
+          4
+        ],
+        "sourceRadiusChanges": 0,
+        "protectedPixelChanges": 0,
+        "sourceParity": "Authored beta underside flex; root, clock and attack geometry preserved."
+      }
+    },
+    {
+      "action": "down-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-down-smash-sample-13-source13-attempt1-cutout.png",
+      "sha256": "b54b3b32d6c3e8076cb9aeb5524c96514fe515ab2c212738554d3dab6329dae9",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS",
+      "authoredGeometryAdaptation": {
+        "kind": {
+          "kind": "local undersideflex",
+          "originalArtBand": [
+            279,
+            294
+          ],
+          "targetArtBand": [
+            279,
+            289
+          ],
+          "maxDisplacementWorldPx": 2.3333333333333335
+        },
+        "job": "full-completion-states-attack-late-floor-batch4-source0",
+        "output": "docs/review/2026-10-06/pikachu-character/art/completion-states-attack-late-floor/full-completion-states-attack-late-floor-batch4-source0-attempt1-matte-refined-cutout.png",
+        "outputSha256": "be346e5ca5812d4cdfa6c7b155c7b7165592e5a5ac0674afce56e54c5b60f6b9",
+        "affectedArtFrame": 10,
+        "receivingChangedIndices": [
+          4
+        ],
+        "sourceRadiusChanges": 0,
+        "protectedPixelChanges": 0,
+        "sourceParity": "Authored beta underside flex; root, clock and attack geometry preserved."
+      }
+    },
+    {
+      "action": "down-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-down-smash-sample-14-source14-attempt1-cutout.png",
+      "sha256": "c5b581d46ca55f91aad6f3af129fd81ac948890f08eb4a6356294f4865893861",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS",
+      "authoredGeometryAdaptation": {
+        "kind": {
+          "kind": "local undersideflex",
+          "originalArtBand": [
+            279,
+            294
+          ],
+          "targetArtBand": [
+            279,
+            289
+          ],
+          "maxDisplacementWorldPx": 2.3333333333333335
+        },
+        "job": "full-completion-states-attack-late-floor-batch4-source0",
+        "output": "docs/review/2026-10-06/pikachu-character/art/completion-states-attack-late-floor/full-completion-states-attack-late-floor-batch4-source0-attempt1-matte-refined-cutout.png",
+        "outputSha256": "be346e5ca5812d4cdfa6c7b155c7b7165592e5a5ac0674afce56e54c5b60f6b9",
+        "affectedArtFrame": 11,
+        "receivingChangedIndices": [
+          4,
+          9
+        ],
+        "sourceRadiusChanges": 0,
+        "protectedPixelChanges": 0,
+        "sourceParity": "Authored beta underside flex; root, clock and attack geometry preserved."
+      }
+    },
+    {
+      "action": "down-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-down-smash-sample-15-source15-attempt1-cutout.png",
+      "sha256": "0797b05e499a98fb03a6b8437479a6687990ab97abbc7007c11ad712cc607f79",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS",
+      "authoredGeometryAdaptation": {
+        "kind": {
+          "kind": "local undersideflex",
+          "originalArtBand": [
+            279,
+            295
+          ],
+          "targetArtBand": [
+            279,
+            289
+          ],
+          "maxDisplacementWorldPx": 2.8
+        },
+        "job": "full-completion-states-attack-late-floor-batch4-source0",
+        "output": "docs/review/2026-10-06/pikachu-character/art/completion-states-attack-late-floor/full-completion-states-attack-late-floor-batch4-source0-attempt1-matte-refined-cutout.png",
+        "outputSha256": "be346e5ca5812d4cdfa6c7b155c7b7165592e5a5ac0674afce56e54c5b60f6b9",
+        "affectedArtFrame": 12,
+        "receivingChangedIndices": [
+          4,
+          9
+        ],
+        "sourceRadiusChanges": 0,
+        "protectedPixelChanges": 0,
+        "sourceParity": "Authored beta underside flex; root, clock and attack geometry preserved."
+      }
+    },
+    {
+      "action": "down-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-down-smash-sample-16-source16-attempt1-cutout.png",
+      "sha256": "11562921936088050029721b82188d41cce0433ed808f75e9c69e619e067ed0a",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS",
+      "authoredGeometryAdaptation": {
+        "kind": {
+          "kind": "local undersideflex",
+          "originalArtBand": [
+            279,
+            296
+          ],
+          "targetArtBand": [
+            279,
+            289
+          ],
+          "maxDisplacementWorldPx": 3.2666666666666666
+        },
+        "job": "full-completion-states-attack-late-floor-batch4-source0",
+        "output": "docs/review/2026-10-06/pikachu-character/art/completion-states-attack-late-floor/full-completion-states-attack-late-floor-batch4-source0-attempt1-matte-refined-cutout.png",
+        "outputSha256": "be346e5ca5812d4cdfa6c7b155c7b7165592e5a5ac0674afce56e54c5b60f6b9",
+        "affectedArtFrame": 13,
+        "receivingChangedIndices": [
+          4,
+          9
+        ],
+        "sourceRadiusChanges": 0,
+        "protectedPixelChanges": 0,
+        "sourceParity": "Authored beta underside flex; root, clock and attack geometry preserved."
+      }
+    },
+    {
+      "action": "down-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-down-smash-sample-17-source17-attempt1-cutout.png",
+      "sha256": "74dfca946e6dbd7dca7031e43cdd5a93bcf75cf332a8810df3f94fc2457fa8a4",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS",
+      "authoredGeometryAdaptation": {
+        "kind": {
+          "kind": "local undersideflex",
+          "originalArtBand": [
+            279,
+            296
+          ],
+          "targetArtBand": [
+            279,
+            289
+          ],
+          "maxDisplacementWorldPx": 3.2666666666666666
+        },
+        "job": "full-completion-states-attack-late-floor-batch5-source0",
+        "output": "docs/review/2026-10-06/pikachu-character/art/completion-states-attack-late-floor/full-completion-states-attack-late-floor-batch5-source0-attempt1-matte-refined-cutout.png",
+        "outputSha256": "08990b7718f37cd7826ae2ba954d16603f56a5b5e08125684a50023e22c78c31",
+        "affectedArtFrame": 14,
+        "receivingChangedIndices": [
+          4,
+          9
+        ],
+        "sourceRadiusChanges": 0,
+        "protectedPixelChanges": 0,
+        "sourceParity": "Authored beta underside flex; root, clock and attack geometry preserved."
+      }
+    },
+    {
+      "action": "down-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-down-smash-sample-18-source18-attempt1-cutout.png",
+      "sha256": "446e7931767dd9f2e2578ed4065fcc0786f65f386c1b0bf91b5bf9c76c8acaef",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS",
+      "authoredGeometryAdaptation": {
+        "kind": {
+          "kind": "local undersideflex",
+          "originalArtBand": [
+            279,
+            295
+          ],
+          "targetArtBand": [
+            279,
+            289
+          ],
+          "maxDisplacementWorldPx": 2.8
+        },
+        "job": "full-completion-states-attack-late-floor-batch5-source0",
+        "output": "docs/review/2026-10-06/pikachu-character/art/completion-states-attack-late-floor/full-completion-states-attack-late-floor-batch5-source0-attempt1-matte-refined-cutout.png",
+        "outputSha256": "08990b7718f37cd7826ae2ba954d16603f56a5b5e08125684a50023e22c78c31",
+        "affectedArtFrame": 15,
+        "receivingChangedIndices": [
+          4,
+          9
+        ],
+        "sourceRadiusChanges": 0,
+        "protectedPixelChanges": 0,
+        "sourceParity": "Authored beta underside flex; root, clock and attack geometry preserved."
+      }
+    },
+    {
+      "action": "down-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-down-smash-sample-19-source19-attempt1-cutout.png",
+      "sha256": "d5890e2cd048d86cbcca53c5bb4e944c2219a1c2bff44815f6c737b9cb82115f",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS",
+      "authoredGeometryAdaptation": {
+        "kind": {
+          "kind": "local undersideflex",
+          "originalArtBand": [
+            279,
+            293
+          ],
+          "targetArtBand": [
+            279,
+            289
+          ],
+          "maxDisplacementWorldPx": 1.8666666666666667
+        },
+        "job": "full-completion-states-attack-late-floor-batch5-source0",
+        "output": "docs/review/2026-10-06/pikachu-character/art/completion-states-attack-late-floor/full-completion-states-attack-late-floor-batch5-source0-attempt1-matte-refined-cutout.png",
+        "outputSha256": "08990b7718f37cd7826ae2ba954d16603f56a5b5e08125684a50023e22c78c31",
+        "affectedArtFrame": 16,
+        "receivingChangedIndices": [
+          4,
+          9
+        ],
+        "sourceRadiusChanges": 0,
+        "protectedPixelChanges": 0,
+        "sourceParity": "Authored beta underside flex; root, clock and attack geometry preserved."
+      }
+    },
+    {
+      "action": "down-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-down-smash-sample-20-source20-attempt1-cutout.png",
+      "sha256": "7f37b920bb796bf20c964f751d47769a14a58fedcaee7797dfd42511155ae9c1",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS",
+      "authoredGeometryAdaptation": {
+        "kind": {
+          "kind": "local undersideflex",
+          "originalArtBand": [
+            279,
+            293
+          ],
+          "targetArtBand": [
+            279,
+            289
+          ],
+          "maxDisplacementWorldPx": 1.8666666666666667
+        },
+        "job": "full-completion-states-attack-late-floor-batch5-source0",
+        "output": "docs/review/2026-10-06/pikachu-character/art/completion-states-attack-late-floor/full-completion-states-attack-late-floor-batch5-source0-attempt1-matte-refined-cutout.png",
+        "outputSha256": "08990b7718f37cd7826ae2ba954d16603f56a5b5e08125684a50023e22c78c31",
+        "affectedArtFrame": 17,
+        "receivingChangedIndices": [
+          4
+        ],
+        "sourceRadiusChanges": 0,
+        "protectedPixelChanges": 0,
+        "sourceParity": "Authored beta underside flex; root, clock and attack geometry preserved."
+      }
+    },
+    {
+      "action": "down-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-down-smash-sample-21-source21-attempt1-cutout.png",
+      "sha256": "5f30c6ab54d810dbc8b7a64fbfb1cc9ede40550df9ac62a426f6972e7aab36a8",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS",
+      "authoredGeometryAdaptation": {
+        "kind": {
+          "kind": "local undersideflex",
+          "originalArtBand": [
+            279,
+            294
+          ],
+          "targetArtBand": [
+            279,
+            289
+          ],
+          "maxDisplacementWorldPx": 2.3333333333333335
+        },
+        "job": "full-completion-states-attack-late-floor-batch6-source0",
+        "output": "docs/review/2026-10-06/pikachu-character/art/completion-states-attack-late-floor/full-completion-states-attack-late-floor-batch6-source0-attempt1-matte-refined-cutout.png",
+        "outputSha256": "96c5c2becbd44f7ea58d1e4e43db1830f30c1cbd94830b371202fc4fae4b2704",
+        "affectedArtFrame": 18,
+        "receivingChangedIndices": [
+          4,
+          5
+        ],
+        "sourceRadiusChanges": 0,
+        "protectedPixelChanges": 0,
+        "sourceParity": "Authored beta underside flex; root, clock and attack geometry preserved."
+      }
+    },
+    {
+      "action": "down-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-down-smash-sample-22-source22-attempt1-cutout.png",
+      "sha256": "f721f3c78d08849f90d4d45b931dfbcd227010181d212543432b34bf2e29a9cb",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS",
+      "authoredGeometryAdaptation": {
+        "kind": {
+          "kind": "local undersideflex",
+          "originalArtBand": [
+            279,
+            295
+          ],
+          "targetArtBand": [
+            279,
+            289
+          ],
+          "maxDisplacementWorldPx": 2.8
+        },
+        "job": "full-completion-states-attack-late-floor-batch6-source0",
+        "output": "docs/review/2026-10-06/pikachu-character/art/completion-states-attack-late-floor/full-completion-states-attack-late-floor-batch6-source0-attempt1-matte-refined-cutout.png",
+        "outputSha256": "96c5c2becbd44f7ea58d1e4e43db1830f30c1cbd94830b371202fc4fae4b2704",
+        "affectedArtFrame": 19,
+        "receivingChangedIndices": [
+          4,
+          5,
+          8
+        ],
+        "sourceRadiusChanges": 0,
+        "protectedPixelChanges": 0,
+        "sourceParity": "Authored beta underside flex; root, clock and attack geometry preserved."
+      }
+    },
+    {
+      "action": "down-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-down-smash-sample-23-source23-attempt1-cutout.png",
+      "sha256": "eec5c49721226705c2c53db290773a823c48a1a4063854a82cd7721a1f208aa8",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS",
+      "authoredGeometryAdaptation": {
+        "kind": {
+          "kind": "local undersideflex",
+          "originalArtBand": [
+            279,
+            296
+          ],
+          "targetArtBand": [
+            279,
+            289
+          ],
+          "maxDisplacementWorldPx": 3.2666666666666666
+        },
+        "job": "full-completion-states-attack-late-floor-batch6-source0",
+        "output": "docs/review/2026-10-06/pikachu-character/art/completion-states-attack-late-floor/full-completion-states-attack-late-floor-batch6-source0-attempt1-matte-refined-cutout.png",
+        "outputSha256": "96c5c2becbd44f7ea58d1e4e43db1830f30c1cbd94830b371202fc4fae4b2704",
+        "affectedArtFrame": 20,
+        "receivingChangedIndices": [
+          4,
+          5,
+          8
+        ],
+        "sourceRadiusChanges": 0,
+        "protectedPixelChanges": 0,
+        "sourceParity": "Authored beta underside flex; root, clock and attack geometry preserved."
+      }
+    },
+    {
+      "action": "down-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-down-smash-sample-28-source28-attempt1-cutout.png",
+      "sha256": "4fb5759cb1cb60745adb5e32f64ee0581649fcd93c2f8bfe9cdcab112cb1d91b",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS",
+      "authoredGeometryAdaptation": {
+        "kind": {
+          "kind": "local undersideflex",
+          "originalArtBand": [
+            279,
+            293
+          ],
+          "targetArtBand": [
+            279,
+            289
+          ],
+          "maxDisplacementWorldPx": 1.8666666666666667
+        },
+        "job": "full-completion-states-attack-late-floor-batch6-source0",
+        "output": "docs/review/2026-10-06/pikachu-character/art/completion-states-attack-late-floor/full-completion-states-attack-late-floor-batch6-source0-attempt1-matte-refined-cutout.png",
+        "outputSha256": "96c5c2becbd44f7ea58d1e4e43db1830f30c1cbd94830b371202fc4fae4b2704",
+        "affectedArtFrame": 21,
+        "receivingChangedIndices": [
+          4,
+          5,
+          8,
+          9
+        ],
+        "sourceRadiusChanges": 0,
+        "protectedPixelChanges": 0,
+        "sourceParity": "Authored beta underside flex; root, clock and attack geometry preserved."
+      }
+    },
+    {
+      "action": "down-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-down-smash-sample-34-source34-attempt1-cutout.png",
+      "sha256": "674cde971f41e64f0e5aaa161c6c5bda3f2b3a03f8f2a3b899d565d226516a2a",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS",
+      "authoredGeometryAdaptation": {
+        "kind": {
+          "kind": "local undersideflex",
+          "originalArtBand": [
+            279,
+            294
+          ],
+          "targetArtBand": [
+            279,
+            289
+          ],
+          "maxDisplacementWorldPx": 2.3333333333333335
+        },
+        "job": "full-completion-states-attack-late-floor-batch7-source0",
+        "output": "docs/review/2026-10-06/pikachu-character/art/completion-states-attack-late-floor/full-completion-states-attack-late-floor-batch7-source0-attempt1-matte-refined-cutout.png",
+        "outputSha256": "c0cb52bb55f294c052ce68ab2360b440f8a6c93552984b193176be3407106166",
+        "affectedArtFrame": 22,
+        "receivingChangedIndices": [
+          8,
+          9
+        ],
+        "sourceRadiusChanges": 0,
+        "protectedPixelChanges": 0,
+        "sourceParity": "Authored beta underside flex; root, clock and attack geometry preserved."
+      }
+    },
+    {
+      "action": "down-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-down-smash-sample-42-source42-attempt1-cutout.png",
+      "sha256": "70c976885cc9d919b356b4b8ac28ccb4c0f4c2f5bff4d5638e0b27e4c69909e9",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS",
+      "authoredGeometryAdaptation": {
+        "kind": {
+          "kind": "local undersideflex",
+          "originalArtBand": [
+            279,
+            294
+          ],
+          "targetArtBand": [
+            279,
+            289
+          ],
+          "maxDisplacementWorldPx": 2.3333333333333335
+        },
+        "job": "full-completion-states-attack-late-floor-batch7-source0",
+        "output": "docs/review/2026-10-06/pikachu-character/art/completion-states-attack-late-floor/full-completion-states-attack-late-floor-batch7-source0-attempt1-matte-refined-cutout.png",
+        "outputSha256": "c0cb52bb55f294c052ce68ab2360b440f8a6c93552984b193176be3407106166",
+        "affectedArtFrame": 23,
+        "receivingChangedIndices": [
+          8,
+          9
+        ],
+        "sourceRadiusChanges": 0,
+        "protectedPixelChanges": 0,
+        "sourceParity": "Authored beta underside flex; root, clock and attack geometry preserved."
+      }
+    },
+    {
+      "action": "down-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-down-smash-sample-54-source54-attempt1-cutout.png",
+      "sha256": "86cf564b79b88e1158b38671a762ce5e5c0fe5e4c51b08df0732ff21239ce205",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS",
+      "authoredGeometryAdaptation": {
+        "kind": {
+          "kind": "local undersideflex",
+          "originalArtBand": [
+            279,
+            291
+          ],
+          "targetArtBand": [
+            279,
+            289
+          ],
+          "maxDisplacementWorldPx": 0.9333333333333333
+        },
+        "job": "full-completion-states-attack-late-floor-batch7-source0",
+        "output": "docs/review/2026-10-06/pikachu-character/art/completion-states-attack-late-floor/full-completion-states-attack-late-floor-batch7-source0-attempt1-matte-refined-cutout.png",
+        "outputSha256": "c0cb52bb55f294c052ce68ab2360b440f8a6c93552984b193176be3407106166",
+        "affectedArtFrame": 24,
+        "receivingChangedIndices": [
+          8,
+          9
+        ],
+        "sourceRadiusChanges": 0,
+        "protectedPixelChanges": 0,
+        "sourceParity": "Authored beta underside flex; root, clock and attack geometry preserved."
+      }
+    },
+    {
+      "action": "down-smash",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-down-smash-sample-64-source64-attempt1-cutout.png",
+      "sha256": "21f8040396e6d3df8681e3c91c39d84aacbd899495d6760514508e6391aa257d",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS",
+      "authoredGeometryAdaptation": {
+        "kind": {
+          "kind": "local undersideflex",
+          "originalArtBand": [
+            279,
+            290
+          ],
+          "targetArtBand": [
+            279,
+            289
+          ],
+          "maxDisplacementWorldPx": 0.4666666666666667
+        },
+        "job": "full-completion-states-attack-late-floor-batch7-source0",
+        "output": "docs/review/2026-10-06/pikachu-character/art/completion-states-attack-late-floor/full-completion-states-attack-late-floor-batch7-source0-attempt1-matte-refined-cutout.png",
+        "outputSha256": "c0cb52bb55f294c052ce68ab2360b440f8a6c93552984b193176be3407106166",
+        "affectedArtFrame": 25,
+        "receivingChangedIndices": [
+          9
+        ],
+        "sourceRadiusChanges": 0,
+        "protectedPixelChanges": 0,
+        "sourceParity": "Authored beta underside flex; root, clock and attack geometry preserved."
+      }
+    }
+  ],
+  "galleries": {
+    "smash-cells-1.png": "4c67c868731c5af20167f5da890a5a08031beffa830147ee5b2bc95e592a8ae3",
+    "smash-cells-2.png": "557d2823e39c59cf0288795afc80c680f625ec7bf00ec775fe3ed7cf18bd423f",
+    "smash-cells-3.png": "35c7bd0991bade18c081e8fee4a98bb7c0dd817dba40eb1088f39d7e5461c3ca",
+    "smash-cells-4.png": "5b19b0227b404c31ba01ca4b810586174df51e976f2d3224a086868dc3e24526",
+    "usmash-cells-1.png": "b5c88aaab34c4404783499bdf433670ab9a3ab2ce8795d44cd8a58645abf8844",
+    "usmash-cells-2.png": "b9d6ecee50e0831a324a9cda44ecd78b69b0aa1eae45405679ad87b40d1721f8",
+    "usmash-cells-3.png": "fb9f7266c083e716b2f29855f01f52ef6d661ad8370697e490136907769286ae",
+    "usmash-cells-4.png": "42c488f62976257cff8faa61b8adac99ee8277d8aa8211a1fd94fe092ec6b0b1",
+    "usmash-cells-5.png": "1b06455186a2358e351564be639ac34482e163a96f2376fffd66b5614e8698f0",
+    "dsmash-cells-1.png": "d3b42bc2d3d08b14a227f68d2b2520f246ea1d5d0452a4096ab7f41382d91a8c",
+    "dsmash-cells-2.png": "2691e127841558f65aabe90a93d1118e75dd8a63627a0317e2c997b2a4e0c028",
+    "dsmash-cells-3.png": "8f5f929202615ce1e257e9716d2cc33e8c5c9a281a08e8a5aed3e973112d50ea",
+    "dsmash-cells-4.png": "5aa9ecd32dd3daf7e89a1c5ac881bc508ce484b7f851339e5171f15e6a8034fb",
+    "dsmash-cells-5.png": "c69e4c86ce8e8b3b69a91fd5ae76dfb41dfafafb1985d836e15ba8ae025de01f",
+    "dsmash-cells-6.png": "7e22fb865e49bc9e5ace048033ba233a9e23f02499450721991fa14eaefc4065",
+    "dsmash-cells-7.png": "f28c6548717618d9c46bec545b3332ce63deb52a2b6c93440604c47c3c6c7537"
+  }
+}

@@ -1,0 +1,7 @@
+# Heavy action and stock lifecycle fixes
+
+The immutable final-sole-112 match trace found two gameplay defects on both facings: Pikachu W+F up throw admitted a buffered normal jump before native frame 15 release, and DK stock loss left a held Barrel in SceneInventory after revival. The action lock now clears queued jump/tap-jump/offense. Real stock loss retires only the held heavy entity and clears pickup/heavy reservations, while free owner trajectories remain live. Heavy retirement is an explicit engine lifecycle policy, not a claim about native KO drop behavior.
+
+The targeted checks passed: 144 tests across eight files, plus `tsc --noEmit`. The four new regressions use real Matter, actual W+F input and production Scene consumers; the stock path includes BlastZonePositionWatcher, StockTracker and RespawnHandler. Graphics/audio are omitted from the method-extraction fixture. See [results.json](results.json), [scoped log](scoped.txt) and [measurements](measurements.json).
+
+After those checks, Golden independently found that generic Pikachu flipX retained the canonical asymmetric origin. The frozen render line now mirrors originX, matching the existing DK registration contract and preserving the rotated-special override. No checks were repeated solely for that one-line render change; checked-before and frozen-after hashes are recorded separately. The final new guarded build still requires independent match/input and visual/origin acceptance. No build, server or browser was run by this runtime agent.

@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { StockTracker } from './StockTracker';
 import { MatchStatsTracker } from './MatchStatsTracker';
+import { MatchSim } from '../sim/MatchSim';
 import {
   DEFAULT_ENDING_DURATION_FRAMES,
   MatchEndDetector,
@@ -488,9 +489,8 @@ describe('MatchEndDetector — stats-tracker wire (Sub-AC 3 of AC 16)', () => {
     expect(payload!.playerStats![0]!.survivalFrames).toBe(42);
   });
 
-  it('readme: the result payload is the contract for ResultsScene', () => {
-    // Static surface guard — `MatchScene.ts` calls
-    // `scene.start('ResultsScene', detector.getResultPayload())`.
+  it('the result payload is the contract for the results screen', () => {
+    // The Three.js host presents this payload when MatchSim finishes.
     // The fields the results scene reads (winnerIndex, winnerName,
     // playerNames, finalStocks, stageName, endFrame, playerStats)
     // must all be present on the payload at ENDING-entry, even when
@@ -525,55 +525,41 @@ describe('MatchEndDetector — stats-tracker wire (Sub-AC 3 of AC 16)', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Sub-AC 3 of AC 16 — MatchScene transition wiring (static-text contract)
+// Actual headless match lifecycle and the results contract
 // ---------------------------------------------------------------------------
 
-/**
- * Pins the *static* contract that `MatchScene` invokes the detector and
- * hands its payload to the results scene exactly once per match. Booting
- * the live Phaser scene from vitest pulls in browser globals; we instead
- * read `MatchScene.ts` as text and assert the wires are present.
- *
- * The behavioural side of this contract is covered above — that the
- * detector's payload contains the per-player stats. The two together
- * pin Sub-AC 3 end-to-end: the detector produces the stats-bearing
- * payload, and the gameplay scene consumes it on transition.
- */
-describe('MatchScene → ResultsScene transition wire (Sub-AC 3 of AC 16)', () => {
-  it('constructs MatchEndDetector with the MatchStatsTracker as statsTracker option', async () => {
-    const fs = await import('node:fs');
-    const path = await import('node:path');
-    const url = await import('node:url');
-    const here = path.dirname(url.fileURLToPath(import.meta.url));
-    const src = fs.readFileSync(
-      path.join(here, '..', 'scenes', 'MatchScene.ts'),
-      'utf8',
-    );
-    // Detector built with the stats tracker as the `statsTracker` option.
-    expect(src).toMatch(/new MatchEndDetector\(/);
-    expect(src).toMatch(/statsTracker:\s*this\.matchStatsTracker/);
-  });
-
-  it('ticks the detector each fixed step and starts ResultsScene with the payload', async () => {
-    const fs = await import('node:fs');
-    const path = await import('node:path');
-    const url = await import('node:url');
-    const here = path.dirname(url.fileURLToPath(import.meta.url));
-    const src = fs.readFileSync(
-      path.join(here, '..', 'scenes', 'MatchScene.ts'),
-      'utf8',
-    );
-    // Per-step tick.
-    expect(src).toMatch(/this\.matchEndDetector\.update\(/);
-    // One-shot transition guard.
-    expect(src).toMatch(/this\.matchEndDetector\.consumeShouldTransition\(\)/);
-    // Payload read from the detector.
-    expect(src).toMatch(/this\.matchEndDetector\.getResultPayload\(\)/);
-    // Scene transition with the payload (and a defensive `?? undefined`
-    // for the null-payload path so Phaser doesn't choke on it).
-    expect(src).toMatch(
-      /scene\.start\(['"]ResultsScene['"],\s*payload\s*\?\?\s*undefined\)/,
-    );
+describe('MatchSim result lifecycle', () => {
+  it('finishes a real boundary KO with canonical stats and a stable result payload', () => {
+    const sim = new MatchSim({ matchConfig: {
+      mode: 'stocks', stockCount: 1, stageId: 'flat', rngSeed: 7,
+      itemFrequency: 'off', linkIntroPolicy: 'none',
+      finalSmashRules: { schemaVersion: 1, meterEnabled: false, smashBallEnabled: false },
+      players: [
+        { index: 1, characterId: 'donkeykong', paletteIndex: 0, inputType: 'keyboard_p1' },
+        { index: 2, characterId: 'pikachu', paletteIndex: 0, inputType: 'keyboard_p2' },
+      ],
+    } });
+    try {
+      // Trigger the production boundary-KO path rather than injecting stock events.
+      sim.matter.body.setPosition(sim.playerSlots[1]!.character.body, { x: -2000, y: 100 });
+      sim.step();
+      expect(sim.matchEndDetector.isMatchOver()).toBe(true);
+      expect(sim.isFinished).toBe(false);
+      for (let i = 0; i <= DEFAULT_ENDING_DURATION_FRAMES && !sim.isFinished; i++) sim.step();
+      expect(sim.isFinished).toBe(true);
+      const result = sim.result;
+      expect(result).toMatchObject({
+        winnerIndex: 0, winnerName: 'Donkey Kong',
+        playerNames: ['Donkey Kong', 'Pikachu'], finalStocks: [1, 0],
+        playerStats: [{ deaths: 0, eliminated: false }, { deaths: 1, eliminated: true }],
+      });
+      expect(result).toEqual(sim.matchEndDetector.getResultPayload());
+      expect(result!.endFrame).toBe(0);
+      const frame = sim.physicsEngine.getFrame();
+      sim.step();
+      expect(sim.result).toBe(result);
+      expect(sim.physicsEngine.getFrame()).toBe(frame);
+    } finally { sim.dispose(); }
   });
 });
 

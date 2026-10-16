@@ -1,0 +1,687 @@
+{
+  "state": "packed_cells_visually_reviewed_runtime_pending",
+  "coordinateContract": {
+    "frameWidth": 512,
+    "frameHeight": 640,
+    "root": [
+      256,
+      416
+    ],
+    "scaleToWorld": 0.4666666666666667
+  },
+  "animations": {
+    "item_throw_lw": {
+      "strip": "animations/item_throw_lw.png",
+      "frameCount": 1,
+      "sha256": "bd1bc538d56a055e3505cb3a3e47f74cdf29a80e26fcb78a50dccea45de0c8d9",
+      "frameWindows": [
+        {
+          "startFrame": 0,
+          "endFrame": 6,
+          "artFrameIndex": 0
+        }
+      ],
+      "frameWidth": 512,
+      "frameHeight": 640,
+      "root": [
+        256,
+        416
+      ],
+      "scaleToWorld": 0.4666666666666667,
+      "sourceCells": [
+        [
+          0,
+          0
+        ]
+      ],
+      "nativeSampleIndices": [
+        8
+      ],
+      "nativeWindows": [
+        {
+          "nativeStart": 8,
+          "nativeEnd": 9,
+          "artFrameIndex": 0,
+          "nativeSample": 8
+        }
+      ],
+      "runtimeClock": "Authored unlocked beta item visual event: 6 cue steps; source native drawing/Have/12caps paired. Native motion cancel declaration retained separately; common item commitment unknown. Fresh other actions interrupt. Aerial cues end on grounded contact.",
+      "packingMetadata": "assets/characters/pikachu/pose-batches/full-item_throw_lw-tiled.json"
+    }
+  },
+  "sources": [
+    {
+      "key": "full-completion-states-item-throw-lw-sample8-source8",
+      "sheet": "item_throw_lw",
+      "motion": "h01lightthrowlw",
+      "nativeSample": 8,
+      "sourceOnlyEndpoint": false,
+      "source_path": "docs/review/2026-10-06/pikachu-character/sources/item-native-review/item_light_throw_lw-native8-reference.png",
+      "source_sha256": "a8a64ca2f40900436f630fcecc6ab1a23022832b87440d1bd4bac565cc034ee4",
+      "nativeMetadata": "docs/review/2026-10-06/pikachu-character/sources/item-native-review/item_light_throw_lw-native8.json",
+      "nativeMetadataSha256": "4cd42c9b2d3fe1005002c7afe3e05ade55e17aa3283d9d606f0f1c8abea9e755",
+      "sourceMotion": {
+        "skeleton": {
+          "path": "assets/gen/pikachu-native-reference/raw-model/fighter/pikachu/model/body/c00/model.nusktb",
+          "sha256": "09b80e92fa89921c4d895abe36f23252c2ba69c1ed2a787953185572d2b19b04"
+        },
+        "helper": {
+          "path": "assets/gen/pikachu-native-reference/raw-model/fighter/pikachu/model/body/c00/model.nuhlpb",
+          "sha256": "2362c0d133764a5f909e037c93ff9caf5e09f63da1aaa3ab9c3f0c22984a1555"
+        },
+        "motion": {
+          "path": "assets/gen/pikachu-native-reference/raw-motion/fighter/pikachu/motion/body/c00/h01lightthrowlw.nuanmb",
+          "sha256": "c96860401b28ab5184884474776c537d5f4b34d292311b2fad94384c5409c5e4"
+        },
+        "native_final_frame_index": 29.0,
+        "matrix_convention": "row-major arrays; column vectors; native x/y/z, no game or camera transform",
+        "helper_constraints": "Excluded; requested bones and ancestors reject any constraint target",
+        "game_patch": null,
+        "unmodified_vanilla_verified": false,
+        "gameplay_frame_mapping": null,
+        "runtime_consumer": null
+      },
+      "capturedTransTranslation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "hurtboxes": [
+        {
+          "id": "pikachu.item_throw_lw.0.hip",
+          "offsetX": 1.2019398266533445,
+          "offsetY": 9.969015111412034,
+          "width": 34.99618356046654,
+          "height": 35.248352854040064,
+          "capsule": {
+            "start": {
+              "x": 2.7000311696003494,
+              "y": 8.344839121678266
+            },
+            "end": {
+              "x": -0.29615151629366043,
+              "y": 11.593191101145804
+            },
+            "radius": 16.000000437286264
+          }
+        },
+        {
+          "id": "pikachu.item_throw_lw.1.head",
+          "offsetX": 5.048697705418546,
+          "offsetY": 9.223574724088532,
+          "width": 31.232438823557658,
+          "height": 34.632415773231315,
+          "capsule": {
+            "start": {
+              "x": 4.932478879593562,
+              "y": 11.039782024750346
+            },
+            "end": {
+              "x": 5.16491653124353,
+              "y": 7.40736742342672
+            },
+            "radius": 15.500000585953845
+          }
+        },
+        {
+          "id": "pikachu.item_throw_lw.2.shoulderr",
+          "offsetX": 15.236281919342783,
+          "offsetY": 13.316509777196423,
+          "width": 9.559634035409657,
+          "height": 16.32304494354348,
+          "capsule": {
+            "start": {
+              "x": 14.956465474653289,
+              "y": 9.65498787844002
+            },
+            "end": {
+              "x": 15.516098364032276,
+              "y": 16.978031675952828
+            },
+            "radius": 4.500000573015335
+          }
+        },
+        {
+          "id": "pikachu.item_throw_lw.3.shoulderl",
+          "offsetX": -8.315561429165383,
+          "offsetY": 8.413662915691317,
+          "width": 14.074909389115824,
+          "height": 14.23743456488011,
+          "capsule": {
+            "start": {
+              "x": -5.778106989315126,
+              "y": 5.794945887958917
+            },
+            "end": {
+              "x": -10.853015869015639,
+              "y": 11.032379943423717
+            },
+            "radius": 4.500000254707655
+          }
+        },
+        {
+          "id": "pikachu.item_throw_lw.4.armr",
+          "offsetX": 14.731483214364758,
+          "offsetY": 20.54851879543893,
+          "width": 6.920388711558568,
+          "height": 7.54592191417785,
+          "capsule": {
+            "start": {
+              "x": 15.691677188090715,
+              "y": 19.275558220403333
+            },
+            "end": {
+              "x": 13.771289240638803,
+              "y": 21.821479370474528
+            },
+            "radius": 2.5000003820533276
+          }
+        },
+        {
+          "id": "pikachu.item_throw_lw.5.arml",
+          "offsetX": -12.753768101657524,
+          "offsetY": 14.43836701950895,
+          "width": 5.616935969071733,
+          "height": 8.525419068484481,
+          "capsule": {
+            "start": {
+              "x": -12.445300374932886,
+              "y": 12.675657743077938
+            },
+            "end": {
+              "x": -13.062235828382162,
+              "y": 16.201076295939963
+            },
+            "radius": 2.5000002578112284
+          }
+        },
+        {
+          "id": "pikachu.item_throw_lw.6.legr",
+          "offsetX": 11.188271346345765,
+          "offsetY": 14.229099376269602,
+          "width": 21.215180815025995,
+          "height": 21.77599257160654,
+          "capsule": {
+            "start": {
+              "x": 9.58068081668642,
+              "y": 16.11709578421922
+            },
+            "end": {
+              "x": 12.79586187600511,
+              "y": 12.341102968319984
+            },
+            "radius": 8.999999877853652
+          }
+        },
+        {
+          "id": "pikachu.item_throw_lw.7.legl",
+          "offsetX": -10.159634066885715,
+          "offsetY": 13.046963828500736,
+          "width": 20.243519416634683,
+          "height": 18.01355634609523,
+          "capsule": {
+            "start": {
+              "x": -9.037874143744357,
+              "y": 13.040185440629104
+            },
+            "end": {
+              "x": -11.281393990027073,
+              "y": 13.053742216372367
+            },
+            "radius": 8.999999785175984
+          }
+        },
+        {
+          "id": "pikachu.item_throw_lw.8.kneer",
+          "offsetX": 14.51741304823285,
+          "offsetY": 15.911641608764658,
+          "width": 11.133500596068409,
+          "height": 19.85353585494557,
+          "capsule": {
+            "start": {
+              "x": 13.950663166580382,
+              "y": 10.98487409767361
+            },
+            "end": {
+              "x": 15.084162929885316,
+              "y": 20.838409119855704
+            },
+            "radius": 5.000000416381737
+          }
+        },
+        {
+          "id": "pikachu.item_throw_lw.9.kneel",
+          "offsetX": -14.301639118478205,
+          "offsetY": 17.06058539448768,
+          "width": 14.428905683183668,
+          "height": 18.00394808748986,
+          "capsule": {
+            "start": {
+              "x": -12.087186252551625,
+              "y": 13.058611326408007
+            },
+            "end": {
+              "x": -16.516091984404785,
+              "y": 21.062559462567357
+            },
+            "radius": 4.999999975665254
+          }
+        },
+        {
+          "id": "pikachu.item_throw_lw.10.tail1",
+          "offsetX": -1.880116330565948,
+          "offsetY": 3.5121915038087863,
+          "width": 20.520852466713166,
+          "height": 24.274877805719033,
+          "capsule": {
+            "start": {
+              "x": 1.380309787246542,
+              "y": -1.6252472835066385
+            },
+            "end": {
+              "x": -5.140542448378438,
+              "y": 8.649630291124211
+            },
+            "radius": 7.000000115544092
+          }
+        },
+        {
+          "id": "pikachu.item_throw_lw.11.tail3",
+          "offsetX": 7.839154964036119,
+          "offsetY": -3.8511548839515832,
+          "width": 21.438170748771782,
+          "height": 24.322244497952127,
+          "capsule": {
+            "start": {
+              "x": 10.558239890099916,
+              "y": -8.012276684605553
+            },
+            "end": {
+              "x": 5.120070037972323,
+              "y": 0.3099669167023862
+            },
+            "radius": 8.000000448322094
+          }
+        }
+      ],
+      "sourceHaveBODYCENTRE": {
+        "x": 3.9887145246807574,
+        "y": 26.0337377038648
+      },
+      "sourceDeclaration": {
+        "game_script": "game_itemlightthrowlw",
+        "flags": {
+          "turn": false,
+          "loop": false,
+          "move": false,
+          "fix_trans": false,
+          "fix_rot": false,
+          "fix_scale": false,
+          "unk_40": false,
+          "unk_80": true,
+          "unk_100": false,
+          "unk_200": false,
+          "unk_400": false,
+          "unk_800": false,
+          "unk_1000": false,
+          "unk_2000": false
+        },
+        "blend_frames": 0,
+        "animations": [
+          {
+            "name": "h01lightthrowlw.nuanmb",
+            "unk": 0
+          }
+        ],
+        "scripts": [
+          "expression_itemlightthrowlw",
+          "sound_itemlightthrowlw",
+          "effect_itemlightthrowlw"
+        ],
+        "extra": {
+          "xlu_start": 0,
+          "xlu_end": 0,
+          "cancel_frame": 20,
+          "no_stop_intp": false
+        }
+      },
+      "hashes": {
+        "seed": "a5baae193026bdbfedb4b332fef66a83d8647ae1c82107ade792477f3cec6359",
+        "generation-guide": "7453ef52dbd0fc168d9817882450990ab4ad743c81e5977e0b2e5d838bd5dda6",
+        "anatomy-mask": "ad29b89b9947fce1d9597a2581feea90e08192b63cc3a1eb9c05dfee265905e7",
+        "render-mask": "ffb5e0a789962b1c1cdfefd9ac932bc31348e9e46f65e042d76c670a008d7652"
+      },
+      "state": "reused_source_guide_inputs_pending_actual_tile_review",
+      "offset": [
+        1024,
+        1280
+      ],
+      "sourceHurtboxes": [
+        {
+          "id": "pikachu.item_throw_lw.0.hip",
+          "offsetX": 1.2019398266533445,
+          "offsetY": 9.969015111412034,
+          "width": 34.99618356046654,
+          "height": 35.248352854040064,
+          "capsule": {
+            "start": {
+              "x": 2.7000311696003494,
+              "y": 8.344839121678266
+            },
+            "end": {
+              "x": -0.29615151629366043,
+              "y": 11.593191101145804
+            },
+            "radius": 16.000000437286264
+          }
+        },
+        {
+          "id": "pikachu.item_throw_lw.1.head",
+          "offsetX": 5.048697705418546,
+          "offsetY": 9.223574724088532,
+          "width": 31.232438823557658,
+          "height": 34.632415773231315,
+          "capsule": {
+            "start": {
+              "x": 4.932478879593562,
+              "y": 11.039782024750346
+            },
+            "end": {
+              "x": 5.16491653124353,
+              "y": 7.40736742342672
+            },
+            "radius": 15.500000585953845
+          }
+        },
+        {
+          "id": "pikachu.item_throw_lw.2.shoulderr",
+          "offsetX": 15.236281919342783,
+          "offsetY": 13.316509777196423,
+          "width": 9.559634035409657,
+          "height": 16.32304494354348,
+          "capsule": {
+            "start": {
+              "x": 14.956465474653289,
+              "y": 9.65498787844002
+            },
+            "end": {
+              "x": 15.516098364032276,
+              "y": 16.978031675952828
+            },
+            "radius": 4.500000573015335
+          }
+        },
+        {
+          "id": "pikachu.item_throw_lw.3.shoulderl",
+          "offsetX": -8.315561429165383,
+          "offsetY": 8.413662915691317,
+          "width": 14.074909389115824,
+          "height": 14.23743456488011,
+          "capsule": {
+            "start": {
+              "x": -5.778106989315126,
+              "y": 5.794945887958917
+            },
+            "end": {
+              "x": -10.853015869015639,
+              "y": 11.032379943423717
+            },
+            "radius": 4.500000254707655
+          }
+        },
+        {
+          "id": "pikachu.item_throw_lw.4.armr",
+          "offsetX": 14.731483214364758,
+          "offsetY": 20.727277685271964,
+          "width": 6.920388711558568,
+          "height": 7.903439693843914,
+          "capsule": {
+            "start": {
+              "x": 15.691677188090715,
+              "y": 19.275558220403333
+            },
+            "end": {
+              "x": 13.771289240638803,
+              "y": 22.178997150140592
+            },
+            "radius": 2.5000003820533276
+          }
+        },
+        {
+          "id": "pikachu.item_throw_lw.5.arml",
+          "offsetX": -12.753768101657524,
+          "offsetY": 14.43836701950895,
+          "width": 5.616935969071733,
+          "height": 8.525419068484481,
+          "capsule": {
+            "start": {
+              "x": -12.445300374932886,
+              "y": 12.675657743077938
+            },
+            "end": {
+              "x": -13.062235828382162,
+              "y": 16.201076295939963
+            },
+            "radius": 2.5000002578112284
+          }
+        },
+        {
+          "id": "pikachu.item_throw_lw.6.legr",
+          "offsetX": 11.188271346345765,
+          "offsetY": 14.229099376269602,
+          "width": 21.215180815025995,
+          "height": 21.77599257160654,
+          "capsule": {
+            "start": {
+              "x": 9.58068081668642,
+              "y": 16.11709578421922
+            },
+            "end": {
+              "x": 12.79586187600511,
+              "y": 12.341102968319984
+            },
+            "radius": 8.999999877853652
+          }
+        },
+        {
+          "id": "pikachu.item_throw_lw.7.legl",
+          "offsetX": -10.159634066885715,
+          "offsetY": 13.046963828500736,
+          "width": 20.243519416634683,
+          "height": 18.01355634609523,
+          "capsule": {
+            "start": {
+              "x": -9.037874143744357,
+              "y": 13.040185440629104
+            },
+            "end": {
+              "x": -11.281393990027073,
+              "y": 13.053742216372367
+            },
+            "radius": 8.999999785175984
+          }
+        },
+        {
+          "id": "pikachu.item_throw_lw.8.kneer",
+          "offsetX": 14.51741304823285,
+          "offsetY": 15.918363204739407,
+          "width": 11.133500596068409,
+          "height": 19.866979046895068,
+          "capsule": {
+            "start": {
+              "x": 13.950663166580382,
+              "y": 10.98487409767361
+            },
+            "end": {
+              "x": 15.084162929885316,
+              "y": 20.851852311805203
+            },
+            "radius": 5.000000416381737
+          }
+        },
+        {
+          "id": "pikachu.item_throw_lw.9.kneel",
+          "offsetX": -14.301639118478205,
+          "offsetY": 17.10653330043697,
+          "width": 14.428905683183668,
+          "height": 18.095843899388427,
+          "capsule": {
+            "start": {
+              "x": -12.087186252551625,
+              "y": 13.058611326408007
+            },
+            "end": {
+              "x": -16.516091984404785,
+              "y": 21.154455274465928
+            },
+            "radius": 4.999999975665254
+          }
+        },
+        {
+          "id": "pikachu.item_throw_lw.10.tail1",
+          "offsetX": -1.880116330565948,
+          "offsetY": 3.5121915038087863,
+          "width": 20.520852466713166,
+          "height": 24.274877805719033,
+          "capsule": {
+            "start": {
+              "x": 1.380309787246542,
+              "y": -1.6252472835066385
+            },
+            "end": {
+              "x": -5.140542448378438,
+              "y": 8.649630291124211
+            },
+            "radius": 7.000000115544092
+          }
+        },
+        {
+          "id": "pikachu.item_throw_lw.11.tail3",
+          "offsetX": 7.839154964036119,
+          "offsetY": -3.8511548839515832,
+          "width": 21.438170748771782,
+          "height": 24.322244497952127,
+          "capsule": {
+            "start": {
+              "x": 10.558239890099916,
+              "y": -8.012276684605553
+            },
+            "end": {
+              "x": 5.120070037972323,
+              "y": 0.3099669167023862
+            },
+            "radius": 8.000000448322094
+          }
+        }
+      ],
+      "authoredGeometryAdaptation": {
+        "kind": "bounded ground underside flex",
+        "originalArtBand": [
+          1628,
+          1682
+        ],
+        "targetArtBand": [
+          1628,
+          1668
+        ],
+        "root": [
+          1024,
+          1664
+        ],
+        "radiusChanges": 0,
+        "betaAnatomy": true
+      },
+      "bounds": [
+        210,
+        300,
+        337,
+        417
+      ],
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/completion-states-items/full-completion-states-items-batch1-source0-attempt1-cutout.png",
+      "atlasSha256": "2783b6ab579b055761cf09e5cddc7431eb5ddb18bc41e3bd342c215beab8485b",
+      "job": "full-completion-states-items-batch1-source0-attempt1"
+    }
+  ],
+  "sourceMotion": {
+    "skeleton": {
+      "path": "assets/gen/pikachu-native-reference/raw-model/fighter/pikachu/model/body/c00/model.nusktb",
+      "sha256": "09b80e92fa89921c4d895abe36f23252c2ba69c1ed2a787953185572d2b19b04"
+    },
+    "helper": {
+      "path": "assets/gen/pikachu-native-reference/raw-model/fighter/pikachu/model/body/c00/model.nuhlpb",
+      "sha256": "2362c0d133764a5f909e037c93ff9caf5e09f63da1aaa3ab9c3f0c22984a1555"
+    },
+    "motion": {
+      "path": "assets/gen/pikachu-native-reference/raw-motion/fighter/pikachu/motion/body/c00/h01lightthrowlw.nuanmb",
+      "sha256": "c96860401b28ab5184884474776c537d5f4b34d292311b2fad94384c5409c5e4"
+    },
+    "native_final_frame_index": 29.0,
+    "matrix_convention": "row-major arrays; column vectors; native x/y/z, no game or camera transform",
+    "helper_constraints": "Excluded; requested bones and ancestors reject any constraint target",
+    "game_patch": null,
+    "unmodified_vanilla_verified": false,
+    "gameplay_frame_mapping": null,
+    "runtime_consumer": null
+  },
+  "sourceDeclaration": {
+    "game_script": "game_itemlightthrowlw",
+    "flags": {
+      "turn": false,
+      "loop": false,
+      "move": false,
+      "fix_trans": false,
+      "fix_rot": false,
+      "fix_scale": false,
+      "unk_40": false,
+      "unk_80": true,
+      "unk_100": false,
+      "unk_200": false,
+      "unk_400": false,
+      "unk_800": false,
+      "unk_1000": false,
+      "unk_2000": false
+    },
+    "blend_frames": 0,
+    "animations": [
+      {
+        "name": "h01lightthrowlw.nuanmb",
+        "unk": 0
+      }
+    ],
+    "scripts": [
+      "expression_itemlightthrowlw",
+      "sound_itemlightthrowlw",
+      "effect_itemlightthrowlw"
+    ],
+    "extra": {
+      "xlu_start": 0,
+      "xlu_end": 0,
+      "cancel_frame": 20,
+      "no_stop_intp": false
+    }
+  },
+  "betaEvent": {
+    "duration": 6,
+    "lockedInputs": false,
+    "fixedNativeAge": 8
+  },
+  "limits": [
+    "Genuine bounded generated native item body; no attack or generic body alias.",
+    "Source Have is explicitly authored beta mouth socket; native item node/orientation unresolved.",
+    "Source numeric cancel differs from beta event and does not claim common native commitment.",
+    "Ground underside adaptations and paired lower endpoints preserve roots, source core and all capsule radii.",
+    "Actual match qualification pending."
+  ],
+  "actualVisualReview": {
+    "reviewer": "state_art_completion",
+    "notes": "Actually opened all11saved paired galleries (13drawings,156caps). Each native directional/ground-air/pickup body retains identity, attached limbs/ears/tail and fixedroot registration. Source12caps follow head/core/limbs/tailbase and sourceHave follows native mouth-contact point in each source orientation. Accepted walking/back/down lower endpoint flex preserves all native radii; no body lift/recentering or hidden baked items. Ground alphafloors pass; air-up tail intentionally extends belowroot and actual landing retirement remains to verify. Runtime bothfacings/sourceHave/control/input/pause/hitlag/floor evidence remains pending.",
+    "images": [
+      {
+        "sheet": "item_throw_lw",
+        "file": "docs/review/2026-10-06/pikachu-character/art/completion-states-items/staged-events/item_throw_lw-paired-body-review.png",
+        "sha256": "d148c359cea53db918ab9a0d79b8b069db414d7973e45b43cfde1d99a893cce1"
+      }
+    ],
+    "runtimeQualified": false
+  }
+}

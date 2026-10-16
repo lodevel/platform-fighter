@@ -87,7 +87,7 @@ import type {
   CustomStageStorageLike,
 } from '../builder';
 import type { MatchConfig, StageLayout } from '../types';
-import type { MatchSceneData } from './MatchScene';
+import type { MatchSimData as MatchSceneData } from '../sim/MatchSim';
 
 // ---------------------------------------------------------------------------
 // Public types

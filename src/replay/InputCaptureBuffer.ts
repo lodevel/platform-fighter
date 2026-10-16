@@ -88,7 +88,7 @@ export type PlayerIndex = 0 | 1 | 2 | 3;
  * pass a `RecordedCharacterInput` straight into
  * `Character.applyInput` without an adapter step.
  */
-export interface RecordedCharacterInput {
+export interface RecordedCharacterInput extends CharacterInput {
   /**
    * Horizontal stick. -1 = full left, 0 = neutral, 1 = full right.
    * Analog values in [-1, 1] are preserved (the buffer never quantises
@@ -107,6 +107,25 @@ export interface RecordedCharacterInput {
   readonly attack: boolean;
   /** Drop-through-platform intent (typically `down && jump`). */
   readonly dropThrough: boolean;
+}
+
+/** Defaults for action channels first persisted by replay format 4. */
+export const REPLAY_ACTION_DEFAULTS = Object.freeze({
+  attackHeavy: false, special: false, shield: false, dodge: false, grab: false,
+  ledgeRelease: null,
+});
+
+/** Defaults for the real taunt channel first persisted by replay format7. */
+export const REPLAY_APPEAL_DEFAULTS = Object.freeze({appeal: false});
+
+/** Defaults for the right-stick attack direction first persisted by replay format 6. */
+export const REPLAY_ATTACK_STICK_DEFAULTS = Object.freeze({
+  attackStickX: 0, attackStickY: 0,
+});
+
+export function isRecordedLedgeRelease(value: unknown): value is Required<CharacterInput>['ledgeRelease'] {
+  return value === null || value === 'getUp' || value === 'roll' ||
+    value === 'jump' || value === 'attack' || value === 'dropDown';
 }
 
 /**
@@ -148,7 +167,10 @@ export interface InputCaptureBufferOptions {
  * (e.g. an eliminated fighter the scene chose to skip sampling for)
  * and as the canonical "do nothing" replay input.
  */
-export const NEUTRAL_INPUT: RecordedCharacterInput = Object.freeze({
+export const NEUTRAL_INPUT: Readonly<Required<RecordedCharacterInput>> = Object.freeze({
+  ...REPLAY_ACTION_DEFAULTS,
+  ...REPLAY_ATTACK_STICK_DEFAULTS,
+  ...REPLAY_APPEAL_DEFAULTS,
   moveX: 0,
   moveY: 0,
   jump: false,
@@ -390,34 +412,31 @@ export class InputCaptureBuffer {
  */
 function normaliseInput(
   input: CharacterInput | undefined,
-): RecordedCharacterInput {
+): Readonly<Required<RecordedCharacterInput>> {
   if (input === undefined) {
     return NEUTRAL_INPUT;
   }
 
-  let moveX = input.moveX;
-  if (typeof moveX !== 'number' || !Number.isFinite(moveX)) {
-    moveX = 0;
-  } else if (moveX < -1) {
-    moveX = -1;
-  } else if (moveX > 1) {
-    moveX = 1;
-  }
-
-  let moveY = input.moveY ?? 0;
-  if (typeof moveY !== 'number' || !Number.isFinite(moveY)) {
-    moveY = 0;
-  } else if (moveY < -1) {
-    moveY = -1;
-  } else if (moveY > 1) {
-    moveY = 1;
-  }
-
   return Object.freeze({
-    moveX,
-    moveY,
+    moveX: normaliseAxis(input.moveX),
+    moveY: normaliseAxis(input.moveY),
     jump: Boolean(input.jump),
     attack: Boolean(input.attack),
     dropThrough: Boolean(input.dropThrough),
+    attackHeavy: Boolean(input.attackHeavy),
+    special: Boolean(input.special),
+    appeal: Boolean(input.appeal),
+    shield: Boolean(input.shield),
+    dodge: Boolean(input.dodge),
+    grab: Boolean(input.grab),
+    ledgeRelease: isRecordedLedgeRelease(input.ledgeRelease) ? input.ledgeRelease : null,
+    attackStickX: normaliseAxis(input.attackStickX),
+    attackStickY: normaliseAxis(input.attackStickY),
   });
+}
+
+/** Clamp an analog channel to [-1, 1]; missing or non-finite reads as neutral. */
+function normaliseAxis(value: number | undefined): number {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return 0;
+  return value < -1 ? -1 : value > 1 ? 1 : value;
 }

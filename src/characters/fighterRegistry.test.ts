@@ -10,10 +10,9 @@ import {
   instantiateFighter,
   isRegisteredFighterId,
 } from './fighterRegistry';
-import { Wolf, WOLF_FIGHTER_CONTRACT } from './Wolf';
-import { Cat, CAT_FIGHTER_CONTRACT } from './Cat';
-import { Owl, OWL_FIGHTER_CONTRACT } from './Owl';
-import { Bear, BEAR_FIGHTER_CONTRACT } from './Bear';
+import { Link, LINK_FIGHTER_CONTRACT } from './Link';
+import { DonkeyKong, DONKEYKONG_FIGHTER_CONTRACT } from './DonkeyKong';
+import { Pikachu, PIKACHU_FIGHTER_CONTRACT } from './Pikachu';
 import { Character } from './Character';
 import { MOVESET_SLOT_NAMES, assertFighterMoveset } from './movesetContract';
 import type { CharacterId } from '../types';
@@ -115,14 +114,12 @@ function createMockScene(): { scene: any; bodies: MockBody[] } {
 }
 
 describe('FIGHTER_REGISTRY — completeness and structure', () => {
-  it('has one entry per CharacterId union member (wolf / cat / owl / bear / blaze / puff / aegis / volt / nova / bruno)', () => {
-    expect(Object.keys(FIGHTER_REGISTRY).sort()).toEqual(
-      ['aegis', 'bear', 'blaze', 'bruno', 'cat', 'donkeykong', 'kirby', 'link', 'nova', 'owl', 'puff', 'volt', 'wolf'],
-    );
+  it('has one entry per CharacterId union member (link / donkeykong / pikachu)', () => {
+    expect(Object.keys(FIGHTER_REGISTRY).sort()).toEqual(['donkeykong', 'link', 'pikachu']);
   });
 
   it('FIGHTER_REGISTRY_IDS is the canonical roster authoring order', () => {
-    expect(FIGHTER_REGISTRY_IDS).toEqual(['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno', 'link', 'kirby', 'donkeykong']);
+    expect(FIGHTER_REGISTRY_IDS).toEqual(['link', 'donkeykong', 'pikachu']);
   });
 
   it('FIGHTER_REGISTRY_ENTRIES is the same order as FIGHTER_REGISTRY_IDS', () => {
@@ -141,17 +138,15 @@ describe('FIGHTER_REGISTRY — completeness and structure', () => {
   });
 
   it('each entry references the right concrete per-fighter class', () => {
-    expect(FIGHTER_REGISTRY.wolf.ctor).toBe(Wolf);
-    expect(FIGHTER_REGISTRY.cat.ctor).toBe(Cat);
-    expect(FIGHTER_REGISTRY.owl.ctor).toBe(Owl);
-    expect(FIGHTER_REGISTRY.bear.ctor).toBe(Bear);
+    expect(FIGHTER_REGISTRY.link.ctor).toBe(Link);
+    expect(FIGHTER_REGISTRY.donkeykong.ctor).toBe(DonkeyKong);
+    expect(FIGHTER_REGISTRY.pikachu.ctor).toBe(Pikachu);
   });
 
   it('each entry references the right frozen *_FIGHTER_CONTRACT', () => {
-    expect(FIGHTER_REGISTRY.wolf.contract).toBe(WOLF_FIGHTER_CONTRACT);
-    expect(FIGHTER_REGISTRY.cat.contract).toBe(CAT_FIGHTER_CONTRACT);
-    expect(FIGHTER_REGISTRY.owl.contract).toBe(OWL_FIGHTER_CONTRACT);
-    expect(FIGHTER_REGISTRY.bear.contract).toBe(BEAR_FIGHTER_CONTRACT);
+    expect(FIGHTER_REGISTRY.link.contract).toBe(LINK_FIGHTER_CONTRACT);
+    expect(FIGHTER_REGISTRY.donkeykong.contract).toBe(DONKEYKONG_FIGHTER_CONTRACT);
+    expect(FIGHTER_REGISTRY.pikachu.contract).toBe(PIKACHU_FIGHTER_CONTRACT);
   });
 
   it('FIGHTER_REGISTRY is frozen at module load (open-closed extension surface)', () => {
@@ -170,17 +165,15 @@ describe('getFighterRegistryEntry / getFighterConstructor / getFighterContract',
   });
 
   it('getFighterConstructor returns the per-fighter class', () => {
-    expect(getFighterConstructor('wolf')).toBe(Wolf);
-    expect(getFighterConstructor('cat')).toBe(Cat);
-    expect(getFighterConstructor('owl')).toBe(Owl);
-    expect(getFighterConstructor('bear')).toBe(Bear);
+    expect(getFighterConstructor('link')).toBe(Link);
+    expect(getFighterConstructor('donkeykong')).toBe(DonkeyKong);
+    expect(getFighterConstructor('pikachu')).toBe(Pikachu);
   });
 
   it('getFighterContract returns the per-fighter FighterContract', () => {
-    expect(getFighterContract('wolf')).toBe(WOLF_FIGHTER_CONTRACT);
-    expect(getFighterContract('cat')).toBe(CAT_FIGHTER_CONTRACT);
-    expect(getFighterContract('owl')).toBe(OWL_FIGHTER_CONTRACT);
-    expect(getFighterContract('bear')).toBe(BEAR_FIGHTER_CONTRACT);
+    expect(getFighterContract('link')).toBe(LINK_FIGHTER_CONTRACT);
+    expect(getFighterContract('donkeykong')).toBe(DONKEYKONG_FIGHTER_CONTRACT);
+    expect(getFighterContract('pikachu')).toBe(PIKACHU_FIGHTER_CONTRACT);
   });
 
   it('throws fail-loud on an unknown id (corrupted MatchConfig defence)', () => {
@@ -200,17 +193,17 @@ describe('isRegisteredFighterId — type-guard for unverified strings', () => {
   it('returns false for an unknown string', () => {
     expect(isRegisteredFighterId('lion')).toBe(false);
     expect(isRegisteredFighterId('')).toBe(false);
-    expect(isRegisteredFighterId('Wolf')).toBe(false); // case-sensitive
+    expect(isRegisteredFighterId('Pikachu')).toBe(false); // case-sensitive
+    expect(isRegisteredFighterId('wolf')).toBe(false); // removed fighter
   });
 });
 
 describe('instantiateFighter — registry-mediated construction', () => {
   it('produces the right concrete subclass for every id', () => {
     const m = createMockScene();
-    expect(instantiateFighter(m.scene, 'wolf', { spawnX: 0, spawnY: 0 })).toBeInstanceOf(Wolf);
-    expect(instantiateFighter(m.scene, 'cat', { spawnX: 0, spawnY: 0 })).toBeInstanceOf(Cat);
-    expect(instantiateFighter(m.scene, 'owl', { spawnX: 0, spawnY: 0 })).toBeInstanceOf(Owl);
-    expect(instantiateFighter(m.scene, 'bear', { spawnX: 0, spawnY: 0 })).toBeInstanceOf(Bear);
+    expect(instantiateFighter(m.scene, 'link', { spawnX: 0, spawnY: 0 })).toBeInstanceOf(Link);
+    expect(instantiateFighter(m.scene, 'donkeykong', { spawnX: 0, spawnY: 0 })).toBeInstanceOf(DonkeyKong);
+    expect(instantiateFighter(m.scene, 'pikachu', { spawnX: 0, spawnY: 0 })).toBeInstanceOf(Pikachu);
   });
 
   it('returned instance is a Character (the runtime selects in place of the base)', () => {
@@ -224,7 +217,7 @@ describe('instantiateFighter — registry-mediated construction', () => {
 
   it('forwards spawnX / spawnY to the subclass constructor', () => {
     const m = createMockScene();
-    const fighter = instantiateFighter(m.scene, 'wolf', {
+    const fighter = instantiateFighter(m.scene, 'donkeykong', {
       spawnX: 321,
       spawnY: 654,
     });
@@ -233,7 +226,7 @@ describe('instantiateFighter — registry-mediated construction', () => {
 
   it('forwards tuning overrides (mass / maxRunSpeed) to the subclass', () => {
     const m = createMockScene();
-    const fighter = instantiateFighter(m.scene, 'wolf', {
+    const fighter = instantiateFighter(m.scene, 'donkeykong', {
       spawnX: 0,
       spawnY: 0,
       mass: 99,
@@ -283,7 +276,7 @@ describe('Behaviour preservation — the registry path matches the per-class pat
   /**
    * Sub-AC 3 invariant: the registry-mediated dispatch must produce
    * fighters that are byte-for-byte indistinguishable from the
-   * pre-registry `new Wolf(scene, opts)` direct instantiation. This
+   * pre-registry `new DonkeyKong(scene, opts)` direct instantiation. This
    * test invokes both paths back-to-back on the same scene and checks
    * that the resulting Characters expose identical id / position /
    * tuning surfaces — the runtime contract every downstream consumer
@@ -293,17 +286,17 @@ describe('Behaviour preservation — the registry path matches the per-class pat
     const directScene = createMockScene();
     const registryScene = createMockScene();
 
-    const directWolf = new Wolf(directScene.scene, { spawnX: 50, spawnY: 100 });
-    const registryWolf = instantiateFighter(registryScene.scene, 'wolf', {
+    const direct = new DonkeyKong(directScene.scene, { spawnX: 50, spawnY: 100 });
+    const viaRegistry = instantiateFighter(registryScene.scene, 'donkeykong', {
       spawnX: 50,
       spawnY: 100,
     });
-    expect(registryWolf).toBeInstanceOf(Wolf);
-    expect(registryWolf.id).toBe(directWolf.id);
-    expect(registryWolf.getPosition()).toEqual(directWolf.getPosition());
-    expect(registryWolf.getTuning().mass).toBe(directWolf.getTuning().mass);
-    expect(registryWolf.getTuning().maxRunSpeed).toBe(
-      directWolf.getTuning().maxRunSpeed,
+    expect(viaRegistry).toBeInstanceOf(DonkeyKong);
+    expect(viaRegistry.id).toBe(direct.id);
+    expect(viaRegistry.getPosition()).toEqual(direct.getPosition());
+    expect(viaRegistry.getTuning().mass).toBe(direct.getTuning().mass);
+    expect(viaRegistry.getTuning().maxRunSpeed).toBe(
+      direct.getTuning().maxRunSpeed,
     );
   });
 

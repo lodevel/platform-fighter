@@ -1,0 +1,197 @@
+{
+  "state": "packed_cells_visually_reviewed_runtime_pending",
+  "coordinateContract": {
+    "canonicalCanvas": [
+      2048,
+      2048
+    ],
+    "canonicalRoot": [
+      1024,
+      1664
+    ],
+    "frameWidth": 512,
+    "frameHeight": 512,
+    "root": [
+      256,
+      416
+    ],
+    "scaleToWorld": 0.4666666666666667,
+    "bodyCentreFromRoot": [
+      0,
+      -25
+    ]
+  },
+  "clockContract": "docs/review/2026-10-06/pikachu-character/sources/state-runtime-clock-contract.json",
+  "clockContractSha256": "66ba9368ffe7118410fb965fa6b095902f881ce8473644791cf0e406370165f0",
+  "animations": {
+    "shield_hit": {
+      "strip": "animations/shield_hit.png",
+      "frameCount": 4,
+      "sha256": "40358b22928ba5e0740830efd3157014f399a5c62bb119ff18dabc3a23b1db87",
+      "columns": 4,
+      "rows": 1,
+      "frameWindows": [
+        {
+          "startFrame": 0,
+          "endFrame": 5,
+          "artFrameIndex": 0,
+          "nativeStart": 0,
+          "nativeEnd": 5
+        },
+        {
+          "startFrame": 5,
+          "endFrame": 10,
+          "artFrameIndex": 1,
+          "nativeStart": 5,
+          "nativeEnd": 10
+        },
+        {
+          "startFrame": 10,
+          "endFrame": 20,
+          "artFrameIndex": 2,
+          "nativeStart": 10,
+          "nativeEnd": 20
+        },
+        {
+          "startFrame": 20,
+          "endFrame": 21,
+          "artFrameIndex": 3,
+          "nativeStart": 20,
+          "nativeEnd": 21
+        }
+      ],
+      "loopDuration": null,
+      "nativeSampleIndices": [
+        0,
+        5,
+        10,
+        20
+      ],
+      "nativeWindows": [
+        {
+          "nativeStart": 0,
+          "nativeEnd": 5,
+          "artFrameIndex": 0
+        },
+        {
+          "nativeStart": 5,
+          "nativeEnd": 10,
+          "artFrameIndex": 1
+        },
+        {
+          "nativeStart": 10,
+          "nativeEnd": 20,
+          "artFrameIndex": 2
+        },
+        {
+          "nativeStart": 20,
+          "nativeEnd": 21,
+          "artFrameIndex": 3
+        }
+      ],
+      "drawingFacingBinding": "actor entry facing; native orientation candidates must be checked before accepting both-facing render",
+      "holdRule": "native nonloop holds final available drawing until status exit; looping clips wrap native loopDuration; endpoint sample is not action commitment",
+      "specialPhase": null,
+      "specialClockKind": null,
+      "dynamicCutoff": null,
+      "playableEndExclusive": null,
+      "runtimeBindingStatus": "missing explicit status/branch/attachment hook; preserve samples without asserting playable route"
+    }
+  },
+  "sources": [
+    {
+      "sourceKey": "full-shield-hit-sample0-source0",
+      "nativeSample": 0,
+      "sourceReferenceSha256": "543ebb5a33c1909d162b4fc45fef7945369c60c995a1392533f08edc48269231",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-defense-batch003-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "767d565a94c6e1f9c77affe65c46a32d740ca477f8459c40201d7180b7c3de19",
+      "atlasCell": 3,
+      "cellOffset": [
+        1024,
+        1024
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-defense-batch003-bounded-source0-attempt1.review.json",
+      "reviewSha256": "0099cfb7052c1e9ed27dc7896b6adb5612f95138a8a29a969b0009f250af5be7"
+    },
+    {
+      "sourceKey": "full-shield-hit-sample5-source5",
+      "nativeSample": 5,
+      "sourceReferenceSha256": "1b6e4a4b447d2924e4283bddaf739b1f6a53f067b4b68cb46d56e5c9b3cd0e61",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-defense-batch004-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "317e18ae96881066ae045a390fc884dceeb3fdc17d53a6f6272b4912eafb2ba5",
+      "atlasCell": 0,
+      "cellOffset": [
+        0,
+        0
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-defense-batch004-bounded-source0-attempt1.review.json",
+      "reviewSha256": "efc613d8af5a7b8662f629a36cc0f830b3eaff0293bc67422bbfa99363209192"
+    },
+    {
+      "sourceKey": "full-shield-hit-sample10-source10",
+      "nativeSample": 10,
+      "sourceReferenceSha256": "226122e11664e2d166498970834850ff22bfb75c974d4f80d44f90367db7f84b",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-defense-batch004-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "317e18ae96881066ae045a390fc884dceeb3fdc17d53a6f6272b4912eafb2ba5",
+      "atlasCell": 1,
+      "cellOffset": [
+        1024,
+        0
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-defense-batch004-bounded-source0-attempt1.review.json",
+      "reviewSha256": "efc613d8af5a7b8662f629a36cc0f830b3eaff0293bc67422bbfa99363209192"
+    },
+    {
+      "sourceKey": "full-shield-hit-sample20-source20",
+      "nativeSample": 20,
+      "sourceReferenceSha256": "dc59c1b39379697e82ac87830f07b2d619fef0fb751659618fcfe8661ab70e8f",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-defense-batch004-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "317e18ae96881066ae045a390fc884dceeb3fdc17d53a6f6272b4912eafb2ba5",
+      "atlasCell": 2,
+      "cellOffset": [
+        0,
+        1024
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-defense-batch004-bounded-source0-attempt1.review.json",
+      "reviewSha256": "efc613d8af5a7b8662f629a36cc0f830b3eaff0293bc67422bbfa99363209192"
+    }
+  ],
+  "galleries": {
+    "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/shield_hit-cells-1.png": "cf45feec40efd86c5f48aab5a74bdc315ad64a8bc61a2bea98c3a17bef567172"
+  },
+  "limits": [
+    "Actual packed-cell inspection required before aggregate registration.",
+    "Authored beta presentation windows do not establish native status rate parity.",
+    "Actual running-game qualification remains separate."
+  ],
+  "packedVisualReview": {
+    "reviewer": "pikachu_art_motion",
+    "state": "actual_saved_packed_cells_reviewed",
+    "inspectedGalleries": {
+      "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/shield_hit-cells-1.png": "cf45feec40efd86c5f48aab5a74bdc315ad64a8bc61a2bea98c3a17bef567172"
+    },
+    "observations": [
+      "Actually inspected all four actual packed source-order cells0/5/10/20 light/dark: compressed guard shifts, hand-occluded red cheek fragments and rebound13-equivalent pose preserved with root/tail connection. Shieldstun-driven exact playback/status clock remains pending. Rough body only."
+    ]
+  },
+  "runtimeEvidence": {
+    "state": "actual_observed_shield_outcomes_body_receiving_accepted",
+    "reviewer": "pikachu_integration",
+    "reviewPath": "docs/review/2026-10-06/pikachu-character/integration/shield-outcomes-initial/visual-review.json",
+    "reviewSha256": "1986b3a3ce3f85d930794f7df0857ce9dfbc31950df47eeff8fc62b5a3f33854",
+    "bundle": "http://127.0.0.1:4223/platform-fighter/assets/index-BavPDis_.js",
+    "bundleSha256": "db8bc2888c8ebc1eab378bc7dd4989ba5d159ce132249bad4bf7b2da4610bced",
+    "actuallyInspectedByIntegration": 14,
+    "observed": "All14 actual full-body screenshots inspected: real source jab sensor contact to shield block and successful release parry, plus shield drop ages0/5/7/10, both facings. Age0 freezes with installed hitlag. Every active observed step uses exact12caps source receiving/body/root and mirror. Release uses all11 actual ages0..10; parry final protected step remains visible then retires.",
+    "boundary": "Observed block and parry budgets end before later native motion samples; their loaded endpoints are not claimed playable here. Native startup/angular/break-to-dizzy/break-end and motion rates remain unqualified. Existing invulnerability blink dims protected body but drawing remains visible.",
+    "artAgentAttribution": "Read and hash-bound integration review; no duplicate image-inspection claim."
+  }
+}

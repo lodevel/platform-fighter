@@ -1,0 +1,314 @@
+{
+  "state": "packed_output_visual_and_runtime_review_required",
+  "scope": "Partial registered normal batch; no roster/manifest/full-fighter acceptance",
+  "coordinateContract": {
+    "canonicalCanvas": [
+      2048,
+      1536
+    ],
+    "canonicalRoot": [
+      1024,
+      1152
+    ],
+    "frameWidth": 512,
+    "frameHeight": 384,
+    "root": [
+      256,
+      288
+    ],
+    "scaleToWorld": 0.4666666666666667,
+    "bodyCentreFromRoot": [
+      0,
+      -25
+    ]
+  },
+  "approvalSha256": "cfc844753fc44f35ba0c17471d39dac4af2bfd4b9f442d63086493bb3e97c421",
+  "animations": {
+    "smash_charge": {
+      "strip": "animations/smash_charge.png",
+      "frameCount": 5,
+      "sha256": "acf3ff094cc1a8dfa7f89c900c10fe13e26e0abbc6abe24bc0f4522997b0c565",
+      "frameWindows": [
+        {
+          "startFrame": 0,
+          "endFrame": 15,
+          "artFrameIndex": 0
+        },
+        {
+          "startFrame": 15,
+          "endFrame": 30,
+          "artFrameIndex": 1
+        },
+        {
+          "startFrame": 30,
+          "endFrame": 45,
+          "artFrameIndex": 2
+        },
+        {
+          "startFrame": 45,
+          "endFrame": 60,
+          "artFrameIndex": 3
+        },
+        {
+          "startFrame": 60,
+          "endFrame": 61,
+          "artFrameIndex": 4
+        }
+      ]
+    },
+    "usmash_charge": {
+      "strip": "animations/usmash_charge.png",
+      "frameCount": 5,
+      "sha256": "31cfc7ce91a46bed507ce0532ee79059344d5b1864c67fea10056f47a51d2fdd",
+      "frameWindows": [
+        {
+          "startFrame": 0,
+          "endFrame": 15,
+          "artFrameIndex": 0
+        },
+        {
+          "startFrame": 15,
+          "endFrame": 30,
+          "artFrameIndex": 1
+        },
+        {
+          "startFrame": 30,
+          "endFrame": 45,
+          "artFrameIndex": 2
+        },
+        {
+          "startFrame": 45,
+          "endFrame": 60,
+          "artFrameIndex": 3
+        },
+        {
+          "startFrame": 60,
+          "endFrame": 61,
+          "artFrameIndex": 4
+        }
+      ]
+    },
+    "dsmash_charge": {
+      "strip": "animations/dsmash_charge.png",
+      "frameCount": 5,
+      "sha256": "0a7d924934da7a4dfdef1d339787f2b7c833f4094bba0d8a47a396e4f2fe3975",
+      "frameWindows": [
+        {
+          "startFrame": 0,
+          "endFrame": 15,
+          "artFrameIndex": 0
+        },
+        {
+          "startFrame": 15,
+          "endFrame": 30,
+          "artFrameIndex": 1
+        },
+        {
+          "startFrame": 30,
+          "endFrame": 45,
+          "artFrameIndex": 2
+        },
+        {
+          "startFrame": 45,
+          "endFrame": 60,
+          "artFrameIndex": 3
+        },
+        {
+          "startFrame": 60,
+          "endFrame": 61,
+          "artFrameIndex": 4
+        }
+      ]
+    }
+  },
+  "sources": [
+    {
+      "action": "forward-smash-charge",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-forward-smash-charge-sample-0-source0-attempt1-cutout.png",
+      "sha256": "ab50b0b0dbe43943367ff374860f2163522f0b83831e4bbf3b7d71157bf003a0",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "forward-smash-charge",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-forward-smash-charge-sample-15-source15-attempt1-cutout.png",
+      "sha256": "9db3cdc4c936719a61d804a1bbd4b9941feb6c4ad329effcaedfc8d18d936ee6",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "forward-smash-charge",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-forward-smash-charge-sample-30-source30-attempt1-cutout.png",
+      "sha256": "376955fff4498f6f01068f8fba448a75468fa170c84b2db4189399c805be399a",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "forward-smash-charge",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-forward-smash-charge-sample-45-source45-attempt1-cutout.png",
+      "sha256": "14db1fc8d96972aa1dfa4da23d9ca6743b1a170f536c66c10c7341de5c24e74f",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "forward-smash-charge",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-forward-smash-charge-sample-60-source60-attempt1-cutout.png",
+      "sha256": "1599bfe9dc92962e7d8f7b70ea8f38efe3cfc7c5fc4c2a8016587ed46d077af3",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "up-smash-charge",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-up-smash-charge-sample-0-source0-attempt1-cutout.png",
+      "sha256": "b615cfa08143e1c37fda989e7cebfab473208378800a2d701a002d028f37ae9d",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "up-smash-charge",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-up-smash-charge-sample-15-source15-attempt1-cutout.png",
+      "sha256": "24c350a959af576a4e7db74602aeec3ef11bb61654db1fd493772f4ea04a845f",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "up-smash-charge",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-up-smash-charge-sample-30-source30-attempt1-cutout.png",
+      "sha256": "59508eb039ea8d7792f7c8a58269e04e862c0339c91d0b660e6fc2e570a22d91",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "up-smash-charge",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-up-smash-charge-sample-45-source45-attempt1-cutout.png",
+      "sha256": "b6406085088458f925d15a179207a376ae1bb3299f5107ef6121dc456eccc275",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "up-smash-charge",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-up-smash-charge-sample-60-source60-attempt1-cutout.png",
+      "sha256": "a9db8af2ed48ecc9c83988d1e6db2c3a7a1b185370226284b4f3b3c556c06976",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "down-smash-charge",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-down-smash-charge-sample-0-source0-attempt1-cutout.png",
+      "sha256": "2af768f2e636d025d33055bd4cc35960593dbb8452e738d7395eec3e1fb56cea",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "down-smash-charge",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-down-smash-charge-sample-15-source15-attempt1-cutout.png",
+      "sha256": "24cdd3957f7f5f63fa2668b706b86b56135df5ed945b1c0cc17e299884ae92f3",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "down-smash-charge",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-down-smash-charge-sample-30-source30-attempt1-cutout.png",
+      "sha256": "f0bdf4eada331cffcde33b0ac70bcba325c993354bf88d8e2fdd26648e463510",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "down-smash-charge",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-down-smash-charge-sample-45-source45-attempt1-cutout.png",
+      "sha256": "2ca41bbbe0375ae36a87ebe88f1321ba160e214ce44c8679e2e6f1bdf9a06bab",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    },
+    {
+      "action": "down-smash-charge",
+      "file": "docs/review/2026-10-06/pikachu-character/art/normal-down-smash-charge-sample-60-source60-attempt1-cutout.png",
+      "sha256": "b311b28214f3635fc5f0eb040720d18f86c851f87026b7407dc87657d00807cc",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null,
+      "resampler": "Pillow LANCZOS"
+    }
+  ],
+  "galleries": {
+    "smash_charge-cells-1.png": "816f07e3642b52c6f23ffd9d84c975f5eec479f40bc3dbb3367fd1a4e3090cc4",
+    "smash_charge-cells-2.png": "460a6bf44a32bca5661708d909dc9e92c5a060e6bb208d9a7550c40a93fbfc33",
+    "usmash_charge-cells-1.png": "2fa7a8227d1e6dec125cf1589708103f525af3c75cb0b93a45dadd624764a109",
+    "usmash_charge-cells-2.png": "d455a007dc52e55436298987e05d18936c0c0b45ad53fff9ed3fc2a76e5ccfba",
+    "dsmash_charge-cells-1.png": "3a55029f490b4e3d61df7403c2056dbef0647f00d3c2c4d75a5c50f635a2e00f",
+    "dsmash_charge-cells-2.png": "86370f01a3663d8d2dbf7a0b8a6a1cdfada50a00ce911474dcc449e23dc2f602"
+  }
+}

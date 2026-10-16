@@ -88,6 +88,8 @@ import type { MatchStatsTracker, PlayerMatchStats } from './MatchStatsTracker';
 export type MatchEndPhase = 'active' | 'ending' | 'ready';
 
 export interface MatchEndDetectorOptions {
+  /** A live rule controller can supply the outcome instead of stock elimination. */
+  readonly detectStockElimination?: boolean;
   /**
    * How many fixed-step frames the "GAME!" banner stays on screen
    * after the match flips over before the scene transitions. Default 180
@@ -132,6 +134,9 @@ export interface MatchEndDetectorOptions {
  * change what the player sees.
  */
 export interface MatchResultPayload {
+  readonly mode?: 'stocks' | 'time';
+  readonly scores?: ReadonlyArray<number>;
+  readonly decidedBySuddenDeath?: boolean;
   /** Sole-survivor's player slot, or `null` for a draw. */
   readonly winnerIndex: number | null;
   /** Display name for the winner, or `null` for a draw / unknown. */
@@ -190,9 +195,11 @@ export class MatchEndDetector {
    * the results scene on reentrant ticks.
    */
   private pendingTransition = false;
+  private readonly detectStockElimination: boolean;
 
   constructor(tracker: StockTracker, options: MatchEndDetectorOptions = {}) {
     this.tracker = tracker;
+    this.detectStockElimination = options.detectStockElimination ?? true;
     this.statsTracker = options.statsTracker ?? null;
     this.endingDurationFrames = Math.max(
       0,
@@ -278,7 +285,7 @@ export class MatchEndDetector {
   update(currentFrame: number): MatchEndPhase {
     const f = Math.max(0, Math.floor(currentFrame));
     if (this.phase === 'active') {
-      if (this.tracker.isMatchOver()) {
+      if (this.detectStockElimination && this.tracker.isMatchOver()) {
         this.enterEnding(f);
         // 0-frame freeze transitions immediately so headless/unit tests
         // don't have to advance the clock just to see the payload.
@@ -312,6 +319,20 @@ export class MatchEndDetector {
     return false;
   }
 
+  /** Latch the rule controller's winner once, preserving the normal ending freeze. */
+  finish(
+    frame: number,
+    winnerIndex: number | null,
+    details: Pick<MatchResultPayload, 'mode' | 'scores' | 'decidedBySuddenDeath'> = {},
+  ): void {
+    if (this.phase !== 'active') return;
+    if (winnerIndex !== null && (!Number.isInteger(winnerIndex) || winnerIndex < 0 || winnerIndex >= this.tracker.playerCount)) {
+      throw new Error('MatchEndDetector.finish: invalid winner index');
+    }
+    this.enterEnding(Math.max(0, Math.floor(frame)), winnerIndex, details);
+    if (this.endingDurationFrames === 0) this.enterReady();
+  }
+
   /**
    * Reset to ACTIVE and drop the latched payload. Used by the rematch
    * flow and by replay rewind; mirrors `StockTracker.reset` so a single
@@ -328,13 +349,16 @@ export class MatchEndDetector {
   // Internals
   // -------------------------------------------------------------------------
 
-  private enterEnding(frame: number): void {
+  private enterEnding(
+    frame: number,
+    winnerIndex: number | null = this.tracker.getWinner(),
+    details: Pick<MatchResultPayload, 'mode' | 'scores' | 'decidedBySuddenDeath'> = {},
+  ): void {
     this.phase = 'ending';
     this.endFrame = frame;
     // Snapshot the result NOW so a post-end stray `loseStock` (e.g.
     // a corpse body lingering at the blast zone) can't change the
     // payload the player sees on the results screen.
-    const winnerIndex = this.tracker.getWinner();
     const finalStocks: number[] = [];
     for (let i = 0; i < this.tracker.playerCount; i += 1) {
       finalStocks.push(this.tracker.getStocks(i));
@@ -363,6 +387,8 @@ export class MatchEndDetector {
       endFrame: frame,
       stageName: this.stageName,
       playerStats,
+      ...details,
+      ...(details.scores ? { scores: Object.freeze([...details.scores]) } : {}),
     });
   }
 

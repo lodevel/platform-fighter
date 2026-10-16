@@ -27,6 +27,8 @@
  *   • `sampleActions(slot) -> Record<LogicalAction, boolean>` — full
  *     per-slot held bitmap. The replay logger records this directly, the
  *     gameplay loop converts it into a {@link CharacterInput}.
+ *   • `sampleSmash(slot) -> SmashSample` — the `smash` action plus the
+ *     4-way direction of the stick it was bound to (right-stick smashes).
  *   • `sampleCharacterInput(slot) -> CharacterInput` — convenience
  *     adapter that mirrors the M1 `LocalInputHandler.sample()` shape,
  *     so existing scene wiring can swap in the dispatcher without a
@@ -87,7 +89,7 @@ import {
   type PlayerBindings,
   type PlayerBindingsIndex,
 } from '../types/inputBindings';
-import type { InputBindingsStore } from './InputBindingsStore';
+import { isNamedStickAxis, type InputBindingsStore } from './InputBindingsStore';
 import type { KeyboardSource } from './LocalInputHandler';
 
 // ---------------------------------------------------------------------------
@@ -233,7 +235,32 @@ export interface PlayerBindingsProvider {
  * present with a `boolean`; this is the intermediate shape the gameplay
  * loop, replay logger, and AI override compare against.
  */
-export type ActionHeldMap = Readonly<Record<LogicalAction, boolean>>;
+/** Authored keyboard/button walk magnitude, below the shared .75 dash threshold. */
+export const DIGITAL_WALK_MAGNITUDE=.60;
+
+export type ActionHeldMap = Readonly<Record<Exclude<LogicalAction, 'appeal' | 'walk'>, boolean> & Partial<Record<'appeal' | 'walk', boolean>>>;
+
+/**
+ * One slot's `smash` action for one frame, from
+ * {@link DeviceInputDispatcher.sampleSmash}. `held` mirrors
+ * `sampleActions(slot).smash` and is `buttonHeld || fromStick`; the two
+ * sources are reported separately because they behave differently
+ * downstream (a key / button charges while held, a stick push is one
+ * press) and a player can hold both at once.
+ *
+ *   • `buttonHeld` — a key, a gamepad button, or an axis binding with no
+ *     readable direction (off the named sticks, or reading 0 / 0) is held.
+ *   • `fromStick` — a half-axis binding on a named stick (axes 0-3; the
+ *     default is the right stick) is held; `(x, y)` is that stick's direction snapped to a 4-way unit
+ *     vector (canvas Y: -1 = up). `(0, 0)` when no stick binding is held.
+ */
+export interface SmashSample {
+  readonly held: boolean;
+  readonly buttonHeld: boolean;
+  readonly fromStick: boolean;
+  readonly x: number;
+  readonly y: number;
+}
 
 // ---------------------------------------------------------------------------
 // DeviceInputDispatcher
@@ -288,6 +315,14 @@ interface DropThroughLatch {
  */
 const DOUBLE_TAP_DOWN_WINDOW_FRAMES = 12;
 
+const SMASH_BUTTON_ONLY: SmashSample = Object.freeze({
+  held: true,
+  buttonHeld: true,
+  fromStick: false,
+  x: 0,
+  y: 0,
+});
+
 export class DeviceInputDispatcher {
   private readonly keyboard: KeyboardSource;
   private readonly gamepad: GamepadSource;
@@ -312,7 +347,7 @@ export class DeviceInputDispatcher {
    * crashed pad cannot brick a player.
    */
   isActionHeld(slot: PlayerBindingsIndex, action: LogicalAction): boolean {
-    const list = this.bindings.get(slot).bindings[action];
+    const list = this.bindings.get(slot).bindings[action] ?? [];
     for (let i = 0; i < list.length; i += 1) {
       const binding = list[i];
       if (binding !== undefined && this.isBindingHeld(binding)) {
@@ -342,9 +377,12 @@ export class DeviceInputDispatcher {
       shield: false,
       grab: false,
       taunt: false,
+      smash: false,
+      appeal: false,
+      walk: false,
     };
     for (const action of LOGICAL_ACTIONS) {
-      const list = profile.bindings[action];
+      const list = profile.bindings[action] ?? [];
       let held = false;
       for (let i = 0; i < list.length; i += 1) {
         const binding = list[i];
@@ -372,16 +410,21 @@ export class DeviceInputDispatcher {
     const profile = this.bindings.get(slot);
     let moveLeft = 0;
     let moveRight = 0;
+    const walkHeld=this.isActionHeld(slot,'walk');
+    const horizontalMagnitude=(binding:InputBinding)=>{const magnitude=this.bindingMagnitude(binding);
+      // Analog remains real analog; this modifier provides a genuine partial
+      // horizontal input for digital keys/buttons through the same pipeline.
+      return walkHeld&&(binding.kind==='keyboard'||binding.source.type==='button')?magnitude*DIGITAL_WALK_MAGNITUDE:magnitude;};
     for (let i = 0; i < profile.bindings.left.length; i += 1) {
       const binding = profile.bindings.left[i];
       if (binding === undefined) continue;
-      const magnitude = this.bindingMagnitude(binding);
+      const magnitude = horizontalMagnitude(binding);
       if (magnitude > moveLeft) moveLeft = magnitude;
     }
     for (let i = 0; i < profile.bindings.right.length; i += 1) {
       const binding = profile.bindings.right[i];
       if (binding === undefined) continue;
-      const magnitude = this.bindingMagnitude(binding);
+      const magnitude = horizontalMagnitude(binding);
       if (magnitude > moveRight) moveRight = magnitude;
     }
     // Cancel — left and right at equal magnitudes produce neutral. Net
@@ -427,6 +470,49 @@ export class DeviceInputDispatcher {
   }
 
   /**
+   * Sample the slot's `smash` action, reporting a held key / button and a
+   * held stick separately (see {@link SmashSample}). The stick direction
+   * comes from the first held binding on a named stick axis (0-3) and
+   * reads the whole stick the axis belongs to — under the W3C standard
+   * mapping even axes are X and odd axes are Y (`axisIndex & ~1`,
+   * `axisIndex | 1`) — snapped to the dominant axis (ties go horizontal),
+   * so a diagonal flick still picks exactly one of forward / up / down.
+   * Any other axis (a trigger, an extra axis on a non-standard pad) has
+   * no reliable partner, so it counts as a held button: it charges, and
+   * the smash aims with the left stick.
+   */
+  sampleSmash(slot: PlayerBindingsIndex): SmashSample {
+    const list = this.bindings.get(slot).bindings.smash;
+    let buttonHeld = false;
+    let stick: { x: number; y: number } | null = null;
+    for (let i = 0; i < list.length; i += 1) {
+      const binding = list[i];
+      if (binding === undefined || !this.isBindingHeld(binding)) continue;
+      const direction = binding.kind === 'gamepad' && binding.source.type === 'axis'
+        && isNamedStickAxis(binding.source.axisIndex)
+        ? this.heldStickDirection(binding)
+        : null;
+      if (direction === null) buttonHeld = true;
+      else if (stick === null) stick = direction;
+    }
+    if (stick === null) return buttonHeld ? SMASH_BUTTON_ONLY : NEUTRAL_SMASH_SAMPLE;
+    return Object.freeze({ held: true, buttonHeld, fromStick: true, x: stick.x, y: stick.y });
+  }
+
+  /** 4-way snapped direction of the stick a held axis binding belongs to; null if unreadable. */
+  private heldStickDirection(binding: GamepadBinding): { x: number; y: number } | null {
+    if (binding.source.type !== 'axis') return null;
+    const pad = this.heldPadIndex(binding);
+    if (pad === null) return null;
+    const axis = binding.source.axisIndex;
+    const x = this.gamepad.getAxis(pad, axis & ~1);
+    const y = this.gamepad.getAxis(pad, axis | 1);
+    if (x === 0 && y === 0) return null;
+    const horizontal = Math.abs(x) >= Math.abs(y);
+    return { x: horizontal ? Math.sign(x) : 0, y: horizontal ? 0 : Math.sign(y) };
+  }
+
+  /**
    * Build a {@link CharacterInput} record for one slot. Mirrors the M1
    * `LocalInputHandler.sample()` output so existing gameplay wiring can
    * swap in the dispatcher without any downstream edit.
@@ -454,6 +540,7 @@ export class DeviceInputDispatcher {
       jump,
       attack,
       shield,
+      appeal: this.isActionHeld(slot, 'appeal'),
       dropThrough,
     };
   }
@@ -528,6 +615,17 @@ export class DeviceInputDispatcher {
     }
     if (!this.gamepad.isConnected(binding.gamepadIndex)) return false;
     return this.isGamepadSourceHeld(binding.gamepadIndex, binding.source);
+  }
+
+  /** The pad a held gamepad binding is held on (the first one for "any pad"). */
+  private heldPadIndex(binding: GamepadBinding): number | null {
+    if (binding.gamepadIndex !== null) return binding.gamepadIndex;
+    for (let i = 0; i < 4; i += 1) {
+      if (this.gamepad.isConnected(i) && this.isGamepadSourceHeld(i, binding.source)) {
+        return i;
+      }
+    }
+    return null;
   }
 
   private isGamepadSourceHeld(gamepadIndex: number, source: GamepadBindingSource): boolean {
@@ -614,4 +712,16 @@ export const NEUTRAL_ACTION_MAP: ActionHeldMap = Object.freeze({
   shield: false,
   grab: false,
   taunt: false,
+  smash: false,
+  appeal: false,
+  walk: false,
+});
+
+/** Frozen "smash released" {@link SmashSample}. */
+export const NEUTRAL_SMASH_SAMPLE: SmashSample = Object.freeze({
+  held: false,
+  buttonHeld: false,
+  fromStick: false,
+  x: 0,
+  y: 0,
 });

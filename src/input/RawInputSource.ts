@@ -90,7 +90,6 @@
  * every event family or trip the exhaustiveness check.
  */
 
-import type Phaser from 'phaser';
 
 import type { GamepadSource } from './DeviceInputDispatcher';
 
@@ -344,36 +343,6 @@ export function createBrowserKeyboardEventTarget(
     removeEventListener(type, listener): void {
       const bound = adapterCache.get(listener);
       if (bound !== undefined) target.removeEventListener(type, bound);
-    },
-  };
-}
-
-/**
- * Wrap a Phaser scene's keyboard plugin so the raw source can subscribe
- * via `scene.input.keyboard.on('keydown', ...)` — preserving Phaser's
- * key-capture semantics (no arrow-key page scroll, no Tab focus moves)
- * which a plain `window.addEventListener` would not get.
- *
- * The adapter is intentionally thin: Phaser's `KeyboardPlugin` already
- * exposes an `'keydown'` / `'keyup'` event whose payload matches the
- * legacy `KeyboardEvent` shape (it forwards the original DOM event),
- * so we only need a tiny on/off bridge.
- */
-export function createPhaserKeyboardEventTarget(
-  scene: Phaser.Scene,
-): RawKeyboardEventTarget {
-  const keyboard = scene.input.keyboard;
-  if (!keyboard) {
-    throw new Error(
-      'createPhaserKeyboardEventTarget: scene.input.keyboard is unavailable — did the game config disable keyboard input?',
-    );
-  }
-  return {
-    addEventListener(type, listener): void {
-      keyboard.on(type, listener as (event: KeyboardEventLike) => void);
-    },
-    removeEventListener(type, listener): void {
-      keyboard.off(type, listener as (event: KeyboardEventLike) => void);
     },
   };
 }

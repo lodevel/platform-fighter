@@ -1,219 +1,49 @@
-/**
- * Hammer item tests — T3 items framework, open-closed extension.
- *
- * Pins the hammer's frozen definition shape, the slot-override
- * behaviour (attemptAttack dispatch, durability consumption, broken
- * transition on the last swing), and the direction-aware throw table.
- * Drives the deterministic data layer with the same stub-Character
- * pattern as `itemFramework.test.ts` — no Phaser boot required.
- */
+import { describe, expect, it } from 'vitest';
+import { HAMMER_DEFINITION, GOLDEN_HAMMER_DEFINITION, HAMMER_HEAD_DEFINITION, beginHammer, stepHammer, hammerMotion } from './Hammer';
+import {thrownItemHit} from './nativeItemThrow';
+import { ItemEntity } from './ItemEntity';
 
-import { describe, it, expect } from 'vitest';
-import { HAMMER_DEFINITION, HAMMER_SMASH_MOVE } from './Hammer';
-import {
-  ItemEntity,
-  ItemRegistry,
-  Inventory,
-  PickupController,
-} from './index';
-import type { AttackMovesetSlotName } from '../characters/movesetContract';
-
-// ---------------------------------------------------------------------------
-// Stub Character — minimal surface the items framework reads from.
-// Mirrors the stub in `itemFramework.test.ts`.
-// ---------------------------------------------------------------------------
-
-class StubCharacter {
-  private overrides = new Map<AttackMovesetSlotName, () => boolean>();
-  private attacks = new Map<string, unknown>();
-  facing: 1 | -1 = 1;
-  position = { x: 100, y: 200 };
-  attemptAttackCalls: string[] = [];
-  setSlotOverride(slot: AttackMovesetSlotName, fn: () => boolean) {
-    this.overrides.set(slot, fn);
-  }
-  clearSlotOverride(slot: AttackMovesetSlotName) {
-    this.overrides.delete(slot);
-  }
-  getSlotOverride(slot: AttackMovesetSlotName) {
-    return this.overrides.get(slot) ?? null;
-  }
-  fireSlot(slot: AttackMovesetSlotName) {
-    const cb = this.overrides.get(slot);
-    return cb ? cb() : false;
-  }
-  getFacing(): 1 | -1 {
-    return this.facing;
-  }
-  getPosition() {
-    return this.position;
-  }
-  // Stubs for the held-item attack pipeline. The hammer registers its
-  // authored smash move via `addAttack` at pickup; the slot-override
-  // callback then fires it via `attemptAttack`. The stub records
-  // calls so tests can assert the dispatch happened and returns
-  // `true` so the override proceeds to consume durability.
-  addAttack(move: { id: string }) {
-    this.attacks.set(move.id, move);
-  }
-  attemptAttack(id: string): boolean {
-    this.attemptAttackCalls.push(id);
-    return this.attacks.has(id);
-  }
-}
-
-function spawnHammer(
-  registry: ItemRegistry,
-  pos = { x: 100, y: 200 },
-  frame = 0,
-): ItemEntity {
-  const entity = registry.spawn(HAMMER_DEFINITION, pos, frame, ItemEntity);
-  // Move past the falling state immediately so the pickup tests can
-  // hit the grounded contract without booting a Matter step.
-  entity.markGrounded(frame, pos);
-  return entity;
-}
-
-/** Spawn + pickup in one shot; returns the held entity + holder. */
-function pickupHammer() {
-  const stub = new StubCharacter();
-  const registry = new ItemRegistry();
-  const hammer = spawnHammer(registry);
-  const inv = new Inventory(stub as any);
-  new PickupController().tryPickup(stub as any, inv, registry, 0, 0, true);
-  return { stub, hammer, inv };
-}
-
-// ---------------------------------------------------------------------------
-// Definition shape
-// ---------------------------------------------------------------------------
-
-describe('hammer — definition shape', () => {
-  it('is a frozen melee-weapon record with the authored budget values', () => {
-    expect(Object.isFrozen(HAMMER_DEFINITION)).toBe(true);
-    expect(HAMMER_DEFINITION.type).toBe('hammer');
-    expect(HAMMER_DEFINITION.category).toBe('melee-weapon');
-    expect(HAMMER_DEFINITION.maxDurability).toBe(3);
-    expect(HAMMER_DEFINITION.ttlFrames).toBe(480);
-    expect(HAMMER_DEFINITION.brokenDespawnFrames).toBe(30);
+describe('Ultimate hammer lock replaces the test swipe', () => {
+  it('has no player-triggered uses or 3-use break count', () => {
+    expect(HAMMER_DEFINITION.uses).toBeUndefined();
+    expect(HAMMER_DEFINITION.ammo).toBeUndefined();
+    expect(HAMMER_DEFINITION.hammer?.durationFrames).toBe(480);
+    expect(GOLDEN_HAMMER_DEFINITION.hammer?.swingRate).toBe(2);
+    expect(GOLDEN_HAMMER_DEFINITION.hammer?.durationFrames).toBe(920);
   });
-
-  it('overrides jab/tilt/smash slots (frozen list)', () => {
-    expect(Object.isFrozen(HAMMER_DEFINITION.slotOverrides)).toBe(true);
-    expect([...HAMMER_DEFINITION.slotOverrides].sort()).toEqual([
-      'jab',
-      'smash',
-      'tilt',
-    ]);
+  it('expires at exactly 480 fixed steps, including interrupted steps', () => {
+    let s=beginHammer(HAMMER_DEFINITION.hammer!,0.5);
+    for(let i=0;i<479;i++)s=stepHammer(HAMMER_DEFINITION.hammer!,s).state;
+    expect(s.elapsed).toBe(479);
+    expect(stepHammer(HAMMER_DEFINITION.hammer!,s).expired).toBe(true);
   });
-
-  it('authors the colossal-but-telegraphed smash move (frozen)', () => {
-    expect(Object.isFrozen(HAMMER_SMASH_MOVE)).toBe(true);
-    expect(HAMMER_SMASH_MOVE.id).toBe('item.hammer.smash');
-    expect(HAMMER_SMASH_MOVE.type).toBe('jab');
-    expect(HAMMER_SMASH_MOVE.damage).toBe(22);
-    expect(HAMMER_SMASH_MOVE.knockback).toEqual({ x: 4.5, y: -2.0, scaling: 0.38 });
-    expect(HAMMER_SMASH_MOVE.hitbox).toEqual({
-      offsetX: 34,
-      offsetY: -8,
-      width: 50,
-      height: 44,
-    });
-    // Telegraphed — over twice a fighter smash's startup; the wind-up
-    // is the hammer's entire counterplay surface.
-    expect(HAMMER_SMASH_MOVE.startupFrames).toBe(14);
-    expect(HAMMER_SMASH_MOVE.activeFrames).toBe(4);
-    expect(HAMMER_SMASH_MOVE.recoveryFrames).toBe(18);
-    expect(HAMMER_SMASH_MOVE.cooldownFrames).toBe(10);
+  it('headless is exactly the one-eighth boundary; golden squeaky is independently labelled', () => {
+    expect(beginHammer(HAMMER_DEFINITION.hammer!,0.124999).malfunction).toBe('headless');
+    expect(beginHammer(HAMMER_DEFINITION.hammer!,0.125).malfunction).toBeNull();
+    expect(beginHammer(GOLDEN_HAMMER_DEFINITION.hammer!,0).malfunction).toBe('squeaky');
   });
-
-  it('registers the smash move on the definition for pickup-time addAttack', () => {
-    expect(HAMMER_DEFINITION.attackMoves).toEqual([HAMMER_SMASH_MOVE]);
+  it('one item record owns the state and retains its elapsed timer after a drop/catch', () => {
+    const item=new ItemEntity(1,HAMMER_DEFINITION,0,{x:0,y:0});
+    item.markGrounded(0,{x:0,y:0});item.markHeld(1,0,{x:0,y:0});
+    item.startHammer(0.5);item.setHammerState({...item.getHammerState()!,elapsed:100});
+    item.markDropped(2,{x:0,y:0});item.markHeld(3,1,{x:0,y:0});item.startHammer(0);
+    expect(item.getHammerState()).toMatchObject({elapsed:100,malfunction:null});
   });
-});
-
-// ---------------------------------------------------------------------------
-// Slot override behaviour
-// ---------------------------------------------------------------------------
-
-describe('hammer — slot override behaviour', () => {
-  it('fires holder.attemptAttack with the hammer move id and consumes durability', () => {
-    const { stub, hammer } = pickupHammer();
-
-    expect(stub.fireSlot('jab')).toBe(true);
-    expect(stub.attemptAttackCalls).toEqual(['item.hammer.smash']);
-    expect(hammer.getDurability()).toBe(2);
+  it('golden podium denies ground pickup and catches until fully grown', () => {
+    const item=new ItemEntity(1,GOLDEN_HAMMER_DEFINITION,0,{x:0,y:0});item.markGrounded(0,{x:0,y:0});
+    expect(item.isPickable()).toBe(false);expect(item.isCatchable()).toBe(false);
+    item.advanceHammerGrowth(59);expect(item.isPickable()).toBe(false);
+    item.advanceHammerGrowth(60);expect(item.isPickable()).toBe(true);
   });
-
-  it('routes jab/tilt/smash through the same override while held', () => {
-    const { stub, hammer } = pickupHammer();
-
-    expect(stub.fireSlot('jab')).toBe(true);
-    expect(stub.fireSlot('tilt')).toBe(true);
-    expect(stub.fireSlot('smash')).toBe(true);
-    expect(stub.attemptAttackCalls).toEqual([
-      'item.hammer.smash',
-      'item.hammer.smash',
-      'item.hammer.smash',
-    ]);
-    expect(hammer.getDurability()).toBe(0);
+  it('shared thrown-hit consumer uses actual head dash/Z-drop/ordinary planner keys',()=>{
+    const hit=(action:'dash-throw'|'air-z-drop'|'throw-ground-forward-ordinary')=>thrownItemHit(HAMMER_HEAD_DEFINITION,action,{vx:2,vy:-1},1,1,true);
+    expect(hit('dash-throw').damage).toBe(41.7);
+    expect(hit('air-z-drop').damage).toBe(39);
+    expect(hit('throw-ground-forward-ordinary').damage).toBe(38.7);
   });
-
-  it('breaks after exactly 3 hits and declines the 4th press', () => {
-    const { stub, hammer } = pickupHammer();
-
-    let consumed = 0;
-    for (let i = 0; i < 3; i++) {
-      if (stub.fireSlot('jab')) consumed += 1;
-    }
-    expect(consumed).toBe(3);
-    // Last-use-broken transition fired on the 3rd swing.
-    expect(hammer.isBroken()).toBe(true);
-    expect(hammer.getDurability()).toBe(0);
-    // The 4th press declines (hammer is broken / durability empty) —
-    // no further attemptAttack dispatch.
-    expect(stub.fireSlot('jab')).toBe(false);
-    expect(stub.attemptAttackCalls).toHaveLength(3);
-  });
-
-  it('declines without consuming durability when attemptAttack rejects', () => {
-    // Build the override directly against a stub that never had the
-    // smash move registered — attemptAttack returns false (e.g. the
-    // holder is mid-cooldown), so the press must not cost a charge.
-    const stub = new StubCharacter();
-    const registry = new ItemRegistry();
-    const hammer = spawnHammer(registry);
-
-    const fire = HAMMER_DEFINITION.buildSlotOverride('jab', {
-      holder: stub,
-      frame: 0,
-      itemEntity: hammer,
-    });
-    expect(fire()).toBe(false);
-    expect(stub.attemptAttackCalls).toEqual(['item.hammer.smash']);
-    expect(hammer.getDurability()).toBe(3);
-    expect(hammer.isBroken()).toBe(false);
-  });
-});
-
-// ---------------------------------------------------------------------------
-// Throw behaviour
-// ---------------------------------------------------------------------------
-
-describe('hammer — throw behaviour record', () => {
-  it('is frozen with the authored direction table', () => {
-    expect(Object.isFrozen(HAMMER_DEFINITION.throwBehavior)).toBe(true);
-    expect(HAMMER_DEFINITION.throwBehavior).toEqual({
-      forward: { velocityX: 12, velocityY: -2 },
-      back: { velocityX: -9, velocityY: -2 },
-      up: { velocityX: 0, velocityY: -14 },
-      down: { velocityX: 0, velocityY: 14 },
-      drop: { velocityX: 0, velocityY: 0 },
-      consumeOnImpact: false,
-    });
-  });
-
-  it('lands grounded after a throw — not consumed on impact', () => {
-    expect(HAMMER_DEFINITION.throwBehavior.consumeOnImpact).toBe(false);
+  it('native wait/move/air clips share one clock, Golden twice as fast', () => {
+    const s={...beginHammer(HAMMER_DEFINITION.hammer!,0.5),elapsed:6,motionElapsed:6};
+    expect(hammerMotion(HAMMER_DEFINITION.hammer!,s,true,0)).toEqual({sheet:'item_hammer_wait',age:6});
+    expect(hammerMotion(GOLDEN_HAMMER_DEFINITION.hammer!,s,false,1)).toEqual({sheet:'item_hammer_jump',age:12});
   });
 });

@@ -1,0 +1,202 @@
+{
+  "appeal_hi_l": {
+    "motion": "appeal_hi_l",
+    "source": {
+      "function": "expression_appealhil",
+      "path": "sources/native/scripts/AppealHiL.txt",
+      "sha256": "fcb781ff9958f9bf68ab9c1996856413f3a39a35708ea0eb4cace0015bdcc2fa"
+    },
+    "events": [],
+    "nativeMetadata": {
+      "gameScript": "game_appealhil",
+      "animations": [
+        "j01appealhir.nuanmb"
+      ],
+      "cancelFrame": "50",
+      "xluStart": "0",
+      "xluEnd": "0",
+      "loop": "false",
+      "sourceMotion": "appeal_hi_l"
+    },
+    "nativeAsset": {
+      "path": "assets/gen/link-native-reference/extracted/fighter/link/motion/body/c00/j01appealhir.nuanmb",
+      "sha256": "72c59a1007fa3d60ba1bfef0c64d835e704410a64fd409041d69646a1079354a",
+      "finalFrameIndex": 90.0
+    }
+  },
+  "appeal_hi_r": {
+    "motion": "appeal_hi_r",
+    "source": {
+      "function": "expression_appealhir",
+      "path": "sources/native/scripts/AppealHiR.txt",
+      "sha256": "66772b41cc6ccde5ee80eab24d5289391442cdb843fc4b9cc4b74236d706f150"
+    },
+    "events": [],
+    "nativeMetadata": {
+      "gameScript": "game_appealhir",
+      "animations": [
+        "j01appealhir.nuanmb"
+      ],
+      "cancelFrame": "50",
+      "xluStart": "0",
+      "xluEnd": "0",
+      "loop": "false",
+      "sourceMotion": "appeal_hi_r"
+    },
+    "nativeAsset": {
+      "path": "assets/gen/link-native-reference/extracted/fighter/link/motion/body/c00/j01appealhir.nuanmb",
+      "sha256": "72c59a1007fa3d60ba1bfef0c64d835e704410a64fd409041d69646a1079354a",
+      "finalFrameIndex": 90.0
+    }
+  },
+  "appeal_s_l": {
+    "motion": "appeal_s_l",
+    "source": {
+      "function": "expression_appealsl",
+      "path": "sources/native/scripts/AppealSL.txt",
+      "sha256": "3104d6944b2752556f372f7b04c3635b594e21174cf41132def645bdf328394a"
+    },
+    "events": [
+      {
+        "scriptNativeFrame": 0,
+        "changes": {
+          "heldItemVisible": false
+        },
+        "sourceLine": 29,
+        "raw": "ItemModule::set_have_item_visibility(agent.module_accessor, false, 0);"
+      },
+      {
+        "scriptNativeFrame": 0,
+        "changes": {
+          "shield": "back"
+        },
+        "sourceLine": 31,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_back\") as i64);"
+      },
+      {
+        "scriptNativeFrame": 71,
+        "changes": {
+          "shield": "normal"
+        },
+        "sourceLine": 39,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_normal\") as i64);"
+      }
+    ],
+    "nativeMetadata": {
+      "gameScript": "game_appealsl",
+      "animations": [
+        "j01appealsr.nuanmb"
+      ],
+      "cancelFrame": "50",
+      "xluStart": "0",
+      "xluEnd": "0",
+      "loop": "false",
+      "sourceMotion": "appeal_s_l"
+    },
+    "nativeAsset": {
+      "path": "assets/gen/link-native-reference/extracted/fighter/link/motion/body/c00/j01appealsr.nuanmb",
+      "sha256": "62c3204d57955fcf6efcede8c35aa753aa61ea1906027a8b74f020b5ce61a82d",
+      "finalFrameIndex": 88.0
+    }
+  },
+  "appeal_s_r": {
+    "motion": "appeal_s_r",
+    "source": {
+      "function": "expression_appealsr",
+      "path": "sources/native/scripts/AppealSR.txt",
+      "sha256": "c4cdb297ff9d244c413ab95c10d7fe620c9794569aaa6eef6f9854ecad5662fa"
+    },
+    "events": [
+      {
+        "scriptNativeFrame": 0,
+        "changes": {
+          "heldItemVisible": false
+        },
+        "sourceLine": 29,
+        "raw": "ItemModule::set_have_item_visibility(agent.module_accessor, false, 0);"
+      },
+      {
+        "scriptNativeFrame": 0,
+        "changes": {
+          "shield": "back"
+        },
+        "sourceLine": 31,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_back\") as i64);"
+      },
+      {
+        "scriptNativeFrame": 71,
+        "changes": {
+          "shield": "normal"
+        },
+        "sourceLine": 39,
+        "raw": "VisibilityModule::set_int64(agent.module_accessor, hash40(\"shield\") as i64, hash40(\"shield_normal\") as i64);"
+      }
+    ],
+    "nativeMetadata": {
+      "gameScript": "game_appealsr",
+      "animations": [
+        "j01appealsr.nuanmb"
+      ],
+      "cancelFrame": "50",
+      "xluStart": "0",
+      "xluEnd": "0",
+      "loop": "false",
+      "sourceMotion": "appeal_s_r"
+    },
+    "nativeAsset": {
+      "path": "assets/gen/link-native-reference/extracted/fighter/link/motion/body/c00/j01appealsr.nuanmb",
+      "sha256": "62c3204d57955fcf6efcede8c35aa753aa61ea1906027a8b74f020b5ce61a82d",
+      "finalFrameIndex": 88.0
+    }
+  },
+  "appeal_lw_l": {
+    "motion": "appeal_lw_l",
+    "source": {
+      "function": "expression_appeallwl",
+      "path": "sources/native/scripts/AppealLwL.txt",
+      "sha256": "8e7757300bb48eba5a2b1802495db94bc23384c83fdea1a8173c60d2ea205d2e"
+    },
+    "events": [],
+    "nativeMetadata": {
+      "gameScript": "game_appeallwl",
+      "animations": [
+        "j01appeallwr.nuanmb"
+      ],
+      "cancelFrame": "50",
+      "xluStart": "0",
+      "xluEnd": "0",
+      "loop": "false",
+      "sourceMotion": "appeal_lw_l"
+    },
+    "nativeAsset": {
+      "path": "assets/gen/link-native-reference/extracted/fighter/link/motion/body/c00/j01appeallwr.nuanmb",
+      "sha256": "66b394e850d08f0ab215109b579db1391574eee866ba92efbc25ed521df0d32c",
+      "finalFrameIndex": 84.0
+    }
+  },
+  "appeal_lw_r": {
+    "motion": "appeal_lw_r",
+    "source": {
+      "function": "expression_appeallwr",
+      "path": "sources/native/scripts/AppealLwR.txt",
+      "sha256": "fe6b29f5b7548759cbb142526392c58ff76a1c458f5d3312758da13195e0934d"
+    },
+    "events": [],
+    "nativeMetadata": {
+      "gameScript": "game_appeallwr",
+      "animations": [
+        "j01appeallwr.nuanmb"
+      ],
+      "cancelFrame": "50",
+      "xluStart": "0",
+      "xluEnd": "0",
+      "loop": "false",
+      "sourceMotion": "appeal_lw_r"
+    },
+    "nativeAsset": {
+      "path": "assets/gen/link-native-reference/extracted/fighter/link/motion/body/c00/j01appeallwr.nuanmb",
+      "sha256": "66b394e850d08f0ab215109b579db1391574eee866ba92efbc25ed521df0d32c",
+      "finalFrameIndex": 84.0
+    }
+  }
+}

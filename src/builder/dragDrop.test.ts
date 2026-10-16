@@ -12,7 +12,7 @@ import {
   findCatalogPiece,
 } from './catalogPieces';
 import { DEFAULT_GRID_SPEC } from './builderGrid';
-import type { CatalogRowHitRect } from './CatalogPanel';
+import type { CatalogRowHitRect } from './catalogPieces';
 import type { RegisteredCandidate } from './placementValidation';
 
 /**

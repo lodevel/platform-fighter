@@ -1,0 +1,267 @@
+{
+  "fighter": "donkeykong",
+  "identity": "a large muscular cartoon gorilla, Donkey Kong style, reddish-brown fur with a lighter tan chest and muzzle, small black nose, thick brows, wearing a bright red necktie, huge shoulders and arms, short legs, big hands and feet, cel shaded with bold dark outlines, vibrant saturated colors, Brawlhalla style clean 2D game sprite",
+  "draftBody": "a simple clear full-body silhouette of a large gorilla with huge arms, short legs and a small head, no clothing except a necktie, limbs clearly separated, high contrast sharp clean outline, full body",
+  "negative": "human, monkey tail, clothing, shirt, hat, weapon, text, watermark, two characters",
+  "cannyLow": 0.1,
+  "cannyHigh": 0.3,
+  "cnStrength": 0.6,
+  "idSeed": 4242,
+  "clips": {
+    "jab": [
+      "Large cartoon gorilla crouched low on all four limbs, right-facing; near arm's fist curled up near the chin, far arm's palm planted flat on the ground out in front for balance, head lowered between hunched shoulders, weight compact and coiled, full body, feet visible",
+      "right-facing, Same low crouch, near fist pulled in tighter against the chest, elbow bent sharply, shoulder rotated back slightly as if loading a short punch; far arm still grounded for balance, full body, feet visible",
+      "right-facing, Crouched gorilla stance with the near arm now fully extended straight out to the right at chest height, fist clenched at full reach, shoulder rotated forward into the punch, far arm still low and grounded, back leg braced, full body, feet visible",
+      "right-facing, Near arm midway back from full extension toward the chest, elbow bending again, torso unwinding back toward the crouch, far arm still grounded, full body, feet visible"
+    ],
+    "jab2": [
+      "Large cartoon gorilla in a deep, hunched crouch, right-facing; near arm's fist dropped down past the hip, far arm braced low, torso rounded forward, head tucked low between the shoulders, coiling for an upward swing, full body, feet visible",
+      "right-facing, Same crouch with the near fist now swinging upward and forward, elbow driving up past hip height, torso beginning to uncoil and rotate upward, full body, feet visible",
+      "right-facing, Torso rotated upward, near fist at its highest point near head/shoulder height, arm extended up-and-out in a hooking arc, chin lifted, weight still low on the legs, full body, feet visible",
+      "right-facing, Gorilla folding back down into a tight rounded crouch, both fists drawn up close to the face, elbows in, torso compact and hunched, full body, feet visible"
+    ],
+    "tilt": [
+      "Large cartoon gorilla low on all fours, right-facing; far arm reaching forward along the ground, near arm bent with fist near the head, torso leaning forward, feet planted, full body, feet visible",
+      "right-facing, Same low stance, far arm now curled back closer to the body with the hand balled, torso rotated slightly away from the target as if loading a swing, full body, feet visible",
+      "right-facing, Torso rotated forward, far arm fully extended out to the right at chest height, fist leading the strike, near arm still bent near the head, weight low and braced, full body, feet visible",
+      "right-facing, Torso still low and leaning forward, far arm relaxing back down after the strike, near/off hand now raised up beside the head with an open palm, fingers spread, full body, feet visible",
+      "right-facing, Gorilla lowering the raised hand back down, torso straightening slightly, returning toward the low resting crouch, both arms coming back in, full body, feet visible"
+    ],
+    "utilt": [
+      "Large cartoon gorilla crouched low on all fours, right-facing; near arm already raised with an open hand near the head/shoulder, other arm and legs planted, torso coiled slightly, full body, feet visible",
+      "right-facing, Same low stance, near arm now swinging upward and forward, fist/hand rising past shoulder height toward the top of the arc, full body, feet visible",
+      "right-facing, Near arm at the top of its arc directly above the head, torso rotated upward to follow the swing, other arm still braced low for balance, full body, feet visible",
+      "right-facing, Near arm continuing its arc down the far side, past the peak, torso beginning to unwind back down, full body, feet visible",
+      "right-facing, Gorilla settled into a compact, low crouched guard pose, both arms drawn back in near the body, held static, full body, feet visible",
+      "right-facing, Body leaning forward with one arm reaching down toward the ground, transitioning back toward the default knuckle-walking stance, full body, feet visible"
+    ],
+    "dtilt": [
+      "Large cartoon gorilla flattened low to the ground, right-facing, both arms extended forward with open hands and spread fingers, body hugging the floor, full body, feet visible",
+      "right-facing, Same low stance, near hand curling into a loose fist, arm drawing back slightly to load the strike, full body, feet visible",
+      "right-facing, Arm punched forward to full extension at near-ground height, fist/claws splayed open at the moment of contact, torso flat and low, back leg braced, full body, feet visible",
+      "right-facing, Arm still extended forward at low height, fingers relaxing open, torso beginning to ease back, full body, feet visible",
+      "right-facing, Arm partway back toward the body, hand curling closed again, torso settling back into the low flat resting stance, full body, feet visible"
+    ],
+    "dash_attack": [
+      "Large cartoon gorilla in a low running crouch, right-facing, both hands rising up near the head as if about to tuck into a roll, full body, feet visible",
+      "right-facing, Body beginning to curl, head dropping down and arms wrapping inward, torso starting to round into a ball shape, still recognizably crouched, full body, feet visible",
+      "right-facing, Body fully curled into a tight round ball shape, limbs tucked in tight, tumbling forward low to the ground, full body, feet visible",
+      "right-facing, Same tightly curled ball shape continuing to tumble forward, maintaining the compact rounded silhouette, full body, feet visible",
+      "right-facing, Curled ball shape starting to slow and unwind slightly, with a bright glowing highlight on the body suggesting impact/deceleration, full body, feet visible",
+      "right-facing, Body uncurling back out of the ball, arms and legs extending outward again, transitioning back toward a standing crouch, full body, feet visible"
+    ],
+    "smash": [
+      "Large cartoon gorilla crouched low, right-facing, arm swinging low and back with fingers spread wide, beginning a big circular wind-up, full body, feet visible",
+      "right-facing, Arm swung up and back behind the body at the charge-hold point, fingers still spread, torso coiled and rotated away from the target, weight loaded on the back leg, full body, feet visible",
+      "right-facing, Arm continuing its circular path, now swinging up and over toward the front, torso beginning to rotate forward, full body, feet visible",
+      "right-facing, Torso fully rotated into the swing, arm extended to full reach forward, open hand and fingers leading the strike, back leg braced, body low, full body, feet visible",
+      "right-facing, Striking arm still extended forward with fingers open, torso beginning to unwind, weight settling, full body, feet visible",
+      "right-facing, Body hunched low, arm partway back toward the body, fingers still spread, slow recovery underway, full body, feet visible"
+    ],
+    "usmash": [
+      "right-facing, Large cartoon gorilla crouched low, facing the camera, both hands sweeping down toward the ground between the knees, small tongue sticking out with effort, knees bent deep, full body, feet visible",
+      "right-facing, Both arms swinging upward and outward to the sides symmetrically, torso beginning to rise out of the crouch, full body, feet visible",
+      "right-facing, Both fists thrust straight up directly overhead, arms fully extended vertically, torso upright, legs braced wide, full body, feet visible",
+      "right-facing, Both fists still raised but now bent at the elbow into a double-bicep flex pose at shoulder height, chest puffed out, full body, feet visible",
+      "right-facing, Arms lowered further to hip height, fists clenched in a strongman pose, torso upright and facing forward, full body, feet visible",
+      "right-facing, Body bending forward, camera easing toward a side view, transitioning back toward the low resting crouch, full body, feet visible"
+    ],
+    "dsmash": [
+      "right-facing, Large cartoon gorilla crouched low, facing the camera, both fists raised straight up overhead symmetrically, torso braced, holding a static charge pose, full body, feet visible",
+      "right-facing, Both arms swinging down and outward from overhead, elbows bending, fists dropping toward shoulder height on each side, torso beginning to lower, full body, feet visible",
+      "right-facing, Both arms fully extended out to the sides at low/ground height, fists clenched, torso low and wide, legs braced \u2014 the moment of the double ground slam, full body, feet visible",
+      "right-facing, Both arms held flat out to the sides at ground level, body prone and low, static hold pose, full body, feet visible",
+      "right-facing, Arms bending back inward from the sides, drawing closer to the body, torso beginning to rise from the prone position, full body, feet visible",
+      "right-facing, Body returned to a compact, low crouched profile similar to the resting stance, arms tucked back in, full body, feet visible"
+    ],
+    "nair": [
+      "A large cartoon gorilla airborne, curled into a tight ball, one arm bent up near its head, legs drawn up beneath the torso, facing right, full body, feet visible",
+      "A large cartoon gorilla airborne, torso compact and slightly rotated, both arms flung straight out to the sides at shoulder height, legs tucked underneath, facing right, about to spin, full body, feet visible",
+      "A large cartoon gorilla airborne mid-spin, both arms swept out to the sides with fists leading, torso twisted so the chest faces forward, legs tucked, facing right, full body, feet visible",
+      "A large cartoon gorilla airborne continuing the spin, one arm swept across the front of the chest with the other trailing behind, torso rotated further than the early strike, legs tucked, facing right, full body, feet visible",
+      "A large cartoon gorilla airborne finishing the spin, arms coming back together in front of the chest, rotation beginning to slow, legs tucked, facing right, full body, feet visible",
+      "A large cartoon gorilla airborne, arms drawn back close to the torso, spin visibly slowing, legs bent beneath the body, facing right, full body, feet visible",
+      "A large cartoon gorilla airborne, body uncurled, arms relaxed near the torso, legs extended downward, settling into a normal falling stance, facing right, full body, feet visible"
+    ],
+    "fair": [
+      "A large cartoon gorilla airborne, both arms raised near its head, torso curling forward, legs bent beneath, facing right, full body, feet visible",
+      "A large cartoon gorilla airborne, one arm drawn back tight against the chest, the other hanging forward, torso hunched and compact, facing right, full body, feet visible",
+      "A large cartoon gorilla airborne, one arm thrust forward and slightly down with the fist leading, torso leaning into the punch, other arm trailing back, facing right, full body, feet visible",
+      "A large cartoon gorilla airborne, arm still extended forward from the punch, body tilted so the lower body/trailing limb dips below the fist, facing right, full body, feet visible",
+      "A large cartoon gorilla airborne, curled into a tight ball with both arms wrapped around the torso and knees drawn up, facing right, full body, feet visible",
+      "A large cartoon gorilla airborne, arms unwrapping and rising, legs beginning to spread, torso opening back up from the tucked ball, facing right, full body, feet visible",
+      "A large cartoon gorilla airborne in a relaxed falling stance, arms near shoulder height, legs spread naturally, facing right, full body, feet visible"
+    ],
+    "bair": [
+      "A large cartoon gorilla airborne, one arm reaching straight out in front with fingers open, the opposite leg beginning to cock back behind it, torso hunched, facing right, full body, feet visible",
+      "A large cartoon gorilla airborne, front arm extended forward with an open hand, rear leg drawn back and bent, torso leaning forward, facing right, full body, feet visible",
+      "A large cartoon gorilla airborne, rear leg snapping straight back behind the body with the foot leading, front arm still extended forward for balance, facing right, full body, feet visible",
+      "A large cartoon gorilla airborne, rear leg fully extended behind the body continuing the kick, torso tilted forward, front hand open, facing right, full body, feet visible",
+      "A large cartoon gorilla airborne, kicking leg lowering back toward the body, front hand still open, torso leveling out, facing right, full body, feet visible",
+      "A large cartoon gorilla airborne in a relaxed diagonal falling stance, arms hanging loosely, legs bent naturally, facing right, full body, feet visible"
+    ],
+    "uair": [
+      "A large cartoon gorilla airborne, curled into a tight ball with knees drawn to the chest and arms wrapped in close, facing right, full body, feet visible",
+      "A large cartoon gorilla airborne, still curled tightly, torso beginning to tilt as the flip starts, facing right, full body, feet visible",
+      "A large cartoon gorilla airborne, torso arcing upward with the head/upper back leading the motion, body beginning to invert, facing right, full body, feet visible",
+      "A large cartoon gorilla airborne, body further into the upward arc, rotated past vertical with legs trailing above, facing right, full body, feet visible",
+      "A large cartoon gorilla airborne mid-somersault, body inverted, limbs tucked close as it rotates through the flip, facing right, full body, feet visible",
+      "A large cartoon gorilla airborne continuing to rotate out of the flip, body unfurling slightly, facing right, full body, feet visible",
+      "A large cartoon gorilla airborne, body settled back into a compact falling stance after the flip, facing right, full body, feet visible"
+    ],
+    "dair": [
+      "A large cartoon gorilla airborne, falling in a tight crouch with knees drawn up to the chest and arms wrapped around the head, facing right, full body, feet visible",
+      "A large cartoon gorilla airborne, still tucked tightly, legs beginning to extend downward, arms close to the chest, facing right, full body, feet visible",
+      "A large cartoon gorilla airborne, both legs kicking straight down together with feet leading, arms tucked close to the torso for balance, facing right, full body, feet visible",
+      "A large cartoon gorilla airborne, legs at full downward extension from the stomp, torso compact above them, facing right, full body, feet visible",
+      "A large cartoon gorilla airborne, re-tucked into a tight cannonball crouch with arms wrapped around the knees/head, continuing to fall, facing right, full body, feet visible",
+      "A large cartoon gorilla airborne, still in the tucked cannonball hold, a long stretch into the fall, facing right, full body, feet visible",
+      "A large cartoon gorilla airborne, arms and legs beginning to open outward and downward from the tuck, preparing to land, facing right, full body, feet visible"
+    ],
+    "neutral_special": [
+      "A large cartoon gorilla standing, crouched low with one fist cocked back against its chest, facing right, full body, feet visible",
+      "A large cartoon gorilla standing, crouched in the same cocked-fist pose but rendered with heavier, darker shading suggesting a charged-up state, facing right, full body, feet visible",
+      "A large cartoon gorilla standing, fist punching straight forward, arm fully extended, torso leaning hard into the punch, facing right, full body, feet visible",
+      "A large cartoon gorilla standing, arm still fully extended from the punch, torso low in a forward lunge, facing right, full body, feet visible",
+      "A large cartoon gorilla standing, arm bending back toward the chest, torso rising out of the lunge, facing right, full body, feet visible",
+      "A large cartoon gorilla standing upright in a relaxed ready stance, facing right, full body, feet visible"
+    ],
+    "side_special": [
+      "A large cartoon gorilla standing, crouched and leaning forward with arms reaching out, beginning to charge forward, facing right, full body, feet visible",
+      "A large cartoon gorilla standing, driving forward low on all fours with its head down and one arm leading, rendered with heavier, darker shading to suggest a braced charge, facing right, full body, feet visible",
+      "A large cartoon gorilla standing, leading arm raised and cocked back over its lowered head, torso leaning forward, coiling for a headbutt, facing right, full body, feet visible",
+      "A large cartoon gorilla standing, head thrust forward and down leading the attack, arm swinging forward alongside it, torso low and driving forward, facing right, full body, feet visible",
+      "A large cartoon gorilla standing, head and arm still thrust forward in the follow-through of the headbutt, body low on all fours, facing right, full body, feet visible",
+      "A large cartoon gorilla standing, frozen in a low, head-down, all-fours crouch during a long recovery, facing right, full body, feet visible",
+      "A large cartoon gorilla standing, straightening up from the head-down crouch, arms pulling upward, head lifting, facing right, full body, feet visible"
+    ],
+    "down_special": [
+      "Large cartoon gorilla crouched low on bent legs, right-facing, knuckle-walking stance; one massive arm raised high overhead curling back behind the head, the other arm's open palm planted flat on the ground out in front of the torso for support; head down and forward, grounded, full body, feet visible",
+      "Large cartoon gorilla leaning far forward with chest low to the ground, right-facing; the arm that was raised has swung down, its open palm slapping flat against the ground beside the torso; the other arm remains stretched forward along the ground; legs splayed behind, fully grounded, full body, feet visible",
+      "Large cartoon gorilla hunched in a compact low crouch, right-facing, both hands near the ground, head tucked down, weight settled forward between strikes; grounded, no arm raised, full body, feet visible",
+      "Large cartoon gorilla rising slightly from the crouch, right-facing; the arm that was braced on the ground now lifts up and back overhead, the other arm/hand resting near the ground; torso beginning to shift the opposite way; grounded, full body, feet visible",
+      "Large cartoon gorilla leaning forward with chest low again, right-facing; the second arm's open palm slaps flat onto the ground beside the torso, the first arm now stretched forward along the ground; mirror of the first impact pose; grounded, full body, feet visible",
+      "Large cartoon gorilla pushing upright out of the crouch, right-facing, mouth open in a roar; one arm raised high overhead, the other arm braced lower near the torso; legs bent, grounded, transitioning back to standing, full body, feet visible",
+      "Large cartoon gorilla back in a compact crouch, right-facing, mouth open; one arm raised overhead ready to swing down again, the other hand/foot planted on the ground; pose mirrors the very first key, grounded and ready to repeat, full body, feet visible"
+    ],
+    "down_special_air": [
+      "Large cartoon gorilla airborne, tucked into a tight tumbling posture, right-facing; one arm bent with the hand curled near his own jaw/chest, the other arm flung down and back with fingers splayed open, knees drawn up, no ground contact, full body, feet visible",
+      "right-facing, Large cartoon gorilla airborne mid-tumble, body angled diagonally; one arm stretched straight up above the rotated torso, the other arm bent close to the chest with an open palm, legs trailing loosely below, no ground contact, full body, feet visible",
+      "right-facing, Large cartoon gorilla airborne, one arm swung outward and down with the open palm striking through the air at full reach, the other arm raised high overhead and back; body angled diagonally mid-spin, no ground contact, full body, feet visible",
+      "right-facing, Large cartoon gorilla airborne continuing to tumble, both arms drawn in loosely near the torso with open relaxed hands, body rotated to a new diagonal angle compared to the first strike, no ground contact, full body, feet visible",
+      "right-facing, Large cartoon gorilla airborne mid-tumble, one arm raised high overhead again, the other arm bent near the chest holding ready, torso rotated further around from the first strike's angle, no ground contact, full body, feet visible",
+      "right-facing, Large cartoon gorilla airborne, the opposite arm now swung outward and down with the open palm striking through the air, the other arm flung up and back, mirroring the first impact from a rotated body angle, no ground contact, full body, feet visible",
+      "right-facing, Large cartoon gorilla airborne settling out of the spin, arms drawn in loosely near the torso, legs beginning to extend downward, body orienting toward a more upright, falling angle, no ground contact, full body, feet visible",
+      "right-facing, Large cartoon gorilla airborne in a relaxed falling posture, body oriented upright, arms bent near the torso, legs extended downward reaching toward the ground in preparation to land, full body, feet visible"
+    ],
+    "grab": [
+      "large cartoon gorilla, right-facing, low compact crouch on all fours, both feet planted wide with knees bent, head tucked low with chin near the chest, both arms bent close to the body, weight centered and coiled, full body, feet visible",
+      "large cartoon gorilla, right-facing, low crouched stance, rear arm sweeping upward near the head/muzzle while the forward arm stays low and bent, torso leaning slightly forward, legs braced wide, full body, feet visible",
+      "large cartoon gorilla, right-facing, low crouch stance with legs braced, forward arm fully extended out to the right at chest height ending in an open hand with spread fingers reaching far from the body, rear arm bent and drawn close to the chest, full body, feet visible",
+      "large cartoon gorilla, right-facing, upright partial crouch, both arms drawn in with hands clenched into fists held close in front of the chest and chin, shoulders raised, torso squared forward, full body, feet visible",
+      "large cartoon gorilla, right-facing, standing crouch with knees slightly bent, both fists still held near the chest, weight settled in a relaxed idle stance, full body, feet visible",
+      "large cartoon gorilla, right-facing, standing crouch, one arm extended forward with an open hand reaching out at chest height, other arm bent close to the torso, legs planted shoulder-width apart, full body, feet visible",
+      "large cartoon gorilla, right-facing, compact ready stance, both arms bent in front of the torso with hands loosely open, knees bent, weight low and centered, full body, feet visible"
+    ],
+    "pummel": [
+      "crouched cartoon gorilla, weight low over bent legs, one huge hand raised beside his own temple, other hand held low in front of his chin, head tucked down between hunched shoulders, grounded stance, facing right, full body, feet visible",
+      "same low crouch, right arm thrust forward at roughly chin height with the hand a loose fist/open-slap shape striking toward an unseen captive held at chest level, torso leaning into the punch, facing right, full body, feet visible",
+      "crouch continues, striking arm at full forward extension with fingers splayed open, torso leaning further forward following the strike through, facing right, full body, feet visible",
+      "striking arm pulled back close to the chin with fingers curling inward, other hand raised beside the head, torso settling back into the hunched crouch, facing right, full body, feet visible"
+    ],
+    "fthrow": [
+      "crouched cartoon gorilla low on all fours/knuckles, back rounded, head tucked down between the shoulders, legs bent under the body, facing right, coiled to lunge forward, full body, feet visible",
+      "hunched forward crawl on bent arms and legs, torso pitched low and forward, head low and forward-facing, weight shifting onto the leading knuckles, facing right, as if hauling something braced against the chest, full body, feet visible",
+      "rearing upward out of the crouch, head tipped back, one arm drawn up high past the shoulder with fingers open, torso twisting to lead the swing, legs still bent and grounded, facing right, full body, feet visible",
+      "body arched fully upright, both arms swept overhead-forward at full extension with fingers splayed wide, mouth open in a roar, weight rocked onto the back leg as if something has just been flung off the raised arm, facing right, full body, feet visible",
+      "body curled into a tight ball, knees drawn to the chest, head tucked down near the knees, one arm wrapped around the shins, rolling forward along the ground, facing right, full body, feet visible",
+      "body unfurling from the tucked roll, one arm and leg extending back out while the torso is still low and rounded, head lifting to look forward, facing right, full body, feet visible",
+      "crouched on all fours again, weight balanced evenly over bent arms and legs, head level and facing forward, back rounded in a calm ready stance, facing right, full body, feet visible"
+    ],
+    "bthrow": [
+      "large cartoon gorilla in a deep compact crouch on all fours, back rounded and slightly humped at the shoulders as though something is braced against his upper back, head dipped low, forearms planted on the ground for support, knees bent wide, facing right, full body, feet visible",
+      "still crouched low on all fours, torso beginning to angle, one arm reaching forward along the ground for balance while the shoulders hunch upward as though adjusting a load riding on his back, facing right, full body, feet visible",
+      "body coiling into a spin, one arm sweeping outward to the side at shoulder height with fingers spread wide as though flinging something clear of his back, torso twisting, weight shifting off his starting right-facing stance, full body, feet visible",
+      "right-facing, arm fully extended out to the side at shoulder height, fingers splayed open and empty, torso mid-turn, hips and legs pivoting to reverse his facing, head turning to look back over the opposite shoulder, full body, feet visible",
+      "right-facing, low hunched crouch now facing the opposite direction from the start, one arm trailing down and forward from the swing, head level and turned to look forward in the new facing direction, full body, feet visible",
+      "right-facing, crouched quadrupedal stance facing the reversed direction, one arm extended forward along the ground, the opposite arm bent and tucked near the chest, legs bent wide for a stable low stance, full body, feet visible",
+      "right-facing, slightly more upright crouch than the low stride, facing the reversed direction, mouth open, one arm relaxed near the torso, weight balanced evenly on both sides, easing toward a neutral ready stance, full body, feet visible"
+    ],
+    "uthrow": [
+      "right-facing, A large cartoon gorilla crouched low with knees bent wide and back rounded, one arm extended out to the side at chest height with an open hand and spread fingers as if gripping something small in front of him, the other arm tucked in close against his torso, head held low and slightly forward, weight settled over bent legs, full body, feet visible",
+      "right-facing, A large cartoon gorilla seen from a rear three-quarter angle, body compact and hunched into a rounded silhouette, both hands drawn in close against his sides near the hips as though cradling something against his stomach, knees bent, head tucked down between his shoulders, full body, feet visible",
+      "right-facing, A large cartoon gorilla leaning forward and to one side, one arm sweeping upward and back so the hand is raised high above the head with fingers splayed open, the opposite arm extended low and forward with an open hand planted for balance, legs braced wide and knees bent, full body, feet visible",
+      "right-facing, A large cartoon gorilla standing in a bent-knee crouch with his torso arched backward and head tilted fully back, mouth open as if roaring upward, one arm fully extended straight overhead with the hand open and fingers spread as though just releasing something into the air, the other arm extended down and forward at a low angle for counterbalance, full body, feet visible",
+      "right-facing, A large cartoon gorilla with one arm partway lowered beside the head at shoulder height, hand loosely curled, torso beginning to rotate forward and down, weight sinking into a deeper crouch, the other arm reaching down and forward toward the ground, full body, feet visible",
+      "right-facing, A large cartoon gorilla settled into a relaxed crouched stance viewed from a three-quarter rear angle, both arms reaching low and open near the ground on either side of bent knees, head held level and facing forward, back rounded, weight balanced evenly over both legs, full body, feet visible"
+    ],
+    "dthrow": [
+      "right-facing, A large cartoon gorilla crouched low viewed from a rear three-quarter angle, one fist raised up near shoulder/head height as though gripping something small pinned against his chest, the other arm bent in tight against his torso, knees deeply bent, back rounded, weight low, full body, feet visible",
+      "right-facing, A large cartoon gorilla in a low crouch with both arms raised overhead, hands open and fingers spread as if hoisting something up above his head, torso leaning back slightly, head tucked down between the raised arms, knees bent, full body, feet visible",
+      "right-facing, A large cartoon gorilla with his torso twisted dynamically, one arm swinging down and across with a closed fist leading the motion as though driving something toward the ground, the other arm trailing up and back, legs braced wide apart, head tucked low, full body, feet visible",
+      "right-facing, A large cartoon gorilla curled into a compact, low ball-like posture, both arms bent down in front of his chest with open hands pressed together near the ground as though pinning something flat against the floor, knees drawn up under him, head bowed forward looking down, full body, feet visible",
+      "right-facing, A large cartoon gorilla still curled low but beginning to open up, one arm reaching up and outward with an open hand, the other arm bent close against the torso, weight shifted onto one side, head turning to the side, full body, feet visible",
+      "right-facing, A large cartoon gorilla in a low, wide crouch on all fours, both arms extended down and outward bracing against the ground, back arched, head turned forward and slightly up, legs bent wide for support, full body, feet visible",
+      "right-facing, A large cartoon gorilla resting in a compact all-fours stance, both arms reaching straight down to the ground on either side of a hunched torso, head held forward at a relaxed level, knees bent, calm and balanced, full body, feet visible"
+    ],
+    "idle": [
+      "right-facing, standing in a relaxed knuckle-walking stance, weight centered evenly, arms relaxed with knuckles resting near the ground, head level, chest at rest, full body, feet visible",
+      "right-facing, knuckle-walking stance, weight shifting slightly onto the front knuckles as the chest expands with an inhale, arms relaxed, head level, full body, feet visible",
+      "right-facing, knuckle-walking stance, weight settling back onto the hind legs as the chest eases with an exhale, arms relaxed near the ground, head level, full body, feet visible",
+      "right-facing, knuckle-walking stance, weight shifting slightly forward again, arms relaxed with knuckles grazing the ground, head level, completing the breathing loop, full body, feet visible"
+    ],
+    "run": [
+      "right-facing, galloping on all fours, right knuckle planted forward bearing weight, left hind foot pushing off the ground behind, torso low and driving forward, head forward, full body, feet visible",
+      "right-facing, galloping on all fours, both hind feet gathering underneath the body while the knuckles reach forward, torso compact, head low, full body, feet visible",
+      "right-facing, galloping on all fours, left knuckle reaching forward to plant, right hind leg extended back at full stretch, torso stretched long, full body, feet visible",
+      "right-facing, galloping on all fours, left knuckle planted forward bearing weight, right knuckle lifting off the ground, hind legs driving underneath the body, full body, feet visible",
+      "right-facing, galloping on all fours, right knuckle reaching forward to plant, left hind foot pushing off the ground behind, torso low, head forward, full body, feet visible",
+      "right-facing, galloping on all fours, both knuckles airborne momentarily, hind legs gathered underneath the body, torso compact and coiled, full body, feet visible",
+      "right-facing, galloping on all fours, right knuckle planted forward bearing weight, left hind leg extended back at full stretch, torso stretched long and low, full body, feet visible",
+      "right-facing, galloping on all fours, all four limbs momentarily off the ground mid-stride, torso extended, head forward, full body, feet visible"
+    ],
+    "jump": [
+      "right-facing, crouching low on bent legs in preparation to jump, knuckles near the ground, head lowered, coiled to spring upward, full body, feet visible",
+      "right-facing, launching upward off the ground, legs extending explosively, arms swinging upward, torso rising, feet just leaving the ground, full body, feet visible",
+      "right-facing, rising through the air, legs trailing bent beneath the body, both arms raised upward overhead, torso upright, full body, feet visible",
+      "right-facing, at the apex of the jump, body tucked compactly with knees drawn up and arms bent close to the chest, full body, feet visible",
+      "right-facing, falling through the air, arms spread outward for balance, legs loosely bent beneath the body, torso leaning slightly forward, full body, feet visible"
+    ],
+    "crouch": [
+      "right-facing, a low all-fours crouch with the chest near the ground, knees bent wide, arms bent and knuckles planted on the ground, head lowered between the shoulders, full body, feet visible"
+    ],
+    "hurt": [
+      "right-facing, flinching backward with the head snapped back and face grimacing in pain, arms drawn up defensively in front of the chest, knees bent, full body, feet visible",
+      "right-facing, knocked backward off balance with limbs flailing outward, torso tipped back, head thrown back, legs kicking loosely in the air, full body, feet visible"
+    ],
+    "shield": [
+      "right-facing, hunched low with both arms crossed tightly in front of the chest, shoulders raised, knees bent, head tucked down, bracing against an impact, full body, feet visible"
+    ],
+    "attack": [
+      "Large cartoon gorilla crouched low on all four limbs, right-facing; near arm's fist curled up near the chin, far arm's palm planted flat on the ground out in front for balance, head lowered between hunched shoulders, weight compact and coiled, full body, feet visible",
+      "right-facing, Same low crouch, near fist pulled in tighter against the chest, elbow bent sharply, shoulder rotated back slightly as if loading a short punch; far arm still grounded for balance, full body, feet visible",
+      "right-facing, Crouched gorilla stance with the near arm now fully extended straight out to the right at chest height, fist clenched at full reach, shoulder rotated forward into the punch, far arm still low and grounded, back leg braced, full body, feet visible",
+      "right-facing, Near arm midway back from full extension toward the chest, elbow bending again, torso unwinding back toward the crouch, far arm still grounded, full body, feet visible"
+    ],
+    "up_special": [
+      "Large cartoon gorilla airborne, body curled into a tight ball facing right, knees drawn up to the chest, both arms wrapped in close to the torso, head tucked down toward the knees, no limbs extended \u2014 a compact coiled silhouette just before unwinding into a spin, full body, feet visible",
+      "Large cartoon gorilla airborne and facing right, torso beginning to uncoil, one arm sweeping outward and upward past shoulder height while the other arm and both legs stay tucked near the body; the sweeping fist/forearm is the striking part, leading the start of the spin, full body, feet visible",
+      "right-facing, Large cartoon gorilla airborne, torso twisted so a back-quarter view faces the camera mid wind-up, one long arm raised straight overhead with fingers spread, the other arm and legs trailing loosely below \u2014 a coiled beat between the first swing and the full spin, not currently striking, full body, feet visible",
+      "Large cartoon gorilla airborne, facing right, both arms flung out straight to either side at shoulder height like a pinwheel, torso upright and centered, legs hanging loosely bent beneath the body; both extended fists/forearms are the striking parts as the body rotates, full body, feet visible",
+      "right-facing, Large cartoon gorilla airborne, torso angled mid-rotation, one arm cocked in tight near the head/shoulder as the leading striking fist, the other arm swung behind the body and largely hidden by the rotation, legs bent and trailing below, full body, feet visible",
+      "Large cartoon gorilla airborne, facing right, both arms and both legs flung fully outward into a wide X-shaped spread-eagle silhouette, torso flat and horizontal, head level with the shoulders \u2014 the spin's momentum peak at the instant the hit flurry ends, full body, feet visible",
+      "Large cartoon gorilla airborne, facing right, body upright and loosening, one arm reaching up and slightly forward with an open hand, the other arm relaxed at the side, legs bent and dangling \u2014 drifting with no attack active, full body, feet visible",
+      "Large cartoon gorilla airborne, facing right, body drawn back into a rounded, hunched silhouette with arms and legs loosely curled in front of the torso, head tucked slightly forward \u2014 a limp, tumbling helpless-fall pose with no striking part active, full body, feet visible"
+    ],
+    "up_special_ground": [
+      "Large cartwheel-brown gorilla crouched low, knees bent wide, both fists drawn up near the chest, torso hunched forward, head tucked down, standing grounded on both feet, facing right, full body, feet visible",
+      "right-facing, Gorilla mid-pirouette, torso twisted so the back faces camera-right, arms tucked in close to the body, feet planted shoulder-width on the ground, knees slightly bent, spinning in place, full body, feet visible",
+      "right-facing, Gorilla pitching forward into a handstand transition, one arm reaching down and forward to plant a fist on the ground, opposite arm bent near the head, both legs lifting off the ground behind him, torso at a diagonal, full body, feet visible",
+      "Gorilla braced on one bent leg with head low and one arm tucked near the face, opposite arm/leg swept out low and to the right at full extension, fist leading, grounded stance, facing right, full body, feet visible",
+      "Gorilla in mid-cartwheel with one hand planted on the ground beneath the torso, legs splayed apart with the trailing leg kicked up and outward to the right, opposite arm raised for balance, body diagonal, facing right, full body, feet visible",
+      "Gorilla inverted mid-spin, one arm planted on the ground supporting the torso, both legs swung up and out to the right at the top of the arc, torso curved, head tucked, facing right, full body, feet visible",
+      "Gorilla flattened into a horizontal lunge low to the ground, chest and torso stretched forward, one arm fully extended straight out to the right ending in a forward fist, legs trailing bent behind, body nearly parallel to the ground, facing right, full body, feet visible",
+      "Gorilla standing upright on both feet, knees slightly bent, both fists raised in front of the chest mid-pound, torso puffed out, head upright, facing right, grounded neutral stance, full body, feet visible"
+    ]
+  }
+}

@@ -178,6 +178,9 @@ function makeNeutralCopy(): Record<LogicalAction, boolean> {
     shield: false,
     grab: false,
     taunt: false,
+    smash: false,
+    appeal: false,
+    walk: false,
   };
 }
 
@@ -297,7 +300,7 @@ export class InputBindingManager {
       // order replay-event diffs are stored.
       for (const action of LOGICAL_ACTIONS) {
         const wasHeld = prev[action];
-        const isHeld = next[action];
+        const isHeld = next[action] === true;
         if (isHeld && !wasHeld) {
           events.push(Object.freeze({ kind: 'press', slot, action, frame }));
         } else if (!isHeld && wasHeld) {

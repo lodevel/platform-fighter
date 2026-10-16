@@ -1,0 +1,422 @@
+{
+  "state": "packed_cells_visually_reviewed_runtime_pending",
+  "coordinateContract": {
+    "canonicalCanvas": [
+      2048,
+      2048
+    ],
+    "canonicalRoot": [
+      1024,
+      1664
+    ],
+    "frameWidth": 512,
+    "frameHeight": 512,
+    "root": [
+      256,
+      416
+    ],
+    "scaleToWorld": 0.4666666666666667,
+    "bodyCentreFromRoot": [
+      0,
+      -25
+    ]
+  },
+  "clockContract": "docs/review/2026-10-06/pikachu-character/sources/state-runtime-clock-contract.json",
+  "clockContractSha256": "66ba9368ffe7118410fb965fa6b095902f881ce8473644791cf0e406370165f0",
+  "animations": {
+    "uthrow": {
+      "strip": "animations/uthrow.png",
+      "frameCount": 8,
+      "sha256": "4085eb569519a5e8c83f32b5a85b7bc67d7887d54d91c901bed31a67a9ab6ebc",
+      "columns": 8,
+      "rows": 1,
+      "frameWindows": [
+        {
+          "startFrame": 0,
+          "endFrame": 5,
+          "artFrameIndex": 0,
+          "nativeStart": 0,
+          "nativeEnd": 5
+        },
+        {
+          "startFrame": 5,
+          "endFrame": 10,
+          "artFrameIndex": 1,
+          "nativeStart": 5,
+          "nativeEnd": 10
+        },
+        {
+          "startFrame": 10,
+          "endFrame": 14,
+          "artFrameIndex": 2,
+          "nativeStart": 10,
+          "nativeEnd": 14
+        },
+        {
+          "startFrame": 14,
+          "endFrame": 16,
+          "artFrameIndex": 3,
+          "nativeStart": 14,
+          "nativeEnd": 16
+        },
+        {
+          "startFrame": 16,
+          "endFrame": 20,
+          "artFrameIndex": 4,
+          "nativeStart": 16,
+          "nativeEnd": 20
+        },
+        {
+          "startFrame": 20,
+          "endFrame": 30,
+          "artFrameIndex": 5,
+          "nativeStart": 20,
+          "nativeEnd": 30
+        },
+        {
+          "startFrame": 30,
+          "endFrame": 35,
+          "artFrameIndex": 6,
+          "nativeStart": 30,
+          "nativeEnd": 49
+        }
+      ],
+      "loopDuration": null,
+      "nativeSampleIndices": [
+        0,
+        5,
+        10,
+        14,
+        16,
+        20,
+        30,
+        49
+      ],
+      "nativeWindows": [
+        {
+          "nativeStart": 0,
+          "nativeEnd": 5,
+          "artFrameIndex": 0
+        },
+        {
+          "nativeStart": 5,
+          "nativeEnd": 10,
+          "artFrameIndex": 1
+        },
+        {
+          "nativeStart": 10,
+          "nativeEnd": 14,
+          "artFrameIndex": 2
+        },
+        {
+          "nativeStart": 14,
+          "nativeEnd": 16,
+          "artFrameIndex": 3
+        },
+        {
+          "nativeStart": 16,
+          "nativeEnd": 20,
+          "artFrameIndex": 4
+        },
+        {
+          "nativeStart": 20,
+          "nativeEnd": 30,
+          "artFrameIndex": 5
+        },
+        {
+          "nativeStart": 30,
+          "nativeEnd": 49,
+          "artFrameIndex": 6
+        },
+        {
+          "nativeStart": 49,
+          "nativeEnd": 50,
+          "artFrameIndex": 7
+        }
+      ],
+      "drawingFacingBinding": "actor entry facing; native orientation candidates must be checked before accepting both-facing render",
+      "holdRule": "native nonloop holds final available drawing until status exit; looping clips wrap native loopDuration; endpoint sample is not action commitment",
+      "specialPhase": null,
+      "specialClockKind": null,
+      "dynamicCutoff": null,
+      "playableEndExclusive": null,
+      "runtimeBindingStatus": "existing state observable; dedicated reviewed drawing route pending accepted strip"
+    }
+  },
+  "sources": [
+    {
+      "sourceKey": "full-up-throw-sample0-source0",
+      "nativeSample": 0,
+      "sourceReferenceSha256": "e474cdbfc8364c15198fafbb78534f552fe95ebe96e8edde23ca68ea9bdd7a86",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/completion-states-throw-floor/full-completion-states-throw-floor-uniform-batch2-source0-attempt1-matte-refined-cutout.png",
+      "atlasSha256": "e550b5a6876300d729756c409d3812758779fc2fa6db918f0bc9c63b07e6f64a",
+      "atlasCell": 1,
+      "cellOffset": [
+        1024,
+        0
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-capture-batch012-bounded-source0-attempt1.review.json",
+      "reviewSha256": "e256612f477e0e87d402fdd55c36cb586d75fa48c46d9e968486c57e9977ceb6",
+      "authoredGeometryAdaptation": {
+        "kind": {
+          "kind": "local undersideflex",
+          "originalArtBand": [
+            407,
+            418
+          ],
+          "targetArtBand": [
+            407,
+            417
+          ],
+          "maxDisplacementWorldPx": 0.4666666666666667
+        },
+        "acceptedBaselineReuse": null,
+        "receiving": {
+          "changedIndices": [
+            9
+          ],
+          "radiusChanges": 0,
+          "allOtherRegionsExact": true
+        },
+        "evidence": "docs/review/2026-10-06/pikachu-character/art/completion-states-throw-floor/staged/candidate.json",
+        "sourceParity": "Explicit authored beta floor clearance; does not claim native anatomy parity"
+      }
+    },
+    {
+      "sourceKey": "full-up-throw-sample5-source5",
+      "nativeSample": 5,
+      "sourceReferenceSha256": "2d0bc9f58c8837a9440cf69ed8bdabd6729e4d74efaa6040b2014f8a1efa441a",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/completion-states-throw-floor/full-completion-states-throw-floor-uniform-batch2-source0-attempt1-matte-refined-cutout.png",
+      "atlasSha256": "e550b5a6876300d729756c409d3812758779fc2fa6db918f0bc9c63b07e6f64a",
+      "atlasCell": 2,
+      "cellOffset": [
+        0,
+        1280
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-capture-batch013-bounded-source0-attempt1.review.json",
+      "reviewSha256": "7c1ed6bc6b4be0a09146d38b4ca2b60a4feda123f4c71b310c94fbf77834fa88",
+      "authoredGeometryAdaptation": {
+        "kind": {
+          "kind": "local undersideflex",
+          "originalArtBand": [
+            407,
+            419
+          ],
+          "targetArtBand": [
+            407,
+            417
+          ],
+          "maxDisplacementWorldPx": 0.9333333333333333
+        },
+        "acceptedBaselineReuse": null,
+        "receiving": {
+          "changedIndices": [
+            4,
+            5
+          ],
+          "radiusChanges": 0,
+          "allOtherRegionsExact": true
+        },
+        "evidence": "docs/review/2026-10-06/pikachu-character/art/completion-states-throw-floor/staged/candidate.json",
+        "sourceParity": "Explicit authored beta floor clearance; does not claim native anatomy parity"
+      }
+    },
+    {
+      "sourceKey": "full-up-throw-sample10-source10",
+      "nativeSample": 10,
+      "sourceReferenceSha256": "4b748ad0422a37ad1a3a902d04125593812f3822d9182c363a5c0776f08cbcfa",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/completion-states-throw-floor/full-completion-states-throw-floor-uniform-batch2-source0-attempt1-matte-refined-cutout.png",
+      "atlasSha256": "e550b5a6876300d729756c409d3812758779fc2fa6db918f0bc9c63b07e6f64a",
+      "atlasCell": 3,
+      "cellOffset": [
+        1024,
+        1280
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-capture-batch013-bounded-source0-attempt1.review.json",
+      "reviewSha256": "7c1ed6bc6b4be0a09146d38b4ca2b60a4feda123f4c71b310c94fbf77834fa88",
+      "authoredGeometryAdaptation": {
+        "kind": {
+          "kind": "local undersideflex",
+          "originalArtBand": [
+            407,
+            420
+          ],
+          "targetArtBand": [
+            407,
+            417
+          ],
+          "maxDisplacementWorldPx": 1.4
+        },
+        "acceptedBaselineReuse": null,
+        "receiving": {
+          "changedIndices": [
+            2,
+            3,
+            4,
+            5
+          ],
+          "radiusChanges": 0,
+          "allOtherRegionsExact": true
+        },
+        "evidence": "docs/review/2026-10-06/pikachu-character/art/completion-states-throw-floor/staged/candidate.json",
+        "sourceParity": "Explicit authored beta floor clearance; does not claim native anatomy parity"
+      }
+    },
+    {
+      "sourceKey": "full-up-throw-sample14-source14",
+      "nativeSample": 14,
+      "sourceReferenceSha256": "eee5c953eaccca7d07503a60dac6ba9c7978eab376dd665cf63d56d8bbeba8d3",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-capture-batch013-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "90944648aa1db2b0ced3a96229f4af8e6b38bfb3459c9bdd1078836e1617e7bd",
+      "atlasCell": 2,
+      "cellOffset": [
+        0,
+        1024
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-capture-batch013-bounded-source0-attempt1.review.json",
+      "reviewSha256": "7c1ed6bc6b4be0a09146d38b4ca2b60a4feda123f4c71b310c94fbf77834fa88"
+    },
+    {
+      "sourceKey": "full-up-throw-sample16-source16",
+      "nativeSample": 16,
+      "sourceReferenceSha256": "6694c3dd4d72f3df2d40d43b0233bbfff47aa091916f25ebae31199a0c547e62",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-capture-batch013-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "90944648aa1db2b0ced3a96229f4af8e6b38bfb3459c9bdd1078836e1617e7bd",
+      "atlasCell": 3,
+      "cellOffset": [
+        1024,
+        1024
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-capture-batch013-bounded-source0-attempt1.review.json",
+      "reviewSha256": "7c1ed6bc6b4be0a09146d38b4ca2b60a4feda123f4c71b310c94fbf77834fa88"
+    },
+    {
+      "sourceKey": "full-up-throw-sample20-source20",
+      "nativeSample": 20,
+      "sourceReferenceSha256": "a2dc5a5744079536ae892a450b852341906c232273924389c335dd20b03e8a6d",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-capture-batch014-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "3ed4c7ea5994d1422ef74913fa3a11b3083c56518d575d2a15c8e3f8c0deaf77",
+      "atlasCell": 0,
+      "cellOffset": [
+        0,
+        0
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-capture-batch014-bounded-source0-attempt1.review.json",
+      "reviewSha256": "a13585ac0bdd92548c25f0df14c13bc94063fe97efb538492d9648a5aa56e94d"
+    },
+    {
+      "sourceKey": "full-up-throw-sample30-source30",
+      "nativeSample": 30,
+      "sourceReferenceSha256": "0867169257610fa2102515fea7a8f451d2d7aa0b01a1c8212ef25188e1961085",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/completion-states-throw-floor/full-completion-states-throw-floor-uniform-batch3-source0-attempt1-matte-refined-cutout.png",
+      "atlasSha256": "eed3abde2c21f23e06f2181a2694456864e28f05a811c5488c045f99125a3914",
+      "atlasCell": 0,
+      "cellOffset": [
+        0,
+        0
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-capture-batch014-bounded-source0-attempt1.review.json",
+      "reviewSha256": "a13585ac0bdd92548c25f0df14c13bc94063fe97efb538492d9648a5aa56e94d",
+      "authoredGeometryAdaptation": {
+        "kind": {
+          "kind": "local undersideflex",
+          "originalArtBand": [
+            407,
+            418
+          ],
+          "targetArtBand": [
+            407,
+            417
+          ],
+          "maxDisplacementWorldPx": 0.4666666666666667
+        },
+        "acceptedBaselineReuse": null,
+        "receiving": {
+          "changedIndices": [
+            8,
+            9
+          ],
+          "radiusChanges": 0,
+          "allOtherRegionsExact": true
+        },
+        "evidence": "docs/review/2026-10-06/pikachu-character/art/completion-states-throw-floor/staged/candidate.json",
+        "sourceParity": "Explicit authored beta floor clearance; does not claim native anatomy parity"
+      }
+    },
+    {
+      "sourceKey": "full-up-throw-sample49-source49",
+      "nativeSample": 49,
+      "sourceReferenceSha256": "bc42958b121ffd3cebeca62126da56dade7976f85ea80a11cbb4496c05a6266d",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-capture-batch014-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "3ed4c7ea5994d1422ef74913fa3a11b3083c56518d575d2a15c8e3f8c0deaf77",
+      "atlasCell": 2,
+      "cellOffset": [
+        0,
+        1024
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-capture-batch014-bounded-source0-attempt1.review.json",
+      "reviewSha256": "a13585ac0bdd92548c25f0df14c13bc94063fe97efb538492d9648a5aa56e94d"
+    }
+  ],
+  "galleries": {
+    "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/uthrow-cells-1.png": "e29c8d451bf5f3b34e81a5bb9fcbd85fffea9a3a248fa5d351241d865d24dbfc",
+    "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/uthrow-cells-2.png": "e463ca6a757b7267aa315834316fb8bd99937a5ec89794e67d029c4952115b9a"
+  },
+  "limits": [
+    "Actual packed-cell inspection required before aggregate registration.",
+    "Authored beta presentation windows do not establish native status rate parity.",
+    "Actual running-game qualification remains separate."
+  ],
+  "packedVisualReview": {
+    "reviewer": "pikachu_art_motion",
+    "state": "actual_saved_packed_cells_reviewed",
+    "inspectedGalleries": {
+      "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/uthrow-cells-1.png": "e29c8d451bf5f3b34e81a5bb9fcbd85fffea9a3a248fa5d351241d865d24dbfc",
+      "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/uthrow-cells-2.png": "e463ca6a757b7267aa315834316fb8bd99937a5ec89794e67d029c4952115b9a"
+    },
+    "observations": [
+      "Actually inspected all8 saved512x512 packed light/dark cells:0raised grip;5/10deep forward crouch raisedtail;14/16/20vertical body raisedhead/openmouth droopingears attachedtail belowbody;30wide armsout recovery;49RIGHTidle. All identity anatomy palette and alpha preserved, fixedroot retained vertical native pose positions. Seven playable windows,49postaction retained; no victim/FX baked. Runtime movement/floor clearance separate."
+    ]
+  },
+  "runtimeEvidence": {
+    "reviewer": "pikachu_integration",
+    "receipt": "docs/review/2026-10-06/pikachu-character/integration/throws-retry/visual-review.json",
+    "receiptSha256": "a580956db4e277c5d56bef7e196a0b479e3bbe70bfe0e5eedb5784bbb876c87b",
+    "bundle": "http://127.0.0.1:4226/platform-fighter/assets/index-CGHfuYkx.js",
+    "bundleSha256": "ffae4b223dd771f36346461c6aea7bcc6fccb0bbad3f70120461fe4d3853bbc9",
+    "state": "actual_visual_review_completed_partial_fidelity",
+    "scope": "Actually inspected all64 real Match both-facing throw body captures in four galleries; source12caps/root/exact clock/render numeric gates PASS. Visible source-body qualification is partial.",
+    "findings": [
+      "F/U/down authored body poses, inversions and source root offsets visible in both facings; F/B/U protection dims sprites during source invincibility.",
+      "Back throw native23/26/40 yellow tail/body alpha visibly extends below real stage plane in both facings; screenshot-only measured6..20pixels overhang, no world/native collision claim.",
+      "Paired target remains source high-hold beta with shared root-offset attachment; captured-hit/release body not bound.",
+      "Initial failed expectedback-facing assertion corrected to actualactorfacing because only release HIT-facing reverses; identical immutable retry passes8cases."
+    ],
+    "limits": [
+      "Native Bthrow nonzeroTrans trajectory has no qualified kinetic/status movement consumer; actual actor remains rooted.",
+      "Back tail floor overhang remains FAILED; cannot count allthrows visually/source-complete.",
+      "Down selected29/51 body clock remains beta; stop-only birth-step/native protection/edgepush unqualified.",
+      "Native victim perpose hand/bone attachment and collateral throw/electric FX remain unqualified."
+    ],
+    "immutableAssetSnapshot": {
+      "sheets": 74,
+      "cells": 534
+    }
+  }
+}

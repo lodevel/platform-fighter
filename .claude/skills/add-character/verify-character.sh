@@ -1,28 +1,17 @@
 #!/usr/bin/env bash
 #
-# verify-character.sh <id>
+# Historical static wiring hints for a roster fighter. These substring/file
+# checks can have false positives and false negatives. They do not execute the
+# character, compare source data, inspect artwork, or establish completeness.
+# Use .agents/skills/add-character/SKILL.md for the current workflow and required
+# runtime verification. Legacy req/art/pol tiers below are historical hints.
 #
-# Completeness check for a roster fighter, derived from the authoritative
-# "Anatomy of a complete fighter" audit (docs/CHARACTER-CHECKLIST.md).
-# Three tiers:
-#   REQUIRED  (✓/✗) — code/playability. A ✗ means the fighter is broken,
-#                     unplayable, or absent from the select grid. Must be 0.
-#   ART       (○/◌) — sprite sheets. A ◌ means the fighter renders as a
-#                     flat procedural rectangle: PLAYABLE but visually
-#                     unfinished. This is the "feels unfinished" tier.
-#   POLISH    (○/◌) — optional moves, data files, tests. Nice-to-have.
-# Plus SYSTEM-WIDE notes for gaps shared by the whole cast (specials
-# unvoiced, no per-fighter voice, every move shares one attack sheet).
-#
-# tsc catches every exhaustive Record<CharacterId> omission; this script
-# catches the RUNTIME-only points tsc cannot see, and reports art/sound.
-#
-# Usage:  bash .claude/skills/add-character/verify-character.sh link
-
+# Usage: bash .claude/skills/add-character/verify-character.sh <id>
 set -u
 id="${1:-}"
 if [ -z "$id" ]; then echo "usage: verify-character.sh <id>   (lowercase, e.g. link)"; exit 2; fi
 Name="$(tr '[:lower:]' '[:upper:]' <<<"${id:0:1}")${id:1}"   # Link
+if [ "$id" = "donkeykong" ]; then Name="DonkeyKong"; fi
 ID="$(tr '[:lower:]' '[:upper:]' <<<"$id")"                   # LINK
 
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -113,9 +102,7 @@ CHECKS=(
 "pol|grep|dashGrab|src/characters/<Name>.ts|dashGrab:|1"
 "pol|grep|getUpAttackParams override|src/characters/<Name>.ts|getUpAttackParams()|1"
 "pol|grep|ledgeAttackParams override|src/characters/<Name>.ts|ledgeAttackParams()|1"
-"pol|file|data/characters/<id>.json|data/characters/<id>.json||1"
 "pol|file|frames.json (missing owl/bear)|assets/characters/<id>/frames.json||1"
-"pol|grep|own *.test.ts 10-move assert|src/characters/<Name>.test.ts|toHaveLength(10)|1"
 "pol|grep|perFighterSmoke coverage (stale list)|src/characters/perFighterSmoke.test.ts|id: '<id>'|1"
 )
 
@@ -137,30 +124,25 @@ run() { # tier mode label file needle min
 
 sub() { local s="$1"; s="${s//<Name>/$Name}"; s="${s//<ID>/$ID}"; s="${s//<id>/$id}"; printf '%s' "$s"; }
 
-echo "Verifying fighter '$id'  (class $Name, const ${ID}_*)"
-echo "Legend: ✓/✗ REQUIRED (playability)   ○/◌ optional (present / TODO)"
+echo "Inspecting historical wiring hints for fighter '$id'  (class $Name, const ${ID}_*)"
+echo "Legend: ✓/✗ legacy wiring patterns   ○/◌ asset and supplementary hints"
 cur=""
 for row in "${CHECKS[@]}"; do
   IFS='|' read -r tier mode label file needle min <<<"$row"
   if [ "$tier" != "$cur" ]; then
     case "$tier" in
-      req) echo "── REQUIRED: code & playability (✗ = broken) ──";;
-      art) echo "── ART: sprite sheets (◌ = procedural rectangle — playable, unfinished) ──";;
-      pol) echo "── POLISH: optional kit / data / tests ──";;
+      req) echo "── LEGACY WIRING PATTERNS ──";;
+      art) echo "── ASSET PRESENCE HINTS ──";;
+      pol) echo "── SUPPLEMENTARY HISTORICAL HINTS ──";;
     esac
     cur="$tier"
   fi
   run "$tier" "$mode" "$(sub "$label")" "$(sub "$file")" "$(sub "$needle")" "$min"
 done
 
-echo "── SYSTEM-WIDE gaps (same for ALL fighters — not per-fighter wiring) ──"
-printf '  \033[36mℹ\033[0m %s\n' "action SFX (jab/tilt/smash/aerial/shield/dodge/jump/land/hit) — inherited automatically"
-printf '  \033[33m◌\033[0m %s\n' "specials/grab/throw SFX unvoiced for the whole cast (combatAudio.ts MOVE_TYPE_TO_SFX_KEY)"
-printf '  \033[33m◌\033[0m %s\n' "no per-fighter voice/grunts; no announcer; no footsteps"
-printf '  \033[33m◌\033[0m %s\n' "utilt/usmash/dsmash/dashAttack/uair/dair share art with tilt/smash/nair — extend attackMoveToSheet() for dedicated sheets"
 
 echo
-if [ "$reqfail" -eq 0 ]; then echo -e "\033[32mREQUIRED: all present — fighter is code-complete & playable.\033[0m"
-else echo -e "\033[31mREQUIRED: $reqfail missing — fighter is broken/incomplete.\033[0m"; fi
-echo "Then run the gates:  npx tsc --noEmit  &&  npx vitest run  &&  npm run build"
+if [ "$reqfail" -eq 0 ]; then echo -e "\033[32mLegacy wiring patterns found. Character completeness is NOT verified.\033[0m"
+else echo -e "\033[31mLegacy wiring hints: $reqfail missing patterns; inspect current code before concluding.\033[0m"; fi
+echo "Continue with .agents/skills/add-character/SKILL.md for source, art, integration, and runtime verification."
 exit $([ "$reqfail" -eq 0 ] && echo 0 || echo 1)

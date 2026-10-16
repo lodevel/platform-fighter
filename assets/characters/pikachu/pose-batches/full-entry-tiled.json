@@ -1,0 +1,300 @@
+{
+  "state": "packed_cells_visually_reviewed_runtime_pending",
+  "coordinateContract": {
+    "canonicalCanvas": [
+      2048,
+      2560
+    ],
+    "canonicalRoot": [
+      1024,
+      1664
+    ],
+    "frameWidth": 512,
+    "frameHeight": 640,
+    "root": [
+      256,
+      416
+    ],
+    "scaleToWorld": 0.4666666666666667,
+    "bodyCentreFromRoot": [
+      0,
+      -25
+    ]
+  },
+  "clockContract": "docs/review/2026-10-06/pikachu-character/sources/state-runtime-clock-contract.json",
+  "clockContractSha256": "5181aab5af783ef602c56c37583cd7acab8db0f08e7f7cee5405fbde486b9a17",
+  "clockContractSnapshot": "docs/review/2026-10-06/pikachu-character/sources/clock-contract-snapshots/5181aab5af783ef602c56c37583cd7acab8db0f08e7f7cee5405fbde486b9a17.json",
+  "animations": {
+    "entry": {
+      "strip": "animations/entry.png",
+      "frameCount": 6,
+      "sha256": "02ace485819171b5b09da40ff4d4d337d8f83b496c7bc070a02a02b7ebce222b",
+      "columns": 6,
+      "rows": 1,
+      "frameWindows": [],
+      "loopDuration": null,
+      "nativeSampleIndices": [
+        0,
+        25,
+        50,
+        75,
+        100,
+        128
+      ],
+      "nativeWindows": [
+        {
+          "nativeStart": 0,
+          "nativeEnd": 25,
+          "artFrameIndex": 0
+        },
+        {
+          "nativeStart": 25,
+          "nativeEnd": 50,
+          "artFrameIndex": 1
+        },
+        {
+          "nativeStart": 50,
+          "nativeEnd": 75,
+          "artFrameIndex": 2
+        },
+        {
+          "nativeStart": 75,
+          "nativeEnd": 100,
+          "artFrameIndex": 3
+        },
+        {
+          "nativeStart": 100,
+          "nativeEnd": 128,
+          "artFrameIndex": 4
+        },
+        {
+          "nativeStart": 128,
+          "nativeEnd": 129,
+          "artFrameIndex": 5
+        }
+      ],
+      "drawingFacingBinding": "actor entry basis; source orientation and both-facing qualified rendering required",
+      "holdRule": "Retain all source samples; native loop endpoint is not gameplay commitment. Unsupported runtime status stays pending.",
+      "specialPhase": null,
+      "specialClockKind": null,
+      "dynamicCutoff": null,
+      "playableEndExclusive": null,
+      "runtimeBindingStatus": "missing or generic runtime state; native status/clock/source movement binding required"
+    }
+  },
+  "sources": [
+    {
+      "sourceKey": "full-respawn-entry-sample0-source0",
+      "nativeSample": 0,
+      "sourceReferenceSha256": "c6ea90235a429b62627dd34c169469a4017066bfc706f266773b4a5f168bec2d",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-reactions-misc-batch011-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "95569114584bb3cca1702fe29d3a80bfcd7f6e8200e5cd7b5a2b7dfd2bc30a7a",
+      "atlasCell": 0,
+      "cellOffset": [
+        0,
+        0
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-reactions-misc-batch011-bounded-source0-attempt1.review.json",
+      "reviewSha256": "2d042141856a2a9b338792bd08008007d9bdaf1c69c3c150c1583a91ad10ccae"
+    },
+    {
+      "sourceKey": "full-respawn-entry-sample25-source25",
+      "nativeSample": 25,
+      "sourceReferenceSha256": "1fda909472bba58af60e4617426cef609ef434d671b3575fca7748830b68736b",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-reactions-misc-batch011-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "95569114584bb3cca1702fe29d3a80bfcd7f6e8200e5cd7b5a2b7dfd2bc30a7a",
+      "atlasCell": 1,
+      "cellOffset": [
+        1024,
+        0
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-reactions-misc-batch011-bounded-source0-attempt1.review.json",
+      "reviewSha256": "2d042141856a2a9b338792bd08008007d9bdaf1c69c3c150c1583a91ad10ccae"
+    },
+    {
+      "sourceKey": "full-respawn-entry-sample50-source50",
+      "nativeSample": 50,
+      "sourceReferenceSha256": "115e393ca57ad16e966efe176edb46af385ad042372f0309a3a8a3c5d5229107",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/completion-states-crouch-floor/full-completion-states-crouch-floor-uniform-entry0-source0-attempt1-cutout.png",
+      "atlasSha256": "0c4b6afba2d9997a979166213125bc29347c21b28525a576c1c790e65c15fef1",
+      "atlasCell": 0,
+      "cellOffset": [
+        0,
+        0
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-reactions-misc-batch011-bounded-source0-attempt1.review.json",
+      "reviewSha256": "2d042141856a2a9b338792bd08008007d9bdaf1c69c3c150c1583a91ad10ccae",
+      "authoredGeometryAdaptation": {
+        "kind": {
+          "kind": "local undersideflex",
+          "originalArtBand": [
+            407,
+            418
+          ],
+          "targetArtBand": [
+            407,
+            417
+          ],
+          "maxDisplacementWorldPx": 0.4666666666666667
+        },
+        "receiving": {
+          "changedIndices": [
+            8,
+            9
+          ],
+          "radiusChanges": 0,
+          "allOtherRegionsExact": true
+        },
+        "evidence": "docs/review/2026-10-06/pikachu-character/art/completion-states-crouch-floor/staged-entry/candidate.json",
+        "sourceParity": "Explicit authored beta floor clearance; does not claim native anatomy parity"
+      }
+    },
+    {
+      "sourceKey": "full-respawn-entry-sample75-source75",
+      "nativeSample": 75,
+      "sourceReferenceSha256": "178bd6dc23fcd304c692cbaf5b5cf376b5f4daa19ca855695cad30bde26909d1",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/completion-states-crouch-floor/full-completion-states-crouch-floor-uniform-entry0-source0-attempt1-cutout.png",
+      "atlasSha256": "0c4b6afba2d9997a979166213125bc29347c21b28525a576c1c790e65c15fef1",
+      "atlasCell": 1,
+      "cellOffset": [
+        1024,
+        0
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-reactions-misc-batch011-bounded-source0-attempt1.review.json",
+      "reviewSha256": "2d042141856a2a9b338792bd08008007d9bdaf1c69c3c150c1583a91ad10ccae",
+      "authoredGeometryAdaptation": {
+        "kind": {
+          "kind": "local undersideflex",
+          "originalArtBand": [
+            407,
+            418
+          ],
+          "targetArtBand": [
+            407,
+            417
+          ],
+          "maxDisplacementWorldPx": 0.4666666666666667
+        },
+        "receiving": {
+          "changedIndices": [
+            8,
+            9
+          ],
+          "radiusChanges": 0,
+          "allOtherRegionsExact": true
+        },
+        "evidence": "docs/review/2026-10-06/pikachu-character/art/completion-states-crouch-floor/staged-entry/candidate.json",
+        "sourceParity": "Explicit authored beta floor clearance; does not claim native anatomy parity"
+      }
+    },
+    {
+      "sourceKey": "full-respawn-entry-sample100-source100",
+      "nativeSample": 100,
+      "sourceReferenceSha256": "f367b23e0c209966f7b82d19ca72cd5c053c4acd3483c9bf9adf308ae2263a9c",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/completion-states-crouch-floor/full-completion-states-crouch-floor-uniform-entry0-source0-attempt1-cutout.png",
+      "atlasSha256": "0c4b6afba2d9997a979166213125bc29347c21b28525a576c1c790e65c15fef1",
+      "atlasCell": 2,
+      "cellOffset": [
+        0,
+        1280
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-reactions-misc-batch012-bounded-source0-attempt1.review.json",
+      "reviewSha256": "ad692553ccbb5ab4339d2120256a01c216cb7db3600bffbedc9f97f878d69a86",
+      "authoredGeometryAdaptation": {
+        "kind": {
+          "kind": "local undersideflex",
+          "originalArtBand": [
+            407,
+            420
+          ],
+          "targetArtBand": [
+            407,
+            417
+          ],
+          "maxDisplacementWorldPx": 1.4
+        },
+        "receiving": {
+          "changedIndices": [
+            8,
+            9
+          ],
+          "radiusChanges": 0,
+          "allOtherRegionsExact": true
+        },
+        "evidence": "docs/review/2026-10-06/pikachu-character/art/completion-states-crouch-floor/staged-entry/candidate.json",
+        "sourceParity": "Explicit authored beta floor clearance; does not claim native anatomy parity"
+      }
+    },
+    {
+      "sourceKey": "full-respawn-entry-sample128-source128",
+      "nativeSample": 128,
+      "sourceReferenceSha256": "5bfe2c54a7418e0b7e20318a1e2ec0f67df8fa049d2eee9a9616d7cafb0d6051",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/completion-states-crouch-floor/full-completion-states-crouch-floor-uniform-entry0-source0-attempt1-cutout.png",
+      "atlasSha256": "0c4b6afba2d9997a979166213125bc29347c21b28525a576c1c790e65c15fef1",
+      "atlasCell": 3,
+      "cellOffset": [
+        1024,
+        1280
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-reactions-misc-batch012-bounded-source0-attempt1.review.json",
+      "reviewSha256": "ad692553ccbb5ab4339d2120256a01c216cb7db3600bffbedc9f97f878d69a86",
+      "authoredGeometryAdaptation": {
+        "kind": {
+          "kind": "local undersideflex",
+          "originalArtBand": [
+            407,
+            418
+          ],
+          "targetArtBand": [
+            407,
+            417
+          ],
+          "maxDisplacementWorldPx": 0.4666666666666667
+        },
+        "receiving": {
+          "changedIndices": [
+            8,
+            9
+          ],
+          "radiusChanges": 0,
+          "allOtherRegionsExact": true
+        },
+        "evidence": "docs/review/2026-10-06/pikachu-character/art/completion-states-crouch-floor/staged-entry/candidate.json",
+        "sourceParity": "Explicit authored beta floor clearance; does not claim native anatomy parity"
+      }
+    }
+  ],
+  "galleries": {
+    "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/entry-cells-1.png": "abfabe1c285116d0120f10298ed1f895493beb8cf775752d1662a3be80108711",
+    "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/entry-cells-2.png": "b71fdcffb7e250baeca5d94df10a16ea7da77f3698568c600337e4d6f31982f9"
+  },
+  "limits": [
+    "Actual packed-cell inspection required before aggregate registration.",
+    "Authored beta presentation windows do not establish native status rate parity.",
+    "Actual running-game qualification remains separate."
+  ],
+  "packedVisualReview": {
+    "reviewer": "pikachu_art_motion",
+    "state": "actual_saved_packed_cells_reviewed",
+    "inspectedGalleries": {
+      "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/entry-cells-1.png": "abfabe1c285116d0120f10298ed1f895493beb8cf775752d1662a3be80108711",
+      "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/entry-cells-2.png": "b71fdcffb7e250baeca5d94df10a16ea7da77f3698568c600337e4d6f31982f9"
+    },
+    "observations": [
+      "Actually inspected all six exact saved512x640 cells on light/dark backgrounds in both galleries. Native0 remains almost invisible and identity cannot be resolved;25 preserves small arms-out source body;50/75/100/128 preserve crouch/arms-raised/settled right-facing progression, source palette and attached tail without recentering or scale changes.",
+      "Source-only entry art: native entrance FX/status/input/root-motion consumer remain unqualified; native0 is not a visibly recognizable full-sized character."
+    ]
+  }
+}

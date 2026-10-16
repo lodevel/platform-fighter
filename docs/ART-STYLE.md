@@ -1,5 +1,12 @@
 # Art Style Guide
 
+> Current direction (2026-09-09): finish gameplay on `rework/gameplay`; 3D is
+> deferred. The latest Link runtime sprites are the visual reference, with room
+> to improve. See [Project Roadmap](PROJECT-ROADMAP.md). The style and proportion
+> rules below describe the earlier art direction; they do not override the
+> user's newer Link reference. Prioritize clear action poses and consistent
+> simulation timing before additional art production.
+
 **Locked direction (decided with the project owner): Brawlhalla-style clean 2D
 cartoon — heroic athletic proportions, vibrant saturated palette. NOT pixel
 art.** Every asset in the game (characters, stages, items, UI) follows this so

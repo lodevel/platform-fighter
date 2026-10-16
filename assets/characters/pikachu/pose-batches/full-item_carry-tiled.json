@@ -1,0 +1,2487 @@
+{
+  "state": "packed_cells_visually_reviewed_runtime_pending",
+  "animations": {
+    "item_carry": {
+      "strip": "animations/item_carry.png",
+      "frameCount": 5,
+      "sha256": "5586b7e6b7f5501f72959d82b80d3571c8e707cb399722f0bc77181064145b3b",
+      "frameWindows": [
+        {
+          "startFrame": 0,
+          "endFrame": 26,
+          "artFrameIndex": 0
+        },
+        {
+          "startFrame": 26,
+          "endFrame": 53,
+          "artFrameIndex": 1
+        },
+        {
+          "startFrame": 53,
+          "endFrame": 79,
+          "artFrameIndex": 2
+        },
+        {
+          "startFrame": 79,
+          "endFrame": 106,
+          "artFrameIndex": 3
+        }
+      ],
+      "frameWidth": 512,
+      "frameHeight": 640,
+      "root": [
+        256,
+        416
+      ],
+      "scaleToWorld": 0.4666666666666667,
+      "sourceCells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ]
+      ],
+      "nativeSampleIndices": [
+        0,
+        26,
+        53,
+        79,
+        106
+      ],
+      "nativeWindows": [
+        {
+          "nativeStart": 0,
+          "nativeEnd": 26,
+          "artFrameIndex": 0,
+          "nativeSample": 0
+        },
+        {
+          "nativeStart": 26,
+          "nativeEnd": 53,
+          "artFrameIndex": 1,
+          "nativeSample": 26
+        },
+        {
+          "nativeStart": 53,
+          "nativeEnd": 79,
+          "artFrameIndex": 2,
+          "nativeSample": 53
+        },
+        {
+          "nativeStart": 79,
+          "nativeEnd": 106,
+          "artFrameIndex": 3,
+          "nativeSample": 79
+        }
+      ],
+      "runtimeClock": "Source WaitItem loop106 with native106 endpoint source-only; explicitly reviewed authored near-identical idle art reuse, genuine WaitItem12caps/Have for each sparse drawing. Held item context has no new commitment and fresh actions interrupt.",
+      "packingMetadata": "assets/characters/pikachu/pose-batches/full-item_carry-tiled.json"
+    }
+  },
+  "sourceMotion": {
+    "skeleton": {
+      "path": "assets/gen/pikachu-native-reference/raw-model/fighter/pikachu/model/body/c00/model.nusktb",
+      "sha256": "09b80e92fa89921c4d895abe36f23252c2ba69c1ed2a787953185572d2b19b04"
+    },
+    "helper": {
+      "path": "assets/gen/pikachu-native-reference/raw-model/fighter/pikachu/model/body/c00/model.nuhlpb",
+      "sha256": "2362c0d133764a5f909e037c93ff9caf5e09f63da1aaa3ab9c3f0c22984a1555"
+    },
+    "motion": {
+      "path": "assets/gen/pikachu-native-reference/raw-motion/fighter/pikachu/motion/body/c00/a00waititem.nuanmb",
+      "sha256": "61f8d8770559fcaa2728459d75f8b33dd177ddb868bf85c468948a2779d48617"
+    },
+    "native_final_frame_index": 106.0,
+    "matrix_convention": "row-major arrays; column vectors; native x/y/z, no game or camera transform",
+    "helper_constraints": "Excluded; requested bones and ancestors reject any constraint target",
+    "game_patch": null,
+    "unmodified_vanilla_verified": false,
+    "gameplay_frame_mapping": null,
+    "runtime_consumer": null
+  },
+  "sourceDeclaration": {
+    "game_script": "game_waititem",
+    "flags": {
+      "turn": false,
+      "loop": true,
+      "move": false,
+      "fix_trans": false,
+      "fix_rot": false,
+      "fix_scale": false,
+      "unk_40": false,
+      "unk_80": false,
+      "unk_100": false,
+      "unk_200": false,
+      "unk_400": false,
+      "unk_800": false,
+      "unk_1000": false,
+      "unk_2000": false
+    },
+    "blend_frames": 6,
+    "animations": [
+      {
+        "name": "a00waititem.nuanmb",
+        "unk": 0
+      }
+    ],
+    "scripts": [
+      "expression_waititem",
+      "sound_waititem",
+      "effect_waititem"
+    ],
+    "extra": {
+      "xlu_start": 0,
+      "xlu_end": 0,
+      "cancel_frame": 0,
+      "no_stop_intp": false
+    }
+  },
+  "sourceOnlyEndpointIndices": [
+    4
+  ],
+  "explicitAuthoredReuse": {
+    "kind": "independently_inspected_source_near_identical_idle_art",
+    "receipt": "docs/review/2026-10-06/pikachu-character/art/completion-states-items/carry-source-review/preparation.json",
+    "receiptSha256": "476a2a148d67b13cffcf3c1d150392f78925b8d8281353e1b869e90673e1f99c",
+    "idleAtlas": "assets/characters/pikachu/animations/idle.png",
+    "idleAtlasSha256": "0a4388dc9f3bb6be17e253483f10b58d390854205fe2eed2d05b4ef42e43ea6e",
+    "separateOwnedBitmap": true,
+    "runtimeAlias": false
+  },
+  "sources": [
+    {
+      "nativeSample": 0,
+      "sourceIdleArtFrameIndex": 0,
+      "sourceIdleCellSha256": "68d9d1aceac5b3745ce45959bf61b4b15b49b271300bda81442c2e39c1da0559",
+      "sourceIdleAlpha32Bounds": [
+        150,
+        278,
+        291,
+        417
+      ],
+      "nativeGuide": "docs/review/2026-10-06/pikachu-character/sources/item-native-review/wait_item-native0-reference.png",
+      "nativeGuideSha256": "e91e2bda69fab6cb25c9249f06e5ff42bd419191df1a65e70ba81c1bda6fb7ea",
+      "review": "docs/review/2026-10-06/pikachu-character/art/completion-states-items/carry-source-review/native0-paired-review.png",
+      "reviewSha256": "f56a4ff79a370e648b2983312efcd1f4af7b5b78de46298a7f53de9cc7352993",
+      "sourceHurtboxes": [
+        {
+          "id": "item_carry.0.hip",
+          "capsule": {
+            "start": {
+              "x": -3.7223062751040743,
+              "y": 3.681200742155543
+            },
+            "end": {
+              "x": -5.729675312140853,
+              "y": 9.938558244357518
+            },
+            "radius": 16.00000021887328
+          }
+        },
+        {
+          "id": "item_carry.1.head",
+          "capsule": {
+            "start": {
+              "x": 2.4871878378370185,
+              "y": -13.42679276523392
+            },
+            "end": {
+              "x": 0.03173632993738171,
+              "y": -14.762662271868187
+            },
+            "radius": 15.49999968783209
+          }
+        },
+        {
+          "id": "item_carry.2.shoulderr",
+          "capsule": {
+            "start": {
+              "x": -5.587064391052692,
+              "y": -4.244606855549474
+            },
+            "end": {
+              "x": -1.4474448638004047,
+              "y": 2.585040796842094
+            },
+            "radius": 4.499999856399499
+          }
+        },
+        {
+          "id": "item_carry.3.shoulderl",
+          "capsule": {
+            "start": {
+              "x": 11.069327458984002,
+              "y": -3.738148447856247
+            },
+            "end": {
+              "x": 11.630065109713675,
+              "y": 2.9478009656380166
+            },
+            "radius": 4.500000196888826
+          }
+        },
+        {
+          "id": "item_carry.4.armr",
+          "capsule": {
+            "start": {
+              "x": -0.14874279991587247,
+              "y": 4.727671887301852
+            },
+            "end": {
+              "x": 3.2713839509008427,
+              "y": 6.584385450683278
+            },
+            "radius": 2.4999999864493265
+          }
+        },
+        {
+          "id": "item_carry.5.arml",
+          "capsule": {
+            "start": {
+              "x": 11.806000066243174,
+              "y": 5.04555954826732
+            },
+            "end": {
+              "x": 9.833393927680534,
+              "y": 7.158486025446329
+            },
+            "radius": 2.5000001352279493
+          }
+        },
+        {
+          "id": "item_carry.6.legr",
+          "capsule": {
+            "start": {
+              "x": -11.125611211441285,
+              "y": 11.012516937424177
+            },
+            "end": {
+              "x": -8.164683014164106,
+              "y": 14.596559643269313
+            },
+            "radius": 8.999999786382787
+          }
+        },
+        {
+          "id": "item_carry.7.legl",
+          "capsule": {
+            "start": {
+              "x": 4.486611288755259,
+              "y": 11.012645791068412
+            },
+            "end": {
+              "x": 10.247058966674075,
+              "y": 14.102994125174156
+            },
+            "radius": 8.999999703577126
+          }
+        },
+        {
+          "id": "item_carry.8.kneer",
+          "capsule": {
+            "start": {
+              "x": -7.101223274679338,
+              "y": 15.883819876653332
+            },
+            "end": {
+              "x": -11.421485800250945,
+              "y": 21.704218628815212
+            },
+            "radius": 4.999999996220371
+          }
+        },
+        {
+          "id": "item_carry.9.kneel",
+          "capsule": {
+            "start": {
+              "x": 12.316006194948148,
+              "y": 15.212936959089362
+            },
+            "end": {
+              "x": 5.697949542351398,
+              "y": 21.566812344106673
+            },
+            "radius": 4.999999967775391
+          }
+        },
+        {
+          "id": "item_carry.10.tail1",
+          "capsule": {
+            "start": {
+              "x": -23.786796877264308,
+              "y": 9.450992963315104
+            },
+            "end": {
+              "x": -13.595591848650969,
+              "y": 14.91336208403994
+            },
+            "radius": 6.9999999251124665
+          }
+        },
+        {
+          "id": "item_carry.11.tail3",
+          "capsule": {
+            "start": {
+              "x": -28.994747586001644,
+              "y": -0.036052956189138285
+            },
+            "end": {
+              "x": -20.76710596823508,
+              "y": 4.769591999849791
+            },
+            "radius": 8.000000510615314
+          }
+        }
+      ],
+      "hurtboxes": [
+        {
+          "id": "item_carry.0.hip",
+          "capsule": {
+            "start": {
+              "x": -3.7223062751040743,
+              "y": 3.681200742155543
+            },
+            "end": {
+              "x": -5.729675312140853,
+              "y": 9.938558244357518
+            },
+            "radius": 16.00000021887328
+          },
+          "offsetX": -4.725990793622463,
+          "offsetY": 6.80987949325653,
+          "width": 34.00736947478334,
+          "height": 38.257357939948534
+        },
+        {
+          "id": "item_carry.1.head",
+          "capsule": {
+            "start": {
+              "x": 2.4871878378370185,
+              "y": -13.42679276523392
+            },
+            "end": {
+              "x": 0.03173632993738171,
+              "y": -14.762662271868187
+            },
+            "radius": 15.49999968783209
+          },
+          "offsetX": 1.2594620838872002,
+          "offsetY": -14.094727518551053,
+          "width": 33.45545088356382,
+          "height": 32.33586888229845
+        },
+        {
+          "id": "item_carry.2.shoulderr",
+          "capsule": {
+            "start": {
+              "x": -5.587064391052692,
+              "y": -4.244606855549474
+            },
+            "end": {
+              "x": -1.4474448638004047,
+              "y": 2.585040796842094
+            },
+            "radius": 4.499999856399499
+          },
+          "offsetX": -3.5172546274265484,
+          "offsetY": -0.8297830293536901,
+          "width": 13.139619240051285,
+          "height": 15.829647365190565
+        },
+        {
+          "id": "item_carry.3.shoulderl",
+          "capsule": {
+            "start": {
+              "x": 11.069327458984002,
+              "y": -3.738148447856247
+            },
+            "end": {
+              "x": 11.630065109713675,
+              "y": 2.9478009656380166
+            },
+            "radius": 4.500000196888826
+          },
+          "offsetX": 11.349696284348838,
+          "offsetY": -0.3951737411091152,
+          "width": 9.560738044507325,
+          "height": 15.685949807271916
+        },
+        {
+          "id": "item_carry.4.armr",
+          "capsule": {
+            "start": {
+              "x": -0.14874279991587247,
+              "y": 4.727671887301852
+            },
+            "end": {
+              "x": 3.2713839509008427,
+              "y": 6.584385450683278
+            },
+            "radius": 2.4999999864493265
+          },
+          "offsetX": 1.561320575492485,
+          "offsetY": 5.656028668992565,
+          "width": 8.420126723715368,
+          "height": 6.856713536280079
+        },
+        {
+          "id": "item_carry.5.arml",
+          "capsule": {
+            "start": {
+              "x": 11.806000066243174,
+              "y": 5.04555954826732
+            },
+            "end": {
+              "x": 9.833393927680534,
+              "y": 7.158486025446329
+            },
+            "radius": 2.5000001352279493
+          },
+          "offsetX": 10.819696996961854,
+          "offsetY": 6.102022786856825,
+          "width": 6.972606409018538,
+          "height": 7.112926747634908
+        },
+        {
+          "id": "item_carry.6.legr",
+          "capsule": {
+            "start": {
+              "x": -11.125611211441285,
+              "y": 11.012516937424177
+            },
+            "end": {
+              "x": -8.164683014164106,
+              "y": 14.596559643269313
+            },
+            "radius": 8.999999786382787
+          },
+          "offsetX": -9.645147112802697,
+          "offsetY": 12.804538290346745,
+          "width": 20.96092777004275,
+          "height": 21.58404227861071
+        },
+        {
+          "id": "item_carry.7.legl",
+          "capsule": {
+            "start": {
+              "x": 4.486611288755259,
+              "y": 11.012645791068412
+            },
+            "end": {
+              "x": 10.247058966674075,
+              "y": 14.102994125174156
+            },
+            "radius": 8.999999703577126
+          },
+          "offsetX": 7.366835127714667,
+          "offsetY": 12.557819958121284,
+          "width": 23.760447085073068,
+          "height": 21.090347741259997
+        },
+        {
+          "id": "item_carry.8.kneer",
+          "capsule": {
+            "start": {
+              "x": -7.101223274679338,
+              "y": 15.883819876653332
+            },
+            "end": {
+              "x": -11.421485800250945,
+              "y": 21.622016935286542
+            },
+            "radius": 4.999999996220371
+          },
+          "offsetX": -9.261354537465142,
+          "offsetY": 18.752918405969936,
+          "width": 14.320262518012349,
+          "height": 15.738197051073952
+        },
+        {
+          "id": "item_carry.9.kneel",
+          "capsule": {
+            "start": {
+              "x": 12.316006194948148,
+              "y": 15.212936959089362
+            },
+            "end": {
+              "x": 5.697949542351398,
+              "y": 21.497102131006073
+            },
+            "radius": 4.999999967775391
+          },
+          "offsetX": 9.006977868649773,
+          "offsetY": 18.355019545047718,
+          "width": 16.61805658814753,
+          "height": 16.284165107467494
+        },
+        {
+          "id": "item_carry.10.tail1",
+          "capsule": {
+            "start": {
+              "x": -23.786796877264308,
+              "y": 9.450992963315104
+            },
+            "end": {
+              "x": -13.595591848650969,
+              "y": 14.91336208403994
+            },
+            "radius": 6.9999999251124665
+          },
+          "offsetX": -18.69119436295764,
+          "offsetY": 12.182177523677522,
+          "width": 24.19120487883827,
+          "height": 19.46236897094977
+        },
+        {
+          "id": "item_carry.11.tail3",
+          "capsule": {
+            "start": {
+              "x": -28.994747586001644,
+              "y": -0.036052956189138285
+            },
+            "end": {
+              "x": -20.76710596823508,
+              "y": 4.769591999849791
+            },
+            "radius": 8.000000510615314
+          },
+          "offsetX": -24.88092677711836,
+          "offsetY": 2.366769521830326,
+          "width": 24.227642638997192,
+          "height": 20.805645977269556
+        }
+      ],
+      "sourceHaveBODYCENTRE": {
+        "x": 12.731909299052266,
+        "y": -8.252040636465779
+      },
+      "authoredGeometryAdaptation": {
+        "kind": "local undersideflex",
+        "originalArtBand": [
+          407,
+          418
+        ],
+        "targetArtBand": [
+          407,
+          417
+        ],
+        "maxDisplacementWorldPx": 0.4666666666666667
+      },
+      "sourceDeclaration": {
+        "game_script": "game_waititem",
+        "flags": {
+          "turn": false,
+          "loop": true,
+          "move": false,
+          "fix_trans": false,
+          "fix_rot": false,
+          "fix_scale": false,
+          "unk_40": false,
+          "unk_80": false,
+          "unk_100": false,
+          "unk_200": false,
+          "unk_400": false,
+          "unk_800": false,
+          "unk_1000": false,
+          "unk_2000": false
+        },
+        "blend_frames": 6,
+        "animations": [
+          {
+            "name": "a00waititem.nuanmb",
+            "unk": 0
+          }
+        ],
+        "scripts": [
+          "expression_waititem",
+          "sound_waititem",
+          "effect_waititem"
+        ],
+        "extra": {
+          "xlu_start": 0,
+          "xlu_end": 0,
+          "cancel_frame": 0,
+          "no_stop_intp": false
+        }
+      }
+    },
+    {
+      "nativeSample": 26,
+      "sourceIdleArtFrameIndex": 1,
+      "sourceIdleCellSha256": "f4a6d702b035f99a174e9ed11c8aa074522b8787d72c0b9f64ee6c7e51372c75",
+      "sourceIdleAlpha32Bounds": [
+        150,
+        283,
+        293,
+        417
+      ],
+      "nativeGuide": "docs/review/2026-10-06/pikachu-character/sources/item-native-review/wait_item-native26-reference.png",
+      "nativeGuideSha256": "316a782f3fbc1542bb2e9a05778ee0ab55bfe312b141f184252f9c99c7aacd8f",
+      "review": "docs/review/2026-10-06/pikachu-character/art/completion-states-items/carry-source-review/native26-paired-review.png",
+      "reviewSha256": "0345657960d5c4bf24786cfd9257513c619332c323f75c526573b71f328e668b",
+      "sourceHurtboxes": [
+        {
+          "id": "item_carry.0.hip",
+          "capsule": {
+            "start": {
+              "x": -3.2290861292192767,
+              "y": 3.6790691128849318
+            },
+            "end": {
+              "x": -5.1280614933591275,
+              "y": 10.050161162782619
+            },
+            "radius": 16.000000585538775
+          }
+        },
+        {
+          "id": "item_carry.1.head",
+          "capsule": {
+            "start": {
+              "x": 3.189059128280019,
+              "y": -13.040830923215225
+            },
+            "end": {
+              "x": 0.6910823046891929,
+              "y": -14.44061809947749
+            },
+            "radius": 15.500000133001953
+          }
+        },
+        {
+          "id": "item_carry.2.shoulderr",
+          "capsule": {
+            "start": {
+              "x": -4.647026015125553,
+              "y": -3.249717838354801
+            },
+            "end": {
+              "x": -0.7014499544065567,
+              "y": 3.7071222715675454
+            },
+            "radius": 4.500000022518295
+          }
+        },
+        {
+          "id": "item_carry.3.shoulderl",
+          "capsule": {
+            "start": {
+              "x": 11.243158365463561,
+              "y": -3.424030222684003
+            },
+            "end": {
+              "x": 12.530134101006832,
+              "y": 3.4466646818298763
+            },
+            "radius": 4.5000004389640775
+          }
+        },
+        {
+          "id": "item_carry.4.armr",
+          "capsule": {
+            "start": {
+              "x": 0.536375826328987,
+              "y": 5.8896568135445975
+            },
+            "end": {
+              "x": 4.119614027952722,
+              "y": 7.5233942992257035
+            },
+            "radius": 2.5000001301406307
+          }
+        },
+        {
+          "id": "item_carry.5.arml",
+          "capsule": {
+            "start": {
+              "x": 12.93393081377026,
+              "y": 5.602388321539372
+            },
+            "end": {
+              "x": 11.058399292531348,
+              "y": 7.702891645862451
+            },
+            "radius": 2.500000273592542
+          }
+        },
+        {
+          "id": "item_carry.6.legr",
+          "capsule": {
+            "start": {
+              "x": -10.257513659875947,
+              "y": 10.981205531748744
+            },
+            "end": {
+              "x": -7.310693492774229,
+              "y": 14.989922274270928
+            },
+            "radius": 9.00000008106952
+          }
+        },
+        {
+          "id": "item_carry.7.legl",
+          "capsule": {
+            "start": {
+              "x": 5.010825997249311,
+              "y": 10.981152246634938
+            },
+            "end": {
+              "x": 10.723482685948124,
+              "y": 14.29957828547866
+            },
+            "radius": 8.999999838927957
+          }
+        },
+        {
+          "id": "item_carry.8.kneer",
+          "capsule": {
+            "start": {
+              "x": -6.252300854244099,
+              "y": 16.42971026595244
+            },
+            "end": {
+              "x": -11.276777542670779,
+              "y": 21.79727825339342
+            },
+            "radius": 5.000000024463737
+          }
+        },
+        {
+          "id": "item_carry.9.kneel",
+          "capsule": {
+            "start": {
+              "x": 12.775265096449058,
+              "y": 15.491438491347022
+            },
+            "end": {
+              "x": 5.777699078293216,
+              "y": 21.613062755952015
+            },
+            "radius": 5.000000042970299
+          }
+        },
+        {
+          "id": "item_carry.10.tail1",
+          "capsule": {
+            "start": {
+              "x": -23.765905030444905,
+              "y": 9.479371633644046
+            },
+            "end": {
+              "x": -13.080641804002283,
+              "y": 15.485313360685417
+            },
+            "radius": 7.000000021546863
+          }
+        },
+        {
+          "id": "item_carry.11.tail3",
+          "capsule": {
+            "start": {
+              "x": -29.017362147587903,
+              "y": -0.2074980650167504
+            },
+            "end": {
+              "x": -20.653951365518086,
+              "y": 4.847847661746954
+            },
+            "radius": 8.000000914151965
+          }
+        }
+      ],
+      "hurtboxes": [
+        {
+          "id": "item_carry.0.hip",
+          "capsule": {
+            "start": {
+              "x": -3.2290861292192767,
+              "y": 3.6790691128849318
+            },
+            "end": {
+              "x": -5.1280614933591275,
+              "y": 10.050161162782619
+            },
+            "radius": 16.000000585538775
+          },
+          "offsetX": -4.178573811289202,
+          "offsetY": 6.864615137833775,
+          "width": 33.8989765352174,
+          "height": 38.37109322097524
+        },
+        {
+          "id": "item_carry.1.head",
+          "capsule": {
+            "start": {
+              "x": 3.189059128280019,
+              "y": -13.040830923215225
+            },
+            "end": {
+              "x": 0.6910823046891929,
+              "y": -14.44061809947749
+            },
+            "radius": 15.500000133001953
+          },
+          "offsetX": 1.9400707164846058,
+          "offsetY": -13.740724511346357,
+          "width": 33.497977089594734,
+          "height": 32.399787442266174
+        },
+        {
+          "id": "item_carry.2.shoulderr",
+          "capsule": {
+            "start": {
+              "x": -4.647026015125553,
+              "y": -3.249717838354801
+            },
+            "end": {
+              "x": -0.7014499544065567,
+              "y": 3.7071222715675454
+            },
+            "radius": 4.500000022518295
+          },
+          "offsetX": -2.6742379847660547,
+          "offsetY": 0.22870221660637213,
+          "width": 12.945576105755585,
+          "height": 15.956840154958936
+        },
+        {
+          "id": "item_carry.3.shoulderl",
+          "capsule": {
+            "start": {
+              "x": 11.243158365463561,
+              "y": -3.424030222684003
+            },
+            "end": {
+              "x": 12.530134101006832,
+              "y": 3.4466646818298763
+            },
+            "radius": 4.5000004389640775
+          },
+          "offsetX": 11.886646233235197,
+          "offsetY": 0.011317229572936682,
+          "width": 10.286976613471426,
+          "height": 15.870695782442034
+        },
+        {
+          "id": "item_carry.4.armr",
+          "capsule": {
+            "start": {
+              "x": 0.536375826328987,
+              "y": 5.8896568135445975
+            },
+            "end": {
+              "x": 4.119614027952722,
+              "y": 7.5233942992257035
+            },
+            "radius": 2.5000001301406307
+          },
+          "offsetX": 2.3279949271408547,
+          "offsetY": 6.7065255563851505,
+          "width": 8.583238461904998,
+          "height": 6.633737745962367
+        },
+        {
+          "id": "item_carry.5.arml",
+          "capsule": {
+            "start": {
+              "x": 12.93393081377026,
+              "y": 5.602388321539372
+            },
+            "end": {
+              "x": 11.058399292531348,
+              "y": 7.702891645862451
+            },
+            "radius": 2.500000273592542
+          },
+          "offsetX": 11.996165053150804,
+          "offsetY": 6.652639983700912,
+          "width": 6.875532068423996,
+          "height": 7.100503871508162
+        },
+        {
+          "id": "item_carry.6.legr",
+          "capsule": {
+            "start": {
+              "x": -10.257513659875947,
+              "y": 10.981205531748744
+            },
+            "end": {
+              "x": -7.310693492774229,
+              "y": 14.989922274270928
+            },
+            "radius": 9.00000008106952
+          },
+          "offsetX": -8.784103576325087,
+          "offsetY": 12.985563903009837,
+          "width": 20.946820329240758,
+          "height": 22.008716904661227
+        },
+        {
+          "id": "item_carry.7.legl",
+          "capsule": {
+            "start": {
+              "x": 5.010825997249311,
+              "y": 10.981152246634938
+            },
+            "end": {
+              "x": 10.723482685948124,
+              "y": 14.29957828547866
+            },
+            "radius": 8.999999838927957
+          },
+          "offsetX": 7.8671543415987175,
+          "offsetY": 12.640365266056799,
+          "width": 23.712656366554725,
+          "height": 21.318425716699636
+        },
+        {
+          "id": "item_carry.8.kneer",
+          "capsule": {
+            "start": {
+              "x": -6.252300854244099,
+              "y": 16.42971026595244
+            },
+            "end": {
+              "x": -11.276777542670779,
+              "y": 21.706616593994017
+            },
+            "radius": 5.000000024463737
+          },
+          "offsetX": -8.764539198457438,
+          "offsetY": 19.06816342997323,
+          "width": 15.024476737354153,
+          "height": 15.27690637696905
+        },
+        {
+          "id": "item_carry.9.kneel",
+          "capsule": {
+            "start": {
+              "x": 12.775265096449058,
+              "y": 15.491438491347022
+            },
+            "end": {
+              "x": 5.777699078293216,
+              "y": 21.539147959956388
+            },
+            "radius": 5.000000042970299
+          },
+          "offsetX": 9.276482087371136,
+          "offsetY": 18.515293225651703,
+          "width": 16.997566104096443,
+          "height": 16.047709554549964
+        },
+        {
+          "id": "item_carry.10.tail1",
+          "capsule": {
+            "start": {
+              "x": -23.765905030444905,
+              "y": 9.479371633644046
+            },
+            "end": {
+              "x": -13.080641804002283,
+              "y": 15.485313360685417
+            },
+            "radius": 7.000000021546863
+          },
+          "offsetX": -18.423273417223594,
+          "offsetY": 12.482342497164732,
+          "width": 24.68526326953635,
+          "height": 20.005941770135095
+        },
+        {
+          "id": "item_carry.11.tail3",
+          "capsule": {
+            "start": {
+              "x": -29.017362147587903,
+              "y": -0.2074980650167504
+            },
+            "end": {
+              "x": -20.653951365518086,
+              "y": 4.847847661746954
+            },
+            "radius": 8.000000914151965
+          },
+          "offsetX": -24.835656756552993,
+          "offsetY": 2.3201747983651018,
+          "width": 24.363412610373747,
+          "height": 21.055347555067634
+        }
+      ],
+      "sourceHaveBODYCENTRE": {
+        "x": 13.60515328216784,
+        "y": -7.5998170972591055
+      },
+      "authoredGeometryAdaptation": {
+        "kind": "local undersideflex",
+        "originalArtBand": [
+          407,
+          418
+        ],
+        "targetArtBand": [
+          407,
+          417
+        ],
+        "maxDisplacementWorldPx": 0.4666666666666667
+      },
+      "sourceDeclaration": {
+        "game_script": "game_waititem",
+        "flags": {
+          "turn": false,
+          "loop": true,
+          "move": false,
+          "fix_trans": false,
+          "fix_rot": false,
+          "fix_scale": false,
+          "unk_40": false,
+          "unk_80": false,
+          "unk_100": false,
+          "unk_200": false,
+          "unk_400": false,
+          "unk_800": false,
+          "unk_1000": false,
+          "unk_2000": false
+        },
+        "blend_frames": 6,
+        "animations": [
+          {
+            "name": "a00waititem.nuanmb",
+            "unk": 0
+          }
+        ],
+        "scripts": [
+          "expression_waititem",
+          "sound_waititem",
+          "effect_waititem"
+        ],
+        "extra": {
+          "xlu_start": 0,
+          "xlu_end": 0,
+          "cancel_frame": 0,
+          "no_stop_intp": false
+        }
+      }
+    },
+    {
+      "nativeSample": 53,
+      "sourceIdleArtFrameIndex": 2,
+      "sourceIdleCellSha256": "04a344caa3c050f70e15257389f783581bcf5b872bdd6f3c53ab03431045ae69",
+      "sourceIdleAlpha32Bounds": [
+        152,
+        281,
+        292,
+        417
+      ],
+      "nativeGuide": "docs/review/2026-10-06/pikachu-character/sources/item-native-review/wait_item-native53-reference.png",
+      "nativeGuideSha256": "4960a98cc9607f7b05843daea544f8ba30452fcd5521c7db54b81acde2e8b277",
+      "review": "docs/review/2026-10-06/pikachu-character/art/completion-states-items/carry-source-review/native53-paired-review.png",
+      "reviewSha256": "2582ac403878dbcf275003d98232b463517902666722d97605b9752c8f55aa50",
+      "sourceHurtboxes": [
+        {
+          "id": "item_carry.0.hip",
+          "capsule": {
+            "start": {
+              "x": -3.5345136130607213,
+              "y": 3.7284435629815427
+            },
+            "end": {
+              "x": -5.375192414347351,
+              "y": 10.042707067401423
+            },
+            "radius": 16.000000530830714
+          }
+        },
+        {
+          "id": "item_carry.1.head",
+          "capsule": {
+            "start": {
+              "x": 2.4973437803665415,
+              "y": -13.111309719597301
+            },
+            "end": {
+              "x": 0.036954337314950084,
+              "y": -14.569785741889142
+            },
+            "radius": 15.499999976061687
+          }
+        },
+        {
+          "id": "item_carry.2.shoulderr",
+          "capsule": {
+            "start": {
+              "x": -5.449963309696276,
+              "y": -3.288101543507331
+            },
+            "end": {
+              "x": -1.3197268631777828,
+              "y": 3.55926249590582
+            },
+            "radius": 4.500000009639505
+          }
+        },
+        {
+          "id": "item_carry.3.shoulderl",
+          "capsule": {
+            "start": {
+              "x": 10.899928409666975,
+              "y": -3.6850040593654043
+            },
+            "end": {
+              "x": 12.040721255470908,
+              "y": 3.120468253743507
+            },
+            "radius": 4.500000339196466
+          }
+        },
+        {
+          "id": "item_carry.4.armr",
+          "capsule": {
+            "start": {
+              "x": -0.023968506132574507,
+              "y": 5.707451659574492
+            },
+            "end": {
+              "x": 3.5513867975133073,
+              "y": 7.393223873489255
+            },
+            "radius": 2.500000071582666
+          }
+        },
+        {
+          "id": "item_carry.5.arml",
+          "capsule": {
+            "start": {
+              "x": 12.398652169285079,
+              "y": 5.255727896129759
+            },
+            "end": {
+              "x": 10.520149524298894,
+              "y": 7.445912488616283
+            },
+            "radius": 2.5000002018808374
+          }
+        },
+        {
+          "id": "item_carry.6.legr",
+          "capsule": {
+            "start": {
+              "x": -11.129464070506677,
+              "y": 11.046822796525259
+            },
+            "end": {
+              "x": -8.337881209773174,
+              "y": 14.558769196030356
+            },
+            "radius": 9.000000374459985
+          }
+        },
+        {
+          "id": "item_carry.7.legl",
+          "capsule": {
+            "start": {
+              "x": 5.003460707655771,
+              "y": 11.046890871814119
+            },
+            "end": {
+              "x": 10.478909541663226,
+              "y": 14.548271375466628
+            },
+            "radius": 9.00000012496594
+          }
+        },
+        {
+          "id": "item_carry.8.kneer",
+          "capsule": {
+            "start": {
+              "x": -7.33524427161446,
+              "y": 15.820135009134717
+            },
+            "end": {
+              "x": -11.461523107283007,
+              "y": 21.693154701197365
+            },
+            "radius": 5.000000646881212
+          }
+        },
+        {
+          "id": "item_carry.9.kneel",
+          "capsule": {
+            "start": {
+              "x": 12.445495356182604,
+              "y": 15.805842295854188
+            },
+            "end": {
+              "x": 5.721012439990502,
+              "y": 21.667154638916433
+            },
+            "radius": 5.000000296392107
+          }
+        },
+        {
+          "id": "item_carry.10.tail1",
+          "capsule": {
+            "start": {
+              "x": -22.77165533296276,
+              "y": 10.392690153149848
+            },
+            "end": {
+              "x": -12.820442051976153,
+              "y": 15.244022477433735
+            },
+            "radius": 6.999999832618037
+          }
+        },
+        {
+          "id": "item_carry.11.tail3",
+          "capsule": {
+            "start": {
+              "x": -28.101999282907677,
+              "y": 1.1775212909991417
+            },
+            "end": {
+              "x": -19.97480620793764,
+              "y": 5.7975795038007405
+            },
+            "radius": 8.000000572937775
+          }
+        }
+      ],
+      "hurtboxes": [
+        {
+          "id": "item_carry.0.hip",
+          "capsule": {
+            "start": {
+              "x": -3.5345136130607213,
+              "y": 3.7284435629815427
+            },
+            "end": {
+              "x": -5.375192414347351,
+              "y": 10.042707067401423
+            },
+            "radius": 16.000000530830714
+          },
+          "offsetX": -4.454853013704036,
+          "offsetY": 6.885575315191483,
+          "width": 33.84067986294806,
+          "height": 38.314264566081306
+        },
+        {
+          "id": "item_carry.1.head",
+          "capsule": {
+            "start": {
+              "x": 2.4973437803665415,
+              "y": -13.111309719597301
+            },
+            "end": {
+              "x": 0.036954337314950084,
+              "y": -14.569785741889142
+            },
+            "radius": 15.499999976061687
+          },
+          "offsetX": 1.2671490588407457,
+          "offsetY": -13.840547730743221,
+          "width": 33.460389395174964,
+          "height": 32.458475974415215
+        },
+        {
+          "id": "item_carry.2.shoulderr",
+          "capsule": {
+            "start": {
+              "x": -5.449963309696276,
+              "y": -3.288101543507331
+            },
+            "end": {
+              "x": -1.3197268631777828,
+              "y": 3.55926249590582
+            },
+            "radius": 4.500000009639505
+          },
+          "offsetX": -3.3848450864370294,
+          "offsetY": 0.13558047619924452,
+          "width": 13.130236465797504,
+          "height": 15.847364058692161
+        },
+        {
+          "id": "item_carry.3.shoulderl",
+          "capsule": {
+            "start": {
+              "x": 10.899928409666975,
+              "y": -3.6850040593654043
+            },
+            "end": {
+              "x": 12.040721255470908,
+              "y": 3.120468253743507
+            },
+            "radius": 4.500000339196466
+          },
+          "offsetX": 11.470324832568942,
+          "offsetY": -0.2822679028109487,
+          "width": 10.140793524196864,
+          "height": 15.805472991501842
+        },
+        {
+          "id": "item_carry.4.armr",
+          "capsule": {
+            "start": {
+              "x": -0.023968506132574507,
+              "y": 5.707451659574492
+            },
+            "end": {
+              "x": 3.5513867975133073,
+              "y": 7.393223873489255
+            },
+            "radius": 2.500000071582666
+          },
+          "offsetX": 1.7637091456903664,
+          "offsetY": 6.550337766531873,
+          "width": 8.575355446811214,
+          "height": 6.685772357080095
+        },
+        {
+          "id": "item_carry.5.arml",
+          "capsule": {
+            "start": {
+              "x": 12.398652169285079,
+              "y": 5.255727896129759
+            },
+            "end": {
+              "x": 10.520149524298894,
+              "y": 7.445912488616283
+            },
+            "radius": 2.5000002018808374
+          },
+          "offsetX": 11.459400846791986,
+          "offsetY": 6.350820192373021,
+          "width": 6.878503048747859,
+          "height": 7.190184996248199
+        },
+        {
+          "id": "item_carry.6.legr",
+          "capsule": {
+            "start": {
+              "x": -11.129464070506677,
+              "y": 11.046822796525259
+            },
+            "end": {
+              "x": -8.337881209773174,
+              "y": 14.558769196030356
+            },
+            "radius": 9.000000374459985
+          },
+          "offsetX": -9.733672640139925,
+          "offsetY": 12.802795996277808,
+          "width": 20.791583609653472,
+          "height": 21.511947148425065
+        },
+        {
+          "id": "item_carry.7.legl",
+          "capsule": {
+            "start": {
+              "x": 5.003460707655771,
+              "y": 11.046890871814119
+            },
+            "end": {
+              "x": 10.478909541663226,
+              "y": 14.548271375466628
+            },
+            "radius": 9.00000012496594
+          },
+          "offsetX": 7.7411851246594985,
+          "offsetY": 12.797581123640374,
+          "width": 23.475449083939335,
+          "height": 21.50138075358439
+        },
+        {
+          "id": "item_carry.8.kneer",
+          "capsule": {
+            "start": {
+              "x": -7.33524427161446,
+              "y": 15.820135009134717
+            },
+            "end": {
+              "x": -11.461523107283007,
+              "y": 21.611958819270328
+            },
+            "radius": 5.000000646881212
+          },
+          "offsetX": -9.398383689448734,
+          "offsetY": 18.716046914202522,
+          "width": 14.12628012943097,
+          "height": 15.791825103898034
+        },
+        {
+          "id": "item_carry.9.kneel",
+          "capsule": {
+            "start": {
+              "x": 12.445495356182604,
+              "y": 15.805842295854188
+            },
+            "end": {
+              "x": 5.721012439990502,
+              "y": 21.58832239901492
+            },
+            "radius": 5.000000296392107
+          },
+          "offsetX": 9.083253898086554,
+          "offsetY": 18.697082347434552,
+          "width": 16.724483508976316,
+          "height": 15.782480695944948
+        },
+        {
+          "id": "item_carry.10.tail1",
+          "capsule": {
+            "start": {
+              "x": -22.77165533296276,
+              "y": 10.392690153149848
+            },
+            "end": {
+              "x": -12.820442051976153,
+              "y": 15.244022477433735
+            },
+            "radius": 6.999999832618037
+          },
+          "offsetX": -17.796048692469455,
+          "offsetY": 12.81835631529179,
+          "width": 23.95121294622268,
+          "height": 18.85133198951996
+        },
+        {
+          "id": "item_carry.11.tail3",
+          "capsule": {
+            "start": {
+              "x": -28.101999282907677,
+              "y": 1.1775212909991417
+            },
+            "end": {
+              "x": -19.97480620793764,
+              "y": 5.7975795038007405
+            },
+            "radius": 8.000000572937775
+          },
+          "offsetX": -24.03840274542266,
+          "offsetY": 3.487550397399941,
+          "width": 24.12719422084559,
+          "height": 20.62005935867715
+        }
+      ],
+      "sourceHaveBODYCENTRE": {
+        "x": 12.764013275718053,
+        "y": -7.425479100261974
+      },
+      "authoredGeometryAdaptation": {
+        "kind": "local undersideflex",
+        "originalArtBand": [
+          407,
+          418
+        ],
+        "targetArtBand": [
+          407,
+          417
+        ],
+        "maxDisplacementWorldPx": 0.4666666666666667
+      },
+      "sourceDeclaration": {
+        "game_script": "game_waititem",
+        "flags": {
+          "turn": false,
+          "loop": true,
+          "move": false,
+          "fix_trans": false,
+          "fix_rot": false,
+          "fix_scale": false,
+          "unk_40": false,
+          "unk_80": false,
+          "unk_100": false,
+          "unk_200": false,
+          "unk_400": false,
+          "unk_800": false,
+          "unk_1000": false,
+          "unk_2000": false
+        },
+        "blend_frames": 6,
+        "animations": [
+          {
+            "name": "a00waititem.nuanmb",
+            "unk": 0
+          }
+        ],
+        "scripts": [
+          "expression_waititem",
+          "sound_waititem",
+          "effect_waititem"
+        ],
+        "extra": {
+          "xlu_start": 0,
+          "xlu_end": 0,
+          "cancel_frame": 0,
+          "no_stop_intp": false
+        }
+      }
+    },
+    {
+      "nativeSample": 79,
+      "sourceIdleArtFrameIndex": 3,
+      "sourceIdleCellSha256": "814816632c72db590312b688732dd924b2330cc753de7ceb7e610c95437b82f8",
+      "sourceIdleAlpha32Bounds": [
+        150,
+        281,
+        291,
+        417
+      ],
+      "nativeGuide": "docs/review/2026-10-06/pikachu-character/sources/item-native-review/wait_item-native79-reference.png",
+      "nativeGuideSha256": "797ded0020311a56720d2e16f90b4aaacbd4e26166849866c99e99214af6a520",
+      "review": "docs/review/2026-10-06/pikachu-character/art/completion-states-items/carry-source-review/native79-paired-review.png",
+      "reviewSha256": "a6f4804b3acdf443f9e824e6d3bcafaa5817d98f40cf6f1deb911fdcea6d8dab",
+      "sourceHurtboxes": [
+        {
+          "id": "item_carry.0.hip",
+          "capsule": {
+            "start": {
+              "x": -3.9251346271918672,
+              "y": 3.787969362454806
+            },
+            "end": {
+              "x": -6.065093106148719,
+              "y": 10.030613415048323
+            },
+            "radius": 16.000000138452037
+          }
+        },
+        {
+          "id": "item_carry.1.head",
+          "capsule": {
+            "start": {
+              "x": 1.9902593128043868,
+              "y": -13.26356955883022
+            },
+            "end": {
+              "x": -0.45527198513055744,
+              "y": -14.659004862320444
+            },
+            "radius": 15.499999593390854
+          }
+        },
+        {
+          "id": "item_carry.2.shoulderr",
+          "capsule": {
+            "start": {
+              "x": -6.1463169936588935,
+              "y": -3.778874572950791
+            },
+            "end": {
+              "x": -2.0789487355104446,
+              "y": 3.1050705032434642
+            },
+            "radius": 4.500000121886501
+          }
+        },
+        {
+          "id": "item_carry.3.shoulderl",
+          "capsule": {
+            "start": {
+              "x": 10.56316074273013,
+              "y": -3.562182940414381
+            },
+            "end": {
+              "x": 11.507452629848975,
+              "y": 3.0580905830858782
+            },
+            "radius": 4.499999950654388
+          }
+        },
+        {
+          "id": "item_carry.4.armr",
+          "capsule": {
+            "start": {
+              "x": -0.8029136997635711,
+              "y": 5.264736052037364
+            },
+            "end": {
+              "x": 2.7566963404125504,
+              "y": 6.868192884636866
+            },
+            "radius": 2.5000001672250516
+          }
+        },
+        {
+          "id": "item_carry.5.arml",
+          "capsule": {
+            "start": {
+              "x": 11.80373013483768,
+              "y": 5.135242943115191
+            },
+            "end": {
+              "x": 9.859881716797357,
+              "y": 7.192184223155095
+            },
+            "radius": 2.5000000306814747
+          }
+        },
+        {
+          "id": "item_carry.6.legr",
+          "capsule": {
+            "start": {
+              "x": -10.983671241224888,
+              "y": 11.122208056412457
+            },
+            "end": {
+              "x": -7.842929521159156,
+              "y": 14.887626690450052
+            },
+            "radius": 8.99999972057891
+          }
+        },
+        {
+          "id": "item_carry.7.legl",
+          "capsule": {
+            "start": {
+              "x": 3.935295530971258,
+              "y": 11.12220011050362
+            },
+            "end": {
+              "x": 9.989682853319124,
+              "y": 13.756695238697201
+            },
+            "radius": 8.999999598586992
+          }
+        },
+        {
+          "id": "item_carry.8.kneer",
+          "capsule": {
+            "start": {
+              "x": -6.714887181435585,
+              "y": 16.240030684335164
+            },
+            "end": {
+              "x": -11.355667046902141,
+              "y": 21.764880363130025
+            },
+            "radius": 4.9999999772208295
+          }
+        },
+        {
+          "id": "item_carry.9.kneel",
+          "capsule": {
+            "start": {
+              "x": 12.164202711816458,
+              "y": 14.70291186944124
+            },
+            "end": {
+              "x": 5.671635483484094,
+              "y": 21.48088673501675
+            },
+            "radius": 4.999999909447538
+          }
+        },
+        {
+          "id": "item_carry.10.tail1",
+          "capsule": {
+            "start": {
+              "x": -24.414344787235315,
+              "y": 9.524782776221139
+            },
+            "end": {
+              "x": -14.3857742266884,
+              "y": 14.947986173408525
+            },
+            "radius": 6.999999930743269
+          }
+        },
+        {
+          "id": "item_carry.11.tail3",
+          "capsule": {
+            "start": {
+              "x": -29.4568762870413,
+              "y": 0.031536935987993786
+            },
+            "end": {
+              "x": -21.377076529212566,
+              "y": 4.976483599805132
+            },
+            "radius": 8.000000481489867
+          }
+        }
+      ],
+      "hurtboxes": [
+        {
+          "id": "item_carry.0.hip",
+          "capsule": {
+            "start": {
+              "x": -3.9251346271918672,
+              "y": 3.787969362454806
+            },
+            "end": {
+              "x": -6.065093106148719,
+              "y": 10.030613415048323
+            },
+            "radius": 16.000000138452037
+          },
+          "offsetX": -4.995113866670293,
+          "offsetY": 6.909291388751565,
+          "width": 34.139958755860924,
+          "height": 38.242644329497594
+        },
+        {
+          "id": "item_carry.1.head",
+          "capsule": {
+            "start": {
+              "x": 1.9902593128043868,
+              "y": -13.26356955883022
+            },
+            "end": {
+              "x": -0.45527198513055744,
+              "y": -14.659004862320444
+            },
+            "radius": 15.499999593390854
+          },
+          "offsetX": 0.7674936638369148,
+          "offsetY": -13.961287210575332,
+          "width": 33.44553048471665,
+          "height": 32.39543449027193
+        },
+        {
+          "id": "item_carry.2.shoulderr",
+          "capsule": {
+            "start": {
+              "x": -6.1463169936588935,
+              "y": -3.778874572950791
+            },
+            "end": {
+              "x": -2.0789487355104446,
+              "y": 3.1050705032434642
+            },
+            "radius": 4.500000121886501
+          },
+          "offsetX": -4.112632864584669,
+          "offsetY": -0.3369020348536633,
+          "width": 13.06736850192145,
+          "height": 15.883945319967257
+        },
+        {
+          "id": "item_carry.3.shoulderl",
+          "capsule": {
+            "start": {
+              "x": 10.56316074273013,
+              "y": -3.562182940414381
+            },
+            "end": {
+              "x": 11.507452629848975,
+              "y": 3.0580905830858782
+            },
+            "radius": 4.499999950654388
+          },
+          "offsetX": 11.035306686289552,
+          "offsetY": -0.2520461786642514,
+          "width": 9.944291788427622,
+          "height": 15.620273424809035
+        },
+        {
+          "id": "item_carry.4.armr",
+          "capsule": {
+            "start": {
+              "x": -0.8029136997635711,
+              "y": 5.264736052037364
+            },
+            "end": {
+              "x": 2.7566963404125504,
+              "y": 6.868192884636866
+            },
+            "radius": 2.5000001672250516
+          },
+          "offsetX": 0.9768913203244897,
+          "offsetY": 6.066464468337115,
+          "width": 8.559610374626224,
+          "height": 6.603457167049605
+        },
+        {
+          "id": "item_carry.5.arml",
+          "capsule": {
+            "start": {
+              "x": 11.80373013483768,
+              "y": 5.135242943115191
+            },
+            "end": {
+              "x": 9.859881716797357,
+              "y": 7.192184223155095
+            },
+            "radius": 2.5000000306814747
+          },
+          "offsetX": 10.83180592581752,
+          "offsetY": 6.163713583135143,
+          "width": 6.943848479403273,
+          "height": 7.056941341402854
+        },
+        {
+          "id": "item_carry.6.legr",
+          "capsule": {
+            "start": {
+              "x": -10.983671241224888,
+              "y": 11.122208056412457
+            },
+            "end": {
+              "x": -7.842929521159156,
+              "y": 14.887626690450052
+            },
+            "radius": 8.99999972057891
+          },
+          "offsetX": -9.413300381192022,
+          "offsetY": 13.004917373431255,
+          "width": 21.140741161223552,
+          "height": 21.765418075195413
+        },
+        {
+          "id": "item_carry.7.legl",
+          "capsule": {
+            "start": {
+              "x": 3.935295530971258,
+              "y": 11.12220011050362
+            },
+            "end": {
+              "x": 9.989682853319124,
+              "y": 13.756695238697201
+            },
+            "radius": 8.999999598586992
+          },
+          "offsetX": 6.962489192145191,
+          "offsetY": 12.43944767460041,
+          "width": 24.05438651952185,
+          "height": 20.634494325367566
+        },
+        {
+          "id": "item_carry.8.kneer",
+          "capsule": {
+            "start": {
+              "x": -6.714887181435585,
+              "y": 16.240030684335164
+            },
+            "end": {
+              "x": -11.355667046902141,
+              "y": 21.677163966481835
+            },
+            "radius": 4.9999999772208295
+          },
+          "offsetX": -9.035277114168863,
+          "offsetY": 18.958597325408498,
+          "width": 14.640779819908214,
+          "height": 15.43713323658833
+        },
+        {
+          "id": "item_carry.9.kneel",
+          "capsule": {
+            "start": {
+              "x": 12.164202711816458,
+              "y": 14.70291186944124
+            },
+            "end": {
+              "x": 5.671635483484094,
+              "y": 21.418987940924342
+            },
+            "radius": 4.999999909447538
+          },
+          "offsetX": 8.917919097650277,
+          "offsetY": 18.06094990518279,
+          "width": 16.49256704722744,
+          "height": 16.71607589037818
+        },
+        {
+          "id": "item_carry.10.tail1",
+          "capsule": {
+            "start": {
+              "x": -24.414344787235315,
+              "y": 9.524782776221139
+            },
+            "end": {
+              "x": -14.3857742266884,
+              "y": 14.947986173408525
+            },
+            "radius": 6.999999930743269
+          },
+          "offsetX": -19.400059506961856,
+          "offsetY": 12.236384474814832,
+          "width": 24.028570422033454,
+          "height": 19.423203258673922
+        },
+        {
+          "id": "item_carry.11.tail3",
+          "capsule": {
+            "start": {
+              "x": -29.4568762870413,
+              "y": 0.031536935987993786
+            },
+            "end": {
+              "x": -21.377076529212566,
+              "y": 4.976483599805132
+            },
+            "radius": 8.000000481489867
+          },
+          "offsetX": -25.416976408126935,
+          "offsetY": 2.504010267896563,
+          "width": 24.079800720808468,
+          "height": 20.94494762679687
+        }
+      ],
+      "sourceHaveBODYCENTRE": {
+        "x": 12.189675816920381,
+        "y": -7.84071400772487
+      },
+      "authoredGeometryAdaptation": {
+        "kind": "local undersideflex",
+        "originalArtBand": [
+          407,
+          418
+        ],
+        "targetArtBand": [
+          407,
+          417
+        ],
+        "maxDisplacementWorldPx": 0.4666666666666667
+      },
+      "sourceDeclaration": {
+        "game_script": "game_waititem",
+        "flags": {
+          "turn": false,
+          "loop": true,
+          "move": false,
+          "fix_trans": false,
+          "fix_rot": false,
+          "fix_scale": false,
+          "unk_40": false,
+          "unk_80": false,
+          "unk_100": false,
+          "unk_200": false,
+          "unk_400": false,
+          "unk_800": false,
+          "unk_1000": false,
+          "unk_2000": false
+        },
+        "blend_frames": 6,
+        "animations": [
+          {
+            "name": "a00waititem.nuanmb",
+            "unk": 0
+          }
+        ],
+        "scripts": [
+          "expression_waititem",
+          "sound_waititem",
+          "effect_waititem"
+        ],
+        "extra": {
+          "xlu_start": 0,
+          "xlu_end": 0,
+          "cancel_frame": 0,
+          "no_stop_intp": false
+        }
+      }
+    },
+    {
+      "nativeSample": 106,
+      "sourceIdleArtFrameIndex": 4,
+      "sourceIdleCellSha256": "8abc13a69eb2d67f6ad20f15cb1d742242181cf721e5eb0fca56830bd8f22b05",
+      "sourceIdleAlpha32Bounds": [
+        150,
+        278,
+        291,
+        417
+      ],
+      "nativeGuide": "docs/review/2026-10-06/pikachu-character/sources/item-native-review/wait_item-native106-reference.png",
+      "nativeGuideSha256": "4861e6c2bc7c29b59115587a8228cf6b5eb1c644cf78eabe74b04e712933fc26",
+      "review": "docs/review/2026-10-06/pikachu-character/art/completion-states-items/carry-source-review/native106-paired-review.png",
+      "reviewSha256": "c4dcf17294b85aa41d1f21d09bc816e10ce89007d42a467dd55b72bb8d6cb2d9",
+      "sourceHurtboxes": [
+        {
+          "id": "item_carry.0.hip",
+          "capsule": {
+            "start": {
+              "x": -3.7223062751040743,
+              "y": 3.681200742155543
+            },
+            "end": {
+              "x": -5.729675312140853,
+              "y": 9.938558244357518
+            },
+            "radius": 16.00000021887328
+          }
+        },
+        {
+          "id": "item_carry.1.head",
+          "capsule": {
+            "start": {
+              "x": 2.4871878378370185,
+              "y": -13.42679276523392
+            },
+            "end": {
+              "x": 0.03173632993738171,
+              "y": -14.762662271868187
+            },
+            "radius": 15.49999968783209
+          }
+        },
+        {
+          "id": "item_carry.2.shoulderr",
+          "capsule": {
+            "start": {
+              "x": -5.461927843071037,
+              "y": -4.1185003980357
+            },
+            "end": {
+              "x": -1.504314072352528,
+              "y": 2.8245832274544966
+            },
+            "radius": 4.500000083374144
+          }
+        },
+        {
+          "id": "item_carry.3.shoulderl",
+          "capsule": {
+            "start": {
+              "x": 11.069327458984002,
+              "y": -3.738148447856247
+            },
+            "end": {
+              "x": 11.630065109713675,
+              "y": 2.9478009656380166
+            },
+            "radius": 4.500000196888826
+          }
+        },
+        {
+          "id": "item_carry.4.armr",
+          "capsule": {
+            "start": {
+              "x": -0.26271176125763795,
+              "y": 5.002802016593346
+            },
+            "end": {
+              "x": 3.2971080871521523,
+              "y": 6.522252719484605
+            },
+            "radius": 2.5000001559393996
+          }
+        },
+        {
+          "id": "item_carry.5.arml",
+          "capsule": {
+            "start": {
+              "x": 11.806000066243174,
+              "y": 5.04555954826732
+            },
+            "end": {
+              "x": 9.833393927680534,
+              "y": 7.158486025446329
+            },
+            "radius": 2.5000001352279493
+          }
+        },
+        {
+          "id": "item_carry.6.legr",
+          "capsule": {
+            "start": {
+              "x": -11.125611211441285,
+              "y": 11.012516937424177
+            },
+            "end": {
+              "x": -8.164683014164106,
+              "y": 14.596559643269313
+            },
+            "radius": 8.999999786382787
+          }
+        },
+        {
+          "id": "item_carry.7.legl",
+          "capsule": {
+            "start": {
+              "x": 4.486611288755259,
+              "y": 11.012645791068412
+            },
+            "end": {
+              "x": 10.247058966674075,
+              "y": 14.102994125174156
+            },
+            "radius": 8.999999703577126
+          }
+        },
+        {
+          "id": "item_carry.8.kneer",
+          "capsule": {
+            "start": {
+              "x": -7.101223274679338,
+              "y": 15.883819876653332
+            },
+            "end": {
+              "x": -11.421485800250945,
+              "y": 21.704218628815212
+            },
+            "radius": 4.999999996220371
+          }
+        },
+        {
+          "id": "item_carry.9.kneel",
+          "capsule": {
+            "start": {
+              "x": 12.316006194948148,
+              "y": 15.212936959089362
+            },
+            "end": {
+              "x": 5.697949542351398,
+              "y": 21.566812344106673
+            },
+            "radius": 4.999999967775391
+          }
+        },
+        {
+          "id": "item_carry.10.tail1",
+          "capsule": {
+            "start": {
+              "x": -23.786796877264308,
+              "y": 9.450992963315104
+            },
+            "end": {
+              "x": -13.595591848650969,
+              "y": 14.91336208403994
+            },
+            "radius": 6.9999999251124665
+          }
+        },
+        {
+          "id": "item_carry.11.tail3",
+          "capsule": {
+            "start": {
+              "x": -28.994747586001644,
+              "y": -0.036052956189138285
+            },
+            "end": {
+              "x": -20.76710596823508,
+              "y": 4.769591999849791
+            },
+            "radius": 8.000000510615314
+          }
+        }
+      ],
+      "hurtboxes": [
+        {
+          "id": "item_carry.0.hip",
+          "capsule": {
+            "start": {
+              "x": -3.7223062751040743,
+              "y": 3.681200742155543
+            },
+            "end": {
+              "x": -5.729675312140853,
+              "y": 9.938558244357518
+            },
+            "radius": 16.00000021887328
+          },
+          "offsetX": -4.725990793622463,
+          "offsetY": 6.80987949325653,
+          "width": 34.00736947478334,
+          "height": 38.257357939948534
+        },
+        {
+          "id": "item_carry.1.head",
+          "capsule": {
+            "start": {
+              "x": 2.4871878378370185,
+              "y": -13.42679276523392
+            },
+            "end": {
+              "x": 0.03173632993738171,
+              "y": -14.762662271868187
+            },
+            "radius": 15.49999968783209
+          },
+          "offsetX": 1.2594620838872002,
+          "offsetY": -14.094727518551053,
+          "width": 33.45545088356382,
+          "height": 32.33586888229845
+        },
+        {
+          "id": "item_carry.2.shoulderr",
+          "capsule": {
+            "start": {
+              "x": -5.461927843071037,
+              "y": -4.1185003980357
+            },
+            "end": {
+              "x": -1.504314072352528,
+              "y": 2.8245832274544966
+            },
+            "radius": 4.500000083374144
+          },
+          "offsetX": -3.4831209577117823,
+          "offsetY": -0.6469585852906015,
+          "width": 12.957613937466798,
+          "height": 15.943083792238484
+        },
+        {
+          "id": "item_carry.3.shoulderl",
+          "capsule": {
+            "start": {
+              "x": 11.069327458984002,
+              "y": -3.738148447856247
+            },
+            "end": {
+              "x": 11.630065109713675,
+              "y": 2.9478009656380166
+            },
+            "radius": 4.500000196888826
+          },
+          "offsetX": 11.349696284348838,
+          "offsetY": -0.3951737411091152,
+          "width": 9.560738044507325,
+          "height": 15.685949807271916
+        },
+        {
+          "id": "item_carry.4.armr",
+          "capsule": {
+            "start": {
+              "x": -0.26271176125763795,
+              "y": 5.002802016593346
+            },
+            "end": {
+              "x": 3.2971080871521523,
+              "y": 6.522252719484605
+            },
+            "radius": 2.5000001559393996
+          },
+          "offsetX": 1.517198162947257,
+          "offsetY": 5.762527368038976,
+          "width": 8.55982016028859,
+          "height": 6.519451014770058
+        },
+        {
+          "id": "item_carry.5.arml",
+          "capsule": {
+            "start": {
+              "x": 11.806000066243174,
+              "y": 5.04555954826732
+            },
+            "end": {
+              "x": 9.833393927680534,
+              "y": 7.158486025446329
+            },
+            "radius": 2.5000001352279493
+          },
+          "offsetX": 10.819696996961854,
+          "offsetY": 6.102022786856825,
+          "width": 6.972606409018538,
+          "height": 7.112926747634908
+        },
+        {
+          "id": "item_carry.6.legr",
+          "capsule": {
+            "start": {
+              "x": -11.125611211441285,
+              "y": 11.012516937424177
+            },
+            "end": {
+              "x": -8.164683014164106,
+              "y": 14.596559643269313
+            },
+            "radius": 8.999999786382787
+          },
+          "offsetX": -9.645147112802697,
+          "offsetY": 12.804538290346745,
+          "width": 20.96092777004275,
+          "height": 21.58404227861071
+        },
+        {
+          "id": "item_carry.7.legl",
+          "capsule": {
+            "start": {
+              "x": 4.486611288755259,
+              "y": 11.012645791068412
+            },
+            "end": {
+              "x": 10.247058966674075,
+              "y": 14.102994125174156
+            },
+            "radius": 8.999999703577126
+          },
+          "offsetX": 7.366835127714667,
+          "offsetY": 12.557819958121284,
+          "width": 23.760447085073068,
+          "height": 21.090347741259997
+        },
+        {
+          "id": "item_carry.8.kneer",
+          "capsule": {
+            "start": {
+              "x": -7.101223274679338,
+              "y": 15.883819876653332
+            },
+            "end": {
+              "x": -11.421485800250945,
+              "y": 21.622016935286542
+            },
+            "radius": 4.999999996220371
+          },
+          "offsetX": -9.261354537465142,
+          "offsetY": 18.752918405969936,
+          "width": 14.320262518012349,
+          "height": 15.738197051073952
+        },
+        {
+          "id": "item_carry.9.kneel",
+          "capsule": {
+            "start": {
+              "x": 12.316006194948148,
+              "y": 15.212936959089362
+            },
+            "end": {
+              "x": 5.697949542351398,
+              "y": 21.497102131006073
+            },
+            "radius": 4.999999967775391
+          },
+          "offsetX": 9.006977868649773,
+          "offsetY": 18.355019545047718,
+          "width": 16.61805658814753,
+          "height": 16.284165107467494
+        },
+        {
+          "id": "item_carry.10.tail1",
+          "capsule": {
+            "start": {
+              "x": -23.786796877264308,
+              "y": 9.450992963315104
+            },
+            "end": {
+              "x": -13.595591848650969,
+              "y": 14.91336208403994
+            },
+            "radius": 6.9999999251124665
+          },
+          "offsetX": -18.69119436295764,
+          "offsetY": 12.182177523677522,
+          "width": 24.19120487883827,
+          "height": 19.46236897094977
+        },
+        {
+          "id": "item_carry.11.tail3",
+          "capsule": {
+            "start": {
+              "x": -28.994747586001644,
+              "y": -0.036052956189138285
+            },
+            "end": {
+              "x": -20.76710596823508,
+              "y": 4.769591999849791
+            },
+            "radius": 8.000000510615314
+          },
+          "offsetX": -24.88092677711836,
+          "offsetY": 2.366769521830326,
+          "width": 24.227642638997192,
+          "height": 20.805645977269556
+        }
+      ],
+      "sourceHaveBODYCENTRE": {
+        "x": 12.731909299052266,
+        "y": -8.252040636465779
+      },
+      "authoredGeometryAdaptation": {
+        "kind": "local undersideflex",
+        "originalArtBand": [
+          407,
+          418
+        ],
+        "targetArtBand": [
+          407,
+          417
+        ],
+        "maxDisplacementWorldPx": 0.4666666666666667
+      },
+      "sourceDeclaration": {
+        "game_script": "game_waititem",
+        "flags": {
+          "turn": false,
+          "loop": true,
+          "move": false,
+          "fix_trans": false,
+          "fix_rot": false,
+          "fix_scale": false,
+          "unk_40": false,
+          "unk_80": false,
+          "unk_100": false,
+          "unk_200": false,
+          "unk_400": false,
+          "unk_800": false,
+          "unk_1000": false,
+          "unk_2000": false
+        },
+        "blend_frames": 6,
+        "animations": [
+          {
+            "name": "a00waititem.nuanmb",
+            "unk": 0
+          }
+        ],
+        "scripts": [
+          "expression_waititem",
+          "sound_waititem",
+          "effect_waititem"
+        ],
+        "extra": {
+          "xlu_start": 0,
+          "xlu_end": 0,
+          "cancel_frame": 0,
+          "no_stop_intp": false
+        }
+      }
+    }
+  ],
+  "limits": [
+    "Explicit authored reuse of source-near-identical idle art; not a generic runtime alias or native bitmap parity.",
+    "Genuine WaitItem source twelve receiving regions and source Have are recomputed for every sparse sample.",
+    "Native loop106 excludes endpoint106; endpoint remains source-only in pack.",
+    "Source Have is authored beta mouth socket; item node/orientation remains unresolved.",
+    "Actual running-match acceptance pending."
+  ],
+  "actualVisualReview": {
+    "reviewer": "state_art_completion",
+    "notes": "Actually inspected all five WaitItem native guide/corrected authored body/source12caps+Have panels and the saved separate five-cell item_carry PNG. Upright mouth/cheek/ears/tail/paws and native breathing differences match the source pose. Separate source-matched authored bitmap reuse is explicitly qualified; native bitmap parity is not claimed. All new bitmap cells are byte-exact copies of corrected accepted drawings, roots/clocks/caps/radii preserved except documented lower-endpoint beta adaptation. Native loop106 endpoint source-only; actual match qualification pending.",
+    "images": [
+      {
+        "sheet": "item_carry",
+        "file": "docs/review/2026-10-06/pikachu-character/art/completion-states-items/carry-source-review/native0-paired-review.png",
+        "sha256": "f56a4ff79a370e648b2983312efcd1f4af7b5b78de46298a7f53de9cc7352993"
+      },
+      {
+        "sheet": "item_carry",
+        "file": "docs/review/2026-10-06/pikachu-character/art/completion-states-items/carry-source-review/native26-paired-review.png",
+        "sha256": "0345657960d5c4bf24786cfd9257513c619332c323f75c526573b71f328e668b"
+      },
+      {
+        "sheet": "item_carry",
+        "file": "docs/review/2026-10-06/pikachu-character/art/completion-states-items/carry-source-review/native53-paired-review.png",
+        "sha256": "2582ac403878dbcf275003d98232b463517902666722d97605b9752c8f55aa50"
+      },
+      {
+        "sheet": "item_carry",
+        "file": "docs/review/2026-10-06/pikachu-character/art/completion-states-items/carry-source-review/native79-paired-review.png",
+        "sha256": "a6f4804b3acdf443f9e824e6d3bcafaa5817d98f40cf6f1deb911fdcea6d8dab"
+      },
+      {
+        "sheet": "item_carry",
+        "file": "docs/review/2026-10-06/pikachu-character/art/completion-states-items/carry-source-review/native106-paired-review.png",
+        "sha256": "c4dcf17294b85aa41d1f21d09bc816e10ce89007d42a467dd55b72bb8d6cb2d9"
+      }
+    ],
+    "runtimeQualified": false
+  }
+}

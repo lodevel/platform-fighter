@@ -1,0 +1,1395 @@
+{
+  "url": "http://127.0.0.1:4186/platform-fighter/",
+  "scope": "Actual stages/results screens with three-player configuration and result-payload fixtures; deterministic display clock. No played-match or DOM-input claim.",
+  "diagnosticLimit": "Preserved build __menu.presentation returns selected draws with decoded resource status; candidate returns the last actual submitted textured quads. Exact common drawing fields are compared.",
+  "harnessSha256": "0b739f65a8607266341c05d8358c53471de644d1ba7573eaf9f6fdb8ecb6c67e",
+  "errors": [],
+  "rows": [
+    {
+      "key": "stages-flat",
+      "samples": [
+        {
+          "elapsed": 0,
+          "draws": [
+            {
+              "key": "char.donkeykong.idle",
+              "frame": 0,
+              "x": 665,
+              "y": 930,
+              "depth": 0,
+              "tint": 16770772,
+              "recolor": [
+                {
+                  "key": [
+                    0.06277056277056274,
+                    0.6875,
+                    0.4392156862745098
+                  ],
+                  "tolerance": [
+                    0.03,
+                    0.35,
+                    0.3
+                  ],
+                  "hueShift": -0.08072916666666667,
+                  "saturationRatio": 1.172036082474227,
+                  "valueRatio": 1.8130841121495327
+                }
+              ],
+              "originX": 0.42857142857142855,
+              "originY": 0.9758064516129032,
+              "scaleX": 0.4666667,
+              "scaleY": 0.4666667,
+              "flipX": false,
+              "loaded": true,
+              "frameWidth": 224,
+              "frameHeight": 248
+            },
+            {
+              "key": "char.pikachu.idle",
+              "frame": 0,
+              "x": 842,
+              "y": 930,
+              "depth": 1,
+              "tint": 16770772,
+              "recolor": [
+                {
+                  "key": [
+                    0.1384615384615384,
+                    0.8125,
+                    0.9411764705882353
+                  ],
+                  "tolerance": [
+                    0.04,
+                    0.4,
+                    0.45
+                  ],
+                  "hueShift": 0.4463037738779314,
+                  "saturationRatio": 0.7470177156592184,
+                  "valueRatio": 0.9755102040816326
+                },
+                {
+                  "key": [
+                    0.03333333333333336,
+                    0.7352941176470588,
+                    0.4
+                  ],
+                  "tolerance": [
+                    0.04,
+                    0.35,
+                    0.25
+                  ],
+                  "hueShift": 0.5399301955905729,
+                  "saturationRatio": 1.008076043453402,
+                  "valueRatio": 0.8516129032258066
+                }
+              ],
+              "originX": 0.5,
+              "originY": 0.8125,
+              "scaleX": 0.4666666666666667,
+              "scaleY": 0.4666666666666667,
+              "flipX": false,
+              "loaded": true,
+              "frameWidth": 512,
+              "frameHeight": 512
+            },
+            {
+              "key": "char.link.idle",
+              "frame": 0,
+              "x": 1078,
+              "y": 930,
+              "depth": 2,
+              "tint": 16770772,
+              "recolor": [
+                {
+                  "key": [
+                    0.3163265306122449,
+                    0.6533333333333333,
+                    0.5882352941176471
+                  ],
+                  "tolerance": [
+                    0.04,
+                    0.35,
+                    0.35
+                  ],
+                  "hueShift": 0.42708595387840675,
+                  "saturationRatio": 1.1576958525345622,
+                  "valueRatio": 1.3734177215189873
+                },
+                {
+                  "key": [
+                    0.3333333333333333,
+                    0.9350649350649352,
+                    0.30196078431372547
+                  ],
+                  "tolerance": [
+                    0.05,
+                    0.3,
+                    0.2
+                  ],
+                  "hueShift": 0.42708595387840675,
+                  "saturationRatio": 1.1576958525345622,
+                  "valueRatio": 1.3734177215189873
+                }
+              ],
+              "originX": 0.44999999999999996,
+              "originY": 0.9583333333333334,
+              "scaleX": 0.4666667,
+              "scaleY": 0.4666667,
+              "flipX": true,
+              "loaded": true,
+              "frameWidth": 160,
+              "frameHeight": 216
+            }
+          ]
+        },
+        {
+          "elapsed": 40,
+          "draws": [
+            {
+              "key": "char.donkeykong.idle",
+              "frame": 3,
+              "x": 665,
+              "y": 930,
+              "depth": 0,
+              "tint": 16770772,
+              "recolor": [
+                {
+                  "key": [
+                    0.06277056277056274,
+                    0.6875,
+                    0.4392156862745098
+                  ],
+                  "tolerance": [
+                    0.03,
+                    0.35,
+                    0.3
+                  ],
+                  "hueShift": -0.08072916666666667,
+                  "saturationRatio": 1.172036082474227,
+                  "valueRatio": 1.8130841121495327
+                }
+              ],
+              "originX": 0.42857142857142855,
+              "originY": 0.9758064516129032,
+              "scaleX": 0.4666667,
+              "scaleY": 0.4666667,
+              "flipX": false,
+              "loaded": true,
+              "frameWidth": 224,
+              "frameHeight": 248
+            },
+            {
+              "key": "char.pikachu.idle",
+              "frame": 1,
+              "x": 842,
+              "y": 930,
+              "depth": 1,
+              "tint": 16770772,
+              "recolor": [
+                {
+                  "key": [
+                    0.1384615384615384,
+                    0.8125,
+                    0.9411764705882353
+                  ],
+                  "tolerance": [
+                    0.04,
+                    0.4,
+                    0.45
+                  ],
+                  "hueShift": 0.4463037738779314,
+                  "saturationRatio": 0.7470177156592184,
+                  "valueRatio": 0.9755102040816326
+                },
+                {
+                  "key": [
+                    0.03333333333333336,
+                    0.7352941176470588,
+                    0.4
+                  ],
+                  "tolerance": [
+                    0.04,
+                    0.35,
+                    0.25
+                  ],
+                  "hueShift": 0.5399301955905729,
+                  "saturationRatio": 1.008076043453402,
+                  "valueRatio": 0.8516129032258066
+                }
+              ],
+              "originX": 0.5,
+              "originY": 0.8125,
+              "scaleX": 0.4666666666666667,
+              "scaleY": 0.4666666666666667,
+              "flipX": false,
+              "loaded": true,
+              "frameWidth": 512,
+              "frameHeight": 512
+            },
+            {
+              "key": "char.link.idle",
+              "frame": 4,
+              "x": 1078,
+              "y": 930,
+              "depth": 2,
+              "tint": 16770772,
+              "recolor": [
+                {
+                  "key": [
+                    0.3163265306122449,
+                    0.6533333333333333,
+                    0.5882352941176471
+                  ],
+                  "tolerance": [
+                    0.04,
+                    0.35,
+                    0.35
+                  ],
+                  "hueShift": 0.42708595387840675,
+                  "saturationRatio": 1.1576958525345622,
+                  "valueRatio": 1.3734177215189873
+                },
+                {
+                  "key": [
+                    0.3333333333333333,
+                    0.9350649350649352,
+                    0.30196078431372547
+                  ],
+                  "tolerance": [
+                    0.05,
+                    0.3,
+                    0.2
+                  ],
+                  "hueShift": 0.42708595387840675,
+                  "saturationRatio": 1.1576958525345622,
+                  "valueRatio": 1.3734177215189873
+                }
+              ],
+              "originX": 0.44999999999999996,
+              "originY": 0.9583333333333334,
+              "scaleX": 0.4666667,
+              "scaleY": 0.4666667,
+              "flipX": true,
+              "loaded": true,
+              "frameWidth": 160,
+              "frameHeight": 216
+            }
+          ]
+        }
+      ],
+      "screenshots": [
+        "docs/review/2026-10-16/character-rendering-refactor/before-menus/stages-flat-0.png",
+        "docs/review/2026-10-16/character-rendering-refactor/before-menus/stages-flat-40.png"
+      ]
+    },
+    {
+      "key": "stages-lava",
+      "samples": [
+        {
+          "elapsed": 0,
+          "draws": [
+            {
+              "key": "char.donkeykong.idle",
+              "frame": 0,
+              "x": 614.4,
+              "y": 800,
+              "depth": 0,
+              "tint": 16767172,
+              "recolor": [
+                {
+                  "key": [
+                    0.06277056277056274,
+                    0.6875,
+                    0.4392156862745098
+                  ],
+                  "tolerance": [
+                    0.03,
+                    0.35,
+                    0.3
+                  ],
+                  "hueShift": -0.08072916666666667,
+                  "saturationRatio": 1.172036082474227,
+                  "valueRatio": 1.8130841121495327
+                }
+              ],
+              "originX": 0.42857142857142855,
+              "originY": 0.9758064516129032,
+              "scaleX": 0.4666667,
+              "scaleY": 0.4666667,
+              "flipX": false,
+              "loaded": true,
+              "frameWidth": 224,
+              "frameHeight": 248
+            },
+            {
+              "key": "char.pikachu.idle",
+              "frame": 0,
+              "x": 806.4,
+              "y": 800,
+              "depth": 1,
+              "tint": 16767172,
+              "recolor": [
+                {
+                  "key": [
+                    0.1384615384615384,
+                    0.8125,
+                    0.9411764705882353
+                  ],
+                  "tolerance": [
+                    0.04,
+                    0.4,
+                    0.45
+                  ],
+                  "hueShift": 0.4463037738779314,
+                  "saturationRatio": 0.7470177156592184,
+                  "valueRatio": 0.9755102040816326
+                },
+                {
+                  "key": [
+                    0.03333333333333336,
+                    0.7352941176470588,
+                    0.4
+                  ],
+                  "tolerance": [
+                    0.04,
+                    0.35,
+                    0.25
+                  ],
+                  "hueShift": 0.5399301955905729,
+                  "saturationRatio": 1.008076043453402,
+                  "valueRatio": 0.8516129032258066
+                }
+              ],
+              "originX": 0.5,
+              "originY": 0.8125,
+              "scaleX": 0.4666666666666667,
+              "scaleY": 0.4666666666666667,
+              "flipX": false,
+              "loaded": true,
+              "frameWidth": 512,
+              "frameHeight": 512
+            },
+            {
+              "key": "char.link.idle",
+              "frame": 0,
+              "x": 1113.6,
+              "y": 800,
+              "depth": 2,
+              "tint": 16767172,
+              "recolor": [
+                {
+                  "key": [
+                    0.3163265306122449,
+                    0.6533333333333333,
+                    0.5882352941176471
+                  ],
+                  "tolerance": [
+                    0.04,
+                    0.35,
+                    0.35
+                  ],
+                  "hueShift": 0.42708595387840675,
+                  "saturationRatio": 1.1576958525345622,
+                  "valueRatio": 1.3734177215189873
+                },
+                {
+                  "key": [
+                    0.3333333333333333,
+                    0.9350649350649352,
+                    0.30196078431372547
+                  ],
+                  "tolerance": [
+                    0.05,
+                    0.3,
+                    0.2
+                  ],
+                  "hueShift": 0.42708595387840675,
+                  "saturationRatio": 1.1576958525345622,
+                  "valueRatio": 1.3734177215189873
+                }
+              ],
+              "originX": 0.44999999999999996,
+              "originY": 0.9583333333333334,
+              "scaleX": 0.4666667,
+              "scaleY": 0.4666667,
+              "flipX": true,
+              "loaded": true,
+              "frameWidth": 160,
+              "frameHeight": 216
+            }
+          ]
+        },
+        {
+          "elapsed": 40,
+          "draws": [
+            {
+              "key": "char.donkeykong.idle",
+              "frame": 3,
+              "x": 614.4,
+              "y": 800,
+              "depth": 0,
+              "tint": 16767172,
+              "recolor": [
+                {
+                  "key": [
+                    0.06277056277056274,
+                    0.6875,
+                    0.4392156862745098
+                  ],
+                  "tolerance": [
+                    0.03,
+                    0.35,
+                    0.3
+                  ],
+                  "hueShift": -0.08072916666666667,
+                  "saturationRatio": 1.172036082474227,
+                  "valueRatio": 1.8130841121495327
+                }
+              ],
+              "originX": 0.42857142857142855,
+              "originY": 0.9758064516129032,
+              "scaleX": 0.4666667,
+              "scaleY": 0.4666667,
+              "flipX": false,
+              "loaded": true,
+              "frameWidth": 224,
+              "frameHeight": 248
+            },
+            {
+              "key": "char.pikachu.idle",
+              "frame": 1,
+              "x": 806.4,
+              "y": 800,
+              "depth": 1,
+              "tint": 16767172,
+              "recolor": [
+                {
+                  "key": [
+                    0.1384615384615384,
+                    0.8125,
+                    0.9411764705882353
+                  ],
+                  "tolerance": [
+                    0.04,
+                    0.4,
+                    0.45
+                  ],
+                  "hueShift": 0.4463037738779314,
+                  "saturationRatio": 0.7470177156592184,
+                  "valueRatio": 0.9755102040816326
+                },
+                {
+                  "key": [
+                    0.03333333333333336,
+                    0.7352941176470588,
+                    0.4
+                  ],
+                  "tolerance": [
+                    0.04,
+                    0.35,
+                    0.25
+                  ],
+                  "hueShift": 0.5399301955905729,
+                  "saturationRatio": 1.008076043453402,
+                  "valueRatio": 0.8516129032258066
+                }
+              ],
+              "originX": 0.5,
+              "originY": 0.8125,
+              "scaleX": 0.4666666666666667,
+              "scaleY": 0.4666666666666667,
+              "flipX": false,
+              "loaded": true,
+              "frameWidth": 512,
+              "frameHeight": 512
+            },
+            {
+              "key": "char.link.idle",
+              "frame": 4,
+              "x": 1113.6,
+              "y": 800,
+              "depth": 2,
+              "tint": 16767172,
+              "recolor": [
+                {
+                  "key": [
+                    0.3163265306122449,
+                    0.6533333333333333,
+                    0.5882352941176471
+                  ],
+                  "tolerance": [
+                    0.04,
+                    0.35,
+                    0.35
+                  ],
+                  "hueShift": 0.42708595387840675,
+                  "saturationRatio": 1.1576958525345622,
+                  "valueRatio": 1.3734177215189873
+                },
+                {
+                  "key": [
+                    0.3333333333333333,
+                    0.9350649350649352,
+                    0.30196078431372547
+                  ],
+                  "tolerance": [
+                    0.05,
+                    0.3,
+                    0.2
+                  ],
+                  "hueShift": 0.42708595387840675,
+                  "saturationRatio": 1.1576958525345622,
+                  "valueRatio": 1.3734177215189873
+                }
+              ],
+              "originX": 0.44999999999999996,
+              "originY": 0.9583333333333334,
+              "scaleX": 0.4666667,
+              "scaleY": 0.4666667,
+              "flipX": true,
+              "loaded": true,
+              "frameWidth": 160,
+              "frameHeight": 216
+            }
+          ]
+        }
+      ],
+      "screenshots": [
+        "docs/review/2026-10-16/character-rendering-refactor/before-menus/stages-lava-0.png",
+        "docs/review/2026-10-16/character-rendering-refactor/before-menus/stages-lava-40.png"
+      ]
+    },
+    {
+      "key": "results-link-winner",
+      "samples": [
+        {
+          "elapsed": 0,
+          "draws": [
+            {
+              "key": "char.donkeykong.idle",
+              "frame": 3,
+              "x": 665,
+              "y": 930,
+              "depth": 0,
+              "tint": 16770772,
+              "recolor": [
+                {
+                  "key": [
+                    0.06277056277056274,
+                    0.6875,
+                    0.4392156862745098
+                  ],
+                  "tolerance": [
+                    0.03,
+                    0.35,
+                    0.3
+                  ],
+                  "hueShift": -0.08072916666666667,
+                  "saturationRatio": 1.172036082474227,
+                  "valueRatio": 1.8130841121495327
+                }
+              ],
+              "originX": 0.42857142857142855,
+              "originY": 0.9758064516129032,
+              "scaleX": 0.4666667,
+              "scaleY": 0.4666667,
+              "flipX": false,
+              "loaded": true,
+              "frameWidth": 224,
+              "frameHeight": 248
+            },
+            {
+              "key": "char.pikachu.idle",
+              "frame": 1,
+              "x": 842,
+              "y": 930,
+              "depth": 1,
+              "tint": 16770772,
+              "recolor": [
+                {
+                  "key": [
+                    0.1384615384615384,
+                    0.8125,
+                    0.9411764705882353
+                  ],
+                  "tolerance": [
+                    0.04,
+                    0.4,
+                    0.45
+                  ],
+                  "hueShift": 0.4463037738779314,
+                  "saturationRatio": 0.7470177156592184,
+                  "valueRatio": 0.9755102040816326
+                },
+                {
+                  "key": [
+                    0.03333333333333336,
+                    0.7352941176470588,
+                    0.4
+                  ],
+                  "tolerance": [
+                    0.04,
+                    0.35,
+                    0.25
+                  ],
+                  "hueShift": 0.5399301955905729,
+                  "saturationRatio": 1.008076043453402,
+                  "valueRatio": 0.8516129032258066
+                }
+              ],
+              "originX": 0.5,
+              "originY": 0.8125,
+              "scaleX": 0.4666666666666667,
+              "scaleY": 0.4666666666666667,
+              "flipX": false,
+              "loaded": true,
+              "frameWidth": 512,
+              "frameHeight": 512
+            },
+            {
+              "key": "char.link.j02win2",
+              "frame": 0,
+              "x": 1078,
+              "y": 930,
+              "depth": 2,
+              "tint": 16770772,
+              "recolor": [
+                {
+                  "key": [
+                    0.3163265306122449,
+                    0.6533333333333333,
+                    0.5882352941176471
+                  ],
+                  "tolerance": [
+                    0.04,
+                    0.35,
+                    0.35
+                  ],
+                  "hueShift": 0.42708595387840675,
+                  "saturationRatio": 1.1576958525345622,
+                  "valueRatio": 1.3734177215189873
+                },
+                {
+                  "key": [
+                    0.3333333333333333,
+                    0.9350649350649352,
+                    0.30196078431372547
+                  ],
+                  "tolerance": [
+                    0.05,
+                    0.3,
+                    0.2
+                  ],
+                  "hueShift": 0.42708595387840675,
+                  "saturationRatio": 1.1576958525345622,
+                  "valueRatio": 1.3734177215189873
+                }
+              ],
+              "originX": 0.7558139534883721,
+              "originY": 0.9635416666666666,
+              "scaleX": 0.4666667,
+              "scaleY": 0.4666667,
+              "flipX": true,
+              "loaded": true,
+              "frameWidth": 344,
+              "frameHeight": 384
+            }
+          ]
+        },
+        {
+          "elapsed": 45,
+          "draws": [
+            {
+              "key": "char.donkeykong.idle",
+              "frame": 6,
+              "x": 665,
+              "y": 930,
+              "depth": 0,
+              "tint": 16770772,
+              "recolor": [
+                {
+                  "key": [
+                    0.06277056277056274,
+                    0.6875,
+                    0.4392156862745098
+                  ],
+                  "tolerance": [
+                    0.03,
+                    0.35,
+                    0.3
+                  ],
+                  "hueShift": -0.08072916666666667,
+                  "saturationRatio": 1.172036082474227,
+                  "valueRatio": 1.8130841121495327
+                }
+              ],
+              "originX": 0.42857142857142855,
+              "originY": 0.9758064516129032,
+              "scaleX": 0.4666667,
+              "scaleY": 0.4666667,
+              "flipX": false,
+              "loaded": true,
+              "frameWidth": 224,
+              "frameHeight": 248
+            },
+            {
+              "key": "char.pikachu.idle",
+              "frame": 3,
+              "x": 842,
+              "y": 930,
+              "depth": 1,
+              "tint": 16770772,
+              "recolor": [
+                {
+                  "key": [
+                    0.1384615384615384,
+                    0.8125,
+                    0.9411764705882353
+                  ],
+                  "tolerance": [
+                    0.04,
+                    0.4,
+                    0.45
+                  ],
+                  "hueShift": 0.4463037738779314,
+                  "saturationRatio": 0.7470177156592184,
+                  "valueRatio": 0.9755102040816326
+                },
+                {
+                  "key": [
+                    0.03333333333333336,
+                    0.7352941176470588,
+                    0.4
+                  ],
+                  "tolerance": [
+                    0.04,
+                    0.35,
+                    0.25
+                  ],
+                  "hueShift": 0.5399301955905729,
+                  "saturationRatio": 1.008076043453402,
+                  "valueRatio": 0.8516129032258066
+                }
+              ],
+              "originX": 0.5,
+              "originY": 0.8125,
+              "scaleX": 0.4666666666666667,
+              "scaleY": 0.4666666666666667,
+              "flipX": false,
+              "loaded": true,
+              "frameWidth": 512,
+              "frameHeight": 512
+            },
+            {
+              "key": "char.link.j02win2",
+              "frame": 3,
+              "x": 1078,
+              "y": 930,
+              "depth": 2,
+              "tint": 16770772,
+              "recolor": [
+                {
+                  "key": [
+                    0.3163265306122449,
+                    0.6533333333333333,
+                    0.5882352941176471
+                  ],
+                  "tolerance": [
+                    0.04,
+                    0.35,
+                    0.35
+                  ],
+                  "hueShift": 0.42708595387840675,
+                  "saturationRatio": 1.1576958525345622,
+                  "valueRatio": 1.3734177215189873
+                },
+                {
+                  "key": [
+                    0.3333333333333333,
+                    0.9350649350649352,
+                    0.30196078431372547
+                  ],
+                  "tolerance": [
+                    0.05,
+                    0.3,
+                    0.2
+                  ],
+                  "hueShift": 0.42708595387840675,
+                  "saturationRatio": 1.1576958525345622,
+                  "valueRatio": 1.3734177215189873
+                }
+              ],
+              "originX": 0.7558139534883721,
+              "originY": 0.9635416666666666,
+              "scaleX": 0.4666667,
+              "scaleY": 0.4666667,
+              "flipX": true,
+              "loaded": true,
+              "frameWidth": 344,
+              "frameHeight": 384
+            }
+          ]
+        },
+        {
+          "elapsed": 190,
+          "draws": [
+            {
+              "key": "char.donkeykong.idle",
+              "frame": 7,
+              "x": 665,
+              "y": 930,
+              "depth": 0,
+              "tint": 16770772,
+              "recolor": [
+                {
+                  "key": [
+                    0.06277056277056274,
+                    0.6875,
+                    0.4392156862745098
+                  ],
+                  "tolerance": [
+                    0.03,
+                    0.35,
+                    0.3
+                  ],
+                  "hueShift": -0.08072916666666667,
+                  "saturationRatio": 1.172036082474227,
+                  "valueRatio": 1.8130841121495327
+                }
+              ],
+              "originX": 0.42857142857142855,
+              "originY": 0.9758064516129032,
+              "scaleX": 0.4666667,
+              "scaleY": 0.4666667,
+              "flipX": false,
+              "loaded": true,
+              "frameWidth": 224,
+              "frameHeight": 248
+            },
+            {
+              "key": "char.pikachu.idle",
+              "frame": 4,
+              "x": 842,
+              "y": 930,
+              "depth": 1,
+              "tint": 16770772,
+              "recolor": [
+                {
+                  "key": [
+                    0.1384615384615384,
+                    0.8125,
+                    0.9411764705882353
+                  ],
+                  "tolerance": [
+                    0.04,
+                    0.4,
+                    0.45
+                  ],
+                  "hueShift": 0.4463037738779314,
+                  "saturationRatio": 0.7470177156592184,
+                  "valueRatio": 0.9755102040816326
+                },
+                {
+                  "key": [
+                    0.03333333333333336,
+                    0.7352941176470588,
+                    0.4
+                  ],
+                  "tolerance": [
+                    0.04,
+                    0.35,
+                    0.25
+                  ],
+                  "hueShift": 0.5399301955905729,
+                  "saturationRatio": 1.008076043453402,
+                  "valueRatio": 0.8516129032258066
+                }
+              ],
+              "originX": 0.5,
+              "originY": 0.8125,
+              "scaleX": 0.4666666666666667,
+              "scaleY": 0.4666666666666667,
+              "flipX": false,
+              "loaded": true,
+              "frameWidth": 512,
+              "frameHeight": 512
+            },
+            {
+              "key": "char.link.j02win2wait",
+              "frame": 3,
+              "x": 1078,
+              "y": 930,
+              "depth": 2,
+              "tint": 16770772,
+              "recolor": [
+                {
+                  "key": [
+                    0.3163265306122449,
+                    0.6533333333333333,
+                    0.5882352941176471
+                  ],
+                  "tolerance": [
+                    0.04,
+                    0.35,
+                    0.35
+                  ],
+                  "hueShift": 0.42708595387840675,
+                  "saturationRatio": 1.1576958525345622,
+                  "valueRatio": 1.3734177215189873
+                },
+                {
+                  "key": [
+                    0.3333333333333333,
+                    0.9350649350649352,
+                    0.30196078431372547
+                  ],
+                  "tolerance": [
+                    0.05,
+                    0.3,
+                    0.2
+                  ],
+                  "hueShift": 0.42708595387840675,
+                  "saturationRatio": 1.1576958525345622,
+                  "valueRatio": 1.3734177215189873
+                }
+              ],
+              "originX": 0.6,
+              "originY": 0.9635416666666666,
+              "scaleX": 0.4666667,
+              "scaleY": 0.4666667,
+              "flipX": true,
+              "loaded": true,
+              "frameWidth": 160,
+              "frameHeight": 384
+            }
+          ]
+        }
+      ],
+      "screenshots": [
+        "docs/review/2026-10-16/character-rendering-refactor/before-menus/results-link-winner-0.png",
+        "docs/review/2026-10-16/character-rendering-refactor/before-menus/results-link-winner-45.png",
+        "docs/review/2026-10-16/character-rendering-refactor/before-menus/results-link-winner-190.png"
+      ]
+    },
+    {
+      "key": "results-link-loser",
+      "samples": [
+        {
+          "elapsed": 0,
+          "draws": [
+            {
+              "key": "char.donkeykong.idle",
+              "frame": 7,
+              "x": 665,
+              "y": 930,
+              "depth": 0,
+              "tint": 16770772,
+              "recolor": [
+                {
+                  "key": [
+                    0.06277056277056274,
+                    0.6875,
+                    0.4392156862745098
+                  ],
+                  "tolerance": [
+                    0.03,
+                    0.35,
+                    0.3
+                  ],
+                  "hueShift": -0.08072916666666667,
+                  "saturationRatio": 1.172036082474227,
+                  "valueRatio": 1.8130841121495327
+                }
+              ],
+              "originX": 0.42857142857142855,
+              "originY": 0.9758064516129032,
+              "scaleX": 0.4666667,
+              "scaleY": 0.4666667,
+              "flipX": false,
+              "loaded": true,
+              "frameWidth": 224,
+              "frameHeight": 248
+            },
+            {
+              "key": "char.pikachu.idle",
+              "frame": 4,
+              "x": 842,
+              "y": 930,
+              "depth": 1,
+              "tint": 16770772,
+              "recolor": [
+                {
+                  "key": [
+                    0.1384615384615384,
+                    0.8125,
+                    0.9411764705882353
+                  ],
+                  "tolerance": [
+                    0.04,
+                    0.4,
+                    0.45
+                  ],
+                  "hueShift": 0.4463037738779314,
+                  "saturationRatio": 0.7470177156592184,
+                  "valueRatio": 0.9755102040816326
+                },
+                {
+                  "key": [
+                    0.03333333333333336,
+                    0.7352941176470588,
+                    0.4
+                  ],
+                  "tolerance": [
+                    0.04,
+                    0.35,
+                    0.25
+                  ],
+                  "hueShift": 0.5399301955905729,
+                  "saturationRatio": 1.008076043453402,
+                  "valueRatio": 0.8516129032258066
+                }
+              ],
+              "originX": 0.5,
+              "originY": 0.8125,
+              "scaleX": 0.4666666666666667,
+              "scaleY": 0.4666666666666667,
+              "flipX": false,
+              "loaded": true,
+              "frameWidth": 512,
+              "frameHeight": 512
+            },
+            {
+              "key": "char.link.j02lose",
+              "frame": 0,
+              "x": 1078,
+              "y": 930,
+              "depth": 2,
+              "tint": 16770772,
+              "recolor": [
+                {
+                  "key": [
+                    0.3163265306122449,
+                    0.6533333333333333,
+                    0.5882352941176471
+                  ],
+                  "tolerance": [
+                    0.04,
+                    0.35,
+                    0.35
+                  ],
+                  "hueShift": 0.42708595387840675,
+                  "saturationRatio": 1.1576958525345622,
+                  "valueRatio": 1.3734177215189873
+                },
+                {
+                  "key": [
+                    0.3333333333333333,
+                    0.9350649350649352,
+                    0.30196078431372547
+                  ],
+                  "tolerance": [
+                    0.05,
+                    0.3,
+                    0.2
+                  ],
+                  "hueShift": 0.42708595387840675,
+                  "saturationRatio": 1.1576958525345622,
+                  "valueRatio": 1.3734177215189873
+                }
+              ],
+              "originX": 0.4732142857142857,
+              "originY": 0.9464285714285714,
+              "scaleX": 0.4666667,
+              "scaleY": 0.4666667,
+              "flipX": true,
+              "loaded": true,
+              "frameWidth": 112,
+              "frameHeight": 224
+            }
+          ]
+        },
+        {
+          "elapsed": 45,
+          "draws": [
+            {
+              "key": "char.donkeykong.idle",
+              "frame": 10,
+              "x": 665,
+              "y": 930,
+              "depth": 0,
+              "tint": 16770772,
+              "recolor": [
+                {
+                  "key": [
+                    0.06277056277056274,
+                    0.6875,
+                    0.4392156862745098
+                  ],
+                  "tolerance": [
+                    0.03,
+                    0.35,
+                    0.3
+                  ],
+                  "hueShift": -0.08072916666666667,
+                  "saturationRatio": 1.172036082474227,
+                  "valueRatio": 1.8130841121495327
+                }
+              ],
+              "originX": 0.42857142857142855,
+              "originY": 0.9758064516129032,
+              "scaleX": 0.4666667,
+              "scaleY": 0.4666667,
+              "flipX": false,
+              "loaded": true,
+              "frameWidth": 224,
+              "frameHeight": 248
+            },
+            {
+              "key": "char.pikachu.idle",
+              "frame": 4,
+              "x": 842,
+              "y": 930,
+              "depth": 1,
+              "tint": 16770772,
+              "recolor": [
+                {
+                  "key": [
+                    0.1384615384615384,
+                    0.8125,
+                    0.9411764705882353
+                  ],
+                  "tolerance": [
+                    0.04,
+                    0.4,
+                    0.45
+                  ],
+                  "hueShift": 0.4463037738779314,
+                  "saturationRatio": 0.7470177156592184,
+                  "valueRatio": 0.9755102040816326
+                },
+                {
+                  "key": [
+                    0.03333333333333336,
+                    0.7352941176470588,
+                    0.4
+                  ],
+                  "tolerance": [
+                    0.04,
+                    0.35,
+                    0.25
+                  ],
+                  "hueShift": 0.5399301955905729,
+                  "saturationRatio": 1.008076043453402,
+                  "valueRatio": 0.8516129032258066
+                }
+              ],
+              "originX": 0.5,
+              "originY": 0.8125,
+              "scaleX": 0.4666666666666667,
+              "scaleY": 0.4666666666666667,
+              "flipX": false,
+              "loaded": true,
+              "frameWidth": 512,
+              "frameHeight": 512
+            },
+            {
+              "key": "char.link.j02lose",
+              "frame": 4,
+              "x": 1078,
+              "y": 930,
+              "depth": 2,
+              "tint": 16770772,
+              "recolor": [
+                {
+                  "key": [
+                    0.3163265306122449,
+                    0.6533333333333333,
+                    0.5882352941176471
+                  ],
+                  "tolerance": [
+                    0.04,
+                    0.35,
+                    0.35
+                  ],
+                  "hueShift": 0.42708595387840675,
+                  "saturationRatio": 1.1576958525345622,
+                  "valueRatio": 1.3734177215189873
+                },
+                {
+                  "key": [
+                    0.3333333333333333,
+                    0.9350649350649352,
+                    0.30196078431372547
+                  ],
+                  "tolerance": [
+                    0.05,
+                    0.3,
+                    0.2
+                  ],
+                  "hueShift": 0.42708595387840675,
+                  "saturationRatio": 1.1576958525345622,
+                  "valueRatio": 1.3734177215189873
+                }
+              ],
+              "originX": 0.4732142857142857,
+              "originY": 0.9464285714285714,
+              "scaleX": 0.4666667,
+              "scaleY": 0.4666667,
+              "flipX": true,
+              "loaded": true,
+              "frameWidth": 112,
+              "frameHeight": 224
+            }
+          ]
+        },
+        {
+          "elapsed": 190,
+          "draws": [
+            {
+              "key": "char.donkeykong.idle",
+              "frame": 10,
+              "x": 665,
+              "y": 930,
+              "depth": 0,
+              "tint": 16770772,
+              "recolor": [
+                {
+                  "key": [
+                    0.06277056277056274,
+                    0.6875,
+                    0.4392156862745098
+                  ],
+                  "tolerance": [
+                    0.03,
+                    0.35,
+                    0.3
+                  ],
+                  "hueShift": -0.08072916666666667,
+                  "saturationRatio": 1.172036082474227,
+                  "valueRatio": 1.8130841121495327
+                }
+              ],
+              "originX": 0.42857142857142855,
+              "originY": 0.9758064516129032,
+              "scaleX": 0.4666667,
+              "scaleY": 0.4666667,
+              "flipX": false,
+              "loaded": true,
+              "frameWidth": 224,
+              "frameHeight": 248
+            },
+            {
+              "key": "char.pikachu.idle",
+              "frame": 4,
+              "x": 842,
+              "y": 930,
+              "depth": 1,
+              "tint": 16770772,
+              "recolor": [
+                {
+                  "key": [
+                    0.1384615384615384,
+                    0.8125,
+                    0.9411764705882353
+                  ],
+                  "tolerance": [
+                    0.04,
+                    0.4,
+                    0.45
+                  ],
+                  "hueShift": 0.4463037738779314,
+                  "saturationRatio": 0.7470177156592184,
+                  "valueRatio": 0.9755102040816326
+                },
+                {
+                  "key": [
+                    0.03333333333333336,
+                    0.7352941176470588,
+                    0.4
+                  ],
+                  "tolerance": [
+                    0.04,
+                    0.35,
+                    0.25
+                  ],
+                  "hueShift": 0.5399301955905729,
+                  "saturationRatio": 1.008076043453402,
+                  "valueRatio": 0.8516129032258066
+                }
+              ],
+              "originX": 0.5,
+              "originY": 0.8125,
+              "scaleX": 0.4666666666666667,
+              "scaleY": 0.4666666666666667,
+              "flipX": false,
+              "loaded": true,
+              "frameWidth": 512,
+              "frameHeight": 512
+            },
+            {
+              "key": "char.link.j02lose",
+              "frame": 11,
+              "x": 1078,
+              "y": 930,
+              "depth": 2,
+              "tint": 16770772,
+              "recolor": [
+                {
+                  "key": [
+                    0.3163265306122449,
+                    0.6533333333333333,
+                    0.5882352941176471
+                  ],
+                  "tolerance": [
+                    0.04,
+                    0.35,
+                    0.35
+                  ],
+                  "hueShift": 0.42708595387840675,
+                  "saturationRatio": 1.1576958525345622,
+                  "valueRatio": 1.3734177215189873
+                },
+                {
+                  "key": [
+                    0.3333333333333333,
+                    0.9350649350649352,
+                    0.30196078431372547
+                  ],
+                  "tolerance": [
+                    0.05,
+                    0.3,
+                    0.2
+                  ],
+                  "hueShift": 0.42708595387840675,
+                  "saturationRatio": 1.1576958525345622,
+                  "valueRatio": 1.3734177215189873
+                }
+              ],
+              "originX": 0.4732142857142857,
+              "originY": 0.9464285714285714,
+              "scaleX": 0.4666667,
+              "scaleY": 0.4666667,
+              "flipX": true,
+              "loaded": true,
+              "frameWidth": 112,
+              "frameHeight": 224
+            }
+          ]
+        }
+      ],
+      "screenshots": [
+        "docs/review/2026-10-16/character-rendering-refactor/before-menus/results-link-loser-0.png",
+        "docs/review/2026-10-16/character-rendering-refactor/before-menus/results-link-loser-45.png",
+        "docs/review/2026-10-16/character-rendering-refactor/before-menus/results-link-loser-190.png"
+      ]
+    }
+  ],
+  "browser": "155.0.4283.45",
+  "script": "http://127.0.0.1:4186/platform-fighter/assets/game-Bn_dJ2Cd.js",
+  "graphics": {
+    "renderer": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x0000A7A0) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "parallelShaderCompile": true
+  },
+  "faults": [],
+  "result": "PASS"
+}

@@ -1,0 +1,44 @@
+{
+  "checked_date": "2026-10-09",
+  "method": "web.run inspected original researcher pages; retained bounded paraphrase, not native binary implementation",
+  "sources": [
+    {
+      "url": "https://w.atwiki.jp/smashsp_kensyou/pages/132.html",
+      "sections": [
+        "normal/rush",
+        "elec",
+        "bury"
+      ],
+      "facts": [
+        "Normal and rush have no discovered special reaction rules.",
+        "Electric hitlag is multiplied by1.5; unarmored electric hits have additional ASDI/reaction presentation rules.",
+        "Armor prevents bury; burial must not be created for a successfully resisted hit."
+      ]
+    },
+    {
+      "url": "https://w.atwiki.jp/smashsp_kensyou/pages/58.html",
+      "sections": [
+        "Special collision attributes",
+        "KB-dependent heavy armor"
+      ],
+      "facts": [
+        "Special bury KB query uses weight100, independently of recipient weight.",
+        "The table explicitly includes DK large-item holding at80KB alongside cargo lifting.",
+        "General inclusive threshold prose does not replace the retained specific native strict reaction<32 comparison."
+      ]
+    },
+    {
+      "url": "https://w.atwiki.jp/smashsp_kensyou/pages/82.html",
+      "sections": [
+        "Armor-piercing moves"
+      ],
+      "facts": [
+        "Some attacks including many Final Smash attacks have armor-piercing behavior; native collision attribute alone is insufficient to infer ordinary armor eligibility."
+      ]
+    }
+  ],
+  "scope_limits": [
+    "Exact engine force-reaction bit consumer and attack initialization defaults remain outside the retained carry callback.",
+    "Only source-proven ordinary normal/elec/rush/bury domain proposed; no claim of all native status coverage."
+  ]
+}

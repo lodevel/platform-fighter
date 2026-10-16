@@ -7,7 +7,7 @@ import {
 } from './handAnchors';
 import type { CharacterId } from '../types';
 
-const IDS: ReadonlyArray<CharacterId> = ['wolf', 'cat', 'owl', 'bear'];
+const IDS: ReadonlyArray<CharacterId> = ['link', 'donkeykong', 'pikachu'];
 
 describe('FIGHTER_HAND_ANCHORS — table shape', () => {
   it('defines a grip for every roster fighter', () => {
@@ -35,7 +35,7 @@ describe('FIGHTER_HAND_ANCHORS — table shape', () => {
   });
 
   it('getHandAnchor resolves the table entry', () => {
-    expect(getHandAnchor('wolf')).toBe(FIGHTER_HAND_ANCHORS.wolf);
+    expect(getHandAnchor('donkeykong')).toBe(FIGHTER_HAND_ANCHORS.donkeykong);
   });
 
   it('getHandAnchor falls back defensively on unknown ids', () => {
@@ -45,22 +45,22 @@ describe('FIGHTER_HAND_ANCHORS — table shape', () => {
 
 describe('computeHeldItemPosition — facing mirror', () => {
   it('offsets forward of the holder when facing right', () => {
-    const pos = computeHeldItemPosition({ x: 100, y: 200 }, 1, 'wolf');
-    expect(pos.x).toBe(100 + FIGHTER_HAND_ANCHORS.wolf.x);
-    expect(pos.y).toBe(200 + FIGHTER_HAND_ANCHORS.wolf.y);
+    const pos = computeHeldItemPosition({ x: 100, y: 200 }, 1, 'donkeykong');
+    expect(pos.x).toBe(100 + FIGHTER_HAND_ANCHORS.donkeykong.x);
+    expect(pos.y).toBe(200 + FIGHTER_HAND_ANCHORS.donkeykong.y);
   });
 
   it('mirrors the forward offset when facing left', () => {
-    const right = computeHeldItemPosition({ x: 100, y: 200 }, 1, 'wolf');
-    const left = computeHeldItemPosition({ x: 100, y: 200 }, -1, 'wolf');
+    const right = computeHeldItemPosition({ x: 100, y: 200 }, 1, 'donkeykong');
+    const left = computeHeldItemPosition({ x: 100, y: 200 }, -1, 'donkeykong');
     expect(left.x).toBe(100 - (right.x - 100));
     // Vertical offset is facing-independent.
     expect(left.y).toBe(right.y);
   });
 
   it('is deterministic (same inputs → same frozen output)', () => {
-    const a = computeHeldItemPosition({ x: 5, y: 7 }, -1, 'bear');
-    const b = computeHeldItemPosition({ x: 5, y: 7 }, -1, 'bear');
+    const a = computeHeldItemPosition({ x: 5, y: 7 }, -1, 'donkeykong');
+    const b = computeHeldItemPosition({ x: 5, y: 7 }, -1, 'donkeykong');
     expect(a).toEqual(b);
     expect(Object.isFrozen(a)).toBe(true);
   });

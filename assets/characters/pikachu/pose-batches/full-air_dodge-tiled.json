@@ -1,0 +1,279 @@
+{
+  "state": "packed_cells_visually_reviewed_runtime_pending",
+  "coordinateContract": {
+    "canonicalCanvas": [
+      2048,
+      2048
+    ],
+    "canonicalRoot": [
+      1024,
+      1664
+    ],
+    "frameWidth": 512,
+    "frameHeight": 512,
+    "root": [
+      256,
+      416
+    ],
+    "scaleToWorld": 0.4666666666666667,
+    "bodyCentreFromRoot": [
+      0,
+      -25
+    ]
+  },
+  "clockContract": "docs/review/2026-10-06/pikachu-character/sources/state-runtime-clock-contract.json",
+  "clockContractSha256": "66ba9368ffe7118410fb965fa6b095902f881ce8473644791cf0e406370165f0",
+  "animations": {
+    "air_dodge": {
+      "strip": "animations/air_dodge.png",
+      "frameCount": 7,
+      "sha256": "a0efc4eeaa8b3ee20b4e29ae063890f8d6301fc03c58790b21ba3dd49fb57e00",
+      "columns": 7,
+      "rows": 1,
+      "frameWindows": [
+        {
+          "startFrame": 0,
+          "endFrame": 3,
+          "artFrameIndex": 0,
+          "nativeStart": 0,
+          "nativeEnd": 4
+        },
+        {
+          "startFrame": 3,
+          "endFrame": 8,
+          "artFrameIndex": 1,
+          "nativeStart": 4,
+          "nativeEnd": 12
+        },
+        {
+          "startFrame": 8,
+          "endFrame": 15,
+          "artFrameIndex": 2,
+          "nativeStart": 12,
+          "nativeEnd": 24
+        },
+        {
+          "startFrame": 15,
+          "endFrame": 27,
+          "artFrameIndex": 3,
+          "nativeStart": 24,
+          "nativeEnd": 44
+        },
+        {
+          "startFrame": 27,
+          "endFrame": 39,
+          "artFrameIndex": 4,
+          "nativeStart": 44,
+          "nativeEnd": 64
+        },
+        {
+          "startFrame": 39,
+          "endFrame": 50,
+          "artFrameIndex": 5,
+          "nativeStart": 64,
+          "nativeEnd": 83
+        }
+      ],
+      "loopDuration": null,
+      "nativeSampleIndices": [
+        0,
+        4,
+        12,
+        24,
+        44,
+        64,
+        83
+      ],
+      "nativeWindows": [
+        {
+          "nativeStart": 0,
+          "nativeEnd": 4,
+          "artFrameIndex": 0
+        },
+        {
+          "nativeStart": 4,
+          "nativeEnd": 12,
+          "artFrameIndex": 1
+        },
+        {
+          "nativeStart": 12,
+          "nativeEnd": 24,
+          "artFrameIndex": 2
+        },
+        {
+          "nativeStart": 24,
+          "nativeEnd": 44,
+          "artFrameIndex": 3
+        },
+        {
+          "nativeStart": 44,
+          "nativeEnd": 64,
+          "artFrameIndex": 4
+        },
+        {
+          "nativeStart": 64,
+          "nativeEnd": 83,
+          "artFrameIndex": 5
+        },
+        {
+          "nativeStart": 83,
+          "nativeEnd": 84,
+          "artFrameIndex": 6
+        }
+      ],
+      "drawingFacingBinding": "actor entry facing; native orientation candidates must be checked before accepting both-facing render",
+      "holdRule": "native nonloop holds final available drawing until status exit; looping clips wrap native loopDuration; endpoint sample is not action commitment",
+      "specialPhase": null,
+      "specialClockKind": null,
+      "dynamicCutoff": null,
+      "playableEndExclusive": null,
+      "runtimeBindingStatus": "existing state observable; dedicated reviewed drawing route pending accepted strip"
+    }
+  },
+  "sources": [
+    {
+      "sourceKey": "full-air-dodge-neutral-sample0-source0",
+      "nativeSample": 0,
+      "sourceReferenceSha256": "c132ebd45f1c9cb601de4570bee04643c63b59f02586f424707f665940bdd995",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-defense-batch009-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "13ed87c3752ef6a3a7f33d3458bf03022be16ef65c7cf8d69601d65da98debd6",
+      "atlasCell": 1,
+      "cellOffset": [
+        1024,
+        0
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-defense-batch009-bounded-source0-attempt1.review.json",
+      "reviewSha256": "a52ee30ceb1e4df48632b97705886bd17ae9dd12bd68b9e38e846cc4940eabeb"
+    },
+    {
+      "sourceKey": "full-air-dodge-neutral-sample4-source4",
+      "nativeSample": 4,
+      "sourceReferenceSha256": "ac7262f63d1e99b17e57450efb3456bcf029cbc85fd8936ccabf2bb996764c03",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-defense-batch009-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "13ed87c3752ef6a3a7f33d3458bf03022be16ef65c7cf8d69601d65da98debd6",
+      "atlasCell": 2,
+      "cellOffset": [
+        0,
+        1024
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-defense-batch009-bounded-source0-attempt1.review.json",
+      "reviewSha256": "a52ee30ceb1e4df48632b97705886bd17ae9dd12bd68b9e38e846cc4940eabeb"
+    },
+    {
+      "sourceKey": "full-air-dodge-neutral-sample12-source12",
+      "nativeSample": 12,
+      "sourceReferenceSha256": "dcad07c9c4f4694095f097cca7c64e6f27ef9e5ee94f74486deda997e25b5cf8",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-defense-batch009-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "13ed87c3752ef6a3a7f33d3458bf03022be16ef65c7cf8d69601d65da98debd6",
+      "atlasCell": 3,
+      "cellOffset": [
+        1024,
+        1024
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-defense-batch009-bounded-source0-attempt1.review.json",
+      "reviewSha256": "a52ee30ceb1e4df48632b97705886bd17ae9dd12bd68b9e38e846cc4940eabeb"
+    },
+    {
+      "sourceKey": "full-air-dodge-neutral-sample24-source24",
+      "nativeSample": 24,
+      "sourceReferenceSha256": "ab3232e5ac20f7c019dc3d9a4b0c0dcb0af2b04ef9212c90a87f4feffd01fd24",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-defense-batch010-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "d8062ab8101c90b0d1dbbd4bd1fbf2695a4efdf3d49270d55e2536a85eaa4ef0",
+      "atlasCell": 0,
+      "cellOffset": [
+        0,
+        0
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-defense-batch010-bounded-source0-attempt1.review.json",
+      "reviewSha256": "5c4ece7f1ac585db7257b64b2fdd0ddeb6c52d77bed1e98fde9990e7901ab264"
+    },
+    {
+      "sourceKey": "full-air-dodge-neutral-sample44-source44",
+      "nativeSample": 44,
+      "sourceReferenceSha256": "1b9890445eb01416f7fbda93169f2c82bc7985563756d2befa74e38b7e13ea59",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-defense-batch010-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "d8062ab8101c90b0d1dbbd4bd1fbf2695a4efdf3d49270d55e2536a85eaa4ef0",
+      "atlasCell": 1,
+      "cellOffset": [
+        1024,
+        0
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-defense-batch010-bounded-source0-attempt1.review.json",
+      "reviewSha256": "5c4ece7f1ac585db7257b64b2fdd0ddeb6c52d77bed1e98fde9990e7901ab264"
+    },
+    {
+      "sourceKey": "full-air-dodge-neutral-sample64-source64",
+      "nativeSample": 64,
+      "sourceReferenceSha256": "305303459d00871bbfd6609a78742124a05c46a4896e407855206287041355e2",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-defense-batch010-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "d8062ab8101c90b0d1dbbd4bd1fbf2695a4efdf3d49270d55e2536a85eaa4ef0",
+      "atlasCell": 2,
+      "cellOffset": [
+        0,
+        1024
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-defense-batch010-bounded-source0-attempt1.review.json",
+      "reviewSha256": "5c4ece7f1ac585db7257b64b2fdd0ddeb6c52d77bed1e98fde9990e7901ab264"
+    },
+    {
+      "sourceKey": "full-air-dodge-neutral-sample83-source83",
+      "nativeSample": 83,
+      "sourceReferenceSha256": "90f8460200e28f441ff06b96e2471f55dc03d005a717fc7d1d88ab0bd664e3c2",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-defense-batch010-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "d8062ab8101c90b0d1dbbd4bd1fbf2695a4efdf3d49270d55e2536a85eaa4ef0",
+      "atlasCell": 3,
+      "cellOffset": [
+        1024,
+        1024
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-defense-batch010-bounded-source0-attempt1.review.json",
+      "reviewSha256": "5c4ece7f1ac585db7257b64b2fdd0ddeb6c52d77bed1e98fde9990e7901ab264"
+    }
+  ],
+  "galleries": {
+    "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/air_dodge-cells-1.png": "1d2f437a697a2e2474575a8e282714fc500406bf37699856a2017c2e38461758",
+    "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/air_dodge-cells-2.png": "6e713c99b142a07e75aeeb1fbea004dc5ccabe3ea07199003708a1401538c665"
+  },
+  "limits": [
+    "Actual packed-cell inspection required before aggregate registration.",
+    "Authored beta presentation windows do not establish native status rate parity.",
+    "Actual running-game qualification remains separate."
+  ],
+  "packedVisualReview": {
+    "reviewer": "pikachu_art_motion",
+    "state": "actual_saved_packed_cells_reviewed",
+    "inspectedGalleries": {
+      "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/air_dodge-cells-1.png": "1d2f437a697a2e2474575a8e282714fc500406bf37699856a2017c2e38461758",
+      "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/air_dodge-cells-2.png": "6e713c99b142a07e75aeeb1fbea004dc5ccabe3ea07199003708a1401538c665"
+    },
+    "observations": [
+      "Actually inspected all seven actual saved512 light/dark cells0/4/12/24/44/64/83; downward/right and front lateral reach, face occluded/back striped rotation24, belly-up44 tail foreground, descending64 and final stretch83 retain source identity/root/scale. Belowroot airborne alpha remains at44/64 and must qualify on actual trajectory; no recenter/shrink. First6 beta50 windows,83source-only, native rate/status retiming not proved."
+    ]
+  },
+  "runtimeEvidence": {
+    "state": "actual_defense_source_body_receiving_accepted_as_beta_clock",
+    "reviewer": "pikachu_integration",
+    "reviewPath": "docs/review/2026-10-06/pikachu-character/integration/defense-bodies-initial/visual-review.json",
+    "reviewSha256": "e28e362a4a053e0d808de9321c446175cb04bc7c2309352db9fcb6b5a641d687",
+    "bundle": "http://127.0.0.1:4223/platform-fighter/assets/index-BavPDis_.js",
+    "bundleSha256": "db8bc2888c8ebc1eab378bc7dd4989ba5d159ce132249bad4bf7b2da4610bced",
+    "actuallyInspectedByIntegration": 42,
+    "observed": "All42 actual source-body screenshots inspected: five spot/five forward/five backward/six neutral-air-dodge poses in both facings. Existing protected-body blink dims intermediate drawings. Source forward roll baked opposite-facing settle uses latched entry basis despite actor reverse19; exact receiving local-X compensation passes after flip. Backward roll retains entry-facing settle with authentic intermediate inversion. Neutral-air dodge native44/64 overhang remains visible above ground in this high-air fixture.",
+    "boundary": "Native travel curves, dodge staling, status-rate mapping and timing-dependent landing remain adaptations. This high-air neutral-air-dodge body review does not establish low-floor alpha clearance. Native source 3D/2D receiving overhang remains explicit. Actual incoming-damage protection has separate physics/contact evidence.",
+    "artAgentAttribution": "Read and hash-bound integration review; no duplicate image-inspection claim."
+  }
+}

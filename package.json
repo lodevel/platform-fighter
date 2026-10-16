@@ -1,22 +1,20 @@
 {
   "name": "platform-fighter",
   "version": "0.1.0",
-  "description": "A Smash Bros-style 2D platform fighter built with Phaser 3 + Matter.js",
+  "description": "A platform fighter built with Three.js, HTML menus and a deterministic Matter.js simulation",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "prebuild": "npm run build:palettes",
-    "build": "tsc --noEmit && vite build",
-    "preview": "vite preview",
-    "typecheck": "tsc --noEmit",
+    "build": "npm run typecheck && node --max-old-space-size=8192 node_modules/vite/bin/vite.js build",
+    "preview": "vite preview --base /platform-fighter/",
+    "typecheck": "tsc --noEmit && node port/scripts/check-layers.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
-    "palette-swap": "tsx scripts/palette-swap/index.ts",
-    "build:palettes": "tsx scripts/palette-swap/index.ts",
-    "validate:characters": "tsx scripts/validate-character-data.ts"
+    "assets:copy": "tsx scripts/copy-runtime-assets.ts",
+    "build:static": "npm run build && npm run assets:copy"
   },
   "keywords": [
-    "phaser",
+    "three",
     "matter-js",
     "platform-fighter",
     "game"
@@ -24,7 +22,9 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "phaser": "^3.80.1"
+    "three": "0.170.0",
+    "@fontsource/bungee": "^5.1.0",
+    "@fontsource/chakra-petch": "^5.1.0"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
@@ -35,6 +35,7 @@
     "tsx": "^4.21.0",
     "typescript": "^5.4.5",
     "vite": "^5.2.0",
-    "vitest": "^1.5.0"
+    "vitest": "^1.5.0",
+    "@types/three": "0.170.0"
   }
 }

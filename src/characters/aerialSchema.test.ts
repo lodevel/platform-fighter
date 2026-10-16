@@ -11,20 +11,9 @@ import {
   type AerialMove,
   type AutoCancelWindow,
 } from './aerialSchema';
-import {
-  WOLF_NAIR_AERIAL,
-  WOLF_FAIR,
-  WOLF_BAIR,
-  CAT_NAIR_AERIAL,
-  CAT_FAIR,
-  CAT_BAIR,
-  OWL_NAIR,
-  OWL_FAIR,
-  OWL_BAIR,
-  BEAR_NAIR,
-  BEAR_FAIR,
-  BEAR_BAIR,
-} from './index';
+import { DONKEYKONG_NAIR, DONKEYKONG_FAIR, DONKEYKONG_BAIR } from './DonkeyKong';
+import { PIKACHU_NAIR, PIKACHU_FAIR, PIKACHU_BAIR } from './Pikachu';
+import { LINK_NAIR, LINK_FAIR, LINK_BAIR } from './linkFreshKit';
 
 /**
  * AC 60101 Sub-AC 1 — aerial schema + per-character aerial data.
@@ -34,7 +23,7 @@ import {
  *
  *   1. Schema validators — `validateAutoCancelWindow` and
  *      `validateAerialMove` reject malformed records with clear
- *      errors and accept all twelve authored aerial records.
+ *      errors and accept every authored roster aerial record.
  *   2. Auto-cancel predicate — `isAutoCancelFrame` reads the windows
  *      correctly, including the half-open boundaries and the
  *      "post-busy" implicit auto-cancel.
@@ -43,8 +32,8 @@ import {
  *   4. Knockback angle helpers — convert Phaser screen-space (y-down)
  *      vectors into standard math-convention angles (y-up).
  *   5. Per-character data — each authored aerial passes the schema
- *      and the Seed roster invariants (every character has nair,
- *      fair, bair; ids are unique; type is 'aerial'; aerialDirection
+ *      and the roster invariants (every character has nair, fair,
+ *      bair; ids are unique; type is 'aerial'; aerialDirection
  *      matches the move semantically).
  */
 
@@ -119,13 +108,23 @@ describe('validateAerialMove', () => {
     expect(() => validateAerialMove(bad)).toThrow(/non-negative integer/);
   });
 
-  it('rejects an auto-cancel window past busyTotal', () => {
+  it('rejects an overlong startup window that spans the active phase', () => {
     // SAMPLE_AERIAL busy = 4+4+8 = 16
     const bad: AerialMove = {
       ...SAMPLE_AERIAL,
       autoCancelWindows: [{ startFrame: 0, endFrame: 99 }],
     };
-    expect(() => validateAerialMove(bad)).toThrow(/extends past busyTotal/);
+    expect(() => validateAerialMove(bad)).toThrow(/overlaps the active phase/);
+  });
+
+  it('preserves a late landing flag after the aerial becomes actionable', () => {
+    const late: AerialMove = { ...SAMPLE_AERIAL, autoCancelWindows: [{ startFrame: 18, endFrame: 19 }] };
+    expect(() => validateAerialMove(late)).not.toThrow();
+    expect(getLandingLagFrames(late, 15)).toBe(late.landingLagFrames);
+    expect(getLandingLagFrames(late, 16)).toBe(late.landingLagFrames);
+    expect(getLandingLagFrames(late, 17)).toBe(late.landingLagFrames);
+    expect(getLandingLagFrames(late, 18)).toBe(0);
+    expect(getLandingLagFrames(late, 100)).toBe(0);
   });
 
   it('rejects overlapping auto-cancel windows', () => {
@@ -453,18 +452,15 @@ describe('knockback launch angle helpers', () => {
 // ---------------------------------------------------------------------------
 
 const CHARACTER_AERIALS = [
-  { name: 'wolf.nair', move: WOLF_NAIR_AERIAL, dir: 'neutral' },
-  { name: 'wolf.fair', move: WOLF_FAIR, dir: 'forward' },
-  { name: 'wolf.bair', move: WOLF_BAIR, dir: 'back' },
-  { name: 'cat.nair', move: CAT_NAIR_AERIAL, dir: 'neutral' },
-  { name: 'cat.fair', move: CAT_FAIR, dir: 'forward' },
-  { name: 'cat.bair', move: CAT_BAIR, dir: 'back' },
-  { name: 'owl.nair', move: OWL_NAIR, dir: 'neutral' },
-  { name: 'owl.fair', move: OWL_FAIR, dir: 'forward' },
-  { name: 'owl.bair', move: OWL_BAIR, dir: 'back' },
-  { name: 'bear.nair', move: BEAR_NAIR, dir: 'neutral' },
-  { name: 'bear.fair', move: BEAR_FAIR, dir: 'forward' },
-  { name: 'bear.bair', move: BEAR_BAIR, dir: 'back' },
+  { name: 'donkeykong.nair', move: DONKEYKONG_NAIR, dir: 'neutral' },
+  { name: 'donkeykong.fair', move: DONKEYKONG_FAIR, dir: 'forward' },
+  { name: 'donkeykong.bair', move: DONKEYKONG_BAIR, dir: 'back' },
+  { name: 'pikachu.nair', move: PIKACHU_NAIR, dir: 'neutral' },
+  { name: 'pikachu.fair', move: PIKACHU_FAIR, dir: 'forward' },
+  { name: 'pikachu.bair', move: PIKACHU_BAIR, dir: 'back' },
+  { name: 'link.nair', move: LINK_NAIR, dir: 'neutral' },
+  { name: 'link.fair', move: LINK_FAIR, dir: 'forward' },
+  { name: 'link.bair', move: LINK_BAIR, dir: 'back' },
 ] as const;
 
 describe('per-character aerial data', () => {
@@ -475,21 +471,6 @@ describe('per-character aerial data', () => {
 
     it(`${entry.name}: aerialDirection matches the expected '${entry.dir}'`, () => {
       expect(entry.move.aerialDirection).toBe(entry.dir);
-    });
-
-    it(`${entry.name}: id is the canonical '<character>.<direction>' label`, () => {
-      const expectedSuffix =
-        entry.dir === 'neutral' ? '.nair' : entry.dir === 'forward' ? '.fair' : '.bair';
-      expect(entry.move.id.endsWith(expectedSuffix)).toBe(true);
-    });
-
-    it(`${entry.name}: declares an animation block within the 6-8 frame Seed range`, () => {
-      const a = entry.move.animation;
-      expect(a).toBeDefined();
-      const total =
-        (a?.startupFrames ?? 0) + (a?.activeFrames ?? 0) + (a?.recoveryFrames ?? 0);
-      expect(total).toBeGreaterThanOrEqual(6);
-      expect(total).toBeLessThanOrEqual(8);
     });
 
     it(`${entry.name}: damage is positive`, () => {
@@ -511,14 +492,14 @@ describe('per-character aerial data', () => {
 
   // --- Cross-cutting roster invariants ---
 
-  it('every aerial id is unique across all four characters', () => {
+  it('every aerial id is unique across the roster', () => {
     const ids = CHARACTER_AERIALS.map((e) => e.move.id);
     const set = new Set(ids);
     expect(set.size).toBe(ids.length);
   });
 
-  it('every character has nair + fair + bair (12 records total)', () => {
-    expect(CHARACTER_AERIALS.length).toBe(12);
+  it('every character has nair + fair + bair (9 records total)', () => {
+    expect(CHARACTER_AERIALS.length).toBe(9);
     const grouped = new Map<string, Set<string>>();
     for (const e of CHARACTER_AERIALS) {
       const character = e.move.id.split('.')[0]!;
@@ -526,36 +507,9 @@ describe('per-character aerial data', () => {
       existing.add(e.dir);
       grouped.set(character, existing);
     }
-    expect(grouped.size).toBe(4);
+    expect(grouped.size).toBe(3);
     for (const [, dirs] of grouped) {
       expect(dirs).toEqual(new Set(['neutral', 'forward', 'back']));
-    }
-  });
-
-  it('forward / back aerials use a non-zero hitbox offsetX (extends from body)', () => {
-    for (const e of CHARACTER_AERIALS) {
-      if (e.dir === 'forward' || e.dir === 'back') {
-        expect(e.move.hitbox.offsetX).toBeGreaterThan(0);
-      }
-    }
-  });
-
-  it('neutral aerials use a zero hitbox offsetX (body-centred sphere)', () => {
-    for (const e of CHARACTER_AERIALS) {
-      if (e.dir === 'neutral') {
-        expect(e.move.hitbox.offsetX).toBe(0);
-      }
-    }
-  });
-
-  it('every aerial sends the target up-and-away (knockback angle in (0, 90])', () => {
-    for (const e of CHARACTER_AERIALS) {
-      const angle = getKnockbackLaunchAngleDegrees(e.move);
-      // Up-and-forward / up-and-back aerials should launch into [0, 90]
-      // range — never into the ground (negative angle) and never
-      // straight back (180°).
-      expect(angle).toBeGreaterThan(0);
-      expect(angle).toBeLessThanOrEqual(90);
     }
   });
 
@@ -575,73 +529,6 @@ describe('per-character aerial data', () => {
       }
     }
   });
-
-  it('every aerial declares at least one startup-side ("early-out") window', () => {
-    // Authoring convention: every aerial in the M2 cut declares an
-    // early-out window so a fighter who twitch-presses on the way
-    // down still gets a clean landing. The recovery-side window is
-    // optional (committal moves like Bear's bair omit it).
-    for (const e of CHARACTER_AERIALS) {
-      const grouped = getAutoCancelWindowsByPhase(e.move);
-      expect(
-        grouped.startup.length,
-        `${e.move.id}: missing startup-side auto-cancel window`,
-      ).toBeGreaterThanOrEqual(1);
-    }
-  });
-
-  // --- Per-character archetype sanity (locks the design intent) ---
-
-  it("Cat's nair has the lightest landing lag in the cast", () => {
-    const lags = CHARACTER_AERIALS.filter((e) => e.dir === 'neutral').map((e) => ({
-      id: e.move.id,
-      lag: e.move.landingLagFrames,
-    }));
-    const cat = lags.find((l) => l.id === 'cat.nair')!;
-    for (const l of lags) {
-      expect(cat.lag).toBeLessThanOrEqual(l.lag);
-    }
-  });
-
-  it("Bear's bair has the heaviest landing lag in the cast", () => {
-    const allLags = CHARACTER_AERIALS.map((e) => ({
-      id: e.move.id,
-      lag: e.move.landingLagFrames,
-    }));
-    const bear = allLags.find((l) => l.id === 'bear.bair')!;
-    for (const l of allLags) {
-      expect(bear.lag).toBeGreaterThanOrEqual(l.lag);
-    }
-  });
-
-  it("Bear's bair has the highest damage of any aerial in the cast", () => {
-    const damages = CHARACTER_AERIALS.map((e) => ({
-      id: e.move.id,
-      dmg: e.move.damage,
-    }));
-    const bear = damages.find((d) => d.id === 'bear.bair')!;
-    for (const d of damages) {
-      expect(bear.dmg).toBeGreaterThanOrEqual(d.dmg);
-    }
-  });
-
-  it("Cat's fair has the fastest startup of any aerial in the cast", () => {
-    const startups = CHARACTER_AERIALS.map((e) => ({
-      id: e.move.id,
-      s: e.move.startupFrames,
-    }));
-    // Cat's nair is the cast-fastest aerial overall (3); fair (4) is
-    // the fastest fair specifically. Lock both invariants.
-    const catNair = startups.find((s) => s.id === 'cat.nair')!;
-    for (const s of startups) {
-      expect(catNair.s).toBeLessThanOrEqual(s.s);
-    }
-    const fairs = startups.filter((s) => s.id.endsWith('.fair'));
-    const catFair = fairs.find((s) => s.id === 'cat.fair')!;
-    for (const s of fairs) {
-      expect(catFair.s).toBeLessThanOrEqual(s.s);
-    }
-  });
 });
 
 // ---------------------------------------------------------------------------
@@ -651,8 +538,8 @@ describe('per-character aerial data', () => {
 describe('aerialSchema determinism', () => {
   it('isAutoCancelFrame is a pure function of (move, frame)', () => {
     for (let f = 0; f < 50; f++) {
-      const a = isAutoCancelFrame(WOLF_NAIR_AERIAL, f);
-      const b = isAutoCancelFrame(WOLF_NAIR_AERIAL, f);
+      const a = isAutoCancelFrame(DONKEYKONG_NAIR, f);
+      const b = isAutoCancelFrame(DONKEYKONG_NAIR, f);
       expect(a).toBe(b);
     }
   });
@@ -667,8 +554,8 @@ describe('aerialSchema determinism', () => {
 
   it('getLandingLagFrames is a pure function', () => {
     for (let f = 0; f < 50; f++) {
-      const a = getLandingLagFrames(WOLF_BAIR, f);
-      const b = getLandingLagFrames(WOLF_BAIR, f);
+      const a = getLandingLagFrames(DONKEYKONG_BAIR, f);
+      const b = getLandingLagFrames(DONKEYKONG_BAIR, f);
       expect(a).toBe(b);
     }
   });

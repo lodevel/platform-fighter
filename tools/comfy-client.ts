@@ -74,8 +74,8 @@ export class ComfyClient {
     return json.prompt_id;
   }
 
-  /** Poll /history/<id> until the prompt produces images (or timeout). */
-  async waitForImages(promptId: string): Promise<ComfyImageRef[]> {
+  /** Poll history for saved images, optionally from one specific output node. */
+  async waitForImages(promptId: string, outputNodeId?: string): Promise<ComfyImageRef[]> {
     const deadline = Date.now() + this.timeoutMs;
     for (;;) {
       const res = await fetch(`${this.baseUrl}/history/${promptId}`);
@@ -87,8 +87,11 @@ export class ComfyClient {
           if (status === 'error') {
             throw new Error(`Render failed: ${JSON.stringify(entry.status?.messages ?? entry.status)}`);
           }
-          const images = collectImages(entry);
+          const images = collectImages(entry, outputNodeId);
           if (images.length > 0) return images;
+          if (entry.status?.completed) {
+            throw new Error(`Completed prompt ${promptId} has no saved images${outputNodeId ? ` at node ${outputNodeId}` : ''}`);
+          }
         }
       }
       if (Date.now() > deadline) {
@@ -110,10 +113,16 @@ export class ComfyClient {
     return new Uint8Array(await res.arrayBuffer());
   }
 
-  /** Convenience: queue -> wait -> fetch first image bytes. */
-  async render(workflow: ComfyWorkflow): Promise<{ promptId: string; bytes: Uint8Array; ref: ComfyImageRef }> {
+  /** Queue and fetch the selected final output; never infer it from history order. */
+  async render(workflow: ComfyWorkflow, outputNodeId?: string): Promise<{ promptId: string; bytes: Uint8Array; ref: ComfyImageRef }> {
+    const saveNodes = Object.entries(workflow).filter(([, node]) => node.class_type === 'SaveImage');
+    const selectedNode = outputNodeId ?? (saveNodes.length === 1 ? saveNodes[0]?.[0] : undefined);
+    if (!selectedNode) {
+      throw new Error('Specify outputNodeId for a workflow with zero or multiple SaveImage nodes');
+    }
+    if (!workflow[selectedNode]) throw new Error(`Output node ${selectedNode} is absent from workflow`);
     const promptId = await this.queue(workflow);
-    const images = await this.waitForImages(promptId);
+    const images = await this.waitForImages(promptId, selectedNode);
     const ref = images[0];
     if (!ref) throw new Error(`No image produced for prompt ${promptId}`);
     const bytes = await this.fetchImage(ref);
@@ -123,13 +132,17 @@ export class ComfyClient {
 
 // ─── internal ───────────────────────────────────────────────────────────────
 interface HistoryEntry {
-  status?: { status_str?: string; messages?: unknown };
+  status?: { status_str?: string; messages?: unknown; completed?: boolean };
   outputs?: Record<string, { images?: ComfyImageRef[] }>;
 }
 
-function collectImages(entry: HistoryEntry): ComfyImageRef[] {
+function collectImages(entry: HistoryEntry, outputNodeId?: string): ComfyImageRef[] {
   const out: ComfyImageRef[] = [];
-  for (const node of Object.values(entry.outputs ?? {})) {
+  const nodes = outputNodeId === undefined
+    ? Object.values(entry.outputs ?? {})
+    : [entry.outputs?.[outputNodeId]];
+  for (const node of nodes) {
+    if (!node) continue;
     for (const img of node.images ?? []) {
       if (img.type === 'output') out.push(img);
     }

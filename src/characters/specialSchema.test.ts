@@ -17,19 +17,9 @@ import {
   type CommandGrabSpecialMove,
   type CounterSpecialMove,
 } from './specialSchema';
-import {
-  WOLF_NEUTRAL_SPECIAL,
-  CAT_NEUTRAL_SPECIAL,
-  OWL_NEUTRAL_SPECIAL,
-  BEAR_NEUTRAL_SPECIAL,
-} from './index';
-import {
-  WOLF_JAB,
-  CAT_JAB,
-  OWL_JAB,
-  BEAR_JAB,
-  WOLF_NAIR,
-} from './index';
+import { DONKEYKONG_JAB, DONKEYKONG_NAIR, DONKEYKONG_NEUTRAL_SPECIAL } from './DonkeyKong';
+import { PIKACHU_JAB, PIKACHU_NEUTRAL_SPECIAL } from './Pikachu';
+import { LINK_JAB, LINK_NEUTRAL_SPECIAL } from './linkFreshKit';
 import { CHARACTER_ROSTER, findMoveByType } from './roster';
 
 /**
@@ -40,15 +30,14 @@ import { CHARACTER_ROSTER, findMoveByType } from './roster';
  * no wall-clock). This suite locks down:
  *
  *   1. Type guards correctly classify the four kinds.
- *   2. Schema validators reject malformed records and accept all four
- *      authored records.
+ *   2. Schema validators reject malformed records and accept every
+ *      authored roster record.
  *   3. Charge interpolation is monotonic and clamped.
  *   4. Counter window predicate respects the half-open boundaries.
  *   5. Counter damage clamp respects min / max bounds.
  *   6. Per-character data — each authored special passes the schema
- *      AND the Seed roster invariants (every character has exactly
- *      one neutral special, kinds are pairwise distinct, ids are
- *      unique).
+ *      AND the roster invariants (every character has exactly one
+ *      neutral special, ids are unique and carry the owner prefix).
  *   7. Roster integration — `CHARACTER_ROSTER[id].moves` exposes the
  *      special and `findMoveByType(spec, 'special')` returns it.
  */
@@ -58,11 +47,9 @@ import { CHARACTER_ROSTER, findMoveByType } from './roster';
  * `ChargeSpecialMove` schema or the charge-interpolation helpers
  * (computeChargeT / computeChargedDamage / computeChargedKnockback).
  *
- * Owl previously authored a charge variant; after pivoting Owl to
- * `'projectile'` the roster no longer ships a charge example, so
- * this fixture stands in. Authored to validate cleanly so it serves
- * as the baseline for every "tweak this field to break it"
- * mutation test below.
+ * Authored to validate cleanly so it serves as the baseline for every
+ * "tweak this field to break it" mutation test below, independent of
+ * Donkey Kong's tuned Giant Punch record.
  */
 const CHARGE_TEST_FIXTURE: ChargeSpecialMove = Object.freeze({
   id: 'fixture.charge_special',
@@ -86,49 +73,110 @@ const CHARGE_TEST_FIXTURE: ChargeSpecialMove = Object.freeze({
   },
 });
 
+/**
+ * Synthetic counter-kind fixture: no roster fighter ships a counter
+ * neutral special, but the counter schema / helpers stay public.
+ * Busy total = 4 + 20 + 26 = 50 frames; window [6, 20) sits inside it.
+ */
+const COUNTER_TEST_FIXTURE: CounterSpecialMove = Object.freeze({
+  id: 'fixture.counter_special',
+  type: 'special',
+  specialKind: 'counter',
+  damage: 0,
+  knockback: { x: 0, y: 0, scaling: 0 },
+  hitbox: { offsetX: 0, offsetY: 0, width: 1, height: 1 },
+  startupFrames: 4,
+  activeFrames: 20,
+  recoveryFrames: 26,
+  cooldownFrames: 30,
+  animation: { startupFrames: 1, activeFrames: 4, recoveryFrames: 3 },
+  counter: {
+    counterWindowStart: 6,
+    counterWindowEnd: 20,
+    damageMultiplier: 1.3,
+    minCounterDamage: 8,
+    maxCounterDamage: 22,
+    counterKnockback: { x: 3.2, y: -2.2, scaling: 0.3 },
+    counterHitbox: { offsetX: 34, offsetY: -4, width: 56, height: 44 },
+  },
+});
+
+/** Synthetic command-grab fixture: no roster fighter ships one either. */
+const COMMAND_GRAB_TEST_FIXTURE: CommandGrabSpecialMove = Object.freeze({
+  id: 'fixture.command_grab_special',
+  type: 'special',
+  specialKind: 'commandGrab',
+  damage: 0,
+  knockback: { x: 0, y: 0, scaling: 0 },
+  hitbox: { offsetX: 30, offsetY: 0, width: 40, height: 50 },
+  startupFrames: 10,
+  activeFrames: 4,
+  recoveryFrames: 30,
+  cooldownFrames: 30,
+  animation: { startupFrames: 2, activeFrames: 3, recoveryFrames: 3 },
+  grab: {
+    grabHoldFrames: 18,
+    throwDamage: 14,
+    throwKnockback: { x: 3, y: -2.4, scaling: 0.25 },
+    ignoresShield: true,
+  },
+});
+
+/** Every authored roster neutral special. */
+const ROSTER_NEUTRAL_SPECIALS = [
+  { id: 'donkeykong', move: DONKEYKONG_NEUTRAL_SPECIAL },
+  { id: 'pikachu', move: PIKACHU_NEUTRAL_SPECIAL },
+  { id: 'link', move: LINK_NEUTRAL_SPECIAL },
+] as const;
+
 // ---------------------------------------------------------------------------
 // Type guards
 // ---------------------------------------------------------------------------
 
 describe('type guards', () => {
   it('isNeutralSpecialMove rejects non-special moves', () => {
-    expect(isNeutralSpecialMove(WOLF_JAB)).toBe(false);
-    expect(isNeutralSpecialMove(WOLF_NAIR)).toBe(false);
+    expect(isNeutralSpecialMove(DONKEYKONG_JAB)).toBe(false);
+    expect(isNeutralSpecialMove(DONKEYKONG_NAIR)).toBe(false);
   });
 
-  it('isNeutralSpecialMove accepts every authored special', () => {
-    expect(isNeutralSpecialMove(WOLF_NEUTRAL_SPECIAL)).toBe(true);
-    expect(isNeutralSpecialMove(CAT_NEUTRAL_SPECIAL)).toBe(true);
-    expect(isNeutralSpecialMove(OWL_NEUTRAL_SPECIAL)).toBe(true);
-    expect(isNeutralSpecialMove(BEAR_NEUTRAL_SPECIAL)).toBe(true);
+  it('isNeutralSpecialMove accepts every authored special and every kind fixture', () => {
+    for (const { move } of ROSTER_NEUTRAL_SPECIALS) {
+      expect(isNeutralSpecialMove(move)).toBe(true);
+    }
+    expect(isNeutralSpecialMove(CHARGE_TEST_FIXTURE)).toBe(true);
+    expect(isNeutralSpecialMove(COUNTER_TEST_FIXTURE)).toBe(true);
+    expect(isNeutralSpecialMove(COMMAND_GRAB_TEST_FIXTURE)).toBe(true);
   });
 
   it('per-kind type guards classify correctly and exclusively', () => {
-    // Wolf = counter
-    expect(isCounterSpecial(WOLF_NEUTRAL_SPECIAL)).toBe(true);
-    expect(isProjectileSpecial(WOLF_NEUTRAL_SPECIAL)).toBe(false);
-    expect(isChargeSpecial(WOLF_NEUTRAL_SPECIAL)).toBe(false);
-    expect(isCommandGrabSpecial(WOLF_NEUTRAL_SPECIAL)).toBe(false);
+    // Donkey Kong = charge (Giant Punch).
+    expect(isChargeSpecial(DONKEYKONG_NEUTRAL_SPECIAL)).toBe(true);
+    expect(isProjectileSpecial(DONKEYKONG_NEUTRAL_SPECIAL)).toBe(false);
+    expect(isCounterSpecial(DONKEYKONG_NEUTRAL_SPECIAL)).toBe(false);
+    expect(isCommandGrabSpecial(DONKEYKONG_NEUTRAL_SPECIAL)).toBe(false);
 
-    // Cat = charge (close-range ninja strike — was projectile,
-    // pivoted to keep Owl as the sole zoner).
-    expect(isChargeSpecial(CAT_NEUTRAL_SPECIAL)).toBe(true);
-    expect(isProjectileSpecial(CAT_NEUTRAL_SPECIAL)).toBe(false);
-    expect(isCounterSpecial(CAT_NEUTRAL_SPECIAL)).toBe(false);
+    // Pikachu and Link = projectile (Thunder Jolt, Bow).
+    for (const move of [PIKACHU_NEUTRAL_SPECIAL, LINK_NEUTRAL_SPECIAL]) {
+      expect(isProjectileSpecial(move)).toBe(true);
+      expect(isChargeSpecial(move)).toBe(false);
+      expect(isCounterSpecial(move)).toBe(false);
+      expect(isCommandGrabSpecial(move)).toBe(false);
+    }
 
-    // Owl = projectile (mage / zoner — feather-bolt).
-    expect(isProjectileSpecial(OWL_NEUTRAL_SPECIAL)).toBe(true);
-    expect(isChargeSpecial(OWL_NEUTRAL_SPECIAL)).toBe(false);
-    expect(isCounterSpecial(OWL_NEUTRAL_SPECIAL)).toBe(false);
+    // Counter fixture
+    expect(isCounterSpecial(COUNTER_TEST_FIXTURE)).toBe(true);
+    expect(isProjectileSpecial(COUNTER_TEST_FIXTURE)).toBe(false);
+    expect(isChargeSpecial(COUNTER_TEST_FIXTURE)).toBe(false);
+    expect(isCommandGrabSpecial(COUNTER_TEST_FIXTURE)).toBe(false);
 
-    // Bear = command grab
-    expect(isCommandGrabSpecial(BEAR_NEUTRAL_SPECIAL)).toBe(true);
-    expect(isCounterSpecial(BEAR_NEUTRAL_SPECIAL)).toBe(false);
+    // Command-grab fixture
+    expect(isCommandGrabSpecial(COMMAND_GRAB_TEST_FIXTURE)).toBe(true);
+    expect(isCounterSpecial(COMMAND_GRAB_TEST_FIXTURE)).toBe(false);
   });
 
   it('isNeutralSpecialMove rejects a move tagged "special" without a specialKind', () => {
     const malformed = {
-      ...WOLF_NEUTRAL_SPECIAL,
+      ...DONKEYKONG_NEUTRAL_SPECIAL,
       specialKind: undefined,
     } as unknown as NeutralSpecialMove;
     expect(isNeutralSpecialMove(malformed)).toBe(false);
@@ -140,38 +188,40 @@ describe('type guards', () => {
 // ---------------------------------------------------------------------------
 
 describe('validateNeutralSpecialMove', () => {
-  it('accepts every authored neutral-special record', () => {
-    expect(validateNeutralSpecialMove(WOLF_NEUTRAL_SPECIAL)).toBe(WOLF_NEUTRAL_SPECIAL);
-    expect(validateNeutralSpecialMove(CAT_NEUTRAL_SPECIAL)).toBe(CAT_NEUTRAL_SPECIAL);
-    expect(validateNeutralSpecialMove(OWL_NEUTRAL_SPECIAL)).toBe(OWL_NEUTRAL_SPECIAL);
-    expect(validateNeutralSpecialMove(BEAR_NEUTRAL_SPECIAL)).toBe(BEAR_NEUTRAL_SPECIAL);
+  it('accepts every authored neutral-special record and every kind fixture', () => {
+    for (const { move } of ROSTER_NEUTRAL_SPECIALS) {
+      expect(validateNeutralSpecialMove(move)).toBe(move);
+    }
+    for (const move of [CHARGE_TEST_FIXTURE, COUNTER_TEST_FIXTURE, COMMAND_GRAB_TEST_FIXTURE]) {
+      expect(validateNeutralSpecialMove(move)).toBe(move);
+    }
   });
 
   it('rejects a record whose type is not "special"', () => {
-    const bad = { ...WOLF_NEUTRAL_SPECIAL, type: 'jab' } as unknown as NeutralSpecialMove;
+    const bad = { ...DONKEYKONG_NEUTRAL_SPECIAL, type: 'jab' } as unknown as NeutralSpecialMove;
     expect(() => validateNeutralSpecialMove(bad)).toThrow(/type/);
   });
 
   it('projectile: rejects zero-speed projectile', () => {
     const bad: ProjectileSpecialMove = {
-      ...OWL_NEUTRAL_SPECIAL,
-      projectile: { ...OWL_NEUTRAL_SPECIAL.projectile, speed: 0 },
+      ...PIKACHU_NEUTRAL_SPECIAL,
+      projectile: { ...PIKACHU_NEUTRAL_SPECIAL.projectile, speed: 0 },
     };
     expect(() => validateNeutralSpecialMove(bad)).toThrow(/speed/);
   });
 
   it('projectile: rejects non-positive lifetime', () => {
     const bad: ProjectileSpecialMove = {
-      ...OWL_NEUTRAL_SPECIAL,
-      projectile: { ...OWL_NEUTRAL_SPECIAL.projectile, lifetimeFrames: 0 },
+      ...PIKACHU_NEUTRAL_SPECIAL,
+      projectile: { ...PIKACHU_NEUTRAL_SPECIAL.projectile, lifetimeFrames: 0 },
     };
     expect(() => validateNeutralSpecialMove(bad)).toThrow(/lifetimeFrames/);
   });
 
   it('projectile: rejects non-positive dimensions', () => {
     const bad: ProjectileSpecialMove = {
-      ...OWL_NEUTRAL_SPECIAL,
-      projectile: { ...OWL_NEUTRAL_SPECIAL.projectile, width: 0 },
+      ...PIKACHU_NEUTRAL_SPECIAL,
+      projectile: { ...PIKACHU_NEUTRAL_SPECIAL.projectile, width: 0 },
     };
     expect(() => validateNeutralSpecialMove(bad)).toThrow(/dimensions/);
   });
@@ -202,25 +252,25 @@ describe('validateNeutralSpecialMove', () => {
 
   it('commandGrab: rejects negative grabHoldFrames', () => {
     const bad: CommandGrabSpecialMove = {
-      ...BEAR_NEUTRAL_SPECIAL,
-      grab: { ...BEAR_NEUTRAL_SPECIAL.grab, grabHoldFrames: -1 },
+      ...COMMAND_GRAB_TEST_FIXTURE,
+      grab: { ...COMMAND_GRAB_TEST_FIXTURE.grab, grabHoldFrames: -1 },
     };
     expect(() => validateNeutralSpecialMove(bad)).toThrow(/grabHoldFrames/);
   });
 
   it('commandGrab: rejects negative throwDamage', () => {
     const bad: CommandGrabSpecialMove = {
-      ...BEAR_NEUTRAL_SPECIAL,
-      grab: { ...BEAR_NEUTRAL_SPECIAL.grab, throwDamage: -1 },
+      ...COMMAND_GRAB_TEST_FIXTURE,
+      grab: { ...COMMAND_GRAB_TEST_FIXTURE.grab, throwDamage: -1 },
     };
     expect(() => validateNeutralSpecialMove(bad)).toThrow(/throwDamage/);
   });
 
   it('counter: rejects window where end <= start', () => {
     const bad: CounterSpecialMove = {
-      ...WOLF_NEUTRAL_SPECIAL,
+      ...COUNTER_TEST_FIXTURE,
       counter: {
-        ...WOLF_NEUTRAL_SPECIAL.counter,
+        ...COUNTER_TEST_FIXTURE.counter,
         counterWindowStart: 5,
         counterWindowEnd: 5,
       },
@@ -230,9 +280,9 @@ describe('validateNeutralSpecialMove', () => {
 
   it('counter: rejects window past busyTotal', () => {
     const bad: CounterSpecialMove = {
-      ...WOLF_NEUTRAL_SPECIAL,
+      ...COUNTER_TEST_FIXTURE,
       counter: {
-        ...WOLF_NEUTRAL_SPECIAL.counter,
+        ...COUNTER_TEST_FIXTURE.counter,
         counterWindowStart: 0,
         counterWindowEnd: 999,
       },
@@ -242,17 +292,17 @@ describe('validateNeutralSpecialMove', () => {
 
   it('counter: rejects non-positive damageMultiplier', () => {
     const bad: CounterSpecialMove = {
-      ...WOLF_NEUTRAL_SPECIAL,
-      counter: { ...WOLF_NEUTRAL_SPECIAL.counter, damageMultiplier: 0 },
+      ...COUNTER_TEST_FIXTURE,
+      counter: { ...COUNTER_TEST_FIXTURE.counter, damageMultiplier: 0 },
     };
     expect(() => validateNeutralSpecialMove(bad)).toThrow(/damageMultiplier/);
   });
 
   it('counter: rejects max < min counter damage clamp', () => {
     const bad: CounterSpecialMove = {
-      ...WOLF_NEUTRAL_SPECIAL,
+      ...COUNTER_TEST_FIXTURE,
       counter: {
-        ...WOLF_NEUTRAL_SPECIAL.counter,
+        ...COUNTER_TEST_FIXTURE.counter,
         minCounterDamage: 30,
         maxCounterDamage: 10,
       },
@@ -266,11 +316,9 @@ describe('validateNeutralSpecialMove', () => {
 // ---------------------------------------------------------------------------
 
 describe('charge interpolation', () => {
-  // Synthetic charge fixture — Owl pivoted to projectile, but the
-  // charge-helper math is still part of the public schema and is
-  // exercised here against an authored fixture so adding a future
-  // charge-kind character (or restoring Owl's charge variant)
-  // doesn't drop the test coverage.
+  // Synthetic charge fixture: the charge-helper math is part of the
+  // public schema and is exercised against fixed endpoints so a DK
+  // Giant Punch retune doesn't change this coverage.
   const charge = CHARGE_TEST_FIXTURE;
 
   it('computeChargeT clamps at 0 below minChargeFrames', () => {
@@ -325,30 +373,30 @@ describe('charge interpolation', () => {
 // ---------------------------------------------------------------------------
 
 describe('counter helpers', () => {
-  const wolf = WOLF_NEUTRAL_SPECIAL;
+  const counter = COUNTER_TEST_FIXTURE;
 
   it('isInCounterWindow respects half-open boundaries', () => {
-    const start = wolf.counter.counterWindowStart;
-    const end = wolf.counter.counterWindowEnd;
-    expect(isInCounterWindow(wolf, start - 1)).toBe(false);
-    expect(isInCounterWindow(wolf, start)).toBe(true);
-    expect(isInCounterWindow(wolf, end - 1)).toBe(true);
-    expect(isInCounterWindow(wolf, end)).toBe(false);
+    const start = counter.counter.counterWindowStart;
+    const end = counter.counter.counterWindowEnd;
+    expect(isInCounterWindow(counter, start - 1)).toBe(false);
+    expect(isInCounterWindow(counter, start)).toBe(true);
+    expect(isInCounterWindow(counter, end - 1)).toBe(true);
+    expect(isInCounterWindow(counter, end)).toBe(false);
   });
 
   it('computeCounterDamage applies the multiplier', () => {
     // 10% absorbed * 1.3 = 13 (within clamp)
-    expect(computeCounterDamage(wolf, 10)).toBeCloseTo(13, 5);
+    expect(computeCounterDamage(counter, 10)).toBeCloseTo(13, 5);
   });
 
   it('computeCounterDamage clamps at the minimum', () => {
     // 1% absorbed * 1.3 = 1.3 — below minCounterDamage (8)
-    expect(computeCounterDamage(wolf, 1)).toBe(wolf.counter.minCounterDamage);
+    expect(computeCounterDamage(counter, 1)).toBe(counter.counter.minCounterDamage);
   });
 
   it('computeCounterDamage clamps at the maximum', () => {
     // 50% absorbed * 1.3 = 65 — above maxCounterDamage (22)
-    expect(computeCounterDamage(wolf, 50)).toBe(wolf.counter.maxCounterDamage);
+    expect(computeCounterDamage(counter, 50)).toBe(counter.counter.maxCounterDamage);
   });
 });
 
@@ -358,31 +406,15 @@ describe('counter helpers', () => {
 
 describe('per-character neutral specials', () => {
   it('every character has exactly one neutral special', () => {
-    for (const id of ['wolf', 'cat', 'owl', 'bear'] as const) {
+    for (const { id } of ROSTER_NEUTRAL_SPECIALS) {
       const spec = CHARACTER_ROSTER[id];
       const specials = spec.moves.filter((m) => m.type === 'special');
       expect(specials.length).toBe(1);
     }
   });
 
-  it('the four characters use four distinct kinds (Seed: unique mechanics)', () => {
-    // Wolf=counter, Cat=charge (close-range ninja strike),
-    // Owl=projectile (mage zoner), Bear=commandGrab. One kind each.
-    const kinds = new Set([
-      WOLF_NEUTRAL_SPECIAL.specialKind,
-      CAT_NEUTRAL_SPECIAL.specialKind,
-      OWL_NEUTRAL_SPECIAL.specialKind,
-      BEAR_NEUTRAL_SPECIAL.specialKind,
-    ]);
-    expect(kinds.size).toBe(4);
-    expect(kinds.has('counter')).toBe(true);
-    expect(kinds.has('charge')).toBe(true);
-    expect(kinds.has('projectile')).toBe(true);
-    expect(kinds.has('commandGrab')).toBe(true);
-  });
-
-  it('every special id is unique within its character moveset', () => {
-    for (const id of ['wolf', 'cat', 'owl', 'bear'] as const) {
+  it('every move id is unique within its character moveset', () => {
+    for (const { id } of ROSTER_NEUTRAL_SPECIALS) {
       const spec = CHARACTER_ROSTER[id];
       const ids = spec.moves.map((m) => m.id);
       expect(new Set(ids).size).toBe(ids.length);
@@ -390,26 +422,14 @@ describe('per-character neutral specials', () => {
   });
 
   it('every special id matches its owning character prefix', () => {
-    expect(WOLF_NEUTRAL_SPECIAL.id).toMatch(/^wolf\./);
-    expect(CAT_NEUTRAL_SPECIAL.id).toMatch(/^cat\./);
-    expect(OWL_NEUTRAL_SPECIAL.id).toMatch(/^owl\./);
-    expect(BEAR_NEUTRAL_SPECIAL.id).toMatch(/^bear\./);
+    for (const { id, move } of ROSTER_NEUTRAL_SPECIALS) {
+      expect(move.id.startsWith(`${id}.`)).toBe(true);
+    }
   });
 
   it('findMoveByType("special") returns the neutral special for each character', () => {
-    expect(findMoveByType(CHARACTER_ROSTER.wolf, 'special')).toBe(WOLF_NEUTRAL_SPECIAL);
-    expect(findMoveByType(CHARACTER_ROSTER.cat, 'special')).toBe(CAT_NEUTRAL_SPECIAL);
-    expect(findMoveByType(CHARACTER_ROSTER.owl, 'special')).toBe(OWL_NEUTRAL_SPECIAL);
-    expect(findMoveByType(CHARACTER_ROSTER.bear, 'special')).toBe(BEAR_NEUTRAL_SPECIAL);
-  });
-
-  it('every special declares an animation block (renderer integration)', () => {
-    for (const sp of [WOLF_NEUTRAL_SPECIAL, CAT_NEUTRAL_SPECIAL, OWL_NEUTRAL_SPECIAL, BEAR_NEUTRAL_SPECIAL]) {
-      expect(sp.animation).toBeDefined();
-      const a = sp.animation!;
-      expect(a.startupFrames).toBeGreaterThan(0);
-      expect(a.activeFrames).toBeGreaterThan(0);
-      expect(a.recoveryFrames).toBeGreaterThan(0);
+    for (const { id, move } of ROSTER_NEUTRAL_SPECIALS) {
+      expect(findMoveByType(CHARACTER_ROSTER[id], 'special')).toBe(move);
     }
   });
 });
@@ -426,8 +446,8 @@ describe('determinism', () => {
   });
 
   it('counter damage clamp is deterministic', () => {
-    const a = computeCounterDamage(WOLF_NEUTRAL_SPECIAL, 12);
-    const b = computeCounterDamage(WOLF_NEUTRAL_SPECIAL, 12);
+    const a = computeCounterDamage(COUNTER_TEST_FIXTURE, 12);
+    const b = computeCounterDamage(COUNTER_TEST_FIXTURE, 12);
     expect(a).toBe(b);
   });
 });
@@ -438,7 +458,7 @@ describe('determinism', () => {
 
 describe('AttackMove compatibility (structural subtype)', () => {
   it('every NeutralSpecialMove has the AttackMove fields', () => {
-    for (const sp of [WOLF_NEUTRAL_SPECIAL, CAT_NEUTRAL_SPECIAL, OWL_NEUTRAL_SPECIAL, BEAR_NEUTRAL_SPECIAL]) {
+    for (const sp of [...ROSTER_NEUTRAL_SPECIALS.map((e) => e.move), CHARGE_TEST_FIXTURE, COUNTER_TEST_FIXTURE, COMMAND_GRAB_TEST_FIXTURE]) {
       expect(typeof sp.id).toBe('string');
       expect(sp.type).toBe('special');
       expect(typeof sp.damage).toBe('number');
@@ -459,9 +479,8 @@ describe('AttackMove compatibility (structural subtype)', () => {
   it('grounded triplets are unaffected by the special slot wiring', () => {
     // Sanity: jab still resolves to type='jab'; the new special slot
     // should not have leaked through and reclassified anything.
-    expect(WOLF_JAB.type).toBe('jab');
-    expect(CAT_JAB.type).toBe('jab');
-    expect(OWL_JAB.type).toBe('jab');
-    expect(BEAR_JAB.type).toBe('jab');
+    expect(DONKEYKONG_JAB.type).toBe('jab');
+    expect(PIKACHU_JAB.type).toBe('jab');
+    expect(LINK_JAB.type).toBe('jab');
   });
 });

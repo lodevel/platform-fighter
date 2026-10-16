@@ -346,9 +346,9 @@ export function classifyGroundedAttack(
   // 1a. Up / down-SMASH via a VERTICAL flick on a light press (stick at rest
   // last frame → past the flick threshold this frame), mirroring the
   // horizontal flick → forward-smash. Checked BEFORE the up/down-TILT below so
-  // a sharp flick reads as a smash and a steady lean reads as a tilt. Without
-  // this, up/down-smash are UNREACHABLE — they otherwise need a dedicated
-  // heavy button, which the input layer does not wire.
+  // a sharp flick reads as a smash and a steady lean reads as a tilt. This
+  // keeps up/down-smash reachable from the attack button alone, beside the
+  // dedicated smash input (smash key / right stick).
   if (
     vertDominant &&
     isSmashFlick(input.prevMoveY ?? 0, moveY, flickThreshold, restThreshold)

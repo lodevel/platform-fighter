@@ -616,10 +616,9 @@ export class PlayerInputController {
    * forwarded so a custom resolver that wants the full bitmap can use
    * it without a second query path.
    *
-   * The `taunt` field is filled with `false` because the controller
-   * does not expose a taunt action (it is omitted from the Seed's
-   * action API for M5). Resolvers that care about taunt should read
-   * through the manager directly.
+   * `taunt` is the persisted-schema alias for the direct dodge binding.
+   * Reading it here keeps this controller consistent with InputResolver
+   * without rewriting existing player profiles.
    */
   private buildHeldMap(): ActionHeldMap {
     return Object.freeze({
@@ -632,7 +631,8 @@ export class PlayerInputController {
       special: this.current.special,
       shield: this.current.shield,
       grab: this.current.grab,
-      taunt: false,
+      taunt: this.manager.isActionHeld(this.slot, 'taunt'),
+      smash: this.manager.isActionHeld(this.slot, 'smash'),
     });
   }
 

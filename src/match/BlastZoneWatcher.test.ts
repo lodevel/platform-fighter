@@ -5,7 +5,7 @@ import {
   type BlastZoneCollisionEvent,
   type MinimalBody,
 } from './BlastZoneWatcher';
-import { BLAST_ZONE_LABELS, PLATFORM_LABELS } from '../stages/StageRenderer';
+import { BLAST_ZONE_LABELS, PLATFORM_LABELS } from '../stages/stageBodies';
 
 /**
  * Sub-AC 4.2 of AC 302: blast-zone collision watcher tests.

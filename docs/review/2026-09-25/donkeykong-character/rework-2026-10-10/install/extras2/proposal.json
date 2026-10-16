@@ -1,0 +1,820 @@
+{
+  "state": "DK_CARGO_RECIPIENT_HIP_ANCHORS_FOR_REVIEW_BY_VIEWING_OVERLAYS",
+  "recipientProposals": [
+    {
+      "poseKey": "cargo_recipient_carried",
+      "context": "cargo-held",
+      "profileKey": "dk-ordinary-grab-target-v1",
+      "dimensions": {
+        "width": 60,
+        "height": 84
+      },
+      "artFrameIndex": 0,
+      "nativeSample": 1,
+      "point": {
+        "x": 2.648,
+        "y": -21.386
+      },
+      "provenance": "authored-reviewed-target",
+      "bone": "Hip",
+      "artPixel": [
+        232.7,
+        118.2
+      ],
+      "onOpaquePixel": true,
+      "view": {
+        "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/extras2/dk-cargo_recipient_carried-cell0-anchor.png",
+        "sha256": "ac0ae5845ec8528a522ea8001f539c51424721d7df419868356010a5c2d802d5"
+      }
+    },
+    {
+      "poseKey": "cargo_recipient_carried",
+      "context": "cargo-held",
+      "profileKey": "dk-ordinary-grab-target-v1",
+      "dimensions": {
+        "width": 60,
+        "height": 84
+      },
+      "artFrameIndex": 1,
+      "nativeSample": 9,
+      "point": {
+        "x": 2.358,
+        "y": -21.243
+      },
+      "provenance": "authored-reviewed-target",
+      "bone": "Hip",
+      "artPixel": [
+        232.1,
+        118.5
+      ],
+      "onOpaquePixel": true,
+      "view": {
+        "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/extras2/dk-cargo_recipient_carried-cell1-anchor.png",
+        "sha256": "f0bee4095b0c70cb351ab90a57f6e496e77644c7dd33a8b002be05d18c172a17"
+      }
+    },
+    {
+      "poseKey": "cargo_recipient_carried",
+      "context": "cargo-held",
+      "profileKey": "dk-ordinary-grab-target-v1",
+      "dimensions": {
+        "width": 60,
+        "height": 84
+      },
+      "artFrameIndex": 2,
+      "nativeSample": 17,
+      "point": {
+        "x": 2.023,
+        "y": -21.132
+      },
+      "provenance": "authored-reviewed-target",
+      "bone": "Hip",
+      "artPixel": [
+        231.3,
+        118.7
+      ],
+      "onOpaquePixel": true,
+      "view": {
+        "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/extras2/dk-cargo_recipient_carried-cell2-anchor.png",
+        "sha256": "b89e15645d51e0503a1fc55de352efc80346be6cefd194e97f2bb4b4959a1dfb"
+      }
+    },
+    {
+      "poseKey": "cargo_recipient_carried",
+      "context": "cargo-held",
+      "profileKey": "dk-ordinary-grab-target-v1",
+      "dimensions": {
+        "width": 60,
+        "height": 84
+      },
+      "artFrameIndex": 3,
+      "nativeSample": 25,
+      "point": {
+        "x": 2.02,
+        "y": -21.31
+      },
+      "provenance": "authored-reviewed-target",
+      "bone": "Hip",
+      "artPixel": [
+        231.3,
+        118.3
+      ],
+      "onOpaquePixel": true,
+      "view": {
+        "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/extras2/dk-cargo_recipient_carried-cell3-anchor.png",
+        "sha256": "a9c8f26a323cadc610c31fb06fda427c8d6c88a5474f66f0ab7c302852fd206a"
+      }
+    },
+    {
+      "poseKey": "cargo_recipient_carried",
+      "context": "cargo-held",
+      "profileKey": "dk-ordinary-grab-target-v1",
+      "dimensions": {
+        "width": 60,
+        "height": 84
+      },
+      "artFrameIndex": 4,
+      "nativeSample": 33,
+      "point": {
+        "x": 2.202,
+        "y": -21.449
+      },
+      "provenance": "authored-reviewed-target",
+      "bone": "Hip",
+      "artPixel": [
+        231.7,
+        118.0
+      ],
+      "onOpaquePixel": true,
+      "view": {
+        "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/extras2/dk-cargo_recipient_carried-cell4-anchor.png",
+        "sha256": "5126e2ba1173745c5adb63c5bce94d2a89c9a5980c4113752b5e59a5a027f2db"
+      }
+    },
+    {
+      "poseKey": "cargo_recipient_carried",
+      "context": "cargo-held",
+      "profileKey": "dk-ordinary-grab-target-v1",
+      "dimensions": {
+        "width": 60,
+        "height": 84
+      },
+      "artFrameIndex": 5,
+      "nativeSample": 41,
+      "point": {
+        "x": 2.319,
+        "y": -21.385
+      },
+      "provenance": "authored-reviewed-target",
+      "bone": "Hip",
+      "artPixel": [
+        232.0,
+        118.2
+      ],
+      "onOpaquePixel": true,
+      "view": {
+        "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/extras2/dk-cargo_recipient_carried-cell5-anchor.png",
+        "sha256": "8747f8b3c05856d3aea8d3375032990e3a5c2577d73273edd83bff559f42fcf3"
+      }
+    },
+    {
+      "poseKey": "cargo_recipient_carried",
+      "context": "cargo-held",
+      "profileKey": "dk-ordinary-grab-target-v1",
+      "dimensions": {
+        "width": 60,
+        "height": 84
+      },
+      "artFrameIndex": 6,
+      "nativeSample": 48,
+      "point": {
+        "x": 2.379,
+        "y": -21.417
+      },
+      "provenance": "authored-reviewed-target",
+      "bone": "Hip",
+      "artPixel": [
+        232.1,
+        118.1
+      ],
+      "onOpaquePixel": true,
+      "view": {
+        "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/extras2/dk-cargo_recipient_carried-cell6-anchor.png",
+        "sha256": "5b54ecfc58bc2846a9291ae87fceb1fef41fc1bfe0ce7c17e65efea7547efb6a"
+      }
+    },
+    {
+      "poseKey": "cargo_recipient_carried",
+      "context": "cargo-held",
+      "profileKey": "dk-ordinary-grab-target-v1",
+      "dimensions": {
+        "width": 60,
+        "height": 84
+      },
+      "artFrameIndex": 7,
+      "nativeSample": 56,
+      "point": {
+        "x": 2.25,
+        "y": -21.416
+      },
+      "provenance": "authored-reviewed-target",
+      "bone": "Hip",
+      "artPixel": [
+        231.8,
+        118.1
+      ],
+      "onOpaquePixel": true,
+      "view": {
+        "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/extras2/dk-cargo_recipient_carried-cell7-anchor.png",
+        "sha256": "f64fdf0ef1c7c8ceea27d3780c55188d70cef98a5ecd39c6fc4dabe6575118d1"
+      }
+    },
+    {
+      "poseKey": "cargo_recipient_carried",
+      "context": "cargo-held",
+      "profileKey": "dk-ordinary-grab-target-v1",
+      "dimensions": {
+        "width": 60,
+        "height": 84
+      },
+      "artFrameIndex": 8,
+      "nativeSample": 64,
+      "point": {
+        "x": 2.346,
+        "y": -21.411
+      },
+      "provenance": "authored-reviewed-target",
+      "bone": "Hip",
+      "artPixel": [
+        232.0,
+        118.1
+      ],
+      "onOpaquePixel": true,
+      "view": {
+        "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/extras2/dk-cargo_recipient_carried-cell8-anchor.png",
+        "sha256": "b38a795c84070725a06cd4635ad138ad9c69e1f317609db4eff52c86ea4db7f8"
+      }
+    },
+    {
+      "poseKey": "cargo_recipient_carried",
+      "context": "cargo-held",
+      "profileKey": "dk-ordinary-grab-target-v1",
+      "dimensions": {
+        "width": 60,
+        "height": 84
+      },
+      "artFrameIndex": 9,
+      "nativeSample": 72,
+      "point": {
+        "x": 2.566,
+        "y": -21.432
+      },
+      "provenance": "authored-reviewed-target",
+      "bone": "Hip",
+      "artPixel": [
+        232.5,
+        118.1
+      ],
+      "onOpaquePixel": true,
+      "view": {
+        "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/extras2/dk-cargo_recipient_carried-cell9-anchor.png",
+        "sha256": "48b488d078ad4d5a8ccc0e91a9cfd2aded3870003d4693f9f73e4bf451017c11"
+      }
+    },
+    {
+      "poseKey": "cargo_recipient_carried",
+      "context": "cargo-held",
+      "profileKey": "dk-ordinary-grab-target-v1",
+      "dimensions": {
+        "width": 60,
+        "height": 84
+      },
+      "artFrameIndex": 10,
+      "nativeSample": 80,
+      "point": {
+        "x": 2.675,
+        "y": -21.4
+      },
+      "provenance": "authored-reviewed-target",
+      "bone": "Hip",
+      "artPixel": [
+        232.7,
+        118.1
+      ],
+      "onOpaquePixel": true,
+      "view": {
+        "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/extras2/dk-cargo_recipient_carried-cell10-anchor.png",
+        "sha256": "6588c36676fff93eaa0202c94694e5c7ae2ce5e67562e4e8605c68691616b949"
+      }
+    },
+    {
+      "poseKey": "cargo_recipient_fthrow",
+      "context": "cargo-throw",
+      "profileKey": "dk-ordinary-grab-target-v1",
+      "dimensions": {
+        "width": 60,
+        "height": 84
+      },
+      "artFrameIndex": 0,
+      "nativeSample": 1,
+      "point": {
+        "x": -1.414,
+        "y": -27.334
+      },
+      "provenance": "authored-reviewed-target",
+      "bone": "Hip",
+      "artPixel": [
+        222.0,
+        144.4
+      ],
+      "onOpaquePixel": true,
+      "view": {
+        "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/extras2/dk-cargo_recipient_fthrow-cell0-anchor.png",
+        "sha256": "8bb992d9cb30d97b5046e575b792b7ef4cff6bd0f49ff7ea9371e1eaf71f7f53"
+      }
+    },
+    {
+      "poseKey": "cargo_recipient_fthrow",
+      "context": "cargo-throw",
+      "profileKey": "dk-ordinary-grab-target-v1",
+      "dimensions": {
+        "width": 60,
+        "height": 84
+      },
+      "artFrameIndex": 1,
+      "nativeSample": 5,
+      "point": {
+        "x": -1.926,
+        "y": -27.694
+      },
+      "provenance": "authored-reviewed-target",
+      "bone": "Hip",
+      "artPixel": [
+        220.9,
+        143.7
+      ],
+      "onOpaquePixel": true,
+      "view": {
+        "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/extras2/dk-cargo_recipient_fthrow-cell1-anchor.png",
+        "sha256": "103c087d6e70e84d2a80eefb83dc3e9273624a290115da55491732809c22c927"
+      }
+    },
+    {
+      "poseKey": "cargo_recipient_fthrow",
+      "context": "cargo-throw",
+      "profileKey": "dk-ordinary-grab-target-v1",
+      "dimensions": {
+        "width": 60,
+        "height": 84
+      },
+      "artFrameIndex": 2,
+      "nativeSample": 9,
+      "point": {
+        "x": -1.774,
+        "y": -27.628
+      },
+      "provenance": "authored-reviewed-target",
+      "bone": "Hip",
+      "artPixel": [
+        221.2,
+        143.8
+      ],
+      "onOpaquePixel": true,
+      "view": {
+        "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/extras2/dk-cargo_recipient_fthrow-cell2-anchor.png",
+        "sha256": "bd34a2b2061426c7380a28bff8225df90d81222cf0af17f530c02c86df539786"
+      }
+    },
+    {
+      "poseKey": "cargo_recipient_fthrow",
+      "context": "cargo-throw",
+      "profileKey": "dk-ordinary-grab-target-v1",
+      "dimensions": {
+        "width": 60,
+        "height": 84
+      },
+      "artFrameIndex": 3,
+      "nativeSample": 13,
+      "point": {
+        "x": 2.374,
+        "y": -26.056
+      },
+      "provenance": "authored-reviewed-target",
+      "bone": "Hip",
+      "artPixel": [
+        230.1,
+        147.2
+      ],
+      "onOpaquePixel": true,
+      "view": {
+        "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/extras2/dk-cargo_recipient_fthrow-cell3-anchor.png",
+        "sha256": "e790ceb72444beea915bd5f93901bec3f82e33025ac81e8e138c6471943327eb"
+      }
+    },
+    {
+      "poseKey": "cargo_recipient_fthrow",
+      "context": "cargo-throw",
+      "profileKey": "dk-ordinary-grab-target-v1",
+      "dimensions": {
+        "width": 60,
+        "height": 84
+      },
+      "artFrameIndex": 4,
+      "nativeSample": 15,
+      "point": {
+        "x": 2.605,
+        "y": -25.256
+      },
+      "provenance": "authored-reviewed-target",
+      "bone": "Hip",
+      "artPixel": [
+        230.6,
+        148.9
+      ],
+      "onOpaquePixel": true,
+      "view": {
+        "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/extras2/dk-cargo_recipient_fthrow-cell4-anchor.png",
+        "sha256": "256679c342a9eaa6b0963344c6162e5a6655f722c35e56d21bcd4d5464c07892"
+      }
+    },
+    {
+      "poseKey": "cargo_recipient_bthrow",
+      "context": "cargo-throw",
+      "profileKey": "dk-ordinary-grab-target-v1",
+      "dimensions": {
+        "width": 60,
+        "height": 84
+      },
+      "artFrameIndex": 0,
+      "nativeSample": 1,
+      "point": {
+        "x": 13.718,
+        "y": -25.224
+      },
+      "provenance": "authored-reviewed-target",
+      "bone": "Hip",
+      "artPixel": [
+        324.4,
+        274.9
+      ],
+      "onOpaquePixel": true,
+      "view": {
+        "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/extras2/dk-cargo_recipient_bthrow-cell0-anchor.png",
+        "sha256": "998d7babeea948415478be19071087a53d318bc0ae96813824cab5756b1f3cf7"
+      }
+    },
+    {
+      "poseKey": "cargo_recipient_bthrow",
+      "context": "cargo-throw",
+      "profileKey": "dk-ordinary-grab-target-v1",
+      "dimensions": {
+        "width": 60,
+        "height": 84
+      },
+      "artFrameIndex": 1,
+      "nativeSample": 5,
+      "point": {
+        "x": 26.153,
+        "y": -30.031
+      },
+      "provenance": "authored-reviewed-target",
+      "bone": "Hip",
+      "artPixel": [
+        351.0,
+        264.6
+      ],
+      "onOpaquePixel": true,
+      "view": {
+        "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/extras2/dk-cargo_recipient_bthrow-cell1-anchor.png",
+        "sha256": "b3d0b1dae140e8717a9b6515989ff83253df5f17276ad7a9d8d710163be5f1c5"
+      }
+    },
+    {
+      "poseKey": "cargo_recipient_bthrow",
+      "context": "cargo-throw",
+      "profileKey": "dk-ordinary-grab-target-v1",
+      "dimensions": {
+        "width": 60,
+        "height": 84
+      },
+      "artFrameIndex": 2,
+      "nativeSample": 9,
+      "point": {
+        "x": 22.306,
+        "y": -18.96
+      },
+      "provenance": "authored-reviewed-target",
+      "bone": "Hip",
+      "artPixel": [
+        342.8,
+        288.4
+      ],
+      "onOpaquePixel": true,
+      "view": {
+        "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/extras2/dk-cargo_recipient_bthrow-cell2-anchor.png",
+        "sha256": "d2d0a78d16ba9b95a783b4cd5f593604bb3c926412e1ee68e36aabf3e099af4b"
+      }
+    },
+    {
+      "poseKey": "cargo_recipient_bthrow",
+      "context": "cargo-throw",
+      "profileKey": "dk-ordinary-grab-target-v1",
+      "dimensions": {
+        "width": 60,
+        "height": 84
+      },
+      "artFrameIndex": 3,
+      "nativeSample": 13,
+      "point": {
+        "x": -22.792,
+        "y": -30.019
+      },
+      "provenance": "authored-reviewed-target",
+      "bone": "Hip",
+      "artPixel": [
+        246.2,
+        264.7
+      ],
+      "onOpaquePixel": true,
+      "view": {
+        "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/extras2/dk-cargo_recipient_bthrow-cell3-anchor.png",
+        "sha256": "e69842acd3a159e798589e6402daa0cf233170ce5117d208e3c0b290e421e250"
+      }
+    },
+    {
+      "poseKey": "cargo_recipient_bthrow",
+      "context": "cargo-throw",
+      "profileKey": "dk-ordinary-grab-target-v1",
+      "dimensions": {
+        "width": 60,
+        "height": 84
+      },
+      "artFrameIndex": 4,
+      "nativeSample": 16,
+      "point": {
+        "x": -23.15,
+        "y": -29.964
+      },
+      "provenance": "authored-reviewed-target",
+      "bone": "Hip",
+      "artPixel": [
+        245.4,
+        264.8
+      ],
+      "onOpaquePixel": true,
+      "view": {
+        "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/extras2/dk-cargo_recipient_bthrow-cell4-anchor.png",
+        "sha256": "b97ea1722b1750f8476924e15239b8f4343f399edd01c9399c5595fbe764befe"
+      }
+    },
+    {
+      "poseKey": "cargo_recipient_uthrow",
+      "context": "cargo-throw",
+      "profileKey": "dk-ordinary-grab-target-v1",
+      "dimensions": {
+        "width": 60,
+        "height": 84
+      },
+      "artFrameIndex": 0,
+      "nativeSample": 1,
+      "point": {
+        "x": 1.011,
+        "y": -26.735
+      },
+      "provenance": "authored-reviewed-target",
+      "bone": "Hip",
+      "artPixel": [
+        212.2,
+        205.7
+      ],
+      "onOpaquePixel": true,
+      "view": {
+        "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/extras2/dk-cargo_recipient_uthrow-cell0-anchor.png",
+        "sha256": "56e834197716d96b29cf505b5723e351acc30889fda36b2c5ca070f205e3146a"
+      }
+    },
+    {
+      "poseKey": "cargo_recipient_uthrow",
+      "context": "cargo-throw",
+      "profileKey": "dk-ordinary-grab-target-v1",
+      "dimensions": {
+        "width": 60,
+        "height": 84
+      },
+      "artFrameIndex": 1,
+      "nativeSample": 5,
+      "point": {
+        "x": -0.262,
+        "y": -24.672
+      },
+      "provenance": "authored-reviewed-target",
+      "bone": "Hip",
+      "artPixel": [
+        209.4,
+        210.1
+      ],
+      "onOpaquePixel": true,
+      "view": {
+        "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/extras2/dk-cargo_recipient_uthrow-cell1-anchor.png",
+        "sha256": "78fe67e0fb9a2c0354b062b5e42360ca09cfb5cf01deaf203caf37884a65394a"
+      }
+    },
+    {
+      "poseKey": "cargo_recipient_uthrow",
+      "context": "cargo-throw",
+      "profileKey": "dk-ordinary-grab-target-v1",
+      "dimensions": {
+        "width": 60,
+        "height": 84
+      },
+      "artFrameIndex": 2,
+      "nativeSample": 9,
+      "point": {
+        "x": -0.953,
+        "y": -24.155
+      },
+      "provenance": "authored-reviewed-target",
+      "bone": "Hip",
+      "artPixel": [
+        208.0,
+        211.2
+      ],
+      "onOpaquePixel": true,
+      "view": {
+        "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/extras2/dk-cargo_recipient_uthrow-cell2-anchor.png",
+        "sha256": "c538b84ea5f46c20cd63f98e436ca3eb00aa6e520f7f82b6169958e9162aee7f"
+      }
+    },
+    {
+      "poseKey": "cargo_recipient_uthrow",
+      "context": "cargo-throw",
+      "profileKey": "dk-ordinary-grab-target-v1",
+      "dimensions": {
+        "width": 60,
+        "height": 84
+      },
+      "artFrameIndex": 3,
+      "nativeSample": 13,
+      "point": {
+        "x": 1.363,
+        "y": -25.515
+      },
+      "provenance": "authored-reviewed-target",
+      "bone": "Hip",
+      "artPixel": [
+        212.9,
+        208.3
+      ],
+      "onOpaquePixel": true,
+      "view": {
+        "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/extras2/dk-cargo_recipient_uthrow-cell3-anchor.png",
+        "sha256": "584129ca3b27b09905c83510371de0b1b5b93cb888114ffe4536b9cf1f31f793"
+      }
+    },
+    {
+      "poseKey": "cargo_recipient_uthrow",
+      "context": "cargo-throw",
+      "profileKey": "dk-ordinary-grab-target-v1",
+      "dimensions": {
+        "width": 60,
+        "height": 84
+      },
+      "artFrameIndex": 4,
+      "nativeSample": 15,
+      "point": {
+        "x": -0.479,
+        "y": -21.505
+      },
+      "provenance": "authored-reviewed-target",
+      "bone": "Hip",
+      "artPixel": [
+        209.0,
+        216.9
+      ],
+      "onOpaquePixel": true,
+      "view": {
+        "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/extras2/dk-cargo_recipient_uthrow-cell4-anchor.png",
+        "sha256": "238f5755bb5df8f44327f4a93720de5e93937306ce2a3a3894356a826e67749a"
+      }
+    },
+    {
+      "poseKey": "cargo_recipient_dthrow",
+      "context": "cargo-throw",
+      "profileKey": "dk-ordinary-grab-target-v1",
+      "dimensions": {
+        "width": 60,
+        "height": 84
+      },
+      "artFrameIndex": 0,
+      "nativeSample": 1,
+      "point": {
+        "x": -2.994,
+        "y": -21.274
+      },
+      "provenance": "authored-reviewed-target",
+      "bone": "Hip",
+      "artPixel": [
+        187.6,
+        209.4
+      ],
+      "onOpaquePixel": true,
+      "view": {
+        "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/extras2/dk-cargo_recipient_dthrow-cell0-anchor.png",
+        "sha256": "0e5541eac133292487e94edc1382e6a5a7595712cf3763b2faffca1fb944f20a"
+      }
+    },
+    {
+      "poseKey": "cargo_recipient_dthrow",
+      "context": "cargo-throw",
+      "profileKey": "dk-ordinary-grab-target-v1",
+      "dimensions": {
+        "width": 60,
+        "height": 84
+      },
+      "artFrameIndex": 1,
+      "nativeSample": 5,
+      "point": {
+        "x": -7.921,
+        "y": -22.866
+      },
+      "provenance": "authored-reviewed-target",
+      "bone": "Hip",
+      "artPixel": [
+        177.0,
+        206.0
+      ],
+      "onOpaquePixel": true,
+      "view": {
+        "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/extras2/dk-cargo_recipient_dthrow-cell1-anchor.png",
+        "sha256": "8bd5d8fe37e11ec431ecbc17654263acc1cb0814e9d48a7333d9c463adc839a5"
+      }
+    },
+    {
+      "poseKey": "cargo_recipient_dthrow",
+      "context": "cargo-throw",
+      "profileKey": "dk-ordinary-grab-target-v1",
+      "dimensions": {
+        "width": 60,
+        "height": 84
+      },
+      "artFrameIndex": 2,
+      "nativeSample": 9,
+      "point": {
+        "x": -8.534,
+        "y": -23.316
+      },
+      "provenance": "authored-reviewed-target",
+      "bone": "Hip",
+      "artPixel": [
+        175.7,
+        205.0
+      ],
+      "onOpaquePixel": true,
+      "view": {
+        "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/extras2/dk-cargo_recipient_dthrow-cell2-anchor.png",
+        "sha256": "3b4a7dd696865445dc9945a46d4c2bda5aace5ef0b14d45817d880b340bf98f8"
+      }
+    },
+    {
+      "poseKey": "cargo_recipient_dthrow",
+      "context": "cargo-throw",
+      "profileKey": "dk-ordinary-grab-target-v1",
+      "dimensions": {
+        "width": 60,
+        "height": 84
+      },
+      "artFrameIndex": 3,
+      "nativeSample": 13,
+      "point": {
+        "x": -8.218,
+        "y": -23.576
+      },
+      "provenance": "authored-reviewed-target",
+      "bone": "Hip",
+      "artPixel": [
+        176.4,
+        204.5
+      ],
+      "onOpaquePixel": true,
+      "view": {
+        "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/extras2/dk-cargo_recipient_dthrow-cell3-anchor.png",
+        "sha256": "d7199e4e53717d7768b2b0177eb1ee3dfa1f7018583359f90fa494248a1f54e2"
+      }
+    },
+    {
+      "poseKey": "cargo_recipient_dthrow",
+      "context": "cargo-throw",
+      "profileKey": "dk-ordinary-grab-target-v1",
+      "dimensions": {
+        "width": 60,
+        "height": 84
+      },
+      "artFrameIndex": 4,
+      "nativeSample": 17,
+      "point": {
+        "x": -5.027,
+        "y": -15.31
+      },
+      "provenance": "authored-reviewed-target",
+      "bone": "Hip",
+      "artPixel": [
+        183.2,
+        222.2
+      ],
+      "onOpaquePixel": true,
+      "view": {
+        "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/extras2/dk-cargo_recipient_dthrow-cell4-anchor.png",
+        "sha256": "94808ca20e3054cb2579fdbb86025a6a845a9e4e035eb1bfa5783e5226d28297"
+      }
+    }
+  ],
+  "contactSheet": {
+    "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/install/extras2/dk-recipient-anchors-contact.png",
+    "sha256": "91805d63f23b321eee6fd19efae68182007284fd4ce0db222d2907de04029e50"
+  },
+  "method": "native Hip bone at the drawing sample (see this directory derive_recipient_anchors.py)",
+  "limits": [
+    "Native bone point, not a hand-picked material point: SmashWiki/UFD give no attachment geometry (flag).",
+    "Drawings are not floor-shifted (hang from the grip)."
+  ]
+}

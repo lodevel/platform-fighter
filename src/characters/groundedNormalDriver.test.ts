@@ -15,23 +15,21 @@ import {
   isHitboxActiveAt,
   resolveGroundedNormalAnimationKey,
 } from './groundedNormalDriver';
-import {
-  Aegis,
-  Bear,
-  Blaze,
-  Bruno,
-  Cat,
-  DonkeyKong,
-  Kirby,
-  Link,
-  Nova,
-  Owl,
-  Puff,
-  Volt,
-  Wolf,
-} from './index';
+import { DonkeyKong, Link } from './index';
+import { ANIMATED_MOVESET_IDS } from './animationState';
 import { COLLISION_CATEGORIES, COLLISION_MASKS } from '../engine/collisionCategories';
 import type { CharacterId } from '../types';
+import type { AttackMove } from './attacks';
+
+/** Independent capsule envelope expectation; ordinary rectangles stay exact. */
+function expectedSensor(move: AttackMove): AttackMove['hitbox'] {
+  if (!move.collisionHits?.length) return move.hitbox;
+  const corners = move.collisionHits.flatMap(({ capsule: { start, end, radius } }) =>
+    [start, end].flatMap(p => [{ x: p.x - radius, y: p.y - radius }, { x: p.x + radius, y: p.y + radius }]));
+  const left = Math.min(...corners.map(p => p.x)), right = Math.max(...corners.map(p => p.x));
+  const top = Math.min(...corners.map(p => p.y)), bottom = Math.max(...corners.map(p => p.y));
+  return { offsetX: (left + right) / 2, offsetY: (top + bottom) / 2, width: right - left, height: bottom - top };
+}
 
 /**
  * AC 60102 Sub-AC 2 — animation + hitbox spawning for grounded normals.
@@ -176,43 +174,13 @@ function spawnFighter(
   spawnX = 200,
   spawnY = 200,
 ) {
-  if (characterId === 'wolf') {
-    return new Wolf(m.scene as any, { spawnX, spawnY });
-  }
-  if (characterId === 'cat') {
-    return new Cat(m.scene as any, { spawnX, spawnY });
-  }
-  if (characterId === 'owl') {
-    return new Owl(m.scene as any, { spawnX, spawnY });
-  }
-  if (characterId === 'blaze') {
-    return new Blaze(m.scene as any, { spawnX, spawnY });
-  }
-  if (characterId === 'puff') {
-    return new Puff(m.scene as any, { spawnX, spawnY });
-  }
-  if (characterId === 'aegis') {
-    return new Aegis(m.scene as any, { spawnX, spawnY });
-  }
-  if (characterId === 'volt') {
-    return new Volt(m.scene as any, { spawnX, spawnY });
-  }
-  if (characterId === 'nova') {
-    return new Nova(m.scene as any, { spawnX, spawnY });
-  }
-  if (characterId === 'bruno') {
-    return new Bruno(m.scene as any, { spawnX, spawnY });
-  }
   if (characterId === 'link') {
     return new Link(m.scene as any, { spawnX, spawnY });
-  }
-  if (characterId === 'kirby') {
-    return new Kirby(m.scene as any, { spawnX, spawnY });
   }
   if (characterId === 'donkeykong') {
     return new DonkeyKong(m.scene as any, { spawnX, spawnY });
   }
-  return new Bear(m.scene as any, { spawnX, spawnY });
+  throw new Error(`no grounded-normal fixture for ${characterId}`);
 }
 
 // ---------------------------------------------------------------------------
@@ -221,8 +189,7 @@ function spawnFighter(
 
 describe('GROUNDED_NORMAL_TABLE — move-table catalog (AC 60102 Sub-AC 2)', () => {
   it('exposes every roster slot × grounded-normal slot pair', () => {
-    const ids: CharacterId[] = ['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno', 'link', 'kirby', 'donkeykong'];
-    for (const id of ids) {
+    for (const id of ANIMATED_MOVESET_IDS) {
       for (const slot of GROUNDED_NORMAL_SLOTS) {
         const move = GROUNDED_NORMAL_TABLE[id][slot];
         expect(move, `${id}.${slot} must be present`).toBeDefined();
@@ -231,8 +198,9 @@ describe('GROUNDED_NORMAL_TABLE — move-table catalog (AC 60102 Sub-AC 2)', () 
     }
   });
 
-  it('flat catalog enumerates exactly 39 entries (13 chars × 3 slots)', () => {
-    expect(GROUNDED_NORMAL_MOVES.length).toBe(39);
+  it('flat catalog enumerates one entry per (animated character, grounded slot)', () => {
+    const expectedCount = ANIMATED_MOVESET_IDS.length * GROUNDED_NORMAL_SLOTS.length;
+    expect(GROUNDED_NORMAL_MOVES.length).toBe(expectedCount);
     // Ensure no duplicates and the (id, slot) pairs cover the full grid.
     const seen = new Set<string>();
     for (const e of GROUNDED_NORMAL_MOVES) {
@@ -241,7 +209,7 @@ describe('GROUNDED_NORMAL_TABLE — move-table catalog (AC 60102 Sub-AC 2)', () 
       seen.add(key);
       expect(e.move.id).toBe(key);
     }
-    expect(seen.size).toBe(39);
+    expect(seen.size).toBe(expectedCount);
   });
 
   it('every grounded normal carries the schema fields the Sub-AC requires', () => {
@@ -266,13 +234,17 @@ describe('GROUNDED_NORMAL_TABLE — move-table catalog (AC 60102 Sub-AC 2)', () 
       expect(m.animation!.startupFrames).toBeGreaterThanOrEqual(1);
       expect(m.animation!.activeFrames).toBeGreaterThanOrEqual(1);
       expect(m.animation!.recoveryFrames).toBeGreaterThanOrEqual(1);
-      // Seed constraint: 6-8 art frames per move.
+      // Both animated fighters ship native-sampled clips (UFD-scheduled): the
+      // counts MUST equal the packed cell count (DonkeyKong.test.ts guards it;
+      // the frame selector falls back to an even spread otherwise). Link's
+      // short normals pack as few as 3 drawings, DK's go up to 12 cells
+      // (clip-plan cap).
       const total =
         m.animation!.startupFrames +
         m.animation!.activeFrames +
         m.animation!.recoveryFrames;
-      expect(total, `${m.id} total art frames`).toBeGreaterThanOrEqual(6);
-      expect(total, `${m.id} total art frames`).toBeLessThanOrEqual(8);
+      expect(total, `${m.id} total art frames`).toBeGreaterThanOrEqual(3);
+      expect(total, `${m.id} total art frames`).toBeLessThanOrEqual(12);
     }
   });
 
@@ -301,8 +273,8 @@ describe('describeHitboxLifecycle — frame-accurate boundaries', () => {
       expect(lc.endFrame).toBe(
         e.move.startupFrames + e.move.activeFrames + e.move.recoveryFrames,
       );
-      expect(lc.width).toBe(e.move.hitbox.width);
-      expect(lc.height).toBe(e.move.hitbox.height);
+      expect(lc.width).toBe(expectedSensor(e.move).width);
+      expect(lc.height).toBe(expectedSensor(e.move).height);
     });
   }
 });
@@ -354,20 +326,20 @@ describe('computeGroundedNormalHitboxCenter — pure projection', () => {
     it(`${e.move.id} mirrors offsetX by facing and applies offsetY unchanged`, () => {
       const pos = { x: 500, y: 300 };
       const right = computeGroundedNormalHitboxCenter(e.move, pos, 1);
-      expect(right.x).toBe(pos.x + e.move.hitbox.offsetX);
-      expect(right.y).toBe(pos.y + e.move.hitbox.offsetY);
+      expect(right.x).toBe(pos.x + expectedSensor(e.move).offsetX);
+      expect(right.y).toBe(pos.y + expectedSensor(e.move).offsetY);
       const left = computeGroundedNormalHitboxCenter(e.move, pos, -1);
-      expect(left.x).toBe(pos.x - e.move.hitbox.offsetX);
-      expect(left.y).toBe(pos.y + e.move.hitbox.offsetY);
+      expect(left.x).toBe(pos.x - expectedSensor(e.move).offsetX);
+      expect(left.y).toBe(pos.y + expectedSensor(e.move).offsetY);
     });
   }
 });
 
 describe('describeHitboxAtFrame — frame-by-frame snapshot', () => {
   it('marks live=true only inside the active window', () => {
-    // Use Wolf's smash — generous frame budget makes the boundary
+    // Use Donkey Kong's smash — generous frame budget makes the boundary
     // checks easy to read.
-    const move = GROUNDED_NORMAL_TABLE.wolf.smash;
+    const move = GROUNDED_NORMAL_TABLE.donkeykong.smash;
     const pos = { x: 0, y: 0 };
     const lc = describeHitboxLifecycle(move);
     for (let f = 0; f < lc.endFrame + 4; f++) {
@@ -384,7 +356,7 @@ describe('describeHitboxAtFrame — frame-by-frame snapshot', () => {
   });
 
   it('reports the canonical per-phase classification', () => {
-    const move = GROUNDED_NORMAL_TABLE.cat.tilt;
+    const move = GROUNDED_NORMAL_TABLE.link.tilt;
     const pos = { x: 100, y: 100 };
     const lc = describeHitboxLifecycle(move);
     expect(describeHitboxAtFrame(move, pos, 1, 0).phase).toBe('startup');
@@ -419,8 +391,13 @@ describe('buildGroundedNormalHitboxPlugin — sensor plugin payload', () => {
 //    grounded normal across the whole roster
 // ---------------------------------------------------------------------------
 
+// Link's live sensor geometry comes from its own attack data (sword), not from
+// the shared grounded-normal table, so the table-vs-sensor checks cover the
+// fighters whose runtime spawns the table move verbatim.
+const TABLE_DRIVEN_MOVES = GROUNDED_NORMAL_MOVES.filter((e) => e.characterId === 'donkeykong');
+
 describe('Live runtime — frame-accurate hitbox spawn for every grounded normal', () => {
-  for (const e of GROUNDED_NORMAL_MOVES) {
+  for (const e of TABLE_DRIVEN_MOVES) {
     it(`${e.move.id} spawns sensor on first active frame and despawns on first recovery frame`, () => {
       const m = createMockScene();
       const ch = spawnFighter(e.characterId, m, 200, 200);
@@ -444,8 +421,8 @@ describe('Live runtime — frame-accurate hitbox spawn for every grounded normal
       const live = liveHitbox(m);
       expect(live, `${e.move.id} first active frame`).not.toBeNull();
       expect(live!.label).toBe(HITBOX_LABEL);
-      expect(live!.options['_w']).toBe(e.move.hitbox.width);
-      expect(live!.options['_h']).toBe(e.move.hitbox.height);
+      expect(live!.options['_w']).toBe(expectedSensor(e.move).width);
+      expect(live!.options['_h']).toBe(expectedSensor(e.move).height);
       expect(live!.options['isSensor']).toBe(true);
 
       // Sensor stays alive for the rest of the active window.
@@ -466,7 +443,7 @@ describe('Live runtime — frame-accurate hitbox spawn for every grounded normal
     });
   }
 
-  for (const e of GROUNDED_NORMAL_MOVES) {
+  for (const e of TABLE_DRIVEN_MOVES) {
     it(`${e.move.id} spawns sensor at attacker centre + authored offset`, () => {
       const m = createMockScene();
       const spawnX = 700;
@@ -485,9 +462,9 @@ describe('Live runtime — frame-accurate hitbox spawn for every grounded normal
       // window (no input → effectively zero, but the body integrates a
       // single frame of gravity each tick which is irrelevant for
       // horizontal hitbox checks).
-      expect(live!.position.x).toBeCloseTo(spawnX + e.move.hitbox.offsetX, 0);
-      expect(live!.options['_w']).toBe(e.move.hitbox.width);
-      expect(live!.options['_h']).toBe(e.move.hitbox.height);
+      expect(live!.position.x).toBeCloseTo(spawnX + expectedSensor(e.move).offsetX, 0);
+      expect(live!.options['_w']).toBe(expectedSensor(e.move).width);
+      expect(live!.options['_h']).toBe(expectedSensor(e.move).height);
     });
   }
 
@@ -529,28 +506,28 @@ describe('Live runtime — frame-accurate hitbox spawn for every grounded normal
 
 describe('resolveGroundedNormalAnimationKey — pure projection', () => {
   it('emits the canonical {char}.{move}.{phase}.{frame} key during the move', () => {
-    const move = GROUNDED_NORMAL_TABLE.wolf.jab;
+    const move = GROUNDED_NORMAL_TABLE.donkeykong.jab;
     // Frame 0 → startup.0
-    expect(resolveGroundedNormalAnimationKey('wolf', move, 0)).toBe(
-      'wolf.jab.startup.0',
+    expect(resolveGroundedNormalAnimationKey('donkeykong', move, 0)).toBe(
+      'donkeykong.jab.startup.0',
     );
     // First active frame → active.0
     expect(
-      resolveGroundedNormalAnimationKey('wolf', move, move.startupFrames),
-    ).toBe('wolf.jab.active.0');
+      resolveGroundedNormalAnimationKey('donkeykong', move, move.startupFrames),
+    ).toBe('donkeykong.jab.active.0');
     // First recovery frame → recovery.0
     expect(
       resolveGroundedNormalAnimationKey(
-        'wolf',
+        'donkeykong',
         move,
         move.startupFrames + move.activeFrames,
       ),
-    ).toBe('wolf.jab.recovery.0');
+    ).toBe('donkeykong.jab.recovery.0');
     // After the move ends → idle key.
     const busy =
       move.startupFrames + move.activeFrames + move.recoveryFrames;
-    expect(resolveGroundedNormalAnimationKey('wolf', move, busy)).toBe(
-      'wolf.idle',
+    expect(resolveGroundedNormalAnimationKey('donkeykong', move, busy)).toBe(
+      'donkeykong.idle',
     );
   });
 

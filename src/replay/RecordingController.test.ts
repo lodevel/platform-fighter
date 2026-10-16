@@ -4,6 +4,7 @@ import {
   InputCaptureBuffer,
   NEUTRAL_INPUT,
 } from './InputCaptureBuffer';
+import { ItemSpawnEventLog } from './ItemSpawnEventLog';
 import {
   RecordingController,
   DEFAULT_REPLAY_FILE_NAME,
@@ -41,7 +42,7 @@ import {
 // ---------------------------------------------------------------------------
 
 function makePlayerSlots(count: number): PlayerSlot[] {
-  const ids = ['wolf', 'cat', 'owl', 'bear'] as const;
+  const ids = ['donkeykong', 'pikachu', 'donkeykong', 'pikachu'] as const;
   return Array.from({ length: count }, (_, i) => ({
     index: (i + 1) as PlayerSlot['index'],
     characterId: ids[i]!,
@@ -65,6 +66,25 @@ function makeMatchConfig(overrides: Partial<MatchConfig> = {}): MatchConfig {
 function makeFixedNow(): () => Date {
   return () => new Date('2026-04-30T12:00:00.000Z');
 }
+
+describe('RecordingController — items in saved replay', () => {
+  it('preserves the scene event log in both replay writers and freezes saved snapshots', () => {
+    const events = new ItemSpawnEventLog();
+    const controller = new RecordingController({ itemSpawnEventLog: events, nowFactory: makeFixedNow() });
+    controller.start({ matchConfig: makeMatchConfig() });
+    controller.captureFrame(0, [NEUTRAL_INPUT, NEUTRAL_INPUT]);
+    controller.captureFrame(1, [NEUTRAL_INPUT, NEUTRAL_INPUT]);
+    const event = { frame: 1, type: 'bomb', x: 170, y: 240, anchorIndex: 0 };
+    events.record(event);
+    controller.stop();
+    const file = controller.buildReplayFile();
+    expect(file.itemSpawnEvents).toEqual([event]);
+    expect(deserializeReplayFromString(controller.buildReplayJson()).itemSpawnEvents).toEqual([event]);
+    events.reset();
+    expect(file.itemSpawnEvents).toEqual([event]);
+    expect(controller.buildReplayFile().itemSpawnEvents).toEqual([]);
+  });
+});
 
 // ---------------------------------------------------------------------------
 // Construction

@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Donkey Kong · review and completion</title>
+<style>
+:root{color-scheme:dark;font:16px system-ui;color:#dce8f5;background:#101a29}body{max-width:1280px;margin:24px auto;padding:0 20px}h1{font-size:26px}h2{font-size:20px;margin:0 0 14px}p{line-height:1.5}.panel{background:#1b2a3e;border:1px solid #354b66;border-radius:12px;padding:20px;margin:20px 0}.stats{display:flex;gap:12px;flex-wrap:wrap}.stat{flex:1;min-width:140px;background:#101b2b;padding:14px;border-radius:8px}.stat b{display:block;font-size:25px;margin-bottom:6px}progress{width:100%;height:22px;accent-color:#ffe282}button,select,input{font:inherit;background:#28405d;color:inherit;border:1px solid #58779b;border-radius:7px;padding:9px 12px}button{cursor:pointer}button:hover{background:#3c5879}a{color:#ffe282}.controls{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}.muted{color:#a9bdd6}.live{color:#8ce0b2}iframe{width:100%;height:720px;border:0;background:#10141d;border-radius:8px}.row{border-top:1px solid #3a4b62;padding:14px 0}.row small{display:block;margin-top:5px}.error{color:#ffb8a9}code{overflow-wrap:anywhere}#action-state{white-space:pre-wrap;font-size:13px;max-height:200px;overflow:auto}summary{cursor:pointer;margin-bottom:14px}
+.art-candidates{display:flex;gap:12px;flex-wrap:wrap}.art-candidates figure{margin:0;flex:1;min-width:180px;max-width:240px}.art-candidates img{width:100%;height:160px;object-fit:contain;background:#101b2b;border-radius:8px}.art-candidates figcaption{font-size:14px;line-height:1.5}.art-candidates small{display:block;color:#a9bdd6}
+</style></head><body>
+<h1>Donkey Kong · review and completion</h1>
+<p>Reviewing the full Ultimate-based kit, poses and collision in the running game. <span class="live">Live evidence updates</span></p>
+<section class="panel" aria-labelledby="standing-art-title"><h2 id="standing-art-title">Standing grab · animation artwork</h2><p class="muted">All 10 drawings are accepted. This artwork preview follows the reviewed source frame windows. Standing grab is qualified; current action progress is shown below.</p><canvas id="standing-art" width="512" height="256" aria-label="Standing grab artwork preview" style="max-width:100%;background:#101b2b;border-radius:8px"></canvas><div class="controls"><button id="art-play">Pause artwork</button><button id="art-step">Next artwork frame</button><button id="art-face">Face left</button><label>Frame <input id="art-frame" type="range" min="0" max="37" value="0" aria-label="Artwork frame"></label></div><p id="art-status" role="status">Loading artwork…</p></section>
+<section id="art-panel" class="panel" hidden><h2>Latest grab artwork</h2><p class="muted">The complete standing grab and its reviewed pull and hold poses are available in the game. Dash and pivot contact samples remain separate milestones.</p><div id="art-candidates" class="art-candidates"></div></section>
+<section class="panel"><h2>Character completion</h2><p id="completion">Loading evidence…</p><progress id="bar" value="0" max="226"></progress>
+<div class="stats"><div class="stat"><b id="implemented">—</b>Implementation rechecked</div><div class="stat"><b id="accepted">—</b>Visuals accepted</div><div class="stat"><b id="verified">—</b>Match verification</div></div>
+<p class="muted">A completed action needs an implemented contract, accepted visuals and final match evidence. Source fidelity is recorded separately. Counts track the full corrected contract. Existing baseline checks are listed below.</p>
+<p id="activity" class="live"></p>
+<div id="current-action" hidden><h2 id="current-action-name"></h2><div class="stats" aria-label="Current action progress"><div class="stat"><b id="action-drawings">—</b>Drawings accepted</div><div class="stat"><b id="action-collision">—</b>Static collision samples accepted</div></div><p id="current-action-status" role="status"></p><ul id="current-action-remaining"></ul></div>
+<div class="stats" aria-label="Work verified during review"><div class="stat"><b id="contracts">—</b>Action contracts mapped</div><div class="stat"><b id="pilots">—</b>Contact drawings accepted</div><div class="stat"><b id="mechanics">—</b>Verified combat checks</div><div class="stat"><b id="preview-checks">—</b>Verified preview checks</div></div>
+<p class="muted">These review milestones show work completed so far. A contact drawing or passing check covers part of an action; the full action counters above require its complete animation and match evidence.</p>
+<div class="stats"><div class="stat"><b id="items">—</b>Verified item-clock checks</div><div class="stat"><b id="catches">—</b>Verified catch / movement checks</div><div class="stat"><b id="heavy-items">—</b>Verified heavy-item checks</div><div class="stat"><b id="crate-contact">—</b>Verified crate-contact checks</div></div>
+<div class="stats"><div class="stat"><b id="vertical-checks">—</b>Verified jump / footstool checks</div><div class="stat"><b id="lab-checks">—</b>Verified Lab save / reload checks</div></div>
+<p id="baseline" class="muted"></p><p><a href="/platform-fighter/" target="_blank">Play the published build</a> · <a href="/docs/review/2026-09-25/donkeykong-character/README.md">Evidence record</a></p>
+<details><summary id="remaining">Required work</summary><div class="controls"><input id="search" placeholder="Find a move or state"><select id="filter"><option value="remaining">Remaining work</option><option value="all">All actions</option></select></div><div id="rows"></div></details></section>
+<section class="panel"><h2>Moves in the running game</h2>
+<p id="build-scope" class="muted">The review starts with the frozen build before corrections. Revised builds will be published at qualified checkpoints; the evidence counter follows current work.</p>
+<div class="controls"><select id="move" aria-label="Move"></select><button id="start">Start move</button><button id="step">Next frame</button><button id="play">Play / pause</button><button id="face">Face left</button><button id="reset">Reset</button><button id="overlay">Collision overlays</button></div>
+<div class="controls"><label>Opponent <select id="opponent"><option value="donkeykong">Donkey Kong</option><option value="pikachu">Pikachu</option></select></label><label>Grab target <select id="grab-target"><option value="out">Out of reach</option><option value="in">In reach</option></select></label></div>
+<p class="muted">Choose Pikachu to inspect the reviewed hand attachment during pull and hold.</p>
+<p id="viewer-status" role="status">Loading the game…</p><iframe id="game" src="/platform-fighter/" title="Donkey Kong running-game move review"></iframe><details><summary>Frame inspection details</summary><pre id="action-state"></pre></details>
+</section><script type="module">
+let evidence, scene, input={}, facing=1, playing=false, age=0, publishedBundle=null, gameReadyTimer,playInput={};
+const $=id=>document.getElementById(id);
+async function standingArtwork(){
+  const base='/docs/review/2026-09-25/donkeykong-character/audit-2026-10-08/art/';
+  try{
+    const response=await fetch(base+'full-standing-grab-ten-cell-static-atlas-draft.json',{cache:'no-store'});
+    if(!response.ok)throw new Error('Artwork metadata unavailable');
+    const data=await response.json(),atlas=new Image();
+    atlas.src='/'+data.atlas.path+'?review='+data.atlas.sha256;await atlas.decode();
+    if(atlas.naturalWidth!==3840||atlas.naturalHeight!==256)throw new Error('Artwork atlas dimensions changed');
+    const context=$('standing-art').getContext('2d');let frame=0,face=1,play=true,last=performance.now(),elapsed=0;
+    function draw(){
+      const row=data.sourceWindows.find(r=>frame>=r.startFrame&&frame<r.endFrame);
+      context.clearRect(0,0,512,256);context.save();
+      if(face===-1){context.translate(512,0);context.scale(-1,1);}
+      context.drawImage(atlas,row.artFrameIndex*384,0,384,256,128,0,384,256);context.restore();
+      $('art-frame').value=frame;$('art-status').textContent=`Artwork frame ${frame} · native sample ${row.startFrame+1} · ${face===1?'right':'left'} facing · reviewed 38-frame timeline`;
+    }
+    $('art-play').onclick=()=>{play=!play;elapsed=0;$('art-play').textContent=play?'Pause artwork':'Play artwork';};
+    $('art-step').onclick=()=>{play=false;elapsed=0;$('art-play').textContent='Play artwork';frame=(frame+1)%38;draw();};
+    $('art-face').onclick=()=>{face*=-1;$('art-face').textContent=face===1?'Face left':'Face right';draw();};
+    $('art-frame').oninput=()=>{play=false;elapsed=0;$('art-play').textContent='Play artwork';frame=Number($('art-frame').value);draw();};
+    function tick(now){const delta=Math.min(now-last,100);last=now;if(play&&!document.hidden){elapsed+=delta;if(elapsed>=1000/60){const steps=Math.floor(elapsed/(1000/60));elapsed-=steps*(1000/60);frame=(frame+steps)%38;draw();}}requestAnimationFrame(tick);}
+    draw();requestAnimationFrame(tick);
+  }catch(error){$('art-status').textContent=error.message;}
+}
+standingArtwork();
+let artRevision='';
+function artCandidates(){
+  const samples=evidence.activeWork?.artCandidates??[],revision=JSON.stringify(samples);
+  if(revision===artRevision)return;
+  artRevision=revision;
+  $('art-panel').hidden=samples.length===0;
+  $('art-candidates').replaceChildren(...samples.map(sample=>{
+    const figure=document.createElement('figure'),image=document.createElement('img'),caption=document.createElement('figcaption'),state=document.createElement('small');
+    image.src=sample.url+'?review='+sample.sha256;image.alt=sample.label+' artwork candidate';image.loading='lazy';image.decoding='async';
+    caption.textContent=sample.label;state.textContent=sample.state;caption.append(state);figure.append(image,caption);return figure;
+  }));
+}
+
+const definitions=[
+ ...['jab','jab2','tilt','utilt','dtilt','dashAttack','smash','usmash','dsmash','nair','fair','bair','uair','dair'].map(id=>({name:id,id,air:['nair','fair','bair','uair','dair'].includes(id)})),
+ {name:'Forward tilt up',id:'tilt',angle:-.4},{name:'Forward tilt down',id:'tilt',angle:.4},
+ ...[false,true].flatMap(air=>[0,55,111].map(charge=>({name:`Giant Punch · ${air?'air':'ground'} · ${charge===111?'full':charge===0?'tap':'partial'}`,id:'neutral_special',air,charge}))),
+ ...[false,true].flatMap(air=>['side_special','up_special','down_special'].map(id=>({name:`${id.replaceAll('_',' ')} · ${air?'air':'ground'}`,id,air}))),
+ {name:'Standing grab',grab:'standing'},{name:'Dash grab',grab:'dash'},{name:'Pivot grab',grab:'pivot'},
+ {name:'Pummel',held:'pummel'},...['back','up','down'].map(dir=>({name:`Normal ${dir} throw`,held:dir})),
+ ...['forward','back','up','down'].map(dir=>({name:`Cargo ${dir} throw`,held:dir,cargo:true})),
+ {name:'Heavy crate pickup',heavy:'pickup'},{name:'Heavy crate walk',heavy:'walk'},{name:'Heavy crate jump',heavy:'jump'},
+ ...[false,true].flatMap(air=>['forward','back','up','down'].flatMap(direction=>[false,true].map(strong=>({name:`Heavy ${direction} throw · ${air?'air':'ground'} · ${strong?'strong':'ordinary'}`,heavy:'throw',direction,strong,air}))))
+];
+const labels={jab:'Jab 1',jab2:'Jab 2',tilt:'Forward tilt',utilt:'Up tilt',dtilt:'Down tilt',dashAttack:'Dash attack',smash:'Forward smash',usmash:'Up smash',dsmash:'Down smash',nair:'Neutral air',fair:'Forward air',bair:'Back air',uair:'Up air',dair:'Down air'};
+for(const [i,d]of definitions.entries())$('move').add(new Option(labels[d.name]??d.name,i));
+function rows(){if(!evidence)return;artCandidates();currentAction();const query=$('search').value.toLowerCase();const selected=evidence.actions.filter(r=>($('filter').value==='all'||(!r.progress.complete&&!r.progress.not_applicable))&&r.id.toLowerCase().includes(query));$('rows').replaceChildren(...selected.map(r=>{const node=document.createElement('div');node.className='row';const name=document.createElement('b');name.textContent=r.id.replace('donkeykong.','').replaceAll('-',' ');node.append(name);const status=document.createElement('small');status.textContent=`Implementation: ${r.progress.implementation} · Visuals: ${r.progress.visuals} · Match: ${r.progress.runtime}`;node.append(status);const gaps=document.createElement('small');gaps.className='muted';gaps.textContent=r.progress.required_gaps.join(' · ');node.append(gaps);return node;}));}
+function currentAction(){
+  const action=evidence.activeWork?.current_action;
+  $('current-action').hidden=!action;
+  if(!action)return;
+  $('current-action-name').textContent=`Current action: ${action.name}`;
+  const planned=new Set([...(action.accepted_native_samples??[]),...(action.generated_unaccepted_native_samples??[]),...(action.remaining_native_samples??[])]).size;
+  $('action-drawings').textContent=`${action.accepted_native_samples?.length??0} / ${planned}`;
+  $('action-collision').textContent=`${action.accepted_receiving_native_samples?.length??0} / ${planned}`;
+  $('current-action-status').textContent=action.status;
+  $('current-action-remaining').replaceChildren(...action.remaining.map(text=>{
+    const item=document.createElement('li');item.textContent=text;return item;
+  }));
+}
+async function progress(){try{evidence=await(await fetch('/dk-progress.json',{cache:'no-store'})).json();const applicable=evidence.total-(evidence.counts.notApplicable??0);$('completion').textContent=`${evidence.counts.complete} / ${applicable} applicable actions fully qualified`;$('bar').max=applicable;$('bar').value=evidence.counts.complete;for(const k of['implemented','accepted','verified'])$(k).textContent=`${evidence.counts[k]} / ${evidence.total}`;$('remaining').textContent=`Required work · ${applicable-evidence.counts.complete} applicable actions`;$('baseline').textContent=`Baseline checks: ${evidence.baseline.contact_scenarios} match scenarios / ${evidence.baseline.contact_checks} checks, ${evidence.baseline.collision_cases} collision cases, ${evidence.baseline.numeric_comparisons} numeric records and ${evidence.baseline.lab_workflows} Lab workflows passed. Final row qualification follows the corrected contracts and art.`;$('activity').textContent=evidence.activeWork?.description??'';$('contracts').textContent=`${evidence.activeWork?.source_input_mappings??0} / ${evidence.total}`;$('pilots').textContent=evidence.activeWork?.accepted_pilot_images??0;$('mechanics').textContent=evidence.activeWork?.current_mechanics_checks??0;$('preview-checks').textContent=evidence.activeWork?.current_preview_checks??0;$('items').textContent=evidence.activeWork?.item_clock_match_checks??0;$('catches').textContent=evidence.activeWork?.catch_movement_checks??0;$('heavy-items').textContent=evidence.activeWork?.heavy_item_match_checks??0;$('crate-contact').textContent=evidence.activeWork?.native_crate_contact_checks??0;$('vertical-checks').textContent=evidence.activeWork?.ordinary_vertical_match_checks??0;$('lab-checks').textContent=evidence.activeWork?.current_lab_checks??0;const bundle=evidence.publication?.bundle??'baseline';if(publishedBundle&&publishedBundle!==bundle){scene=null;playing=false;input={};$('viewer-status').textContent='Loading the revised checkpoint…';$('game').src='/platform-fighter/?checkpoint='+encodeURIComponent(bundle);waitForGame();}publishedBundle=bundle;if(evidence.publication){$('build-scope').textContent=evidence.publication.description;}rows();}catch(e){$('completion').textContent=e.message;}}
+$('search').oninput=rows;$('filter').onchange=rows;progress();setInterval(progress,5000);
+function game(){return $('game').contentWindow.__game;}
+function observation(){const a=scene.p1,sp=scene.playerSlots[0].sprite,active=a.getActiveAttack();return{frame:age,active:active?.move.id??null,age:active?.framesElapsed??null,grab:a.getGrabState(),facing:a.getFacing(),position:a.getPosition(),texture:sp.texture.key,cell:sp.frame.name,attachment:a.getCaptureAttachmentDiagnostic?.()??null,opponent:{id:scene.p2.id,position:scene.p2.getPosition(),dimensions:{width:scene.p2.getTuning().width,height:scene.p2.getTuning().height},captured:scene.p2.isGrabbed(),attachment:scene.p2.getCaptureAttachmentDiagnostic?.()??null},heavyAction:a.getDonkeyKongHeavyItemActionState(),heavyCarry:a.getDonkeyKongHeavyCarryState(),heldItem:scene.getInventory(scene.playerSlots[0].playerIndex)?.getHeldItem()?.definition.type??null,receiving:a.getActiveHurtboxes(),targetDamage:scene.p2.getDamagePercent()};}
+function render(){scene.update(0,0);$('action-state').textContent=JSON.stringify(observation(),null,2);$('viewer-status').textContent=`Frame ${age} · ${playing?'playing':'paused'} · ${facing===1?'right':'left'} facing`;}
+function step(next={}){input=next;scene.physicsEngine.resume();scene.update(0,scene.physicsEngine.fixedTimestepMs);scene.physicsEngine.pause();age++;render();}
+function reset(){playing=false;playInput={};const g=game();for(const s of g.scene.getScenes(true))g.scene.stop(s.scene.key);g.scene.start('MatchScene',{matchConfig:{mode:'stocks',stockCount:5,stageId:'flat',rngSeed:1007,itemFrequency:'off',players:[{index:1,characterId:'donkeykong',paletteIndex:0,inputType:'keyboard_p1'},{index:2,characterId:$('opponent').value,paletteIndex:$('opponent').value==='donkeykong'?1:0,inputType:'keyboard_p2'}]}});scene=g.scene.getScene('MatchScene');scene.physicsEngine.pause();scene.roundStartCountdown=0;scene.cpuControllers.clear();scene.inputResolver.getMoveVector=p=>({x:p===1?input.moveX??0:0,y:p===1?input.moveY??0:0});scene.inputResolver.isActionHeld=(p,a)=>p===1&&input[a]===true;scene.inputResolver.getSmash=()=>({buttonHeld:false,stickJustPressed:false,x:0,y:0});const floor=scene.baseStage.rendered.platformBodies.find(b=>b.label==='platform.solid');for(const[a,dx]of[[scene.p1,0],[scene.p2,500*facing]]){a.resetForRound(floor.position.x+dx,floor.bounds.min.y-a.getTuning().height/2);a.setDamagePercent(0);}scene.p1.setFacing(facing);scene.p2.setFacing(-facing);for(let i=0;i<12;i++)step();age=0;render();}
+function spawnCrate(){const a=scene.p1,p=a.getPosition(),tr=scene.baseStage.transform,scale=scene.stage.scale,floor=scene.baseStage.rendered.platformBodies.find(b=>b.label==='platform.solid').bounds.min.y;const old=scene.itemSpawnManager.step;scene.itemSpawnTypeIndex=6;const x=(p.x+25*facing-tr.offsetX)/scale,y=(floor-tr.offsetY)/scale;scene.itemSpawnManager.step=frame=>[{frame,anchorIndex:0,anchor:{x,y:y-60},spawnPosition:{x,y}}];try{step();}finally{scene.itemSpawnManager.step=old;}}
+function showHeavy(d){const a=scene.p1;scene.p2.resetForRound(a.getPosition().x+500*facing,a.getPosition().y);spawnCrate();step({attack:true});if(d.heavy==='pickup')return;const direction={moveX:d.direction==='forward'?facing:d.direction==='back'?-facing:0,moveY:d.direction==='up'?-1:d.direction==='down'?1:0};for(let n=0;n<24;n++)step(d.heavy==='throw'&&!d.strong&&n>=16?direction:{});if(d.air){const p=a.getPosition();scene.matter.body.setPosition(a.body,{x:p.x,y:p.y-350});scene.matter.body.setVelocity(a.body,{x:0,y:0});for(let n=0;n<2;n++)step(!d.strong?direction:{});}if(d.heavy==='throw')step({...direction,attack:true});else if(d.heavy==='walk'){playInput={moveX:facing};step(playInput);}else if(d.heavy==='jump'){playInput={jump:true};step(playInput);}}
+function start(){reset();const d=definitions[Number($('move').value)],a=scene.p1,b=scene.p2,p=a.getPosition();if(d.heavy){showHeavy(d);age=0;render();return;}const grabDistance=d.grab&&$('grab-target').value==='out'?500:70;b.resetForRound(p.x+grabDistance*facing,p.y+(a.getTuning().height-b.getTuning().height)/2);b.setFacing(-facing);if(d.air){a.resetForRound(p.x,p.y-200);b.resetForRound(p.x+70*facing,p.y-200);a.setFacing(facing);step();}if(d.grab||d.held){if(d.grab==='dash'||d.grab==='pivot'){b.resetForRound(p.x+500*facing,p.y);for(let n=0;n<24;n++)step({moveX:facing});const q=a.getPosition();b.resetForRound(q.x+(d.grab==='pivot'?-facing:facing)*grabDistance,q.y+(a.getTuning().height-b.getTuning().height)/2);step({moveX:d.grab==='pivot'?-facing:facing,grab:true});}else step({grab:true});if(d.held){for(let n=0;n<15;n++)step();if(d.cargo){step({moveX:facing});for(let n=0;n<16;n++)step();}step({moveX:d.held==='forward'?facing:d.held==='back'?-facing:0,moveY:d.held==='up'?-1:d.held==='down'?1:0,attack:d.cargo||d.held==='pummel'});}}else if(d.charge!==undefined)a.fireNeutralChargeSpecial('donkeykong.neutral_special',d.charge);else if(d.id==='up_special')a.executeUpSpecial(0,-1);else if(d.angle!==undefined){step({moveX:.5*facing,moveY:d.angle});step({moveX:.5*facing,moveY:d.angle,attack:true});}else a.attemptAttack('donkeykong.'+d.id);age=0;render();}
+function safe(fn){return()=>{try{fn();}catch(e){$('viewer-status').textContent=e.message;$('viewer-status').className='error';}};}
+$('opponent').onchange=safe(reset);$('start').onclick=safe(start);$('step').onclick=safe(()=>step(playInput));$('play').onclick=safe(()=>{playing=!playing;render();});$('face').onclick=safe(()=>{facing*=-1;$('face').textContent=facing===1?'Face left':'Face right';reset();});$('reset').onclick=safe(reset);$('overlay').onclick=safe(()=>{scene.hitboxDebugLayer.toggle();render();});
+setInterval(()=>{if(scene&&playing)safe(()=>step(playInput))();},1000/60);
+function waitForGame(){clearInterval(gameReadyTimer);gameReadyTimer=setInterval(()=>{if(game()?.scene.isActive('PasswordGateScene')){clearInterval(gameReadyTimer);$('viewer-status').className='';safe(reset)();}},250);}waitForGame();
+</script></body></html>

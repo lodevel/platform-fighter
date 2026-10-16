@@ -120,7 +120,7 @@ import type {
   AttackMoveWithAnimation,
   KnockbackSpec,
 } from './moveSchema';
-import { computeAttackPhase, getMoveBusyFrames } from './moveSchema';
+import { computeAttackPhase, getMoveBusyFrames, validateSpecialLandingLagFrames } from './moveSchema';
 
 // ---------------------------------------------------------------------------
 // Up-special-kind discriminator
@@ -187,6 +187,18 @@ export type UpSpecialKind =
 // Per-kind detail records
 // ---------------------------------------------------------------------------
 
+/** Optional recovery motion: limited gravity window and steering until move end. */
+export interface UpSpecialSustainedRiseSpec {
+  /** Zero-based move-frame window [0, gravityFrames), including startup. */
+  readonly gravityFrames: number;
+  /** Downward acceleration in px per 60 Hz step squared; strictly positive. */
+  readonly gravity: number;
+  /** Stick-directed acceleration throughout the move, in px per step squared. */
+  readonly airAcceleration: number;
+  /** Horizontal speed limit in px per 60 Hz step; strictly positive. */
+  readonly maxAirSpeed: number;
+}
+
 /**
  * Configuration for the multi-hit-rising sub-kind.
  *
@@ -211,6 +223,16 @@ export type UpSpecialKind =
  * frames always produce identical trajectories.
  */
 export interface UpSpecialMultiHitRisingSpec {
+  readonly collisionHitsPerHit?: ReadonlyArray<readonly import('./attacks').AttackCollisionHit[]>;
+  /** Absent for the legacy one-shot impulse followed by ordinary physics. */
+  readonly sustainedRise?: UpSpecialSustainedRiseSpec;
+  /** Optional nonuniform active-frame offsets, one per hit, in ascending order. */
+  readonly hitFrames?: ReadonlyArray<number>;
+  readonly damagePerHit?: ReadonlyArray<number>;
+  readonly knockbackPerHit?: ReadonlyArray<KnockbackSpec>;
+  readonly hitlagMultiplierPerHit?: ReadonlyArray<number>;
+  readonly sdiMultiplierPerHit?: ReadonlyArray<number>;
+  readonly activeFramesPerHit?: ReadonlyArray<number>;
   /**
    * Upward velocity impulse applied on the press frame, in Matter
    * px-per-step units. NEGATIVE means upward (Phaser screen-space).
@@ -465,6 +487,17 @@ interface UpSpecialMoveBase extends AttackMoveWithAnimation {
 
 /** Multi-hit rising attack up-special. */
 export interface MultiHitRisingUpSpecialMove extends UpSpecialMoveBase {
+  /** Grounded attacks can spin in place instead of starting an aerial recovery. */
+  readonly groundedVariant?: AttackMoveWithAnimation;
+  /** Elapsed startup frame at which a chargeable grounded variant waits for release. */
+  readonly groundedChargeStartFrame?: number;
+  /**
+   * Elapsed grounded-variant frame a spin continues from when it touches down
+   * before special fall (the aerial spin, or a grounded spin that left its
+   * floor earlier than this frame). Absent: the landing uses
+   * `specialLandingLagFrames`.
+   */
+  readonly groundedLandingFrame?: number;
   readonly upSpecialKind: 'multiHitRising';
   readonly multiHitRising: UpSpecialMultiHitRisingSpec;
 }
@@ -611,6 +644,7 @@ export function snapStickToOctant(
 export function computeMultiHitFrames(
   spec: UpSpecialMultiHitRisingSpec,
 ): ReadonlyArray<number> {
+  if (spec.hitFrames) return [...spec.hitFrames];
   const frames: number[] = [];
   for (let i = 0; i < spec.hitCount; i += 1) {
     frames.push(i * spec.hitInterval);
@@ -627,6 +661,7 @@ export function isMultiHitFrame(
   spec: UpSpecialMultiHitRisingSpec,
   framesIntoActive: number,
 ): boolean {
+  if (spec.hitFrames) return spec.hitFrames.includes(framesIntoActive);
   if (framesIntoActive < 0) return false;
   if (framesIntoActive % spec.hitInterval !== 0) return false;
   const hitIndex = framesIntoActive / spec.hitInterval;
@@ -642,6 +677,7 @@ export function isFinalLauncherFrame(
   spec: UpSpecialMultiHitRisingSpec,
   framesIntoActive: number,
 ): boolean {
+  if (spec.hitFrames) return framesIntoActive === spec.hitFrames[spec.hitFrames.length - 1];
   if (!isMultiHitFrame(spec, framesIntoActive)) return false;
   const hitIndex = framesIntoActive / spec.hitInterval;
   return hitIndex === spec.hitCount - 1;
@@ -795,11 +831,67 @@ export function validateUpSpecialMove(move: UpSpecialMove): UpSpecialMove {
       `UpSpecialMove '${move.id}': type must be 'upSpecial', got '${move.type}'`,
     );
   }
+  validateSpecialLandingLagFrames(move);
   const busyTotal = getMoveBusyFrames(move);
 
   switch (move.upSpecialKind) {
     case 'multiHitRising': {
+      if (move.groundedVariant && (move.groundedVariant.type !== 'upSpecial' || move.groundedVariant.id !== move.id)) {
+        throw new Error(`UpSpecialMove '${move.id}': groundedVariant must retain the upSpecial type and move id`);
+      }
+      if (move.groundedVariant) validateSpecialLandingLagFrames(move.groundedVariant);
+      if (move.groundedChargeStartFrame !== undefined && (!move.groundedVariant?.charge
+        || !Number.isInteger(move.groundedChargeStartFrame) || move.groundedChargeStartFrame < 0
+        || move.groundedChargeStartFrame >= move.groundedVariant.startupFrames)) {
+        throw new Error(`UpSpecialMove '${move.id}': groundedChargeStartFrame requires a charged grounded variant and must lie inside startup`);
+      }
+      if (move.groundedLandingFrame !== undefined && (!move.groundedVariant
+        || !Number.isInteger(move.groundedLandingFrame) || move.groundedLandingFrame < 0
+        || move.groundedLandingFrame >= getMoveBusyFrames(move.groundedVariant))) {
+        throw new Error(`UpSpecialMove '${move.id}': groundedLandingFrame requires a grounded variant and must lie inside its timeline`);
+      }
       const r = move.multiHitRising;
+      if (r.sustainedRise !== undefined) {
+        const flight = r.sustainedRise;
+        if (flight === null || typeof flight !== 'object' || Array.isArray(flight)) {
+          throw new Error(`UpSpecialMove '${move.id}': multiHitRising.sustainedRise must be an object`);
+        }
+        if (!Number.isInteger(flight.gravityFrames) || flight.gravityFrames < 1 || flight.gravityFrames > busyTotal) {
+          throw new Error(`UpSpecialMove '${move.id}': multiHitRising.sustainedRise.gravityFrames must be a positive integer within the move duration (${busyTotal})`);
+        }
+        for (const key of ['gravity', 'maxAirSpeed'] as const) {
+          if (!Number.isFinite(flight[key]) || flight[key] <= 0) {
+            throw new Error(`UpSpecialMove '${move.id}': multiHitRising.sustainedRise.${key} must be positive and finite`);
+          }
+        }
+        if (!Number.isFinite(flight.airAcceleration) || flight.airAcceleration < 0) {
+          throw new Error(`UpSpecialMove '${move.id}': multiHitRising.sustainedRise.airAcceleration must be non-negative and finite`);
+        }
+      }
+      if (r.hitFrames !== undefined && (r.hitFrames.length !== r.hitCount
+        || r.hitFrames.some((f, i) => !Number.isInteger(f) || f < 0 || f >= move.activeFrames
+          || (i > 0 && f <= r.hitFrames![i - 1]!)))) {
+        throw new Error(`UpSpecialMove '${move.id}': invalid multiHitRising.hitFrames`);
+      }
+      if (r.damagePerHit !== undefined && (r.damagePerHit.length !== r.hitCount
+        || r.damagePerHit.some(d => !Number.isFinite(d) || d < 0))) {
+        throw new Error(`UpSpecialMove '${move.id}': invalid multiHitRising.damagePerHit`);
+      }
+      if (r.knockbackPerHit !== undefined && (r.knockbackPerHit.length !== r.hitCount
+        || r.knockbackPerHit.some(k => ![k.x, k.y, k.scaling].every(Number.isFinite)))) {
+        throw new Error(`UpSpecialMove '${move.id}': invalid multiHitRising.knockbackPerHit`);
+      }
+      for (const key of ['hitlagMultiplierPerHit', 'sdiMultiplierPerHit'] as const) {
+        const values = r[key];
+        if (values !== undefined && (values.length !== r.hitCount || values.some(v => !Number.isFinite(v) || v < 0))) {
+          throw new Error(`UpSpecialMove '${move.id}': invalid multiHitRising.${key}`);
+        }
+      }
+      if (r.activeFramesPerHit !== undefined && (r.activeFramesPerHit.length !== r.hitCount
+        || r.activeFramesPerHit.some((duration, i) => !Number.isInteger(duration) || duration < 1
+          || (r.hitFrames?.[i] ?? i * r.hitInterval) + duration > move.activeFrames))) {
+        throw new Error(`UpSpecialMove '${move.id}': invalid multiHitRising.activeFramesPerHit`);
+      }
       if (!Number.isFinite(r.riseImpulse) || r.riseImpulse >= 0) {
         throw new Error(
           `UpSpecialMove '${move.id}': multiHitRising.riseImpulse must be negative (upward), got ${r.riseImpulse}`,
@@ -822,7 +914,7 @@ export function validateUpSpecialMove(move: UpSpecialMove): UpSpecialMove {
       }
       // Final hit must fire inside activeFrames so the launcher actually
       // happens during the active window.
-      const finalHitOffset = (r.hitCount - 1) * r.hitInterval;
+      const finalHitOffset = r.hitFrames?.[r.hitCount - 1] ?? (r.hitCount - 1) * r.hitInterval;
       if (finalHitOffset >= move.activeFrames) {
         throw new Error(
           `UpSpecialMove '${move.id}': multiHitRising final hit at active-frame ${finalHitOffset} exceeds activeFrames=${move.activeFrames}`,

@@ -425,3 +425,13 @@ export function catalogPiecesByCategory(
 ): ReadonlyArray<CatalogPiece> {
   return CATALOG_PIECES.filter((p) => p.category === category);
 }
+/** Catalog hit rectangle retained with pure saved-stage model types. */
+export interface CatalogRowHitRect {
+  readonly type: BuilderPieceType;
+  readonly index: number;
+  readonly piece: CatalogPiece;
+  readonly x: number;
+  readonly y: number;
+  readonly width: number;
+  readonly height: number;
+}

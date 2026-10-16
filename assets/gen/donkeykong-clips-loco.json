@@ -1,0 +1,45 @@
+{
+  "fighter": "donkeykong",
+  "identity": "a large muscular cartoon gorilla, Donkey Kong style, reddish-brown fur with a lighter tan chest and muzzle, small black nose, thick brows, wearing a bright red necktie, huge shoulders and arms, short legs, big hands and feet, cel shaded with bold dark outlines, vibrant saturated colors, Brawlhalla style clean 2D game sprite",
+  "draftBody": "a simple clear full-body silhouette of a large gorilla with huge arms, short legs and a small head, no clothing except a necktie, limbs clearly separated, high contrast sharp clean outline, full body",
+  "negative": "human, monkey tail, clothing, shirt, hat, weapon, text, watermark, two characters",
+  "cannyLow": 0.1,
+  "cannyHigh": 0.3,
+  "cnStrength": 0.6,
+  "idSeed": 4242,
+  "clips": {
+    "idle": [
+      "right-facing, standing in a relaxed knuckle-walking stance, weight centered evenly, arms relaxed with knuckles resting near the ground, head level, chest at rest, full body, feet visible",
+      "right-facing, knuckle-walking stance, weight shifting slightly onto the front knuckles as the chest expands with an inhale, arms relaxed, head level, full body, feet visible",
+      "right-facing, knuckle-walking stance, weight settling back onto the hind legs as the chest eases with an exhale, arms relaxed near the ground, head level, full body, feet visible",
+      "right-facing, knuckle-walking stance, weight shifting slightly forward again, arms relaxed with knuckles grazing the ground, head level, completing the breathing loop, full body, feet visible"
+    ],
+    "run": [
+      "right-facing, galloping on all fours, right knuckle planted forward bearing weight, left hind foot pushing off the ground behind, torso low and driving forward, head forward, full body, feet visible",
+      "right-facing, galloping on all fours, both hind feet gathering underneath the body while the knuckles reach forward, torso compact, head low, full body, feet visible",
+      "right-facing, galloping on all fours, left knuckle reaching forward to plant, right hind leg extended back at full stretch, torso stretched long, full body, feet visible",
+      "right-facing, galloping on all fours, left knuckle planted forward bearing weight, right knuckle lifting off the ground, hind legs driving underneath the body, full body, feet visible",
+      "right-facing, galloping on all fours, right knuckle reaching forward to plant, left hind foot pushing off the ground behind, torso low, head forward, full body, feet visible",
+      "right-facing, galloping on all fours, both knuckles airborne momentarily, hind legs gathered underneath the body, torso compact and coiled, full body, feet visible",
+      "right-facing, galloping on all fours, right knuckle planted forward bearing weight, left hind leg extended back at full stretch, torso stretched long and low, full body, feet visible",
+      "right-facing, galloping on all fours, all four limbs momentarily off the ground mid-stride, torso extended, head forward, full body, feet visible"
+    ],
+    "jump": [
+      "right-facing, crouching low on bent legs in preparation to jump, knuckles near the ground, head lowered, coiled to spring upward, full body, feet visible",
+      "right-facing, launching upward off the ground, legs extending explosively, arms swinging upward, torso rising, feet just leaving the ground, full body, feet visible",
+      "right-facing, rising through the air, legs trailing bent beneath the body, both arms raised upward overhead, torso upright, full body, feet visible",
+      "right-facing, at the apex of the jump, body tucked compactly with knees drawn up and arms bent close to the chest, full body, feet visible",
+      "right-facing, falling through the air, arms spread outward for balance, legs loosely bent beneath the body, torso leaning slightly forward, full body, feet visible"
+    ],
+    "crouch": [
+      "right-facing, a low all-fours crouch with the chest near the ground, knees bent wide, arms bent and knuckles planted on the ground, head lowered between the shoulders, full body, feet visible"
+    ],
+    "hurt": [
+      "right-facing, flinching backward with the head snapped back and face grimacing in pain, arms drawn up defensively in front of the chest, knees bent, full body, feet visible",
+      "right-facing, knocked backward off balance with limbs flailing outward, torso tipped back, head thrown back, legs kicking loosely in the air, full body, feet visible"
+    ],
+    "shield": [
+      "right-facing, hunched low with both arms crossed tightly in front of the chest, shoulders raised, knees bent, head tucked down, bracing against an impact, full body, feet visible"
+    ]
+  }
+}

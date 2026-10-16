@@ -41,12 +41,10 @@
  *      (AI synthesiser, replay re-driver) cannot accidentally fire an
  *      aerial from a grounded press.
  *
- *   2. **Heavy press is silently ignored.** A dedicated heavy/smash
- *      button press while airborne is dropped — smashes are grounded
- *      moves; the airborne kit has no smash. This matches the
- *      `Character.tickAttack` legacy path and keeps a player from
- *      accidentally firing a "smash" in mid-air by holding the heavy
- *      button.
+ *   2. **Heavy press fires an aerial too.** A dedicated heavy/smash
+ *      press while airborne (a smash key, or Ultimate's C-stick) fires
+ *      the aerial for its direction, by the same rules as a light
+ *      press — the airborne kit has no smash of its own.
  *
  *   3. **Neutral aerial (nair).** Light press with `|moveX|` below the
  *      neutral deadzone {@link AERIAL_STICK_THRESHOLD}. Resolves to
@@ -130,9 +128,9 @@ export const AERIAL_STICK_THRESHOLD = 0.3;
  *                              normal/light attack button. Caller
  *                              detects the rising edge.
  *   • `heavyJustPressed`    — `true` on the rising-edge frame of the
- *                              dedicated heavy/smash button. Always
- *                              dropped while airborne — see semantics
- *                              note 2 in the file header.
+ *                              dedicated heavy/smash button. Airborne
+ *                              it fires the aerial like a light press —
+ *                              see semantics note 2 in the file header.
  *   • `moveX`               — current-frame stick X in [-1, 1]. Pre-
  *                              clamped by the caller; the helper does
  *                              NOT re-clamp.
@@ -178,7 +176,7 @@ export interface AerialAttackInputSnapshot {
  *                          (regardless of direction). Used as the
  *                          last-line fallback when the directional
  *                          slots are empty so a fighter that ships
- *                          only `WOLF_NAIR` keeps firing nair on every
+ *                          only `DONKEYKONG_NAIR` keeps firing nair on every
  *                          airborne press.
  *   • `lightAttackId`   — historic grounded-light slot. Used as a
  *                          deeper fallback so a roster that ships only
@@ -295,15 +293,10 @@ export function classifyAerialDirection(
  *      against any caller (AI synthesiser, replay re-driver, future
  *      AC paths) accidentally firing an aerial from a grounded press.
  *
- *   1. **Heavy press is dropped.** If only `heavyJustPressed`, return
- *      null. The airborne kit has no smash — heavy presses while
- *      airborne are silently ignored, matching the `Character.tickAttack`
- *      legacy behaviour.
- *
- *   2. **No light press → no dispatch.** If `!attackJustPressed`,
- *      return null. The airborne attack channel only fires on a
- *      rising-edge light press (post-AC 60201 there is no airborne
- *      smash dispatch).
+ *   1+2. **No press → no dispatch.** If neither `attackJustPressed`
+ *      nor `heavyJustPressed`, return null. A heavy press resolves
+ *      exactly like a light one (the caller passes the heavy press's
+ *      own direction in `moveX` / `moveY` when it has one).
  *
  *   3. **Direction classification.** Compute `direction` via
  *      {@link classifyAerialDirection} from `moveX` + `prevFacing`.
@@ -324,8 +317,7 @@ export function classifyAerialDirection(
  *
  * Returns `null` when:
  *   • The fighter is grounded (aerial gate trips).
- *   • Only the heavy button rose this frame (heavy is dropped airborne).
- *   • No light press happened.
+ *   • Neither the light nor the heavy button rose this frame.
  *   • Every cascade fallback for the matched direction is empty.
  *
  * Determinism: pure function of the inputs. Identical
@@ -342,11 +334,10 @@ export function classifyAerialAttack(
     return null;
   }
 
-  // ---- 1+2. No actionable light press → bail --------------------------
-  // Heavy is silently dropped (smashes are grounded moves). A frame
-  // with only `heavyJustPressed` and no `attackJustPressed` produces
-  // no aerial dispatch, matching the canonical airborne kit.
-  if (!input.attackJustPressed) {
+  // ---- 1+2. No press → bail --------------------------------------------
+  // In the air there is no smash, so a heavy press (smash key or
+  // C-stick) fires the aerial for its direction like a light press.
+  if (!input.attackJustPressed && !input.heavyJustPressed) {
     return null;
   }
 
@@ -361,7 +352,7 @@ export function classifyAerialAttack(
 
   // ---- 4. Slot lookup with cascading fallback -------------------------
   // The cascade encodes the canonical "fall through to broader slots
-  // until something fires" rule. A roster that ships only `WOLF_NAIR`
+  // until something fires" rule. A roster that ships only `DONKEYKONG_NAIR`
   // (registered as plain `AttackMove`-typed aerial) has all directional
   // slots null but `aerialAttackId` populated, so every press resolves
   // to nair regardless of stick direction. A roster with full

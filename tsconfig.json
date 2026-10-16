@@ -3,7 +3,11 @@
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
@@ -26,21 +30,58 @@
     "useDefineForClassFields": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@engine/*": ["src/engine/*"],
-      "@scenes/*": ["src/scenes/*"],
-      "@characters/*": ["src/characters/*"],
-      "@stages/*": ["src/stages/*"],
-      "@input/*": ["src/input/*"],
-      "@ai/*": ["src/ai/*"],
-      "@replay/*": ["src/replay/*"],
-      "@builder/*": ["src/builder/*"],
-      "@ui/*": ["src/ui/*"],
-      "@utils/*": ["src/utils/*"],
-      "@types/*": ["src/types/*"]
+      "@/*": [
+        "src/*"
+      ],
+      "@engine/*": [
+        "src/engine/*"
+      ],
+      "@scenes/*": [
+        "src/scenes/*"
+      ],
+      "@characters/*": [
+        "src/characters/*"
+      ],
+      "@stages/*": [
+        "src/stages/*"
+      ],
+      "@input/*": [
+        "src/input/*"
+      ],
+      "@ai/*": [
+        "src/ai/*"
+      ],
+      "@replay/*": [
+        "src/replay/*"
+      ],
+      "@builder/*": [
+        "src/builder/*"
+      ],
+      "@ui/*": [
+        "src/ui/*"
+      ],
+      "@utils/*": [
+        "src/utils/*"
+      ],
+      "@types/*": [
+        "src/types/*"
+      ]
     },
-    "types": ["node", "vite/client"]
+    "types": [
+      "node",
+      "vite/client"
+    ]
   },
-  "include": ["src/**/*.ts", "src/**/*.d.ts", "scripts/**/*.ts"],
-  "exclude": ["node_modules", "dist"]
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.d.ts",
+    "scripts/**/*.ts",
+    "port/src/**/*.ts",
+    "port/vite.config.ts",
+    "vite.config.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }

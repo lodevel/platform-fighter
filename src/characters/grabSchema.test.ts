@@ -9,7 +9,7 @@ import {
 } from './grabSchema';
 
 const validSpec = (): GrabSpec => ({
-  id: 'wolf.grab',
+  id: 'donkeykong.grab',
   hitbox: { offsetX: 22, offsetY: 0, width: 30, height: 30 },
   startupFrames: 7,
   activeFrames: 2,

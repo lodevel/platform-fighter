@@ -1,0 +1,17 @@
+{
+  "_source": "SmashWiki Link (SSBU) base damage per hit, as recorded in docs/review/2026-10-14/link-takeover/TRIAGE.md (UFD-checked). Hits are matched as a multiset against observed contact damage within tolerance, since the engine applies a 1.05 freshness factor.",
+  "tolerancePct": 6,
+  "scenarios": {
+    "jab123": { "damage": [3, 3, 4] },
+    "ftilt": { "damage": [13] },
+    "utilt": { "damage": [11] },
+    "dtilt": { "damage": [9] },
+    "dash attack": { "damage": [14] },
+    "fsmash (uncharged)": { "damage": [7, 5] },
+    "usmash": { "damage": [4, 3, 11] },
+    "dsmash": { "damage": [16] },
+    "nair": { "damage": [11] },
+    "fair": { "damage": [10] },
+    "bair": { "damage": [5, 7] }
+  }
+}

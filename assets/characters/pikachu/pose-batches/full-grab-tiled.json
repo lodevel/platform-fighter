@@ -1,0 +1,279 @@
+{
+  "state": "packed_cells_visually_reviewed_runtime_pending",
+  "coordinateContract": {
+    "canonicalCanvas": [
+      2048,
+      2048
+    ],
+    "canonicalRoot": [
+      1024,
+      1664
+    ],
+    "frameWidth": 512,
+    "frameHeight": 512,
+    "root": [
+      256,
+      416
+    ],
+    "scaleToWorld": 0.4666666666666667,
+    "bodyCentreFromRoot": [
+      0,
+      -25
+    ]
+  },
+  "clockContract": "docs/review/2026-10-06/pikachu-character/sources/state-runtime-clock-contract.json",
+  "clockContractSha256": "66ba9368ffe7118410fb965fa6b095902f881ce8473644791cf0e406370165f0",
+  "animations": {
+    "grab": {
+      "strip": "animations/grab.png",
+      "frameCount": 7,
+      "sha256": "2a37e06caae7f639d307b02dccd3041e084616bcc13e137ce88ea13c55056ec8",
+      "columns": 7,
+      "rows": 1,
+      "frameWindows": [
+        {
+          "startFrame": 0,
+          "endFrame": 3,
+          "artFrameIndex": 0,
+          "nativeStart": 0,
+          "nativeEnd": 3
+        },
+        {
+          "startFrame": 3,
+          "endFrame": 6,
+          "artFrameIndex": 1,
+          "nativeStart": 3,
+          "nativeEnd": 6
+        },
+        {
+          "startFrame": 6,
+          "endFrame": 7,
+          "artFrameIndex": 2,
+          "nativeStart": 6,
+          "nativeEnd": 7
+        },
+        {
+          "startFrame": 7,
+          "endFrame": 12,
+          "artFrameIndex": 3,
+          "nativeStart": 7,
+          "nativeEnd": 12
+        },
+        {
+          "startFrame": 12,
+          "endFrame": 25,
+          "artFrameIndex": 4,
+          "nativeStart": 12,
+          "nativeEnd": 25
+        },
+        {
+          "startFrame": 25,
+          "endFrame": 36,
+          "artFrameIndex": 5,
+          "nativeStart": 25,
+          "nativeEnd": 47
+        }
+      ],
+      "loopDuration": null,
+      "nativeSampleIndices": [
+        0,
+        3,
+        6,
+        7,
+        12,
+        25,
+        47
+      ],
+      "nativeWindows": [
+        {
+          "nativeStart": 0,
+          "nativeEnd": 3,
+          "artFrameIndex": 0
+        },
+        {
+          "nativeStart": 3,
+          "nativeEnd": 6,
+          "artFrameIndex": 1
+        },
+        {
+          "nativeStart": 6,
+          "nativeEnd": 7,
+          "artFrameIndex": 2
+        },
+        {
+          "nativeStart": 7,
+          "nativeEnd": 12,
+          "artFrameIndex": 3
+        },
+        {
+          "nativeStart": 12,
+          "nativeEnd": 25,
+          "artFrameIndex": 4
+        },
+        {
+          "nativeStart": 25,
+          "nativeEnd": 47,
+          "artFrameIndex": 5
+        },
+        {
+          "nativeStart": 47,
+          "nativeEnd": 48,
+          "artFrameIndex": 6
+        }
+      ],
+      "drawingFacingBinding": "actor entry facing; native orientation candidates must be checked before accepting both-facing render",
+      "holdRule": "native nonloop holds final available drawing until status exit; looping clips wrap native loopDuration; endpoint sample is not action commitment",
+      "specialPhase": null,
+      "specialClockKind": null,
+      "dynamicCutoff": null,
+      "playableEndExclusive": null,
+      "runtimeBindingStatus": "existing state observable; dedicated reviewed drawing route pending accepted strip"
+    }
+  },
+  "sources": [
+    {
+      "sourceKey": "full-grab-standing-sample0-source0",
+      "nativeSample": 0,
+      "sourceReferenceSha256": "8b3ff36ea52365f49734dc8a3935bdb23f015a25fcdc756a05c803595c8fa0d8",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-capture-batch000-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "98897eafa1643a2824b4986253b231e7ee27a3296eb12668031625d8ce14ce6f",
+      "atlasCell": 0,
+      "cellOffset": [
+        0,
+        0
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-capture-batch000-bounded-source0-attempt1.review.json",
+      "reviewSha256": "e168c94b4529b98be80ab770ec76011313519a328cfc5f6e96dccbd79e7c2ecf"
+    },
+    {
+      "sourceKey": "full-grab-standing-sample3-source3",
+      "nativeSample": 3,
+      "sourceReferenceSha256": "9a3ab764b5d50e4fb0573af05e296f4e24942b5f97c359cee5915515ed7ef9ea",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-capture-batch000-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "98897eafa1643a2824b4986253b231e7ee27a3296eb12668031625d8ce14ce6f",
+      "atlasCell": 1,
+      "cellOffset": [
+        1024,
+        0
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-capture-batch000-bounded-source0-attempt1.review.json",
+      "reviewSha256": "e168c94b4529b98be80ab770ec76011313519a328cfc5f6e96dccbd79e7c2ecf"
+    },
+    {
+      "sourceKey": "full-grab-standing-sample6-source6",
+      "nativeSample": 6,
+      "sourceReferenceSha256": "67e1f367254873300b5f7828cdf01397d94452bffbaceb36b626ba2d74a87edd",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-capture-batch000-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "98897eafa1643a2824b4986253b231e7ee27a3296eb12668031625d8ce14ce6f",
+      "atlasCell": 2,
+      "cellOffset": [
+        0,
+        1024
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-capture-batch000-bounded-source0-attempt1.review.json",
+      "reviewSha256": "e168c94b4529b98be80ab770ec76011313519a328cfc5f6e96dccbd79e7c2ecf"
+    },
+    {
+      "sourceKey": "full-grab-standing-sample7-source7",
+      "nativeSample": 7,
+      "sourceReferenceSha256": "ac5c459b47b1a12f64b23cfde9cf50613c78c411633b78c5bbfc9c6bab5f7dd0",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-capture-batch000-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "98897eafa1643a2824b4986253b231e7ee27a3296eb12668031625d8ce14ce6f",
+      "atlasCell": 3,
+      "cellOffset": [
+        1024,
+        1024
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-capture-batch000-bounded-source0-attempt1.review.json",
+      "reviewSha256": "e168c94b4529b98be80ab770ec76011313519a328cfc5f6e96dccbd79e7c2ecf"
+    },
+    {
+      "sourceKey": "full-grab-standing-sample12-source12",
+      "nativeSample": 12,
+      "sourceReferenceSha256": "0fe8fbd911ff3c1533e3a24f49e17647ffa8895ad302767e7377cc1d6db48fb3",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-capture-batch001-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "a55c717fed4cda6b4aa12ca2348885421d96a423112c4564527dc18faa59d7b3",
+      "atlasCell": 0,
+      "cellOffset": [
+        0,
+        0
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-capture-batch001-bounded-source0-attempt1.review.json",
+      "reviewSha256": "06ac1281f61b0488de5e9edfa51062ca28a831dea4263985654949fe0ecda347"
+    },
+    {
+      "sourceKey": "full-grab-standing-sample25-source25",
+      "nativeSample": 25,
+      "sourceReferenceSha256": "9af480dd9fb0c722cc025cff1cc64f8b823291b313fbf597cbd42e01fecc15eb",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-capture-batch001-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "a55c717fed4cda6b4aa12ca2348885421d96a423112c4564527dc18faa59d7b3",
+      "atlasCell": 1,
+      "cellOffset": [
+        1024,
+        0
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-capture-batch001-bounded-source0-attempt1.review.json",
+      "reviewSha256": "06ac1281f61b0488de5e9edfa51062ca28a831dea4263985654949fe0ecda347"
+    },
+    {
+      "sourceKey": "full-grab-standing-sample47-source47",
+      "nativeSample": 47,
+      "sourceReferenceSha256": "470c784d59a5f8bc064228c07cba5b400271b76e48d27dcccda63f67ed5bc2d8",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-capture-batch001-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "a55c717fed4cda6b4aa12ca2348885421d96a423112c4564527dc18faa59d7b3",
+      "atlasCell": 2,
+      "cellOffset": [
+        0,
+        1024
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-capture-batch001-bounded-source0-attempt1.review.json",
+      "reviewSha256": "06ac1281f61b0488de5e9edfa51062ca28a831dea4263985654949fe0ecda347"
+    }
+  ],
+  "galleries": {
+    "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/grab-cells-1.png": "65a6c716f0e88e650efe05d48b0cf297b737e1e64b8c50f4363a559e0eb685a9",
+    "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/grab-cells-2.png": "2345273616bc58e141e5aeb47b64c0c9d3ecc88017b290b191f72dad358377fb"
+  },
+  "limits": [
+    "Actual packed-cell inspection required before aggregate registration.",
+    "Authored beta presentation windows do not establish native status rate parity.",
+    "Actual running-game qualification remains separate."
+  ],
+  "packedVisualReview": {
+    "reviewer": "pikachu_art_motion",
+    "state": "actual_saved_packed_cells_reviewed",
+    "inspectedGalleries": {
+      "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/grab-cells-1.png": "65a6c716f0e88e650efe05d48b0cf297b737e1e64b8c50f4363a559e0eb685a9",
+      "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/grab-cells-2.png": "2345273616bc58e141e5aeb47b64c0c9d3ecc88017b290b191f72dad358377fb"
+    },
+    "observations": [
+      "Actually inspected both saved packed galleries all7 native0/3/6/7/12/25/47 in exact preparation order. Back stripes windup, front-facing reach, hand retract and idle return retained, including tail occlusion6/7 and behind-head tail12. Root and scale preserved; dual-player capture alignment remains pending."
+    ]
+  },
+  "runtimeEvidence": {
+    "state": "actual_grab_whiff_source_body_receiving_accepted",
+    "reviewer": "pikachu_integration",
+    "reviewPath": "docs/review/2026-10-06/pikachu-character/integration/grab-bodies-initial/visual-review.json",
+    "reviewSha256": "65d9d3fac163d2e41c9243f51c61d80a2049260f7010264f17891eafe3a0314b",
+    "bundle": "http://127.0.0.1:4224/platform-fighter/assets/index-CtFks52R.js",
+    "bundleSha256": "46ae1c12e246be6c3575a74553b0b03fcd870738b814c9f193179a28ae0bfa9e",
+    "actuallyInspectedByIntegration": 32,
+    "observed": "All32 actual full-body screenshots inspected: standing6/dash5/pivot5 playable source poses in each facing. Whiff cumulative clocks remain0..35/0..43/0..38 through separate startup/active/recovery phases; live catch sensors at6..7/10..11/11..12. Exact twelve-caps receiving/root follows all actual action steps. Native pivot baked LEFT-reaching resource uses pre-turn entry basis through shared actor flip; local-X receiving compensation remains correct. Four actual standing sensor catches independently verify ground/air receiver situation and capture.",
+    "boundary": "Native pivot LR-change, source motion rates and 3D parity remain unresolved; fixed shared dash momentum0.5/hold90/escape24 policies are adaptations. Ground/air holding occurs but accepted pull/hold/receiver-attachment body and source attachment timeline are separate pending qualification, not inferred from catch success.",
+    "artAgentAttribution": "Read and hash-bound integration review; no duplicate image-inspection claim."
+  }
+}

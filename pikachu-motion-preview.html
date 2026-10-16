@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Pikachu · motion progress</title>
+<style>body{margin:0;background:#111a29;color:#edf4ff;font:16px system-ui}main{max-width:1160px;margin:24px auto;padding:0 16px}h1{font-size:26px;margin:0 0 8px}p{color:#bbc8dc;line-height:1.5}nav{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0}button{font:inherit;color:#edf4ff;background:#273d5b;border:1px solid #577295;border-radius:8px;padding:10px 14px;cursor:pointer}button[aria-pressed="true"]{background:#fbe38d;color:#17253a;border-color:#fbe38d}button:disabled{opacity:.55;cursor:default}iframe{display:block;width:100%;height:1120px;border:1px solid #3a4d68;border-radius:12px;background:#111a29}#progress{font-size:14px}a{color:#fbe38d}:focus-visible{outline:3px solid #85cfff;outline-offset:3px}
+.dashboard{background:#19263a;border:1px solid #3a4d68;border-radius:14px;padding:22px;margin:22px 0}.dashboard h2{font-size:20px;margin:0}.dashboard-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.live{font-size:13px;color:#93e1bb}.live[data-state="stale"]{color:#fbe38d}.progress-label{display:flex;justify-content:space-between;gap:12px;margin:22px 0 8px;font-weight:600}progress{display:block;width:100%;height:16px;accent-color:#fbe38d;border:0;border-radius:10px;overflow:hidden;background:#0e1726}progress::-webkit-progress-bar{background:#0e1726}progress::-webkit-progress-value{background:#fbe38d}.progress-note,.update-note{font-size:13px}.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:20px 0}.metric{background:#111a29;border-radius:10px;padding:14px}.metric strong{display:block;font-size:23px;font-variant-numeric:tabular-nums}.metric span{display:block;color:#bbc8dc;font-size:13px;margin-top:6px}.work-panel{margin-top:20px;border-top:1px solid #3a4d68;padding-top:18px}.work-panel>summary{cursor:pointer;font-weight:600}.filters{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap}input,select{font:inherit;background:#111a29;color:#edf4ff;border:1px solid #577295;border-radius:8px;padding:10px;min-width:0}input{flex:1}#action-list{max-height:460px;overflow:auto;padding-right:6px}.action{padding:13px 0;border-bottom:1px solid #33465f}.action h3{font-size:15px;margin:0 0 8px;text-transform:capitalize}.action p{font-size:13px;margin:8px 0}.tags{display:flex;flex-wrap:wrap;gap:6px}.tag{font-size:12px;padding:4px 7px;border-radius:5px;background:#273d5b;color:#cad7ec}.tag[data-ready="true"]{background:#164336;color:#a9ebc9}.action details{font-size:13px;color:#bbc8dc;margin-top:10px}.action details summary{cursor:pointer}#progress-error{color:#fbe38d}#progress-error[hidden],a[hidden]{display:none}@media(max-width:620px){main{margin:18px auto}.dashboard{padding:16px}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.progress-label{font-size:14px}.filters>*{width:100%}iframe{height:1000px}}</style></head>
+<body><main><h1>Pikachu · motion progress</h1><p>Review Pikachu’s beta moves with frame stepping, facing controls and collision overlays.</p>
+<section class="dashboard" aria-labelledby="dashboard-title">
+ <div class="dashboard-head"><h2 id="dashboard-title">Character completion</h2><span id="live-state" class="live" data-state="stale" role="status">Connecting…</span></div>
+ <div class="progress-label"><span id="completion-label">Reconciling action progress</span><span id="completion-count">—</span></div>
+ <progress id="completion-bar" aria-label="Fully verified actions"></progress>
+ <p class="progress-note">An action counts as complete once its implementation, visuals and gameplay checks pass, with no required gap. This measures actions, not time remaining. Source fidelity limitations are listed separately.</p>
+ <div class="metrics">
+  <div class="metric"><strong id="implemented-count">—</strong><span>Actions implemented</span></div>
+  <div class="metric"><strong id="accepted-count">—</strong><span>Action visuals accepted</span></div>
+  <div class="metric"><strong id="verified-count">—</strong><span>Actions verified in a match</span></div>
+  <div class="metric"><strong id="art-count">—</strong><span id="art-caption">Reviewed art cells</span></div>
+ </div>
+ <p class="update-note" id="updated-at">Reading the latest evidence…</p>
+ <p id="progress-error" role="status" hidden></p>
+ <p><a id="open-match" hidden target="_blank" rel="noopener">Play the latest character build</a></p>
+ <details class="work-panel" open><summary id="remaining-summary">What’s still missing</summary>
+  <div class="filters"><input id="action-search" type="search" aria-label="Find an action" placeholder="Find a move or state…"><select id="action-filter" aria-label="Show actions"><option value="remaining">Remaining work</option><option value="all">All actions</option><option value="complete">Completed actions</option></select><button id="refresh-progress" type="button">Refresh</button></div>
+  <div id="action-list" aria-label="Action progress"><p>Loading action inventory…</p></div>
+ </details>
+</section>
+<nav aria-label="Choose a move">
+<button data-page="pikachu-grab-preview.html" data-description="Standing, dash and pivot grabs, pummel, and all four throws against an opponent in the game. Choose an action, then Play or step through each frame; facing and collision overlays are available.">Grabs + throws</button>
+<button data-page="pikachu-special-preview.html?action=thunder" data-description="Thunder’s cloud, descending lightning and conditional self-hit burst, using the same animations and effects as the game. Choose Grounded or Airborne, then Play or step through each frame.">Thunder</button>
+<button data-page="pikachu-special-preview.html?action=jolt" data-description="Thunder Jolt’s ground and air animations with the visible electrical projectile. Play or step through its release and travel.">Thunder Jolt</button>
+<button data-page="pikachu-special-preview.html?action=skull" data-description="Skull Bash’s charge and release. Choose the charge duration and ground or air start, then Play or step through the move.">Skull Bash</button>
+<button data-page="pikachu-special-preview.html?action=quick" data-description="Quick Attack’s body animation, movement and trail in the current game. Choose a ground or air start, then Play or step through the move.">Quick Attack</button>
+<button data-page="pikachu-smash-packed-preview.html" data-description="Forward, up and down smash using the app’s charge poses and strike animations. Choose a smash, press Hold charge, then Release. Pause or step through any frame.">Smashes</button>
+<button data-page="pikachu-jab-packed-preview.html" data-description="9 packed drawings for the quick head bump, recoil and return to standing. Try Last active step, both facings, or press Attack again from game frame 7 to repeat the jab." aria-pressed="true">Jab · updated</button>
+<button data-page="pikachu-back-air-packed-preview.html" data-description="24 packed airborne drawings and 7 packed landing drawings. Step through five linking hits and the final hit, or try Real floor for the landing hit and recovery." aria-pressed="false">Back air + landing · updated</button>
+<button data-page="pikachu-down-air-packed-preview.html" data-description="22 airborne drawings and 7 landing drawings. Try Real floor to see the landing hit and recovery." aria-pressed="false">Down air + landing</button>
+<button data-page="pikachu-dash-attack-packed-preview.html" data-description="13 drawings for the running head-first attack. Compare its early and late hit, and test incoming contact.">Dash attack</button>
+<button data-page="pikachu-up-air-packed-preview.html" data-description="11 drawings for the overhead tail sweep, now using the packed sprite animation.">Up air · updated</button>
+<button data-page="pikachu-vertical-tilt-packed-preview.html" data-description="18 drawings across up tilt and down tilt. Choose the move inside the preview.">Up / down tilt</button>
+<button data-page="pikachu-fair-posed-preview.html" data-description="16 drawings for the forward-air spin, with receiving collision following each pose.">Forward air</button>
+<button data-page="pikachu-forward-tilt-preview.html" data-description="8 drawings for forward tilt, including a separate drawing for each active frame.">Forward tilt</button>
+<button data-page="pikachu-neutral-air-packed-preview.html" data-description="22 packed drawings for three electrical linker pulses and a finisher, now using the match animation driver. Nine-frame landing recovery; the current landing presentation is recorded in the action evidence.">Neutral air · updated</button>
+</nav><p id="description" aria-live="polite">9 packed drawings for the quick head bump, recoil and return to standing. Try Last active step, both facings, or press Attack again from game frame 7 to repeat the jab.</p>
+<iframe id="motion" title="Pikachu jab interactive preview" src="pikachu-jab-packed-preview.html"></iframe>
+<p id="progress">Normal previews preserve reviewed animation snapshots. Special and smash previews use the same game build as the app. The live progress panel follows the current character work.</p>
+<p><a id="open-preview" href="pikachu-jab-packed-preview.html" target="_blank" rel="noopener">Open this move in its own tab</a></p>
+</main><script type="module">
+const buttons=[...document.querySelectorAll('[data-page]')];
+for(const button of buttons)button.addEventListener('click',()=>{
+ const frame=document.querySelector('#motion');
+ const requested=new URL(button.dataset.page,location.href);
+ const special=frame.contentWindow?.__pikachuSpecialPreview;
+ const grab=frame.contentWindow?.__pikachuGrabPreview;
+ if(requested.pathname.endsWith('/pikachu-special-preview.html')&&special?.ready){
+  special.selectAction(requested.searchParams.get('action'));
+ }else if(requested.pathname.endsWith('/pikachu-grab-preview.html')&&grab?.ready){
+  grab.reset();
+ }else frame.src=button.dataset.page;
+ frame.title='Pikachu '+button.textContent+' interactive preview';
+ document.querySelector('#description').textContent=button.dataset.description;
+ document.querySelector('#open-preview').href=button.dataset.page;
+ for(const other of buttons)other.setAttribute('aria-pressed',String(other===button));
+});
+</script><script type="module" src="pikachu-progress.js"></script></body></html>

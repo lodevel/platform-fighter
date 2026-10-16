@@ -19,8 +19,8 @@ import {
   type PaletteShaderTarget,
 } from './paletteSwapShader';
 import {
-  CAT_PALETTES,
-  WOLF_PALETTES,
+  DONKEYKONG_PALETTES,
+  PIKACHU_PALETTES,
   CHARACTER_PALETTES,
   PALETTES_PER_CHARACTER,
 } from './palettes';
@@ -231,20 +231,20 @@ describe('RuntimePaletteRenderer — rectangle (preview / placeholder) targets',
 
     const result = r.paint('preview-1', targets, {
       index: 1,
-      characterId: 'wolf',
+      characterId: 'donkeykong',
       paletteIndex: 1,
     });
 
     expect(body.setFillStyleCalls).toEqual([
-      { color: WOLF_PALETTES[1]!.primaryColor, alpha: 1 },
+      { color: DONKEYKONG_PALETTES[1]!.primaryColor, alpha: 1 },
     ]);
     expect(body.setStrokeStyleCalls).toEqual([
-      { width: 2, color: WOLF_PALETTES[1]!.accentColor, alpha: 1 },
+      { width: 2, color: DONKEYKONG_PALETTES[1]!.accentColor, alpha: 1 },
     ]);
     expect(facingMark.setFillStyleCalls).toEqual([
-      { color: WOLF_PALETTES[1]!.accentColor, alpha: 1 },
+      { color: DONKEYKONG_PALETTES[1]!.accentColor, alpha: 1 },
     ]);
-    expect(result.swap.primaryColor).toBe(WOLF_PALETTES[1]!.primaryColor);
+    expect(result.swap.primaryColor).toBe(DONKEYKONG_PALETTES[1]!.primaryColor);
     expect(result.spritePath).toBe('none');
     expect(result.ops.fills).toBe(2);
     expect(result.ops.strokes).toBe(1);
@@ -256,12 +256,12 @@ describe('RuntimePaletteRenderer — rectangle (preview / placeholder) targets',
     const result = r.paint(
       'sprite-1',
       { sprite },
-      { index: 1, characterId: 'cat', paletteIndex: 4 },
+      { index: 1, characterId: 'pikachu', paletteIndex: 4 },
     );
     expect(result.ops.fills).toBe(0);
     expect(result.ops.strokes).toBe(0);
     // Tint fallback fires for the sprite (no pipeline installed).
-    expect(sprite.setTintCalls).toEqual([CAT_PALETTES[4]!.primaryColor]);
+    expect(sprite.setTintCalls).toEqual([PIKACHU_PALETTES[4]!.primaryColor]);
     expect(result.spritePath).toBe('tint');
   });
 
@@ -271,14 +271,14 @@ describe('RuntimePaletteRenderer — rectangle (preview / placeholder) targets',
     r.paint(
       'preview-1',
       { body },
-      { index: 1, characterId: 'wolf', paletteIndex: 0 },
+      { index: 1, characterId: 'donkeykong', paletteIndex: 0 },
       { bodyFillAlpha: 0.35, bodyStrokeAlpha: 0.5, strokeWidth: 4 },
     );
     expect(body.setFillStyleCalls).toEqual([
-      { color: WOLF_PALETTES[0]!.primaryColor, alpha: 0.35 },
+      { color: DONKEYKONG_PALETTES[0]!.primaryColor, alpha: 0.35 },
     ]);
     expect(body.setStrokeStyleCalls).toEqual([
-      { width: 4, color: WOLF_PALETTES[0]!.accentColor, alpha: 0.5 },
+      { width: 4, color: DONKEYKONG_PALETTES[0]!.accentColor, alpha: 0.5 },
     ]);
   });
 });
@@ -295,7 +295,7 @@ describe('RuntimePaletteRenderer — shader pipeline (in-game sprite) targets', 
     const result = r.paint(
       'fighter-1',
       { sprite },
-      { index: 1, characterId: 'wolf', paletteIndex: 1 },
+      { index: 1, characterId: 'donkeykong', paletteIndex: 1 },
     );
     expect(r.isPipelineInstalled()).toBe(true);
     expect(sprite.setPipelineCalls).toEqual([PALETTE_SWAP_PIPELINE_KEY]);
@@ -316,10 +316,10 @@ describe('RuntimePaletteRenderer — shader pipeline (in-game sprite) targets', 
     const result = r.paint(
       'fighter-1',
       { sprite },
-      { index: 1, characterId: 'cat', paletteIndex: 2 },
+      { index: 1, characterId: 'pikachu', paletteIndex: 2 },
     );
     expect(result.spritePath).toBe('tint');
-    expect(sprite.setTintCalls).toEqual([CAT_PALETTES[2]!.primaryColor]);
+    expect(sprite.setTintCalls).toEqual([PIKACHU_PALETTES[2]!.primaryColor]);
     expect(result.ops.pipelineApplied).toBe(0);
   });
 
@@ -330,11 +330,11 @@ describe('RuntimePaletteRenderer — shader pipeline (in-game sprite) targets', 
     const result = r.paint(
       'fighter-1',
       { sprite },
-      { index: 1, characterId: 'cat', paletteIndex: 2 },
+      { index: 1, characterId: 'pikachu', paletteIndex: 2 },
     );
     expect(r.isPipelineInstalled()).toBe(false);
     expect(result.spritePath).toBe('tint');
-    expect(sprite.setTintCalls).toEqual([CAT_PALETTES[2]!.primaryColor]);
+    expect(sprite.setTintCalls).toEqual([PIKACHU_PALETTES[2]!.primaryColor]);
   });
 
   it('returns spritePath = "none" when sprite exposes neither setPipeline nor setTint', () => {
@@ -342,7 +342,7 @@ describe('RuntimePaletteRenderer — shader pipeline (in-game sprite) targets', 
     const result = r.paint(
       'fighter-1',
       { sprite: {} as PaletteShaderTarget },
-      { index: 1, characterId: 'wolf', paletteIndex: 0 },
+      { index: 1, characterId: 'donkeykong', paletteIndex: 0 },
     );
     expect(result.spritePath).toBe('none');
   });
@@ -353,7 +353,7 @@ describe('RuntimePaletteRenderer — shader pipeline (in-game sprite) targets', 
     const result = r.paint(
       'fighter-1',
       { sprite },
-      { index: 1, characterId: 'wolf', paletteIndex: 1 },
+      { index: 1, characterId: 'donkeykong', paletteIndex: 1 },
       { shaderTolerance: 0.07 },
     );
     expect(result.remap.tolerance).toBe(0.07);
@@ -377,12 +377,12 @@ describe('RuntimePaletteRenderer — lazy pipeline install', () => {
     r.paint(
       'fighter-1',
       { sprite },
-      { index: 1, characterId: 'wolf', paletteIndex: 0 },
+      { index: 1, characterId: 'donkeykong', paletteIndex: 0 },
     );
     r.paint(
       'fighter-2',
       { sprite },
-      { index: 1, characterId: 'wolf', paletteIndex: 1 },
+      { index: 1, characterId: 'donkeykong', paletteIndex: 1 },
     );
     expect(factoryCalls).toBe(1);
     expect(game.pipelinesAdded).toHaveLength(1);
@@ -395,7 +395,7 @@ describe('RuntimePaletteRenderer — lazy pipeline install', () => {
     r.paint(
       'fighter-1',
       { sprite },
-      { index: 1, characterId: 'wolf', paletteIndex: 0 },
+      { index: 1, characterId: 'donkeykong', paletteIndex: 0 },
     );
     expect(r.isPipelineInstalled()).toBe(false);
     expect(game.pipelinesAdded).toEqual([]);
@@ -416,7 +416,7 @@ describe('RuntimePaletteRenderer — per-key cache', () => {
     r.paint(
       'fighter-1',
       { body, facingMark, sprite },
-      { index: 1, characterId: 'wolf', paletteIndex: 1 },
+      { index: 1, characterId: 'donkeykong', paletteIndex: 1 },
     );
     expect(body.setFillStyleCalls).toHaveLength(1);
     expect(facingMark.setFillStyleCalls).toHaveLength(1);
@@ -425,7 +425,7 @@ describe('RuntimePaletteRenderer — per-key cache', () => {
     const second = r.paint(
       'fighter-1',
       { body, facingMark, sprite },
-      { index: 1, characterId: 'wolf', paletteIndex: 1 },
+      { index: 1, characterId: 'donkeykong', paletteIndex: 1 },
     );
     expect(second.ops.cacheHits).toBe(1);
     expect(second.ops.fills).toBe(0);
@@ -440,16 +440,16 @@ describe('RuntimePaletteRenderer — per-key cache', () => {
     r.paint(
       'fighter-1',
       { body },
-      { index: 1, characterId: 'wolf', paletteIndex: 0 },
+      { index: 1, characterId: 'donkeykong', paletteIndex: 0 },
     );
     r.paint(
       'fighter-1',
       { body },
-      { index: 1, characterId: 'wolf', paletteIndex: 3 },
+      { index: 1, characterId: 'donkeykong', paletteIndex: 3 },
     );
     expect(body.setFillStyleCalls).toEqual([
-      { color: WOLF_PALETTES[0]!.primaryColor, alpha: 1 },
-      { color: WOLF_PALETTES[3]!.primaryColor, alpha: 1 },
+      { color: DONKEYKONG_PALETTES[0]!.primaryColor, alpha: 1 },
+      { color: DONKEYKONG_PALETTES[3]!.primaryColor, alpha: 1 },
     ]);
   });
 
@@ -460,18 +460,18 @@ describe('RuntimePaletteRenderer — per-key cache', () => {
     r.paint(
       'preview-1',
       { body: body1 },
-      { index: 1, characterId: 'wolf', paletteIndex: 1 },
+      { index: 1, characterId: 'donkeykong', paletteIndex: 1 },
     );
     r.paint(
       'preview-2',
       { body: body2 },
-      { index: 2, characterId: 'cat', paletteIndex: 2 },
+      { index: 2, characterId: 'pikachu', paletteIndex: 2 },
     );
     expect(body1.setFillStyleCalls).toEqual([
-      { color: WOLF_PALETTES[1]!.primaryColor, alpha: 1 },
+      { color: DONKEYKONG_PALETTES[1]!.primaryColor, alpha: 1 },
     ]);
     expect(body2.setFillStyleCalls).toEqual([
-      { color: CAT_PALETTES[2]!.primaryColor, alpha: 1 },
+      { color: PIKACHU_PALETTES[2]!.primaryColor, alpha: 1 },
     ]);
   });
 
@@ -481,13 +481,13 @@ describe('RuntimePaletteRenderer — per-key cache', () => {
     r.paint(
       'fighter-1',
       { body },
-      { index: 1, characterId: 'wolf', paletteIndex: 1 },
+      { index: 1, characterId: 'donkeykong', paletteIndex: 1 },
     );
     r.resetCache();
     r.paint(
       'fighter-1',
       { body },
-      { index: 1, characterId: 'wolf', paletteIndex: 1 },
+      { index: 1, characterId: 'donkeykong', paletteIndex: 1 },
     );
     expect(body.setFillStyleCalls).toHaveLength(2);
   });
@@ -496,11 +496,11 @@ describe('RuntimePaletteRenderer — per-key cache', () => {
     const r = new RuntimePaletteRenderer();
     const body1 = createMockRect();
     const body2 = createMockRect();
-    r.paint('a', { body: body1 }, { index: 1, characterId: 'wolf', paletteIndex: 0 });
-    r.paint('b', { body: body2 }, { index: 2, characterId: 'cat', paletteIndex: 0 });
+    r.paint('a', { body: body1 }, { index: 1, characterId: 'donkeykong', paletteIndex: 0 });
+    r.paint('b', { body: body2 }, { index: 2, characterId: 'pikachu', paletteIndex: 0 });
     r.invalidateCacheKey('a');
-    r.paint('a', { body: body1 }, { index: 1, characterId: 'wolf', paletteIndex: 0 });
-    r.paint('b', { body: body2 }, { index: 2, characterId: 'cat', paletteIndex: 0 });
+    r.paint('a', { body: body1 }, { index: 1, characterId: 'donkeykong', paletteIndex: 0 });
+    r.paint('b', { body: body2 }, { index: 2, characterId: 'pikachu', paletteIndex: 0 });
     expect(body1.setFillStyleCalls).toHaveLength(2); // re-painted after invalidation
     expect(body2.setFillStyleCalls).toHaveLength(1); // unchanged
   });
@@ -514,7 +514,7 @@ describe('RuntimePaletteRenderer — PlayerSlot input', () => {
   it('a full PlayerSlot produces the same swap as a (playerIndex, characterId, paletteIndex) tuple', () => {
     const slot: PlayerSlot = Object.freeze({
       index: 3,
-      characterId: 'cat',
+      characterId: 'pikachu',
       paletteIndex: 5,
       inputType: 'gamepad',
     });
@@ -524,7 +524,7 @@ describe('RuntimePaletteRenderer — PlayerSlot input', () => {
     const body2 = createMockRect();
     const tupleResult = r.paint('b', { body: body2 }, {
       index: 3,
-      characterId: 'cat',
+      characterId: 'pikachu',
       paletteIndex: 5,
     });
     expect(slotResult.swap).toEqual(tupleResult.swap);
@@ -533,7 +533,7 @@ describe('RuntimePaletteRenderer — PlayerSlot input', () => {
   it('an out-of-range paletteIndex on a PlayerSlot still produces a valid swap', () => {
     const slot: PlayerSlot = Object.freeze({
       index: 1,
-      characterId: 'wolf',
+      characterId: 'donkeykong',
       paletteIndex: 12, // wraps to 12 % 8 = 4
       inputType: 'keyboard_p1',
     });
@@ -541,7 +541,7 @@ describe('RuntimePaletteRenderer — PlayerSlot input', () => {
     const body = createMockRect();
     const result = r.paint('a', { body }, slot);
     expect(result.swap.paletteIndex).toBe(4);
-    expect(result.swap.primaryColor).toBe(WOLF_PALETTES[4]!.primaryColor);
+    expect(result.swap.primaryColor).toBe(DONKEYKONG_PALETTES[4]!.primaryColor);
   });
 });
 
@@ -555,10 +555,10 @@ describe('paintFighterPalette one-shot', () => {
     const sprite = createTintOnlySprite();
     const result = paintFighterPalette(
       { body, sprite },
-      { index: 1, characterId: 'cat', paletteIndex: 3 },
+      { index: 1, characterId: 'pikachu', paletteIndex: 3 },
     );
     expect(body.setFillStyleCalls).toHaveLength(1);
-    expect(sprite.setTintCalls).toEqual([CAT_PALETTES[3]!.primaryColor]);
+    expect(sprite.setTintCalls).toEqual([PIKACHU_PALETTES[3]!.primaryColor]);
     expect(result.spritePath).toBe('tint');
   });
 });
@@ -649,8 +649,8 @@ describe('asPaletteSwapTarget', () => {
 
 describe('end-to-end determinism — full palette grid', () => {
   // Post-M5 roster expansion — iterate the canonical registry so the
-  // grid automatically covers every roster slot (incl. blaze / puff /
-  // aegis) without a parallel literal table here.
+  // grid automatically covers every roster slot (all
+  // fighters) without a parallel literal table here.
   const ids: ReadonlyArray<CharacterId> = Object.keys(
     CHARACTER_PALETTES,
   ) as CharacterId[];
@@ -712,11 +712,11 @@ describe('end-to-end determinism — full palette grid', () => {
       key: string;
       slot: { index: 1 | 2 | 3 | 4; characterId: CharacterId; paletteIndex: number };
     }> = [
-      { key: 'a', slot: { index: 1, characterId: 'wolf', paletteIndex: 0 } },
-      { key: 'b', slot: { index: 2, characterId: 'cat', paletteIndex: 1 } },
-      { key: 'c', slot: { index: 3, characterId: 'owl', paletteIndex: 2 } },
-      { key: 'd', slot: { index: 4, characterId: 'bear', paletteIndex: 3 } },
-      { key: 'a', slot: { index: 1, characterId: 'wolf', paletteIndex: 0 } }, // cache hit
+      { key: 'a', slot: { index: 1, characterId: 'donkeykong', paletteIndex: 0 } },
+      { key: 'b', slot: { index: 2, characterId: 'pikachu', paletteIndex: 1 } },
+      { key: 'c', slot: { index: 3, characterId: 'link', paletteIndex: 2 } },
+      { key: 'd', slot: { index: 4, characterId: 'donkeykong', paletteIndex: 3 } },
+      { key: 'a', slot: { index: 1, characterId: 'donkeykong', paletteIndex: 0 } }, // cache hit
     ];
     const opsA: Array<{ fills: number; strokes: number; tints: number; cacheHits: number }> = [];
     const opsB: Array<{ fills: number; strokes: number; tints: number; cacheHits: number }> = [];

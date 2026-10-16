@@ -73,9 +73,6 @@ export type {
   CatalogThumbnailKind,
 } from './catalogPieces';
 
-export { CatalogPanel, CATALOG_PANEL_COLORS } from './CatalogPanel';
-export type { CatalogPanelOptions, CatalogRowHitRect } from './CatalogPanel';
-
 // AC 20003 Sub-AC 3 — Grid-based canvas area: bounds geometry + snap-cursor math.
 export {
   CANVAS_BOUNDS_COLORS,
@@ -94,10 +91,6 @@ export type {
   SnapCursorState,
 } from './canvasBounds';
 
-// AC 20003 Sub-AC 3 — Phaser host component for the canvas area.
-export { CANVAS_AREA_COLORS, CANVAS_AREA_STROKES, CanvasArea } from './CanvasArea';
-export type { CanvasAreaLayerFlags, CanvasAreaOptions } from './CanvasArea';
-
 // AC 20101 Sub-AC 1 — Phaser-free drag-and-drop state machine.
 export {
   DragDropController,
@@ -114,10 +107,6 @@ export type {
   SnapTarget,
 } from './dragDrop';
 
-// AC 20101 Sub-AC 1 — Phaser host that paints the drag ghost preview.
-export { GhostPreview, GHOST_PREVIEW_COLORS } from './GhostPreview';
-export type { GhostPreviewOptions, GhostPreviewVisualState } from './GhostPreview';
-
 // AC 20102 Sub-AC 2 — Phaser-free stage-data model + placed-piece renderer.
 export {
   STAGE_PIECE_LIMIT,
@@ -131,14 +120,6 @@ export type {
   StageDataModelListener,
   StageDataModelOptions,
 } from './stageDataModel';
-export {
-  PLACED_PIECE_COLORS,
-  PlacedPieceRenderer,
-} from './PlacedPieceRenderer';
-export type {
-  PlacedPieceRendererOptions,
-  PlacedPieceVisual,
-} from './PlacedPieceRenderer';
 
 // AC 20103 Sub-AC 3 — Phaser-free placement-validation rules. Exposes
 // the unified validator the controller, the registry, and the ghost
@@ -289,8 +270,6 @@ export type {
   SaveValidationCode,
   SaveValidationFailure,
 } from './saveLoadController';
-export { SAVE_LOAD_DIALOG_COLORS, SaveLoadDialog } from './SaveLoadDialog';
-export type { SaveLoadDialogOptions } from './SaveLoadDialog';
 
 // Selection + delete + undo/redo. Three modules:
 //
@@ -328,17 +307,3 @@ export {
   undoDepth,
 } from './editHistory';
 export type { EditHistory } from './editHistory';
-
-export {
-  SELECTION_HIGHLIGHT_COLORS,
-  SELECTION_HINT_FLIP_THRESHOLD_PX,
-  SELECTION_HINT_GAP_PX,
-  SELECTION_OUTLINE_PAD_PX,
-  SELECTION_OUTLINE_STROKE_PX,
-  SelectionHighlight,
-  selectionHintAnchor,
-} from './SelectionHighlight';
-export type {
-  SelectionHighlightOptions,
-  SelectionHighlightVisualState,
-} from './SelectionHighlight';

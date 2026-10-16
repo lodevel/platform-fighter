@@ -1,39 +1,26 @@
 /**
- * Per-fighter single-slot inventory — T3 items framework, AC 11-15.
+ * Per-fighter single-slot inventory.
  *
- * The Seed's `inventorySlot` ontology pins single-slot semantics:
- * each fighter holds at most one item at a time. This module owns the
- * pickup / drop / throw transitions that move an {@link ItemEntity}
- * into and out of that slot, including the per-slot override
- * installation on the holder via
- * {@link Character.setSlotOverride}.
- *
- * Open-closed extensibility: zero edits required to add a 4th item
- * type. The inventory reads `definition.slotOverrides` and
- * `definition.buildSlotOverride` off the item — categories and per-
- * item branching never appear here.
+ * Owns the pickup / drop / throw transitions that move an {@link ItemEntity}
+ * into and out of the slot. On pickup it registers the item's use moves on
+ * the holder and equips the item, so the holder's attack dispatch can route
+ * presses through {@link import('./resolveItemInput').resolveItemInput}; every
+ * way out of the slot unequips it. No per-item code lives here.
  */
 
 import type { Character } from '../characters/Character';
-import type { AttackMovesetSlotName } from '../characters/movesetContract';
 import type { ItemEntity } from './ItemEntity';
+import { itemUseMoves } from './ItemDefinition';
 
-/**
- * Tracks the currently-held item for one fighter. Constructed once
- * per match per player slot.
- */
+/** Holder surface the inventory drives. */
+type ItemHolder = Pick<Character, 'id' | 'addAttack' | 'equipItem' | 'unequipItem'> & Partial<Pick<Character,'isTumbling'>>;
+
 export class Inventory {
   private heldItem: ItemEntity | null = null;
-  private installedSlots: AttackMovesetSlotName[] = [];
 
-  constructor(private readonly holder: Character) {}
+  constructor(private readonly holder: ItemHolder) {}
 
-  /**
-   * Read the currently-held item, or `null` if the inventory is
-   * empty. The pickup module reads this before attempting a pickup
-   * — single-slot invariant: a holder with a held item rejects new
-   * pickups.
-   */
+  /** The held item, or null when the slot is empty. */
   getHeldItem(): ItemEntity | null {
     return this.heldItem;
   }
@@ -43,109 +30,51 @@ export class Inventory {
   }
 
   /**
-   * Pick up `item`. The holder's slot-override map is populated for
-   * every slot the item declares; the per-slot factory is run once
-   * (closed over the holder + item + initial frame) and the produced
-   * callback is installed via {@link Character.setSlotOverride}.
-   *
-   * Idempotent: a holder already holding an item rejects the pickup.
-   * The caller (PickupController) is expected to gate proximity /
-   * lifecycle checks before reaching here.
-   *
-   * Returns `true` iff the pickup was accepted.
+   * Take `item` into the empty slot. Rejects when already holding, when the
+   * item is not holdable, or when its lifecycle does not allow the
+   * acquisition. Returns true iff the pickup was accepted.
    */
   pickup(
     item: ItemEntity,
     currentFrame: number,
     holderPlayerIndex: number,
     holderPos: { x: number; y: number },
+    acquisition: 'ground' | 'catch' = 'ground',
   ): boolean {
     if (this.heldItem !== null) return false;
-    if (!item.isPickable()) return false;
-
-    item.markHeld(currentFrame, holderPlayerIndex, holderPos);
+    if (item.definition.holdable === false || (acquisition === 'catch' ? !item.isCatchable() : !item.isPickable())) return false;
+    item.markHeld(currentFrame, holderPlayerIndex, holderPos, acquisition);
     this.heldItem = item;
-
-    // Register the item's authored attack moves on the holder so the
-    // slot overrides can fire them via `attemptAttack`. Idempotent
-    // re-registration is fine: `addAttack` overwrites the entry under
-    // the same id, so picking up the same item type twice produces
-    // identical move metadata each time. Guarded for unit tests that
-    // construct a partial Character mock without the method.
-    const def = item.definition;
-    if (def.attackMoves && typeof this.holder.addAttack === 'function') {
-      for (const move of def.attackMoves) {
-        this.holder.addAttack(move);
-      }
-    }
-
-    // Install slot overrides — one per slot the definition declares.
-    this.installedSlots = [];
-    for (const slot of def.slotOverrides) {
-      const cb = def.buildSlotOverride(slot, {
-        holder: this.holder,
-        frame: currentFrame,
-        itemEntity: item,
-      });
-      this.holder.setSlotOverride(slot, cb);
-      this.installedSlots.push(slot);
-    }
+    for (const move of itemUseMoves(item.definition, this.holder.id)) this.holder.addAttack(move);
+    this.holder.equipItem(item);
     return true;
   }
 
-  /**
-   * Voluntarily drop the held item intact at `dropPosition`. Used by
-   * the throw module's `'drop'` direction (no stick held) and by the
-   * KO / despawn flow when a holder loses their item without a throw.
-   */
-  drop(currentFrame: number, dropPosition: { x: number; y: number }): ItemEntity | null {
-    if (this.heldItem === null) return null;
-    const item = this.heldItem;
-    item.markDropped(currentFrame, dropPosition);
-    this.detachOverrides();
-    this.heldItem = null;
+  /** Drop the held item intact at `dropPosition`. */
+  drop(currentFrame: number, dropPosition: { x: number; y: number }, reason: 'voluntary'|'damage'|'reset'='voluntary'): ItemEntity | null {
+    if(reason==='voluntary' && this.heldItem?.definition.hammer && !this.holder.isTumbling?.()) return null;
+    const item = this.release();
+    item?.markDropped(currentFrame, dropPosition);
     return item;
   }
 
-  /**
-   * Detach the held item from the slot without changing its lifecycle
-   * — used by the throw module after it's already snapshotted the
-   * item and applied a launch impulse. The runtime is responsible for
-   * the lifecycle transition (Bomb sets `consumeOnImpact = true` and
-   * the impact handler marks broken; Bat / RayGun stay grounded).
-   */
+  /** Empty the slot without a lifecycle change (the thrower owns the item's flight). */
   detachWithoutDrop(): ItemEntity | null {
-    if (this.heldItem === null) return null;
-    const item = this.heldItem;
-    this.detachOverrides();
-    this.heldItem = null;
-    return item;
+    return this.release();
   }
 
-  /**
-   * Drop the held item inert (broken). Used when an item's
-   * durability reaches zero mid-swing — the override callback
-   * returns `false` to decline future presses, the carrier framework
-   * spots the broken state and calls this.
-   */
+  /** Empty the slot and drop the item inert (broken). */
   breakHeldItem(currentFrame: number, dropPosition: { x: number; y: number }): ItemEntity | null {
-    if (this.heldItem === null) return null;
-    const item = this.heldItem;
-    item.markBroken(currentFrame, dropPosition);
-    this.detachOverrides();
-    this.heldItem = null;
+    const item = this.release();
+    item?.markBroken(currentFrame, dropPosition);
     return item;
   }
 
-  /**
-   * Detach every installed slot override from the holder. Called by
-   * every drop / detach / break pathway above so the fighter's
-   * native slot moves resume on the next press.
-   */
-  private detachOverrides(): void {
-    for (const slot of this.installedSlots) {
-      this.holder.clearSlotOverride(slot);
-    }
-    this.installedSlots = [];
+  private release(): ItemEntity | null {
+    const item = this.heldItem;
+    if (item === null) return null;
+    this.heldItem = null;
+    this.holder.unequipItem();
+    return item;
   }
 }

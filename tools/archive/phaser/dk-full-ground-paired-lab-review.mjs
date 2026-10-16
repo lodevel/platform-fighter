@@ -1,0 +1,103 @@
+import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
+import {mkdir,readFile,writeFile,access} from 'node:fs/promises';
+import {chromium} from 'playwright';
+
+const hash=b=>createHash('sha256').update(b).digest('hex');
+const copy=v=>JSON.parse(JSON.stringify(v));
+const bytes=await readFile('assets/characters/donkeykong/frames.json');
+const kind=process.env.PF_FULL_PAIRED_KIND??'dtilt';
+assert(['jab2','dtilt'].includes(kind));
+const cfg=kind==='jab2'?{stock:[3,3,25],custom:[6,6,12],end:31,windows:[[0,3,0],[3,4,1],[4,5,2],[5,6,3],[6,9,4],[9,18,5],[18,30,6],[30,31,7]],edits:[['Startup Frames',1,3],['Active Frames',1,3],['Recovery Frames',-1,13]]}:{stock:[5,2,17],custom:[10,4,8],end:24,windows:[[0,4,0],[4,5,1],[5,6,2],[6,7,3],[7,14,4],[14,23,5],[23,24,6]],edits:[['Startup Frames',1,5],['Active Frames',1,2],['Recovery Frames',-1,9]]};
+const moveId=`donkeykong.${kind}`,texture=`char.donkeykong.${kind}`,moveKey=kind==='jab2'?'jab2':'downLight';
+const clip=JSON.parse(bytes).animations[kind];
+const windows=cfg.windows;
+assert.deepEqual(clip.frameWindows.map(w=>[w.startFrame,w.endFrame,w.artFrameIndex]),windows);
+const agesFor=durations=>durations.flatMap((duration,phase)=>Array.from({length:duration},(_,age)=>cfg.stock.slice(0,phase).reduce((a,b)=>a+b,0)+age*cfg.stock[phase]/duration));
+const customAges=agesFor(cfg.custom);
+let protectionWindow=kind==='dtilt'?[4,7]:null;
+const expectedReceiving=(hurt,sourceAge)=>hurt.hurtboxes.map(h=>protectionWindow&&sourceAge>=protectionWindow[0]&&sourceAge<protectionWindow[1]&&['shoulderl','arml'].includes(h.region)?{...h,intangible:true}:h);
+const frameAt=age=>windows.find(([start,end])=>start<=age&&age<end)?.[2];
+const baseOut=process.env.PF_FULL_PAIRED_LAB_OUT??`docs/review/2026-09-25/donkeykong-character/audit-2026-10-08/runtime/full-${kind}-lab-checkpoint-11`;
+let out=baseOut;for(let i=2;;i++){try{await access(`${out}/observations.json`);out=`${baseOut}-attempt${i}`;}catch{break;}}
+await mkdir(out,{recursive:true});
+const report={out,checks:[],errors:[],failedResponses:[],metadataSha256:hash(bytes),atlasSha256:hash(await readFile(`assets/characters/donkeykong/${clip.strip}`)),scope:`Actual pointer Lab stock/custom ${kind} scrubbing, phase/protection edits, SAVE TUNE/Test Fight/return/reload. Match physical input/manual fixed Matter steps. Source phase retiming and authored protection coordinates are declared animation-domain adapters; complete fighter acceptance is separate.`,independentExpectedWindows:windows,independentExpectedCustomSourceAges:[...customAges]};
+if(process.env.PF_EXPECT_DK_METADATA_SHA)assert.equal(report.metadataSha256,process.env.PF_EXPECT_DK_METADATA_SHA);
+const browser=await chromium.launch({headless:true,args:['--no-sandbox','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
+const page=await browser.newPage({viewport:{width:1280,height:720}});
+page.on('pageerror',e=>report.errors.push(e.message));page.on('response',r=>{if(r.status()>=400)report.failedResponses.push({url:r.url(),status:r.status()});});
+async function open(key,data){await page.evaluate(()=>{for(const s of window.__game.scene.getScenes(true))window.__game.scene.stop(s.scene.key);});await page.waitForTimeout(60);await page.evaluate(({key,data})=>window.__game.scene.start(key,data),{key,data});await page.waitForFunction(key=>window.__game.scene.isActive(key),key);}
+async function pointFor(selector){return page.evaluate(selector=>{const g=window.__game,s=g.scene.getScene('CharacterEditorScene');let o;if(selector.kind==='text')o=s.children.list.find(c=>c.input?.enabled&&typeof c.text==='string'&&c.text.includes(selector.label));else if(selector.kind==='named')o=s.children.getByName(selector.name);else if(selector.kind==='field'){const i=s.fieldLabels.findIndex(c=>c.visible&&c.text===selector.label);if(i<0)throw Error(`Missing field ${selector.label}`);o=(selector.direction>0?s.plusButtons:s.minusButtons)[i];}else if(selector.kind==='move')o=s.moveText;if(!o)throw Error(`Missing pointer target ${JSON.stringify(selector)}`);const b=o.getBounds(),c=g.canvas.getBoundingClientRect();return{x:c.left+b.centerX*c.width/g.scale.gameSize.width,y:c.top+b.centerY*c.height/g.scale.gameSize.height};},selector);}
+async function click(selector){const p=await pointFor(selector);await page.mouse.move(p.x,p.y);await page.waitForTimeout(35);await page.mouse.down();await page.waitForTimeout(35);await page.mouse.up();await page.waitForTimeout(35);}
+async function text(label){await click({kind:'text',label});}
+async function showField(label){const history=[];for(let i=0;i<64;i++){const visible=await page.evaluate(label=>{const s=window.__game.scene.getScene('CharacterEditorScene');return{found:s.fieldLabels.some(c=>c.visible&&c.text===label),page:s.pageText.text};},label);history.push(visible);if(visible.found){(report.fieldPaging??=[]).push({label,method:'Actual PageDown keyboard event then pointer field edits',history});return;}if(i>0&&visible.page===history[0].page)break;await page.keyboard.press('PageDown');await page.waitForTimeout(35);}throw Error(`Field absent from all Lab pages: ${label}`);}
+async function selectJab(){await text('MOVE DATA');for(let i=0;i<30;i++){const id=await page.evaluate(()=>window.__game.scene.getScene('CharacterEditorScene').getFrameMove()?.id);if(id===moveId)return;await click({kind:'move'});}throw Error('Jab absent from Lab move cycle');}
+async function inspect(age,total){const p=await page.evaluate(({age,total})=>{const g=window.__game,c=g.canvas.getBoundingClientRect();return{x:c.left+(408+424*(age+.5)/total)*c.width/g.scale.gameSize.width,y:c.top+876*c.height/g.scale.gameSize.height};},{age,total});await page.mouse.click(p.x,p.y);await page.waitForTimeout(35);return page.evaluate(()=>{const s=window.__game.scene.getScene('CharacterEditorScene'),sprite=sp=>sp?{key:sp.texture.key,frame:sp.frame.name,x:sp.x,y:sp.y,originX:sp.originX,originY:sp.originY,scaleX:sp.scaleX,scaleY:sp.scaleY,flipX:sp.flipX}:null;return{elapsed:s.inspectedFrame,diagnostic:s.pairedPreviewDiagnostics,portrait:sprite(s.previewSprite),collisionSprite:sprite(s.collisionSprite),timeline:s.timelineText.text,caption:s.portraitCaption.text};});}
+function checkPose(observation,elapsed,sourceAge,label){const frame=frameAt(sourceAge),hurt=clip.hurtboxPoses.find(p=>p.artFrameIndex===frame),attack=clip.attackCollisionPoses.find(p=>p.artFrameIndex===frame);assert.equal(observation.elapsed,elapsed);assert.equal(Number(observation.portrait.frame),frame);assert.equal(Number(observation.collisionSprite.frame),frame);assert.equal(observation.portrait.key,texture);assert.equal(observation.collisionSprite.key,texture);const d=observation.diagnostic;assert.ok(d,'paired preview diagnostic absent');assert.equal(d.sourceActionAge,sourceAge);assert.equal(d.artFrameIndex,frame);assert.equal(d.nativeSample,hurt.nativeSample);assert.deepEqual(d.hurtboxes,expectedReceiving(hurt,sourceAge));assert.deepEqual(d.collisionHits.map(({id,capsule})=>({id,capsule})),attack.collisionHits);report.checks.push({name:label,elapsed,sourceAge,frame,nativeSample:hurt.nativeSample,observation});}
+async function kit(){return copy(await page.evaluate(()=>{const s=window.__game.scene.getScene('MatchScene');s.physicsEngine.pause();return{id:s.p1.id,tuning:s.p1.getTuning(),grab:s.p1.getGrabSpec(),moves:[...s.p1.attacks.values()].sort((a,b)=>a.id.localeCompare(b.id))};}));}
+async function matchTimings(label){for(const facing of [1,-1]){await page.evaluate(facing=>{const s=window.__game.scene.getScene('MatchScene');s.physicsEngine.pause();s.roundStartCountdown=0;s.cpuControllers.clear();const floor=s.baseStage.bodies.platformBodies.find(b=>b.label==='platform.solid');s.p1.resetForRound(floor.position.x-100,floor.bounds.min.y-42);s.p2.resetForRound(floor.position.x+500,floor.bounds.min.y-42);s.p1.setFacing(facing);s.p1.setInvincibility(0);s.p2.setInvincibility(0);for(let i=0;i<12;i++){s.physicsEngine.resume();s.update(0,s.physicsEngine.fixedTimestepMs);s.physicsEngine.pause();}},facing);if(kind==='dtilt'){await page.keyboard.down('s');for(let i=0;i<8;i++)await stepMatch();}await page.keyboard.down('f');let o=await stepMatch();await page.keyboard.up('f');if(kind==='jab2'){assert.equal(o.attack?.id,'donkeykong.jab');while(o.attack.age<7)o=await stepMatch();await page.keyboard.down('f');o=await stepMatch();await page.keyboard.up('f');}const samples=[];for(let age=0;age<customAges.length;age++){const frame=frameAt(customAges[age]),hurt=clip.hurtboxPoses.find(p=>p.artFrameIndex===frame),attack=clip.attackCollisionPoses.find(p=>p.artFrameIndex===frame);assert.equal(o.attack?.id,moveId);assert.equal(o.attack.age,age);assert.equal(o.sprite.key,texture);assert.equal(Number(o.sprite.frame),frame);assert.equal(o.sprite.flipX,facing===-1);assert.deepEqual(o.hurtboxes,expectedReceiving(hurt,customAges[age]));if(attack.collisionHits.length){assert.deepEqual(o.attack.geometry,attack.collisionHits);assert.equal(o.attack.pose.sourceActionAge,customAges[age]);assert.equal(o.attack.pose.nativeSample,hurt.nativeSample);}else assert.equal(o.attack.sensorId,null);samples.push({age,sourceAge:customAges[age],observation:o});o=await stepMatch();}assert.equal(o.attack,null);assert.notEqual(o.sprite.key,texture);report.checks.push({name:`${label}: saved edited timing controls all${customAges.length} actual match ages facing${facing}`,samples,after:o});await page.keyboard.up('s');await page.screenshot({path:`${out}/${label}-match-${facing}.png`});}}
+async function stepMatch(){return page.evaluate(()=>{const s=window.__game.scene.getScene('MatchScene');s.physicsEngine.resume();s.update(0,s.physicsEngine.fixedTimestepMs);s.physicsEngine.pause();const a=s.p1.getActiveAttack(),b=a?.hitboxBody,sp=s.playerSlots[0].sprite;return{attack:a?{id:a.move.id,age:a.framesElapsed,sensorId:b?.id??null,geometry:b?.plugin?.collisionHits?.map(({id,capsule})=>({id,capsule}))??null,pose:b?.plugin?.donkeykongCollisionPose??null}:null,hurtboxes:s.p1.getActiveHurtboxes(),sprite:{key:sp.texture.key,frame:sp.frame.name,flipX:sp.flipX},position:s.p1.getPosition()};});}
+async function savedProtectionContacts(label){
+ if(kind!=='dtilt')return;
+ const probeBytes=await readFile('docs/review/2026-09-25/donkeykong-character/audit-2026-10-08/runtime/full-dtilt-receiving-core-probes.json');
+ const probes=JSON.parse(probeBytes).probes;report.customContactProbeSha256=hash(probeBytes);
+ for(const facing of [1,-1])for(let age=0;age<customAges.length;age++)for(const region of ['shoulderl','head']){
+  await page.keyboard.up('s');await page.keyboard.up('f');
+  await page.evaluate(facing=>{const s=window.__game.scene.getScene('MatchScene');
+   if(window.__pairedLabPulse)s.matter.world.remove(window.__pairedLabPulse);
+   const floor=s.baseStage.bodies.platformBodies.find(b=>b.label==='platform.solid');
+   s.p1.resetForRound(floor.position.x-100,floor.bounds.min.y-42);s.p2.resetForRound(floor.position.x+500,floor.bounds.min.y-42);
+   s.p1.setFacing(facing);s.p1.setInvincibility(0);s.p2.setInvincibility(0);
+  },facing);
+  for(let i=0;i<12;i++)await stepMatch();await page.keyboard.down('s');for(let i=0;i<8;i++)await stepMatch();
+  await page.keyboard.down('f');let before=await stepMatch();await page.keyboard.up('f');
+  while(before.attack.age<age)before=await stepMatch();assert.equal(before.attack.id,moveId);
+  const frame=frameAt(customAges[age]),native=clip.hurtboxPoses.find(p=>p.artFrameIndex===frame).nativeSample;
+  const probe=probes.find(p=>p.nativeSample===native&&p.region===region);assert(probe,'Reviewed actual-label core required');
+  const fixture=await page.evaluate(probe=>{const s=window.__game.scene.getScene('MatchScene'),p=s.p1.getPosition(),f=s.p1.getFacing(),r=.1;
+   s.p1.armAttackerHitlag(1);
+   const world={x:p.x+probe.actorRelativeWorld.x*f,y:p.y+probe.actorRelativeWorld.y};
+   window.__pairedLabPulse=s.matter.add.rectangle(world.x,world.y,2*r,2*r,{label:'hitbox.attack',isSensor:true,ignoreGravity:true,frictionAir:0,
+    collisionFilter:{category:8,mask:4},plugin:{ownerId:'pikachu',ownerBodyId:s.p2.body.id,moveId:'pikachu.saved-paired-protection-pulse',attackKind:'ground',setoff:'off',damage:1,hitlagMultiplier:1,
+     knockback:{x:0,y:-1,scaling:0},facing:1,hitbox:{offsetX:0,offsetY:0,width:2*r,height:2*r},collisionHits:[{id:0,capsule:{start:{x:0,y:0},end:{x:0,y:0},radius:r}}]}});
+   return{world,explicitAuthoredFixture:true,oneStepFreezeToSampleExactSavedPose:true,beforePercent:s.p1.getDamagePercent()};
+  },probe);
+  const after=await stepMatch(),percent=await page.evaluate(()=>window.__game.scene.getScene('MatchScene').p1.getDamagePercent());
+  const protectedCore=region==='shoulderl'&&customAges[age]>=protectionWindow[0]&&customAges[age]<protectionWindow[1];
+  assert(protectedCore?percent===fixture.beforePercent&&after.attack?.id===moveId:percent>fixture.beforePercent&&after.attack===null,
+   `Saved custom protection actual Matter contact ${label}/${facing}/${age}/${region}`);
+  report.checks.push({name:`${label}: saved custom incoming ${region} age${age} facing${facing}`,sourceAge:customAges[age],expected:protectedCore?'protected':'vulnerable',nativeSample:native,probe,fixture,before,after,percent});
+  if(facing===1&&age===2)await page.screenshot({path:`${out}/${label}-actual-custom-contact-${region}.png`});
+ }
+ await page.keyboard.up('s');await page.evaluate(()=>{const s=window.__game.scene.getScene('MatchScene');if(window.__pairedLabPulse)s.matter.world.remove(window.__pairedLabPulse);window.__pairedLabPulse=null;});
+}
+try{
+ await page.goto(process.env.PF_REWORK_URL??'http://localhost:4196/platform-fighter/',{waitUntil:'domcontentloaded',timeout:60000});await page.waitForFunction(()=>window.__game?.scene.isActive('PasswordGateScene'),null,{timeout:60000});
+ report.bundle=await page.evaluate(()=>[...document.scripts].find(s=>/assets\/index-/.test(s.src))?.src);report.bundleSha256=hash(await(await page.request.get(report.bundle)).body());if(process.env.PF_EXPECT_BUNDLE_SHA)assert.equal(report.bundleSha256,process.env.PF_EXPECT_BUNDLE_SHA);
+ await open('MatchScene',{matchConfig:{mode:'stocks',stockCount:3,stageId:'flat',rngSeed:12345,itemFrequency:'off',players:[{index:1,characterId:'donkeykong',paletteIndex:0,inputType:'keyboard_p1'},{index:2,characterId:'pikachu',paletteIndex:1,inputType:'keyboard_p2'}]}});report.baseline=await kit();
+ await open('CharacterEditorScene');for(let i=0;i<3;i++){if(await page.evaluate(()=>!!window.__game.scene.getScene('CharacterEditorScene').children.getByName('shipped:donkeykong')))break;await click({kind:'named',name:'roster-page-next'});}await text('DONKEY KONG');await page.waitForFunction(()=>window.__game.scene.getScene('CharacterEditorScene').editState.getSpec().id==='donkeykong');await selectJab();
+ for(let age=0;age<cfg.end;age++){const o=await inspect(age,cfg.end);checkPose(o,age,age,`stock pointer Lab age${age} shares eight-cell geometry`);if(windows.some(w=>w[0]===age))await page.screenshot({path:`${out}/stock-lab-age${age}.png`});}
+ await text('− FRAME');let o=await page.evaluate(()=>window.__game.scene.getScene('CharacterEditorScene').inspectedFrame);assert.equal(o,cfg.end-2);await text('+ FRAME');assert.equal(await page.evaluate(()=>window.__game.scene.getScene('CharacterEditorScene').inspectedFrame),cfg.end-1);report.checks.push({name:'Actual pointer frame buttons advance and rewind the shared Lab timeline'});
+ for(const [label,direction,count] of cfg.edits){await showField(label);for(let i=0;i<count;i++)await click({kind:'field',label,direction});}
+ report.draft=copy(await page.evaluate(()=>window.__game.scene.getScene('CharacterEditorScene').editState.getSpec()));assert.equal(report.draft.moves[moveKey].startupFrames,cfg.custom[0]);assert.equal(report.draft.moves[moveKey].activeFrames,cfg.custom[1]);assert.equal(report.draft.moves[moveKey].recoveryFrames,cfg.custom[2]);
+ for(let age=0;age<customAges.length;age++){const o=await inspect(age,customAges.length);checkPose(o,age,customAges[age],`pointer edited Lab age${age} uses source phase transport`);if([0,4,8,10,12,13,17,20].includes(age))await page.screenshot({path:`${out}/custom-lab-age${age}.png`});}
+ if(kind==='dtilt'){
+  for(const [label,direction] of [['Source age / Protection Windows / #1 / Start Frame',-1],['Source age / Protection Windows / #1 / End Frame',1]]){await showField(label);await click({kind:'field',label,direction});}
+  protectionWindow=[3,8];report.protectionWindowEdit={domain:'source-animation',start:3,end:8};
+  for(const age of [6,8,10,13,14,15])checkPose(await inspect(age,customAges.length),age,customAges[age],`Authored source-window boundary elapsed${age}`);
+  for(const [label,direction,count] of [['Startup Frames',-1,8],['Active Frames',-1,3],['Recovery Frames',-1,6]]){await showField(label);for(let i=0;i<count;i++)await click({kind:'field',label,direction});}
+  customAges.splice(0,customAges.length,...agesFor([2,1,2]));
+  report.shortCustomClock={gameplay:[2,1,2],sourceAges:[...customAges],protectionWindow:[3,8]};
+  report.draft=copy(await page.evaluate(()=>window.__game.scene.getScene('CharacterEditorScene').editState.getSpec()));
+  assert.deepEqual([report.draft.moves[moveKey].startupFrames,report.draft.moves[moveKey].activeFrames,report.draft.moves[moveKey].recoveryFrames],[2,1,2]);
+  assert.equal(report.draft.moves[moveKey].protectionWindows[0].startFrame,3);assert.equal(report.draft.moves[moveKey].protectionWindows[0].endFrame,8);
+  for(let age=0;age<5;age++)checkPose(await inspect(age,5),age,customAges[age],`Short gameplay total5 retains authored source-window end8 age${age}`);
+ }
+ report.expectedKit={...report.baseline,moves:report.baseline.moves.map(m=>m.id===moveId?report.draft.moves[moveKey]:m)};
+ const draftAttacks=Object.values(report.draft.moves).filter(m=>m.type!==undefined).sort((a,b)=>a.id.localeCompare(b.id));assert.deepEqual(draftAttacks,report.expectedKit.moves);assert.deepEqual(report.draft.moves.grab,report.baseline.grab);
+ await text('SAVE TUNE');await page.waitForFunction(()=>window.__game.scene.getScene('CharacterEditorScene').savedSlotId==='donkeykong-tune');const stored=await page.evaluate(()=>Object.entries(localStorage).find(([key])=>key.endsWith(':donkeykong-tune'))?.[1]);assert.ok(stored);assert.deepEqual(copy(JSON.parse(stored).spec),report.draft);await text('TEST FIGHT');await page.waitForFunction(()=>window.__game.scene.isActive('MatchScene'));assert.deepEqual(await kit(),report.expectedKit);report.checks.push({name:'Actual pointer timing edit saves complete attacks/grab/tuning and reconstructs Test Fight'});await matchTimings('test-fight');await savedProtectionContacts('test-fight');
+ await page.keyboard.press('Escape');await page.waitForFunction(()=>window.__game.scene.isActive('PauseMenuScene'));await page.keyboard.press('l');await page.waitForFunction(()=>window.__game.scene.isActive('CharacterEditorScene'));assert.deepEqual(copy(await page.evaluate(()=>window.__game.scene.getScene('CharacterEditorScene').editState.getSpec())),report.draft);report.checks.push({name:'Return to Lab retains the complete edited timing draft'});
+ await page.reload();await page.waitForFunction(()=>window.__game?.scene.isActive('PasswordGateScene'),null,{timeout:60000});await open('CharacterEditorScene');await text('DONKEYKONG-TUNE');await page.waitForFunction(()=>window.__game.scene.getScene('CharacterEditorScene').savedSlotId==='donkeykong-tune');assert.deepEqual(copy(await page.evaluate(()=>window.__game.scene.getScene('CharacterEditorScene').editState.getSpec())),report.draft);await selectJab();const reloadAge=kind==='dtilt'?2:Math.floor(customAges.length/2);checkPose(await inspect(reloadAge,customAges.length),reloadAge,customAges[reloadAge],'Reloaded tune Lab restores source pose and protection');await text('TEST FIGHT');await page.waitForFunction(()=>window.__game.scene.isActive('MatchScene'));assert.deepEqual(await kit(),report.expectedKit);await matchTimings('reloaded-tune');await savedProtectionContacts('reloaded-tune');report.checks.push({name:'Page reload restores exact custom full kit and actual match behavior'});
+ assert.deepEqual(report.errors,[]);assert.deepEqual(report.failedResponses,[]);report.result='PASS_COMPLETE_PAIRED_GROUND_LAB_CUSTOM_TIMING_AND_PROTECTION';console.log(JSON.stringify({out,result:report.result,checks:report.checks.length,errors:report.errors}));
+}catch(e){report.result='FAIL';report.failure=e.stack;console.error(e.stack);process.exitCode=1;}
+finally{await page.keyboard.up('f').catch(()=>{});await page.keyboard.up('s').catch(()=>{});await writeFile(`${out}/observations.json`,JSON.stringify(report,null,2)+'\n');await browser.close();}

@@ -1,70 +1,64 @@
 # Platform Fighter
 
-A Smash Bros-style 2D platform fighter built with **Phaser 3 + Matter.js** in
-TypeScript. Local multiplayer for up to 4 players (any mix of human + AI),
-4 hazard stages, a stage builder, and an input-replay system with VCR controls.
+A local platform fighter with **Three.js arenas, HTML menus and a deterministic
+Matter.js simulation**. Play Donkey Kong, Pikachu and Link with up to four
+human or CPU players, six built-in arenas, items and Final Smash rules.
+Keyboard and gamepad controls support saved per-player profiles.
 
-## Stack
-
-- **Engine**: Phaser 3 (`phaser` 3.80+)
-- **Physics**: Matter.js (via Phaser's matter plugin) — fixed 60 Hz timestep
-- **Language**: TypeScript (strict mode)
-- **Build**: Vite
-- **Tests**: Vitest
-
-## Quick start
+## Run
 
 ```bash
 npm install
-npm run dev      # dev server on http://localhost:5173
-npm run build    # production build to dist/
-npm run preview  # preview production build
+npm run dev          # http://localhost:5173/
+npm run build        # app bundle in dist/
+npm run preview      # http://localhost:4173/platform-fighter/
 npm run typecheck
 npm test
 ```
 
-## Repository layout
+Local previews serve sprites and audio directly from `assets/`. For a standalone
+static hosting artifact, run `npm run build:static`; it copies only the runtime
+files referenced by the asset manifest. Personal images in `port/private/` stay
+local and use the procedural fallback when absent.
 
+## Code
+
+- `src/sim/MatchSim.ts` owns gameplay, the fixed clock, items, rules and replay history.
+- `src/characters/`, `src/match/`, `src/items/` and `src/finalSmash/` contain shared rules.
+- `src/physics/matter/` contains the unchanged vendored Matter fork and its types.
+- `port/src/` contains the Three.js renderer and HTML app; see [its architecture](port/ARCHITECTURE.md).
+- `src/scenes/` retains pure menu state modules used by the HTML screens.
+- `src/builder/` retains pure serialization used by replay/checkpoint data. Character Lab and Stage Forge are retired.
+- `assets/` contains fighter artwork, sound and authored metadata.
+
+## Verification
+
+The browser exposes `window.__sim`: start a match, await `ready`, enable
+`manual(true)`, then use `step`, `advance`, `state`, `view`, `draw`, `presentation`, `presentationSprites`,
+`checkpoint` and `restore`. The `match` property is the actual `MatchSim`.
+The sandbox runs this same host at `/platform-fighter/sandbox.html`.
+After `draw()`, `presentationSprites()` reports actual effect quad submissions
+and resident decoded textures; screenshots establish their appearance.
+
+```bash
+node port/scripts/live-match.mjs docs/review/local/live
+node tools/link-playable-probe.mjs --out docs/review/local/link --shots
+node tools/dk-runtime-mechanics-review.mjs
+node tools/dk-jostle-match-regression.mjs
 ```
-.
-├── index.html              # Vite entry
-├── vite.config.ts          # Build config + path aliases
-├── tsconfig.json           # TS strict mode + path aliases
-├── package.json
-├── src/
-│   ├── main.ts             # Phaser bootstrap
-│   ├── engine/             # GameConfig, PhysicsEngine (fixed-step wrapper)
-│   ├── scenes/             # Boot / Preload / MainMenu / Match
-│   ├── characters/         # Wolf, Cat, Owl, Bear + movesets (M2)
-│   ├── stages/             # Built-in hazard stages + custom-stage runtime
-│   ├── input/              # Keyboard, gamepad, rebinding, input recording
-│   ├── ai/                 # Deterministic seeded AI controllers
-│   ├── replay/             # Input-log + 300-frame snapshot system (M4)
-│   ├── builder/            # Drag-and-drop stage builder (M3)
-│   ├── ui/                 # HUD, menus, VCR overlay
-│   ├── utils/              # Rng (Mulberry32) + helpers
-│   └── types/              # Shared domain types matching the Seed ontology
-└── assets/                 # Sprites, audio, stage backgrounds
-```
 
-## Determinism
+Headless replay verification runs through `tools/sim-replay.ts`; browser golden
+comparisons live in `port/scripts/golden/`. Historical Phaser probes and their
+replacement mapping are in [tools/archive/phaser/](tools/archive/phaser/README.md).
 
-All gameplay logic must:
+Gameplay uses seeded random streams, fixed 60 Hz steps and serializable owned
+state. Changes require relevant physics tests, build checks and observation in
+the running match. A passing suite alone does not establish visual completion.
 
-1. Pull random numbers from a seeded `Rng` (see `src/utils/Rng.ts`) — never
-   `Math.random()`.
-2. Step physics through `PhysicsEngine.advance()` so the simulation runs in
-   fixed `1/60 s` increments regardless of wall-clock jitter.
-3. Express timing in **frames**, not milliseconds.
+The [October 15 takeover acceptance](docs/review/2026-10-15/takeover/README.md)
+records the completed cutover, Final Smash repairs, browser evidence, exact
+replays and remaining human review/cleanup decisions.
 
-This is what lets the replay system replay a recorded match identically.
-
-## Milestones
-
-| ID | Scope |
-|----|-------|
-| M1 | Core fighter — scaffold, physics, one character, one stage, 1v1 |
-| M2 | Full roster (4) + 4 hazard stages + AI |
-| M3 | Stage builder |
-| M4 | Replay system with VCR controls |
-| M5 | Full input rebinding |
+Use the repository's [$add-character skill](.agents/skills/add-character/SKILL.md)
+for playable fighter work, including source coverage, animation, collision and
+runtime evidence.

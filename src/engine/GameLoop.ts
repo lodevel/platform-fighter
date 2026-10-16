@@ -206,6 +206,15 @@ export class GameLoop {
     this.lastAlpha = 0;
   }
 
+  /** Restore wall-clock residue only after production history reached this frame. */
+  restoreReconstructedClock(clock:{frame:number;accumulatorMs:number;paused:boolean}):void {
+    if(clock.frame!==this.currentFrame||!Number.isFinite(clock.accumulatorMs)||clock.accumulatorMs<0||
+      clock.accumulatorMs>=this.fixedTimestepMs||typeof clock.paused!=='boolean')
+      throw new Error('Reconstructed clock must match the already simulated frame');
+    this.accumulatorMs=clock.accumulatorMs;this.paused=clock.paused;
+    this.lastAlpha=clock.accumulatorMs/this.fixedTimestepMs;this.lastTimestampMs=null;
+  }
+
   /**
    * Force the loop to a specific frame. Used by the replay system when
    * scrubbing to a state snapshot.

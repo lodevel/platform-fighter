@@ -92,7 +92,7 @@ function kb(keyCode: number): ReadonlyArray<KeyboardBinding> {
  *     M1 handler into reading from the store, at which point the
  *     duplication goes away.
  */
-export const DEFAULT_KEYBOARD_P1_BINDINGS: ActionBindings = Object.freeze({
+export const DEFAULT_KEYBOARD_P1_BINDINGS: Required<ActionBindings> = Object.freeze({
   left: kb(KEY_CODE.A),
   right: kb(KEY_CODE.D),
   up: kb(KEY_CODE.W),
@@ -103,6 +103,9 @@ export const DEFAULT_KEYBOARD_P1_BINDINGS: ActionBindings = Object.freeze({
   shield: kb(KEY_CODE.H),
   grab: kb(KEY_CODE.T),
   taunt: kb(KEY_CODE.R),
+  smash: kb(KEY_CODE.V),
+  appeal: kb(KEY_CODE.B),
+  walk: kb(KEY_CODE.SHIFT),
 });
 
 /**
@@ -110,7 +113,7 @@ export const DEFAULT_KEYBOARD_P1_BINDINGS: ActionBindings = Object.freeze({
  * matching `DEFAULT_P2_BINDINGS`. See {@link DEFAULT_KEYBOARD_P1_BINDINGS}
  * for why the layout is restated rather than re-exported.
  */
-export const DEFAULT_KEYBOARD_P2_BINDINGS: ActionBindings = Object.freeze({
+export const DEFAULT_KEYBOARD_P2_BINDINGS: Required<ActionBindings> = Object.freeze({
   left: kb(KEY_CODE.ARROW_LEFT),
   right: kb(KEY_CODE.ARROW_RIGHT),
   up: kb(KEY_CODE.ARROW_UP),
@@ -121,6 +124,11 @@ export const DEFAULT_KEYBOARD_P2_BINDINGS: ActionBindings = Object.freeze({
   shield: kb(KEY_CODE.NUMPAD_3),
   grab: kb(KEY_CODE.NUMPAD_4),
   taunt: kb(KEY_CODE.NUMPAD_5),
+  // Numpad 0, not Numpad 6: with NumLock off, Numpad 6 sends ArrowRight
+  // (P2's move-right) while Numpad 0 sends Insert, which nothing binds.
+  smash: kb(KEY_CODE.NUMPAD_0),
+  appeal: kb(KEY_CODE.NUMPAD_7),
+  walk: kb(KEY_CODE.NUMPAD_8),
 });
 
 // ---------------------------------------------------------------------------
@@ -137,6 +145,25 @@ export const DEFAULT_KEYBOARD_P2_BINDINGS: ActionBindings = Object.freeze({
  * preferred sensitivity alongside the binding itself.
  */
 export const DEFAULT_GAMEPAD_AXIS_THRESHOLD = 0.5;
+
+/**
+ * Threshold for the right-stick smash half-axes. Higher than the
+ * movement dead-zone because a drifting right stick would otherwise
+ * fire smash attacks on its own.
+ */
+export const SMASH_STICK_THRESHOLD = 0.6;
+
+/** First axis index (the X axis) of the right stick on the standard mapping. */
+export const RIGHT_STICK_X_AXIS = 2;
+
+/**
+ * Axes of the two named sticks on the standard mapping: the left stick
+ * (0/1) and the right stick (2/3). Other axes (triggers or extra axes
+ * on non-standard pads) do not form an X/Y pair we can rely on.
+ */
+export function isNamedStickAxis(axisIndex: number): boolean {
+  return axisIndex >= 0 && axisIndex <= 3;
+}
 
 /** Helper: build a single-element gamepad button binding list. */
 function gpButton(gamepadIndex: number, buttonIndex: number): ReadonlyArray<GamepadBinding> {
@@ -157,6 +184,42 @@ function gpAxis(
     threshold: DEFAULT_GAMEPAD_AXIS_THRESHOLD,
   });
   return Object.freeze([Object.freeze<GamepadBinding>({ kind: 'gamepad', gamepadIndex, source })]);
+}
+
+/**
+ * The four half-axis bindings of one stick, in X−, X+, Y−, Y+ order.
+ * `stickAxis` is either axis of the stick; the pair is `axis & ~1`
+ * (X) and `axis | 1` (Y) on the standard mapping. Used for the default
+ * right-stick smash and by the capture path that turns one stick push
+ * into the whole stick.
+ */
+export function buildStickHalfAxisBindings(
+  gamepadIndex: number | null,
+  stickAxis: number,
+  threshold: number,
+): ReadonlyArray<GamepadBinding> {
+  const xAxis = stickAxis & ~1;
+  const yAxis = xAxis | 1;
+  const entries: ReadonlyArray<readonly [number, -1 | 1]> = [
+    [xAxis, -1],
+    [xAxis, 1],
+    [yAxis, -1],
+    [yAxis, 1],
+  ];
+  return Object.freeze(
+    entries.map(([axisIndex, direction]) =>
+      Object.freeze<GamepadBinding>({
+        kind: 'gamepad',
+        gamepadIndex,
+        source: Object.freeze<GamepadBindingSource>({
+          type: 'axis',
+          axisIndex,
+          direction,
+          threshold,
+        }),
+      }),
+    ),
+  );
 }
 
 /**
@@ -181,6 +244,9 @@ function gpAxis(
  *     "hold to shield, press to spot-dodge" platform-fighter feel.
  *   • `taunt` → button 1 (B / Circle) — out of the way of attack
  *     buttons so it can't fire mid-combo by accident.
+ *   • `smash` → the right stick (axes 2/3) as four half-axes at
+ *     {@link SMASH_STICK_THRESHOLD}, like Ultimate's C-stick: the
+ *     pushed direction picks the smash.
  *
  * Pin to a specific `gamepadIndex` so two pads can't share an action
  * map. The rebinding store uses `0` for slot 3's default and `1` for
@@ -188,7 +254,7 @@ function gpAxis(
  * the browser hands out). Reconciliation by pad `id` after a
  * disconnect/reconnect is a later sub-AC.
  */
-export function buildDefaultGamepadBindings(gamepadIndex: number): ActionBindings {
+export function buildDefaultGamepadBindings(gamepadIndex: number): Required<ActionBindings> {
   return Object.freeze({
     left: gpAxis(gamepadIndex, 0, -1),
     right: gpAxis(gamepadIndex, 0, +1),
@@ -200,14 +266,17 @@ export function buildDefaultGamepadBindings(gamepadIndex: number): ActionBinding
     shield: gpButton(gamepadIndex, 5),
     grab: gpButton(gamepadIndex, 4),
     taunt: gpButton(gamepadIndex, 1),
+    smash: buildStickHalfAxisBindings(gamepadIndex, RIGHT_STICK_X_AXIS, SMASH_STICK_THRESHOLD),
+    appeal: gpButton(gamepadIndex, 8),
+    walk: Object.freeze([]),
   });
 }
 
 /** Default gamepad preset pinned to pad index 0 (slot 3 default). */
-export const DEFAULT_GAMEPAD_P3_BINDINGS: ActionBindings = buildDefaultGamepadBindings(0);
+export const DEFAULT_GAMEPAD_P3_BINDINGS: Required<ActionBindings> = buildDefaultGamepadBindings(0);
 
 /** Default gamepad preset pinned to pad index 1 (slot 4 default). */
-export const DEFAULT_GAMEPAD_P4_BINDINGS: ActionBindings = buildDefaultGamepadBindings(1);
+export const DEFAULT_GAMEPAD_P4_BINDINGS: Required<ActionBindings> = buildDefaultGamepadBindings(1);
 
 // ---------------------------------------------------------------------------
 // Per-slot defaults
@@ -357,6 +426,7 @@ export function assertValidPlayerBindings(
   const map = c.bindings as Record<string, unknown>;
   for (const action of LOGICAL_ACTIONS) {
     const entries = map[action];
+    if ((action === 'appeal' || action === 'walk') && entries === undefined) continue; // Legacy typed profiles may omit this new optional channel.
     if (!Array.isArray(entries)) {
       throw new Error(
         `InputBindingsStore: action '${action}' must be an array of bindings (got ${typeof entries}).`,
@@ -564,7 +634,7 @@ export function mergeBindingsWithDefaults(
     if (action in partialMap) {
       mergedActions[action] = partialMap[action] as ReadonlyArray<InputBinding>;
     } else {
-      mergedActions[action] = defaults.bindings[action];
+      mergedActions[action] = defaults.bindings[action] ?? [];
     }
   }
 
@@ -681,7 +751,7 @@ export class InputBindingsStore {
    * only care about one action (the rebinding UI rendering one row).
    */
   getAction(slot: PlayerBindingsIndex, action: LogicalAction): ReadonlyArray<InputBinding> {
-    return this.get(slot).bindings[action];
+    return this.get(slot).bindings[action] ?? [];
   }
 
   /**
@@ -798,7 +868,7 @@ export class InputBindingsStore {
    * this to back out of a partial rebind.
    */
   resetAction(slot: PlayerBindingsIndex, action: LogicalAction): void {
-    const defaultActionList = DEFAULT_PLAYER_BINDINGS[slot].bindings[action];
+    const defaultActionList = DEFAULT_PLAYER_BINDINGS[slot].bindings[action] ?? [];
     this.setAction(slot, action, defaultActionList);
   }
 

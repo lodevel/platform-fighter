@@ -1,0 +1,157 @@
+{
+  "state": "packed_cells_visually_reviewed_runtime_pending",
+  "coordinateContract": {
+    "canonicalCanvas": [
+      2048,
+      2048
+    ],
+    "canonicalRoot": [
+      1024,
+      1664
+    ],
+    "frameWidth": 512,
+    "frameHeight": 512,
+    "root": [
+      256,
+      416
+    ],
+    "scaleToWorld": 0.4666666666666667,
+    "bodyCentreFromRoot": [
+      0,
+      -25
+    ]
+  },
+  "clockContract": "docs/review/2026-10-06/pikachu-character/sources/state-runtime-clock-contract.json",
+  "clockContractSha256": "66ba9368ffe7118410fb965fa6b095902f881ce8473644791cf0e406370165f0",
+  "animations": {
+    "shield_start": {
+      "strip": "animations/shield_start.png",
+      "frameCount": 3,
+      "sha256": "993a571e5841b5869274a941084f82d046fd770bc70c0ca060acdbdcd35ab47c",
+      "columns": 3,
+      "rows": 1,
+      "frameWindows": [
+        {
+          "startFrame": 0,
+          "endFrame": 6,
+          "artFrameIndex": 0,
+          "nativeStart": 0,
+          "nativeEnd": 6
+        },
+        {
+          "startFrame": 6,
+          "endFrame": 13,
+          "artFrameIndex": 1,
+          "nativeStart": 6,
+          "nativeEnd": 13
+        },
+        {
+          "startFrame": 13,
+          "endFrame": 14,
+          "artFrameIndex": 2,
+          "nativeStart": 13,
+          "nativeEnd": 14
+        }
+      ],
+      "loopDuration": null,
+      "nativeSampleIndices": [
+        0,
+        6,
+        13
+      ],
+      "nativeWindows": [
+        {
+          "nativeStart": 0,
+          "nativeEnd": 6,
+          "artFrameIndex": 0
+        },
+        {
+          "nativeStart": 6,
+          "nativeEnd": 13,
+          "artFrameIndex": 1
+        },
+        {
+          "nativeStart": 13,
+          "nativeEnd": 14,
+          "artFrameIndex": 2
+        }
+      ],
+      "drawingFacingBinding": "actor entry facing; native orientation candidates must be checked before accepting both-facing render",
+      "holdRule": "native nonloop holds final available drawing until status exit; looping clips wrap native loopDuration; endpoint sample is not action commitment",
+      "specialPhase": null,
+      "specialClockKind": null,
+      "dynamicCutoff": null,
+      "playableEndExclusive": null,
+      "runtimeBindingStatus": "missing explicit status/branch/attachment hook; preserve samples without asserting playable route"
+    }
+  },
+  "sources": [
+    {
+      "sourceKey": "full-shield-start-sample0-source0",
+      "nativeSample": 0,
+      "sourceReferenceSha256": "20f4b9a5f3f5b0cbfad4629611e50a4eaf7bebef32b27194b5aa6333ff5b80c8",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-defense-batch000-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "9f2ff97fe83a68475bcfd785947031052e15d921ee3a4b9f48cfe338d196b66c",
+      "atlasCell": 0,
+      "cellOffset": [
+        0,
+        0
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-defense-batch000-bounded-source0-attempt1.review.json",
+      "reviewSha256": "c89fbd4cd590228802695f93996db01e83ed26dc985320d9139612aab86d73e0"
+    },
+    {
+      "sourceKey": "full-shield-start-sample6-source6",
+      "nativeSample": 6,
+      "sourceReferenceSha256": "2b9b75c3edb8c4d440c1fb90a78db2b677015c558235089722aabe165255dba9",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-defense-batch000-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "9f2ff97fe83a68475bcfd785947031052e15d921ee3a4b9f48cfe338d196b66c",
+      "atlasCell": 1,
+      "cellOffset": [
+        1024,
+        0
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-defense-batch000-bounded-source0-attempt1.review.json",
+      "reviewSha256": "c89fbd4cd590228802695f93996db01e83ed26dc985320d9139612aab86d73e0"
+    },
+    {
+      "sourceKey": "full-shield-start-sample13-source13",
+      "nativeSample": 13,
+      "sourceReferenceSha256": "82e9175d60096571cb2349789c96aa380812b2eea2c2cc9a3bd88ab8ab99ee33",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-defense-batch000-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "9f2ff97fe83a68475bcfd785947031052e15d921ee3a4b9f48cfe338d196b66c",
+      "atlasCell": 2,
+      "cellOffset": [
+        0,
+        1024
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-defense-batch000-bounded-source0-attempt1.review.json",
+      "reviewSha256": "c89fbd4cd590228802695f93996db01e83ed26dc985320d9139612aab86d73e0"
+    }
+  ],
+  "galleries": {
+    "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/shield_start-cells-1.png": "4b60d6142fe1aa4e8f27fa9418d393d0f96333afee309a20e4d9afb3c13f3120"
+  },
+  "limits": [
+    "Actual packed-cell inspection required before aggregate registration.",
+    "Authored beta presentation windows do not establish native status rate parity.",
+    "Actual running-game qualification remains separate."
+  ],
+  "packedVisualReview": {
+    "reviewer": "pikachu_art_motion",
+    "state": "actual_saved_packed_cells_reviewed",
+    "inspectedGalleries": {
+      "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/shield_start-cells-1.png": "4b60d6142fe1aa4e8f27fa9418d393d0f96333afee309a20e4d9afb3c13f3120"
+    },
+    "observations": [
+      "Actually inspected every saved512 light/dark packed cell; native source order, attached tail, red cheeks, black tips and root preserved.",
+      "shield native90/180/270/360 remain directional source-only poses; live neutral holds actual sample0. Shield startup status clock binding remains pending. Rough beta body-only scope."
+    ]
+  }
+}

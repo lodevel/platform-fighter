@@ -12,12 +12,13 @@ import {
   ALL_PLAYER_INDICES,
   InputResolver,
   NEUTRAL_ACTION_STATE,
+  NEUTRAL_SMASH_STATE,
   PlayerActionMap,
   buildCharacterInputFromResolver,
   type ActionName,
 } from './InputResolver';
 import { MOVE_NEUTRAL } from './InputService';
-import type { PlayerBindingsIndex } from '../types/inputBindings';
+import type { GamepadBinding, PlayerBindingsIndex } from '../types/inputBindings';
 
 /**
  * AC 50201 Sub-AC 1 — central InputResolver / ActionMap.
@@ -583,6 +584,17 @@ describe('InputResolver — single source of truth', () => {
 // ---------------------------------------------------------------------------
 
 describe('buildCharacterInputFromResolver', () => {
+  it('routes the persisted direct-dodge binding into CharacterInput', () => {
+    const { resolver, keyboard, store } = buildHarness([1]);
+    const directDodgeKey = (store.get(1).bindings.taunt[0] as { keyCode: number }).keyCode;
+    keyboard.press(directDodgeKey);
+    resolver.update(0);
+    const input = buildCharacterInputFromResolver(resolver, 1);
+    expect(input.dodge).toBe(true);
+    expect(input.shield).toBe(false);
+    expect(input.moveX).toBe(0);
+  });
+
   it('returns an all-released frozen record before the first update', () => {
     const { resolver } = buildHarness([1]);
     const input = buildCharacterInputFromResolver(resolver, 1);
@@ -628,8 +640,12 @@ describe('buildCharacterInputFromResolver', () => {
     expect(input.special).toBe(true);
     expect(input.shield).toBe(true);
     expect(input.grab).toBe(true);
-    // Shield + directional → derived dodge action fires.
-    expect(input.dodge).toBe(true);
+    // Held Shield+Special is the shield-shift modifier, not a dodge chord.
+    expect(input.dodge).toBe(false);
+    // Shield + directional (special released) → derived dodge action fires.
+    keyboard.release(specialKey);
+    resolver.update(1);
+    expect(buildCharacterInputFromResolver(resolver, 1).dodge).toBe(true);
   });
 
   it('produces dropThrough = true on a rapid double-tap of the down action', () => {
@@ -697,5 +713,379 @@ describe('buildCharacterInputFromResolver', () => {
     store.setAction(1, 'attack', [{ kind: 'keyboard', keyCode: 75 /* 'K' */ }]);
     resolver.update(2);
     expect(buildCharacterInputFromResolver(resolver, 1).attack).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Smash action — per-slot state and the CharacterInput translation
+// ---------------------------------------------------------------------------
+
+interface StickPad extends GamepadSource {
+  setAxis(axis: number, value: number): void;
+}
+
+/** Pad 0 connected, axes settable, no buttons pressed. */
+function createStickPad(): StickPad {
+  const NEUTRAL: GamepadButtonState = Object.freeze({ pressed: false, value: 0 });
+  const axes = new Map<number, number>();
+  return {
+    isConnected: (index: number) => index === 0,
+    getButton: () => NEUTRAL,
+    getAxis: (index: number, axis: number) => (index === 0 ? axes.get(axis) ?? 0 : 0),
+    setAxis(axis: number, value: number): void {
+      axes.set(axis, value);
+    },
+  };
+}
+
+const RIGHT_STICK_SMASH: GamepadBinding[] = [2, 3].flatMap((axisIndex) =>
+  ([-1, 1] as const).map((direction) => ({
+    kind: 'gamepad' as const,
+    gamepadIndex: 0,
+    source: { type: 'axis' as const, axisIndex, direction, threshold: 0.6 },
+  })),
+);
+
+function buildSmashHarness() {
+  const keyboard = createMockKeyboard();
+  const pad = createStickPad();
+  const store = new InputBindingsStore();
+  // Slot 1 smashes with a key, slot 3 with pad 0's right stick; the left
+  // stick (axes 0/1) moves slot 3 so the tests can check it is untouched.
+  store.setAction(1, 'smash', [{ kind: 'keyboard', keyCode: KEY_CODE.V }]);
+  store.setAction(3, 'smash', RIGHT_STICK_SMASH);
+  const dispatcher = new DeviceInputDispatcher({ keyboard, gamepad: pad, bindings: store });
+  const resolver = new InputResolver({ dispatcher, slots: [1, 3] });
+  return { resolver, keyboard, pad, store };
+}
+
+describe('InputResolver.getSmash', () => {
+  it('is neutral before the first update and for untracked slots', () => {
+    const { resolver } = buildSmashHarness();
+    expect(resolver.getSmash(1)).toBe(NEUTRAL_SMASH_STATE);
+    resolver.update(0);
+    expect(resolver.getSmash(2)).toBe(NEUTRAL_SMASH_STATE);
+  });
+
+  it('tracks held / edges per slot, with the stick direction only for stick slots', () => {
+    const { resolver, keyboard, pad } = buildSmashHarness();
+    resolver.update(0);
+    keyboard.press(KEY_CODE.V);
+    pad.setAxis(2, -1);
+    resolver.update(1);
+    expect(resolver.getSmash(1)).toEqual({
+      held: true, justPressed: true, justReleased: false,
+      buttonHeld: true, fromStick: false, stickJustPressed: false, x: 0, y: 0,
+    });
+    expect(resolver.getSmash(3)).toEqual({
+      held: true, justPressed: true, justReleased: false,
+      buttonHeld: false, fromStick: true, stickJustPressed: true, x: -1, y: 0,
+    });
+    resolver.update(2);
+    expect(resolver.getSmash(1).justPressed).toBe(false);
+    expect(resolver.getSmash(1).held).toBe(true);
+    keyboard.release(KEY_CODE.V);
+    resolver.update(3);
+    expect(resolver.getSmash(1)).toMatchObject({ held: false, justReleased: true });
+    expect(resolver.getSmash(3)).toMatchObject({ held: true, justPressed: false });
+  });
+
+  it('does not report a phantom press for a stick already held at the first update', () => {
+    const { resolver, pad } = buildSmashHarness();
+    pad.setAxis(3, 1);
+    resolver.update(0);
+    expect(resolver.getSmash(3)).toMatchObject({ held: true, justPressed: false, stickJustPressed: false });
+    expect(buildCharacterInputFromResolver(resolver, 3).attackHeavy).toBe(false);
+  });
+
+  it('tracks the smash key and the smash stick separately on one slot', () => {
+    const { resolver, keyboard, pad, store } = buildSmashHarness();
+    store.setAction(3, 'smash', [{ kind: 'keyboard', keyCode: KEY_CODE.V }, ...RIGHT_STICK_SMASH]);
+    resolver.update(0);
+    keyboard.press(KEY_CODE.V);
+    resolver.update(1);
+    expect(resolver.getSmash(3)).toMatchObject({
+      held: true, justPressed: true, buttonHeld: true, fromStick: false, stickJustPressed: false,
+    });
+    pad.setAxis(3, -1);
+    resolver.update(2);
+    // The stick has its own edge even though the action as a whole was already held.
+    expect(resolver.getSmash(3)).toMatchObject({
+      held: true, justPressed: false, buttonHeld: true, fromStick: true, stickJustPressed: true, x: 0, y: -1,
+    });
+    resolver.update(3);
+    expect(resolver.getSmash(3)).toMatchObject({ buttonHeld: true, fromStick: true, stickJustPressed: false });
+    keyboard.release(KEY_CODE.V);
+    resolver.update(4);
+    expect(resolver.getSmash(3)).toMatchObject({
+      held: true, justReleased: false, buttonHeld: false, fromStick: true, stickJustPressed: false,
+    });
+  });
+
+  it('reset() clears the smash state so the next press is a fresh edge', () => {
+    const { resolver, keyboard } = buildSmashHarness();
+    resolver.update(0);
+    keyboard.press(KEY_CODE.V);
+    resolver.update(1);
+    resolver.reset();
+    expect(resolver.getSmash(1)).toBe(NEUTRAL_SMASH_STATE);
+    keyboard.release(KEY_CODE.V);
+    resolver.update(2);
+    keyboard.press(KEY_CODE.V);
+    resolver.update(3);
+    expect(resolver.getSmash(1).justPressed).toBe(true);
+  });
+});
+
+describe('buildCharacterInputFromResolver — smash', () => {
+  it('a held smash key sends attackHeavy on every held frame (it charges) with no stick direction', () => {
+    const { resolver, keyboard } = buildSmashHarness();
+    resolver.update(0);
+    expect(buildCharacterInputFromResolver(resolver, 1).attackHeavy).toBe(false);
+    keyboard.press(KEY_CODE.V);
+    for (let frame = 1; frame <= 4; frame += 1) {
+      resolver.update(frame);
+      const input = buildCharacterInputFromResolver(resolver, 1);
+      expect(input.attackHeavy).toBe(true);
+      expect(input.attackStickX).toBe(0);
+      expect(input.attackStickY).toBe(0);
+    }
+    keyboard.release(KEY_CODE.V);
+    resolver.update(5);
+    expect(buildCharacterInputFromResolver(resolver, 1).attackHeavy).toBe(false);
+  });
+
+  it('a stick smash is one press with its direction on the start frame only', () => {
+    const { resolver, pad } = buildSmashHarness();
+    resolver.update(0);
+    pad.setAxis(3, -1); // right stick up
+    resolver.update(1);
+    expect(buildCharacterInputFromResolver(resolver, 3)).toMatchObject({
+      attackHeavy: true, attackStickX: 0, attackStickY: -1,
+    });
+    for (let frame = 2; frame <= 4; frame += 1) {
+      resolver.update(frame);
+      expect(buildCharacterInputFromResolver(resolver, 3)).toMatchObject({
+        attackHeavy: false, attackStickX: 0, attackStickY: 0,
+      });
+    }
+    // Rotating the held stick does not re-trigger; returning to neutral re-arms.
+    pad.setAxis(3, 0);
+    pad.setAxis(2, 1);
+    resolver.update(5);
+    expect(buildCharacterInputFromResolver(resolver, 3).attackHeavy).toBe(false);
+    pad.setAxis(2, 0);
+    resolver.update(6);
+    pad.setAxis(2, 1);
+    resolver.update(7);
+    expect(buildCharacterInputFromResolver(resolver, 3)).toMatchObject({
+      attackHeavy: true, attackStickX: 1, attackStickY: 0,
+    });
+  });
+
+  it('the stick smash leaves moveX / moveY on the left stick', () => {
+    const { resolver, keyboard, pad } = buildSmashHarness();
+    resolver.update(0);
+    // Slot 3's default left stick (pad 0, axes 0/1) holds down-left while
+    // the right stick flicks up: the move vector must stay the left stick.
+    pad.setAxis(0, -0.7);
+    pad.setAxis(1, 0.9);
+    pad.setAxis(3, -1);
+    resolver.update(1);
+    const stick = buildCharacterInputFromResolver(resolver, 3);
+    expect(stick.moveX).toBeCloseTo(-0.7);
+    expect(stick.moveY).toBeCloseTo(0.9);
+    expect(stick).toMatchObject({ attackHeavy: true, attackStickX: 0, attackStickY: -1 });
+    // Keyboard: holding down (S) then the smash key keeps moveY = down
+    // and sends no stick direction — the fighter reads moveY for its aim.
+    keyboard.press(KEY_CODE.S);
+    resolver.update(2);
+    keyboard.press(KEY_CODE.V);
+    resolver.update(3);
+    const key = buildCharacterInputFromResolver(resolver, 1);
+    expect(key.moveY).toBe(1);
+    expect(key).toMatchObject({ attackHeavy: true, attackStickX: 0, attackStickY: 0 });
+  });
+});
+
+describe('buildCharacterInputFromResolver — smash key and smash stick held together', () => {
+  function bothSources() {
+    const h = buildSmashHarness();
+    h.store.setAction(3, 'smash', [{ kind: 'keyboard', keyCode: KEY_CODE.V }, ...RIGHT_STICK_SMASH]);
+    h.resolver.update(0);
+    return h;
+  }
+  const heavyOf = (h: ReturnType<typeof bothSources>) =>
+    buildCharacterInputFromResolver(h.resolver, 3).attackHeavy === true;
+
+  it('a stick push while the smash key charges neither releases the charge nor re-presses on return', () => {
+    const h = bothSources();
+    const trace: boolean[] = [];
+    h.keyboard.press(KEY_CODE.V);
+    h.resolver.update(1); trace.push(heavyOf(h)); // key down: press
+    h.pad.setAxis(2, 1);
+    h.resolver.update(2); trace.push(heavyOf(h)); // stick pushed while the key is held
+    h.resolver.update(3); trace.push(heavyOf(h)); // both held
+    h.pad.setAxis(2, 0);
+    h.resolver.update(4); trace.push(heavyOf(h)); // stick back to neutral, key still held
+    h.resolver.update(5); trace.push(heavyOf(h));
+    h.keyboard.release(KEY_CODE.V);
+    h.resolver.update(6); trace.push(heavyOf(h)); // key up: the charge releases here, once
+    // One continuous hold: no false frame (early release), no false → true (phantom press).
+    expect(trace).toEqual([true, true, true, true, true, false]);
+  });
+
+  it('a key press while the stick is held is a fresh press after the stick\'s one-frame press', () => {
+    const h = bothSources();
+    const trace: boolean[] = [];
+    h.pad.setAxis(3, -1);
+    h.resolver.update(1); trace.push(heavyOf(h)); // stick press (one frame)
+    h.resolver.update(2); trace.push(heavyOf(h)); // stick held: released
+    h.keyboard.press(KEY_CODE.V);
+    h.resolver.update(3); trace.push(heavyOf(h)); // key: a new press, held
+    h.pad.setAxis(3, 0);
+    h.resolver.update(4); trace.push(heavyOf(h)); // stick returns: the key keeps it held
+    expect(trace).toEqual([true, false, true, true]);
+    // Only the stick's own start frame carries a direction.
+    expect(buildCharacterInputFromResolver(h.resolver, 3)).toMatchObject({ attackStickX: 0, attackStickY: 0 });
+  });
+});
+
+describe('InputResolver — dodge vs. smash (keyboard P1 defaults: H shield, R dodge, V smash)', () => {
+  function keyboardP1() {
+    const keyboard = createMockKeyboard();
+    const pad = createStickPad();
+    const store = new InputBindingsStore();
+    const dispatcher = new DeviceInputDispatcher({ keyboard, gamepad: pad, bindings: store });
+    const resolver = new InputResolver({ dispatcher, slots: [1] });
+    resolver.update(0);
+    return { keyboard, resolver };
+  }
+
+  it('dodge + smash on the same frame is not a dodge', () => {
+    const { keyboard, resolver } = keyboardP1();
+    keyboard.press(KEY_CODE.R, KEY_CODE.V);
+    resolver.update(1);
+    const input = buildCharacterInputFromResolver(resolver, 1);
+    expect(input.dodge).toBe(false);
+    expect(input.attackHeavy).toBe(true);
+  });
+
+  it('shield + W + V on the same frame reports no dodge; the smash key held afterwards does not block the chord', () => {
+    const { keyboard, resolver } = keyboardP1();
+    keyboard.press(KEY_CODE.H);
+    resolver.update(1);
+    keyboard.press(KEY_CODE.W, KEY_CODE.V);
+    resolver.update(2);
+    const press = buildCharacterInputFromResolver(resolver, 1);
+    expect(press).toMatchObject({ shield: true, moveY: -1, jump: true, attackHeavy: true, dodge: false });
+    // Only the press frame is special: a smash held from before is not a new press.
+    resolver.update(3);
+    expect(buildCharacterInputFromResolver(resolver, 1).dodge).toBe(true);
+  });
+});
+
+describe('InputResolver — dodge vs. the smash stick (default pad: B dodge, R1 shield, right stick smash)', () => {
+  /** Slot 3 on its default bindings, pad 0 connected with settable buttons and axes. */
+  function padP3() {
+    const NEUTRAL: GamepadButtonState = Object.freeze({ pressed: false, value: 0 });
+    const PRESSED: GamepadButtonState = Object.freeze({ pressed: true, value: 1 });
+    const buttons = new Set<number>();
+    const axes = new Map<number, number>();
+    const gamepad: GamepadSource = {
+      isConnected: (index: number) => index === 0,
+      getButton: (index: number, button: number) => (index === 0 && buttons.has(button) ? PRESSED : NEUTRAL),
+      getAxis: (index: number, axis: number) => (index === 0 ? axes.get(axis) ?? 0 : 0),
+    };
+    const dispatcher = new DeviceInputDispatcher({
+      keyboard: createMockKeyboard(), gamepad, bindings: new InputBindingsStore(),
+    });
+    const resolver = new InputResolver({ dispatcher, slots: [3] });
+    let frame = 0;
+    /** One update with exactly these buttons held and axes deflected. */
+    const step = (held: number[] = [], stick: Record<number, number> = {}) => {
+      buttons.clear();
+      axes.clear();
+      for (const b of held) buttons.add(b);
+      for (const [a, v] of Object.entries(stick)) axes.set(Number(a), v);
+      resolver.update(frame);
+      frame += 1;
+      return buildCharacterInputFromResolver(resolver, 3);
+    };
+    step();
+    return { step };
+  }
+  const DODGE = 1;
+  const SHIELD = 5;
+
+  it('a right stick left deflected does not block the dodge button', () => {
+    const { step } = padP3();
+    expect(step([], { 2: 1 })).toMatchObject({ attackHeavy: true, dodge: false }); // the stick's press
+    step([], { 2: 1 });
+    expect(step([DODGE], { 2: 1 })).toMatchObject({ attackHeavy: false, dodge: true });
+  });
+
+  it('the dodge button on the frame the stick smashes is the smash, not a dodge', () => {
+    const { step } = padP3();
+    expect(step([DODGE], { 3: -1 })).toMatchObject({ attackHeavy: true, attackStickY: -1, dodge: false });
+  });
+
+  it('shield + left stick up + right stick forward is still a dodge (the smash is not aimed up)', () => {
+    const { step } = padP3();
+    for (let i = 0; i < 3; i += 1) step([SHIELD]);
+    expect(step([SHIELD], { 1: -1, 2: 1 })).toMatchObject({ shield: true, attackHeavy: true, attackStickX: 1, dodge: true });
+  });
+
+  it('shield + left stick up + right stick up is the out-of-shield up smash, not a dodge', () => {
+    const { step } = padP3();
+    for (let i = 0; i < 3; i += 1) step([SHIELD]);
+    expect(step([SHIELD], { 1: -1, 3: -1 })).toMatchObject({ shield: true, attackHeavy: true, attackStickY: -1, dodge: false });
+  });
+
+  it('shield + left stick up with the right stick already held is an up dodge', () => {
+    const { step } = padP3();
+    step([SHIELD], { 3: -1 });
+    step([SHIELD], { 3: -1 });
+    expect(step([SHIELD], { 1: -1, 3: -1 })).toMatchObject({ attackHeavy: false, dodge: true });
+  });
+});
+
+describe('InputResolver — shield already up, then W + V (keyboard P1)', () => {
+  it('reports no dodge on the press frame: the out-of-shield up smash', () => {
+    const keyboard = createMockKeyboard();
+    const dispatcher = new DeviceInputDispatcher({
+      keyboard, gamepad: createIdleGamepad(), bindings: new InputBindingsStore(),
+    });
+    const resolver = new InputResolver({ dispatcher, slots: [1] });
+    resolver.update(0);
+    keyboard.press(KEY_CODE.H);
+    for (let frame = 1; frame <= 4; frame += 1) resolver.update(frame);
+    keyboard.press(KEY_CODE.W, KEY_CODE.V);
+    resolver.update(5);
+    expect(buildCharacterInputFromResolver(resolver, 1)).toMatchObject({
+      shield: true, moveY: -1, attackHeavy: true, attackStickX: 0, attackStickY: 0, dodge: false,
+    });
+  });
+});
+
+describe('buildCharacterInputFromResolver — smash on an axis off the named sticks', () => {
+  it('a trigger-style axis charges like a held button and aims with the left stick', () => {
+    const { resolver, pad, store } = buildSmashHarness();
+    store.setAction(3, 'smash', [
+      { kind: 'gamepad', gamepadIndex: 0, source: { type: 'axis', axisIndex: 5, direction: 1, threshold: 0.5 } },
+    ]);
+    resolver.update(0);
+    pad.setAxis(4, -1); // the would-be "pair" axis must not be read as a direction
+    pad.setAxis(5, 1);
+    pad.setAxis(1, -1); // left stick up
+    for (let frame = 1; frame <= 4; frame += 1) {
+      resolver.update(frame);
+      expect(buildCharacterInputFromResolver(resolver, 3)).toMatchObject({
+        attackHeavy: true, attackStickX: 0, attackStickY: 0, moveY: -1,
+      });
+    }
+    pad.setAxis(5, 0);
+    resolver.update(5);
+    expect(buildCharacterInputFromResolver(resolver, 3).attackHeavy).toBe(false);
   });
 });

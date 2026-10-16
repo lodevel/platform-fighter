@@ -509,8 +509,8 @@ export class HardTierAI extends AIInputProvider {
         // the recovery blackboard's lastAirJumpTick latch indicates
         // otherwise. This mirrors how the original recovery
         // controller layer was expected to populate the field.
-        jumpsRemaining: this.deriveJumpsRemaining(),
-        upSpecialAvailable: this.deriveUpSpecialAvailable(),
+        jumpsRemaining: snapshot.self.jumpsRemaining ?? this.deriveJumpsRemaining(),
+        upSpecialAvailable: snapshot.self.upSpecialAvailable ?? this.deriveUpSpecialAvailable(),
         isInHitstun: snapshot.self.isInHitstun,
         isOnLedge: snapshot.self.isOnLedge,
       },
@@ -519,7 +519,7 @@ export class HardTierAI extends AIInputProvider {
         stageRight: stage.stageRight,
         stageTop: stage.stageTop,
         blastZone: stage.blastZone,
-        nearestLedge: deriveNearestLedge(
+        nearestLedge: stage.nearestLedge !== undefined ? stage.nearestLedge : deriveNearestLedge(
           snapshot.self.position.x,
           stage.stageLeft,
           stage.stageRight,
@@ -657,10 +657,8 @@ export function translateRecoveryEmit(
     case 'jump':
       return { kind: 'jump' };
     case 'upSpecial':
-      // Up-special routes through the `special` press of the input
-      // verb table; the engine's input dispatcher fires the registered
-      // up-special move when the press lands while airborne.
-      return { kind: 'special' };
+      // Preserve upward aim as well as the dedicated special press.
+      return { kind: 'upSpecial' };
     case 'airDodge':
       return { kind: 'dodge' };
   }

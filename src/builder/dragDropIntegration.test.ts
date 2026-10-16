@@ -11,7 +11,7 @@ import {
 } from './catalogPieces';
 import { DEFAULT_GRID_SPEC } from './builderGrid';
 import { StageDataModel, STAGE_PIECE_LIMIT } from './stageDataModel';
-import type { CatalogRowHitRect } from './CatalogPanel';
+import type { CatalogRowHitRect } from './catalogPieces';
 import type { RegisteredPiece } from './stageDataModel';
 
 /**

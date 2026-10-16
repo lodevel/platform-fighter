@@ -1,0 +1,139 @@
+{
+  "profileKey": "pikachu-ordinary-captured-target-v1",
+  "revision": "b1dd4021d9f2d2e39663ea93c5b3a05bef4f53ff9c5a157dcce1d1026bc5f638",
+  "anchors": [
+    {
+      "poseKey": "captured",
+      "context": "ordinary-held",
+      "profileKey": "pikachu-ordinary-captured-target-v1",
+      "dimensions": {
+        "width": 40,
+        "height": 50
+      },
+      "artFrameIndex": 0,
+      "nativeSample": null,
+      "point": {
+        "x": 22.633333333333333,
+        "y": 0.966666666666665
+      },
+      "provenance": "authored-reviewed-target"
+    },
+    {
+      "poseKey": "captured",
+      "context": "ordinary-held",
+      "profileKey": "pikachu-ordinary-captured-target-v1",
+      "dimensions": {
+        "width": 40,
+        "height": 50
+      },
+      "artFrameIndex": 1,
+      "nativeSample": null,
+      "point": {
+        "x": 13.3,
+        "y": -2.3000000000000007
+      },
+      "provenance": "authored-reviewed-target"
+    },
+    {
+      "poseKey": "captured",
+      "context": "ordinary-held",
+      "profileKey": "pikachu-ordinary-captured-target-v1",
+      "dimensions": {
+        "width": 40,
+        "height": 50
+      },
+      "artFrameIndex": 2,
+      "nativeSample": null,
+      "point": {
+        "x": 17.033333333333335,
+        "y": 1.4333333333333336
+      },
+      "provenance": "authored-reviewed-target"
+    },
+    {
+      "poseKey": "captured",
+      "context": "ordinary-held",
+      "profileKey": "pikachu-ordinary-captured-target-v1",
+      "dimensions": {
+        "width": 40,
+        "height": 50
+      },
+      "artFrameIndex": 3,
+      "nativeSample": null,
+      "point": {
+        "x": 16.1,
+        "y": 1.4333333333333336
+      },
+      "provenance": "authored-reviewed-target"
+    },
+    {
+      "poseKey": "captured_hit",
+      "context": "ordinary-damage",
+      "profileKey": "pikachu-ordinary-captured-target-v1",
+      "dimensions": {
+        "width": 40,
+        "height": 50
+      },
+      "artFrameIndex": 0,
+      "nativeSample": null,
+      "point": {
+        "x": 21.7,
+        "y": 0.03333333333333144
+      },
+      "provenance": "authored-reviewed-target"
+    },
+    {
+      "poseKey": "captured_hit",
+      "context": "ordinary-damage",
+      "profileKey": "pikachu-ordinary-captured-target-v1",
+      "dimensions": {
+        "width": 40,
+        "height": 50
+      },
+      "artFrameIndex": 1,
+      "nativeSample": null,
+      "point": {
+        "x": 13.766666666666667,
+        "y": 1.4333333333333336
+      },
+      "provenance": "authored-reviewed-target"
+    },
+    {
+      "poseKey": "captured_hit",
+      "context": "ordinary-damage",
+      "profileKey": "pikachu-ordinary-captured-target-v1",
+      "dimensions": {
+        "width": 40,
+        "height": 50
+      },
+      "artFrameIndex": 2,
+      "nativeSample": null,
+      "point": {
+        "x": 14.233333333333334,
+        "y": 0.03333333333333144
+      },
+      "provenance": "authored-reviewed-target"
+    },
+    {
+      "poseKey": "captured_hit",
+      "context": "ordinary-damage",
+      "profileKey": "pikachu-ordinary-captured-target-v1",
+      "dimensions": {
+        "width": 40,
+        "height": 50
+      },
+      "artFrameIndex": 3,
+      "nativeSample": null,
+      "point": {
+        "x": 25.433333333333334,
+        "y": -0.9000000000000021
+      },
+      "provenance": "authored-reviewed-target"
+    }
+  ],
+  "supportingFloor": {
+    "reviewKey": "05de170b8d91588c4b0be340ae3a226471ef2fc179890294fa7d7cad7ad7be76",
+    "recipientReviewedBottom": 35.733333333333334,
+    "clearance": 0.55
+  }
+}

@@ -337,7 +337,7 @@ describe('Bindings persistence integration — save-on-change durability', () =>
     const storage = new PersistentBrowserStorage();
     const { lifecycle } = openSession(storage);
 
-    lifecycle.setAction(2, 'attack', [kbBinding(KEY_CODE.NUMPAD_0)]);
+    lifecycle.setAction(2, 'attack', [kbBinding(KEY_CODE.NUMPAD_7)]);
     // ↑ Imagine the user's tab process is force-killed *here*, before
     //   any further JS runs.  The persisted bytes are the durable state
     //   the next session will read.
@@ -345,7 +345,7 @@ describe('Bindings persistence integration — save-on-change durability', () =>
     const reopened = reopenSession({ storage, lifecycle, events: [] });
     expect(reopened.lifecycle.getState().hydrateSource).toBe('storage');
     expect(reopened.lifecycle.getAction(2, 'attack')).toEqual([
-      kbBinding(KEY_CODE.NUMPAD_0),
+      kbBinding(KEY_CODE.NUMPAD_7),
     ]);
   });
 
@@ -1208,7 +1208,7 @@ describe('Bindings persistence integration — M5 end-to-end walkthrough', () =>
 
     // Step 2: each of 4 players rebinds at least one action.
     session1.lifecycle.setAction(1, 'jump', [kbBinding(KEY_CODE.SPACE)]);
-    session1.lifecycle.setAction(2, 'attack', [kbBinding(KEY_CODE.NUMPAD_0)]);
+    session1.lifecycle.setAction(2, 'attack', [kbBinding(KEY_CODE.NUMPAD_7)]);
     session1.lifecycle.setAction(3, 'special', [gpButtonBinding(0, 3)]);
     session1.lifecycle.setAction(4, 'shield', [gpButtonBinding(1, 5)]);
 
@@ -1223,7 +1223,7 @@ describe('Bindings persistence integration — M5 end-to-end walkthrough', () =>
     // defaults, the lifecycle reports it loaded from storage.
     expect(session2.lifecycle.getState().hydrateSource).toBe('storage');
     expect(session2.lifecycle.getAction(1, 'jump')).toEqual([kbBinding(KEY_CODE.SPACE)]);
-    expect(session2.lifecycle.getAction(2, 'attack')).toEqual([kbBinding(KEY_CODE.NUMPAD_0)]);
+    expect(session2.lifecycle.getAction(2, 'attack')).toEqual([kbBinding(KEY_CODE.NUMPAD_7)]);
     expect(session2.lifecycle.getAction(3, 'special')).toEqual([gpButtonBinding(0, 3)]);
     expect(session2.lifecycle.getBindings(4)).toEqual(DEFAULT_PLAYER_BINDINGS[4]);
 
@@ -1233,7 +1233,7 @@ describe('Bindings persistence integration — M5 end-to-end walkthrough', () =>
     // depends on.
     const session3 = reopenSession(session2);
     expect(session3.lifecycle.getAction(1, 'jump')).toEqual([kbBinding(KEY_CODE.SPACE)]);
-    expect(session3.lifecycle.getAction(2, 'attack')).toEqual([kbBinding(KEY_CODE.NUMPAD_0)]);
+    expect(session3.lifecycle.getAction(2, 'attack')).toEqual([kbBinding(KEY_CODE.NUMPAD_7)]);
     expect(session3.lifecycle.getAction(3, 'special')).toEqual([gpButtonBinding(0, 3)]);
     expect(session3.lifecycle.getBindings(4)).toEqual(DEFAULT_PLAYER_BINDINGS[4]);
 

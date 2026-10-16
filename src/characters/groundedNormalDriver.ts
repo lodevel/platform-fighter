@@ -1,3 +1,4 @@
+import { PIKACHU_JAB, PIKACHU_TILT, PIKACHU_SMASH } from './Pikachu';
 /**
  * Grounded-normal animation + hitbox driver — AC 60102 Sub-AC 2.
  *
@@ -94,6 +95,7 @@ import {
   HITBOX_LABEL,
   HITBOX_COLLISION_FILTER,
   computeHitboxCenter as computeHitboxCenterRaw,
+  attackSensorGeometry,
 } from './attacks';
 import {
   type AttackMoveWithAnimation,
@@ -111,19 +113,9 @@ import {
   getIdleAnimationKey,
   getMovePartId,
   resolveAttackAnimation,
+  ANIMATED_MOVESET_IDS,
 } from './animationState';
-import { WOLF_JAB, WOLF_TILT, WOLF_SMASH } from './Wolf';
-import { CAT_JAB, CAT_TILT, CAT_SMASH } from './Cat';
-import { OWL_JAB, OWL_TILT, OWL_SMASH } from './Owl';
-import { BEAR_JAB, BEAR_TILT, BEAR_SMASH } from './Bear';
-import { BLAZE_JAB, BLAZE_TILT, BLAZE_SMASH } from './Blaze';
-import { PUFF_JAB, PUFF_TILT, PUFF_SMASH } from './Puff';
-import { AEGIS_JAB, AEGIS_TILT, AEGIS_SMASH } from './Aegis';
-import { VOLT_JAB, VOLT_TILT, VOLT_SMASH } from './Volt';
-import { NOVA_JAB, NOVA_TILT, NOVA_SMASH } from './Nova';
-import { BRUNO_JAB, BRUNO_TILT, BRUNO_SMASH } from './Bruno';
 import { LINK_JAB, LINK_TILT, LINK_SMASH } from './Link';
-import { KIRBY_JAB, KIRBY_TILT, KIRBY_SMASH } from './Kirby';
 import { DONKEYKONG_JAB, DONKEYKONG_TILT, DONKEYKONG_SMASH } from './DonkeyKong';
 
 // ---------------------------------------------------------------------------
@@ -206,7 +198,7 @@ export interface GroundedNormalHitboxSnapshot {
   readonly width: number;
   /** Sensor height in design pixels — copied from the move-table entry. */
   readonly height: number;
-  /** Move-id from the underlying `AttackMove` (e.g. `'wolf.jab'`). */
+  /** Move-id from the underlying `AttackMove` (e.g. `'donkeykong.jab'`). */
   readonly moveId: string;
   /** Damage value carried into the sensor's plugin payload on spawn. */
   readonly damage: number;
@@ -258,46 +250,32 @@ export interface GroundedNormalHitboxLifecycle {
  *
  * Iteration order is the canonical dispatch order:
  *
- *   wolf.jab → wolf.tilt → wolf.smash
- *   cat.jab  → cat.tilt  → cat.smash
- *   owl.jab  → owl.tilt  → owl.smash
- *   bear.jab → bear.tilt → bear.smash
+ *   donkeykong.jab → donkeykong.tilt → donkeykong.smash
  *
  * Tests iterate this directly to assert the contract holds across the
- * whole roster. AI scripts that need "every grounded-normal Wolf can
- * throw" iterate `GROUNDED_NORMAL_TABLE.wolf`. The (later AC) move-
+ * whole roster. AI scripts that need "every grounded-normal DK can
+ * throw" iterate `GROUNDED_NORMAL_TABLE.donkeykong`. The (later AC) move-
  * editor tool reads the same table to populate its character/slot
  * picker.
  */
 export const GROUNDED_NORMAL_TABLE: Readonly<
   Record<CharacterId, Readonly<Record<GroundedNormalSlot, AttackMoveWithAnimation>>>
 > = Object.freeze({
-  wolf: Object.freeze({ jab: WOLF_JAB, tilt: WOLF_TILT, smash: WOLF_SMASH }),
-  cat: Object.freeze({ jab: CAT_JAB, tilt: CAT_TILT, smash: CAT_SMASH }),
-  owl: Object.freeze({ jab: OWL_JAB, tilt: OWL_TILT, smash: OWL_SMASH }),
-  bear: Object.freeze({ jab: BEAR_JAB, tilt: BEAR_TILT, smash: BEAR_SMASH }),
-  blaze: Object.freeze({ jab: BLAZE_JAB, tilt: BLAZE_TILT, smash: BLAZE_SMASH }),
-  puff: Object.freeze({ jab: PUFF_JAB, tilt: PUFF_TILT, smash: PUFF_SMASH }),
-  aegis: Object.freeze({ jab: AEGIS_JAB, tilt: AEGIS_TILT, smash: AEGIS_SMASH }),
-  volt: Object.freeze({ jab: VOLT_JAB, tilt: VOLT_TILT, smash: VOLT_SMASH }),
-  nova: Object.freeze({ jab: NOVA_JAB, tilt: NOVA_TILT, smash: NOVA_SMASH }),
-  bruno: Object.freeze({ jab: BRUNO_JAB, tilt: BRUNO_TILT, smash: BRUNO_SMASH }),
   link: Object.freeze({ jab: LINK_JAB, tilt: LINK_TILT, smash: LINK_SMASH }),
-  kirby: Object.freeze({ jab: KIRBY_JAB, tilt: KIRBY_TILT, smash: KIRBY_SMASH }),
   donkeykong: Object.freeze({ jab: DONKEYKONG_JAB, tilt: DONKEYKONG_TILT, smash: DONKEYKONG_SMASH }),
+  pikachu: Object.freeze({ jab: PIKACHU_JAB, tilt: PIKACHU_TILT, smash: PIKACHU_SMASH }),
 });
 
 /**
- * Flat array of every grounded-normal entry across the roster — 21
- * entries (7 characters × 3 slots). Convenience for tests / debug HUDs
- * that want a single iterable rather than nested-object traversal.
- *
- * Iteration order: roster-order on the outer axis (wolf → cat → owl →
- * bear → blaze → puff → aegis), slot-order on the inner
- * ({@link GROUNDED_NORMAL_SLOTS}). Pure data — frozen at module load.
+ * Flat array of every grounded-normal entry for
+ * {@link ANIMATED_MOVESET_IDS} (3 slots each). Convenience for tests /
+ * debug HUDs that want a single iterable rather than nested-object
+ * traversal. Iteration order: roster on the outer axis, slot-order on
+ * the inner ({@link GROUNDED_NORMAL_SLOTS}). Pure data — frozen at
+ * module load.
  */
 export const GROUNDED_NORMAL_MOVES: ReadonlyArray<GroundedNormalEntry> = Object.freeze(
-  (['wolf', 'cat', 'owl', 'bear', 'blaze', 'puff', 'aegis', 'volt', 'nova', 'bruno', 'link', 'kirby', 'donkeykong'] as const).flatMap((characterId) =>
+  ANIMATED_MOVESET_IDS.flatMap((characterId) =>
     GROUNDED_NORMAL_SLOTS.map((slot) =>
       Object.freeze({
         characterId,
@@ -332,7 +310,7 @@ export function getGroundedNormal(
  * integer frame counters. Pure projection of the move's
  * (startup, active, recovery) — no scene state required.
  *
- *   describeHitboxLifecycle(WOLF_JAB) →
+ *   describeHitboxLifecycle(DONKEYKONG_JAB) →
  *     { firstActiveFrame: 4,
  *       lastActiveFrame: 6,
  *       firstRecoveryFrame: 7,
@@ -355,13 +333,14 @@ export function describeHitboxLifecycle(
   const lastActiveFrame = move.startupFrames + move.activeFrames - 1;
   const firstRecoveryFrame = move.startupFrames + move.activeFrames;
   const endFrame = getMoveBusyFrames(move);
+  const geometry = attackSensorGeometry(move);
   return {
     firstActiveFrame,
     lastActiveFrame,
     firstRecoveryFrame,
     endFrame,
-    width: move.hitbox.width,
-    height: move.hitbox.height,
+    width: geometry.width,
+    height: geometry.height,
   };
 }
 
@@ -411,13 +390,14 @@ export function describeHitboxAtFrame(
 ): GroundedNormalHitboxSnapshot {
   const phase = computeAttackPhase(framesElapsed, move);
   const center = computeHitboxCenterRaw(attackerPosition, move, facing);
+  const geometry = attackSensorGeometry(move);
   return {
     live: phase === 'active',
     phase,
     centerX: center.x,
     centerY: center.y,
-    width: move.hitbox.width,
-    height: move.hitbox.height,
+    width: geometry.width,
+    height: geometry.height,
     moveId: move.id,
     damage: move.damage,
   };

@@ -239,6 +239,14 @@ describe('RuntimeInputPipeline — slot assignments configure the bindings store
 // ---------------------------------------------------------------------------
 
 describe('RuntimeInputPipeline — per-slot device routing', () => {
+  it('routes the legacy taunt slot as the dedicated direct-dodge action', () => {
+    const fx = buildFourPlayerFixture();
+    fx.keyboard.press(KEY_CODE.R);
+    fx.pipeline.update(0);
+    expect(fx.pipeline.getCharacterInput(1)?.dodge).toBe(true);
+    expect(fx.pipeline.getCharacterInput(1)?.shield).toBe(false);
+  });
+
   it('keyboard P1 jump fires for slot 1 only — slots 2/3/4 stay neutral', () => {
     const fx = buildFourPlayerFixture();
     fx.keyboard.press(KEY_CODE.W); // P1 jump

@@ -50,13 +50,24 @@ const BLAST_ZONE_OUTSET = {
  * Default flat-stage authoring constants. Each one maps to a knob on
  * `createFlatStage` so a stage builder, test, or replay tool can vary
  * the ground dimensions without redefining every other piece of the
- * layout. The defaults reproduce the canonical "flat" stage exactly.
+ * layout. Fighter physics retain 5 px per Ultimate unit. The default
+ * floor is widened to 1180 px for more room with our authored fighter art;
+ * side platforms are spread 100 px outward. This is a gameplay calibration,
+ * not exact Battlefield geometry.
+ * Surface coordinates and blast distances come from the extracted
+ * Battlefield LVD in rubendal/SSBU-Calculator, revision
+ * 233590e94bc4bd8813f2d1a2af45c8c46648f351, Data/Stages/ssbustagedata.json.
+ * https://github.com/rubendal/SSBU-Calculator/blob/233590e94bc4bd8813f2d1a2af45c8c46648f351/Data/Stages/ssbustagedata.json
+ * The extracted Battlefield floor is about 800 px at this conversion.
+ * Its vertical platform heights and blast margins remain reference-derived;
+ * floor width, horizontal spacing, rectangular depth and platform thickness
+ * are project choices.
  */
 export const FLAT_STAGE_DEFAULTS = {
   /** Stage id for the default flat stage. */
   id: 'flat',
   /** Width of the solid ground platform (design pixels). */
-  groundWidth: 1600,
+  groundWidth: 1180,
   /** Thickness of the ground platform (design pixels). */
   groundHeight: 80,
   /**
@@ -70,17 +81,17 @@ export const FLAT_STAGE_DEFAULTS = {
    * centres. Authored as an inset from the bottom so the side platforms
    * stay a fixed distance above the ground when the viewport scales.
    */
-  sidePlatformBottomInset: 360,
+  sidePlatformBottomInset: 258.595,
   /** Vertical inset for the centre top platform's centre. */
-  topPlatformBottomInset: 560,
+  topPlatformBottomInset: 373.945,
   /** Width of every pass-through floating platform. */
-  floatingPlatformWidth: 380,
+  floatingPlatformWidth: 173.165,
   /** Height of every pass-through floating platform. */
   floatingPlatformHeight: 24,
   /** Horizontal offset (design X) of the side platforms from the screen edge. */
-  sidePlatformXOffset: 540,
+  sidePlatformXOffset: 649.4725,
   /** Vertical inset for spawn points (the height fighters drop in from). */
-  spawnBottomInset: 320,
+  spawnBottomInset: 465.945,
   /**
    * How far above a platform's top edge an item-spawn anchor sits, in
    * design pixels. Items spawn a few frames above the surface so they
@@ -90,6 +101,16 @@ export const FLAT_STAGE_DEFAULTS = {
    * mid-air on the spawn frame.
    */
   itemAnchorHoverOffset: 60,
+} as const;
+
+/** Battlefield blast distances from its ground origin, converted at 5 px/u.
+ * Custom wider floors retain the native 160-unit distance from either ledge
+ * to the side blast zone. Other built-in stages keep their authored bounds. */
+const FLAT_STAGE_BLAST = {
+  halfWidth: 240 * 5,
+  offstageMargin: 160 * 5,
+  heightAboveGround: 192 * 5,
+  depthBelowGround: 140 * 5,
 } as const;
 
 export interface FlatStageOptions {
@@ -117,10 +138,10 @@ export interface FlatStageOptions {
  * sprite/graphics rendering inside a Phaser scene.
  *
  * Defaults reproduce the canonical flat stage exactly; override only
- * the knobs you care about. The blast zone is recomputed from the
- * effective design viewport so it always fully encloses the chosen
- * geometry. Spawn points are spread across the ground and sit
- * `spawnBottomInset` design pixels above the ground top.
+ * the knobs you care about. Floating-platform surfaces and blast zones
+ * follow the configured ground top. Custom wider or deeper ground expands
+ * the bounds to enclose its geometry. Spawn points are spread across the
+ * ground and drop in above the highest floating surface.
  */
 export function createFlatStage(options: FlatStageOptions = {}): StageLayout {
   const {
@@ -131,19 +152,42 @@ export function createFlatStage(options: FlatStageOptions = {}): StageLayout {
     omitFloatingPlatforms = false,
   } = options;
 
-  if (groundWidth <= 0 || groundHeight <= 0) {
+  if (
+    !Number.isFinite(groundWidth) ||
+    !Number.isFinite(groundHeight) ||
+    groundWidth <= 0 ||
+    groundHeight <= 0
+  ) {
     throw new Error(
       `createFlatStage: groundWidth/groundHeight must be > 0, ` +
         `got ${groundWidth}×${groundHeight}.`,
     );
   }
+  if (!Number.isFinite(groundBottomInset)) {
+    throw new Error('createFlatStage: groundBottomInset must be finite.');
+  }
 
+  const groundX = STAGE_DESIGN_WIDTH / 2;
   const groundY = STAGE_DESIGN_HEIGHT - groundBottomInset;
+  const groundTop = groundY - groundHeight / 2;
+  const defaultGroundTop =
+    STAGE_DESIGN_HEIGHT -
+    FLAT_STAGE_DEFAULTS.groundBottomInset -
+    FLAT_STAGE_DEFAULTS.groundHeight / 2;
+  const groundVerticalOffset = groundTop - defaultGroundTop;
+  const sideY =
+    STAGE_DESIGN_HEIGHT -
+    FLAT_STAGE_DEFAULTS.sidePlatformBottomInset +
+    groundVerticalOffset;
+  const topY =
+    STAGE_DESIGN_HEIGHT -
+    FLAT_STAGE_DEFAULTS.topPlatformBottomInset +
+    groundVerticalOffset;
 
   const platforms: StageLayout['platforms'] = [
     // Ground — solid, configurable dimensions, centred horizontally.
     {
-      x: STAGE_DESIGN_WIDTH / 2,
+      x: groundX,
       y: groundY,
       width: groundWidth,
       height: groundHeight,
@@ -155,9 +199,7 @@ export function createFlatStage(options: FlatStageOptions = {}): StageLayout {
           // Left floating platform (pass-through).
           {
             x: FLAT_STAGE_DEFAULTS.sidePlatformXOffset,
-            y:
-              STAGE_DESIGN_HEIGHT -
-              FLAT_STAGE_DEFAULTS.sidePlatformBottomInset,
+            y: sideY,
             width: FLAT_STAGE_DEFAULTS.floatingPlatformWidth,
             height: FLAT_STAGE_DEFAULTS.floatingPlatformHeight,
             passThrough: true,
@@ -165,19 +207,15 @@ export function createFlatStage(options: FlatStageOptions = {}): StageLayout {
           // Right floating platform (pass-through).
           {
             x: STAGE_DESIGN_WIDTH - FLAT_STAGE_DEFAULTS.sidePlatformXOffset,
-            y:
-              STAGE_DESIGN_HEIGHT -
-              FLAT_STAGE_DEFAULTS.sidePlatformBottomInset,
+            y: sideY,
             width: FLAT_STAGE_DEFAULTS.floatingPlatformWidth,
             height: FLAT_STAGE_DEFAULTS.floatingPlatformHeight,
             passThrough: true,
           },
           // Top centre floating platform (pass-through).
           {
-            x: STAGE_DESIGN_WIDTH / 2,
-            y:
-              STAGE_DESIGN_HEIGHT -
-              FLAT_STAGE_DEFAULTS.topPlatformBottomInset,
+            x: groundX,
+            y: topY,
             width: FLAT_STAGE_DEFAULTS.floatingPlatformWidth,
             height: FLAT_STAGE_DEFAULTS.floatingPlatformHeight,
             passThrough: true,
@@ -185,13 +223,12 @@ export function createFlatStage(options: FlatStageOptions = {}): StageLayout {
         ]),
   ];
 
-  const groundTop = groundY - groundHeight / 2;
-  // Spawn at a safe height above the ground top — the configured inset
-  // is measured from the bottom of the viewport (matching how the
-  // ground itself is authored) so the relative drop distance scales
-  // intuitively with `groundBottomInset`.
+  // Keep spawn height relative to the floor when its inset/depth changes.
+  // With platforms present the default is 80 px above the highest surface.
   const spawnY = Math.min(
-    STAGE_DESIGN_HEIGHT - FLAT_STAGE_DEFAULTS.spawnBottomInset,
+    STAGE_DESIGN_HEIGHT -
+      FLAT_STAGE_DEFAULTS.spawnBottomInset +
+      groundVerticalOffset,
     groundTop - 40,
   );
 
@@ -210,14 +247,10 @@ export function createFlatStage(options: FlatStageOptions = {}): StageLayout {
   const itemSpawnAnchors: ItemSpawnAnchor[] = [
     // Centre of the ground platform — the "default" anchor every match
     // sees. Stable id so the replay log can reference it across edits.
-    { id: 'flat-ground-centre', x: STAGE_DESIGN_WIDTH / 2, y: groundTop - hover },
+    { id: 'flat-ground-centre', x: groundX, y: groundTop - hover },
   ];
   if (!omitFloatingPlatforms) {
-    const sideY =
-      STAGE_DESIGN_HEIGHT - FLAT_STAGE_DEFAULTS.sidePlatformBottomInset;
     const sideTop = sideY - FLAT_STAGE_DEFAULTS.floatingPlatformHeight / 2;
-    const topY =
-      STAGE_DESIGN_HEIGHT - FLAT_STAGE_DEFAULTS.topPlatformBottomInset;
     const topTop = topY - FLAT_STAGE_DEFAULTS.floatingPlatformHeight / 2;
     itemSpawnAnchors.push(
       {
@@ -232,11 +265,15 @@ export function createFlatStage(options: FlatStageOptions = {}): StageLayout {
       },
       {
         id: 'flat-platform-top',
-        x: STAGE_DESIGN_WIDTH / 2,
+        x: groundX,
         y: topTop - hover,
       },
     );
   }
+  const blastHalfWidth = Math.max(
+    FLAT_STAGE_BLAST.halfWidth,
+    groundWidth / 2 + FLAT_STAGE_BLAST.offstageMargin,
+  );
 
   return {
     id,
@@ -246,16 +283,21 @@ export function createFlatStage(options: FlatStageOptions = {}): StageLayout {
     // flat clear colour. See `backgroundThemes.ts` for the registry.
     backgroundTheme: 'midnight',
     blastZone: {
-      left: -BLAST_ZONE_OUTSET.horizontal,
-      right: STAGE_DESIGN_WIDTH + BLAST_ZONE_OUTSET.horizontal,
-      top: -BLAST_ZONE_OUTSET.top,
-      bottom: STAGE_DESIGN_HEIGHT + BLAST_ZONE_OUTSET.bottom,
+      left: groundX - blastHalfWidth,
+      right: groundX + blastHalfWidth,
+      top: groundTop - FLAT_STAGE_BLAST.heightAboveGround,
+      bottom:
+        groundTop +
+        Math.max(
+          FLAT_STAGE_BLAST.depthBelowGround,
+          groundHeight + FLAT_STAGE_DEFAULTS.groundHeight,
+        ),
     },
     spawnPoints: [
-      { x: STAGE_DESIGN_WIDTH * 0.25, y: spawnY },
-      { x: STAGE_DESIGN_WIDTH * 0.4, y: spawnY },
-      { x: STAGE_DESIGN_WIDTH * 0.6, y: spawnY },
-      { x: STAGE_DESIGN_WIDTH * 0.75, y: spawnY },
+      { x: groundX - groundWidth * 0.25, y: spawnY },
+      { x: groundX - groundWidth * 0.1, y: spawnY },
+      { x: groundX + groundWidth * 0.1, y: spawnY },
+      { x: groundX + groundWidth * 0.25, y: spawnY },
     ],
     itemSpawnAnchors,
   };
@@ -1509,12 +1551,43 @@ export const MOVING_PLATFORM_STAGE: StageLayout = createMovingPlatformStage();
  *   - MOVING_PLATFORM_STAGE  — `'solid'` edges + `'moving'` carriers + a
  *                              `'pass-through'` safety platform.
  */
+// ---------------------------------------------------------------------------
+// The Inferno (user request 2026-10-13): Battlefield-style layout over a lava
+// sea; its only hazard is the giant head (`GazeHazard`, timing AUTHORED).
+// ---------------------------------------------------------------------------
+
+/**
+ * AUTHORED (user, 2026-10-13: the platforms felt low): the three floating
+ * platforms sit this many design px higher than the flat stage's. That also
+ * lifts the centre one, the head's mustache, so more of the face clears the lava.
+ */
+export const INFERNO_PLATFORM_RAISE = 90;
+
+function raiseFloatingPlatforms(layout: StageLayout, dy: number): StageLayout {
+  const raised = new Set(layout.platforms.filter((p) => p.passThrough).map((p) => `${p.x},${p.y - p.height / 2}`));
+  return {
+    ...layout,
+    platforms: layout.platforms.map((p) => (p.passThrough ? { ...p, y: p.y - dy } : p)),
+    // Item anchors that hover over a raised platform move with it.
+    itemSpawnAnchors: layout.itemSpawnAnchors?.map((a) =>
+      ([...raised].some((key) => { const [x, top] = key.split(',').map(Number); return a.x === x && a.y < top!; }) ? { ...a, y: a.y - dy } : a)),
+  };
+}
+
+export const INFERNO_STAGE: StageLayout = Object.freeze({
+  ...raiseFloatingPlatforms(createFlatStage({ id: 'inferno' }), INFERNO_PLATFORM_RAISE),
+  backgroundTheme: 'inferno',
+  // The head fills the screen: its flash reaches every fighter.
+  hazards: [{ type: 'gaze' as const, id: 'inferno-gaze', x: STAGE_DESIGN_WIDTH / 2, y: STAGE_DESIGN_HEIGHT / 2, width: STAGE_DESIGN_WIDTH, height: STAGE_DESIGN_HEIGHT }],
+});
+
 export const STAGES: Readonly<Record<string, StageLayout>> = Object.freeze({
   [FLAT_STAGE.id]: FLAT_STAGE,
   [LAVA_STAGE.id]: LAVA_STAGE,
   [WIND_STAGE.id]: WIND_STAGE,
   [CRUMBLING_STAGE.id]: CRUMBLING_STAGE,
   [MOVING_PLATFORM_STAGE.id]: MOVING_PLATFORM_STAGE,
+  [INFERNO_STAGE.id]: INFERNO_STAGE,
 });
 
 /** Look up a stage by id, throwing a clear error if it isn't registered. */

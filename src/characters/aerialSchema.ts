@@ -19,19 +19,16 @@
  *      heavy nair) carry larger landing-lag values; quick pokes (Cat's
  *      nair, Owl's forward-staff jab) carry smaller ones.
  *
- *      Reserved field — the runtime physics already supports the
- *      "interrupt recovery on landing" path through `Character.cancelAttack`,
- *      and a follow-up sub-AC will wire `landingLagFrames` into a
- *      `Character.lockoutFrames(...)` pass that drives the new lockout
- *      timer. Authoring this value today gives the (later AC) lockout
- *      handler a stable contract from day one.
+ *      Character resolves the landing before input arbitration. Touchdown
+ *      counts as the first locked step: a value of 6 blocks six steps and
+ *      permits a new action on the seventh. The move's ordinary cooldown
+ *      is replaced, rather than appended to this recovery.
  *
  *   2. **Auto-cancel windows** — frame ranges within a move during
  *      which a touchdown skips the landing-lag penalty entirely. The
- *      canonical "auto-cancel" rule: if your aerial finishes its
- *      hitbox cleanly and you land during a designated late window,
- *      you incur ZERO landing lag — the move blends into a clean
- *      landing animation.
+ *      helper returns the move-specific penalty only. This engine currently
+ *      applies no separate normal landing recovery; Ultimate's hard/soft
+ *      landing durations are a distinct mechanic, not included in this value.
  *
  *      Authored as `ReadonlyArray<AutoCancelWindow>`. Each window has a
  *      half-open `[startFrame, endFrame)` range over the move's
@@ -43,7 +40,7 @@
  *          frames don't punish a clean swing-and-land.
  *
  *      `isAutoCancelFrame(move, framesElapsed)` reads this as a pure
- *      predicate so the (later AC) lockout handler can branch on
+ *      predicate so the runtime landing handler can branch on
  *      "would landing right now skip the lag?" without reaching into
  *      the move's internals.
  *
@@ -86,9 +83,9 @@
  * Backwards compatibility: this module is purely additive. The existing
  * `AttackMove`, `AttackMoveWithAnimation`, the move data tables on
  * Wolf/Cat/Owl/Bear, and the runtime attack state machine all keep
- * working unchanged. The pre-existing `WOLF_NAIR` / `CAT_NAIR` records
+ * working unchanged. The pre-existing `DONKEYKONG_NAIR` / `PIKACHU_NAIR` records
  * (typed as plain `AttackMove`) remain in the moveset and the new
- * `AerialMove`-typed records (`WOLF_NAIR_AERIAL`, the fairs, the bairs,
+ * `AerialMove`-typed records (`DONKEYKONG_NAIR`, the fairs, the bairs,
  * the new Owl/Bear aerials) are appended as authored data ready for
  * the runtime wiring sub-AC. Mixing both shapes in a roster's
  * `moves` array stays type-safe because every `AerialMove` is also an
@@ -101,6 +98,21 @@ import type {
   AttackPhase,
 } from './moveSchema';
 import { computeAttackPhase, getMoveBusyFrames } from './moveSchema';
+
+/** Existing Wolf/Cat neutral aerials cancel on landing without authored lag.
+ * Preserve this shape when saving; adding landing/animation data would change
+ * the live move rather than merely serialize it. */
+export interface LegacyNeutralAerialMove extends AttackMove {
+  readonly type: 'aerial';
+  readonly animation?: never;
+  readonly aerialDirection?: never;
+  readonly geometryFacing?: never;
+  readonly landingLagFrames?: never;
+  readonly autoCancelWindows?: never;
+  readonly landingAttack?: never;
+  readonly rehitClockPolicy?: never;
+  readonly rebound?: never;
+}
 
 // ---------------------------------------------------------------------------
 // Auto-cancel phase tagging (AC 60204 Sub-AC 4)
@@ -129,9 +141,8 @@ import { computeAttackPhase, getMoveBusyFrames } from './moveSchema';
  * currently dealing. That's a degenerate balance footgun, so the
  * schema validator now rejects any window that overlaps `'active'`.
  *
- * The `'done'` phase is implicit — once a move's busy window is over
- * the fighter's already free, so "auto-cancel during done" is the
- * trivial truth `isAutoCancelFrame` already encodes (see line ~316).
+ * Recovery windows can begin after the commitment ends if the aerial
+ * animation retains a landing flag while permitting a new action.
  */
 export type AutoCancelPhase = 'startup' | 'recovery';
 
@@ -249,12 +260,16 @@ export interface AerialMove extends AttackMoveWithAnimation {
    * fighter's facing on spawn just like every other move.
    */
   readonly aerialDirection: AerialDirection;
+  /** Back-air geometry may already be drawn/projected behind a right-facing
+   * fighter. 'fighter' preserves that coordinate basis; omitted or
+   * 'attack-direction' reverses it for the existing forward-authored bairs.
+   * Input selection and the fighter's visible facing remain unchanged. */
+  readonly geometryFacing?: 'fighter' | 'attack-direction';
   /**
    * Frames of lockout applied if the fighter lands mid-move OUTSIDE
    * any auto-cancel window. While locked the fighter has no input
-   * authority — no movement, no jump, no attack press. The (later AC)
-   * lockout handler will translate this into a `Character.hitstun`-
-   * style lockout window when it lands a touchdown event.
+   * authority — no movement, jump, attack, grab, shield, or dodge. Touchdown
+   * is the first locked step; action resumes after exactly this many steps.
    *
    * Range guidance:
    *   • Light pokes (Cat fair/bair, Owl fair) — 4-8 frames (~67-133 ms).
@@ -264,6 +279,32 @@ export interface AerialMove extends AttackMoveWithAnimation {
    * "ninja punishes Bear's whiffed bair" matchup feels right.
    */
   readonly landingLagFrames: number;
+  /** Automatic grounded contact action on a real touchdown outside autocancel.
+   * Its zero-based gameplay timeline starts on that touchdown input step;
+   * total busy frames equal landingLagFrames and cooldown is zero. It is
+   * nested rather than registered as a manually selectable attack slot. */
+  readonly landingAttack?: AttackMoveWithAnimation;
+  /** Explicit authored timer policy, pending native hit-stop clock verification.
+   * Consumers must inject this actor's elapsed attack clock for positive regional
+   * rehit intervals; missing clock injection must fail closed. */
+  readonly rehitClockPolicy?: 'authored-attack-elapsed';
+  /** Optional upward rebound on contact, followed by a period without a hitbox. */
+  readonly rebound?: {
+    /** Positive upward launch speed in physical pixels per simulation step. */
+    readonly upwardSpeed: number;
+    /** Positive simulation-frame delay before the rebound hitbox returns. */
+    readonly rehitFrames: number;
+    /** Suppress the rebound when contact occurs during fast-fall. */
+    readonly disableOnFastFall?: boolean;
+    /** Optional replacement strike when the hitbox returns after a rebound. */
+    readonly returnHit?: {
+      readonly damage: number;
+      readonly knockback: AttackMove['knockback'];
+      readonly hitbox: AttackMove['hitbox'];
+      /** Launch side; 'position' launches away from the attacker (source LR check). */
+      readonly launchDirection?: 'forward' | 'back' | 'position';
+    };
+  };
   /**
    * Frame ranges over the move's gameplay-frame counter during which
    * landing skips the lag entirely. Empty array (or omitted) means
@@ -330,11 +371,10 @@ export function getKnockbackLaunchAngleDegrees(move: AttackMove): number {
  *   - Returns `false` if the move declares no auto-cancel windows
  *     (every landing triggers lag) or if `framesElapsed` falls
  *     outside every window.
- *   - Returns `true` once the move has fully ended (`framesElapsed >=
- *     busyTotal`) — once the move is done, the fighter's already
- *     landed cleanly and there's no lag to apply. This avoids the
- *     "what if landing happens *exactly* on the last recovery frame"
- *     edge case dictating gameplay.
+ *   - After the commitment ends, returns `true` unless an explicitly authored
+ *     late autocancel starts later. Some aerials become actionable before
+ *     their animation clears the landing flag (for example Ultimate Link fair).
+ *     The final committed recovery step remains `busyTotal - 1`.
  *
  * Note: this is a *predicate*, not a state machine. Callers (the
  * later-AC lockout handler) consult it on the touchdown frame and
@@ -345,11 +385,15 @@ export function isAutoCancelFrame(
   move: AerialMove,
   framesElapsed: number,
 ): boolean {
-  // Once the move is fully done, landing is always clean — no
-  // recovery left to interrupt.
-  const phase: AttackPhase = computeAttackPhase(framesElapsed, move);
-  if (phase === 'done') return true;
   const windows = move.autoCancelWindows;
+  const phase: AttackPhase = computeAttackPhase(framesElapsed, move);
+  if (phase === 'done') {
+    const landingFlagEnd = Math.max(
+      getMoveBusyFrames(move),
+      ...(windows?.map((window) => window.startFrame) ?? []),
+    );
+    return framesElapsed >= landingFlagEnd;
+  }
   if (!windows || windows.length === 0) return false;
   for (const w of windows) {
     if (framesElapsed >= w.startFrame && framesElapsed < w.endFrame) {
@@ -360,13 +404,13 @@ export function isAutoCancelFrame(
 }
 
 /**
- * Convenience helper that picks the right lockout value for a
+ * Convenience helper that picks the move-specific lockout value for a
  * touchdown event:
  *   - if landing on an auto-cancel frame: returns 0 (clean land).
  *   - otherwise: returns the move's `landingLagFrames`.
  *
- * The (later AC) `Character.onLand` path will read this and pass the
- * result through to its lockout timer.
+ * Character reads the last integrated aerial frame before advancing the move
+ * again, then establishes the result before any grounded input can start.
  */
 export function getLandingLagFrames(
   move: AerialMove,
@@ -476,11 +520,9 @@ export function getAutoCancelWindowsByPhase(move: AerialMove): {
  *      well-defined either way, but overlapping windows are an
  *      authoring smell — flag them so balance-pass tooling sees a
  *      single canonical range per "auto-cancelable region").
- *   5. Auto-cancel windows fit within the move's busy frames
- *      `[0, busyTotal]` — windows extending past the move's end
- *      are silently degenerate (no landing can happen during them
- *      because the move is done by then), and almost always indicate
- *      a typo or a stale record after a frame-data tweak.
+ *   5. Late windows may extend past the commitment's busy frames. They
+ *      preserve a remaining landing flag while an otherwise actionable aerial
+ *      animation continues; beginning a new action discards that old flag.
  *
  * Returns the move record unchanged on success; throws on the first
  * invariant violation. Tests call this on every per-character aerial
@@ -488,6 +530,8 @@ export function getAutoCancelWindowsByPhase(move: AerialMove): {
  * window.
  */
 export function validateAerialMove(move: AerialMove): AerialMove {
+  if (move.geometryFacing !== undefined && move.geometryFacing !== 'fighter' && move.geometryFacing !== 'attack-direction')
+    throw new Error(`AerialMove '${move.id}': geometryFacing must be fighter or attack-direction`);
   if (move.type !== 'aerial') {
     throw new Error(
       `AerialMove '${move.id}': type must be 'aerial', got '${move.type}'`,
@@ -497,6 +541,44 @@ export function validateAerialMove(move: AerialMove): AerialMove {
     throw new Error(
       `AerialMove '${move.id}': landingLagFrames must be a non-negative integer, got ${move.landingLagFrames}`,
     );
+  }
+  validateAerialLandingAttack(move);
+  if (move.rehitClockPolicy !== undefined && move.rehitClockPolicy !== 'authored-attack-elapsed')
+    throw new Error(`AerialMove '${move.id}': rehitClockPolicy must be authored-attack-elapsed`);
+  if (move.rebound !== undefined) {
+    const rebound = move.rebound;
+    if (rebound === null || typeof rebound !== 'object' || Array.isArray(rebound)) {
+      throw new Error(`AerialMove '${move.id}': rebound must be an object`);
+    }
+    if (!Number.isFinite(rebound.upwardSpeed) || rebound.upwardSpeed <= 0) {
+      throw new Error(`AerialMove '${move.id}': rebound.upwardSpeed must be a positive finite number`);
+    }
+    if (!Number.isInteger(rebound.rehitFrames) || rebound.rehitFrames <= 0) {
+      throw new Error(`AerialMove '${move.id}': rebound.rehitFrames must be a positive integer`);
+    }
+    if (rebound.disableOnFastFall !== undefined && typeof rebound.disableOnFastFall !== 'boolean') {
+      throw new Error(`AerialMove '${move.id}': rebound.disableOnFastFall must be a boolean`);
+    }
+    if (rebound.returnHit !== undefined) {
+      const hit = rebound.returnHit;
+      if (hit === null || typeof hit !== 'object' || Array.isArray(hit)) {
+        throw new Error(`AerialMove '${move.id}': rebound.returnHit must be an object`);
+      }
+      if (!Number.isFinite(hit.damage) || hit.damage < 0) {
+        throw new Error(`AerialMove '${move.id}': rebound.returnHit.damage must be a non-negative finite number`);
+      }
+      const kb = hit.knockback;
+      if (!kb || !Number.isFinite(kb.x) || !Number.isFinite(kb.y) || !Number.isFinite(kb.scaling)
+        || (kb.baseMagnitude !== undefined && (!Number.isFinite(kb.baseMagnitude) || kb.baseMagnitude < 0))
+        || (kb.damageGrowth !== undefined && (!Number.isFinite(kb.damageGrowth) || kb.damageGrowth < 0))) {
+        throw new Error(`AerialMove '${move.id}': rebound.returnHit.knockback must contain valid launch values`);
+      }
+      const box = hit.hitbox;
+      if (!box || !Number.isFinite(box.offsetX) || !Number.isFinite(box.offsetY)
+        || !Number.isFinite(box.width) || box.width <= 0 || !Number.isFinite(box.height) || box.height <= 0) {
+        throw new Error(`AerialMove '${move.id}': rebound.returnHit.hitbox must contain finite offsets and positive dimensions`);
+      }
+    }
   }
 
   const windows = move.autoCancelWindows;
@@ -508,11 +590,6 @@ export function validateAerialMove(move: AerialMove): AerialMove {
     // helper for the clearest error message).
     for (const w of windows) {
       validateAutoCancelWindow(w);
-      if (w.endFrame > busyTotal) {
-        throw new Error(
-          `AerialMove '${move.id}': auto-cancel window [${w.startFrame}, ${w.endFrame}) extends past busyTotal=${busyTotal}`,
-        );
-      }
       // AC 60204 Sub-AC 4 — every window must be a *designated*
       // startup or recovery range. A window that overlaps the
       // `active` phase or straddles a phase boundary is rejected:
@@ -541,6 +618,30 @@ export function validateAerialMove(move: AerialMove): AerialMove {
     }
   }
   return move;
+}
+
+/** The landing record shares the existing attack clock while landing recovery
+ * owns input commitment. Conditional charge/combo routes need their own state
+ * contract and cannot silently become a landing attack. */
+export function validateAerialLandingAttack(move: Pick<AerialMove, 'id' | 'landingLagFrames' | 'landingAttack'>): void {
+  const landing = move.landingAttack;
+  if (landing === undefined) return;
+  const label = `AerialMove '${move.id}': landingAttack`;
+  if (landing === null || typeof landing !== 'object' || Array.isArray(landing))
+    throw new Error(`${label} must be a grounded attack object`);
+  if (!['jab', 'tilt', 'smash'].includes(landing.type))
+    throw new Error(`${label}.type must be jab, tilt or smash`);
+  if (typeof landing.id !== 'string' || landing.id.length === 0)
+    throw new Error(`${label}.id must be a nonempty string`);
+  for (const field of ['startupFrames', 'activeFrames', 'recoveryFrames', 'cooldownFrames'] as const) {
+    if (!Number.isInteger(landing[field]) || landing[field] < 0)
+      throw new Error(`${label}.${field} must be a non-negative integer`);
+  }
+  if (landing.activeFrames === 0 || getMoveBusyFrames(landing) !== move.landingLagFrames || landing.cooldownFrames !== 0)
+    throw new Error(`${label} must have an active interval, total busy frames equal landingLagFrames, and cooldownFrames zero`);
+  for (const field of ['charge', 'jabChain', 'followUp', 'airborneVariant', 'fullChargeVariant', 'angledVariants'] as const) {
+    if (landing[field] !== undefined) throw new Error(`${label}.${field} requires an unsupported conditional landing route`);
+  }
 }
 
 // ---------------------------------------------------------------------------

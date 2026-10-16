@@ -66,9 +66,11 @@ import type {
   PlayerBindings,
   PlayerBindingsIndex,
 } from '../types/inputBindings';
+import { LOGICAL_ACTIONS } from '../types/inputBindings';
 import {
   formatActionLabel,
   formatBinding,
+  formatStickLabel,
 } from './rebindingScreenFormat';
 
 // ---------------------------------------------------------------------------
@@ -274,7 +276,7 @@ export function detectIntraPlayerConflicts(
   const buckets = new Map<string, IntraBucket>();
   const actions = Object.keys(pb.bindings) as LogicalAction[];
   for (const action of actions) {
-    const list = pb.bindings[action];
+    const list = (pb.bindings[action] ?? []);
     for (let i = 0; i < list.length; i += 1) {
       const binding = list[i]!;
       const id = bindingIdentity(binding);
@@ -410,7 +412,7 @@ function collectKeyboardLocations(
 ): void {
   const actions = Object.keys(bindings) as LogicalAction[];
   for (const action of actions) {
-    const list = bindings[action];
+    const list = (bindings[action] ?? []);
     for (let i = 0; i < list.length; i += 1) {
       const binding = list[i]!;
       if (binding.kind !== 'keyboard') continue;
@@ -445,13 +447,17 @@ function collectKeyboardLocations(
  */
 export function detectAllConflicts(
   snapshot: Readonly<Record<PlayerBindingsIndex, PlayerBindings>>,
+  activeSlots?: ReadonlySet<PlayerBindingsIndex>,
 ): ConflictReport {
   const all: BindingConflict[] = [];
   const slots: ReadonlyArray<PlayerBindingsIndex> = [1, 2, 3, 4];
   for (const slot of slots) {
     for (const c of detectIntraPlayerConflicts(snapshot[slot])) all.push(c);
   }
-  for (const c of detectInterPlayerKeyboardConflicts(snapshot)) all.push(c);
+  for (const c of detectInterPlayerKeyboardConflicts(snapshot)) {
+    const locations = activeSlots ? c.locations.filter(location => activeSlots.has(location.slot)) : c.locations;
+    if (new Set(locations.map(location => location.slot)).size >= 2) all.push({ ...c, locations });
+  }
   all.sort(compareConflicts);
   return buildReport(all);
 }
@@ -531,32 +537,121 @@ function compareLocations(a: BindingLocation, b: BindingLocation): number {
 // Resolution prompts
 // ---------------------------------------------------------------------------
 
+/** Identity of a gamepad half-axis binding: `gp:<pad>:axis:<i>:<±1>`. */
+const HALF_AXIS_IDENTITY = /^gp:(any|\d+):axis:(\d+):[+-]1$/;
+
+/**
+ * Key shared by the conflicts that one stick of one slot causes, or
+ * `null` when the conflict is not an intra-player clash on a named
+ * stick (left 0/1, right 2/3).
+ */
+function stickGroupKey(conflict: BindingConflict): string | null {
+  if (conflict.kind !== 'intra_player') return null;
+  const match = HALF_AXIS_IDENTITY.exec(conflict.identity);
+  if (match === null) return null;
+  const axisIndex = Number(match[2]);
+  if (formatStickLabel(null, axisIndex) === null) return null;
+  return `${conflict.locations[0]?.slot ?? 0}|${match[1]}|${axisIndex & ~1}`;
+}
+
+/** Distinct actions of a conflict, in LOGICAL_ACTIONS order. */
+function conflictActions(conflict: BindingConflict): LogicalAction[] {
+  const present = new Set(conflict.locations.map((location) => location.action));
+  return LOGICAL_ACTIONS.filter((action) => present.has(action));
+}
+
+/** Actions every conflict of the group shares (e.g. Smash), in LOGICAL_ACTIONS order. */
+function sharedActions(group: ReadonlyArray<BindingConflict>): LogicalAction[] {
+  const [first, ...rest] = group;
+  if (first === undefined) return [];
+  return conflictActions(first).filter((action) =>
+    rest.every((conflict) => conflict.locations.some((location) => location.action === action)));
+}
+
+/**
+ * Split conflicts into banner entries. The half-axis conflicts of one
+ * named stick on one slot that all involve a common action — the usual
+ * case being a stick captured on Smash that clashes with the four
+ * movement half-axes — become ONE entry, so one stick does not fill
+ * the banner with four lines. Every other conflict is its own entry.
+ * Entries keep the report's (deterministic) order of their first
+ * conflict.
+ */
+export function groupConflictsForBanner(
+  conflicts: ReadonlyArray<BindingConflict>,
+): ReadonlyArray<ReadonlyArray<BindingConflict>> {
+  const groups = new Map<string, BindingConflict[]>();
+  conflicts.forEach((conflict, index) => {
+    const key = stickGroupKey(conflict) ?? `#${index}`;
+    const group = groups.get(key);
+    if (group === undefined) groups.set(key, [conflict]);
+    else group.push(conflict);
+  });
+  const entries: ReadonlyArray<BindingConflict>[] = [];
+  for (const group of groups.values()) {
+    // Unrelated clashes on the same stick (no action in common) stay
+    // separate: one merged line would pair actions that do not clash.
+    if (group.length > 1 && sharedActions(group).length === 0) {
+      for (const conflict of group) entries.push([conflict]);
+    } else {
+      entries.push(group);
+    }
+  }
+  return entries;
+}
+
+/**
+ * Resolution prompt for one banner entry from
+ * {@link groupConflictsForBanner}. A single conflict reads as
+ * {@link formatConflictResolutionPrompt}; a merged stick reads
+ * "'[1] Left Stick' is shared by P3 Left/Right/Up/Down & Smash".
+ */
+export function formatConflictEntryPrompt(entry: ReadonlyArray<BindingConflict>): string {
+  const first = entry[0];
+  if (first === undefined) return '';
+  if (entry.length === 1) return formatConflictResolutionPrompt(first);
+  const match = HALF_AXIS_IDENTITY.exec(first.identity);
+  const pad = match === null || match[1] === 'any' ? null : Number(match[1]);
+  const label = (match !== null ? formatStickLabel(pad, Number(match[2])) : null) ?? first.bindingLabel;
+  const shared = sharedActions(entry);
+  const present = new Set(entry.flatMap(conflictActions));
+  const varying = LOGICAL_ACTIONS.filter((action) => present.has(action) && !shared.includes(action));
+  const parts = [
+    ...(varying.length > 0 ? [varying.map(formatActionLabel).join('/')] : []),
+    ...shared.map(formatActionLabel),
+  ];
+  const slot = first.locations[0]?.slot ?? 0;
+  return `  • '${label}' is shared by P${slot} ${parts.join(' & ')} — unbind one or pick a new input`;
+}
+
 /**
  * Compose the screen-wide warning banner for a {@link ConflictReport}.
  *
  *   • Empty report → empty string. The renderer uses that to hide the
  *     banner without needing a separate "show warning" boolean.
  *   • Non-empty → a one-line headline with the count, plus optional
- *     detail lines for the first few conflicts.
+ *     detail lines for the first few entries. Counts and details are
+ *     per {@link groupConflictsForBanner} entry, so a stick clashing on
+ *     four half-axes counts and reads as one conflict.
  */
 export function formatConflictBannerLines(
   report: ConflictReport,
   maxDetailLines: number = 3,
 ): ReadonlyArray<string> {
-  const conflicts = report.conflicts;
-  if (conflicts.length === 0) return Object.freeze([]);
+  const entries = groupConflictsForBanner(report.conflicts);
+  if (entries.length === 0) return Object.freeze([]);
   const lines: string[] = [];
   lines.push(
-    conflicts.length === 1
+    entries.length === 1
       ? '⚠ 1 binding conflict — click a highlighted row to rebind it'
-      : `⚠ ${conflicts.length} binding conflicts — click a highlighted row to rebind it`,
+      : `⚠ ${entries.length} binding conflicts — click a highlighted row to rebind it`,
   );
-  const detailCount = Math.min(conflicts.length, Math.max(0, maxDetailLines));
+  const detailCount = Math.min(entries.length, Math.max(0, maxDetailLines));
   for (let i = 0; i < detailCount; i += 1) {
-    lines.push(formatConflictResolutionPrompt(conflicts[i]!));
+    lines.push(formatConflictEntryPrompt(entries[i]!));
   }
-  if (conflicts.length > detailCount) {
-    const more = conflicts.length - detailCount;
+  if (entries.length > detailCount) {
+    const more = entries.length - detailCount;
     lines.push(`  …and ${more} more`);
   }
   return Object.freeze(lines);

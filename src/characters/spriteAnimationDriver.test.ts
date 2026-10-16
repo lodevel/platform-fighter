@@ -24,7 +24,7 @@ import {
 // ---------------------------------------------------------------------------
 
 const baseSnapshot = (overrides: Partial<SpriteAnimationSnapshot> = {}): SpriteAnimationSnapshot => ({
-  characterId: 'wolf',
+  characterId: 'donkeykong',
   isAttacking: false,
   hitstunRemaining: 0,
   grounded: true,
@@ -73,7 +73,7 @@ function makeFakeScene(loadedTextures: ReadonlyArray<string>): {
           hideOnComplete: config.hideOnComplete ?? false,
           showOnStart: config.showOnStart ?? false,
         });
-        return {} as Phaser.Animations.Animation;
+        return {};
       },
       generateFrameNumbers: (key) => {
         // Stash the source key on a sentinel so create() can record
@@ -149,27 +149,17 @@ describe('SPRITE_ANIMATION_STATES', () => {
 // ===========================================================================
 
 describe('getCharacterSpritesheetKey', () => {
-  it('maps cat sheets to the manifest constants', () => {
-    expect(getCharacterSpritesheetKey('cat', 'idle')).toBe(ASSET_KEYS.charCatIdle);
-    expect(getCharacterSpritesheetKey('cat', 'run')).toBe(ASSET_KEYS.charCatRun);
-    expect(getCharacterSpritesheetKey('cat', 'jump')).toBe(ASSET_KEYS.charCatJump);
-    expect(getCharacterSpritesheetKey('cat', 'attack')).toBe(ASSET_KEYS.charCatAttack);
+  it('maps link sheets to its frames.json clips (no clip, no key)', () => {
+    expect(getCharacterSpritesheetKey('link', 'idle')).toBe(ASSET_KEYS.charLinkIdle);
+    expect(getCharacterSpritesheetKey('link', 'jump')).toBe('char.link.jump');
+    expect(getCharacterSpritesheetKey('link', 'run')).toBeNull();
+    expect(getCharacterSpritesheetKey('link', 'attack')).toBeNull();
   });
-  it('maps wolf sheets to the manifest constants', () => {
-    expect(getCharacterSpritesheetKey('wolf', 'idle')).toBe(ASSET_KEYS.charWolfIdle);
-    expect(getCharacterSpritesheetKey('wolf', 'run')).toBe(ASSET_KEYS.charWolfRun);
-    expect(getCharacterSpritesheetKey('wolf', 'jump')).toBe(ASSET_KEYS.charWolfJump);
-    expect(getCharacterSpritesheetKey('wolf', 'attack')).toBe(ASSET_KEYS.charWolfAttack);
-  });
-  it('maps owl/bear M2 sheets to their manifest keys', () => {
-    expect(getCharacterSpritesheetKey('owl', 'idle')).toBe(ASSET_KEYS.charOwlIdle);
-    expect(getCharacterSpritesheetKey('owl', 'run')).toBe(ASSET_KEYS.charOwlRun);
-    expect(getCharacterSpritesheetKey('owl', 'jump')).toBe(ASSET_KEYS.charOwlJump);
-    expect(getCharacterSpritesheetKey('owl', 'attack')).toBe(ASSET_KEYS.charOwlAttack);
-    expect(getCharacterSpritesheetKey('bear', 'idle')).toBe(ASSET_KEYS.charBearIdle);
-    expect(getCharacterSpritesheetKey('bear', 'run')).toBe(ASSET_KEYS.charBearRun);
-    expect(getCharacterSpritesheetKey('bear', 'jump')).toBe(ASSET_KEYS.charBearJump);
-    expect(getCharacterSpritesheetKey('bear', 'attack')).toBe(ASSET_KEYS.charBearAttack);
+  it('maps donkeykong sheets to the manifest constants', () => {
+    expect(getCharacterSpritesheetKey('donkeykong', 'idle')).toBe(ASSET_KEYS.charDonkeykongIdle);
+    expect(getCharacterSpritesheetKey('donkeykong', 'run')).toBe(ASSET_KEYS.charDonkeykongRun);
+    expect(getCharacterSpritesheetKey('donkeykong', 'jump')).toBe(ASSET_KEYS.charDonkeykongJump);
+    expect(getCharacterSpritesheetKey('donkeykong', 'attack')).toBe(ASSET_KEYS.charDonkeykongAttack);
   });
 });
 
@@ -197,35 +187,24 @@ describe('collapseStateToSheet', () => {
 // ===========================================================================
 
 describe('getSpriteAnimationKey', () => {
-  it('produces the canonical `<character>.<sheet>.anim` shape for cat & wolf', () => {
-    expect(getSpriteAnimationKey('cat', 'idle')).toBe('cat.idle.anim');
-    expect(getSpriteAnimationKey('cat', 'run')).toBe('cat.run.anim');
-    expect(getSpriteAnimationKey('cat', 'jump')).toBe('cat.jump.anim');
-    expect(getSpriteAnimationKey('cat', 'attack')).toBe('cat.attack.anim');
-    expect(getSpriteAnimationKey('wolf', 'idle')).toBe('wolf.idle.anim');
-    expect(getSpriteAnimationKey('wolf', 'run')).toBe('wolf.run.anim');
-    expect(getSpriteAnimationKey('wolf', 'jump')).toBe('wolf.jump.anim');
-    expect(getSpriteAnimationKey('wolf', 'attack')).toBe('wolf.attack.anim');
+  it('produces the canonical `<character>.<sheet>.anim` shape for link & donkeykong', () => {
+    expect(getSpriteAnimationKey('link', 'idle')).toBe('link.idle.anim');
+    expect(getSpriteAnimationKey('link', 'jump')).toBe('link.jump.anim');
+    // Link's art has no generic run / attack sheet (its packed clips are drawn by name).
+    expect(getSpriteAnimationKey('link', 'run')).toBeNull();
+    expect(getSpriteAnimationKey('link', 'attack')).toBeNull();
+    expect(getSpriteAnimationKey('donkeykong', 'idle')).toBe('donkeykong.idle.anim');
+    expect(getSpriteAnimationKey('donkeykong', 'run')).toBe('donkeykong.run.anim');
+    expect(getSpriteAnimationKey('donkeykong', 'jump')).toBe('donkeykong.jump.anim');
+    expect(getSpriteAnimationKey('donkeykong', 'attack')).toBe('donkeykong.attack.anim');
   });
   it('routes fall to the jump animation key', () => {
-    expect(getSpriteAnimationKey('cat', 'fall')).toBe('cat.jump.anim');
-    expect(getSpriteAnimationKey('wolf', 'fall')).toBe('wolf.jump.anim');
+    expect(getSpriteAnimationKey('link', 'fall')).toBe('link.jump.anim');
+    expect(getSpriteAnimationKey('donkeykong', 'fall')).toBe('donkeykong.jump.anim');
   });
   it('routes hurt to the idle animation key', () => {
-    expect(getSpriteAnimationKey('cat', 'hurt')).toBe('cat.idle.anim');
-    expect(getSpriteAnimationKey('wolf', 'hurt')).toBe('wolf.idle.anim');
-  });
-  it('produces the canonical `<character>.<sheet>.anim` shape for owl & bear (M2)', () => {
-    expect(getSpriteAnimationKey('owl', 'idle')).toBe('owl.idle.anim');
-    expect(getSpriteAnimationKey('owl', 'run')).toBe('owl.run.anim');
-    expect(getSpriteAnimationKey('owl', 'jump')).toBe('owl.jump.anim');
-    expect(getSpriteAnimationKey('owl', 'attack')).toBe('owl.attack.anim');
-    expect(getSpriteAnimationKey('owl', 'fall')).toBe('owl.jump.anim');
-    expect(getSpriteAnimationKey('owl', 'hurt')).toBe('owl.idle.anim');
-    expect(getSpriteAnimationKey('bear', 'idle')).toBe('bear.idle.anim');
-    expect(getSpriteAnimationKey('bear', 'run')).toBe('bear.run.anim');
-    expect(getSpriteAnimationKey('bear', 'jump')).toBe('bear.jump.anim');
-    expect(getSpriteAnimationKey('bear', 'attack')).toBe('bear.attack.anim');
+    expect(getSpriteAnimationKey('link', 'hurt')).toBe('link.idle.anim');
+    expect(getSpriteAnimationKey('donkeykong', 'hurt')).toBe('donkeykong.idle.anim');
   });
 });
 
@@ -318,40 +297,28 @@ describe('classifySpriteAnimationState', () => {
 // ===========================================================================
 
 describe('registerCharacterSpriteAnimations', () => {
-  it('creates one animation per loaded sheet for cat', () => {
+  it('creates one animation per loaded sheet for link', () => {
     const { scene, recorded } = makeFakeScene([
-      ASSET_KEYS.charCatIdle,
-      ASSET_KEYS.charCatRun,
-      ASSET_KEYS.charCatJump,
-      ASSET_KEYS.charCatAttack,
+      ASSET_KEYS.charLinkIdle,
+      'char.link.jump',
     ]);
-    const keys = registerCharacterSpriteAnimations(scene, 'cat');
-    expect(keys).toEqual([
-      'cat.idle.anim',
-      'cat.run.anim',
-      'cat.jump.anim',
-      'cat.attack.anim',
-    ]);
-    expect(recorded.map((r) => r.key)).toEqual([
-      'cat.idle.anim',
-      'cat.run.anim',
-      'cat.jump.anim',
-      'cat.attack.anim',
-    ]);
+    const keys = registerCharacterSpriteAnimations(scene, 'link');
+    expect(keys).toEqual(['link.idle.anim', 'link.jump.anim']);
+    expect(recorded.map((r) => r.key)).toEqual(['link.idle.anim', 'link.jump.anim']);
   });
 
   it('uses the per-spec frame rate / repeat / hold flags', () => {
     const { scene, recorded } = makeFakeScene([
-      ASSET_KEYS.charWolfIdle,
-      ASSET_KEYS.charWolfRun,
-      ASSET_KEYS.charWolfJump,
-      ASSET_KEYS.charWolfAttack,
+      ASSET_KEYS.charDonkeykongIdle,
+      ASSET_KEYS.charDonkeykongRun,
+      ASSET_KEYS.charDonkeykongJump,
+      ASSET_KEYS.charDonkeykongAttack,
     ]);
-    registerCharacterSpriteAnimations(scene, 'wolf');
+    registerCharacterSpriteAnimations(scene, 'donkeykong');
     // Find each entry by anim key and verify it tracks the spec.
     const byKey = new Map(recorded.map((r) => [r.key, r] as const));
     for (const spec of SPRITE_ANIM_SPECS) {
-      const entry = byKey.get(`wolf.${spec.sheet}.anim`);
+      const entry = byKey.get(`donkeykong.${spec.sheet}.anim`);
       expect(entry).toBeDefined();
       expect(entry?.frameRate).toBe(spec.frameRate);
       expect(entry?.repeat).toBe(spec.repeat);
@@ -361,77 +328,57 @@ describe('registerCharacterSpriteAnimations', () => {
   });
 
   it('skips sheets whose texture is not loaded — partial-asset friendly', () => {
-    // Only cat's idle is loaded; the other three sheets should be skipped.
-    const { scene, recorded } = makeFakeScene([ASSET_KEYS.charCatIdle]);
-    const keys = registerCharacterSpriteAnimations(scene, 'cat');
-    expect(keys).toEqual(['cat.idle.anim']);
+    // Only link's idle is loaded; the other three sheets should be skipped.
+    const { scene, recorded } = makeFakeScene([ASSET_KEYS.charLinkIdle]);
+    const keys = registerCharacterSpriteAnimations(scene, 'link');
+    expect(keys).toEqual(['link.idle.anim']);
     expect(recorded).toHaveLength(1);
-    expect(recorded[0]?.key).toBe('cat.idle.anim');
-  });
-
-  it('returns an empty list for owl / bear (no sheet keys)', () => {
-    const { scene, recorded } = makeFakeScene([]);
-    expect(registerCharacterSpriteAnimations(scene, 'owl')).toEqual([]);
-    expect(registerCharacterSpriteAnimations(scene, 'bear')).toEqual([]);
-    expect(recorded).toHaveLength(0);
+    expect(recorded[0]?.key).toBe('link.idle.anim');
   });
 
   it('is idempotent — re-entry on a registered scene does not double-create', () => {
     const { scene, recorded } = makeFakeScene([
-      ASSET_KEYS.charCatIdle,
-      ASSET_KEYS.charCatRun,
-      ASSET_KEYS.charCatJump,
-      ASSET_KEYS.charCatAttack,
+      ASSET_KEYS.charLinkIdle,
+      'char.link.jump',
     ]);
-    registerCharacterSpriteAnimations(scene, 'cat');
+    registerCharacterSpriteAnimations(scene, 'link');
     const recordedAfterFirst = recorded.length;
-    registerCharacterSpriteAnimations(scene, 'cat');
+    registerCharacterSpriteAnimations(scene, 'link');
     // Second call returns the same key list but creates nothing new.
     expect(recorded.length).toBe(recordedAfterFirst);
   });
 });
 
 describe('registerAllCharacterSpriteAnimations', () => {
-  it('registers cat + wolf when both are fully loaded', () => {
+  it('registers link + donkeykong when both are fully loaded', () => {
     const { scene } = makeFakeScene([
-      ASSET_KEYS.charCatIdle,
-      ASSET_KEYS.charCatRun,
-      ASSET_KEYS.charCatJump,
-      ASSET_KEYS.charCatAttack,
-      ASSET_KEYS.charWolfIdle,
-      ASSET_KEYS.charWolfRun,
-      ASSET_KEYS.charWolfJump,
-      ASSET_KEYS.charWolfAttack,
+      ASSET_KEYS.charLinkIdle,
+      'char.link.jump',
+      ASSET_KEYS.charDonkeykongIdle,
+      ASSET_KEYS.charDonkeykongRun,
+      ASSET_KEYS.charDonkeykongJump,
+      ASSET_KEYS.charDonkeykongAttack,
     ]);
     const keys = registerAllCharacterSpriteAnimations(scene);
-    // Order follows the canonical CHARACTER_IDS roster order (wolf before cat);
-    // unloaded fighters are skipped, so only wolf + cat appear here.
+    // Order follows the canonical CHARACTER_IDS roster order (link before donkeykong);
+    // unloaded fighters are skipped, so only link + donkeykong appear here.
     expect(keys).toEqual([
-      'wolf.idle.anim',
-      'wolf.run.anim',
-      'wolf.jump.anim',
-      'wolf.attack.anim',
-      'cat.idle.anim',
-      'cat.run.anim',
-      'cat.jump.anim',
-      'cat.attack.anim',
+      'link.idle.anim',
+      'link.jump.anim',
+      'donkeykong.idle.anim',
+      'donkeykong.run.anim',
+      'donkeykong.jump.anim',
+      'donkeykong.attack.anim',
     ]);
   });
   it('honours a custom character allow-list', () => {
     const { scene } = makeFakeScene([
-      ASSET_KEYS.charCatIdle,
-      ASSET_KEYS.charCatRun,
-      ASSET_KEYS.charCatJump,
-      ASSET_KEYS.charCatAttack,
+      ASSET_KEYS.charLinkIdle,
+      'char.link.jump',
     ]);
-    const keys = registerAllCharacterSpriteAnimations(scene, ['cat']);
-    expect(keys.every((k) => k.startsWith('cat.'))).toBe(true);
-    expect(keys).toEqual([
-      'cat.idle.anim',
-      'cat.run.anim',
-      'cat.jump.anim',
-      'cat.attack.anim',
-    ]);
+    const keys = registerAllCharacterSpriteAnimations(scene, ['link']);
+    expect(keys.every((k) => k.startsWith('link.'))).toBe(true);
+    expect(keys).toEqual(['link.idle.anim', 'link.jump.anim']);
   });
 });
 
@@ -454,48 +401,48 @@ describe('createSpriteAnimationStateMachine', () => {
   }
 
   it('fires play() on the first tick to prime the sprite', () => {
-    const { provider } = makeProvider(baseSnapshot({ characterId: 'wolf' }));
+    const { provider } = makeProvider(baseSnapshot({ characterId: 'donkeykong' }));
     const { sprite, calls } = makeRecorderSprite();
     const sm = createSpriteAnimationStateMachine(provider, sprite);
     expect(sm.current()).toBeNull();
     const state = sm.tick();
     expect(state).toBe('idle');
-    expect(calls).toEqual(['wolf.idle.anim']);
+    expect(calls).toEqual(['donkeykong.idle.anim']);
     expect(sm.current()).toBe('idle');
   });
 
   it('does not re-fire play() on same-state ticks', () => {
-    const { provider } = makeProvider(baseSnapshot({ characterId: 'cat' }));
+    const { provider } = makeProvider(baseSnapshot({ characterId: 'link' }));
     const { sprite, calls } = makeRecorderSprite();
     const sm = createSpriteAnimationStateMachine(provider, sprite);
     sm.tick();
     sm.tick();
     sm.tick();
-    expect(calls).toEqual(['cat.idle.anim']);
+    expect(calls).toEqual(['link.idle.anim']);
   });
 
   it('fires play() on every state transition', () => {
-    const { provider, set } = makeProvider(baseSnapshot({ characterId: 'cat' }));
+    const { provider, set } = makeProvider(baseSnapshot({ characterId: 'donkeykong' }));
     const { sprite, calls } = makeRecorderSprite();
     const sm = createSpriteAnimationStateMachine(provider, sprite);
     sm.tick(); // idle
-    set(baseSnapshot({ characterId: 'cat', velocityX: 5 }));
+    set(baseSnapshot({ characterId: 'donkeykong', velocityX: 5 }));
     sm.tick(); // run
-    set(baseSnapshot({ characterId: 'cat', grounded: false, velocityY: -3 }));
+    set(baseSnapshot({ characterId: 'donkeykong', grounded: false, velocityY: -3 }));
     sm.tick(); // jump
-    set(baseSnapshot({ characterId: 'cat', grounded: false, velocityY: 4 }));
+    set(baseSnapshot({ characterId: 'donkeykong', grounded: false, velocityY: 4 }));
     sm.tick(); // fall
-    set(baseSnapshot({ characterId: 'cat', isAttacking: true }));
+    set(baseSnapshot({ characterId: 'donkeykong', isAttacking: true }));
     sm.tick(); // attack
-    set(baseSnapshot({ characterId: 'cat', hitstunRemaining: 10 }));
+    set(baseSnapshot({ characterId: 'donkeykong', hitstunRemaining: 10 }));
     sm.tick(); // hurt → collapses to idle anim
     expect(calls).toEqual([
-      'cat.idle.anim',
-      'cat.run.anim',
-      'cat.jump.anim',
-      'cat.jump.anim', // fall reuses jump
-      'cat.attack.anim',
-      'cat.idle.anim', // hurt reuses idle
+      'donkeykong.idle.anim',
+      'donkeykong.run.anim',
+      'donkeykong.jump.anim',
+      'donkeykong.jump.anim', // fall reuses jump
+      'donkeykong.attack.anim',
+      'donkeykong.idle.anim', // hurt reuses idle
     ]);
   });
 
@@ -505,31 +452,31 @@ describe('createSpriteAnimationStateMachine', () => {
     const sprite: PlayableSprite = { play: playSpy };
     const sm = createSpriteAnimationStateMachine(provider, sprite);
     sm.tick();
-    expect(playSpy).toHaveBeenCalledWith('wolf.idle.anim', true);
+    expect(playSpy).toHaveBeenCalledWith('donkeykong.idle.anim', true);
   });
 
   it('detach() makes subsequent ticks no-op for play() while still updating state', () => {
-    const { provider, set } = makeProvider(baseSnapshot({ characterId: 'wolf' }));
+    const { provider, set } = makeProvider(baseSnapshot({ characterId: 'donkeykong' }));
     const { sprite, calls } = makeRecorderSprite();
     const sm = createSpriteAnimationStateMachine(provider, sprite);
     sm.tick(); // primes — fires once
     sm.detach();
-    set(baseSnapshot({ characterId: 'wolf', velocityX: 5 }));
+    set(baseSnapshot({ characterId: 'donkeykong', velocityX: 5 }));
     const state = sm.tick();
     expect(state).toBe('run');
     expect(sm.current()).toBe('run');
     // No additional play() call after detach.
-    expect(calls).toEqual(['wolf.idle.anim']);
+    expect(calls).toEqual(['donkeykong.idle.anim']);
   });
 
-  it('records state and plays the matching anim for owl (M2 sheets shipped)', () => {
-    const { provider } = makeProvider(baseSnapshot({ characterId: 'owl' }));
+  it('records state and plays the matching anim for pikachu', () => {
+    const { provider } = makeProvider(baseSnapshot({ characterId: 'pikachu' }));
     const { sprite, calls } = makeRecorderSprite();
     const sm = createSpriteAnimationStateMachine(provider, sprite);
     const state = sm.tick();
     expect(state).toBe('idle');
     expect(sm.current()).toBe('idle');
-    expect(calls).toEqual(['owl.idle.anim']);
+    expect(calls).toEqual(['pikachu.idle.anim']);
   });
 });
 

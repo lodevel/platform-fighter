@@ -63,6 +63,7 @@
  */
 
 import type { AiDifficulty, InputType, PlayerSlot } from '../types';
+import { ACTIVE_FIGHTER_IDS, FALLBACK_FIGHTER_ID } from '../characters/activeFighters';
 
 // ---------------------------------------------------------------------------
 // Public option ladders
@@ -90,7 +91,7 @@ export const MAX_LOBBY_SLOTS = 4;
  * character select and feeds the lobby directly into `MatchScene`).
  */
 const DEFAULT_CHARACTER_IDS: ReadonlyArray<PlayerSlot['characterId']> =
-  Object.freeze(['wolf', 'cat', 'owl', 'bear']);
+  Object.freeze([...ACTIVE_FIGHTER_IDS]);
 
 /**
  * The canonical default `InputType` per slot index. Mirrors
@@ -1097,7 +1098,7 @@ export function buildPlayerSlotsFromLobby(
       slot.inputType ?? defaultInputTypeForSlot(slot.index);
     const characterId =
       DEFAULT_CHARACTER_IDS[(slot.index - 1) % DEFAULT_CHARACTER_IDS.length] ??
-      'wolf';
+      FALLBACK_FIGHTER_ID;
     const paletteIndex = (slot.index - 1) % 8;
     const aiDifficulty: AiDifficulty | undefined =
       inputType === 'ai'

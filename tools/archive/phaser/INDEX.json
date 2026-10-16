@@ -1,0 +1,1539 @@
+{
+  "retiredAt": "2026-10-15",
+  "reason": "Three.js and MatchSim cutover; Character Lab/Stage Forge and Phaser previews removed",
+  "probes": [
+    {
+      "archivedFrom": "tools/pikachu-completion-locomotion-match-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-completion-locomotion-match-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-completion-runtime-throw-wall-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-completion-runtime-throw-wall-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-completion-runtime-captured-hold-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-completion-runtime-captured-hold-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/dk-firstcontact-pilot-acceptance.mjs",
+      "archive": "tools/archive/phaser/dk-firstcontact-pilot-acceptance.mjs",
+      "replacement": [
+        "tools/dk-runtime-mechanics-review.mjs",
+        "tools/dk-jostle-match-regression.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/rework-acceptance.mjs",
+      "archive": "tools/archive/phaser/rework-acceptance.mjs",
+      "replacement": [
+        "port/scripts/live-match.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/dk-full-standing-grab-match-review-batched.mjs",
+      "archive": "tools/archive/phaser/dk-full-standing-grab-match-review-batched.mjs",
+      "replacement": [
+        "tools/dk-runtime-mechanics-review.mjs",
+        "tools/dk-jostle-match-regression.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/sparse-player-ownership.mjs",
+      "archive": "tools/archive/phaser/sparse-player-ownership.mjs",
+      "replacement": [
+        "port/scripts/menus.mjs",
+        "port/scripts/live-match.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/link-down-air-launch.mjs",
+      "archive": "tools/archive/phaser/link-down-air-launch.mjs",
+      "replacement": [
+        "tools/link-playable-probe.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/dk-collision-acceptance.mjs",
+      "archive": "tools/archive/phaser/dk-collision-acceptance.mjs",
+      "replacement": [
+        "tools/dk-runtime-mechanics-review.mjs",
+        "tools/dk-jostle-match-regression.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-charge-match-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-charge-match-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/link-forward-smash-launch.mjs",
+      "archive": "tools/archive/phaser/link-forward-smash-launch.mjs",
+      "replacement": [
+        "tools/link-playable-probe.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-input-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-input-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-completion-runtime-jolt-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-completion-runtime-jolt-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-completion-runtime-trip-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-completion-runtime-trip-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-completion-runtime-quick-second-interpolation-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-completion-runtime-quick-second-interpolation-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-quick-interpolation-match-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-quick-interpolation-match-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/roster-mask-probe.mjs",
+      "archive": "tools/archive/phaser/roster-mask-probe.mjs",
+      "replacement": [
+        "port/scripts/live-match.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/dk-heavy-armor-passive-drop-review.mjs",
+      "archive": "tools/archive/phaser/dk-heavy-armor-passive-drop-review.mjs",
+      "replacement": [
+        "tools/dk-runtime-mechanics-review.mjs",
+        "tools/dk-jostle-match-regression.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/input-profiles-acceptance.mjs",
+      "archive": "tools/archive/phaser/input-profiles-acceptance.mjs",
+      "replacement": [
+        "port/scripts/menus.mjs",
+        "port/scripts/live-match.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-touchdown-thunder-match-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-touchdown-thunder-match-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-ground-launch-interruption-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-ground-launch-interruption-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-thunder-overlay-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-thunder-overlay-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/link-collision-parity.mjs",
+      "archive": "tools/archive/phaser/link-collision-parity.mjs",
+      "replacement": [
+        "tools/link-playable-probe.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/dk-full-jab-match-review.mjs",
+      "archive": "tools/archive/phaser/dk-full-jab-match-review.mjs",
+      "replacement": [
+        "tools/dk-runtime-mechanics-review.mjs",
+        "tools/dk-jostle-match-regression.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-trip-clank-match-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-trip-clank-match-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/link-fair-bair-launch.mjs",
+      "archive": "tools/archive/phaser/link-fair-bair-launch.mjs",
+      "replacement": [
+        "tools/link-playable-probe.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-landing-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-landing-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-throw-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-throw-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/dk-kit-acceptance.mjs",
+      "archive": "tools/archive/phaser/dk-kit-acceptance.mjs",
+      "replacement": [
+        "tools/dk-runtime-mechanics-review.mjs",
+        "tools/dk-jostle-match-regression.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/link-hit-window-animation.mjs",
+      "archive": "tools/archive/phaser/link-hit-window-animation.mjs",
+      "replacement": [
+        "tools/link-playable-probe.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-completion-runtime-ledge-drop-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-completion-runtime-ledge-drop-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-normal-match-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-normal-match-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/dk-full-ground-paired-lab-review.mjs",
+      "archive": "tools/archive/phaser/dk-full-ground-paired-lab-review.mjs",
+      "replacement": [
+        "tools/dk-runtime-mechanics-review.mjs",
+        "tools/dk-jostle-match-regression.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-completion-respawn-match-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-completion-respawn-match-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/link-movement-probe.mjs",
+      "archive": "tools/archive/phaser/link-movement-probe.mjs",
+      "replacement": [
+        "tools/link-playable-probe.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/dk-ordinary-grip-recapture-match-review.mjs",
+      "archive": "tools/archive/phaser/dk-ordinary-grip-recapture-match-review.mjs",
+      "replacement": [
+        "tools/dk-runtime-mechanics-review.mjs",
+        "tools/dk-jostle-match-regression.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-completion-live-thunder-overlay-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-completion-live-thunder-overlay-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/masklock-probe.mjs",
+      "archive": "tools/archive/phaser/masklock-probe.mjs",
+      "replacement": [
+        "port/scripts/live-match.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-completion-runtime-throw-floor-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-completion-runtime-throw-floor-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-texture-match-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-texture-match-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-defense-match-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-defense-match-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-shield-outcome-match-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-shield-outcome-match-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/special-landing-acceptance.mjs",
+      "archive": "tools/archive/phaser/special-landing-acceptance.mjs",
+      "replacement": [
+        "port/scripts/live-match.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-completion-runtime-skull-flick-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-completion-runtime-skull-flick-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-reaction-body-match-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-reaction-body-match-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/dk-grab-pilot-match-review.mjs",
+      "archive": "tools/archive/phaser/dk-grab-pilot-match-review.mjs",
+      "replacement": [
+        "tools/dk-runtime-mechanics-review.mjs",
+        "tools/dk-jostle-match-regression.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/dk-giant-punch-keyboard-review.mjs",
+      "archive": "tools/archive/phaser/dk-giant-punch-keyboard-review.mjs",
+      "replacement": [
+        "tools/dk-runtime-mechanics-review.mjs",
+        "tools/dk-jostle-match-regression.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-ledge-body-match-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-ledge-body-match-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/dk-rework-family-probe.mjs",
+      "archive": "tools/archive/phaser/dk-rework-family-probe.mjs",
+      "replacement": [
+        "tools/dk-runtime-mechanics-review.mjs",
+        "tools/dk-jostle-match-regression.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-completion-runtime-helpless-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-completion-runtime-helpless-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/dk-grab-source-clocks-lab-review.mjs",
+      "archive": "tools/archive/phaser/dk-grab-source-clocks-lab-review.mjs",
+      "replacement": [
+        "tools/dk-runtime-mechanics-review.mjs",
+        "tools/dk-jostle-match-regression.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-completion-runtime-capture-events-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-completion-runtime-capture-events-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/dk-ordinary-grip-match-review.mjs",
+      "archive": "tools/archive/phaser/dk-ordinary-grip-match-review.mjs",
+      "replacement": [
+        "tools/dk-runtime-mechanics-review.mjs",
+        "tools/dk-jostle-match-regression.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/frame-inspection-acceptance.mjs",
+      "archive": "tools/archive/phaser/frame-inspection-acceptance.mjs",
+      "replacement": [
+        "port/scripts/live-match.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-completion-states-tumble-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-completion-states-tumble-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-completion-footstool-match-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-completion-footstool-match-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/dk-items-replay-review.mjs",
+      "archive": "tools/archive/phaser/dk-items-replay-review.mjs",
+      "replacement": [
+        "tools/dk-runtime-mechanics-review.mjs",
+        "tools/dk-jostle-match-regression.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/link-rebound-acceptance.mjs",
+      "archive": "tools/archive/phaser/link-rebound-acceptance.mjs",
+      "replacement": [
+        "tools/link-playable-probe.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-completion-surface-tech-match-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-completion-surface-tech-match-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-completion-first-sprite-floor-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-completion-first-sprite-floor-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/repro-platform.mjs",
+      "archive": "tools/archive/phaser/repro-platform.mjs",
+      "replacement": [
+        "port/scripts/live-match.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-completion-runtime-quick-interpolation-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-completion-runtime-quick-interpolation-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/dk-app15-preview-controls-review.mjs",
+      "archive": "tools/archive/phaser/dk-app15-preview-controls-review.mjs",
+      "replacement": [
+        "tools/dk-runtime-mechanics-review.mjs",
+        "tools/dk-jostle-match-regression.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/dk-native-crate-contact-match-review.mjs",
+      "archive": "tools/archive/phaser/dk-native-crate-contact-match-review.mjs",
+      "replacement": [
+        "tools/dk-runtime-mechanics-review.mjs",
+        "tools/dk-jostle-match-regression.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-item-context-match-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-item-context-match-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/menu-key-probe.mjs",
+      "archive": "tools/archive/phaser/menu-key-probe.mjs",
+      "replacement": [
+        "port/scripts/menus.mjs",
+        "port/scripts/live-match.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/replay-probe.mjs",
+      "archive": "tools/archive/phaser/replay-probe.mjs",
+      "replacement": [
+        "tools/sim-replay.ts",
+        "port/scripts/golden/sim-golden.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/player-controls-acceptance.mjs",
+      "archive": "tools/archive/phaser/player-controls-acceptance.mjs",
+      "replacement": [
+        "port/scripts/menus.mjs",
+        "port/scripts/live-match.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-fair-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-fair-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/cpu-first-controls-acceptance.mjs",
+      "archive": "tools/archive/phaser/cpu-first-controls-acceptance.mjs",
+      "replacement": [
+        "port/scripts/menus.mjs",
+        "port/scripts/live-match.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/dk-recovery-acceptance.mjs",
+      "archive": "tools/archive/phaser/dk-recovery-acceptance.mjs",
+      "replacement": [
+        "tools/dk-runtime-mechanics-review.mjs",
+        "tools/dk-jostle-match-regression.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/dk-grab-source-clocks-match-review.mjs",
+      "archive": "tools/archive/phaser/dk-grab-source-clocks-match-review.mjs",
+      "replacement": [
+        "tools/dk-runtime-mechanics-review.mjs",
+        "tools/dk-jostle-match-regression.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/replay-resim.mjs",
+      "archive": "tools/archive/phaser/replay-resim.mjs",
+      "replacement": [
+        "tools/sim-replay.ts",
+        "port/scripts/golden/sim-golden.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/dk-current-lab-acceptance.mjs",
+      "archive": "tools/archive/phaser/dk-current-lab-acceptance.mjs",
+      "replacement": [
+        "tools/dk-runtime-mechanics-review.mjs",
+        "tools/dk-jostle-match-regression.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-protection-match-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-protection-match-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-crouch-shield-match-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-crouch-shield-match-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/dk-lab-acceptance.mjs",
+      "archive": "tools/archive/phaser/dk-lab-acceptance.mjs",
+      "replacement": [
+        "tools/dk-runtime-mechanics-review.mjs",
+        "tools/dk-jostle-match-regression.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-ledge-root-contact-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-ledge-root-contact-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-completion-footstool-capture-match-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-completion-footstool-capture-match-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/dk-ground-input-boundary-review.mjs",
+      "archive": "tools/archive/phaser/dk-ground-input-boundary-review.mjs",
+      "replacement": [
+        "tools/dk-runtime-mechanics-review.mjs",
+        "tools/dk-jostle-match-regression.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/controller-session-regressions.mjs",
+      "archive": "tools/archive/phaser/controller-session-regressions.mjs",
+      "replacement": [
+        "port/scripts/live-match.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/hud-acceptance.mjs",
+      "archive": "tools/archive/phaser/hud-acceptance.mjs",
+      "replacement": [
+        "port/scripts/live-match.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/match-history-checkpoint-acceptance.mjs",
+      "archive": "tools/archive/phaser/match-history-checkpoint-acceptance.mjs",
+      "replacement": [
+        "port/scripts/live-match.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/dk-review-dashboard-acceptance.mjs",
+      "archive": "tools/archive/phaser/dk-review-dashboard-acceptance.mjs",
+      "replacement": [
+        "tools/dk-runtime-mechanics-review.mjs",
+        "tools/dk-jostle-match-regression.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/dk-mechanics-fixes-3-probe.mjs",
+      "archive": "tools/archive/phaser/dk-mechanics-fixes-3-probe.mjs",
+      "replacement": [
+        "tools/dk-runtime-mechanics-review.mjs",
+        "tools/dk-jostle-match-regression.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/dk-review-visual-acceptance.mjs",
+      "archive": "tools/archive/phaser/dk-review-visual-acceptance.mjs",
+      "replacement": [
+        "tools/dk-runtime-mechanics-review.mjs",
+        "tools/dk-jostle-match-regression.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/dk-full-ground-paired-match-review.mjs",
+      "archive": "tools/archive/phaser/dk-full-ground-paired-match-review.mjs",
+      "replacement": [
+        "tools/dk-runtime-mechanics-review.mjs",
+        "tools/dk-jostle-match-regression.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/link-nair-dash-launch.mjs",
+      "archive": "tools/archive/phaser/link-nair-dash-launch.mjs",
+      "replacement": [
+        "tools/link-playable-probe.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-ordinary-match-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-ordinary-match-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/dk-visual-shots.mjs",
+      "archive": "tools/archive/phaser/dk-visual-shots.mjs",
+      "replacement": [
+        "tools/dk-runtime-mechanics-review.mjs",
+        "tools/dk-jostle-match-regression.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-completion-ledge-attachment-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-completion-ledge-attachment-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-skull-slope-match-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-skull-slope-match-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-ultimate-capture-match-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-ultimate-capture-match-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/roster-layout-probe.mjs",
+      "archive": "tools/archive/phaser/roster-layout-probe.mjs",
+      "replacement": [
+        "port/scripts/live-match.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/link-tilt-launch.mjs",
+      "archive": "tools/archive/phaser/link-tilt-launch.mjs",
+      "replacement": [
+        "tools/link-playable-probe.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-skull-body-match-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-skull-body-match-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/smash-input-acceptance.mjs",
+      "archive": "tools/archive/phaser/smash-input-acceptance.mjs",
+      "replacement": [
+        "port/scripts/menus.mjs",
+        "port/scripts/live-match.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/link-down-smash-launch.mjs",
+      "archive": "tools/archive/phaser/link-down-smash-launch.mjs",
+      "replacement": [
+        "tools/link-playable-probe.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-special-gallery-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-special-gallery-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/dk-heavy-item-match-review.mjs",
+      "archive": "tools/archive/phaser/dk-heavy-item-match-review.mjs",
+      "replacement": [
+        "tools/dk-runtime-mechanics-review.mjs",
+        "tools/dk-jostle-match-regression.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/dk-full-standing-grab-lab-review.mjs",
+      "archive": "tools/archive/phaser/dk-full-standing-grab-lab-review.mjs",
+      "replacement": [
+        "tools/dk-runtime-mechanics-review.mjs",
+        "tools/dk-jostle-match-regression.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-grab-preview-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-grab-preview-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-completion-runtime-quick-ground-stop-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-completion-runtime-quick-ground-stop-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-ledge-match-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-ledge-match-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/dk-context-keyboard-review.mjs",
+      "archive": "tools/archive/phaser/dk-context-keyboard-review.mjs",
+      "replacement": [
+        "tools/dk-runtime-mechanics-review.mjs",
+        "tools/dk-jostle-match-regression.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/link-up-smash-launch.mjs",
+      "archive": "tools/archive/phaser/link-up-smash-launch.mjs",
+      "replacement": [
+        "tools/link-playable-probe.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-completion-turn-brake-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-completion-turn-brake-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-final-jab-restart-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-final-jab-restart-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-special-timing-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-special-timing-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/dk-all-moves-acceptance.mjs",
+      "archive": "tools/archive/phaser/dk-all-moves-acceptance.mjs",
+      "replacement": [
+        "tools/dk-runtime-mechanics-review.mjs",
+        "tools/dk-jostle-match-regression.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/dk-full-jab-lab-review.mjs",
+      "archive": "tools/archive/phaser/dk-full-jab-lab-review.mjs",
+      "replacement": [
+        "tools/dk-runtime-mechanics-review.mjs",
+        "tools/dk-jostle-match-regression.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-locomotion-match-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-locomotion-match-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/link-specials-parity.mjs",
+      "archive": "tools/archive/phaser/link-specials-parity.mjs",
+      "replacement": [
+        "tools/link-playable-probe.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/items-replay-check.mjs",
+      "archive": "tools/archive/phaser/items-replay-check.mjs",
+      "replacement": [
+        "tools/sim-replay.ts",
+        "port/scripts/golden/sim-golden.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/physics-sep14-acceptance.mjs",
+      "archive": "tools/archive/phaser/physics-sep14-acceptance.mjs",
+      "replacement": [
+        "port/scripts/live-match.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/link-launch-calibration.mjs",
+      "archive": "tools/archive/phaser/link-launch-calibration.mjs",
+      "replacement": [
+        "tools/link-playable-probe.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/dk-vertical-match-review.mjs",
+      "archive": "tools/archive/phaser/dk-vertical-match-review.mjs",
+      "replacement": [
+        "tools/dk-runtime-mechanics-review.mjs",
+        "tools/dk-jostle-match-regression.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-jolt-body-match-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-jolt-body-match-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/dk-heavy-armor-match-review.mjs",
+      "archive": "tools/archive/phaser/dk-heavy-armor-match-review.mjs",
+      "replacement": [
+        "tools/dk-runtime-mechanics-review.mjs",
+        "tools/dk-jostle-match-regression.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-completion-shield-break-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-completion-shield-break-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/item-coordinate-probe.mjs",
+      "archive": "tools/archive/phaser/item-coordinate-probe.mjs",
+      "replacement": [
+        "port/scripts/live-match.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-completion-hard-landing-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-completion-hard-landing-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-thunder-match-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-thunder-match-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/dk-knockback-acceptance.mjs",
+      "archive": "tools/archive/phaser/dk-knockback-acceptance.mjs",
+      "replacement": [
+        "tools/dk-runtime-mechanics-review.mjs",
+        "tools/dk-jostle-match-regression.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/dk-item-timeline-match-acceptance.mjs",
+      "archive": "tools/archive/phaser/dk-item-timeline-match-acceptance.mjs",
+      "replacement": [
+        "tools/dk-runtime-mechanics-review.mjs",
+        "tools/dk-jostle-match-regression.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-completion-runtime-ledge-jump-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-completion-runtime-ledge-jump-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/link-defense-parity.mjs",
+      "archive": "tools/archive/phaser/link-defense-parity.mjs",
+      "replacement": [
+        "tools/link-playable-probe.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-quick-kinetic-match-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-quick-kinetic-match-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/dk-separation-review.mjs",
+      "archive": "tools/archive/phaser/dk-separation-review.mjs",
+      "replacement": [
+        "tools/dk-runtime-mechanics-review.mjs",
+        "tools/dk-jostle-match-regression.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/dk-balance-input-acceptance.mjs",
+      "archive": "tools/archive/phaser/dk-balance-input-acceptance.mjs",
+      "replacement": [
+        "tools/dk-runtime-mechanics-review.mjs",
+        "tools/dk-jostle-match-regression.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-completion-runtime-quick-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-completion-runtime-quick-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-completion-item-match-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-completion-item-match-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/dk-jab-continuability-lab-review.mjs",
+      "archive": "tools/archive/phaser/dk-jab-continuability-lab-review.mjs",
+      "replacement": [
+        "tools/dk-runtime-mechanics-review.mjs",
+        "tools/dk-jostle-match-regression.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-completion-runtime-quick-turn-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-completion-runtime-quick-turn-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-air-landing-match-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-air-landing-match-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/dk-jab-continuability-match-review.mjs",
+      "archive": "tools/archive/phaser/dk-jab-continuability-match-review.mjs",
+      "replacement": [
+        "tools/dk-runtime-mechanics-review.mjs",
+        "tools/dk-jostle-match-regression.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-skull-entry-match-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-skull-entry-match-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-movement-probe.mjs",
+      "archive": "tools/archive/phaser/pikachu-movement-probe.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/shared-combat-parity.mjs",
+      "archive": "tools/archive/phaser/shared-combat-parity.mjs",
+      "replacement": [
+        "port/scripts/live-match.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-completion-directional-dodge-match-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-completion-directional-dodge-match-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-backward-airjump-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-backward-airjump-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-taunt-match-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-taunt-match-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-groundjump-context-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-groundjump-context-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/link-jab-launch.mjs",
+      "archive": "tools/archive/phaser/link-jab-launch.mjs",
+      "replacement": [
+        "tools/link-playable-probe.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-completion-runtime-ground-recovery-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-completion-runtime-ground-recovery-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-throw-match-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-throw-match-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/hurtbox-capsule-acceptance.mjs",
+      "archive": "tools/archive/phaser/hurtbox-capsule-acceptance.mjs",
+      "replacement": [
+        "port/scripts/live-match.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/dk-full-standing-grab-match-review.mjs",
+      "archive": "tools/archive/phaser/dk-full-standing-grab-match-review.mjs",
+      "replacement": [
+        "tools/dk-runtime-mechanics-review.mjs",
+        "tools/dk-jostle-match-regression.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-completion-wall-jump-match-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-completion-wall-jump-match-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/dk-grab-pilot-lab-review.mjs",
+      "archive": "tools/archive/phaser/dk-grab-pilot-lab-review.mjs",
+      "replacement": [
+        "tools/dk-runtime-mechanics-review.mjs",
+        "tools/dk-jostle-match-regression.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/dk-catch-movement-match-review.mjs",
+      "archive": "tools/archive/phaser/dk-catch-movement-match-review.mjs",
+      "replacement": [
+        "tools/dk-runtime-mechanics-review.mjs",
+        "tools/dk-jostle-match-regression.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/link-bomb-charge-probe.mjs",
+      "archive": "tools/archive/phaser/link-bomb-charge-probe.mjs",
+      "replacement": [
+        "tools/link-playable-probe.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-thunder-miss-match-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-thunder-miss-match-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/animation-acceptance.mjs",
+      "archive": "tools/archive/phaser/animation-acceptance.mjs",
+      "replacement": [
+        "port/scripts/live-match.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/link-bow-acceptance.mjs",
+      "archive": "tools/archive/phaser/link-bow-acceptance.mjs",
+      "replacement": [
+        "tools/link-playable-probe.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/link-launch-influence.mjs",
+      "archive": "tools/archive/phaser/link-launch-influence.mjs",
+      "replacement": [
+        "tools/link-playable-probe.mjs"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-grab-match-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-grab-match-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-completion-respawn-dynamic-stage-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-completion-respawn-dynamic-stage-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-completion-states-recovery-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-completion-states-recovery-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-completion-runtime-shield-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-completion-runtime-shield-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/pikachu-lab-acceptance.mjs",
+      "archive": "tools/archive/phaser/pikachu-lab-acceptance.mjs",
+      "replacement": [
+        "tools/pikachu-final-match-probe.mjs",
+        "port/scripts/live-match.mjs",
+        "src/characters/*.physics.test.ts"
+      ],
+      "scope": "Historical Phaser renderer/lab/preview probe; original scenario-specific visual qualification is not transferred by the replacement."
+    },
+    {
+      "archivedFrom": "tools/_verify-runcycle.cjs",
+      "archive": "tools/archive/phaser/_verify-runcycle.cjs",
+      "replacement": [
+        "tools/browser-match-host.mjs",
+        "port/scripts/live-match.mjs",
+        ".agents/skills/add-character/SKILL.md"
+      ],
+      "scope": "Retired Phaser browser driver or character generator; historical only. Current character skills and MatchSim probes preserve their stated scopes."
+    },
+    {
+      "archivedFrom": "tools/_drive-dk.cjs",
+      "archive": "tools/archive/phaser/_drive-dk.cjs",
+      "replacement": [
+        "tools/browser-match-host.mjs",
+        "port/scripts/live-match.mjs",
+        ".agents/skills/add-character/SKILL.md"
+      ],
+      "scope": "Retired Phaser browser driver or character generator; historical only. Current character skills and MatchSim probes preserve their stated scopes."
+    },
+    {
+      "archivedFrom": "tools/_drive-link.cjs",
+      "archive": "tools/archive/phaser/_drive-link.cjs",
+      "replacement": [
+        "tools/browser-match-host.mjs",
+        "port/scripts/live-match.mjs",
+        ".agents/skills/add-character/SKILL.md"
+      ],
+      "scope": "Retired Phaser browser driver or character generator; historical only. Current character skills and MatchSim probes preserve their stated scopes."
+    },
+    {
+      "archivedFrom": "tools/gen-donkeykong-kit.py",
+      "archive": "tools/archive/phaser/gen-donkeykong-kit.py",
+      "replacement": [
+        "tools/browser-match-host.mjs",
+        "port/scripts/live-match.mjs",
+        ".agents/skills/add-character/SKILL.md"
+      ],
+      "scope": "Retired Phaser browser driver or character generator; historical only. Current character skills and MatchSim probes preserve their stated scopes."
+    }
+  ]
+}

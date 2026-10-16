@@ -163,12 +163,9 @@ export interface RecordingControllerOptions {
    */
   readonly buffer?: InputCaptureBuffer;
   /**
-   * Optional pre-built item-spawn event log (T3 items framework, AC
-   * 17). Same lifecycle pattern as `buffer` — when omitted the
-   * controller constructs its own at `start()` time, so callers that
-   * don't care about item events can ignore this option entirely.
-   * The MatchScene passes its scene-owned log so the items spawn
-   * callsite and the recording controller share one source of truth.
+   * Optional scene-owned item-spawn event log. Both replay writers
+   * capture its entries alongside the input timeline. Omission records
+   * no item events; callers without items can ignore this option.
    */
   readonly itemSpawnEventLog?: ItemSpawnEventLog;
 }
@@ -213,6 +210,7 @@ export class RecordingController {
    */
   private readonly externalBuffer: InputCaptureBuffer | null;
   private buffer: InputCaptureBuffer | null;
+  private readonly itemSpawnEventLog: ItemSpawnEventLog | null;
 
   private phase: RecordingPhase = 'idle';
   private matchConfig: MatchConfig | null = null;
@@ -233,6 +231,7 @@ export class RecordingController {
     this.nowFactory = options.nowFactory ?? (() => new Date());
     this.externalBuffer = options.buffer ?? null;
     this.buffer = options.buffer ?? null;
+    this.itemSpawnEventLog = options.itemSpawnEventLog ?? null;
   }
 
   // -------------------------------------------------------------------------
@@ -461,6 +460,7 @@ export class RecordingController {
       engineVersion: this.engineVersion,
       notes: this.notes,
       fixedTimestepMs: this.fixedTimestepMs,
+      itemSpawnEvents: this.itemSpawnEventLog?.getEntries() ?? [],
     };
     return serializeReplay(opts);
   }
@@ -479,6 +479,7 @@ export class RecordingController {
         engineVersion: this.engineVersion,
         notes: this.notes,
         fixedTimestepMs: this.fixedTimestepMs,
+        itemSpawnEvents: this.itemSpawnEventLog?.getEntries() ?? [],
       },
       pretty,
     );

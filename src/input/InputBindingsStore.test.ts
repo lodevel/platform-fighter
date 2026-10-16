@@ -7,8 +7,10 @@ import {
   DEFAULT_KEYBOARD_P2_BINDINGS,
   DEFAULT_PLAYER_BINDINGS,
   InputBindingsStore,
+  SMASH_STICK_THRESHOLD,
   assertValidPlayerBindings,
   buildDefaultGamepadBindings,
+  buildStickHalfAxisBindings,
   mergeBindingsWithDefaults,
 } from './InputBindingsStore';
 import type { PartialPlayerBindings } from './InputBindingsStore';
@@ -88,6 +90,31 @@ describe('Default keyboard presets', () => {
     expect(kbBinding('shield').keyCode).toBe(KEY_CODE.NUMPAD_3);
     expect(kbBinding('grab').keyCode).toBe(KEY_CODE.NUMPAD_4);
     expect(kbBinding('taunt').keyCode).toBe(KEY_CODE.NUMPAD_5);
+  });
+
+  it('smash defaults to V on the P1 layout and Numpad 0 on the P2 layout', () => {
+    expect(DEFAULT_KEYBOARD_P1_BINDINGS.smash).toEqual([{ kind: 'keyboard', keyCode: KEY_CODE.V }]);
+    // Numpad 0 sends Insert with NumLock off (bound to nothing); Numpad 6
+    // would send ArrowRight, P2's move-right.
+    expect(DEFAULT_KEYBOARD_P2_BINDINGS.smash).toEqual([{ kind: 'keyboard', keyCode: KEY_CODE.NUMPAD_0 }]);
+    expect(KEY_CODE.V).toBe(86);
+    expect(KEY_CODE.NUMPAD_0).toBe(96);
+  });
+
+  it('the smash keys are not bound to any other action of either layout', () => {
+    const codes = (bindings: typeof DEFAULT_KEYBOARD_P1_BINDINGS) => LOGICAL_ACTIONS
+      .filter(action => action !== 'smash')
+      .flatMap(action => (bindings[action] ?? []).map(binding => (binding as KeyboardBinding).keyCode));
+    const all = [...codes(DEFAULT_KEYBOARD_P1_BINDINGS), ...codes(DEFAULT_KEYBOARD_P2_BINDINGS)];
+    expect(all).not.toContain(KEY_CODE.V);
+    expect(all).not.toContain(KEY_CODE.NUMPAD_0);
+  });
+
+  it('every preset lists its actions in LOGICAL_ACTIONS order (JSON comparisons depend on it)', () => {
+    for (const preset of [DEFAULT_KEYBOARD_P1_BINDINGS, DEFAULT_KEYBOARD_P2_BINDINGS,
+      DEFAULT_GAMEPAD_P3_BINDINGS, DEFAULT_GAMEPAD_P4_BINDINGS, buildDefaultGamepadBindings(2)]) {
+      expect(Object.keys(preset)).toEqual([...LOGICAL_ACTIONS]);
+    }
   });
 
   it('every keyboard preset action has at least one binding entry', () => {
@@ -204,8 +231,32 @@ describe('Default gamepad presets', () => {
     }
   });
 
-  it('every gamepad preset action has at least one binding entry', () => {
-    for (const action of LOGICAL_ACTIONS) {
+  it('smash is the right stick as four half-axes (axes 2/3) at the smash threshold, pinned to the pad', () => {
+    expect(SMASH_STICK_THRESHOLD).toBe(0.6);
+    for (const [preset, pad] of [[DEFAULT_GAMEPAD_P3_BINDINGS, 0], [DEFAULT_GAMEPAD_P4_BINDINGS, 1],
+      [buildDefaultGamepadBindings(3), 3]] as const) {
+      expect(preset.smash).toEqual([
+        { kind: 'gamepad', gamepadIndex: pad, source: { type: 'axis', axisIndex: 2, direction: -1, threshold: 0.6 } },
+        { kind: 'gamepad', gamepadIndex: pad, source: { type: 'axis', axisIndex: 2, direction: 1, threshold: 0.6 } },
+        { kind: 'gamepad', gamepadIndex: pad, source: { type: 'axis', axisIndex: 3, direction: -1, threshold: 0.6 } },
+        { kind: 'gamepad', gamepadIndex: pad, source: { type: 'axis', axisIndex: 3, direction: 1, threshold: 0.6 } },
+      ]);
+    }
+  });
+
+  it('buildStickHalfAxisBindings expands either axis of a stick to the whole stick', () => {
+    const fromY = buildStickHalfAxisBindings(null, 3, 0.7);
+    const fromX = buildStickHalfAxisBindings(null, 2, 0.7);
+    expect(fromY).toEqual(fromX);
+    expect(fromY.map(binding => binding.kind === 'gamepad' && binding.source.type === 'axis'
+      ? [binding.gamepadIndex, binding.source.axisIndex, binding.source.direction, binding.source.threshold] : null))
+      .toEqual([[null, 2, -1, 0.7], [null, 2, 1, 0.7], [null, 3, -1, 0.7], [null, 3, 1, 0.7]]);
+    expect(buildStickHalfAxisBindings(0, 1, 0.5).map(binding =>
+      binding.kind === 'gamepad' && binding.source.type === 'axis' ? binding.source.axisIndex : -1)).toEqual([0, 0, 1, 1]);
+  });
+
+  it('every gamepad preset action has at least one binding entry (walk is the stick itself)', () => {
+    for (const action of LOGICAL_ACTIONS.filter((a) => a !== 'walk')) {
       expect(DEFAULT_GAMEPAD_P3_BINDINGS[action].length).toBeGreaterThanOrEqual(1);
       expect(DEFAULT_GAMEPAD_P4_BINDINGS[action].length).toBeGreaterThanOrEqual(1);
     }
@@ -569,10 +620,10 @@ describe('mergeBindingsWithDefaults', () => {
   it('honours an explicit playerIndex that matches the slot', () => {
     const merged = mergeBindingsWithDefaults(2, {
       playerIndex: 2,
-      bindings: { attack: [{ kind: 'keyboard', keyCode: KEY_CODE.NUMPAD_0 }] },
+      bindings: { attack: [{ kind: 'keyboard', keyCode: KEY_CODE.NUMPAD_7 }] },
     });
     expect(merged.playerIndex).toBe(2);
-    expect((merged.bindings.attack[0] as KeyboardBinding).keyCode).toBe(KEY_CODE.NUMPAD_0);
+    expect((merged.bindings.attack[0] as KeyboardBinding).keyCode).toBe(KEY_CODE.NUMPAD_7);
   });
 
   it('throws when partial.playerIndex disagrees with the target slot', () => {

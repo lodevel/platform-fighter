@@ -34,7 +34,7 @@ describe('AC 18 — item-aware AI bot', () => {
     const key = {};
     resetSimpleBotState(key);
     const items: ItemSnapshot[] = [
-      { position: { x: 300, y: 200 }, category: 'melee-weapon', pickable: true },
+      { position: { x: 300, y: 200 }, itemClass: 'battering', pickable: true },
     ];
     const input = simpleBotInput(key, SELF, FAR_OPP, 'medium', items, null);
     // moveX should be positive (item is to the right).
@@ -45,18 +45,17 @@ describe('AC 18 — item-aware AI bot', () => {
     const key = {};
     resetSimpleBotState(key);
     const items: ItemSnapshot[] = [
-      { position: { x: 130, y: 200 }, category: 'melee-weapon', pickable: true },
+      { position: { x: 130, y: 200 }, itemClass: 'battering', pickable: true },
     ];
     const input = simpleBotInput(key, SELF, FAR_OPP, 'medium', items, null);
     expect(input.attack).toBe(true);
   });
 
-  it('prioritises ranged-weapon fire when held — presses special, stops moving', () => {
+  it('prioritises shooting-item fire when held — presses attack (the item use), stops moving', () => {
     const key = {};
     resetSimpleBotState(key);
     const held: HeldItemSnapshot = {
-      category: 'ranged-weapon',
-      slotOverrides: ['neutralSpecial'],
+      itemClass: 'shooting',
     };
     const opp = [
       {
@@ -66,7 +65,7 @@ describe('AC 18 — item-aware AI bot', () => {
       },
     ];
     const input = simpleBotInput(key, SELF, opp, 'medium', [], held);
-    expect(input.special).toBe(true);
+    expect(input.attack).toBe(true);
     expect(input.moveX).toBe(0);
   });
 
@@ -74,8 +73,7 @@ describe('AC 18 — item-aware AI bot', () => {
     const key = {};
     resetSimpleBotState(key);
     const held: HeldItemSnapshot = {
-      category: 'throwable',
-      slotOverrides: ['neutralSpecial'],
+      itemClass: 'throwing',
     };
     const opp = [
       {
@@ -92,8 +90,7 @@ describe('AC 18 — item-aware AI bot', () => {
     const key = {};
     resetSimpleBotState(key);
     const held: HeldItemSnapshot = {
-      category: 'melee-weapon',
-      slotOverrides: ['jab', 'tilt', 'smash'],
+      itemClass: 'battering',
     };
     const opp = [
       {
@@ -110,8 +107,7 @@ describe('AC 18 — item-aware AI bot', () => {
     const key = {};
     resetSimpleBotState(key);
     const held: HeldItemSnapshot = {
-      category: 'throwable',
-      slotOverrides: ['neutralSpecial'],
+      itemClass: 'throwing',
     };
     const opp = [
       {

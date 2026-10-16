@@ -32,10 +32,9 @@ import {
   paletteSwapForSlot,
 } from './PaletteSwapRenderer';
 import {
-  CAT_PALETTES,
-  WOLF_PALETTES,
-  OWL_PALETTES,
-  BEAR_PALETTES,
+  LINK_PALETTES,
+  DONKEYKONG_PALETTES,
+  PIKACHU_PALETTES,
   CHARACTER_PALETTES,
   PALETTES_PER_CHARACTER,
 } from './palettes';
@@ -196,10 +195,9 @@ describe('PALETTE_SLOT_ORDER', () => {
 
 describe('getCharacterSourcePalette', () => {
   it.each<[CharacterId, ReadonlyArray<{ primaryColor: number; accentColor: number; labelColor: number }>]>([
-    ['wolf', WOLF_PALETTES],
-    ['cat', CAT_PALETTES],
-    ['owl', OWL_PALETTES],
-    ['bear', BEAR_PALETTES],
+    ['donkeykong', DONKEYKONG_PALETTES],
+    ['pikachu', PIKACHU_PALETTES],
+    ['link', LINK_PALETTES],
   ])('mirrors the canonical (palette 0) entry for %s', (id, ladder) => {
     const source = getCharacterSourcePalette(id);
     expect(source.characterId).toBe(id);
@@ -209,13 +207,13 @@ describe('getCharacterSourcePalette', () => {
   });
 
   it('returns a frozen record', () => {
-    const source = getCharacterSourcePalette('wolf');
+    const source = getCharacterSourcePalette('donkeykong');
     expect(Object.isFrozen(source)).toBe(true);
   });
 
   it('is deterministic — two calls with the same id return equal records', () => {
-    const a = getCharacterSourcePalette('cat');
-    const b = getCharacterSourcePalette('cat');
+    const a = getCharacterSourcePalette('pikachu');
+    const b = getCharacterSourcePalette('pikachu');
     expect(a).toEqual(b);
   });
 });
@@ -226,7 +224,7 @@ describe('getCharacterSourcePalette', () => {
 
 describe('buildPaletteRemap', () => {
   it('emits one entry per slot in PALETTE_SLOT_ORDER', () => {
-    const swap = paletteSwapForCharacter(1, 'wolf', 0);
+    const swap = paletteSwapForCharacter(1, 'donkeykong', 0);
     const remap = buildPaletteRemap(swap);
     expect(remap.entries).toHaveLength(PALETTE_SLOT_ORDER.length);
     expect(remap.entries.map((e) => e.slot)).toEqual([
@@ -237,34 +235,34 @@ describe('buildPaletteRemap', () => {
   });
 
   it('echoes characterId + paletteIndex from the swap', () => {
-    const swap = paletteSwapForCharacter(2, 'cat', 5);
+    const swap = paletteSwapForCharacter(2, 'pikachu', 5);
     const remap = buildPaletteRemap(swap);
-    expect(remap.characterId).toBe('cat');
+    expect(remap.characterId).toBe('pikachu');
     expect(remap.paletteIndex).toBe(5);
   });
 
   it('the body / accent / highlight entries map source canonical colours to swap targets', () => {
-    const swap = paletteSwapForCharacter(1, 'wolf', 1); // cobalt
+    const swap = paletteSwapForCharacter(1, 'donkeykong', 1); 
     const remap = buildPaletteRemap(swap);
 
     const body = remap.entries[0]!;
     expect(body.slot).toBe('body');
-    expect(body.source).toBe(WOLF_PALETTES[0]!.primaryColor); // canonical wolf red
-    expect(body.target).toBe(WOLF_PALETTES[1]!.primaryColor); // cobalt blue
+    expect(body.source).toBe(DONKEYKONG_PALETTES[0]!.primaryColor); 
+    expect(body.target).toBe(DONKEYKONG_PALETTES[1]!.primaryColor); 
 
     const accent = remap.entries[1]!;
     expect(accent.slot).toBe('accent');
-    expect(accent.source).toBe(WOLF_PALETTES[0]!.accentColor);
-    expect(accent.target).toBe(WOLF_PALETTES[1]!.accentColor);
+    expect(accent.source).toBe(DONKEYKONG_PALETTES[0]!.accentColor);
+    expect(accent.target).toBe(DONKEYKONG_PALETTES[1]!.accentColor);
 
     const highlight = remap.entries[2]!;
     expect(highlight.slot).toBe('highlight');
-    expect(highlight.source).toBe(WOLF_PALETTES[0]!.labelColor);
-    expect(highlight.target).toBe(WOLF_PALETTES[1]!.labelColor);
+    expect(highlight.source).toBe(DONKEYKONG_PALETTES[0]!.labelColor);
+    expect(highlight.target).toBe(DONKEYKONG_PALETTES[1]!.labelColor);
   });
 
   it('palette 0 produces a no-op remap (source === target on every slot)', () => {
-    const swap = paletteSwapForCharacter(1, 'wolf', 0);
+    const swap = paletteSwapForCharacter(1, 'donkeykong', 0);
     const remap = buildPaletteRemap(swap);
     for (const entry of remap.entries) {
       expect(entry.source).toBe(entry.target);
@@ -272,7 +270,7 @@ describe('buildPaletteRemap', () => {
   });
 
   it('returns a frozen record + frozen entries', () => {
-    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'wolf', 0));
+    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'donkeykong', 0));
     expect(Object.isFrozen(remap)).toBe(true);
     expect(Object.isFrozen(remap.entries)).toBe(true);
     for (const entry of remap.entries) {
@@ -281,19 +279,19 @@ describe('buildPaletteRemap', () => {
   });
 
   it('defaults tolerance to 0', () => {
-    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'wolf', 0));
+    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'donkeykong', 0));
     expect(remap.tolerance).toBe(0);
   });
 
   it('accepts an explicit tolerance and clamps into [0, 1]', () => {
-    const swap = paletteSwapForCharacter(1, 'wolf', 0);
+    const swap = paletteSwapForCharacter(1, 'donkeykong', 0);
     expect(buildPaletteRemap(swap, { tolerance: 0.1 }).tolerance).toBe(0.1);
     expect(buildPaletteRemap(swap, { tolerance: -1 }).tolerance).toBe(0);
     expect(buildPaletteRemap(swap, { tolerance: 5 }).tolerance).toBe(1);
     expect(buildPaletteRemap(swap, { tolerance: Number.NaN }).tolerance).toBe(0);
   });
 
-  it.each<[CharacterId]>([['wolf'], ['cat'], ['owl'], ['bear']])(
+  it.each<[CharacterId]>([['link'], ['donkeykong'], ['pikachu']])(
     'exhaustively covers all 8 palettes for %s',
     (id) => {
       for (let i = 0; i < PALETTES_PER_CHARACTER; i++) {
@@ -313,7 +311,7 @@ describe('buildPaletteRemapForSlot', () => {
   it('reads characterId + paletteIndex straight off the slot', () => {
     const slot: PlayerSlot = Object.freeze({
       index: 3,
-      characterId: 'cat',
+      characterId: 'pikachu',
       paletteIndex: 2,
       inputType: 'gamepad',
     });
@@ -325,7 +323,7 @@ describe('buildPaletteRemapForSlot', () => {
   it('forwards tolerance options', () => {
     const slot: PlayerSlot = Object.freeze({
       index: 1,
-      characterId: 'wolf',
+      characterId: 'donkeykong',
       paletteIndex: 0,
       inputType: 'keyboard_p1',
     });
@@ -340,7 +338,7 @@ describe('buildPaletteRemapForSlot', () => {
 
 describe('paletteRemapEqual', () => {
   it('returns true for two remaps built from the same swap', () => {
-    const swap = paletteSwapForCharacter(1, 'wolf', 0);
+    const swap = paletteSwapForCharacter(1, 'donkeykong', 0);
     const a = buildPaletteRemap(swap);
     const b = buildPaletteRemap(swap);
     expect(paletteRemapEqual(a, b)).toBe(true);
@@ -349,8 +347,8 @@ describe('paletteRemapEqual', () => {
   it('returns false when characterId differs', () => {
     expect(
       paletteRemapEqual(
-        buildPaletteRemap(paletteSwapForCharacter(1, 'wolf', 0)),
-        buildPaletteRemap(paletteSwapForCharacter(1, 'cat', 0)),
+        buildPaletteRemap(paletteSwapForCharacter(1, 'donkeykong', 0)),
+        buildPaletteRemap(paletteSwapForCharacter(1, 'pikachu', 0)),
       ),
     ).toBe(false);
   });
@@ -358,14 +356,14 @@ describe('paletteRemapEqual', () => {
   it('returns false when paletteIndex differs', () => {
     expect(
       paletteRemapEqual(
-        buildPaletteRemap(paletteSwapForCharacter(1, 'wolf', 0)),
-        buildPaletteRemap(paletteSwapForCharacter(1, 'wolf', 1)),
+        buildPaletteRemap(paletteSwapForCharacter(1, 'donkeykong', 0)),
+        buildPaletteRemap(paletteSwapForCharacter(1, 'donkeykong', 1)),
       ),
     ).toBe(false);
   });
 
   it('returns false when tolerance differs', () => {
-    const swap = paletteSwapForCharacter(1, 'wolf', 0);
+    const swap = paletteSwapForCharacter(1, 'donkeykong', 0);
     expect(
       paletteRemapEqual(
         buildPaletteRemap(swap, { tolerance: 0 }),
@@ -381,30 +379,30 @@ describe('paletteRemapEqual', () => {
 
 describe('remapPixel', () => {
   it('substitutes a pixel that exactly matches the body source', () => {
-    const swap = paletteSwapForCharacter(1, 'wolf', 1); // cobalt
+    const swap = paletteSwapForCharacter(1, 'donkeykong', 1); 
     const remap = buildPaletteRemap(swap);
-    const wolfRed = WOLF_PALETTES[0]!.primaryColor;
-    const cobaltBlue = WOLF_PALETTES[1]!.primaryColor;
-    expect(remapPixel(wolfRed, remap)).toBe(cobaltBlue);
+    const baseBody = DONKEYKONG_PALETTES[0]!.primaryColor;
+    const altBody = DONKEYKONG_PALETTES[1]!.primaryColor;
+    expect(remapPixel(baseBody, remap)).toBe(altBody);
   });
 
   it('substitutes the accent source', () => {
-    const swap = paletteSwapForCharacter(1, 'wolf', 2);
+    const swap = paletteSwapForCharacter(1, 'donkeykong', 2);
     const remap = buildPaletteRemap(swap);
-    const wolfAccent = WOLF_PALETTES[0]!.accentColor;
-    expect(remapPixel(wolfAccent, remap)).toBe(WOLF_PALETTES[2]!.accentColor);
+    const baseAccent = DONKEYKONG_PALETTES[0]!.accentColor;
+    expect(remapPixel(baseAccent, remap)).toBe(DONKEYKONG_PALETTES[2]!.accentColor);
   });
 
   it('substitutes the highlight source', () => {
-    const swap = paletteSwapForCharacter(1, 'cat', 3);
+    const swap = paletteSwapForCharacter(1, 'pikachu', 3);
     const remap = buildPaletteRemap(swap);
-    const catHighlight = CAT_PALETTES[0]!.labelColor;
-    expect(remapPixel(catHighlight, remap)).toBe(CAT_PALETTES[3]!.labelColor);
+    const catHighlight = PIKACHU_PALETTES[0]!.labelColor;
+    expect(remapPixel(catHighlight, remap)).toBe(PIKACHU_PALETTES[3]!.labelColor);
   });
 
   it('passes through pixels that do not match any source slot', () => {
-    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'wolf', 1));
-    // Pure black is not in Wolf's source palette → pass through.
+    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'donkeykong', 1));
+    // Pure black is not in Donkey Kong's source palette → pass through.
     expect(remapPixel(0x000000, remap)).toBe(0x000000);
     // Pure white likewise.
     expect(remapPixel(0xffffff, remap)).toBe(0xffffff);
@@ -413,13 +411,13 @@ describe('remapPixel', () => {
   });
 
   it('palette 0 (canonical) is a no-op for every input', () => {
-    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'wolf', 0));
+    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'donkeykong', 0));
     for (const pixel of [
       0x000000,
       0xffffff,
-      WOLF_PALETTES[0]!.primaryColor,
-      WOLF_PALETTES[0]!.accentColor,
-      WOLF_PALETTES[0]!.labelColor,
+      DONKEYKONG_PALETTES[0]!.primaryColor,
+      DONKEYKONG_PALETTES[0]!.accentColor,
+      DONKEYKONG_PALETTES[0]!.labelColor,
       0x123456,
     ]) {
       expect(remapPixel(pixel, remap)).toBe(pixel);
@@ -427,35 +425,35 @@ describe('remapPixel', () => {
   });
 
   it('clamps non-finite / negative pixel values into the legal 24-bit range', () => {
-    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'wolf', 1));
+    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'donkeykong', 1));
     expect(remapPixel(Number.NaN, remap)).toBe(0x000000);
     expect(remapPixel(-1, remap)).toBe(0x000000);
     expect(remapPixel(0x1000000, remap)).toBe(0xffffff);
   });
 
   it('exact-match short circuit: tolerance=0 ignores near-misses', () => {
-    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'wolf', 1));
-    const wolfRed = WOLF_PALETTES[0]!.primaryColor;
+    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'donkeykong', 1));
+    const baseBody = DONKEYKONG_PALETTES[0]!.primaryColor;
     // One channel off by 1 → no match under tolerance 0.
-    expect(remapPixel(wolfRed + 1, remap)).toBe(wolfRed + 1);
+    expect(remapPixel(baseBody + 1, remap)).toBe(baseBody + 1);
   });
 
   it('non-zero tolerance matches near-misses within the band', () => {
-    const swap = paletteSwapForCharacter(1, 'wolf', 1);
+    const swap = paletteSwapForCharacter(1, 'donkeykong', 1);
     const remap = buildPaletteRemap(swap, { tolerance: 0.05 });
-    const wolfRed = WOLF_PALETTES[0]!.primaryColor;
+    const baseBody = DONKEYKONG_PALETTES[0]!.primaryColor;
     // Off by 8/255 ≈ 0.031 — within ±0.05.
     const nearMiss =
-      ((((wolfRed >> 16) & 0xff) + 8) << 16) |
-      ((((wolfRed >> 8) & 0xff) - 4) << 8) |
-      ((wolfRed & 0xff) + 2);
-    expect(remapPixel(nearMiss, remap)).toBe(WOLF_PALETTES[1]!.primaryColor);
+      ((((baseBody >> 16) & 0xff) + 8) << 16) |
+      ((((baseBody >> 8) & 0xff) - 4) << 8) |
+      ((baseBody & 0xff) + 2);
+    expect(remapPixel(nearMiss, remap)).toBe(DONKEYKONG_PALETTES[1]!.primaryColor);
   });
 
   it('returns the FIRST matching slot when multiple slots could match', () => {
     // Synthesise a pathological remap where body and accent share the same source.
     const remap: PaletteSwapRemap = Object.freeze({
-      characterId: 'wolf',
+      characterId: 'donkeykong',
       paletteIndex: 0,
       tolerance: 0,
       entries: Object.freeze([
@@ -474,23 +472,23 @@ describe('remapPixel', () => {
 
 describe('remapImageData', () => {
   it('walks an RGBA buffer and remaps body / accent / highlight pixels', () => {
-    const swap = paletteSwapForCharacter(1, 'wolf', 1);
+    const swap = paletteSwapForCharacter(1, 'donkeykong', 1);
     const remap = buildPaletteRemap(swap);
 
-    const wolfBody = WOLF_PALETTES[0]!.primaryColor;
-    const cobaltBody = WOLF_PALETTES[1]!.primaryColor;
+    const baseBody = DONKEYKONG_PALETTES[0]!.primaryColor;
+    const altBody = DONKEYKONG_PALETTES[1]!.primaryColor;
 
     // Synthesise a 2x1 RGBA image: body pixel + transparent off-palette pixel.
     const pixels = new Uint8ClampedArray([
-      (wolfBody >> 16) & 0xff, (wolfBody >> 8) & 0xff, wolfBody & 0xff, 255, // body, opaque
+      (baseBody >> 16) & 0xff, (baseBody >> 8) & 0xff, baseBody & 0xff, 255, // body, opaque
       0, 255, 0, 0,                                                          // off-palette, transparent
     ]);
     const out = remapImageData(pixels, remap);
 
     // Body pixel remapped, alpha preserved.
-    expect(out[0]).toBe((cobaltBody >> 16) & 0xff);
-    expect(out[1]).toBe((cobaltBody >> 8) & 0xff);
-    expect(out[2]).toBe(cobaltBody & 0xff);
+    expect(out[0]).toBe((altBody >> 16) & 0xff);
+    expect(out[1]).toBe((altBody >> 8) & 0xff);
+    expect(out[2]).toBe(altBody & 0xff);
     expect(out[3]).toBe(255);
 
     // Off-palette pixel passed through, alpha preserved.
@@ -501,19 +499,19 @@ describe('remapImageData', () => {
   });
 
   it('throws on a buffer length that is not a multiple of 4', () => {
-    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'wolf', 0));
+    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'donkeykong', 0));
     expect(() => remapImageData(new Uint8ClampedArray(7), remap)).toThrow(
       /multiple of 4/i,
     );
   });
 
   it('returns a new buffer (does not mutate the input)', () => {
-    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'wolf', 1));
-    const wolfBody = WOLF_PALETTES[0]!.primaryColor;
+    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'donkeykong', 1));
+    const baseBody = DONKEYKONG_PALETTES[0]!.primaryColor;
     const pixels = new Uint8ClampedArray([
-      (wolfBody >> 16) & 0xff,
-      (wolfBody >> 8) & 0xff,
-      wolfBody & 0xff,
+      (baseBody >> 16) & 0xff,
+      (baseBody >> 8) & 0xff,
+      baseBody & 0xff,
       255,
     ]);
     const before = Array.from(pixels);
@@ -522,14 +520,14 @@ describe('remapImageData', () => {
   });
 
   it('handles a multi-pixel buffer with mixed slot matches', () => {
-    const swap = paletteSwapForCharacter(1, 'cat', 7); // shadow
+    const swap = paletteSwapForCharacter(1, 'pikachu', 7); 
     const remap = buildPaletteRemap(swap);
-    const catBody = CAT_PALETTES[0]!.primaryColor;
-    const catAccent = CAT_PALETTES[0]!.accentColor;
-    const catHighlight = CAT_PALETTES[0]!.labelColor;
-    const shadowBody = CAT_PALETTES[7]!.primaryColor;
-    const shadowAccent = CAT_PALETTES[7]!.accentColor;
-    const shadowHighlight = CAT_PALETTES[7]!.labelColor;
+    const catBody = PIKACHU_PALETTES[0]!.primaryColor;
+    const catAccent = PIKACHU_PALETTES[0]!.accentColor;
+    const catHighlight = PIKACHU_PALETTES[0]!.labelColor;
+    const altBody = PIKACHU_PALETTES[7]!.primaryColor;
+    const altAccent = PIKACHU_PALETTES[7]!.accentColor;
+    const altHighlight = PIKACHU_PALETTES[7]!.labelColor;
 
     const pixels = new Uint8ClampedArray([
       (catBody >> 16) & 0xff,
@@ -546,9 +544,9 @@ describe('remapImageData', () => {
       255,
     ]);
     const out = remapImageData(pixels, remap);
-    expect((out[0]! << 16) | (out[1]! << 8) | out[2]!).toBe(shadowBody);
-    expect((out[4]! << 16) | (out[5]! << 8) | out[6]!).toBe(shadowAccent);
-    expect((out[8]! << 16) | (out[9]! << 8) | out[10]!).toBe(shadowHighlight);
+    expect((out[0]! << 16) | (out[1]! << 8) | out[2]!).toBe(altBody);
+    expect((out[4]! << 16) | (out[5]! << 8) | out[6]!).toBe(altAccent);
+    expect((out[8]! << 16) | (out[9]! << 8) | out[10]!).toBe(altHighlight);
   });
 });
 
@@ -558,23 +556,23 @@ describe('remapImageData', () => {
 
 describe('remapImageDataInPlace', () => {
   it('mutates the input buffer and returns the same reference', () => {
-    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'wolf', 1));
-    const wolfBody = WOLF_PALETTES[0]!.primaryColor;
-    const cobaltBody = WOLF_PALETTES[1]!.primaryColor;
+    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'donkeykong', 1));
+    const baseBody = DONKEYKONG_PALETTES[0]!.primaryColor;
+    const altBody = DONKEYKONG_PALETTES[1]!.primaryColor;
     const pixels = new Uint8ClampedArray([
-      (wolfBody >> 16) & 0xff,
-      (wolfBody >> 8) & 0xff,
-      wolfBody & 0xff,
+      (baseBody >> 16) & 0xff,
+      (baseBody >> 8) & 0xff,
+      baseBody & 0xff,
       255,
     ]);
     const ret = remapImageDataInPlace(pixels, remap);
     expect(ret).toBe(pixels);
-    expect(pixels[0]).toBe((cobaltBody >> 16) & 0xff);
+    expect(pixels[0]).toBe((altBody >> 16) & 0xff);
     expect(pixels[3]).toBe(255);
   });
 
   it('throws on buffer length that is not a multiple of 4', () => {
-    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'wolf', 0));
+    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'donkeykong', 0));
     expect(() => remapImageDataInPlace(new Uint8ClampedArray(5), remap)).toThrow(
       /multiple of 4/i,
     );
@@ -702,7 +700,7 @@ describe('installPaletteSwapPipeline', () => {
 describe('applyPaletteSwapPipeline', () => {
   it('routes a sprite through setPipeline + setPipelineData with the uniform snapshot', () => {
     const sprite = createMockSprite();
-    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'wolf', 1));
+    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'donkeykong', 1));
     const used = applyPaletteSwapPipeline(sprite, remap);
     expect(used).toBe(true);
     expect(sprite.setPipelineCalls).toEqual([PALETTE_SWAP_PIPELINE_KEY]);
@@ -717,7 +715,7 @@ describe('applyPaletteSwapPipeline', () => {
 
   it('uploads source colours as normalised vec3 triples', () => {
     const sprite = createMockSprite();
-    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'wolf', 1));
+    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'donkeykong', 1));
     applyPaletteSwapPipeline(sprite, remap);
     const sourceCall = sprite.setPipelineDataCalls.find(
       (c) => c.key === PALETTE_SWAP_UNIFORM_SOURCE,
@@ -727,7 +725,7 @@ describe('applyPaletteSwapPipeline', () => {
 
   it('uploads target colours as normalised vec3 triples', () => {
     const sprite = createMockSprite();
-    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'cat', 4));
+    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'pikachu', 4));
     applyPaletteSwapPipeline(sprite, remap);
     const targetCall = sprite.setPipelineDataCalls.find(
       (c) => c.key === PALETTE_SWAP_UNIFORM_TARGET,
@@ -737,14 +735,14 @@ describe('applyPaletteSwapPipeline', () => {
 
   it('returns false when the sprite does not expose setPipeline', () => {
     const tintOnly = createTintOnlySprite();
-    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'wolf', 0));
+    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'donkeykong', 0));
     const used = applyPaletteSwapPipeline(tintOnly, remap);
     expect(used).toBe(false);
   });
 
   it('idempotent — re-applying the same remap produces matching uniform calls', () => {
     const sprite = createMockSprite();
-    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'wolf', 0));
+    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'donkeykong', 0));
     applyPaletteSwapPipeline(sprite, remap);
     const firstCalls = [...sprite.setPipelineDataCalls];
     sprite.setPipelineDataCalls.length = 0;
@@ -761,16 +759,16 @@ describe('applyPaletteSwapPipeline', () => {
 describe('applyPaletteSwapTintFallback', () => {
   it('sets tint to the body slot target colour for a non-canonical palette', () => {
     const sprite = createTintOnlySprite();
-    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'wolf', 1));
+    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'donkeykong', 1));
     const used = applyPaletteSwapTintFallback(sprite, remap);
     expect(used).toBe(true);
     expect(sprite.clearTintCalls).toBe(0);
-    expect(sprite.setTintCalls).toEqual([WOLF_PALETTES[1]!.primaryColor]);
+    expect(sprite.setTintCalls).toEqual([DONKEYKONG_PALETTES[1]!.primaryColor]);
   });
 
   it('clears tint (no setTint) for the canonical palette so sprite shows natural colours', () => {
     const sprite = createTintOnlySprite();
-    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'wolf', 0));
+    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'donkeykong', 0));
     const used = applyPaletteSwapTintFallback(sprite, remap);
     expect(used).toBe(true);
     expect(sprite.clearTintCalls).toBe(1);
@@ -778,7 +776,7 @@ describe('applyPaletteSwapTintFallback', () => {
   });
 
   it('returns false when the sprite has no setTint method', () => {
-    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'wolf', 0));
+    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'donkeykong', 0));
     const used = applyPaletteSwapTintFallback({}, remap);
     expect(used).toBe(false);
   });
@@ -790,9 +788,9 @@ describe('applyPaletteSwapTintFallback', () => {
         calls.push(c);
       },
     };
-    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'wolf', 1));
+    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'donkeykong', 1));
     expect(applyPaletteSwapTintFallback(sprite, remap)).toBe(true);
-    expect(calls).toEqual([WOLF_PALETTES[1]!.primaryColor]);
+    expect(calls).toEqual([DONKEYKONG_PALETTES[1]!.primaryColor]);
   });
 });
 
@@ -803,7 +801,7 @@ describe('applyPaletteSwapTintFallback', () => {
 describe('applyPaletteSwapToSprite', () => {
   it('chooses the pipeline path on a sprite that exposes setPipeline', () => {
     const sprite = createMockSprite();
-    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'wolf', 1));
+    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'donkeykong', 1));
     expect(applyPaletteSwapToSprite(sprite, remap)).toBe('pipeline');
     expect(sprite.setPipelineCalls).toEqual([PALETTE_SWAP_PIPELINE_KEY]);
     expect(sprite.setTintCalls).toEqual([]);
@@ -811,13 +809,13 @@ describe('applyPaletteSwapToSprite', () => {
 
   it('falls back to tint when only setTint is exposed', () => {
     const sprite = createTintOnlySprite();
-    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'wolf', 1));
+    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'donkeykong', 1));
     expect(applyPaletteSwapToSprite(sprite, remap)).toBe('tint');
-    expect(sprite.setTintCalls).toEqual([WOLF_PALETTES[1]!.primaryColor]);
+    expect(sprite.setTintCalls).toEqual([DONKEYKONG_PALETTES[1]!.primaryColor]);
   });
 
   it('returns "none" when neither path is available', () => {
-    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'wolf', 0));
+    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'donkeykong', 0));
     expect(applyPaletteSwapToSprite({}, remap)).toBe('none');
   });
 });
@@ -828,7 +826,7 @@ describe('applyPaletteSwapToSprite', () => {
 
 describe('buildPipelineUniforms', () => {
   it('produces normalised vec3 triples for source and target', () => {
-    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'wolf', 1));
+    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'donkeykong', 1));
     const u = buildPipelineUniforms(remap);
     expect(u.source).toHaveLength(3);
     expect(u.target).toHaveLength(3);
@@ -843,7 +841,7 @@ describe('buildPipelineUniforms', () => {
 
   it('forwards tolerance and slotCount', () => {
     const remap = buildPaletteRemap(
-      paletteSwapForCharacter(1, 'wolf', 1),
+      paletteSwapForCharacter(1, 'donkeykong', 1),
       { tolerance: 0.07 },
     );
     const u = buildPipelineUniforms(remap);
@@ -852,7 +850,7 @@ describe('buildPipelineUniforms', () => {
   });
 
   it('returns a frozen snapshot', () => {
-    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'wolf', 0));
+    const remap = buildPaletteRemap(paletteSwapForCharacter(1, 'donkeykong', 0));
     const u = buildPipelineUniforms(remap);
     expect(Object.isFrozen(u)).toBe(true);
     expect(Object.isFrozen(u.source)).toBe(true);
@@ -866,7 +864,7 @@ describe('buildPipelineUniforms', () => {
 
 describe('colorToVec3 / vec3ToColor', () => {
   it('round-trips every canonical palette colour', () => {
-    const ladders = [WOLF_PALETTES, CAT_PALETTES, OWL_PALETTES, BEAR_PALETTES];
+    const ladders = [LINK_PALETTES, DONKEYKONG_PALETTES, PIKACHU_PALETTES];
     for (const ladder of ladders) {
       for (const palette of ladder) {
         for (const color of [
@@ -932,8 +930,8 @@ describe('colorWithinTolerance', () => {
 
 describe('end-to-end — palette grid coverage', () => {
   // Post-M5 roster expansion — iterate the canonical registry so the
-  // grid automatically covers every roster slot (incl. blaze / puff /
-  // aegis) without a parallel literal table here.
+  // grid automatically covers every roster slot (all
+  // fighters) without a parallel literal table here.
   const ids: ReadonlyArray<CharacterId> = Object.keys(
     CHARACTER_PALETTES,
   ) as CharacterId[];
@@ -957,7 +955,7 @@ describe('end-to-end — palette grid coverage', () => {
   it('end-to-end: a PlayerSlot drives applyPaletteSwapToSprite onto a tint-only sprite with the palette body colour', () => {
     const slot: PlayerSlot = Object.freeze({
       index: 2,
-      characterId: 'cat',
+      characterId: 'pikachu',
       paletteIndex: 4,
       inputType: 'gamepad',
     });
@@ -965,6 +963,6 @@ describe('end-to-end — palette grid coverage', () => {
     const remap = buildPaletteRemapForSlot(slot);
     const path = applyPaletteSwapToSprite(sprite, remap);
     expect(path).toBe('tint');
-    expect(sprite.setTintCalls).toEqual([CAT_PALETTES[4]!.primaryColor]);
+    expect(sprite.setTintCalls).toEqual([PIKACHU_PALETTES[4]!.primaryColor]);
   });
 });

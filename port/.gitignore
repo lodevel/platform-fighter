@@ -1,0 +1,4 @@
+node_modules/
+dist/
+# Personal pictures (the Inferno head): served locally, never built or committed.
+private/

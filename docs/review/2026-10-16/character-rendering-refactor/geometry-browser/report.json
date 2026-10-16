@@ -1,0 +1,1070 @@
+{
+  "url": "http://127.0.0.1:4173/platform-fighter/appearance-fixture.html",
+  "browser": "155.0.4283.45",
+  "errors": [],
+  "cases": [
+    {
+      "phase": "stored",
+      "facing": 1,
+      "diagnostics": {
+        "key": "char.link.idle",
+        "frame": 2,
+        "x": 960,
+        "y": 750,
+        "depth": 0,
+        "tint": 16777215,
+        "recolor": [],
+        "originX": 0.55,
+        "originY": 0.9583333333333334,
+        "scaleX": 0.4666667,
+        "scaleY": 0.4666667,
+        "flipX": false,
+        "art": null,
+        "textureResident": true,
+        "submitted": true,
+        "submittedAlpha": null,
+        "visible": true,
+        "layers": [
+          {
+            "key": "char.link.idle",
+            "frame": 2,
+            "x": 960,
+            "y": 750,
+            "depth": 0,
+            "tint": 16777215,
+            "recolor": [],
+            "originX": 0.55,
+            "originY": 0.9583333333333334,
+            "scaleX": 0.4666667,
+            "scaleY": 0.4666667,
+            "flipX": false
+          }
+        ],
+        "frameWidth": 160,
+        "frameHeight": 216,
+        "displayWidth": 74.666672,
+        "displayHeight": 100.8000072
+      },
+      "draws": [
+        {
+          "key": "char.link.idle",
+          "frame": 2,
+          "x": 960,
+          "y": 750,
+          "depth": 0,
+          "tint": 16770772,
+          "recolor": [],
+          "originX": 0.55,
+          "originY": 0.9583333333333334,
+          "scaleX": 0.4666667,
+          "scaleY": 0.4666667,
+          "flipX": false
+        }
+      ],
+      "nodes": [
+        {
+          "name": "",
+          "order": 1,
+          "visible": true
+        }
+      ],
+      "textures": {
+        "resident": [
+          {
+            "key": "char.link.idle",
+            "width": 156,
+            "height": 2280,
+            "rgbaBytes": 1422720
+          }
+        ],
+        "rgbaBytes": 1422720,
+        "preparedDuringLoading": [],
+        "preparedDuringLoadingBytes": 0,
+        "pending": [],
+        "failures": {}
+      },
+      "renderer": {
+        "geometries": 108,
+        "textures": 7
+      },
+      "screenNodes": []
+    },
+    {
+      "phase": "computed",
+      "facing": 1,
+      "diagnostics": {
+        "capability": "test-computed-geometry",
+        "route": "computed",
+        "age": 24,
+        "root": {
+          "x": 960,
+          "y": 750
+        },
+        "facing": 1,
+        "attachmentId": "hand",
+        "handWorld": [
+          2.8000000000000003,
+          -16.6,
+          0
+        ],
+        "disposed": false
+      },
+      "draws": [],
+      "nodes": [
+        {
+          "name": "",
+          "order": 1,
+          "visible": false
+        },
+        {
+          "name": "computed-body",
+          "order": 1,
+          "visible": true
+        },
+        {
+          "name": "computed-attachment",
+          "order": 2,
+          "visible": true
+        }
+      ],
+      "textures": {
+        "resident": [
+          {
+            "key": "char.link.idle",
+            "width": 156,
+            "height": 2280,
+            "rgbaBytes": 1422720
+          }
+        ],
+        "rgbaBytes": 1422720,
+        "preparedDuringLoading": [],
+        "preparedDuringLoadingBytes": 0,
+        "pending": [],
+        "failures": {}
+      },
+      "renderer": {
+        "geometries": 110,
+        "textures": 7
+      },
+      "screenNodes": []
+    },
+    {
+      "phase": "mixed",
+      "facing": 1,
+      "diagnostics": [
+        {
+          "key": "char.link.idle",
+          "frame": 2,
+          "x": 960,
+          "y": 750,
+          "depth": 0,
+          "tint": 16777215,
+          "recolor": [],
+          "originX": 0.55,
+          "originY": 0.9583333333333334,
+          "scaleX": 0.4666667,
+          "scaleY": 0.4666667,
+          "flipX": false,
+          "art": null,
+          "textureResident": true,
+          "submitted": true,
+          "submittedAlpha": null,
+          "visible": true,
+          "layers": [
+            {
+              "key": "char.link.idle",
+              "frame": 2,
+              "x": 960,
+              "y": 750,
+              "depth": 0,
+              "tint": 16777215,
+              "recolor": [],
+              "originX": 0.55,
+              "originY": 0.9583333333333334,
+              "scaleX": 0.4666667,
+              "scaleY": 0.4666667,
+              "flipX": false
+            }
+          ],
+          "frameWidth": 160,
+          "frameHeight": 216,
+          "displayWidth": 74.666672,
+          "displayHeight": 100.8000072
+        },
+        {
+          "capability": "test-computed-geometry",
+          "route": "mixed-accent",
+          "age": 24,
+          "root": {
+            "x": 960,
+            "y": 750
+          },
+          "facing": 1,
+          "attachmentId": "hand",
+          "handWorld": [
+            2.8000000000000003,
+            -16.6,
+            0
+          ],
+          "disposed": false
+        }
+      ],
+      "draws": [
+        {
+          "key": "char.link.idle",
+          "frame": 2,
+          "x": 960,
+          "y": 750,
+          "depth": 0,
+          "tint": 16770772,
+          "recolor": [],
+          "originX": 0.55,
+          "originY": 0.9583333333333334,
+          "scaleX": 0.4666667,
+          "scaleY": 0.4666667,
+          "flipX": false
+        }
+      ],
+      "nodes": [
+        {
+          "name": "",
+          "order": 1,
+          "visible": true
+        },
+        {
+          "name": "computed-body",
+          "order": 2,
+          "visible": false
+        },
+        {
+          "name": "computed-attachment",
+          "order": 3,
+          "visible": true
+        }
+      ],
+      "textures": {
+        "resident": [
+          {
+            "key": "char.link.idle",
+            "width": 156,
+            "height": 2280,
+            "rgbaBytes": 1422720
+          }
+        ],
+        "rgbaBytes": 1422720,
+        "preparedDuringLoading": [],
+        "preparedDuringLoadingBytes": 0,
+        "pending": [],
+        "failures": {}
+      },
+      "renderer": {
+        "geometries": 111,
+        "textures": 7
+      },
+      "screenNodes": []
+    },
+    {
+      "phase": "stored",
+      "facing": 1,
+      "diagnostics": {
+        "key": "char.link.idle",
+        "frame": 2,
+        "x": 960,
+        "y": 750,
+        "depth": 0,
+        "tint": 16777215,
+        "recolor": [],
+        "originX": 0.55,
+        "originY": 0.9583333333333334,
+        "scaleX": 0.4666667,
+        "scaleY": 0.4666667,
+        "flipX": false,
+        "art": null,
+        "textureResident": true,
+        "submitted": true,
+        "submittedAlpha": null,
+        "visible": true,
+        "layers": [
+          {
+            "key": "char.link.idle",
+            "frame": 2,
+            "x": 960,
+            "y": 750,
+            "depth": 0,
+            "tint": 16777215,
+            "recolor": [],
+            "originX": 0.55,
+            "originY": 0.9583333333333334,
+            "scaleX": 0.4666667,
+            "scaleY": 0.4666667,
+            "flipX": false
+          }
+        ],
+        "frameWidth": 160,
+        "frameHeight": 216,
+        "displayWidth": 74.666672,
+        "displayHeight": 100.8000072
+      },
+      "draws": [
+        {
+          "key": "char.link.idle",
+          "frame": 2,
+          "x": 960,
+          "y": 750,
+          "depth": 0,
+          "tint": 16770772,
+          "recolor": [],
+          "originX": 0.55,
+          "originY": 0.9583333333333334,
+          "scaleX": 0.4666667,
+          "scaleY": 0.4666667,
+          "flipX": false
+        }
+      ],
+      "nodes": [
+        {
+          "name": "",
+          "order": 1,
+          "visible": true
+        }
+      ],
+      "textures": {
+        "resident": [
+          {
+            "key": "char.link.idle",
+            "width": 156,
+            "height": 2280,
+            "rgbaBytes": 1422720
+          }
+        ],
+        "rgbaBytes": 1422720,
+        "preparedDuringLoading": [],
+        "preparedDuringLoadingBytes": 0,
+        "pending": [],
+        "failures": {}
+      },
+      "renderer": {
+        "geometries": 111,
+        "textures": 7
+      },
+      "screenNodes": []
+    },
+    {
+      "phase": "stored",
+      "facing": -1,
+      "diagnostics": {
+        "key": "char.link.idle",
+        "frame": 2,
+        "x": 960,
+        "y": 750,
+        "depth": 0,
+        "tint": 16777215,
+        "recolor": [],
+        "originX": 0.44999999999999996,
+        "originY": 0.9583333333333334,
+        "scaleX": 0.4666667,
+        "scaleY": 0.4666667,
+        "flipX": true,
+        "art": null,
+        "textureResident": true,
+        "submitted": true,
+        "submittedAlpha": null,
+        "visible": true,
+        "layers": [
+          {
+            "key": "char.link.idle",
+            "frame": 2,
+            "x": 960,
+            "y": 750,
+            "depth": 0,
+            "tint": 16777215,
+            "recolor": [],
+            "originX": 0.44999999999999996,
+            "originY": 0.9583333333333334,
+            "scaleX": 0.4666667,
+            "scaleY": 0.4666667,
+            "flipX": true
+          }
+        ],
+        "frameWidth": 160,
+        "frameHeight": 216,
+        "displayWidth": 74.666672,
+        "displayHeight": 100.8000072
+      },
+      "draws": [
+        {
+          "key": "char.link.idle",
+          "frame": 2,
+          "x": 960,
+          "y": 750,
+          "depth": 0,
+          "tint": 16770772,
+          "recolor": [],
+          "originX": 0.44999999999999996,
+          "originY": 0.9583333333333334,
+          "scaleX": 0.4666667,
+          "scaleY": 0.4666667,
+          "flipX": true
+        }
+      ],
+      "nodes": [
+        {
+          "name": "",
+          "order": 1,
+          "visible": true
+        }
+      ],
+      "textures": {
+        "resident": [
+          {
+            "key": "char.link.idle",
+            "width": 156,
+            "height": 2280,
+            "rgbaBytes": 1422720
+          }
+        ],
+        "rgbaBytes": 1422720,
+        "preparedDuringLoading": [],
+        "preparedDuringLoadingBytes": 0,
+        "pending": [],
+        "failures": {}
+      },
+      "renderer": {
+        "geometries": 111,
+        "textures": 7
+      },
+      "screenNodes": []
+    },
+    {
+      "phase": "computed",
+      "facing": -1,
+      "diagnostics": {
+        "capability": "test-computed-geometry",
+        "route": "computed",
+        "age": 24,
+        "root": {
+          "x": 960,
+          "y": 750
+        },
+        "facing": -1,
+        "attachmentId": "hand",
+        "handWorld": [
+          -2.8000000000000003,
+          -16.6,
+          0
+        ],
+        "disposed": false
+      },
+      "draws": [],
+      "nodes": [
+        {
+          "name": "",
+          "order": 1,
+          "visible": false
+        },
+        {
+          "name": "computed-body",
+          "order": 1,
+          "visible": true
+        },
+        {
+          "name": "computed-attachment",
+          "order": 2,
+          "visible": true
+        }
+      ],
+      "textures": {
+        "resident": [
+          {
+            "key": "char.link.idle",
+            "width": 156,
+            "height": 2280,
+            "rgbaBytes": 1422720
+          }
+        ],
+        "rgbaBytes": 1422720,
+        "preparedDuringLoading": [],
+        "preparedDuringLoadingBytes": 0,
+        "pending": [],
+        "failures": {}
+      },
+      "renderer": {
+        "geometries": 111,
+        "textures": 7
+      },
+      "screenNodes": []
+    },
+    {
+      "phase": "mixed",
+      "facing": -1,
+      "diagnostics": [
+        {
+          "key": "char.link.idle",
+          "frame": 2,
+          "x": 960,
+          "y": 750,
+          "depth": 0,
+          "tint": 16777215,
+          "recolor": [],
+          "originX": 0.44999999999999996,
+          "originY": 0.9583333333333334,
+          "scaleX": 0.4666667,
+          "scaleY": 0.4666667,
+          "flipX": true,
+          "art": null,
+          "textureResident": true,
+          "submitted": true,
+          "submittedAlpha": null,
+          "visible": true,
+          "layers": [
+            {
+              "key": "char.link.idle",
+              "frame": 2,
+              "x": 960,
+              "y": 750,
+              "depth": 0,
+              "tint": 16777215,
+              "recolor": [],
+              "originX": 0.44999999999999996,
+              "originY": 0.9583333333333334,
+              "scaleX": 0.4666667,
+              "scaleY": 0.4666667,
+              "flipX": true
+            }
+          ],
+          "frameWidth": 160,
+          "frameHeight": 216,
+          "displayWidth": 74.666672,
+          "displayHeight": 100.8000072
+        },
+        {
+          "capability": "test-computed-geometry",
+          "route": "mixed-accent",
+          "age": 24,
+          "root": {
+            "x": 960,
+            "y": 750
+          },
+          "facing": -1,
+          "attachmentId": "hand",
+          "handWorld": [
+            -2.8000000000000003,
+            -16.6,
+            0
+          ],
+          "disposed": false
+        }
+      ],
+      "draws": [
+        {
+          "key": "char.link.idle",
+          "frame": 2,
+          "x": 960,
+          "y": 750,
+          "depth": 0,
+          "tint": 16770772,
+          "recolor": [],
+          "originX": 0.44999999999999996,
+          "originY": 0.9583333333333334,
+          "scaleX": 0.4666667,
+          "scaleY": 0.4666667,
+          "flipX": true
+        }
+      ],
+      "nodes": [
+        {
+          "name": "",
+          "order": 1,
+          "visible": true
+        },
+        {
+          "name": "computed-body",
+          "order": 2,
+          "visible": false
+        },
+        {
+          "name": "computed-attachment",
+          "order": 3,
+          "visible": true
+        }
+      ],
+      "textures": {
+        "resident": [
+          {
+            "key": "char.link.idle",
+            "width": 156,
+            "height": 2280,
+            "rgbaBytes": 1422720
+          }
+        ],
+        "rgbaBytes": 1422720,
+        "preparedDuringLoading": [],
+        "preparedDuringLoadingBytes": 0,
+        "pending": [],
+        "failures": {}
+      },
+      "renderer": {
+        "geometries": 111,
+        "textures": 7
+      },
+      "screenNodes": []
+    },
+    {
+      "phase": "stored",
+      "facing": -1,
+      "diagnostics": {
+        "key": "char.link.idle",
+        "frame": 2,
+        "x": 960,
+        "y": 750,
+        "depth": 0,
+        "tint": 16777215,
+        "recolor": [],
+        "originX": 0.44999999999999996,
+        "originY": 0.9583333333333334,
+        "scaleX": 0.4666667,
+        "scaleY": 0.4666667,
+        "flipX": true,
+        "art": null,
+        "textureResident": true,
+        "submitted": true,
+        "submittedAlpha": null,
+        "visible": true,
+        "layers": [
+          {
+            "key": "char.link.idle",
+            "frame": 2,
+            "x": 960,
+            "y": 750,
+            "depth": 0,
+            "tint": 16777215,
+            "recolor": [],
+            "originX": 0.44999999999999996,
+            "originY": 0.9583333333333334,
+            "scaleX": 0.4666667,
+            "scaleY": 0.4666667,
+            "flipX": true
+          }
+        ],
+        "frameWidth": 160,
+        "frameHeight": 216,
+        "displayWidth": 74.666672,
+        "displayHeight": 100.8000072
+      },
+      "draws": [
+        {
+          "key": "char.link.idle",
+          "frame": 2,
+          "x": 960,
+          "y": 750,
+          "depth": 0,
+          "tint": 16770772,
+          "recolor": [],
+          "originX": 0.44999999999999996,
+          "originY": 0.9583333333333334,
+          "scaleX": 0.4666667,
+          "scaleY": 0.4666667,
+          "flipX": true
+        }
+      ],
+      "nodes": [
+        {
+          "name": "",
+          "order": 1,
+          "visible": true
+        }
+      ],
+      "textures": {
+        "resident": [
+          {
+            "key": "char.link.idle",
+            "width": 156,
+            "height": 2280,
+            "rgbaBytes": 1422720
+          }
+        ],
+        "rgbaBytes": 1422720,
+        "preparedDuringLoading": [],
+        "preparedDuringLoadingBytes": 0,
+        "pending": [],
+        "failures": {}
+      },
+      "renderer": {
+        "geometries": 111,
+        "textures": 7
+      },
+      "screenNodes": []
+    }
+  ],
+  "scripts": [
+    "http://127.0.0.1:4173/platform-fighter/assets/appearance-fixture-DW8e07pC.js"
+  ],
+  "gpu": {
+    "renderer": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x0000A7A0) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "parallelShaderCompile": true
+  },
+  "lifecycle": {
+    "frozen": [
+      {
+        "diagnostics": {
+          "capability": "test-computed-geometry",
+          "route": "computed",
+          "age": 12,
+          "root": {
+            "x": 960,
+            "y": 750
+          },
+          "facing": 1,
+          "attachmentId": "hand",
+          "handWorld": [
+            2.8000000000000003,
+            -16.6,
+            0
+          ],
+          "disposed": false
+        },
+        "draws": [],
+        "nodes": [
+          {
+            "name": "",
+            "order": 1,
+            "visible": false
+          },
+          {
+            "name": "computed-body",
+            "order": 1,
+            "visible": true
+          },
+          {
+            "name": "computed-attachment",
+            "order": 2,
+            "visible": true
+          }
+        ],
+        "textures": {
+          "resident": [
+            {
+              "key": "char.link.idle",
+              "width": 156,
+              "height": 2280,
+              "rgbaBytes": 1422720
+            }
+          ],
+          "rgbaBytes": 1422720,
+          "preparedDuringLoading": [],
+          "preparedDuringLoadingBytes": 0,
+          "pending": [],
+          "failures": {}
+        },
+        "renderer": {
+          "geometries": 111,
+          "textures": 7
+        },
+        "screenNodes": []
+      },
+      {
+        "diagnostics": {
+          "capability": "test-computed-geometry",
+          "route": "computed",
+          "age": 12,
+          "root": {
+            "x": 960,
+            "y": 750
+          },
+          "facing": 1,
+          "attachmentId": "hand",
+          "handWorld": [
+            2.8000000000000003,
+            -16.6,
+            0
+          ],
+          "disposed": false
+        },
+        "draws": [],
+        "nodes": [
+          {
+            "name": "",
+            "order": 1,
+            "visible": false
+          },
+          {
+            "name": "computed-body",
+            "order": 1,
+            "visible": true
+          },
+          {
+            "name": "computed-attachment",
+            "order": 2,
+            "visible": true
+          }
+        ],
+        "textures": {
+          "resident": [
+            {
+              "key": "char.link.idle",
+              "width": 156,
+              "height": 2280,
+              "rgbaBytes": 1422720
+            }
+          ],
+          "rgbaBytes": 1422720,
+          "preparedDuringLoading": [],
+          "preparedDuringLoadingBytes": 0,
+          "pending": [],
+          "failures": {}
+        },
+        "renderer": {
+          "geometries": 111,
+          "textures": 7
+        },
+        "screenNodes": []
+      }
+    ],
+    "restored": {
+      "diagnostics": {
+        "capability": "test-computed-geometry",
+        "route": "computed",
+        "age": 4,
+        "root": {
+          "x": 960,
+          "y": 750
+        },
+        "facing": 1,
+        "attachmentId": "hand",
+        "handWorld": [
+          2.8000000000000003,
+          -16.6,
+          0
+        ],
+        "disposed": false
+      },
+      "draws": [],
+      "nodes": [
+        {
+          "name": "",
+          "order": 1,
+          "visible": false
+        },
+        {
+          "name": "computed-body",
+          "order": 1,
+          "visible": true
+        },
+        {
+          "name": "computed-attachment",
+          "order": 2,
+          "visible": true
+        }
+      ],
+      "textures": {
+        "resident": [
+          {
+            "key": "char.link.idle",
+            "width": 156,
+            "height": 2280,
+            "rgbaBytes": 1422720
+          }
+        ],
+        "rgbaBytes": 1422720,
+        "preparedDuringLoading": [],
+        "preparedDuringLoadingBytes": 0,
+        "pending": [],
+        "failures": {}
+      },
+      "renderer": {
+        "geometries": 111,
+        "textures": 7
+      },
+      "screenNodes": []
+    },
+    "screen": {
+      "diagnostics": {
+        "capability": "test-computed-geometry",
+        "route": "computed",
+        "age": 4,
+        "root": {
+          "x": 960,
+          "y": 750
+        },
+        "facing": 1,
+        "attachmentId": "hand",
+        "handWorld": [
+          2.8000000000000003,
+          -16.6,
+          0
+        ],
+        "disposed": false
+      },
+      "draws": [],
+      "nodes": [
+        {
+          "name": "",
+          "order": 1,
+          "visible": false
+        }
+      ],
+      "textures": {
+        "resident": [
+          {
+            "key": "char.link.idle",
+            "width": 156,
+            "height": 2280,
+            "rgbaBytes": 1422720
+          }
+        ],
+        "rgbaBytes": 1422720,
+        "preparedDuringLoading": [],
+        "preparedDuringLoadingBytes": 0,
+        "pending": [],
+        "failures": {}
+      },
+      "renderer": {
+        "geometries": 111,
+        "textures": 7
+      },
+      "screenNodes": [
+        "fixture:computed"
+      ]
+    },
+    "returnedToWorld": {
+      "diagnostics": {
+        "capability": "test-computed-geometry",
+        "route": "computed",
+        "age": 4,
+        "root": {
+          "x": 960,
+          "y": 750
+        },
+        "facing": 1,
+        "attachmentId": "hand",
+        "handWorld": [
+          2.8000000000000003,
+          -16.6,
+          0
+        ],
+        "disposed": false
+      },
+      "draws": [],
+      "nodes": [
+        {
+          "name": "",
+          "order": 1,
+          "visible": false
+        },
+        {
+          "name": "computed-body",
+          "order": 1,
+          "visible": true
+        },
+        {
+          "name": "computed-attachment",
+          "order": 2,
+          "visible": true
+        }
+      ],
+      "textures": {
+        "resident": [
+          {
+            "key": "char.link.idle",
+            "width": 156,
+            "height": 2280,
+            "rgbaBytes": 1422720
+          }
+        ],
+        "rgbaBytes": 1422720,
+        "preparedDuringLoading": [],
+        "preparedDuringLoadingBytes": 0,
+        "pending": [],
+        "failures": {}
+      },
+      "renderer": {
+        "geometries": 111,
+        "textures": 7
+      },
+      "screenNodes": []
+    },
+    "disposed": {
+      "diagnostics": null,
+      "draws": [],
+      "nodes": [
+        {
+          "name": "",
+          "order": 1,
+          "visible": false
+        }
+      ],
+      "textures": {
+        "resident": [
+          {
+            "key": "char.link.idle",
+            "width": 156,
+            "height": 2280,
+            "rgbaBytes": 1422720
+          }
+        ],
+        "rgbaBytes": 1422720,
+        "preparedDuringLoading": [],
+        "preparedDuringLoadingBytes": 0,
+        "pending": [],
+        "failures": {}
+      },
+      "renderer": {
+        "geometries": 108,
+        "textures": 7
+      },
+      "screenNodes": []
+    },
+    "repeated": {
+      "diagnostics": null,
+      "draws": [],
+      "nodes": [
+        {
+          "name": "",
+          "order": 1,
+          "visible": false
+        }
+      ],
+      "textures": {
+        "resident": [
+          {
+            "key": "char.link.idle",
+            "width": 156,
+            "height": 2280,
+            "rgbaBytes": 1422720
+          }
+        ],
+        "rgbaBytes": 1422720,
+        "preparedDuringLoading": [],
+        "preparedDuringLoadingBytes": 0,
+        "pending": [],
+        "failures": {}
+      },
+      "renderer": {
+        "geometries": 108,
+        "textures": 7
+      },
+      "screenNodes": []
+    }
+  },
+  "previews": [
+    {
+      "phase": "stored",
+      "width": 160,
+      "height": 216,
+      "opaque": 14209
+    },
+    {
+      "phase": "computed",
+      "width": 58,
+      "height": 70,
+      "opaque": 2861
+    },
+    {
+      "phase": "mixed",
+      "width": 76,
+      "height": 98,
+      "opaque": 3362
+    }
+  ],
+  "result": "PASS"
+}

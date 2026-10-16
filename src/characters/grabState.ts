@@ -84,6 +84,9 @@ export type GrabStateName =
 
 /** Transient sub-record stored when the grabber is acting. */
 export interface ActiveGrab {
+  readonly cargo?: boolean;
+  readonly throwAirborne?:boolean;
+  readonly cargoStartupRemaining?: number;
   /** Frames elapsed in the current named state. */
   readonly framesElapsed: number;
   /**
@@ -161,7 +164,7 @@ export function isThrowing(state: GrabState): boolean {
  * true.
  */
 export function isGrabActing(state: GrabState): boolean {
-  return state.name !== 'idle';
+  return state.name !== 'idle' && !(state.name === 'holding' && state.active?.cargo && !state.active.cargoStartupRemaining);
 }
 
 /**
@@ -170,7 +173,7 @@ export function isGrabActing(state: GrabState): boolean {
  * applying pummel damage to the target.
  */
 export function canPummel(state: GrabState): boolean {
-  return state.name === 'holding' && (state.active?.pummelCooldownRemaining ?? 1) === 0;
+  return state.name === 'holding' && !state.active?.cargo && (state.active?.pummelCooldownRemaining ?? 1) === 0;
 }
 
 // ---------------------------------------------------------------------------
@@ -214,10 +217,11 @@ export function canPummel(state: GrabState): boolean {
  * Pure: identical `(state, input, spec)` triples produce identical
  * outputs.
  */
-export function tickGrab(
+function tickGrabInternal(
   state: GrabState,
   input: GrabInput,
   spec: GrabSpec,
+  pummelAccepted?: () => void,
 ): GrabState {
   // 1. Cooldown drain ----------------------------------------------------
   if (state.name === 'cooldown') {
@@ -301,11 +305,22 @@ export function tickGrab(
 
   // 3. Holding -----------------------------------------------------------
   if (state.name === 'holding') {
+    const cargo = state.active?.cargo === true;
+    const startup = Math.max(0, (state.active?.cargoStartupRemaining ?? 0) - 1);
+    if (state.active?.cargoStartupRemaining) {
+      return { ...state, active: { ...state.active, cargoStartupRemaining: startup } };
+    }
+    if (!cargo && spec.cargo && input.throwDirection === 'forward') {
+      return { name: 'holding', active: { framesElapsed: 0, pummelCooldownRemaining: 0, throwDirection: null,
+        cargo: true, cargoStartupRemaining: spec.cargo.startupFrames }, cooldownRemaining: 0 };
+    }
     // Throw direction press wins immediately — transition to 'throwing'.
     if (input.throwDirection !== null) {
       return Object.freeze({
         name: 'throwing',
         active: Object.freeze({
+          cargo,
+          throwAirborne: cargo&&!input.grounded,
           framesElapsed: 0,
           pummelCooldownRemaining: 0,
           throwDirection: input.throwDirection,
@@ -319,10 +334,10 @@ export function tickGrab(
       (state.active?.pummelCooldownRemaining ?? 0) - 1,
     );
     // Pummel press resets the cooldown if we were ready and a press came in.
-    if (input.pummelPressed && pummelCooldown === 0 && spec.pummel) {
+    if (!cargo && input.pummelPressed && pummelCooldown === 0 && spec.pummel) {
       pummelCooldown = spec.pummel.cooldownFrames;
     }
-    if (elapsed >= spec.holdFramesMax) {
+    if (elapsed >= (cargo ? spec.cargo?.holdFramesMax ?? spec.holdFramesMax : spec.holdFramesMax)) {
       // Auto mash-out release — drop into cooldown, no throw fired.
       return Object.freeze({
         name: 'cooldown',
@@ -330,9 +345,12 @@ export function tickGrab(
         cooldownRemaining: spec.throwRecoveryFrames,
       });
     }
+    if (!cargo && input.pummelPressed && spec.pummel && (state.active?.pummelCooldownRemaining ?? 1) <= 1)
+      pummelAccepted?.();
     return Object.freeze({
       name: 'holding',
       active: Object.freeze({
+        cargo,
         framesElapsed: elapsed,
         pummelCooldownRemaining: pummelCooldown,
         throwDirection: null,
@@ -345,14 +363,16 @@ export function tickGrab(
   if (state.name === 'throwing') {
     const dir = state.active?.throwDirection;
     const elapsed = (state.active?.framesElapsed ?? 0) + 1;
-    const animFrames = dir ? spec.throws[dir].animationFrames : 1;
+    const throwSet = state.active?.cargo ? state.active.throwAirborne?spec.cargo?.airThrows??spec.cargo?.throws??spec.throws:spec.cargo?.throws ?? spec.throws : spec.throws;
+    const clock = dir ? resolveGrabThrowClock(spec,throwSet[dir]) : {releaseAge:1,recoveryFrames:spec.throwRecoveryFrames};
+    const animFrames = clock.releaseAge;
     if (elapsed >= animFrames) {
       // Release fires this frame — runtime applies damage / knockback
       // separately. State machine transitions into cooldown.
       return Object.freeze({
         name: 'cooldown',
         active: null,
-        cooldownRemaining: spec.throwRecoveryFrames,
+        cooldownRemaining: clock.recoveryFrames,
       });
     }
     return Object.freeze({
@@ -361,6 +381,8 @@ export function tickGrab(
         framesElapsed: elapsed,
         pummelCooldownRemaining: 0,
         throwDirection: dir ?? null,
+        cargo: state.active?.cargo,
+        throwAirborne:state.active?.throwAirborne,
       }),
       cooldownRemaining: 0,
     });
@@ -379,6 +401,25 @@ export function tickGrab(
     });
   }
   return state;
+}
+
+/** Source opt-in translates only actual THROW releases, never cargo entry. */
+export function resolveGrabThrowClock(spec:GrabSpec,selected:import('./throwSchema').ThrowSpec) {
+  const recovery=selected.recoveryFrames??spec.throwRecoveryFrames;
+  const shift=spec.throwClock==='native-sample-one'?1:0;
+  return {releaseAge:selected.animationFrames-shift,recoveryFrames:recovery+shift,totalFrames:selected.animationFrames+recovery};
+}
+
+/** Atomic acceptance observation; no event for throws, expiry, cargo or rejected presses. */
+export function stepGrabWithEvents(state:GrabState,input:GrabInput,spec:GrabSpec) {
+  let pummelStarted=false;
+  const next=tickGrabInternal(state,input,spec,()=>{pummelStarted=true;});
+  return {state:next,pummelStarted};
+}
+
+/** Compatibility route retains the same legacy state transitions. */
+export function tickGrab(state:GrabState,input:GrabInput,spec:GrabSpec):GrabState {
+  return tickGrabInternal(state,input,spec);
 }
 
 // ---------------------------------------------------------------------------
@@ -413,15 +454,14 @@ export function applyGrabConnect(state: GrabState): GrabState {
  *   • The grabber takes a hit / enters hitstun.
  *   • The grabber's stocks are exhausted (KO mid-grab).
  *
- * Transitions into `'cooldown'` with the spec's throw recovery so the
- * grabber pays a small cost. Returns state unchanged if not currently
- * `'holding'`.
+ * Transitions holding or an unreleased throw into cooldown. Other states
+ * remain unchanged.
  */
 export function applyGrabBreak(
   state: GrabState,
   spec: GrabSpec,
 ): GrabState {
-  if (state.name !== 'holding') return state;
+  if (state.name !== 'holding' && state.name !== 'throwing') return state;
   return Object.freeze({
     name: 'cooldown',
     active: null,

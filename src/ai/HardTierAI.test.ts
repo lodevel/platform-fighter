@@ -564,7 +564,7 @@ describe('HardTierAI — verb translation', () => {
     expect(translateRecoveryEmit({ kind: 'moveUp' })).toEqual({ kind: 'moveUp' });
     expect(translateRecoveryEmit({ kind: 'moveDown' })).toEqual({ kind: 'moveDown' });
     expect(translateRecoveryEmit({ kind: 'jump' })).toEqual({ kind: 'jump' });
-    expect(translateRecoveryEmit({ kind: 'upSpecial' })).toEqual({ kind: 'special' });
+    expect(translateRecoveryEmit({ kind: 'upSpecial' })).toEqual({ kind: 'upSpecial' });
     expect(translateRecoveryEmit({ kind: 'airDodge' })).toEqual({ kind: 'dodge' });
   });
 });

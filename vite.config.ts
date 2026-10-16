@@ -1,40 +1,21 @@
-import { defineConfig } from 'vite';
-import path from 'path';
+import path from 'node:path';
+import { configDefaults, defineConfig, mergeConfig } from 'vitest/config';
+import portConfig from './port/vite.config';
 
-// `base` is the deploy sub-path. GitHub Pages serves project repos at
-// `https://<user>.github.io/<repo>/`, so the production bundle plus every
-// URL produced by `import.meta.env.BASE_URL` (see `src/assets/manifest.ts`)
-// must include that prefix. In dev (`npm run dev`) we keep `base = '/'`
-// so the local server stays at `http://localhost:5173/`.
-const PROD_BASE = '/platform-fighter/';
-
-export default defineConfig(({ command }) => ({
-  root: '.',
-  base: command === 'build' ? PROD_BASE : '/',
-  publicDir: 'assets',
-  server: {
-    host: '0.0.0.0',
-    port: 5173,
-    open: false,
-    strictPort: false,
-  },
-  preview: {
-    port: 4173,
-  },
+/** The production app is the Three.js/HTML host over the shared MatchSim. */
+export default defineConfig(({ command }) => mergeConfig(portConfig, {
+  root: path.resolve(__dirname, 'port'),
+  base: command === 'build' ? '/platform-fighter/' : '/',
   build: {
-    target: 'es2022',
-    outDir: 'dist',
-    assetsDir: 'assets',
-    sourcemap: true,
-    minify: 'esbuild',
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          phaser: ['phaser'],
-        },
-      },
-    },
-    chunkSizeWarningLimit: 4000,
+    outDir: path.resolve(__dirname, 'dist'), emptyOutDir: true,
+    sourcemap: true, chunkSizeWarningLimit: 4000,
+  },
+  server: { host: '0.0.0.0', port: 5173, strictPort: false, open: false },
+  preview: { host: '0.0.0.0', port: 4173, strictPort: true },
+  test: {
+    root: __dirname,
+    include: ['src/**/*.test.ts', 'scripts/**/*.test.ts', 'port/src/**/*.check.ts'],
+    exclude: [...configDefaults.exclude, '.tmp/**', 'docs/**'],
   },
   resolve: {
     alias: {
@@ -51,8 +32,5 @@ export default defineConfig(({ command }) => ({
       '@utils': path.resolve(__dirname, 'src/utils'),
       '@types': path.resolve(__dirname, 'src/types'),
     },
-  },
-  optimizeDeps: {
-    include: ['phaser'],
   },
 }));

@@ -7,7 +7,7 @@ import {
   STAGE_DESIGN_HEIGHT,
   STAGE_DESIGN_WIDTH,
 } from './stageDefinitions';
-import { BLAST_ZONE_LABELS, PLATFORM_LABELS } from './StageRenderer';
+import { BLAST_ZONE_LABELS, PLATFORM_LABELS } from './stageBodies';
 import {
   LAVA_HAZARD_LABEL_PREFIX,
   WIND_HAZARD_LABEL_PREFIX,
@@ -204,7 +204,7 @@ describe('BaseStage — geometry & viewport transform', () => {
     const { scene } = createMockScene();
     const stage = new BaseStage(scene, FLAT_STAGE);
 
-    expect(stage.rendered.platformBodies.length).toBe(
+    expect(stage.bodies.platformBodies.length).toBe(
       FLAT_STAGE.platforms.length,
     );
 
@@ -213,16 +213,16 @@ describe('BaseStage — geometry & viewport transform', () => {
       ? PLATFORM_LABELS.passThrough
       : PLATFORM_LABELS.solid;
     expect(
-      (stage.rendered.platformBodies[0] as any).options.label,
+      (stage.bodies.platformBodies[0] as any).options.label,
     ).toBe(firstLabel);
   });
 
   it('builds the four blast-zone sensor walls by default', () => {
     const { scene } = createMockScene();
     const stage = new BaseStage(scene, FLAT_STAGE);
-    expect(stage.rendered.blastZoneBodies.length).toBe(4);
+    expect(stage.bodies.blastZoneBodies.length).toBe(4);
     const labels = new Set(
-      stage.rendered.blastZoneBodies.map((b) => (b as any).options.label),
+      stage.bodies.blastZoneBodies.map((b) => (b as any).options.label),
     );
     expect(labels).toEqual(
       new Set([
@@ -236,7 +236,7 @@ describe('BaseStage — geometry & viewport transform', () => {
 
   it('caches the design→viewport transform that matches the renderer', () => {
     const { scene } = createMockScene(960, 540); // half-size viewport
-    const stage = new BaseStage(scene, FLAT_STAGE);
+    const stage = new BaseStage(scene, FLAT_STAGE, { viewportSize: { width: 960, height: 540 } });
     // Half size means scale = 0.5 (16:9 → 16:9 fits exactly).
     expect(stage.transform.viewportScale).toBeCloseTo(0.5, 6);
     // 16:9 viewport → no letterbox offset.
@@ -246,7 +246,7 @@ describe('BaseStage — geometry & viewport transform', () => {
     expect(stage.transform.viewportHeight).toBe(540);
   });
 
-  it('honours an explicit `viewportSize` override over `scene.scale.gameSize`', () => {
+  it('honours an explicit `viewportSize` over the default design size', () => {
     // Live scene reports 1920×1080, but we override to 480×270 so the
     // transform is deterministic regardless of the test environment.
     const { scene } = createMockScene(1920, 1080);
@@ -313,8 +313,8 @@ describe('BaseStage — hazard renderers', () => {
       onLavaKo: () => {},
       onWindForce: () => {},
     });
-    expect(stage.lavaHazards).toBeNull();
-    expect(stage.windHazards).toBeNull();
+    expect(stage.hazards.lava).toHaveLength(0);
+    expect(stage.hazards.wind).toHaveLength(0);
     expect(stage.lavaCollisionWatcher).toBeNull();
     expect(stage.windForceController).toBeNull();
     expect(stage.needsCollisionEndChannel()).toBe(false);
@@ -324,8 +324,8 @@ describe('BaseStage — hazard renderers', () => {
     const { scene, bodies } = createMockScene();
     const onLavaKo = vi.fn();
     const stage = new BaseStage(scene, LAVA_STAGE, { onLavaKo });
-    expect(stage.lavaHazards).not.toBeNull();
-    expect(stage.lavaHazards!.hazards.length).toBe(
+    expect(stage.hazards.lava.length).toBeGreaterThan(0);
+    expect(stage.hazards.lava.length).toBe(
       LAVA_STAGE.hazards.filter((h) => h.type === 'lava').length,
     );
     expect(stage.lavaCollisionWatcher).not.toBeNull();
@@ -337,7 +337,7 @@ describe('BaseStage — hazard renderers', () => {
       typeof b.options.label === 'string' &&
       b.options.label.startsWith(LAVA_HAZARD_LABEL_PREFIX),
     );
-    expect(lavaBodies.length).toBe(stage.lavaHazards!.hazards.length);
+    expect(lavaBodies.length).toBe(stage.hazards.lava.length);
   });
 
   it('builds lava VISUALS but no watcher when the listener is omitted (preview mode)', () => {
@@ -345,7 +345,7 @@ describe('BaseStage — hazard renderers', () => {
     // No `onLavaKo` — the stage builder preview wants the lava visuals
     // without the gameplay consequences.
     const stage = new BaseStage(scene, LAVA_STAGE);
-    expect(stage.lavaHazards).not.toBeNull();
+    expect(stage.hazards.lava.length).toBeGreaterThan(0);
     expect(stage.lavaCollisionWatcher).toBeNull();
     expect(stage.needsCollisionEndChannel()).toBe(false);
   });
@@ -354,8 +354,8 @@ describe('BaseStage — hazard renderers', () => {
     const { scene, bodies } = createMockScene();
     const onWindForce = vi.fn();
     const stage = new BaseStage(scene, WIND_STAGE, { onWindForce });
-    expect(stage.windHazards).not.toBeNull();
-    expect(stage.windHazards!.hazards.length).toBe(
+    expect(stage.hazards.wind.length).toBeGreaterThan(0);
+    expect(stage.hazards.wind.length).toBe(
       WIND_STAGE.hazards.filter((h) => h.type === 'wind').length,
     );
     expect(stage.windForceController).not.toBeNull();
@@ -367,7 +367,7 @@ describe('BaseStage — hazard renderers', () => {
       typeof b.options.label === 'string' &&
       b.options.label.startsWith(WIND_HAZARD_LABEL_PREFIX),
     );
-    expect(windBodies.length).toBe(stage.windHazards!.hazards.length);
+    expect(windBodies.length).toBe(stage.hazards.wind.length);
   });
 });
 
@@ -444,16 +444,16 @@ describe('BaseStage — hazard lifecycle', () => {
     // so capture initial values then advance an exact number of fixed
     // steps and compare modulo the same cycle to verify exactly one
     // tick fired per `tickHazards` call.
-    const initialFrames = stage.lavaHazards!.hazards.map((h) =>
+    const initialFrames = stage.hazards.lava.map((h) =>
       h.entity.getFrame(),
     );
-    const cycleFrames = stage.lavaHazards!.hazards.map((h) =>
+    const cycleFrames = stage.hazards.lava.map((h) =>
       h.entity.getCycleFrames(),
     );
     stage.tickHazards(1);
     stage.tickHazards(2);
     stage.tickHazards(3);
-    const advancedFrames = stage.lavaHazards!.hazards.map((h) =>
+    const advancedFrames = stage.hazards.lava.map((h) =>
       h.entity.getFrame(),
     );
     for (let i = 0; i < initialFrames.length; i += 1) {
@@ -471,8 +471,8 @@ describe('BaseStage — hazard lifecycle', () => {
 
     // Pull the first registered lava sensor body out of the watcher's
     // hazard registry by walking the rendered handles.
-    const lavaBody = stage.lavaHazards!.hazards[0]!.body as any;
-    const lavaEntity = stage.lavaHazards!.hazards[0]!.entity;
+    const lavaBody = stage.hazards.lava[0]!.body as any;
+    const lavaEntity = stage.hazards.lava[0]!.entity;
 
     // Fast-forward the lava entity past its active threshold so the
     // overlap actually fires a KO. We tick the entity directly; the
@@ -519,12 +519,7 @@ describe('BaseStage — hazard lifecycle', () => {
     ).toBe(true);
   });
 
-  it('updateRender drives the platform binders without throwing', () => {
-    const { scene } = createMockScene();
-    const stage = new BaseStage(scene, FLAT_STAGE);
-    expect(() => stage.updateRender(0)).not.toThrow();
-    expect(() => stage.updateRender(60)).not.toThrow();
-  });
+
 });
 
 // ---------------------------------------------------------------------------
@@ -532,18 +527,15 @@ describe('BaseStage — hazard lifecycle', () => {
 // ---------------------------------------------------------------------------
 
 describe('BaseStage — teardown', () => {
-  it('destroys every body + visual exactly once', () => {
-    const { scene, bodies, rects } = createMockScene();
+  it('destroys every physics body exactly once', () => {
+    const { scene, bodies } = createMockScene();
     const stage = new BaseStage(scene, LAVA_STAGE, { onLavaKo: () => {} });
     expect(bodies.some((b) => b.removed)).toBe(false);
-    expect(rects.some((r) => r.destroyed)).toBe(false);
 
     stage.destroy();
     // Every body Phaser/Matter created should have gone through
     // `world.remove`.
     expect(bodies.every((b) => b.removed)).toBe(true);
-    // Every visual rectangle should have gone through `destroy()`.
-    expect(rects.every((r) => r.destroyed)).toBe(true);
     expect(stage.isDestroyed()).toBe(true);
   });
 
@@ -564,6 +556,5 @@ describe('BaseStage — teardown', () => {
     // Should not crash even though all visuals/bodies are gone.
     expect(() => stage.tickHazards(1)).not.toThrow();
     expect(() => stage.applyHazardEffects(1)).not.toThrow();
-    expect(() => stage.updateRender(1)).not.toThrow();
   });
 });

@@ -157,6 +157,7 @@ describe('AIInputProvider — press verbs', () => {
     ['jump', 'jump'],
     ['attack', 'attack'],
     ['attackHeavy', 'attackHeavy'],
+    ['grab', 'grab'],
     ['shield', 'shield'],
     ['dodge', 'dodge'],
     ['dropThrough', 'dropThrough'],
@@ -170,11 +171,20 @@ describe('AIInputProvider — press verbs', () => {
     },
   );
 
-  it('special verb routes through the attackHeavy slot until a dedicated field lands', () => {
+  it('special uses the dedicated special field without pressing heavy attack', () => {
     const bot = makeBot();
     bot.setScript([[{ kind: 'special' }]]);
-    expect(bot.sample(0).attackHeavy).toBe(true);
+    expect(bot.sample(0).special).toBe(true);
+    expect(bot.sample(0).attackHeavy).toBe(false);
     expect(bot.sample(0).attack).toBe(false);
+  });
+
+  it('preserves both axes and up-special when recovery steers diagonally', () => {
+    const bot = makeBot();
+    bot.setScript([[{ kind: 'moveRight' }, { kind: 'moveUp' }, { kind: 'upSpecial' }],
+      [{ kind: 'moveLeft' }, { kind: 'moveYAxis', value: 0.6 }, { kind: 'grab' }]]);
+    expect(bot.sample(0)).toMatchObject({ moveX: 1, moveY: -1, special: true, attackHeavy: false });
+    expect(bot.sample(1)).toMatchObject({ moveX: -1, moveY: 0.6, special: false, grab: true });
   });
 
   it('combines movement + attack into a forward-tilt input on the same tick', () => {

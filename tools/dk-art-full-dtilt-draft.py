@@ -1,0 +1,27 @@
+#!/usr/bin/env python3
+"""Eight-cell complete dtilt review draft; writes evidence only, never shipping."""
+from pathlib import Path
+import copy,hashlib,json
+import numpy as np
+from PIL import Image,ImageDraw,ImageOps
+ROOT=Path(__file__).resolve().parents[1];ART=ROOT/'docs/review/2026-09-25/donkeykong-character/audit-2026-10-08/art';RUNTIME=ART.parent/'runtime'
+def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+def main():
+ proposalpath=RUNTIME/'full-dtilt-integration-proposal.json';proposal=json.loads(proposalpath.read_text());baseline=ROOT/'assets/characters/donkeykong/frames.json';metadata=json.loads(baseline.read_text());sourcefiles={1:'dk-firstclips-batch05-clean1-firstclips-dtilt-native1-quarter-candidate.png',5:'dk-firstclips-batch06-clean4-firstclips-dtilt-native5-quarter-candidate.png',6:'dtilt-native6-packed-scale-0.25-candidate.png',7:'dk-firstclips-batch06-clean4-firstclips-dtilt-native7-quarter-candidate.png',8:'dk-firstclips-batch06-clean4-firstclips-dtilt-native8-quarter-candidate.png',15:'dk-firstclips-batch07-clean4-firstclips-dtilt-native15-quarter-candidate.png',24:'dk-firstclips-batch07-clean4-firstclips-dtilt-native24-quarter-candidate.png'}
+ strip=Image.new('RGBA',(2688,256));world=Image.new('RGBA',(1160,1040),(25,30,39,255));draw=ImageDraw.Draw(world);rows=[];hurts=[];attacks=[];pending=[]
+ for row in proposal['poseRows']:
+  i=row['artFrameIndex'];n=row['nativeSample'];imagepath=ART/sourcefiles[n];image=Image.open(imagepath).convert('RGBA');assert image.size==(384,256);strip.paste(image,(i*384,0));a=np.array(image);last=int(np.where(a[:,:,3]>=32)[0].max());floor=(last+.5-208)*5/6.5;assert abs(floor)<=.55
+  col=i%2;line=i//2;x=col*580;y=line*260;draw.text((x+6,y+4),f'cell{i} native{n} age[{row["windowStart"]},{row["windowEndExclusive"]})',fill='white');draw.line((x,y+242,x+579,y+242),fill=(90,107,130));view=image.resize((round(384*5/6.5),round(256*5/6.5)),Image.Resampling.LANCZOS)
+  for cx,face in [(x+90,1),(x+480,-1)]:
+   v=view if face==1 else ImageOps.mirror(view);rx=round(128*5/6.5) if face==1 else v.width-round(128*5/6.5);world.alpha_composite(v,(cx-rx,y+242-round(208*5/6.5)))
+  receivingpath=ROOT/row['receivingCandidate'] if row['receivingCandidate'] else ART/'MISSING-RECEIVING.json';record={**row,'image':str(imagepath.relative_to(ROOT)),'imageSha256':sha(imagepath),'alpha32FloorPixelCentreWorldDelta':floor,'receivingCandidate':str(receivingpath.relative_to(ROOT)),'receivingCandidateSha256':sha(receivingpath) if receivingpath.exists() else None}
+  if receivingpath.exists():
+   rp=json.loads(receivingpath.read_text());hurt=copy.deepcopy(rp['hurtboxPoses'][0]);hurt['artFrameIndex']=i;assert hurt['nativeSample']==n;hurts.append(hurt)
+  else:pending.append({'nativeSample':n,'gap':'paired receiving fit pending'})
+  ap=json.loads((ROOT/row['attackSourcePacket']).read_text());hits=ap.get('collisionHits')
+  if hits is None:hits=ap['attackCollisionPoses'][0]['collisionHits']
+  attacks.append({'artFrameIndex':i,'nativeSample':n,'collisionHits':[{'id':h['id'],'capsule':copy.deepcopy(h['capsule'])}for h in hits]});rows.append(record)
+ stripfile=ART/'full-dtilt-seven-cell-quarter-draft.png';strip.save(stripfile);world.convert('RGB').save(ART/'full-dtilt-seven-cell-bothfaces-world-draft.png');registration={k:v for k,v in proposal['registration'].items() if k!='columns'}
+ clip={'strip':'animations/dtilt.png',**registration,'sourceCells':[[i,0]for i in range(7)],'frameWindows':[{'startFrame':r['windowStart'],'endFrame':r['windowEndExclusive'],'artFrameIndex':r['artFrameIndex']}for r in rows],'loopDuration':None,'pairedActionTimeline':{'endFrame':24},'hurtboxPoses':hurts,'attackCollisionPoses':attacks,'artProvenance':{'state':'seven_separately_reviewed_source_clock_cells_draft_actual_packed_match_pending','receiving':'authored target contour; no native hit_data parity','discreteSampling':'Explicit held drawing windows outside active samples; source motion samples1/5/6/7/8/15/24'}}
+ metadata['animations']['dtilt']=clip;draft=ART/'full-dtilt-frames-draft.json';draft.write_text(json.dumps(metadata,indent=2)+'\n');report={'state':'complete_seven_cell_atlas_draft_metadata_pairs_pending' if pending else 'complete_seven_cell_atlas_paired_metadata_draft_review_pending','registration':proposal['registration'],'sourceMetadata':str(baseline.relative_to(ROOT)),'sourceMetadataSha256':sha(baseline),'sourceProposal':str(proposalpath.relative_to(ROOT)),'sourceProposalSha256':sha(proposalpath),'strip':str(stripfile.relative_to(ROOT)),'stripSha256':sha(stripfile),'metadataDraft':str(draft.relative_to(ROOT)),'metadataDraftSha256':sha(draft),'poseRows':rows,'pending':pending,'shippingChanged':False,'actualAtlasViewed':False,'wholeClipStaticAccepted':False,'actualMatchVerified':False};(ART/'full-dtilt-seven-cell-draft-review.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps({'state':report['state'],'stripSha256':report['stripSha256'],'pending':pending},indent=2))
+if __name__=='__main__':main()

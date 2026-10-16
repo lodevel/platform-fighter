@@ -1,0 +1,376 @@
+{
+  "state": "packed_cells_visually_reviewed_runtime_pending",
+  "coordinateContract": {
+    "canonicalCanvas": [
+      2048,
+      2048
+    ],
+    "canonicalRoot": [
+      1024,
+      1664
+    ],
+    "frameWidth": 512,
+    "frameHeight": 512,
+    "root": [
+      256,
+      416
+    ],
+    "scaleToWorld": 0.4666666666666667,
+    "bodyCentreFromRoot": [
+      0,
+      -25
+    ]
+  },
+  "clockContract": "docs/review/2026-10-06/pikachu-character/sources/angled-tilt-runtime-clock-contract.json",
+  "clockContractSha256": "5b4bf0c031e0e417f594cb41e8d170ac64bba53a942861d2f22b41c409228e3f",
+  "animations": {
+    "tilt_down": {
+      "strip": "animations/tilt_down.png",
+      "frameCount": 10,
+      "sha256": "16e921308a59b27f4e13c65ff984c7a1a9b4d27f6deb7d009fff3013ba8e1e2b",
+      "frameWindows": [
+        {
+          "startFrame": 0,
+          "endFrame": 3,
+          "artFrameIndex": 0
+        },
+        {
+          "startFrame": 3,
+          "endFrame": 5,
+          "artFrameIndex": 1
+        },
+        {
+          "startFrame": 5,
+          "endFrame": 6,
+          "artFrameIndex": 2
+        },
+        {
+          "startFrame": 6,
+          "endFrame": 7,
+          "artFrameIndex": 3
+        },
+        {
+          "startFrame": 7,
+          "endFrame": 9,
+          "artFrameIndex": 4
+        },
+        {
+          "startFrame": 9,
+          "endFrame": 12,
+          "artFrameIndex": 5
+        },
+        {
+          "startFrame": 12,
+          "endFrame": 20,
+          "artFrameIndex": 6
+        },
+        {
+          "startFrame": 20,
+          "endFrame": 29,
+          "artFrameIndex": 7
+        }
+      ],
+      "loopDuration": null,
+      "nativeSampleIndices": [
+        0,
+        3,
+        5,
+        6,
+        7,
+        9,
+        12,
+        20,
+        32,
+        45
+      ],
+      "nativeWindows": null,
+      "drawingFacingBinding": null,
+      "holdRule": null,
+      "specialPhase": null,
+      "specialClockKind": null,
+      "dynamicCutoff": null,
+      "playableEndExclusive": null,
+      "runtimeBindingStatus": "angled move consumer prepared",
+      "columns": 8,
+      "rows": 2,
+      "atlasRepack": {
+        "sheet": "tilt_down",
+        "previousLayout": "docs/review/2026-10-06/pikachu-character/art/texture-atlas-repack/tilt_down-reviewed-linear.png",
+        "previousSha256": "50d168ff2db217e6f1389bd78d6ae1b7d0bdc25aade6795c967ffd84b0cd97b8",
+        "sha256": "16e921308a59b27f4e13c65ff984c7a1a9b4d27f6deb7d009fff3013ba8e1e2b",
+        "dimensions": [
+          4096,
+          1024
+        ],
+        "columns": 8,
+        "rows": 2,
+        "cellPixelsUnchanged": true,
+        "cells": [
+          {
+            "index": 0,
+            "cell": [
+              0,
+              0
+            ],
+            "rgbaSha256": "cd5bb226ea05e1a77746afcc21ed620849cd5988a23714e567184028ff54818f"
+          },
+          {
+            "index": 1,
+            "cell": [
+              1,
+              0
+            ],
+            "rgbaSha256": "8424b02d0781ccc1ce14d3dd0f204be34a6720b046612f9abc5ba7037861588d"
+          },
+          {
+            "index": 2,
+            "cell": [
+              2,
+              0
+            ],
+            "rgbaSha256": "de9ea3555db5774bbbb9146e11f17b8e368355f42069499ba15a05dc873b8e86"
+          },
+          {
+            "index": 3,
+            "cell": [
+              3,
+              0
+            ],
+            "rgbaSha256": "7678a9bf4291bb73816d1ba5f20199d43957b81e1946068bbcbd76f4d1620680"
+          },
+          {
+            "index": 4,
+            "cell": [
+              4,
+              0
+            ],
+            "rgbaSha256": "25ad6502ee91217328bc13a0df96b55bd0f1b48385f43c8ab560807ad8629a13"
+          },
+          {
+            "index": 5,
+            "cell": [
+              5,
+              0
+            ],
+            "rgbaSha256": "c316bb122ff614ed598d604ed120cf5dae0826e5cfb11a16f32121397a366e09"
+          },
+          {
+            "index": 6,
+            "cell": [
+              6,
+              0
+            ],
+            "rgbaSha256": "d9bb841ee8c4f2c6dbd8a9c779fbb9505e666752073af68ec1cd3afff790496a"
+          },
+          {
+            "index": 7,
+            "cell": [
+              7,
+              0
+            ],
+            "rgbaSha256": "86b47f00c10081a68e14b59fe0f8a00a57229af9836215c37da5e3bd5928b526"
+          },
+          {
+            "index": 8,
+            "cell": [
+              0,
+              1
+            ],
+            "rgbaSha256": "eb19c21aed58c30d39a12241fc453e3de09ea9fbe799fb44185e7d4c37c2586f"
+          },
+          {
+            "index": 9,
+            "cell": [
+              1,
+              1
+            ],
+            "rgbaSha256": "61bb01484299e2d30ed9041f20144d288ddb1c4ae6a884c2012515817586e6df"
+          }
+        ],
+        "layoutReview": "docs/review/2026-10-06/pikachu-character/art/texture-atlas-repack/tilt_down-layout-review.png",
+        "layoutReviewSha256": "e19a329bc3b27d3c73ccfa1cd38a24f3d69efff4253797024b46a0164864a8fb"
+      }
+    }
+  },
+  "sources": [
+    {
+      "sourceKey": "full-forward-tilt-down-sample0-source0",
+      "nativeSample": 0,
+      "sourceReferenceSha256": "9cad376738a427a083fb3b4dd0b641730155c5b8c1f796b32eebb4297aed65e6",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-tilts-batch002-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "ba147626c5904cee9d2f2a4bf33d03aadac2c7164dfccc71d2635c3b08c6ee26",
+      "atlasCell": 2,
+      "cellOffset": [
+        0,
+        1024
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-tilts-batch002-bounded-source0-attempt1.review.json",
+      "reviewSha256": "464f4c938148bfd8290f1dd5fd49461daeb806d570c078020a63c5d8c31de7ff"
+    },
+    {
+      "sourceKey": "full-forward-tilt-down-sample3-source3",
+      "nativeSample": 3,
+      "sourceReferenceSha256": "9aac68086030d58e3ee73d25c0aa1a141ba28684eacbce4acebcd510c51171c9",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-tilts-batch002-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "ba147626c5904cee9d2f2a4bf33d03aadac2c7164dfccc71d2635c3b08c6ee26",
+      "atlasCell": 3,
+      "cellOffset": [
+        1024,
+        1024
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-tilts-batch002-bounded-source0-attempt1.review.json",
+      "reviewSha256": "464f4c938148bfd8290f1dd5fd49461daeb806d570c078020a63c5d8c31de7ff"
+    },
+    {
+      "sourceKey": "full-forward-tilt-down-sample5-source5",
+      "nativeSample": 5,
+      "sourceReferenceSha256": "b3b65602de6f7805756b45806d5d541aab0e4460ed9bd63a7090b897ce46233a",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-tilts-batch003-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "4116239af6bc1f129aef1ed6e16b29b183b81b833b94858d2fc1ae5dd41dac0b",
+      "atlasCell": 0,
+      "cellOffset": [
+        0,
+        0
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-tilts-batch003-bounded-source0-attempt1.review.json",
+      "reviewSha256": "bba244173e5905dfb815e2193741ae44c718679d90266c98ae8a4c622d3e267a"
+    },
+    {
+      "sourceKey": "full-forward-tilt-down-sample6-source6",
+      "nativeSample": 6,
+      "sourceReferenceSha256": "e490b98ce6617c36b3e696660fe5c803fa1baf6c5fcdcba59a29bd5798533039",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-tilts-batch003-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "4116239af6bc1f129aef1ed6e16b29b183b81b833b94858d2fc1ae5dd41dac0b",
+      "atlasCell": 1,
+      "cellOffset": [
+        1024,
+        0
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-tilts-batch003-bounded-source0-attempt1.review.json",
+      "reviewSha256": "bba244173e5905dfb815e2193741ae44c718679d90266c98ae8a4c622d3e267a"
+    },
+    {
+      "sourceKey": "full-forward-tilt-down-sample7-source7",
+      "nativeSample": 7,
+      "sourceReferenceSha256": "10f5934c5c964aeac7e59f6bd889751fc6bdf831cc07b4949f4635463d3ddff9",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-tilts-batch003-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "4116239af6bc1f129aef1ed6e16b29b183b81b833b94858d2fc1ae5dd41dac0b",
+      "atlasCell": 2,
+      "cellOffset": [
+        0,
+        1024
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-tilts-batch003-bounded-source0-attempt1.review.json",
+      "reviewSha256": "bba244173e5905dfb815e2193741ae44c718679d90266c98ae8a4c622d3e267a"
+    },
+    {
+      "sourceKey": "full-forward-tilt-down-sample9-source9",
+      "nativeSample": 9,
+      "sourceReferenceSha256": "4cbb9a1db26bd2afc984fd79d3537ac8927717e6b5afb6612ba04ce73375f14d",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-tilts-batch003-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "4116239af6bc1f129aef1ed6e16b29b183b81b833b94858d2fc1ae5dd41dac0b",
+      "atlasCell": 3,
+      "cellOffset": [
+        1024,
+        1024
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-tilts-batch003-bounded-source0-attempt1.review.json",
+      "reviewSha256": "bba244173e5905dfb815e2193741ae44c718679d90266c98ae8a4c622d3e267a"
+    },
+    {
+      "sourceKey": "full-forward-tilt-down-sample12-source12",
+      "nativeSample": 12,
+      "sourceReferenceSha256": "7f73db83b51e8076b9ba43db3ede13e5b92cda36183fcec3e7f03279e376bbf4",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-tilts-batch004-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "d3235b11923dc04bae46138bd795428a220d42e5e5d8978246ba36696ab298e4",
+      "atlasCell": 0,
+      "cellOffset": [
+        0,
+        0
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-tilts-batch004-bounded-source0-attempt1.review.json",
+      "reviewSha256": "4eb8cb2693032a98faa5812e8e0c7f96299d956aa7ce0f399db4269fdc46b827"
+    },
+    {
+      "sourceKey": "full-forward-tilt-down-sample20-source20",
+      "nativeSample": 20,
+      "sourceReferenceSha256": "a7d55a35fa157f333bcd8a24b8cfef79398876a5ba3c2078016f90d1aab0ddfd",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-tilts-batch004-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "d3235b11923dc04bae46138bd795428a220d42e5e5d8978246ba36696ab298e4",
+      "atlasCell": 1,
+      "cellOffset": [
+        1024,
+        0
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-tilts-batch004-bounded-source0-attempt1.review.json",
+      "reviewSha256": "4eb8cb2693032a98faa5812e8e0c7f96299d956aa7ce0f399db4269fdc46b827"
+    },
+    {
+      "sourceKey": "full-forward-tilt-down-sample32-source32",
+      "nativeSample": 32,
+      "sourceReferenceSha256": "191f319c4613a817d617a2c64f8f23db23d54aeb76a2aa02a72fa1a93cd63d05",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-tilts-batch004-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "d3235b11923dc04bae46138bd795428a220d42e5e5d8978246ba36696ab298e4",
+      "atlasCell": 2,
+      "cellOffset": [
+        0,
+        1024
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-tilts-batch004-bounded-source0-attempt1.review.json",
+      "reviewSha256": "4eb8cb2693032a98faa5812e8e0c7f96299d956aa7ce0f399db4269fdc46b827"
+    },
+    {
+      "sourceKey": "full-forward-tilt-down-sample45-source45",
+      "nativeSample": 45,
+      "sourceReferenceSha256": "0f0f52c015404d6afa395d36f0e87ff99a287aad676a1ab47b5a683eb01b55e1",
+      "atlas": "docs/review/2026-10-06/pikachu-character/art/tiled-tilts-batch004-bounded-source0-attempt1-cutout.png",
+      "atlasSha256": "d3235b11923dc04bae46138bd795428a220d42e5e5d8978246ba36696ab298e4",
+      "atlasCell": 3,
+      "cellOffset": [
+        1024,
+        1024
+      ],
+      "uniformScale": 0.5,
+      "sourceUniformScale": 0.25,
+      "review": "docs/review/2026-10-06/pikachu-character/art/tiled-tilts-batch004-bounded-source0-attempt1.review.json",
+      "reviewSha256": "4eb8cb2693032a98faa5812e8e0c7f96299d956aa7ce0f399db4269fdc46b827"
+    }
+  ],
+  "galleries": {
+    "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/tilt_down-cells-1.png": "285874628bd679cc9e965819430afad64f947beeef71dda3cee77538bc3bc0e6",
+    "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/tilt_down-cells-2.png": "2c27bb56260cbbf8c59c7dd5c86f064db3695014c6932994a960cf4d54a74d36",
+    "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/tilt_down-cells-3.png": "9a086a27b2fa407f9f7b46cafd7c94cd5fc479d707b502f00347360087d0cc2f"
+  },
+  "limits": [
+    "Actual packed-cell inspection required before aggregate registration.",
+    "Authored beta presentation windows do not establish native status rate parity.",
+    "Actual running-game qualification remains separate."
+  ],
+  "packedVisualReview": {
+    "reviewer": "pikachu_art_motion",
+    "inspectedActualGalleries": {
+      "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/tilt_down-cells-1.png": "285874628bd679cc9e965819430afad64f947beeef71dda3cee77538bc3bc0e6",
+      "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/tilt_down-cells-2.png": "2c27bb56260cbbf8c59c7dd5c86f064db3695014c6932994a960cf4d54a74d36",
+      "docs/review/2026-10-06/pikachu-character/tiled-body/packed-preparation/tilt_down-cells-3.png": "9a086a27b2fa407f9f7b46cafd7c94cd5fc479d707b502f00347360087d0cc2f"
+    },
+    "scope": "Actually inspected all10 source-order512x512 cells on light/dark. Root256,416 and scale fixed; native32/45 postaction never selected by8playable windows. Rough alpha/inside-gap residue limitations retained from originals. Receiving/runtime contacts pending."
+  }
+}

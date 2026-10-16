@@ -129,6 +129,7 @@
  *         case 'trap':          handleTrap(dn);          break;
  *         case 'stallAndFall':  handleStallAndFall(dn);  break;
  *         case 'counter':       handleCounter(dn);       break;
+ *         case 'shockwave':     handleShockwave(dn);     break;
  *       }
  *     }
  *
@@ -153,7 +154,7 @@ import type {
   AttackMoveWithAnimation,
   KnockbackSpec,
 } from './moveSchema';
-import { computeAttackPhase, getMoveBusyFrames } from './moveSchema';
+import { computeAttackPhase, getMoveBusyFrames, validateSpecialLandingLagFrames } from './moveSchema';
 
 // ---------------------------------------------------------------------------
 // Down-special-kind discriminator
@@ -210,10 +211,12 @@ import { computeAttackPhase, getMoveBusyFrames } from './moveSchema';
  *                        different clamp range, different launch vector.
  */
 export type DownSpecialKind =
+  | 'thunder'
   | 'groundPound'
   | 'trap'
   | 'stallAndFall'
-  | 'counter';
+  | 'counter'
+  | 'shockwave';
 
 // ---------------------------------------------------------------------------
 // Per-kind detail records
@@ -385,6 +388,13 @@ export interface DownSpecialTrapSpec {
    * self-bounce. Ignored unless `fuseDetonateFrames` is set.
    */
   readonly selfBounceVelocity?: number;
+  /** Initial travel of a released bomb; mirrored horizontally by facing. */
+  readonly throwSpeedX?: number;
+  readonly throwSpeedY?: number;
+  /** Launch away from the placed blast origin instead of its owner's facing. */
+  readonly launchAwayFromSource?: boolean;
+  readonly hitlagMultiplier?: number;
+  readonly sdiMultiplier?: number;
 }
 
 /**
@@ -560,15 +570,61 @@ export interface CounterDownSpecialMove extends DownSpecialMoveBase {
 }
 
 /**
+ * `'shockwave'` — a STATIONARY grounded strike that hits through its own
+ * `hitWindows` (typically ground-only `collisionHits`), optionally repeats
+ * while the special button is mashed, and optionally swaps to a separate
+ * airborne record. Canonical example: Donkey Kong's Hand Slap — two ground
+ * slaps per 26-frame loop that continue while B is mashed, and a distinct
+ * two-hit aerial clap.
+ */
+export interface DownSpecialShockwaveSpec {
+  /**
+   * Airborne variant started instead of the grounded record when the press
+   * happens in the air. Must keep the move id and the `'downSpecial'` type;
+   * its landing commitment comes from its own `specialLandingLagFrames`.
+   */
+  readonly aerialVariant?: AttackMoveWithAnimation;
+  /**
+   * Mash repeat (grounded only). A special press while elapsed is inside
+   * the input window `[windowStart, windowEnd)` queues one more loop (two
+   * when elapsed >= `doubleRepeatFrom`); when elapsed reaches the loop point
+   * `loopFrame` the timeline rewinds to `entryFrame` (fresh hit windows) and
+   * consumes one queued loop, at most `maxRepeats` times per activation.
+   * The input window and the loop point are independent.
+   */
+  readonly repeat?: {
+    readonly windowStart: number;
+    readonly windowEnd: number;
+    readonly loopFrame: number;
+    readonly entryFrame: number;
+    readonly maxRepeats?: number;
+    readonly doubleRepeatFrom?: number;
+  };
+}
+
+export interface ShockwaveDownSpecialMove extends DownSpecialMoveBase {
+  readonly downSpecialKind: 'shockwave';
+  readonly shockwave: DownSpecialShockwaveSpec;
+}
+
+/**
  * Discriminated union of every down-special record. Use
  * `DownSpecialMove['downSpecialKind']` to switch on the variant; the
  * compiler narrows to the matching detail record automatically.
  */
 export type DownSpecialMove =
+  | ThunderDownSpecialMove
   | GroundPoundDownSpecialMove
   | TrapDownSpecialMove
   | StallAndFallDownSpecialMove
-  | CounterDownSpecialMove;
+  | CounterDownSpecialMove
+  | ShockwaveDownSpecialMove;
+
+export interface ThunderDownSpecialMove extends AttackMoveWithAnimation {
+  readonly type: 'downSpecial';
+  readonly downSpecialKind: 'thunder';
+  readonly pikachuSpecial: import('./pikachuSpecialMoves').PikachuSpecialPreset;
+}
 
 // ---------------------------------------------------------------------------
 // Type guards
@@ -579,11 +635,18 @@ export function isDownSpecialMove(move: AttackMove): move is DownSpecialMove {
   if (move.type !== 'downSpecial') return false;
   const kind = (move as Partial<DownSpecialMoveBase>).downSpecialKind;
   return (
+    kind === 'thunder' ||
     kind === 'groundPound' ||
     kind === 'trap' ||
     kind === 'stallAndFall' ||
-    kind === 'counter'
+    kind === 'counter' ||
+    kind === 'shockwave'
   );
+}
+
+/** True iff `move` is a `'shockwave'`-kind down special. */
+export function isShockwaveDownSpecial(move: AttackMove): move is ShockwaveDownSpecialMove {
+  return isDownSpecialMove(move) && move.downSpecialKind === 'shockwave';
 }
 
 /** True iff `move` is a ground-pound-kind down-special. */
@@ -767,9 +830,13 @@ export function validateDownSpecialMove(
       `DownSpecialMove '${move.id}': type must be 'downSpecial', got '${move.type}'`,
     );
   }
+  validateSpecialLandingLagFrames(move);
   const busyTotal = getMoveBusyFrames(move);
 
   switch (move.downSpecialKind) {
+    case 'thunder':
+      if (move.pikachuSpecial?.kind !== 'thunder') throw new Error('Thunder requires its versioned mechanic preset');
+      break;
     case 'groundPound': {
       const g = move.groundPound;
       if (!Number.isInteger(g.hopFrames) || g.hopFrames < 1) {
@@ -806,6 +873,19 @@ export function validateDownSpecialMove(
     }
     case 'trap': {
       const t = move.trap;
+      for (const value of [t.throwSpeedX, t.throwSpeedY]) {
+        if (value !== undefined && !Number.isFinite(value)) {
+          throw new Error(`DownSpecialMove '${move.id}': trap throw speeds must be finite`);
+        }
+      }
+      if (t.launchAwayFromSource !== undefined && typeof t.launchAwayFromSource !== 'boolean') {
+        throw new Error(`DownSpecialMove '${move.id}': trap.launchAwayFromSource must be boolean`);
+      }
+      for (const key of ['hitlagMultiplier', 'sdiMultiplier'] as const) {
+        if (t[key] !== undefined && (!Number.isFinite(t[key]) || t[key]! < 0)) {
+          throw new Error(`DownSpecialMove '${move.id}': trap.${key} must be non-negative and finite`);
+        }
+      }
       if (t.trapWidth <= 0 || t.trapHeight <= 0) {
         throw new Error(
           `DownSpecialMove '${move.id}': trap dimensions must be positive (got ${t.trapWidth}x${t.trapHeight})`,
@@ -901,6 +981,36 @@ export function validateDownSpecialMove(
         throw new Error(
           `DownSpecialMove '${move.id}': counter.counterHitbox dimensions must be positive (got ${cnt.counterHitbox.width}x${cnt.counterHitbox.height})`,
         );
+      }
+      break;
+    }
+    case 'shockwave': {
+      const sw = move.shockwave;
+      if (sw.aerialVariant !== undefined) {
+        if (sw.aerialVariant.type !== 'downSpecial' || sw.aerialVariant.id !== move.id) {
+          throw new Error(
+            `DownSpecialMove '${move.id}': shockwave.aerialVariant must retain the downSpecial type and move id`,
+          );
+        }
+        const v = sw.aerialVariant;
+        if (v.startupFrames < 0 || v.activeFrames < 0 || v.recoveryFrames < 0) {
+          throw new Error(`DownSpecialMove '${move.id}': shockwave.aerialVariant frame counts must be >= 0`);
+        }
+      }
+      if (sw.repeat !== undefined) {
+        const r = sw.repeat;
+        if (
+          !Number.isInteger(r.windowStart) || !Number.isInteger(r.windowEnd) || !Number.isInteger(r.loopFrame) ||
+          !Number.isInteger(r.entryFrame) || (r.maxRepeats !== undefined && !Number.isInteger(r.maxRepeats)) ||
+          r.entryFrame < 0 || r.entryFrame >= r.loopFrame || r.windowStart < 0 || r.windowEnd <= r.windowStart ||
+          r.loopFrame < r.windowEnd || r.loopFrame > busyTotal || (r.maxRepeats !== undefined && r.maxRepeats < 1) ||
+          (r.doubleRepeatFrom !== undefined && (!Number.isInteger(r.doubleRepeatFrom)
+            || r.doubleRepeatFrom < r.windowStart || r.doubleRepeatFrom >= r.windowEnd))
+        ) {
+          throw new Error(
+            `DownSpecialMove '${move.id}': shockwave.repeat must satisfy 0 <= entryFrame < loopFrame, 0 <= windowStart < windowEnd <= loopFrame <= busyTotal=${busyTotal}, optional maxRepeats >= 1 and windowStart <= doubleRepeatFrom < windowEnd`,
+          );
+        }
       }
       break;
     }

@@ -5,10 +5,14 @@ import {
   CHARACTER_LABEL,
   CROUCH_KNOCKBACK_REDUCTION,
   SDI_NUDGE_PX,
-  TECH_WINDOW_FRAMES,
+  KNOCKDOWN_FRAMES,
+  KNOCKDOWN_OPTION_LOCK_FRAMES,
+  TRIP_KNOCKDOWN_FRAMES,
+  TRIP_OPTION_LOCK_FRAMES,
   type CharacterInput,
 } from './Character';
 import { HITBOX_LABEL } from './attacks';
+import { TECH_INPUT_FRAMES } from './surfaceTech';
 // Sub-AC 3 of the T2 refactor — the legacy `Character.prototype.registerAttack`
 // method is no longer defined inside `Character.ts`. The same registration
 // behaviour now lives in `attackRegistration.ts`, which both exports the
@@ -17,22 +21,52 @@ import { HITBOX_LABEL } from './attacks';
 // side-effect import wires the shim in before any test calls
 // `ch.registerAttack(...)` on a base `Character` instance.
 import './attackRegistration';
+import { REVIVAL_PLATFORM_MAX_FRAMES } from '../match/revivalPlatform';
 import {
   BASELINE_MASS,
   MAX_DAMAGE_PERCENT,
   MIN_HITSTUN_FRAMES,
+  STALE_FRESH_MULTIPLIER,
   STALE_QUEUE_SIZE,
   computeKnockback,
+  decayLaunchVelocity,
   type HitInfo,
 } from './combat';
 // Sub-AC 2.2 of the T2 refactor — movement values come from the per-fighter
-// movement profile (Wolf / Bear) rather than a generic base default.
+// movement profile rather than a generic base default. Generic fixtures
+// use a base `Character` with id 'link': unlike DK and Pikachu it has no
+// id-gated jump, knockdown, ledge or capture branches on the base class.
 import {
-  WOLF_MOVEMENT_PROFILE,
-  BEAR_MOVEMENT_PROFILE,
+  LINK_MOVEMENT_PROFILE,
+  DONKEYKONG_MOVEMENT_PROFILE,
 } from './fighterMovementProfiles';
+import { PIKACHU_MOVEMENT_PROFILE } from './pikachuMovement';
+import { resolveDodgeTuning } from './dodgeState';
+
+/**
+ * Generic fixture for the shared machinery: a base `Character` with Link's
+ * id, with the roster profile's calibration extras switched off (ordinary
+ * landing lag, instant initial dash and the extra rise accelerations), so
+ * movement, jumps and attacks are measured against the plain tuning
+ * fields. Tests about those features pass their own values.
+ */
+const GENERIC_FIXTURE = {
+  id: 'link',
+  softLandingFrames: 0,
+  hardLandingFrames: 0,
+  riseAccel: 0,
+  shortHopRiseAccel: 0,
+  airJumpRiseAccel: 0,
+  locomotion: { initialDashInstantStart: false },
+} as const;
 import { COLLISION_CATEGORIES, COLLISION_MASKS } from '../engine/collisionCategories';
-import { PLATFORM_LABELS } from '../stages/StageRenderer';
+import { PLATFORM_LABELS } from '../stages/stageBodies';
+import { DeviceInputDispatcher } from '../input/DeviceInputDispatcher';
+import { InputBindingsStore } from '../input/InputBindingsStore';
+import {
+  InputResolver,
+  buildCharacterInputFromResolver,
+} from '../input/InputResolver';
 
 /**
  * Sub-AC 1 of AC 201: `Character` is a Phaser-touching helper, but its
@@ -69,6 +103,8 @@ interface MockBody {
   velocity: { x: number; y: number };
   label: string | undefined;
   options: Record<string, unknown>;
+  plugin: Record<string, unknown>;
+  collisionFilter: { category: number; mask: number; group: number };
   removed: boolean;
 }
 
@@ -106,6 +142,12 @@ function createMockScene(): MockScene {
           velocity: { x: 0, y: 0 },
           label: options['label'] as string | undefined,
           options: { ...options, _w: w, _h: h },
+          // Matter copies the `plugin` option onto the body; runtime code
+          // tags sensors through `body.plugin`.
+          plugin: (options['plugin'] as Record<string, unknown> | undefined) ?? {},
+          // Matter always gives a body a collision filter (copied from the option).
+          collisionFilter: { category: 1, mask: 0xffffffff, group: 0,
+            ...(options['collisionFilter'] as Record<string, number> | undefined) },
           removed: false,
         };
         bodies.push(body);
@@ -193,16 +235,16 @@ function tickPastHitlag(ch: Character, maxFrames = 32): void {
 describe('Character — body construction (Sub-AC 1)', () => {
   it('creates a single Matter rectangle body with the canonical label', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 100, spawnY: 200 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 100, spawnY: 200 });
     expect(m.bodies.length).toBe(1);
     expect(ch.body).toBe(m.bodies[0]!);
     expect(ch.body.label).toBe(CHARACTER_LABEL);
-    expect(ch.id).toBe('wolf');
+    expect(ch.id).toBe('link');
   });
 
   it('uses the CHARACTER collision category and the matching default mask', () => {
     const m = createMockScene();
-    new Character(m.scene, { id: 'cat', spawnX: 0, spawnY: 0 });
+    new Character(m.scene, { id: 'pikachu', spawnX: 0, spawnY: 0 });
     const filter = m.bodies[0]!.options['collisionFilter'] as {
       category: number;
       mask: number;
@@ -228,7 +270,7 @@ describe('Character — body construction (Sub-AC 1)', () => {
     ];
     for (let slot = 0; slot < slotBits.length; slot += 1) {
       const m = createMockScene();
-      new Character(m.scene, { id: 'cat', spawnX: 0, spawnY: 0, slotIndex: slot });
+      new Character(m.scene, { id: 'pikachu', spawnX: 0, spawnY: 0, slotIndex: slot });
       const filter = m.bodies[0]!.options['collisionFilter'] as {
         category: number;
       };
@@ -245,10 +287,10 @@ describe('Character — body construction (Sub-AC 1)', () => {
   it('throws when constructed with an out-of-range slotIndex', () => {
     const m = createMockScene();
     expect(
-      () => new Character(m.scene, { id: 'cat', spawnX: 0, spawnY: 0, slotIndex: 4 }),
+      () => new Character(m.scene, { id: 'pikachu', spawnX: 0, spawnY: 0, slotIndex: 4 }),
     ).toThrow(/slotIndex/);
     expect(
-      () => new Character(m.scene, { id: 'cat', spawnX: 0, spawnY: 0, slotIndex: -1 }),
+      () => new Character(m.scene, { id: 'pikachu', spawnX: 0, spawnY: 0, slotIndex: -1 }),
     ).toThrow(/slotIndex/);
   });
 
@@ -259,7 +301,7 @@ describe('Character — body construction (Sub-AC 1)', () => {
     // physics apply. We call it post-construction because Phaser's
     // `MatterBodyConfig` typing doesn't surface the option directly.
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'owl', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { id: 'pikachu', spawnX: 0, spawnY: 0 });
     expect(m.inertiaCalls.length).toBe(1);
     expect(m.inertiaCalls[0]!.body).toBe(ch.body);
     expect(m.inertiaCalls[0]!.inertia).toBe(Infinity);
@@ -268,7 +310,7 @@ describe('Character — body construction (Sub-AC 1)', () => {
   it('applies a chamfer so corners do not catch on platform ledges', () => {
     const m = createMockScene();
     new Character(m.scene, {
-      id: 'bear',
+      id: 'donkeykong',
       spawnX: 0,
       spawnY: 0,
       chamfer: 16,
@@ -278,7 +320,7 @@ describe('Character — body construction (Sub-AC 1)', () => {
 
   it('omits chamfer when set to 0', () => {
     const m = createMockScene();
-    new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0, chamfer: 0 });
+    new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0, chamfer: 0 });
     expect(m.bodies[0]!.options['chamfer']).toBeUndefined();
   });
 
@@ -287,7 +329,7 @@ describe('Character — body construction (Sub-AC 1)', () => {
     // Matter's friction were left at the default 0.1, the controller
     // and the engine would compete and the result would feel mushy.
     const m = createMockScene();
-    new Character(m.scene, { id: 'cat', spawnX: 0, spawnY: 0 });
+    new Character(m.scene, { id: 'pikachu', spawnX: 0, spawnY: 0 });
     const opts = m.bodies[0]!.options;
     expect((opts['friction'] as number)).toBeLessThan(0.01);
     expect(opts['frictionAir']).toBe(0);
@@ -297,14 +339,14 @@ describe('Character — body construction (Sub-AC 1)', () => {
 
   it('stamps the character id onto the Matter `plugin` bag for collision callbacks', () => {
     const m = createMockScene();
-    new Character(m.scene, { id: 'owl', spawnX: 0, spawnY: 0 });
-    expect(m.bodies[0]!.options['plugin']).toEqual({ characterId: 'owl' });
+    new Character(m.scene, { id: 'pikachu', spawnX: 0, spawnY: 0 });
+    expect(m.bodies[0]!.options['plugin']).toEqual({ characterId: 'pikachu' });
   });
 
   it('honours tuning overrides supplied at construction', () => {
     const m = createMockScene();
     const ch = new Character(m.scene, {
-      id: 'bear',
+      id: 'donkeykong',
       spawnX: 0,
       spawnY: 0,
       mass: 25,
@@ -318,17 +360,17 @@ describe('Character — body construction (Sub-AC 1)', () => {
     expect(tuning.jumpImpulse).toBe(11);
     expect(tuning.maxJumps).toBe(1);
     // Sub-AC 2.2 of the T2 refactor — unspecified movement fields fall
-    // back to the per-fighter movement profile (`bear` here) instead of
-    // a generic base default. Bear's `groundAccel` is the source of
-    // truth, sourced from `BEAR_MOVEMENT_PROFILE`.
-    expect(tuning.groundAccel).toBe(BEAR_MOVEMENT_PROFILE.groundAccel);
+    // back to the per-fighter movement profile (`donkeykong` here) instead of
+    // a generic base default. DK's `groundAccel` is the source of
+    // truth, sourced from `DONKEYKONG_MOVEMENT_PROFILE`.
+    expect(tuning.groundAccel).toBe(DONKEYKONG_MOVEMENT_PROFILE.groundAccel);
   });
 
-  it('subscribes to collisionstart / collisionend at construction', () => {
+  it('subscribes to collision start, active and end at construction', () => {
     const m = createMockScene();
-    new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     const events = m.listeners.map((l) => l.event).sort();
-    expect(events).toEqual(['collisionend', 'collisionstart']);
+    expect(events).toEqual(['collisionactive', 'collisionend', 'collisionstart']);
   });
 });
 
@@ -339,13 +381,13 @@ describe('Character — body construction (Sub-AC 1)', () => {
 describe('Character — ground detection (Sub-AC 1)', () => {
   it('starts ungrounded before any collision events fire', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 500, spawnY: 200 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 500, spawnY: 200 });
     expect(ch.isGrounded()).toBe(false);
   });
 
   it('becomes grounded when a platform body below the centre starts colliding', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 500, spawnY: 500 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 500, spawnY: 500 });
     // Platform centre at y=600 (below character centre at 500). Standing on it.
     const platform = makePlatform(500, 600);
     m.emit('collisionstart', [{ bodyA: ch.body, bodyB: platform }]);
@@ -354,7 +396,7 @@ describe('Character — ground detection (Sub-AC 1)', () => {
 
   it('treats the pair order symmetrically (character can be bodyA or bodyB)', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 100 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 100 });
     const platform = makePlatform(0, 200);
     m.emit('collisionstart', [{ bodyA: platform, bodyB: ch.body }]);
     expect(ch.isGrounded()).toBe(true);
@@ -362,7 +404,7 @@ describe('Character — ground detection (Sub-AC 1)', () => {
 
   it('drops back to ungrounded when the support contact ends', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     const platform = makePlatform(0, 100);
     m.emit('collisionstart', [{ bodyA: ch.body, bodyB: platform }]);
     expect(ch.isGrounded()).toBe(true);
@@ -370,9 +412,30 @@ describe('Character — ground detection (Sub-AC 1)', () => {
     expect(ch.isGrounded()).toBe(false);
   });
 
+  it('reclassifies the live floor normal and drops disabled support without a new start event', () => {
+    const m = createMockScene();
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
+    const platform = { ...makePlatform(0, 100), collisionFilter: { mask: 0xffff } };
+    const pair = {
+      bodyA: ch.body, bodyB: platform, isActive: true,
+      collision: { normal: { x: 0, y: -1 } },
+    };
+    m.emit('collisionstart', [pair]);
+    expect(ch.isGrounded()).toBe(true);
+    pair.collision.normal = { x: -1, y: 0 };
+    expect(ch.isGrounded()).toBe(false);
+    pair.collision.normal = { x: 0, y: -1 };
+    expect(ch.isGrounded()).toBe(true);
+    platform.collisionFilter.mask = 0;
+    expect(ch.isGrounded()).toBe(false);
+    platform.collisionFilter.mask = 0xffff;
+    pair.isActive = false;
+    expect(ch.isGrounded()).toBe(false);
+  });
+
   it('counts multiple support contacts (e.g. two adjacent platforms under a foot)', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     const left = makePlatform(-50, 100);
     const right = makePlatform(50, 100);
     m.emit('collisionstart', [
@@ -389,7 +452,7 @@ describe('Character — ground detection (Sub-AC 1)', () => {
 
   it('ignores side-wall bumps (platform centre level with character)', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 100 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 100 });
     // Wall centre at y=100 — same height as character. Not a support.
     const wall = makePlatform(80, 100);
     m.emit('collisionstart', [{ bodyA: ch.body, bodyB: wall }]);
@@ -398,7 +461,7 @@ describe('Character — ground detection (Sub-AC 1)', () => {
 
   it('ignores ceiling thumps (platform centre above character)', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 100 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 100 });
     const ceiling = makePlatform(0, 50); // above
     m.emit('collisionstart', [{ bodyA: ch.body, bodyB: ceiling }]);
     expect(ch.isGrounded()).toBe(false);
@@ -406,7 +469,7 @@ describe('Character — ground detection (Sub-AC 1)', () => {
 
   it('recognises pass-through platforms as support surfaces', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     const passPlat = makePlatform(0, 100, /* passThrough */ true);
     m.emit('collisionstart', [{ bodyA: ch.body, bodyB: passPlat }]);
     expect(ch.isGrounded()).toBe(true);
@@ -414,7 +477,7 @@ describe('Character — ground detection (Sub-AC 1)', () => {
 
   it('ignores collisions that are not platforms (hitboxes, hazards, etc.)', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     const hazard = { label: 'hazard.lava', position: { x: 0, y: 100 } };
     m.emit('collisionstart', [{ bodyA: ch.body, bodyB: hazard }]);
     expect(ch.isGrounded()).toBe(false);
@@ -422,7 +485,7 @@ describe('Character — ground detection (Sub-AC 1)', () => {
 
   it('ignores collision pairs the character is not part of', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     const otherA = { label: 'platform.solid', position: { x: 0, y: 0 } };
     const otherB = { label: 'platform.solid', position: { x: 0, y: 100 } };
     m.emit('collisionstart', [{ bodyA: otherA, bodyB: otherB }]);
@@ -431,7 +494,7 @@ describe('Character — ground detection (Sub-AC 1)', () => {
 
   it('clamps the support counter at 0 so duplicate end events cannot underflow', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     const plat = makePlatform(0, 100);
     // Single start, two ends — second end is a no-op.
     m.emit('collisionstart', [{ bodyA: ch.body, bodyB: plat }]);
@@ -449,15 +512,23 @@ describe('Character — ground detection (Sub-AC 1)', () => {
 // ---------------------------------------------------------------------------
 
 /** Drop a character onto a platform so subsequent applyInput sees grounded=true. */
-function ground(ch: Character, m: MockScene): void {
+function ground(ch: Character, m: MockScene): ReturnType<typeof makePlatform> {
   const plat = makePlatform(ch.getPosition().x, ch.getPosition().y + 100);
   m.emit('collisionstart', [{ bodyA: ch.body, bodyB: plat }]);
+  return plat;
+}
+
+/** Advance the three frames after a grounded jump press to the takeoff frame. */
+function advanceJumpsquat(ch: Character, jumpHeld = true): void {
+  for (let frame = 0; frame < 3; frame += 1) {
+    ch.applyInput({ moveX: 0, jump: jumpHeld });
+  }
 }
 
 describe('Character — horizontal movement (Sub-AC 1)', () => {
   it('accelerates rightward toward `maxRunSpeed` when moveX = 1', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ground(ch, m);
     const tuning = ch.getTuning();
     ch.applyInput({ moveX: 1, jump: false });
@@ -471,7 +542,7 @@ describe('Character — horizontal movement (Sub-AC 1)', () => {
 
   it('accelerates leftward toward -maxRunSpeed when moveX = -1', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ground(ch, m);
     const tuning = ch.getTuning();
     for (let i = 0; i < 50; i += 1) {
@@ -482,7 +553,7 @@ describe('Character — horizontal movement (Sub-AC 1)', () => {
 
   it('updates facing to match horizontal input direction', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ground(ch, m);
     expect(ch.getFacing()).toBe(1); // default
     ch.applyInput({ moveX: -1, jump: false });
@@ -496,7 +567,7 @@ describe('Character — horizontal movement (Sub-AC 1)', () => {
 
   it('damps velocity toward zero when stick is neutral on the ground', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ground(ch, m);
     // Build up speed, then release the stick.
     for (let i = 0; i < 30; i += 1) ch.applyInput({ moveX: 1, jump: false });
@@ -513,7 +584,7 @@ describe('Character — horizontal movement (Sub-AC 1)', () => {
   it('uses lower air acceleration than ground acceleration', () => {
     const groundScene = createMockScene();
     const groundCh = new Character(groundScene.scene, {
-      id: 'wolf',
+      ...GENERIC_FIXTURE,
       spawnX: 0,
       spawnY: 0,
     });
@@ -523,7 +594,7 @@ describe('Character — horizontal movement (Sub-AC 1)', () => {
 
     const airScene = createMockScene();
     const airCh = new Character(airScene.scene, {
-      id: 'wolf',
+      ...GENERIC_FIXTURE,
       spawnX: 0,
       spawnY: 0,
     });
@@ -537,7 +608,7 @@ describe('Character — horizontal movement (Sub-AC 1)', () => {
 
   it('clamps moveX into [-1, 1] and treats analog values as proportional', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ground(ch, m);
     const tuning = ch.getTuning();
     // moveX = 5 should behave like moveX = 1 — no overspeed.
@@ -553,21 +624,51 @@ describe('Character — horizontal movement (Sub-AC 1)', () => {
 // ---------------------------------------------------------------------------
 
 describe('Character — jumping (Sub-AC 1)', () => {
-  it('applies the upward jump impulse on the rising edge of `jump`', () => {
+  it('applies the upward jump impulse after a universal three-frame jumpsquat', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ground(ch, m);
     const tuning = ch.getTuning();
     ch.applyInput({ moveX: 0, jump: true });
+    expect(ch.getJumpsquatRemaining()).toBe(3);
+    expect(ch.getVelocity().y).toBe(0);
+    expect(ch.getJumpsUsed()).toBe(0);
+    advanceJumpsquat(ch);
     expect(ch.getVelocity().y).toBeCloseTo(-tuning.jumpImpulse);
     expect(ch.getJumpsUsed()).toBe(1);
   });
 
+  it.each([0, 1, 2])('buffers attack at jump offset %i into the same short-hop aerial', (attackOffset) => {
+    const m = createMockScene();
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
+    const aerial = {
+      id: 'jump-buffer.nair',
+      type: 'aerial' as const,
+      damage: 5,
+      knockback: { x: 1, y: -1, scaling: 0.1 },
+      hitbox: { offsetX: 0, offsetY: 0, width: 30, height: 30 },
+      startupFrames: 2,
+      activeFrames: 2,
+      recoveryFrames: 3,
+      cooldownFrames: 2,
+    };
+    ch.registerAttack(aerial);
+    ground(ch, m);
+    for (let frame = 0; frame < 4; frame += 1) {
+      ch.applyInput({ moveX: 0, jump: true, attack: frame === attackOffset });
+    }
+    expect(ch.getVelocity().y).toBeCloseTo(
+      -ch.getTuning().jumpImpulse * ch.getTuning().jumpCutFactor,
+    );
+    expect(ch.getActiveAttack()?.move.id).toBe(aerial.id);
+  });
+
   it('does not double-trigger when the jump button is held across frames', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ground(ch, m);
     ch.applyInput({ moveX: 0, jump: true });
+    advanceJumpsquat(ch);
     expect(ch.getJumpsUsed()).toBe(1);
     // Held — should NOT consume another jump.
     ch.applyInput({ moveX: 0, jump: true });
@@ -577,16 +678,16 @@ describe('Character — jumping (Sub-AC 1)', () => {
   it('allows a second jump after release-then-press (air jump)', () => {
     const m = createMockScene();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...GENERIC_FIXTURE,
       spawnX: 0,
       spawnY: 0,
       maxJumps: 2,
     });
-    ground(ch, m);
+    const plat = ground(ch, m);
     ch.applyInput({ moveX: 0, jump: true }); // initial jump
+    advanceJumpsquat(ch);
     expect(ch.getJumpsUsed()).toBe(1);
     // Release jump and leave the ground (simulate by ending support contact).
-    const plat = makePlatform(0, 100);
     m.emit('collisionend', [{ bodyA: ch.body, bodyB: plat }]);
     ch.applyInput({ moveX: 0, jump: false });
     // Re-press in mid-air — should consume an air jump.
@@ -598,16 +699,16 @@ describe('Character — jumping (Sub-AC 1)', () => {
   it('refuses a third jump when only 2 are configured', () => {
     const m = createMockScene();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...GENERIC_FIXTURE,
       spawnX: 0,
       spawnY: 0,
       maxJumps: 2,
     });
-    ground(ch, m);
+    const plat = ground(ch, m);
     // Use both jumps. Release between presses.
     ch.applyInput({ moveX: 0, jump: true });
+    advanceJumpsquat(ch);
     // Leave ground so the budget doesn't reset.
-    const plat = makePlatform(0, 100);
     m.emit('collisionend', [{ bodyA: ch.body, bodyB: plat }]);
     ch.applyInput({ moveX: 0, jump: false });
     ch.applyInput({ moveX: 0, jump: true });
@@ -623,7 +724,7 @@ describe('Character — jumping (Sub-AC 1)', () => {
   it('resets the jump budget when grounded and not in mid-impulse', () => {
     const m = createMockScene();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...GENERIC_FIXTURE,
       spawnX: 0,
       spawnY: 0,
       maxJumps: 2,
@@ -631,6 +732,7 @@ describe('Character — jumping (Sub-AC 1)', () => {
     ground(ch, m);
     // Take off.
     ch.applyInput({ moveX: 0, jump: true });
+    advanceJumpsquat(ch);
     const plat = makePlatform(0, 100);
     m.emit('collisionend', [{ bodyA: ch.body, bodyB: plat }]);
     ch.applyInput({ moveX: 0, jump: false });
@@ -645,10 +747,10 @@ describe('Character — jumping (Sub-AC 1)', () => {
 
   it('exposes `getJumpsRemaining()` reflecting the configured budget', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     // Sub-AC 2.2 of the T2 refactor — jump budget is sourced from the
-    // per-fighter movement profile (Wolf) instead of a generic default.
-    expect(ch.getJumpsRemaining()).toBe(WOLF_MOVEMENT_PROFILE.maxJumps);
+    // per-fighter movement profile (Link) instead of a generic default.
+    expect(ch.getJumpsRemaining()).toBe(LINK_MOVEMENT_PROFILE.maxJumps);
   });
 });
 
@@ -659,9 +761,10 @@ describe('Character — jumping (Sub-AC 1)', () => {
 describe('Character — mutators', () => {
   it('setPosition() teleports and resets transient state', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ground(ch, m);
     ch.applyInput({ moveX: 1, jump: true });
+    advanceJumpsquat(ch);
     expect(ch.getJumpsUsed()).toBe(1);
     expect(ch.getVelocity().x).not.toBe(0);
 
@@ -674,18 +777,18 @@ describe('Character — mutators', () => {
 
   it('setTuning() merges over existing tuning without dropping defaults', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.setTuning({ maxRunSpeed: 4 });
     const t = ch.getTuning();
     expect(t.maxRunSpeed).toBe(4);
     // Sub-AC 2.2 of the T2 refactor — unspecified movement fields keep
-    // their per-fighter movement-profile values (Wolf's `groundAccel`).
-    expect(t.groundAccel).toBe(WOLF_MOVEMENT_PROFILE.groundAccel);
+    // their per-fighter movement-profile values (Link's `groundAccel`).
+    expect(t.groundAccel).toBe(LINK_MOVEMENT_PROFILE.groundAccel);
   });
 
   it('setFacing() forces facing direction', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.setFacing(-1);
     expect(ch.getFacing()).toBe(-1);
   });
@@ -696,10 +799,10 @@ describe('Character — mutators', () => {
 // ---------------------------------------------------------------------------
 
 describe('Character — lifecycle', () => {
-  it('destroy() removes the body from the world and detaches both listeners', () => {
+  it('destroy() removes the body from the world and detaches all collision listeners', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
-    expect(m.listeners.length).toBe(2);
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
+    expect(m.listeners.length).toBe(3);
     ch.destroy();
     expect(m.listeners.length).toBe(0);
     expect(m.removed.length).toBe(1);
@@ -708,7 +811,7 @@ describe('Character — lifecycle', () => {
 
   it('destroy() is idempotent', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.destroy();
     expect(() => ch.destroy()).not.toThrow();
     // Body removed exactly once.
@@ -717,7 +820,7 @@ describe('Character — lifecycle', () => {
 
   it('applyInput() after destroy() is a no-op', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ground(ch, m);
     ch.destroy();
     expect(() => ch.applyInput({ moveX: 1, jump: true })).not.toThrow();
@@ -727,7 +830,7 @@ describe('Character — lifecycle', () => {
 
   it('collision events after destroy() do not change grounded state', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.destroy();
     // Listeners are detached, so emit() is a no-op for the character —
     // and even if they weren't, grounded state should freeze on destroy.
@@ -808,7 +911,7 @@ describe('Character — light/heavy/aerial slot dispatch (Sub-AC 3.3)', () => {
 
   it('registerAttack auto-fills the neutralSpecialId slot for type="special"', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     expect(ch.getNeutralSpecialId()).toBe(null);
     ch.registerAttack(TEST_SPECIAL);
     expect(ch.getNeutralSpecialId()).toBe(TEST_SPECIAL.id);
@@ -816,7 +919,7 @@ describe('Character — light/heavy/aerial slot dispatch (Sub-AC 3.3)', () => {
 
   it('only the FIRST registered special fills the slot (subsequent specials do not overwrite)', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack(TEST_SPECIAL);
     ch.registerAttack({ ...TEST_SPECIAL, id: 'test.special2' });
     expect(ch.getNeutralSpecialId()).toBe(TEST_SPECIAL.id);
@@ -824,7 +927,7 @@ describe('Character — light/heavy/aerial slot dispatch (Sub-AC 3.3)', () => {
 
   it('registering a special does NOT pollute the light/heavy/aerial slots', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack(TEST_SPECIAL);
     // No grounded/aerial moves registered; the slot should be empty
     // even after the special-only registration.
@@ -835,7 +938,7 @@ describe('Character — light/heavy/aerial slot dispatch (Sub-AC 3.3)', () => {
 
   it('registering a non-special does NOT pollute the neutralSpecialId slot', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack(TEST_LIGHT);
     ch.registerAttack(TEST_HEAVY);
     ch.registerAttack(TEST_AERIAL);
@@ -844,7 +947,7 @@ describe('Character — light/heavy/aerial slot dispatch (Sub-AC 3.3)', () => {
 
   it('setNeutralSpecial overrides the auto-filled slot', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack(TEST_SPECIAL);
     const second = { ...TEST_SPECIAL, id: 'test.special2' };
     ch.registerAttack(second);
@@ -856,13 +959,13 @@ describe('Character — light/heavy/aerial slot dispatch (Sub-AC 3.3)', () => {
 
   it('setNeutralSpecial throws on unregistered id', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     expect(() => ch.setNeutralSpecial('nope')).toThrow();
   });
 
   it('attemptAttack(neutralSpecialId) fires the registered special when free', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack(TEST_SPECIAL);
     expect(ch.attemptAttack(TEST_SPECIAL.id)).toBe(true);
     expect(ch.getActiveAttack()!.move.id).toBe(TEST_SPECIAL.id);
@@ -886,7 +989,7 @@ describe('Character — light/heavy/aerial slot dispatch (Sub-AC 3.3)', () => {
 
   it('registerAttack auto-fills the upSpecialId slot for type="upSpecial"', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     expect(ch.getUpSpecialId()).toBe(null);
     ch.registerAttack(TEST_UP_SPECIAL);
     expect(ch.getUpSpecialId()).toBe(TEST_UP_SPECIAL.id);
@@ -894,7 +997,7 @@ describe('Character — light/heavy/aerial slot dispatch (Sub-AC 3.3)', () => {
 
   it('only the FIRST registered upSpecial fills the slot (subsequent ones do not overwrite)', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack(TEST_UP_SPECIAL);
     ch.registerAttack({ ...TEST_UP_SPECIAL, id: 'test.up2' });
     expect(ch.getUpSpecialId()).toBe(TEST_UP_SPECIAL.id);
@@ -902,21 +1005,21 @@ describe('Character — light/heavy/aerial slot dispatch (Sub-AC 3.3)', () => {
 
   it('registering an upSpecial does NOT pollute the neutralSpecialId slot', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack(TEST_UP_SPECIAL);
     expect(ch.getNeutralSpecialId()).toBe(null);
   });
 
   it('registering a neutral special does NOT pollute the upSpecialId slot', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack(TEST_SPECIAL);
     expect(ch.getUpSpecialId()).toBe(null);
   });
 
   it('setUpSpecial overrides the auto-filled slot', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack(TEST_UP_SPECIAL);
     const second = { ...TEST_UP_SPECIAL, id: 'test.up2' };
     ch.registerAttack(second);
@@ -928,13 +1031,13 @@ describe('Character — light/heavy/aerial slot dispatch (Sub-AC 3.3)', () => {
 
   it('setUpSpecial throws on unregistered id', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     expect(() => ch.setUpSpecial('nope')).toThrow();
   });
 
   it('attemptAttack(upSpecialId) fires the registered up special when free', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack(TEST_UP_SPECIAL);
     expect(ch.attemptAttack(TEST_UP_SPECIAL.id)).toBe(true);
     expect(ch.getActiveAttack()!.move.id).toBe(TEST_UP_SPECIAL.id);
@@ -942,7 +1045,7 @@ describe('Character — light/heavy/aerial slot dispatch (Sub-AC 3.3)', () => {
 
   it('registerAttack auto-fills the slot matching the move type', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack(TEST_LIGHT);
     ch.registerAttack(TEST_HEAVY);
     ch.registerAttack(TEST_AERIAL);
@@ -953,14 +1056,14 @@ describe('Character — light/heavy/aerial slot dispatch (Sub-AC 3.3)', () => {
 
   it('a tilt-typed move also fills the light slot if jab is absent', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'cat', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { id: 'donkeykong', spawnX: 0, spawnY: 0 });
     ch.registerAttack(TEST_TILT);
     expect(ch.getLightAttackId()).toBe(TEST_TILT.id);
   });
 
   it('only the FIRST move of a given type fills its slot (subsequent ones do not overwrite)', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack(TEST_LIGHT);
     ch.registerAttack(TEST_TILT); // both 'jab'/'tilt' map to light
     expect(ch.getLightAttackId()).toBe(TEST_LIGHT.id);
@@ -968,7 +1071,7 @@ describe('Character — light/heavy/aerial slot dispatch (Sub-AC 3.3)', () => {
 
   it('grounded `attack` press fires the light slot', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack(TEST_LIGHT);
     ch.registerAttack(TEST_HEAVY);
     ch.registerAttack(TEST_AERIAL);
@@ -979,7 +1082,7 @@ describe('Character — light/heavy/aerial slot dispatch (Sub-AC 3.3)', () => {
 
   it('grounded `attackHeavy` press fires the heavy slot', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack(TEST_LIGHT);
     ch.registerAttack(TEST_HEAVY);
     ch.registerAttack(TEST_AERIAL);
@@ -990,7 +1093,7 @@ describe('Character — light/heavy/aerial slot dispatch (Sub-AC 3.3)', () => {
 
   it('airborne `attack` press fires the aerial slot', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack(TEST_LIGHT);
     ch.registerAttack(TEST_HEAVY);
     ch.registerAttack(TEST_AERIAL);
@@ -999,21 +1102,24 @@ describe('Character — light/heavy/aerial slot dispatch (Sub-AC 3.3)', () => {
     expect(ch.getActiveAttack()!.move.id).toBe(TEST_AERIAL.id);
   });
 
-  it('airborne `attackHeavy` press is ignored', () => {
+  // Changed with the dedicated smash input: an airborne heavy press (smash
+  // key / C-stick) fires the aerial for its direction instead of being
+  // dropped — there is no airborne smash.
+  it('airborne `attackHeavy` press fires the aerial slot', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack(TEST_LIGHT);
     ch.registerAttack(TEST_HEAVY);
     ch.registerAttack(TEST_AERIAL);
     ch.applyInput({ moveX: 0, jump: false, attackHeavy: true });
-    expect(ch.isAttacking()).toBe(false);
+    expect(ch.getActiveAttack()!.move.id).toBe(TEST_AERIAL.id);
   });
 
   it('aerial fallback: airborne attack fires the light move when no aerial is registered', () => {
     // This is the backward-compat path that keeps the existing
     // single-jab fixtures working in the air.
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack(TEST_LIGHT);
     expect(ch.isGrounded()).toBe(false);
     ch.applyInput({ moveX: 0, jump: false, attack: true });
@@ -1024,7 +1130,7 @@ describe('Character — light/heavy/aerial slot dispatch (Sub-AC 3.3)', () => {
     // Heavy is a deliberate "do this only" trigger; we don't want a
     // missing smash to silently fire the jab.
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack(TEST_LIGHT);
     ground(ch, m);
     ch.applyInput({ moveX: 0, jump: false, attackHeavy: true });
@@ -1033,7 +1139,7 @@ describe('Character — light/heavy/aerial slot dispatch (Sub-AC 3.3)', () => {
 
   it('explicit setLightAttack / setHeavyAttack / setAerialAttack overrides the auto-filled slots', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack(TEST_LIGHT);
     ch.registerAttack(TEST_TILT);
     ch.registerAttack(TEST_HEAVY);
@@ -1050,7 +1156,7 @@ describe('Character — light/heavy/aerial slot dispatch (Sub-AC 3.3)', () => {
 
   it('setLightAttack / setHeavyAttack / setAerialAttack throws on unregistered ids', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     expect(() => ch.setLightAttack('nope')).toThrow();
     expect(() => ch.setHeavyAttack('nope')).toThrow();
     expect(() => ch.setAerialAttack('nope')).toThrow();
@@ -1058,7 +1164,7 @@ describe('Character — light/heavy/aerial slot dispatch (Sub-AC 3.3)', () => {
 
   it('rising-edge contract on heavy press: held button does not retrigger', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack(TEST_LIGHT);
     ch.registerAttack(TEST_HEAVY);
     ground(ch, m);
@@ -1084,10 +1190,73 @@ describe('Character — light/heavy/aerial slot dispatch (Sub-AC 3.3)', () => {
     expect(ch.getActiveAttack()!.move.id).toBe(TEST_HEAVY.id);
   });
 
+  it('buffers an attack press during recovery and fires when fully free', () => {
+    const m = createMockScene();
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
+    ch.registerAttack(TEST_LIGHT);
+    ground(ch, m);
+    ch.applyInput({ moveX: 0, jump: false, attack: true });
+    ch.applyInput({ moveX: 0, jump: false, attack: false });
+    ch.applyInput({ moveX: 0, jump: false, attack: true }); // buffered
+    ch.applyInput({ moveX: 0, jump: false, attack: false }); // move ends
+    ch.applyInput({ moveX: 0, jump: false }); // cooldown drains
+    ch.applyInput({ moveX: 0, jump: false }); // buffered move starts
+    expect(ch.getActiveAttack()?.move.id).toBe(TEST_LIGHT.id);
+    expect(ch.getActiveAttack()?.framesElapsed).toBe(0);
+  });
+
+  it('expires an offensive input that was pressed more than nine frames early', () => {
+    const m = createMockScene();
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
+    ch.registerAttack(TEST_HEAVY);
+    ground(ch, m);
+    ch.applyInput({ moveX: 0, jump: false, attackHeavy: true });
+    ch.applyInput({ moveX: 0, jump: false, attackHeavy: false });
+    ch.applyInput({ moveX: 0, jump: false, attackHeavy: true }); // too early
+    for (let frame = 0; frame < 20; frame += 1) {
+      ch.applyInput({ moveX: 0, jump: false, attackHeavy: false });
+    }
+    expect(ch.isAttacking()).toBe(false);
+  });
+
+  it('preserves the captured direction of a delayed buffered attack', () => {
+    const m = createMockScene();
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
+    const downTilt = { ...TEST_TILT, id: 'test.down-tilt' };
+    ch.registerAttack(TEST_LIGHT);
+    ch.registerAttack(TEST_HEAVY);
+    ch.registerAttack(downTilt);
+    ch.setDownTilt(downTilt.id);
+    ground(ch, m);
+    expect(ch.attemptAttack(TEST_HEAVY.id)).toBe(true);
+    for (let frame = 0; frame < 8; frame += 1) ch.applyInput(NEUTRAL);
+    ch.applyInput({ moveX: 0, moveY: 1, jump: false, attack: true });
+    for (let frame = 0; frame < 5; frame += 1) ch.applyInput(NEUTRAL);
+    ch.applyInput(NEUTRAL);
+    expect(ch.getActiveAttack()?.move.id).toBe(downTilt.id);
+  });
+
+  it('uses special-over-heavy-over-attack priority for simultaneous presses', () => {
+    const m = createMockScene();
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
+    ch.registerAttack(TEST_LIGHT);
+    ch.registerAttack(TEST_HEAVY);
+    ch.registerAttack(TEST_SPECIAL);
+    ground(ch, m);
+    ch.applyInput({
+      moveX: 0,
+      jump: false,
+      attack: true,
+      attackHeavy: true,
+      special: true,
+    });
+    expect(ch.getActiveAttack()?.move.id).toBe(TEST_SPECIAL.id);
+  });
+
   it('determinism — identical input streams produce identical dispatch decisions', () => {
     const runOnce = (): string | null => {
       const m = createMockScene();
-      const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+      const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
       ch.registerAttack(TEST_LIGHT);
       ch.registerAttack(TEST_HEAVY);
       ch.registerAttack(TEST_AERIAL);
@@ -1105,7 +1274,7 @@ describe('Character — light/heavy/aerial slot dispatch (Sub-AC 3.3)', () => {
   describe('grounded normal-move dispatch (AC 60101 Sub-AC 1)', () => {
     it('registerAttack auto-fills the dedicated tiltAttackId slot for type="tilt"', () => {
       const m = createMockScene();
-      const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+      const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
       ch.registerAttack(TEST_LIGHT); // jab fills light slot
       ch.registerAttack(TEST_TILT); // tilt fills tilt slot, NOT light
       expect(ch.getLightAttackId()).toBe(TEST_LIGHT.id);
@@ -1114,7 +1283,7 @@ describe('Character — light/heavy/aerial slot dispatch (Sub-AC 3.3)', () => {
 
     it('a tilt-only roster fills both light AND tilt slots', () => {
       const m = createMockScene();
-      const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+      const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
       ch.registerAttack(TEST_TILT);
       // The "first jab/tilt wins light slot" rule still applies — tilt
       // takes the light slot too when jab is absent.
@@ -1124,14 +1293,14 @@ describe('Character — light/heavy/aerial slot dispatch (Sub-AC 3.3)', () => {
 
     it('a jab-only roster has an empty tilt slot', () => {
       const m = createMockScene();
-      const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+      const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
       ch.registerAttack(TEST_LIGHT);
       expect(ch.getTiltAttackId()).toBe(null);
     });
 
     it('setTiltAttack overrides the auto-filled slot', () => {
       const m = createMockScene();
-      const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+      const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
       ch.registerAttack(TEST_LIGHT);
       ch.registerAttack(TEST_TILT);
       const second = { ...TEST_TILT, id: 'test.tilt2' };
@@ -1144,13 +1313,13 @@ describe('Character — light/heavy/aerial slot dispatch (Sub-AC 3.3)', () => {
 
     it('setTiltAttack throws on unregistered ids', () => {
       const m = createMockScene();
-      const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+      const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
       expect(() => ch.setTiltAttack('nope')).toThrow();
     });
 
     it('grounded neutral attack press → jab (light slot)', () => {
       const m = createMockScene();
-      const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+      const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
       ch.registerAttack(TEST_LIGHT);
       ch.registerAttack(TEST_TILT);
       ch.registerAttack(TEST_HEAVY);
@@ -1161,7 +1330,7 @@ describe('Character — light/heavy/aerial slot dispatch (Sub-AC 3.3)', () => {
 
     it('grounded directional tap (held stick + attack press, no flick) → tilt', () => {
       const m = createMockScene();
-      const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+      const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
       ch.registerAttack(TEST_LIGHT);
       ch.registerAttack(TEST_TILT);
       ch.registerAttack(TEST_HEAVY);
@@ -1177,7 +1346,7 @@ describe('Character — light/heavy/aerial slot dispatch (Sub-AC 3.3)', () => {
 
     it('grounded smash-flick (rest → full deflection + attack) → smash', () => {
       const m = createMockScene();
-      const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+      const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
       ch.registerAttack(TEST_LIGHT);
       ch.registerAttack(TEST_TILT);
       ch.registerAttack(TEST_HEAVY);
@@ -1192,7 +1361,7 @@ describe('Character — light/heavy/aerial slot dispatch (Sub-AC 3.3)', () => {
 
     it('grounded dedicated heavy press → smash (regardless of stick)', () => {
       const m = createMockScene();
-      const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+      const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
       ch.registerAttack(TEST_LIGHT);
       ch.registerAttack(TEST_TILT);
       ch.registerAttack(TEST_HEAVY);
@@ -1203,7 +1372,7 @@ describe('Character — light/heavy/aerial slot dispatch (Sub-AC 3.3)', () => {
 
     it('directional tap on a roster without a tilt slot falls back to the jab/light slot', () => {
       const m = createMockScene();
-      const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+      const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
       ch.registerAttack(TEST_LIGHT);
       ch.registerAttack(TEST_HEAVY);
       ground(ch, m);
@@ -1215,7 +1384,7 @@ describe('Character — light/heavy/aerial slot dispatch (Sub-AC 3.3)', () => {
 
     it('held lean above the rest threshold cannot become a flick by pushing further', () => {
       const m = createMockScene();
-      const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+      const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
       ch.registerAttack(TEST_LIGHT);
       ch.registerAttack(TEST_TILT);
       ch.registerAttack(TEST_HEAVY);
@@ -1234,7 +1403,7 @@ describe('Character — light/heavy/aerial slot dispatch (Sub-AC 3.3)', () => {
       // firing jab on a roster that deliberately skipped the smash
       // would surprise the player.
       const m = createMockScene();
-      const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+      const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
       ch.registerAttack(TEST_LIGHT);
       ground(ch, m);
       ch.applyInput({ moveX: 0, jump: false, attackHeavy: true });
@@ -1243,7 +1412,7 @@ describe('Character — light/heavy/aerial slot dispatch (Sub-AC 3.3)', () => {
 
     it('smash flick on a roster without a smash falls back through tilt → jab', () => {
       const m = createMockScene();
-      const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+      const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
       ch.registerAttack(TEST_LIGHT);
       ground(ch, m);
       ch.applyInput({ moveX: 0, jump: false, attack: false });
@@ -1253,14 +1422,14 @@ describe('Character — light/heavy/aerial slot dispatch (Sub-AC 3.3)', () => {
       expect(ch.getActiveAttack()!.move.id).toBe(TEST_LIGHT.id);
     });
 
-    it('Wolf integration: jab on neutral, tilt on directional tap, smash on flick', () => {
+    it('integration: jab on neutral, tilt on directional tap, smash on flick', () => {
       // End-to-end: with all three registered, each input pattern
       // resolves to its dedicated slot. This is the canonical AC 60101
       // Sub-AC 1 acceptance — three distinct grounded press patterns
       // map to three distinct moves on a fully-stocked roster.
-      function freshGroundedWolf(): { ch: Character; m: MockScene } {
+      function freshGrounded(): { ch: Character; m: MockScene } {
         const m = createMockScene();
-        const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+        const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
         ch.registerAttack(TEST_LIGHT);
         ch.registerAttack(TEST_TILT);
         ch.registerAttack(TEST_HEAVY);
@@ -1270,26 +1439,26 @@ describe('Character — light/heavy/aerial slot dispatch (Sub-AC 3.3)', () => {
 
       // Jab.
       {
-        const { ch } = freshGroundedWolf();
+        const { ch } = freshGrounded();
         ch.applyInput({ moveX: 0, jump: false, attack: true });
         expect(ch.getActiveAttack()!.move.id).toBe(TEST_LIGHT.id);
       }
       // Tilt — pre-load the latch so the press isn't classified as a flick.
       {
-        const { ch } = freshGroundedWolf();
+        const { ch } = freshGrounded();
         ch.applyInput({ moveX: 0.5, jump: false, attack: false });
         ch.applyInput({ moveX: 0.5, jump: false, attack: true });
         expect(ch.getActiveAttack()!.move.id).toBe(TEST_TILT.id);
       }
       // Smash via heavy button.
       {
-        const { ch } = freshGroundedWolf();
+        const { ch } = freshGrounded();
         ch.applyInput({ moveX: 0, jump: false, attackHeavy: true });
         expect(ch.getActiveAttack()!.move.id).toBe(TEST_HEAVY.id);
       }
       // Smash via stick flick.
       {
-        const { ch } = freshGroundedWolf();
+        const { ch } = freshGrounded();
         ch.applyInput({ moveX: 0, jump: false, attack: false });
         ch.applyInput({ moveX: 1, jump: false, attack: true });
         expect(ch.getActiveAttack()!.move.id).toBe(TEST_HEAVY.id);
@@ -1299,7 +1468,7 @@ describe('Character — light/heavy/aerial slot dispatch (Sub-AC 3.3)', () => {
     it('determinism — identical grounded press streams produce identical dispatch decisions', () => {
       function runOnce(): string | null {
         const m = createMockScene();
-        const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+        const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
         ch.registerAttack(TEST_LIGHT);
         ch.registerAttack(TEST_TILT);
         ch.registerAttack(TEST_HEAVY);
@@ -1337,13 +1506,13 @@ describe('Character — getChargeProgress (charge-indicator source)', () => {
 
   it('returns null when no attack is in flight', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     expect(ch.getChargeProgress()).toBe(null);
   });
 
   it('reports 0 on the press frame (start of the wind-up)', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack(TEST_CHARGE);
     expect(ch.attemptAttack(TEST_CHARGE.id)).toBe(true);
     expect(ch.getChargeProgress()).toBe(0);
@@ -1351,7 +1520,7 @@ describe('Character — getChargeProgress (charge-indicator source)', () => {
 
   it('climbs 0 → 1 across the startup phase as framesElapsed advances', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack(TEST_CHARGE);
     ch.attemptAttack(TEST_CHARGE.id);
     // framesElapsed = 0 → 0/4 = 0.
@@ -1366,7 +1535,7 @@ describe('Character — getChargeProgress (charge-indicator source)', () => {
 
   it('returns null once the move leaves startup (hitbox live / recovery)', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack(TEST_CHARGE);
     ch.attemptAttack(TEST_CHARGE.id);
     // Advance through the entire 4-frame startup window into 'active'.
@@ -1381,7 +1550,7 @@ describe('Character — getChargeProgress (charge-indicator source)', () => {
   it('is deterministic — identical press + tick count yields identical progress', () => {
     function progressAfter(ticks: number): number | null {
       const m = createMockScene();
-      const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+      const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
       ch.registerAttack(TEST_CHARGE);
       ch.attemptAttack(TEST_CHARGE.id);
       for (let i = 0; i < ticks; i += 1) ch.applyInput(NEUTRAL);
@@ -1459,7 +1628,7 @@ describe('Character — airborne attack state machine (AC 60102 Sub-AC 2)', () =
 
   function buildCharacter(): { ch: Character; m: MockScene } {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack(TEST_LIGHT_ATK);
     ch.registerAttack(TEST_NAIR);
     ch.registerAttack(TEST_FAIR);
@@ -1483,8 +1652,8 @@ describe('Character — airborne attack state machine (AC 60102 Sub-AC 2)', () =
 
     it('a plain AttackMove-typed aerial (no `aerialDirection`) defaults into the neutral slot', () => {
       const m = createMockScene();
-      const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
-      // Same shape as legacy WOLF_NAIR (AttackMove, no aerialDirection).
+      const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
+      // Legacy aerial shape (AttackMove, no aerialDirection).
       const legacyAerial = {
         id: 'legacy.nair',
         type: 'aerial' as const,
@@ -1506,7 +1675,7 @@ describe('Character — airborne attack state machine (AC 60102 Sub-AC 2)', () =
 
     it('only the FIRST move of a given direction fills its slot', () => {
       const m = createMockScene();
-      const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+      const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
       ch.registerAttack(TEST_NAIR);
       ch.registerAttack({ ...TEST_NAIR, id: 'test.nair2' });
       expect(ch.getAerialNeutralId()).toBe(TEST_NAIR.id);
@@ -1726,6 +1895,30 @@ describe('Character — airborne attack state machine (AC 60102 Sub-AC 2)', () =
       expect(ch.getCooldownRemaining()).toBe(TEST_FAIR.landingLagFrames);
     });
 
+    it.each(['shield', 'dodge', 'grab', 'jump'] as const)('landing recovery blocks %s until its timer ends', (action) => {
+      const { ch, m } = buildCharacter();
+      ch.setGrabSpec(TEST_GRAB_SPEC);
+      ch.applyInput({ ...NEUTRAL, moveX: 1, attack: true });
+      for (let i = 0; i < 5; i += 1) ch.applyInput(NEUTRAL);
+      ground(ch, m);
+      ch.applyInput(NEUTRAL);
+      expect(ch.getCooldownRemaining()).toBe(TEST_FAIR.landingLagFrames);
+      expect(ch.getAnimationActionState().landingRecoveryRemaining).toBe(TEST_FAIR.landingLagFrames);
+      ch.applyInput({ ...NEUTRAL, [action]: true });
+      expect(ch.getCooldownRemaining()).toBeGreaterThan(0);
+      expect(ch.isShielding()).toBe(false);
+      expect(ch.isDodging()).toBe(false);
+      expect(ch.getGrabState().name).toBe('idle');
+      expect(ch.getJumpsquatRemaining()).toBe(0);
+      for (let i = 0; i < TEST_FAIR.landingLagFrames; i += 1) ch.applyInput(NEUTRAL);
+      expect(ch.getAnimationActionState().landingRecoveryRemaining).toBe(0);
+      ch.applyInput({ ...NEUTRAL, [action]: true });
+      if (action === 'shield') expect(ch.isShielding()).toBe(true);
+      if (action === 'dodge') expect(ch.isDodging()).toBe(true);
+      if (action === 'grab') expect(ch.getGrabState().name).toBe('whiffStartup');
+      if (action === 'jump') expect(ch.getJumpsquatRemaining()).toBe(3);
+    });
+
     it('landing during the auto-cancel window applies ZERO landing-lag (clean cancel)', () => {
       const { ch, m } = buildCharacter();
       // Start fair (airborne) — frame 0 is in the [0, 4) auto-cancel window.
@@ -1769,7 +1962,7 @@ describe('Character — airborne attack state machine (AC 60102 Sub-AC 2)', () =
 
     it('legacy AttackMove-typed aerial (no landingLagFrames) is interrupted with zero lag', () => {
       const m = createMockScene();
-      const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+      const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
       const legacyAerial = {
         id: 'legacy.nair',
         type: 'aerial' as const,
@@ -1906,7 +2099,7 @@ describe('Character — airborne attack state machine (AC 60102 Sub-AC 2)', () =
       m: ReturnType<typeof createMockScene>;
     } {
       const m = createMockScene();
-      const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+      const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
       ch.registerAttack(TEST_LIGHT_ATK);
       ch.registerAttack(TWO_WINDOW_AERIAL);
       return { ch, m };
@@ -2062,7 +2255,7 @@ describe('Character — airborne attack state machine (AC 60102 Sub-AC 2)', () =
     it('identical input streams produce identical aerial dispatches', () => {
       const runOnce = (): { id: string | null; facing: number | null } => {
         const m = createMockScene();
-        const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+        const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
         ch.registerAttack(TEST_LIGHT_ATK);
         ch.registerAttack(TEST_NAIR);
         ch.registerAttack(TEST_FAIR);
@@ -2079,7 +2272,7 @@ describe('Character — airborne attack state machine (AC 60102 Sub-AC 2)', () =
     it('identical landing-interrupt sequences arm identical cooldowns', () => {
       const runOnce = (): number => {
         const m = createMockScene();
-        const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+        const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
         ch.registerAttack(TEST_LIGHT_ATK);
         ch.registerAttack(TEST_FAIR);
         // Start fair, advance past auto-cancel, land.
@@ -2156,7 +2349,7 @@ describe('Character — aerial hitbox position tracking (AC 60103 Sub-AC 3)', ()
 
   function build(): { ch: Character; m: MockScene } {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack(TEST_AERIAL);
     ch.registerAttack(TEST_JAB);
     return { ch, m };
@@ -2405,7 +2598,7 @@ describe('Character — aerial hitbox position tracking (AC 60103 Sub-AC 3)', ()
     it('identical body-motion and input streams produce identical hitbox positions every frame', () => {
       function trace(): Array<{ x: number; y: number }> {
         const m = createMockScene();
-        const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+        const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
         ch.registerAttack(TEST_AERIAL);
         ch.applyInput({ moveX: 1, jump: false, attack: true });
         ch.applyInput({ moveX: 1, jump: false, attack: false }); // f=1
@@ -2442,14 +2635,14 @@ const STANDARD_HIT: HitInfo = {
 describe('Character — damage accumulation (Sub-AC 4.1)', () => {
   it('starts at 0% damage', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     expect(ch.getDamagePercent()).toBe(0);
   });
 
   it('accumulates damage from each hit', () => {
     const m = createMockScene();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...GENERIC_FIXTURE,
       spawnX: 0,
       spawnY: 0,
       mass: BASELINE_MASS,
@@ -2464,7 +2657,7 @@ describe('Character — damage accumulation (Sub-AC 4.1)', () => {
 
   it('caps at MAX_DAMAGE_PERCENT', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.setDamagePercent(995);
     ch.applyHit({ ...STANDARD_HIT, damage: 50 });
     expect(ch.getDamagePercent()).toBe(MAX_DAMAGE_PERCENT);
@@ -2472,7 +2665,7 @@ describe('Character — damage accumulation (Sub-AC 4.1)', () => {
 
   it('setDamagePercent() can reset / force a percent value', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.setDamagePercent(75);
     expect(ch.getDamagePercent()).toBe(75);
     ch.setDamagePercent(0);
@@ -2481,7 +2674,7 @@ describe('Character — damage accumulation (Sub-AC 4.1)', () => {
 
   it('setDamagePercent() clamps inputs into [0, MAX]', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.setDamagePercent(-50);
     expect(ch.getDamagePercent()).toBe(0);
     ch.setDamagePercent(2000);
@@ -2493,7 +2686,7 @@ describe('Character — damage accumulation (Sub-AC 4.1)', () => {
     // state and should NOT be reset by simply moving the body. Stocks
     // call `setDamagePercent(0)` explicitly when a life is consumed.
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.applyHit(STANDARD_HIT);
     expect(ch.getDamagePercent()).toBe(10);
     ch.setPosition(500, 250);
@@ -2524,7 +2717,7 @@ describe('Character — damage accumulation (Sub-AC 4.1)', () => {
 describe('Character — addDamage accumulator (Sub-AC 1, AC 60001)', () => {
   it('adds positive delta to current percent and returns the new value', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     expect(ch.addDamage(7)).toBe(7);
     expect(ch.getDamagePercent()).toBe(7);
     expect(ch.addDamage(13)).toBe(20);
@@ -2533,7 +2726,7 @@ describe('Character — addDamage accumulator (Sub-AC 1, AC 60001)', () => {
 
   it('caps at MAX_DAMAGE_PERCENT — no overflow past the ontology cap', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.setDamagePercent(990);
     expect(ch.addDamage(50)).toBe(MAX_DAMAGE_PERCENT);
     expect(ch.getDamagePercent()).toBe(MAX_DAMAGE_PERCENT);
@@ -2541,7 +2734,7 @@ describe('Character — addDamage accumulator (Sub-AC 1, AC 60001)', () => {
 
   it('floors at 0 when delta is negative (healing-item semantics)', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.setDamagePercent(15);
     expect(ch.addDamage(-5)).toBe(10);
     expect(ch.addDamage(-100)).toBe(0);
@@ -2550,7 +2743,7 @@ describe('Character — addDamage accumulator (Sub-AC 1, AC 60001)', () => {
 
   it('handles fractional deltas without rounding', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.addDamage(2.5);
     ch.addDamage(0.25);
     expect(ch.getDamagePercent()).toBeCloseTo(2.75);
@@ -2562,7 +2755,7 @@ describe('Character — addDamage accumulator (Sub-AC 1, AC 60001)', () => {
     // (separately) is responsible for any push effect.
     const m = createMockScene();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...GENERIC_FIXTURE,
       spawnX: 0,
       spawnY: 0,
       mass: BASELINE_MASS,
@@ -2576,7 +2769,7 @@ describe('Character — addDamage accumulator (Sub-AC 1, AC 60001)', () => {
 
   it('does NOT apply hitstun (fighter remains free to act)', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.addDamage(40);
     expect(ch.isInHitstun()).toBe(false);
     expect(ch.getHitstunRemaining()).toBe(0);
@@ -2585,7 +2778,7 @@ describe('Character — addDamage accumulator (Sub-AC 1, AC 60001)', () => {
   it('does NOT cancel an in-flight attack (unlike applyHit)', () => {
     // Hazard damage shouldn't interrupt a swing the way a full hit does.
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack({
       id: 'test.jab',
       type: 'jab',
@@ -2610,7 +2803,7 @@ describe('Character — addDamage accumulator (Sub-AC 1, AC 60001)', () => {
     // its own policy. We document the unconditional behaviour here so
     // it's a recorded design choice, not an oversight.
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.setInvincibility(120);
     ch.addDamage(8);
     expect(ch.getDamagePercent()).toBe(8);
@@ -2619,7 +2812,7 @@ describe('Character — addDamage accumulator (Sub-AC 1, AC 60001)', () => {
 
   it('is a no-op on destroyed fighters and returns the frozen percent', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.setDamagePercent(42);
     ch.destroy();
     expect(ch.addDamage(100)).toBe(42);
@@ -2629,7 +2822,7 @@ describe('Character — addDamage accumulator (Sub-AC 1, AC 60001)', () => {
   it('determinism — identical (state, delta) sequences produce identical percent', () => {
     const runOnce = (): number => {
       const m = createMockScene();
-      const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+      const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
       ch.addDamage(7.5);
       ch.addDamage(13.25);
       ch.addDamage(-2);
@@ -2644,7 +2837,7 @@ describe('Character — addDamage accumulator (Sub-AC 1, AC 60001)', () => {
     // arithmetic result.
     const m = createMockScene();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...GENERIC_FIXTURE,
       spawnX: 0,
       spawnY: 0,
       mass: BASELINE_MASS,
@@ -2663,7 +2856,7 @@ describe('Character — knockback application (Sub-AC 4.1)', () => {
   it('applies the computed knockback velocity to the body on hit (after hitlag drains)', () => {
     const m = createMockScene();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...GENERIC_FIXTURE,
       spawnX: 0,
       spawnY: 0,
       mass: BASELINE_MASS,
@@ -2691,7 +2884,7 @@ describe('Character — knockback application (Sub-AC 4.1)', () => {
     // not 0, when computing knockback.
     const m = createMockScene();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...GENERIC_FIXTURE,
       spawnX: 0,
       spawnY: 0,
       mass: BASELINE_MASS,
@@ -2705,7 +2898,7 @@ describe('Character — knockback application (Sub-AC 4.1)', () => {
   it('mirrors knockback direction with attacker facing', () => {
     const m = createMockScene();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...GENERIC_FIXTURE,
       spawnX: 500,
       spawnY: 200,
       mass: BASELINE_MASS,
@@ -2719,14 +2912,14 @@ describe('Character — knockback application (Sub-AC 4.1)', () => {
   it('heavier fighters take less knockback than lighter ones at the same percent', () => {
     const heavyScene = createMockScene();
     const heavy = new Character(heavyScene.scene, {
-      id: 'wolf',
+      ...GENERIC_FIXTURE,
       spawnX: 0,
       spawnY: 0,
       mass: BASELINE_MASS * 2,
     });
     const lightScene = createMockScene();
     const light = new Character(lightScene.scene, {
-      id: 'cat',
+      ...GENERIC_FIXTURE,
       spawnX: 0,
       spawnY: 0,
       mass: BASELINE_MASS / 2,
@@ -2739,7 +2932,7 @@ describe('Character — knockback application (Sub-AC 4.1)', () => {
   it('newer hit fully overrides previous velocity (no knockback stacking)', () => {
     const m = createMockScene();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...GENERIC_FIXTURE,
       spawnX: 0,
       spawnY: 0,
       mass: BASELINE_MASS,
@@ -2759,7 +2952,7 @@ describe('Character — knockback application (Sub-AC 4.1)', () => {
 
   it('cancels any in-flight attack when the fighter gets hit', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack({
       id: 'test.jab',
       type: 'jab',
@@ -2780,7 +2973,7 @@ describe('Character — knockback application (Sub-AC 4.1)', () => {
 
   it('clears attack cooldown so post-hitstun the fighter can act immediately', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack({
       id: 'test.jab',
       type: 'jab',
@@ -2807,7 +3000,7 @@ describe('Character — knockback application (Sub-AC 4.1)', () => {
   it('returns the realised KnockbackResult for AI / HUD inspection', () => {
     const m = createMockScene();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...GENERIC_FIXTURE,
       spawnX: 0,
       spawnY: 0,
       mass: BASELINE_MASS,
@@ -2820,7 +3013,7 @@ describe('Character — knockback application (Sub-AC 4.1)', () => {
 
   it('applyHit() on a destroyed fighter is a no-op', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.destroy();
     const r = ch.applyHit(STANDARD_HIT);
     expect(ch.getDamagePercent()).toBe(0);
@@ -2832,7 +3025,7 @@ describe('Character — knockback application (Sub-AC 4.1)', () => {
 describe('Character — hitstun lockout (Sub-AC 4.1)', () => {
   it('sets hitstunRemaining > 0 once hitlag freeze drains (post-M2 hit-feel pass)', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     expect(ch.isInHitstun()).toBe(false);
     const r = ch.applyHit(STANDARD_HIT);
     // During hitlag, hitstun is queued but not yet armed.
@@ -2845,7 +3038,7 @@ describe('Character — hitstun lockout (Sub-AC 4.1)', () => {
 
   it('decrements hitstunRemaining once per applyInput call (post-hitlag)', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     const r = ch.applyHit(STANDARD_HIT);
     tickPastHitlag(ch);
     const start = r.hitstunFrames;
@@ -2859,37 +3052,45 @@ describe('Character — hitstun lockout (Sub-AC 4.1)', () => {
   it('ignores horizontal stick input while in hitstun', () => {
     const m = createMockScene();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...GENERIC_FIXTURE,
       spawnX: 0,
       spawnY: 0,
       mass: BASELINE_MASS,
     });
     ground(ch, m);
     ch.applyHit(STANDARD_HIT);
-    const vxAfterHit = ch.getVelocity().x;
-    // Player tries to push left — but hitstun should suppress it.
+    tickPastHitlag(ch);
+    const velocityBefore = ch.getVelocity();
+    const expected = decayLaunchVelocity(velocityBefore);
+    // Player tries to push left, but only deterministic launch decay applies.
     ch.applyInput({ moveX: -1, jump: false });
-    expect(ch.getVelocity().x).toBeCloseTo(vxAfterHit);
+    expect(ch.getVelocity().x).toBeCloseTo(expected.x);
+    expect(ch.getVelocity().y).toBeCloseTo(expected.y);
   });
 
-  it('does NOT damp velocity while in hitstun (knockback carries through the air)', () => {
+  it('decays launch magnitude each hitstun frame without changing its angle', () => {
     const m = createMockScene();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...GENERIC_FIXTURE,
       spawnX: 0,
       spawnY: 0,
       mass: BASELINE_MASS,
     });
     ch.applyHit(STANDARD_HIT);
-    const vx0 = ch.getVelocity().x;
-    // Several neutral input frames — velocity should NOT decay.
+    tickPastHitlag(ch);
+    const velocityBefore = ch.getVelocity();
+    const angleBefore = Math.atan2(velocityBefore.y, velocityBefore.x);
     for (let i = 0; i < 3; i += 1) ch.applyInput(NEUTRAL);
-    expect(ch.getVelocity().x).toBeCloseTo(vx0);
+    const velocityAfter = ch.getVelocity();
+    expect(Math.hypot(velocityAfter.x, velocityAfter.y)).toBeLessThan(
+      Math.hypot(velocityBefore.x, velocityBefore.y),
+    );
+    expect(Math.atan2(velocityAfter.y, velocityAfter.x)).toBeCloseTo(angleBefore);
   });
 
   it('rejects jump input while in hitstun', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ground(ch, m);
     ch.applyHit(STANDARD_HIT);
     const jumpsBefore = ch.getJumpsUsed();
@@ -2899,7 +3100,7 @@ describe('Character — hitstun lockout (Sub-AC 4.1)', () => {
 
   it('rejects attack input while in hitstun', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack({
       id: 'test.jab',
       type: 'jab',
@@ -2921,7 +3122,7 @@ describe('Character — hitstun lockout (Sub-AC 4.1)', () => {
     // there's no rising edge when hitstun ends. The player must release
     // and re-press.
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack({
       id: 'test.jab',
       type: 'jab',
@@ -2952,7 +3153,7 @@ describe('Character — hitstun lockout (Sub-AC 4.1)', () => {
   it('exits hitstun and accepts input again after hitstunFrames pass', () => {
     const m = createMockScene();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...GENERIC_FIXTURE,
       spawnX: 0,
       spawnY: 0,
       mass: BASELINE_MASS,
@@ -2974,13 +3175,13 @@ describe('Character — hitstun lockout (Sub-AC 4.1)', () => {
     // body well beyond it — the controller eases via damping.)
     expect(ch.getFacing()).toBe(1);
     // Sub-AC 2.2 of the T2 refactor — the tuning is wired through and
-    // pulls Wolf's `maxRunSpeed` from the per-fighter movement profile.
-    expect(tuning.maxRunSpeed).toBe(WOLF_MOVEMENT_PROFILE.maxRunSpeed);
+    // pulls Link's `maxRunSpeed` from the per-fighter movement profile.
+    expect(tuning.maxRunSpeed).toBe(LINK_MOVEMENT_PROFILE.maxRunSpeed);
   });
 
   it('drains attack cooldown during hitstun so cooldown does not block post-hitstun action', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack({
       id: 'test.jab',
       type: 'jab',
@@ -3006,7 +3207,7 @@ describe('Character — hitstun lockout (Sub-AC 4.1)', () => {
 
   it('setPosition() clears hitstun + hitlag (transient combat state)', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.applyHit(STANDARD_HIT);
     tickPastHitlag(ch);
     expect(ch.isInHitstun()).toBe(true);
@@ -3018,9 +3219,9 @@ describe('Character — hitstun lockout (Sub-AC 4.1)', () => {
 
   it('hitlag freezes the body at zero velocity for hitlagFrames after a hit', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.applyHit(STANDARD_HIT);
-    // STANDARD_HIT.damage === 10 → medium tier hitlag (HITLAG_MEDIUM_FRAMES = 8)
+    // STANDARD_HIT.damage === 10 → floor(10 * .65 + 6) = 12 frozen ticks.
     const hitlagAtStart = ch.getHitlagRemaining();
     expect(hitlagAtStart).toBeGreaterThan(0);
     // Velocity is pinned at zero each frame of the freeze.
@@ -3039,7 +3240,7 @@ describe('Character — hitstun lockout (Sub-AC 4.1)', () => {
 
   it('input is locked during hitlag — attack press cannot fire', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack({
       id: 'test.jab',
       type: 'jab',
@@ -3063,7 +3264,7 @@ describe('Character — hitstun lockout (Sub-AC 4.1)', () => {
   it('DI: stick neutral at hitlag-end leaves the launch angle unchanged', () => {
     const m = createMockScene();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...GENERIC_FIXTURE,
       spawnX: 0,
       spawnY: 0,
       mass: BASELINE_MASS,
@@ -3076,24 +3277,21 @@ describe('Character — hitstun lockout (Sub-AC 4.1)', () => {
     expect(ch.getVelocity().y).toBeCloseTo(result.vector.y);
   });
 
-  it('DI: stick perpendicular to launch rotates the angle by ~18°', () => {
+  it('DI: perpendicular stick rotates an eligible hard launch by 0.17 radians', () => {
     const m = createMockScene();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...GENERIC_FIXTURE,
       spawnX: 0,
       spawnY: 0,
       mass: BASELINE_MASS,
     });
-    const result = ch.applyHit(STANDARD_HIT);
+    const result = ch.applyHit({ damage: 12, knockback: { x: 10, y: -10, scaling: 0 }, facing: 1 });
     const baseAngle = Math.atan2(result.vector.y, result.vector.x);
-    // Drive past hitlag with stickY=1 (down) on the freeze-end frame.
-    // STANDARD_HIT launches up-and-right; stickY=1 has a positive
-    // perpendicular component, rotating the angle counter-clockwise
-    // in screen-space (toward more horizontal launch).
+    // A unit down-right stick is perpendicular to this up-right launch.
     while (ch.getHitlagRemaining() > 1) ch.applyInput(NEUTRAL);
-    ch.applyInput({ moveX: 0, jump: false, moveY: 1 });
+    ch.applyInput({ moveX: Math.SQRT1_2, jump: false, moveY: Math.SQRT1_2 });
     const rotatedAngle = Math.atan2(ch.getVelocity().y, ch.getVelocity().x);
-    expect(Math.abs(rotatedAngle - baseAngle)).toBeGreaterThan(0.1);
+    expect(rotatedAngle - baseAngle).toBeCloseTo(0.17, 8);
     // Magnitude is preserved by DI — only the angle shifts.
     const magBefore = Math.hypot(result.vector.x, result.vector.y);
     const magAfter = Math.hypot(ch.getVelocity().x, ch.getVelocity().y);
@@ -3104,12 +3302,12 @@ describe('Character — hitstun lockout (Sub-AC 4.1)', () => {
     const buildAndHit = (stickY: number): { angle: number; vx: number; vy: number } => {
       const m = createMockScene();
       const ch = new Character(m.scene, {
-        id: 'wolf',
+        ...GENERIC_FIXTURE,
         spawnX: 0,
         spawnY: 0,
         mass: BASELINE_MASS,
       });
-      ch.applyHit(STANDARD_HIT);
+      ch.applyHit({ damage: 12, knockback: { x: 10, y: -10, scaling: 0 }, facing: 1 });
       while (ch.getHitlagRemaining() > 1) ch.applyInput(NEUTRAL);
       ch.applyInput({ moveX: 0, jump: false, moveY: stickY });
       const v = ch.getVelocity();
@@ -3123,7 +3321,7 @@ describe('Character — hitstun lockout (Sub-AC 4.1)', () => {
 
   it('armAttackerHitlag freezes the attacker for the given frames (no queued knockback)', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     expect(ch.isInHitlag()).toBe(false);
     ch.armAttackerHitlag(8);
     expect(ch.getHitlagRemaining()).toBe(8);
@@ -3131,16 +3329,44 @@ describe('Character — hitstun lockout (Sub-AC 4.1)', () => {
     // Drain the freeze with neutral inputs.
     for (let i = 0; i < 8; i += 1) ch.applyInput(NEUTRAL);
     expect(ch.getHitlagRemaining()).toBe(0);
-    // No queued knockback fires — velocity stays at zero (attacker had
-    // no incoming hit, just a sympathetic freeze).
+    // The attacker began stationary, so restoring pre-freeze momentum is zero.
     expect(ch.getVelocity().x).toBe(0);
     expect(ch.getVelocity().y).toBe(0);
     expect(ch.isInHitstun()).toBe(false);
   });
 
+  it('armAttackerHitlag restores aerial momentum after the freeze', () => {
+    const m = createMockScene();
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
+    m.scene.matter.body.setVelocity(ch.body, { x: 5.5, y: -3.25 });
+    ch.armAttackerHitlag(4);
+    ch.applyInput(NEUTRAL);
+    expect(ch.getVelocity()).toEqual({ x: 0, y: 0 });
+    for (let i = 0; i < 3; i += 1) ch.applyInput(NEUTRAL);
+    expect(ch.getHitlagRemaining()).toBe(0);
+    expect(ch.getVelocity().x).toBeCloseTo(5.5);
+    expect(ch.getVelocity().y).toBeCloseTo(-3.25);
+  });
+
+  it('incoming knockback overrides momentum saved by attacker hitlag', () => {
+    const m = createMockScene();
+    const ch = new Character(m.scene, {
+      ...GENERIC_FIXTURE,
+      spawnX: 0,
+      spawnY: 0,
+      mass: BASELINE_MASS,
+    });
+    m.scene.matter.body.setVelocity(ch.body, { x: 6, y: -2 });
+    ch.armAttackerHitlag(8);
+    const result = ch.applyHit(STANDARD_HIT);
+    while (ch.getHitlagRemaining() > 0) ch.applyInput(NEUTRAL);
+    expect(ch.getVelocity().x).toBeCloseTo(result.vector.x);
+    expect(ch.getVelocity().y).toBeCloseTo(result.vector.y);
+  });
+
   it('armAttackerHitlag never shortens an in-flight freeze', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.armAttackerHitlag(12);
     expect(ch.getHitlagRemaining()).toBe(12);
     // A subsequent shorter call must NOT shorten the existing freeze.
@@ -3153,7 +3379,7 @@ describe('Character — hitstun lockout (Sub-AC 4.1)', () => {
 
   it('armAttackerHitlag pauses an in-flight attack tick', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack({
       id: 'test.jab',
       type: 'jab',
@@ -3178,21 +3404,21 @@ describe('Character — hitstun lockout (Sub-AC 4.1)', () => {
     expect(ch.getActiveAttack()?.framesElapsed).toBe(framesElapsedAtStart);
   });
 
-  it('sweet-spot flag adds the +4f hitlag bonus', () => {
+  it('uses the authored tip hitlag multiplier instead of a generic sweet-spot bonus', () => {
     const m = createMockScene();
-    const ch1 = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
-    const ch2 = new Character(m.scene, { id: 'wolf', spawnX: 100, spawnY: 0 });
+    const ch1 = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
+    const ch2 = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 100, spawnY: 0 });
     ch1.applyHit(STANDARD_HIT);
-    ch2.applyHit({ ...STANDARD_HIT, sweetSpot: true });
-    // Sweet-spot freeze is exactly 4 frames longer (HITLAG_SWEET_SPOT_BONUS_FRAMES).
-    expect(ch2.getHitlagRemaining() - ch1.getHitlagRemaining()).toBe(4);
+    ch2.applyHit({ ...STANDARD_HIT, sweetSpot: true, hitlagMultiplier: 1.6 });
+    expect(ch1.getHitlagRemaining()).toBe(12);
+    expect(ch2.getHitlagRemaining()).toBe(20);
   });
 
   it('hitlag is deterministic — same hit yields identical freeze + launch', () => {
     const runOnce = (): { hitlag: number; vx: number; stun: number } => {
       const m = createMockScene();
       const ch = new Character(m.scene, {
-        id: 'wolf',
+        ...GENERIC_FIXTURE,
         spawnX: 0,
         spawnY: 0,
         mass: BASELINE_MASS,
@@ -3213,7 +3439,7 @@ describe('Character — hitstun lockout (Sub-AC 4.1)', () => {
 
   it('setPosition() clears a queued knockback that was about to fire', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.applyHit(STANDARD_HIT);
     expect(ch.isInHitlag()).toBe(true);
     ch.setPosition(500, 250);
@@ -3229,7 +3455,7 @@ describe('Character — hitstun lockout (Sub-AC 4.1)', () => {
     const runA = (() => {
       const m = createMockScene();
       const ch = new Character(m.scene, {
-        id: 'wolf',
+        ...GENERIC_FIXTURE,
         spawnX: 0,
         spawnY: 0,
         mass: BASELINE_MASS,
@@ -3246,7 +3472,7 @@ describe('Character — hitstun lockout (Sub-AC 4.1)', () => {
     const runB = (() => {
       const m = createMockScene();
       const ch = new Character(m.scene, {
-        id: 'wolf',
+        ...GENERIC_FIXTURE,
         spawnX: 0,
         spawnY: 0,
         mass: BASELINE_MASS,
@@ -3271,14 +3497,14 @@ describe('Character — hitstun lockout (Sub-AC 4.1)', () => {
 describe('Character — respawn invincibility (Sub-AC 4.2)', () => {
   it('starts with zero invincibility frames remaining', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     expect(ch.getInvincibilityRemaining()).toBe(0);
     expect(ch.isInvincible()).toBe(false);
   });
 
   it('setInvincibility(N) arms the timer to exactly N frames', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.setInvincibility(90);
     expect(ch.getInvincibilityRemaining()).toBe(90);
     expect(ch.isInvincible()).toBe(true);
@@ -3286,7 +3512,7 @@ describe('Character — respawn invincibility (Sub-AC 4.2)', () => {
 
   it('setInvincibility clamps negative values to 0', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.setInvincibility(-10);
     expect(ch.getInvincibilityRemaining()).toBe(0);
     expect(ch.isInvincible()).toBe(false);
@@ -3294,7 +3520,7 @@ describe('Character — respawn invincibility (Sub-AC 4.2)', () => {
 
   it('setInvincibility(0) clears any pending grace', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.setInvincibility(60);
     ch.setInvincibility(0);
     expect(ch.isInvincible()).toBe(false);
@@ -3302,7 +3528,7 @@ describe('Character — respawn invincibility (Sub-AC 4.2)', () => {
 
   it('decrements once per applyInput call', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.setInvincibility(3);
     ch.applyInput(NEUTRAL);
     expect(ch.getInvincibilityRemaining()).toBe(2);
@@ -3318,7 +3544,7 @@ describe('Character — respawn invincibility (Sub-AC 4.2)', () => {
   it('absorbs an incoming hit (no damage, no knockback, no hitstun)', () => {
     const m = createMockScene();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...GENERIC_FIXTURE,
       spawnX: 0,
       spawnY: 0,
       mass: BASELINE_MASS,
@@ -3340,7 +3566,7 @@ describe('Character — respawn invincibility (Sub-AC 4.2)', () => {
 
   it('does NOT shorten the invincibility timer per absorbed hit (wall-clock fixed window)', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.setInvincibility(60);
     // Take a flurry of hits — the timer should still read 60 (no
     // applyInput frames have elapsed yet).
@@ -3352,7 +3578,7 @@ describe('Character — respawn invincibility (Sub-AC 4.2)', () => {
   it('returns to vulnerable once the timer drains', () => {
     const m = createMockScene();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...GENERIC_FIXTURE,
       spawnX: 0,
       spawnY: 0,
       mass: BASELINE_MASS,
@@ -3372,7 +3598,7 @@ describe('Character — respawn invincibility (Sub-AC 4.2)', () => {
 
   it('movement / jump / attack still work while invincible (only hits are blocked)', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ground(ch, m);
     ch.setInvincibility(60);
     // Movement applies normally.
@@ -3381,6 +3607,7 @@ describe('Character — respawn invincibility (Sub-AC 4.2)', () => {
     // Jump applies normally.
     const vyBefore = ch.getVelocity().y;
     ch.applyInput({ moveX: 1, jump: true });
+    advanceJumpsquat(ch);
     expect(ch.getVelocity().y).toBeLessThan(vyBefore);
   });
 
@@ -3389,7 +3616,7 @@ describe('Character — respawn invincibility (Sub-AC 4.2)', () => {
     // → setInvincibility(N). If setPosition cleared invincibility, the
     // grace window would always be empty. Lock down that ordering here.
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.setInvincibility(60);
     ch.setPosition(500, 250);
     expect(ch.getInvincibilityRemaining()).toBe(60);
@@ -3400,7 +3627,7 @@ describe('Character — respawn invincibility (Sub-AC 4.2)', () => {
     // Mirror what MatchScene does on a stock loss respawn.
     const m = createMockScene();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...GENERIC_FIXTURE,
       spawnX: 0,
       spawnY: 0,
       mass: BASELINE_MASS,
@@ -3437,7 +3664,7 @@ describe('Character — respawn invincibility (Sub-AC 4.2)', () => {
       inv: number;
     } => {
       const m = createMockScene();
-      const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+      const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
       ch.applyHit(STANDARD_HIT);
       ch.setPosition(500, 250);
       ch.setDamagePercent(0);
@@ -3468,9 +3695,81 @@ describe('Character — respawn invincibility (Sub-AC 4.2)', () => {
  * shield cleanly.
  */
 describe('Character — shield mechanic (AC 60301 Sub-AC 1)', () => {
+  it('composes production resolver input into a grounded roll instead of shielding', () => {
+    const m = createMockScene();
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
+    ground(ch, m);
+
+    const held = new Set<number>();
+    const bindings = new InputBindingsStore();
+    const dispatcher = new DeviceInputDispatcher({
+      bindings,
+      keyboard: { isDown: (keyCode: number) => held.has(keyCode) },
+      gamepad: {
+        isConnected: () => false,
+        getButton: () => ({ pressed: false, value: 0 }),
+        getAxis: () => 0,
+      },
+    });
+    const resolver = new InputResolver({ dispatcher, slots: [1] });
+    resolver.update(0); // neutral edge baseline
+    const profile = bindings.get(1).bindings;
+    held.add((profile.shield[0] as { keyCode: number }).keyCode);
+    held.add((profile.right[0] as { keyCode: number }).keyCode);
+    resolver.update(1);
+
+    const input = buildCharacterInputFromResolver(resolver, 1);
+    expect(input).toMatchObject({ moveX: 1, shield: true, dodge: true });
+    ch.applyInput(input);
+    expect(ch.isShielding()).toBe(false);
+    expect(ch.getDodgeState().active?.kind).toBe('roll');
+  });
+
+  it('drops an existing shield into a legal roll when direction is added', () => {
+    const m = createMockScene();
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
+    ground(ch, m);
+    ch.applyInput({ moveX: 0, jump: false, shield: true, dodge: false });
+    expect(ch.isShielding()).toBe(true);
+    ch.applyInput({ moveX: 1, jump: false, shield: true, dodge: true });
+    expect(ch.isShielding()).toBe(false);
+    expect(ch.getDodgeState().active?.kind).toBe('roll');
+  });
+
+  it('turns a fresh airborne shield press into a neutral air dodge', () => {
+    const m = createMockScene();
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
+    ch.applyInput({ moveX: 0, moveY: 0, jump: false, shield: true, dodge: false });
+    expect(ch.isShielding()).toBe(false);
+    expect(ch.getDodgeState().active?.kind).toBe('air');
+  });
+
+  it('does not let shield or dodge erase an attack commitment', () => {
+    const m = createMockScene();
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
+    ground(ch, m);
+    ch.registerAttack({
+      id: 'commitment-jab',
+      type: 'jab',
+      damage: 4,
+      knockback: { x: 1, y: 0, scaling: 0 },
+      startupFrames: 6,
+      activeFrames: 2,
+      recoveryFrames: 6,
+      cooldownFrames: 0,
+      hitbox: { width: 10, height: 10, offsetX: 10, offsetY: 0 },
+    });
+    ch.applyInput({ moveX: 0, jump: false, attack: true });
+    expect(ch.isAttacking()).toBe(true);
+    ch.applyInput({ moveX: 1, jump: false, shield: true, dodge: true });
+    expect(ch.isAttacking()).toBe(true);
+    expect(ch.isShielding()).toBe(false);
+    expect(ch.isDodging()).toBe(false);
+  });
+
   it('starts idle / full shield health on construction', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     expect(ch.isShielding()).toBe(false);
     expect(ch.isShieldBroken()).toBe(false);
     expect(ch.getShieldState().name).toBe('idle');
@@ -3480,7 +3779,7 @@ describe('Character — shield mechanic (AC 60301 Sub-AC 1)', () => {
 
   it('raises the shield when shield input is held', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ground(ch, m);
     ch.applyInput({ moveX: 0, jump: false, shield: true });
     expect(ch.isShielding()).toBe(true);
@@ -3489,7 +3788,7 @@ describe('Character — shield mechanic (AC 60301 Sub-AC 1)', () => {
 
   it('drains shield health while held (one decay tick per frame)', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ground(ch, m);
     const start = ch.getShieldHealth();
     for (let i = 0; i < 10; i += 1) {
@@ -3500,7 +3799,7 @@ describe('Character — shield mechanic (AC 60301 Sub-AC 1)', () => {
 
   it('suppresses horizontal motion while the shield is raised', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ground(ch, m);
     // Build up some velocity first.
     for (let i = 0; i < 5; i += 1) {
@@ -3517,20 +3816,22 @@ describe('Character — shield mechanic (AC 60301 Sub-AC 1)', () => {
 
   it('jumps OUT of shield — a jump press drops the shield and fires the impulse', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ground(ch, m);
     // Raise shield first frame, then press jump on the next frame.
     ch.applyInput({ moveX: 0, jump: false, shield: true });
     expect(ch.isShielding()).toBe(true);
     ch.applyInput({ moveX: 0, jump: true, shield: true });
-    // Jump-out-of-shield: the shield drops and the jump impulse fires.
+    // Jump-out-of-shield: shield drops immediately; takeoff follows squat.
+    expect(ch.isShielding()).toBe(false);
+    advanceJumpsquat(ch);
     expect(ch.getVelocity().y).toBeLessThan(0);
     expect(ch.isShielding()).toBe(false);
   });
 
   it('suppresses attack press while the shield is raised', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ground(ch, m);
     // Register a simple jab so an attack press has a target. The
     // attack contract requires a name + frame counts; defaults are
@@ -3549,15 +3850,21 @@ describe('Character — shield mechanic (AC 60301 Sub-AC 1)', () => {
     // Holding shield + pressing attack — attack should NOT start.
     ch.applyInput({ moveX: 0, jump: false, shield: true, attack: true });
     expect(ch.isAttacking()).toBe(false);
-    // Releasing shield, pressing attack — now it fires.
+    // A normal attack waits through the eleven-step shield release.
+    ch.applyInput({ moveX: 0, jump: false, shield: true });
+    ch.applyInput({ moveX: 0, jump: false, shield: true });
     ch.applyInput({ moveX: 0, jump: false, shield: false, attack: false });
+    for (let i = 0; i < 10; i += 1) {
+      ch.applyInput({ moveX: 0, jump: false });
+      expect(ch.isAttacking()).toBe(false);
+    }
     ch.applyInput({ moveX: 0, jump: false, shield: false, attack: true });
     expect(ch.isAttacking()).toBe(true);
   });
 
   it('absorbs an incoming hit when raised — damage % unchanged, no knockback', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ground(ch, m);
     // Raise + hold past the perfect-shield window so this is a NORMAL
     // block (a frame-perfect raise would powershield with no HP cost).
@@ -3570,12 +3877,13 @@ describe('Character — shield mechanic (AC 60301 Sub-AC 1)', () => {
     expect(r.hitstunFrames).toBe(0);
     expect(ch.getDamagePercent()).toBe(0);
     expect(ch.isInHitstun()).toBe(false);
-    expect(ch.getShieldHealth()).toBeCloseTo(startHealth - STANDARD_HIT.damage, 4);
+    // SmashWiki Shield: Ultimate shields lose 1.19× the damage (https://www.ssbwiki.com/Shield).
+    expect(ch.getShieldHealth()).toBeCloseTo(startHealth - STANDARD_HIT.damage * 1.19, 4);
   });
 
   it('does NOT absorb a hit when shield is idle (caller falls through)', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     // No shield raised.
     const r = ch.applyHit(STANDARD_HIT);
     expect(r.magnitude).toBeGreaterThan(0);
@@ -3585,7 +3893,7 @@ describe('Character — shield mechanic (AC 60301 Sub-AC 1)', () => {
   it('breaks the shield when a single hit drains health to zero', () => {
     const m = createMockScene();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...GENERIC_FIXTURE,
       spawnX: 0,
       spawnY: 0,
       shield: { maxHealth: 5, breakStunFrames: 30 },
@@ -3606,7 +3914,7 @@ describe('Character — shield mechanic (AC 60301 Sub-AC 1)', () => {
   it('shield-break stun suppresses motion / jump / attack / shield-raise', () => {
     const m = createMockScene();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...GENERIC_FIXTURE,
       spawnX: 0,
       spawnY: 0,
       shield: { maxHealth: 1, breakStunFrames: 30 },
@@ -3634,14 +3942,15 @@ describe('Character — shield mechanic (AC 60301 Sub-AC 1)', () => {
     expect(ch.getVelocity().y).toBeGreaterThanOrEqual(0);
   });
 
-  it('drains shield-break stun by 1 each fixed step, then returns to idle', () => {
+  // SmashWiki Shield break / Stun: the break pops the fighter, who lands before the
+  // 400 - p stun (here the authored breakStunFrames override) runs. The full cycle is
+  // covered with real Matter in linkDefenceLedge.physics.test.ts.
+  it('a shield break hands the stun budget to the shared break phases, popping first', () => {
     const m = createMockScene();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...GENERIC_FIXTURE,
       spawnX: 0,
       spawnY: 0,
-      // maxHealth must accommodate postBreakHealth — a higher
-      // postBreakHealth than maxHealth is clamped at the cap.
       shield: { maxHealth: 50, breakStunFrames: 5, postBreakHealth: 8 },
     });
     ground(ch, m);
@@ -3649,24 +3958,17 @@ describe('Character — shield mechanic (AC 60301 Sub-AC 1)', () => {
       ch.applyInput({ moveX: 0, jump: false, shield: true }); // past window
     }
     ch.applyHit({ ...STANDARD_HIT, damage: 999 });
-    expect(ch.getShieldStunRemaining()).toBe(5);
-    for (let i = 4; i >= 1; i -= 1) {
-      ch.applyInput({ moveX: 0, jump: false });
-      expect(ch.isShieldBroken()).toBe(true);
-      expect(ch.getShieldStunRemaining()).toBe(i);
-    }
-    // One more step — stun ends, fighter returns to idle with the
-    // configured post-break sliver of HP.
-    ch.applyInput({ moveX: 0, jump: false });
-    expect(ch.isShieldBroken()).toBe(false);
-    expect(ch.getShieldState().name).toBe('idle');
-    expect(ch.getShieldHealth()).toBe(8);
+    expect(ch.isShieldBroken()).toBe(true);
+    expect(ch.getSourceShieldBreakReceivingState()).toMatchObject({ phase: 'pop', stunFrames: 5, loopRemaining: 5 });
+    while (ch.getHitlagRemaining() > 0) ch.applyInput(NEUTRAL);
+    ch.applyInput(NEUTRAL);
+    expect(ch.getShieldStunRemaining()).toBe(0); // the stun budget waits for the landing
   });
 
-  it('shield held throughout stun does NOT auto-re-raise on stun end', () => {
+  it('a shield held through the break never re-raises while the break owns the fighter', () => {
     const m = createMockScene();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...GENERIC_FIXTURE,
       spawnX: 0,
       spawnY: 0,
       shield: { maxHealth: 1, breakStunFrames: 3, postBreakHealth: 8 },
@@ -3676,19 +3978,17 @@ describe('Character — shield mechanic (AC 60301 Sub-AC 1)', () => {
       ch.applyInput({ moveX: 0, jump: false, shield: true }); // past window
     }
     ch.applyHit({ ...STANDARD_HIT, damage: 999 });
-    // Hold shield throughout the entire stun window.
+    while (ch.getHitlagRemaining() > 0) ch.applyInput({ ...NEUTRAL, shield: true });
     for (let i = 0; i < 4; i += 1) {
       ch.applyInput({ moveX: 0, jump: false, shield: true });
     }
-    // After stun ends, the shield is idle (held flag treated as
-    // released). The player has to release & re-press.
     expect(ch.isShielding()).toBe(false);
-    expect(ch.isShieldBroken()).toBe(false);
+    expect(ch.isShieldBroken()).toBe(true);
   });
 
   it('regen kicks in after the regen-delay window once shield is released', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ground(ch, m);
     // Drain the shield a bit.
     for (let i = 0; i < 30; i += 1) {
@@ -3705,7 +4005,7 @@ describe('Character — shield mechanic (AC 60301 Sub-AC 1)', () => {
   it('setPosition resets the shield to fresh idle (respawn flow)', () => {
     const m = createMockScene();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...GENERIC_FIXTURE,
       spawnX: 0,
       spawnY: 0,
       shield: { maxHealth: 5, breakStunFrames: 30 },
@@ -3726,7 +4026,7 @@ describe('Character — shield mechanic (AC 60301 Sub-AC 1)', () => {
 
   it('hitstun does NOT auto-re-raise the shield (held flag forced to false)', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ground(ch, m);
     // Get hit (no shield up) — fighter enters hitlag freeze, then hitstun.
     ch.applyHit(STANDARD_HIT);
@@ -3748,7 +4048,7 @@ describe('Character — shield mechanic (AC 60301 Sub-AC 1)', () => {
   it('determinism — identical input streams produce identical shield trajectories', () => {
     const trace = (): Array<{ name: string; health: number }> => {
       const m = createMockScene();
-      const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+      const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
       ground(ch, m);
       const out: Array<{ name: string; health: number }> = [];
       // Pseudo-deterministic press pattern (no Math.random).
@@ -3772,210 +4072,110 @@ describe('Character — up-special recovery physics (AC 60303 Sub-AC 3)', () => 
   // `upSpecialKind` and applies the kind-specific physics. We import
   // them lazily here because the suite's existing TEST_UP_SPECIAL is a
   // bare `AttackMove` shape that lacks an `upSpecialKind` field.
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
 
-  it('multiHitRising press applies an upward velocity (Wolf recovery)', async () => {
-    const { Wolf, WOLF_UP_SPECIAL } = await import('./Wolf');
+  it('multiHitRising press applies an upward velocity (DK Spinning Kong)', async () => {
+    const { DonkeyKong, DONKEYKONG_UP_SPECIAL } = await import('./DonkeyKong');
     const m = createMockScene();
-    const w = new Wolf(m.scene, { spawnX: 100, spawnY: 200 });
-    expect(w.getVelocity().y).toBe(0);
-    expect(w.attemptUpSpecial()).toBe(true);
-    expect(w.getVelocity().y).toBe(WOLF_UP_SPECIAL.multiHitRising.riseImpulse);
+    const dk = new DonkeyKong(m.scene, { spawnX: 100, spawnY: 200 });
+    expect(dk.getVelocity().y).toBe(0);
+    expect(dk.attemptUpSpecial()).toBe(true);
+    expect(dk.getVelocity().y).toBe(DONKEYKONG_UP_SPECIAL.multiHitRising.riseImpulse);
     // Sign convention: NEGATIVE means upward in Phaser screen-space.
-    expect(w.getVelocity().y).toBeLessThan(0);
+    expect(dk.getVelocity().y).toBeLessThan(0);
     // Active attack is the up-special so the lifecycle drives the rest.
-    expect(w.getActiveAttack()!.move.id).toBe(WOLF_UP_SPECIAL.id);
-  });
-
-  it('multiHitRising press scales facing-drift by the fighter facing', async () => {
-    const { Wolf, WOLF_UP_SPECIAL } = await import('./Wolf');
-    // Wolf's drift is 0 by spec, so build a synthetic move with a
-    // non-zero drift to exercise the facing scaling path. Re-register a
-    // fresh up-special on a base Character.
-    const m = createMockScene();
-    const w = new Wolf(m.scene, { spawnX: 0, spawnY: 0 });
-    // Override Wolf's up-special with one that has horizontal drift.
-    const drifty = {
-      ...WOLF_UP_SPECIAL,
-      id: 'wolf.up_drift',
-      multiHitRising: {
-        ...WOLF_UP_SPECIAL.multiHitRising,
-        driftImpulse: 3,
-      },
-    } as typeof WOLF_UP_SPECIAL;
-    w.registerAttack(drifty);
-    w.setUpSpecial(drifty.id);
-    // Default facing = 1 (right) → vx = +3
-    w.setFacing(1);
-    expect(w.attemptUpSpecial()).toBe(true);
-    expect(w.getVelocity().x).toBeCloseTo(3);
-  });
-
-  it('teleport press zeroes velocity then translates on the reappear frame (Cat recovery)', async () => {
-    const { Cat, CAT_UP_SPECIAL } = await import('./Cat');
-    const m = createMockScene();
-    const c = new Cat(m.scene, { spawnX: 100, spawnY: 300 });
-    // Press with stick straight up → reappear is straight up by `teleportDistance`.
-    expect(c.attemptUpSpecial(0, -1)).toBe(true);
-    // Press-frame: velocity is zeroed (vanish state).
-    expect(c.getVelocity().x).toBe(0);
-    expect(c.getVelocity().y).toBe(0);
-    // Body has not moved yet — translation is on the reappear frame.
-    expect(c.getPosition()).toEqual({ x: 100, y: 300 });
-
-    // Drive the lifecycle until the active→recovery boundary. The
-    // teleport fires on the LAST active frame; we tick startup + active
-    // - 1 times (the press itself does NOT count toward startup).
-    const totalUntilLastActive =
-      CAT_UP_SPECIAL.startupFrames + CAT_UP_SPECIAL.activeFrames - 1;
-    for (let i = 0; i < totalUntilLastActive; i += 1) {
-      c.applyInput({ moveX: 0, jump: false });
-    }
-    // After the last active-frame tick, the teleport has fired.
-    expect(c.getPosition().x).toBe(100); // dir = (0, -1), so x unchanged
-    expect(c.getPosition().y).toBe(300 - CAT_UP_SPECIAL.teleport.teleportDistance);
-  });
-
-  it('teleport press snaps off-axis sticks to the closest octant', async () => {
-    const { Cat, CAT_UP_SPECIAL } = await import('./Cat');
-    const m = createMockScene();
-    const c = new Cat(m.scene, { spawnX: 0, spawnY: 0 });
-    // Stick at roughly NE (45°). With snapToOctant=true, dir should
-    // snap to (√½, -√½). Translation is teleportDistance along that.
-    expect(c.attemptUpSpecial(0.7, -0.7)).toBe(true);
-    const totalUntilLastActive =
-      CAT_UP_SPECIAL.startupFrames + CAT_UP_SPECIAL.activeFrames - 1;
-    for (let i = 0; i < totalUntilLastActive; i += 1) {
-      c.applyInput({ moveX: 0, jump: false });
-    }
-    const expected = CAT_UP_SPECIAL.teleport.teleportDistance * Math.SQRT1_2;
-    expect(c.getPosition().x).toBeCloseTo(expected, 6);
-    expect(c.getPosition().y).toBeCloseTo(-expected, 6);
-  });
-
-  it('directionalJump press sets velocity along the snapped direction (Owl recovery)', async () => {
-    const { Owl, OWL_UP_SPECIAL } = await import('./Owl');
-    const m = createMockScene();
-    const o = new Owl(m.scene, { spawnX: 0, spawnY: 0 });
-    // Stick straight up → dir = (0, -1) → vy = -burstSpeed, vx = 0.
-    expect(o.attemptUpSpecial(0, -1)).toBe(true);
-    expect(o.getVelocity().x).toBe(0);
-    expect(o.getVelocity().y).toBe(-OWL_UP_SPECIAL.directionalJump.burstSpeed);
-    // Sign convention: NEGATIVE means upward.
-    expect(o.getVelocity().y).toBeLessThan(0);
-  });
-
-  it('directionalJump locks velocity each active frame to resist gravity', async () => {
-    const { Owl, OWL_UP_SPECIAL } = await import('./Owl');
-    const m = createMockScene();
-    const o = new Owl(m.scene, { spawnX: 0, spawnY: 0 });
-    // Press up — burst is along (0, -1).
-    o.attemptUpSpecial(0, -1);
-    const expectedVy = -OWL_UP_SPECIAL.directionalJump.burstSpeed;
-    // Drive past startup into the active window. Each active-phase
-    // frame should re-lock velocity to (0, expectedVy) so a gravity
-    // integrator wouldn't decay the burst.
-    // Simulate a "gravity tick" between frames by manually nudging vy.
-    for (let i = 0; i < OWL_UP_SPECIAL.startupFrames + 2; i += 1) {
-      // Manually apply fake gravity between fixed steps (mimics what a
-      // real Matter integrator would do between applyInput calls).
-      o.body.velocity.y += 1;
-      o.applyInput({ moveX: 0, jump: false });
-      if (i >= OWL_UP_SPECIAL.startupFrames) {
-        // Active phase — burst velocity should be re-locked.
-        expect(o.getVelocity().y).toBe(expectedVy);
-      }
-    }
-  });
-
-  it('directionalJump diagonal stick produces a diagonal burst', async () => {
-    const { Owl, OWL_UP_SPECIAL } = await import('./Owl');
-    const m = createMockScene();
-    const o = new Owl(m.scene, { spawnX: 0, spawnY: 0 });
-    // Stick at NE (snapped to (√½, -√½))
-    expect(o.attemptUpSpecial(1, -1)).toBe(true);
-    const burstSpeed = OWL_UP_SPECIAL.directionalJump.burstSpeed;
-    expect(o.getVelocity().x).toBeCloseTo(burstSpeed * Math.SQRT1_2, 6);
-    expect(o.getVelocity().y).toBeCloseTo(-burstSpeed * Math.SQRT1_2, 6);
-  });
-
-  it('tether press applies an upward impulse for the recovery rise (Bear recovery)', async () => {
-    const { Bear, BEAR_UP_SPECIAL } = await import('./Bear');
-    const m = createMockScene();
-    const b = new Bear(m.scene, { spawnX: 0, spawnY: 0 });
-    expect(b.getVelocity().y).toBe(0);
-    expect(b.attemptUpSpecial()).toBe(true);
-    // Vertical movement: NEGATIVE y means upward.
-    expect(b.getVelocity().y).toBeLessThan(0);
-    // Magnitude scales with the schema's extensionSpeed (so the press
-    // visibly clears the body before the line goes out).
-    const expected = -Math.max(8, BEAR_UP_SPECIAL.tether.extensionSpeed * 0.5);
-    expect(b.getVelocity().y).toBe(expected);
+    expect(dk.getActiveAttack()!.move.id).toBe(DONKEYKONG_UP_SPECIAL.id);
   });
 
   it('attemptUpSpecial returns false when no up-special is registered', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     expect(ch.getUpSpecialId()).toBe(null);
     expect(ch.attemptUpSpecial()).toBe(false);
     expect(ch.getVelocity()).toEqual({ x: 0, y: 0 });
   });
 
   it('attemptUpSpecial returns false while another attack is in flight', async () => {
-    const { Wolf, WOLF_JAB } = await import('./Wolf');
+    const { DonkeyKong, DONKEYKONG_JAB } = await import('./DonkeyKong');
     const m = createMockScene();
-    const w = new Wolf(m.scene, { spawnX: 0, spawnY: 0 });
-    expect(w.attemptAttack(WOLF_JAB.id)).toBe(true);
+    const dk = new DonkeyKong(m.scene, { spawnX: 0, spawnY: 0 });
+    expect(dk.attemptAttack(DONKEYKONG_JAB.id)).toBe(true);
     // Mid-jab — up-special is gated.
-    expect(w.attemptUpSpecial()).toBe(false);
-    expect(w.getActiveAttack()!.move.id).toBe(WOLF_JAB.id);
+    expect(dk.attemptUpSpecial()).toBe(false);
+    expect(dk.getActiveAttack()!.move.id).toBe(DONKEYKONG_JAB.id);
   });
 
   it('up-special leaves the fighter helpless until landing, then the refreshed jump fires', async () => {
-    const { Cat, CAT_TUNING } = await import('./Cat');
+    const { DonkeyKong } = await import('./DonkeyKong');
     const m = createMockScene();
-    const c = new Cat(m.scene, { spawnX: 0, spawnY: 0 });
+    const dk = new DonkeyKong(m.scene, { spawnX: 0, spawnY: 0 });
     // Burn every air jump.
-    for (let i = 0; i < CAT_TUNING.maxJumps!; i += 1) {
-      c.applyInput({ moveX: 0, jump: true });
-      c.applyInput({ moveX: 0, jump: false });
+    for (let i = 0; i < dk.getTuning().maxJumps; i += 1) {
+      dk.applyInput({ moveX: 0, jump: true });
+      dk.applyInput({ moveX: 0, jump: false });
     }
-    expect(c.attemptUpSpecial()).toBe(true);
+    expect(dk.attemptUpSpecial()).toBe(true);
     // Drive the move to completion + drain the cooldown.
-    for (let i = 0; i < 200 && c.isAttacking(); i += 1) {
-      c.applyInput({ moveX: 0, jump: false });
+    for (let i = 0; i < 200 && dk.isAttacking(); i += 1) {
+      dk.applyInput({ moveX: 0, jump: false });
     }
-    for (let i = 0; i < 200 && c.getCooldownRemaining() > 0; i += 1) {
-      c.applyInput({ moveX: 0, jump: false });
+    for (let i = 0; i < 200 && dk.getCooldownRemaining() > 0; i += 1) {
+      dk.applyInput({ moveX: 0, jump: false });
     }
     // Smash rule: after an up-special the fighter is in HELPLESS special-
     // fall — a jump press is ignored until it lands.
-    expect(c.isHelpless()).toBe(true);
-    c.applyInput({ moveX: 0, jump: true });
-    expect(c.getVelocity().y).not.toBeLessThan(0); // jump blocked while helpless
-    // Landing clears helpless; the jump budget was reset by attemptUpSpecial,
-    // so a fresh grounded jump press now fires.
-    ground(c, m);
-    c.applyInput({ moveX: 0, jump: false }); // release + land → clears helpless
-    const yBefore = c.getPosition().y;
-    c.applyInput({ moveX: 0, jump: true });
-    expect(c.getVelocity().y).toBeLessThan(0);
-    expect(yBefore).toBe(c.getPosition().y); // jump applies velocity, not position
+    expect(dk.isHelpless()).toBe(true);
+    dk.applyInput({ moveX: 0, jump: true });
+    expect(dk.getVelocity().y).not.toBeLessThan(0); // jump blocked while helpless
+    // Landing clears helpless and replenishes jumps, so a fresh grounded
+    // jump press now fires.
+    ground(dk, m);
+    dk.applyInput({ moveX: 0, jump: false }); // release + land → clears helpless
+    expect(dk.isHelpless()).toBe(false);
+    // Wait out Spinning Kong's special landing lag.
+    for (let i = 0; i < 100 && dk.getAnimationActionState().landingRecoveryRemaining > 0; i += 1) {
+      dk.applyInput({ moveX: 0, jump: false });
+    }
+    const yBefore = dk.getPosition().y;
+    dk.applyInput({ moveX: 0, jump: true });
+    advanceJumpsquat(dk);
+    expect(dk.getVelocity().y).toBeLessThan(0);
+    expect(yBefore).toBe(dk.getPosition().y); // jump applies velocity, not position
+  });
+
+  it('recovery preserves spent jumps when damage interrupts special fall', async () => {
+    const { DonkeyKong } = await import('./DonkeyKong');
+    const m = createMockScene();
+    const dk = new DonkeyKong(m.scene, { spawnX: 0, spawnY: 0 });
+    for (let i = 0; i < dk.getTuning().maxJumps; i += 1) {
+      dk.applyInput({ ...NEUTRAL, jump: true });
+      dk.applyInput(NEUTRAL);
+    }
+    const spent = dk.getJumpsUsed();
+    expect(dk.attemptUpSpecial()).toBe(true);
+    expect(dk.getJumpsUsed()).toBe(spent);
+    for (let i = 0; i < 200; i += 1) dk.applyInput(NEUTRAL);
+    expect(dk.isHelpless()).toBe(true);
+    dk.applyHit({ damage: 4, knockback: { x: 2, y: 0, scaling: 0 }, facing: 1 });
+    while (dk.getHitlagRemaining() > 0 || dk.getHitstunRemaining() > 0) dk.applyInput(NEUTRAL);
+    expect(dk.isHelpless()).toBe(false);
+    dk.applyInput({ ...NEUTRAL, jump: true });
+    expect(dk.getVelocity().y).toBeGreaterThanOrEqual(0);
+    expect(dk.getJumpsUsed()).toBe(spent);
   });
 
   it('determinism — identical up-special inputs produce identical trajectories', async () => {
-    const { Wolf } = await import('./Wolf');
+    const { DonkeyKong } = await import('./DonkeyKong');
     const trace = (): Array<{ x: number; y: number; vy: number }> => {
       const m = createMockScene();
-      const w = new Wolf(m.scene, { spawnX: 50, spawnY: 100 });
+      const dk = new DonkeyKong(m.scene, { spawnX: 50, spawnY: 100 });
       const out: Array<{ x: number; y: number; vy: number }> = [];
-      w.attemptUpSpecial(0, -1);
+      dk.attemptUpSpecial(0, -1);
       for (let i = 0; i < 80; i += 1) {
-        w.applyInput({ moveX: 0, jump: false });
+        dk.applyInput({ moveX: 0, jump: false });
         out.push({
-          x: w.getPosition().x,
-          y: w.getPosition().y,
-          vy: w.getVelocity().y,
+          x: dk.getPosition().x,
+          y: dk.getPosition().y,
+          vy: dk.getVelocity().y,
         });
       }
       return out;
@@ -3983,37 +4183,24 @@ describe('Character — up-special recovery physics (AC 60303 Sub-AC 3)', () => 
     expect(trace()).toEqual(trace());
   });
 
-  it('every roster character produces vertical movement on up-special activation', async () => {
-    const { Wolf } = await import('./Wolf');
-    const { Cat } = await import('./Cat');
-    const { Owl } = await import('./Owl');
-    const { Bear } = await import('./Bear');
+  it('every active roster fighter produces vertical movement on up-special activation', async () => {
+    const { DonkeyKong } = await import('./DonkeyKong');
+    const { Pikachu } = await import('./Pikachu');
     const constructors: Array<(m: MockScene) => Character> = [
-      (m) => new Wolf(m.scene, { spawnX: 0, spawnY: 0 }),
-      (m) => new Cat(m.scene, { spawnX: 0, spawnY: 0 }),
-      (m) => new Owl(m.scene, { spawnX: 0, spawnY: 0 }),
-      (m) => new Bear(m.scene, { spawnX: 0, spawnY: 0 }),
+      (m) => new DonkeyKong(m.scene, { spawnX: 0, spawnY: 0 }),
+      (m) => new Pikachu(m.scene, { spawnX: 0, spawnY: 0 }),
     ];
     for (const make of constructors) {
       const m = createMockScene();
       const ch = make(m);
       expect(ch.getVelocity().y).toBe(0);
       expect(ch.attemptUpSpecial(0, -1)).toBe(true);
-      // Either the press-frame velocity is upward (multiHitRising,
-      // directionalJump, tether) OR the press-frame velocity is zero
-      // and the move teleports upward in a later frame (teleport).
-      if (ch.getVelocity().y < 0) {
-        // Direct vertical press impulse — confirmed.
-        continue;
-      }
-      // Teleport branch — velocity is 0 on press; body moves up over
-      // the active window.
-      expect(ch.getVelocity().y).toBe(0);
-      const yBefore = ch.getPosition().y;
-      for (let i = 0; i < 100 && ch.isAttacking(); i += 1) {
+      // Either the press-frame velocity is upward (Spinning Kong) or the
+      // move starts rising after its startup (Quick Attack).
+      for (let i = 0; i < 100 && ch.isAttacking() && ch.getVelocity().y >= 0; i += 1) {
         ch.applyInput({ moveX: 0, jump: false });
       }
-      expect(ch.getPosition().y).toBeLessThan(yBefore);
+      expect(ch.getVelocity().y).toBeLessThan(0);
     }
   });
 });
@@ -4025,7 +4212,7 @@ describe('Character — up-special recovery physics (AC 60303 Sub-AC 3)', () => 
 describe('Character — edge-grab + ledge-hang state (AC 60403 Sub-AC 3)', () => {
   it('does not grab when no ledge candidates are wired in', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 100, spawnY: 100 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 100, spawnY: 100 });
     // No setLedgeCandidates call → empty list → detection always null.
     ch.applyInput({ moveX: 0, jump: false });
     expect(ch.isHangingOnLedge()).toBe(false);
@@ -4034,7 +4221,7 @@ describe('Character — edge-grab + ledge-hang state (AC 60403 Sub-AC 3)', () =>
 
   it('latches into ledge-hang when bounds overlap a candidate corner while airborne + falling', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 100, spawnY: 100 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 100, spawnY: 100 });
     // Place a ledge corner at the fighter's centre — guaranteed overlap.
     ch.setLedgeCandidates([
       { platformId: 'p1', side: 'right', x: 100, y: 100 },
@@ -4055,7 +4242,7 @@ describe('Character — edge-grab + ledge-hang state (AC 60403 Sub-AC 3)', () =>
 
   it('snaps body position to the latch point on the grab frame', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 100, spawnY: 100 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 100, spawnY: 100 });
     ch.setLedgeCandidates([
       { platformId: 'p1', side: 'right', x: 100, y: 60 },
     ]);
@@ -4071,7 +4258,7 @@ describe('Character — edge-grab + ledge-hang state (AC 60403 Sub-AC 3)', () =>
 
   it('locks input during hang — moveX has no effect on velocity', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 100, spawnY: 100 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 100, spawnY: 100 });
     ch.setLedgeCandidates([
       { platformId: 'p1', side: 'right', x: 100, y: 100 },
     ]);
@@ -4090,7 +4277,7 @@ describe('Character — edge-grab + ledge-hang state (AC 60403 Sub-AC 3)', () =>
 
   function hangChar(): { ch: Character; m: MockScene } {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 100, spawnY: 100 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 100, spawnY: 100 });
     ch.setLedgeCandidates([{ platformId: 'p1', side: 'right', x: 100, y: 100 }]);
     ch.setFacing(1);
     m.scene.matter.body.setVelocity(ch.body, { x: 0, y: 5 });
@@ -4098,6 +4285,43 @@ describe('Character — edge-grab + ledge-hang state (AC 60403 Sub-AC 3)', () =>
     expect(ch.isHangingOnLedge()).toBe(true);
     return { ch, m };
   }
+
+  it.each([null, 'getUp', 'roll'] as const)(
+    'follows a moving ledge throughout %s and reaches its moved recovery target', (release) => {
+      const { ch } = hangChar();
+      const { ch: reference } = hangChar();
+      const input = { moveX: 0, jump: false, ledgeRelease: release };
+      ch.applyInput(input);
+      reference.applyInput(input);
+      for (let frame = 1; frame <= 40; frame += 1) {
+        const wasAttached = ch.getLedgeHangState().active !== null;
+        // Keep moving while attached; a completed recovery is then free to walk.
+        const dx = wasAttached ? frame * 2 : (frame - 1) * 2;
+        const dy = wasAttached ? -frame : -(frame - 1);
+        ch.setLedgeCandidates([{ platformId: 'p1', side: 'right', x: 100 + dx, y: 100 + dy }]);
+        if (!wasAttached) break;
+        ch.applyInput({ moveX: 0, jump: false });
+        reference.applyInput({ moveX: 0, jump: false });
+        expect(ch.getPosition().x).toBeCloseTo(reference.getPosition().x + dx);
+        expect(ch.getPosition().y).toBeCloseTo(reference.getPosition().y + dy);
+        expect(ch.getLedgeHangState().name).toBe(reference.getLedgeHangState().name);
+      }
+    },
+  );
+
+  it.each([null, 'getUp', 'roll'] as const)(
+    'releases %s immediately when its platform disappears without a recovery teleport', (release) => {
+      const { ch } = hangChar();
+      ch.applyInput({ moveX: 0, jump: false, ledgeRelease: release });
+      const before = { ...ch.getPosition() };
+      ch.setLedgeCandidates([{ platformId: 'other', side: 'right', x: 100, y: 100 }]);
+      expect(ch.getLedgeHangState().active).toBeNull();
+      expect(ch.getLedgeHangState().cooldownRemaining).toBeGreaterThan(0);
+      ch.applyInput({ moveX: 0, jump: false });
+      expect(ch.getPosition()).toEqual(before);
+      expect(ch.getLedgeHangIframesRemaining()).toBe(0);
+    },
+  );
 
   it('HUMAN release: up-stick climbs off the ledge (getUp)', () => {
     const { ch } = hangChar();
@@ -4128,7 +4352,7 @@ describe('Character — edge-grab + ledge-hang state (AC 60403 Sub-AC 3)', () =>
         b.label === HITBOX_LABEL &&
         !b.removed &&
         (b.options?.['plugin'] as { moveId?: string } | undefined)?.moveId ===
-          'wolf.ledgeAttack',
+          'link.ledgeAttack',
     );
     expect(hb).toBeDefined();
   });
@@ -4148,7 +4372,7 @@ describe('Character — edge-grab + ledge-hang state (AC 60403 Sub-AC 3)', () =>
     // ledge's outer side. Smash still lets them snap onto the lip — the
     // grab is facing-agnostic by default.
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 100, spawnY: 100 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 100, spawnY: 100 });
     ch.setLedgeCandidates([
       { platformId: 'p1', side: 'left', x: 100, y: 100 },
     ]);
@@ -4161,7 +4385,7 @@ describe('Character — edge-grab + ledge-hang state (AC 60403 Sub-AC 3)', () =>
   it("honours requireFacing tuning: opting in restores the directional facing gate", () => {
     const m = createMockScene();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...GENERIC_FIXTURE,
       spawnX: 100,
       spawnY: 100,
       ledgeDetection: { requireFacing: true },
@@ -4177,7 +4401,7 @@ describe('Character — edge-grab + ledge-hang state (AC 60403 Sub-AC 3)', () =>
 
   it('jump release fires upward impulse and enters tether cooldown', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 100, spawnY: 100 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 100, spawnY: 100 });
     ch.setLedgeCandidates([
       { platformId: 'p1', side: 'right', x: 100, y: 100 },
     ]);
@@ -4194,7 +4418,7 @@ describe('Character — edge-grab + ledge-hang state (AC 60403 Sub-AC 3)', () =>
 
   it('getUp release climbs onto the platform as a smooth interpolated path (not a teleport)', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 100, spawnY: 100 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 100, spawnY: 100 });
     ch.setLedgeCandidates([
       { platformId: 'p1', side: 'right', x: 100, y: 100 },
     ]);
@@ -4254,7 +4478,7 @@ describe('Character — edge-grab + ledge-hang state (AC 60403 Sub-AC 3)', () =>
 
   it('roll release scrambles inward past the corner as a smooth interpolated path', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 100, spawnY: 100 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 100, spawnY: 100 });
     ch.setLedgeCandidates([
       { platformId: 'p1', side: 'right', x: 100, y: 100 },
     ]);
@@ -4308,7 +4532,7 @@ describe('Character — edge-grab + ledge-hang state (AC 60403 Sub-AC 3)', () =>
     // A left ledge must drive candidate.side through end-to-end so the
     // body translates inward to the RIGHT (x increases) toward the stage.
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 100, spawnY: 100 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 100, spawnY: 100 });
     ch.setLedgeCandidates([
       { platformId: 'p1', side: 'left', x: 100, y: 100 },
     ]);
@@ -4351,7 +4575,7 @@ describe('Character — edge-grab + ledge-hang state (AC 60403 Sub-AC 3)', () =>
 
   it('roll off a LEFT ledge scrambles inward to the right past the corner', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 100, spawnY: 100 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 100, spawnY: 100 });
     ch.setLedgeCandidates([
       { platformId: 'p1', side: 'left', x: 100, y: 100 },
     ]);
@@ -4386,7 +4610,7 @@ describe('Character — edge-grab + ledge-hang state (AC 60403 Sub-AC 3)', () =>
     // through the climb/roll interpolation branch — where an early ease
     // value near 0 would mask drift for several frames before diverging.
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 100, spawnY: 100 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 100, spawnY: 100 });
     ch.setLedgeCandidates([
       { platformId: 'p1', side: 'right', x: 100, y: 100 },
     ]);
@@ -4411,7 +4635,7 @@ describe('Character — edge-grab + ledge-hang state (AC 60403 Sub-AC 3)', () =>
 
   it('tether re-grab cooldown blocks re-latching the same ledge', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 100, spawnY: 100 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 100, spawnY: 100 });
     ch.setLedgeCandidates([
       { platformId: 'p1', side: 'right', x: 100, y: 100 },
     ]);
@@ -4430,7 +4654,7 @@ describe('Character — edge-grab + ledge-hang state (AC 60403 Sub-AC 3)', () =>
 
   it('hang i-frames absorb hits during the grace window', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 100, spawnY: 100 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 100, spawnY: 100 });
     ch.setLedgeCandidates([
       { platformId: 'p1', side: 'right', x: 100, y: 100 },
     ]);
@@ -4456,7 +4680,7 @@ describe('Character — edge-grab + ledge-hang state (AC 60403 Sub-AC 3)', () =>
 
   it('SMASH-PARITY: a fresh ledge grab is punishable on the 2-frame window', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 100, spawnY: 100 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 100, spawnY: 100 });
     ch.setLedgeCandidates([
       { platformId: 'p1', side: 'right', x: 100, y: 100 },
     ]);
@@ -4480,7 +4704,7 @@ describe('Character — edge-grab + ledge-hang state (AC 60403 Sub-AC 3)', () =>
 
   it('setPosition resets the ledge state to idle', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 100, spawnY: 100 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 100, spawnY: 100 });
     ch.setLedgeCandidates([
       { platformId: 'p1', side: 'right', x: 100, y: 100 },
     ]);
@@ -4495,7 +4719,7 @@ describe('Character — edge-grab + ledge-hang state (AC 60403 Sub-AC 3)', () =>
 
   it('exposes setLedgeCandidates / getLedgeCandidates round-trip', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     expect(ch.getLedgeCandidates()).toEqual([]);
     const cands = [
       { platformId: 'a', side: 'right' as const, x: 10, y: 20 },
@@ -4519,7 +4743,7 @@ describe('Character — hurtbox queries (Sub-AC 2 of AC 10002)', () => {
   it('getBodyHurtbox derives geometry from the active tuning', () => {
     const m = createMockScene();
     const ch = new Character(m.scene, {
-      id: 'wolf',
+      ...GENERIC_FIXTURE,
       spawnX: 0,
       spawnY: 0,
       width: 100,
@@ -4536,7 +4760,7 @@ describe('Character — hurtbox queries (Sub-AC 2 of AC 10002)', () => {
 
   it('getActiveHurtboxes returns [body] when no attack is in flight', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     const set = ch.getActiveHurtboxes();
     expect(set.length).toBe(1);
     expect(set[0]!.id).toBe('body');
@@ -4544,7 +4768,7 @@ describe('Character — hurtbox queries (Sub-AC 2 of AC 10002)', () => {
 
   it('getActiveHurtboxes layers a per-move hurtbox modifier when its phase is live', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     const intangibleHurtbox = {
       id: 'm.dodge',
       offsetX: 0,
@@ -4593,7 +4817,7 @@ describe('Character — hurtbox queries (Sub-AC 2 of AC 10002)', () => {
 
   it('getActiveHurtboxes is deterministic — repeated calls return the same set', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     const a = ch.getActiveHurtboxes();
     const b = ch.getActiveHurtboxes();
     expect(a).toEqual(b);
@@ -4601,7 +4825,7 @@ describe('Character — hurtbox queries (Sub-AC 2 of AC 10002)', () => {
 
   it('a regular attack with no modifiers exposes only the body hurtbox', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     const jab = {
       id: 'test.jab',
       type: 'jab' as const,
@@ -4644,6 +4868,116 @@ const TEST_GRAB_SPEC = Object.freeze({
   }),
 });
 
+describe('Character — action commitment regression', () => {
+  const JAB = {
+    id: 'commit.jab', type: 'jab' as const, damage: 5,
+    knockback: { x: 1, y: -1, scaling: 0.1 },
+    hitbox: { offsetX: 20, offsetY: 0, width: 30, height: 30 },
+    startupFrames: 2, activeFrames: 3, recoveryFrames: 4, cooldownFrames: 2,
+  };
+  function fighter(): Character {
+    const m = createMockScene();
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
+    ch.registerAttack(JAB);
+    ch.setGrabSpec(TEST_GRAB_SPEC);
+    ground(ch, m);
+    return ch;
+  }
+
+  it.each([0, 2, 5])('blocks grab during attack startup/active/recovery (frame %i)', (frame) => {
+    const ch = fighter();
+    ch.applyInput({ ...NEUTRAL, attack: true });
+    for (let i = 0; i < frame; i += 1) ch.applyInput(NEUTRAL);
+    expect(ch.isAttacking()).toBe(true);
+    ch.applyInput({ ...NEUTRAL, grab: true });
+    expect(ch.getGrabState().name).toBe('idle');
+    expect(ch.isAttacking()).toBe(true);
+  });
+
+  it.each([0, 4, 6])('blocks defense throughout grab commitment (frame %i)', (frame) => {
+    for (const defense of ['shield', 'dodge'] as const) {
+      const ch = fighter();
+      ch.applyInput({ ...NEUTRAL, grab: true });
+      for (let i = 0; i < frame; i += 1) ch.applyInput(NEUTRAL);
+      ch.applyInput({ ...NEUTRAL, [defense]: true });
+      expect(ch.getGrabState().name).not.toBe('idle');
+      expect(ch.isShielding()).toBe(false);
+      expect(ch.isDodging()).toBe(false);
+    }
+  });
+
+  it.each([0, 15])('blocks grab during dodge active/recovery (frame %i)', (frame) => {
+    const ch = fighter();
+    ch.applyInput({ ...NEUTRAL, dodge: true });
+    for (let i = 0; i < frame; i += 1) ch.applyInput(NEUTRAL);
+    expect(ch.isDodging()).toBe(true);
+    ch.applyInput({ ...NEUTRAL, grab: true });
+    expect(ch.getGrabState().name).toBe('idle');
+  });
+
+  it('does not let a new grab or defense interrupt an existing jumpsquat', () => {
+    for (const action of ['grab', 'shield', 'dodge'] as const) {
+      const ch = fighter();
+      ch.applyInput({ ...NEUTRAL, jump: true });
+      ch.applyInput({ ...NEUTRAL, jump: true, [action]: true });
+      expect(ch.getJumpsquatRemaining()).toBe(2);
+      expect(ch.getGrabState().name).toBe('idle');
+      expect(ch.isShielding()).toBe(false);
+      expect(ch.isDodging()).toBe(false);
+    }
+  });
+
+  it('damage interrupts jumpsquat instead of resuming the old jump after hitstun', () => {
+    const ch = fighter();
+    ch.applyInput({ ...NEUTRAL, jump: true });
+    ch.applyHit(STANDARD_HIT);
+    expect(ch.getJumpsquatRemaining()).toBe(0);
+  });
+
+  it('capture cancels a pending takeoff even when the hold ends without a throw', () => {
+    const victim = fighter();
+    victim.applyInput({ ...NEUTRAL, jump: true });
+    victim.applyGrabbed(fighter());
+    for (let i = 0; i < 2; i += 1) victim.applyInput(NEUTRAL);
+    victim.releaseFromGrab();
+    for (let i = 0; i < 4; i += 1) victim.applyInput(NEUTRAL);
+    expect(victim.getJumpsquatRemaining()).toBe(0);
+    expect(victim.getJumpsUsed()).toBe(0);
+    expect(victim.getVelocity().y).toBe(0);
+  });
+
+  it('round reset removes old combat, grace and the equipped item while preserving damage', () => {
+    const ch = fighter();
+    ch.setDamagePercent(120);
+    ch.equipItem({ definition: { itemClass: 'battering' }, canUse: () => true, noteUse: () => {}, spendShot: () => false, getAmmo: () => null });
+    ch.applyInput({ ...NEUTRAL, attack: true });
+    ch.armAttackerHitlag(6);
+    ch.setInvincibility(60);
+    ch.resetForRound(500, 100);
+    expect(ch.getPosition()).toEqual({ x: 500, y: 100 });
+    expect(ch.getDamagePercent()).toBe(120);
+    expect(ch.getVelocity()).toEqual({ x: 0, y: 0 });
+    expect(ch.getEquippedItem()).toBeNull();
+    expect(ch.isAttacking()).toBe(false);
+    expect(ch.getHitlagRemaining()).toBe(0);
+    expect(ch.isInvincible()).toBe(false);
+  });
+
+  it('resetting a captive first releases both grab links before the next round', () => {
+    const grabber = fighter();
+    const victim = fighter();
+    grabber.applyInput({ ...NEUTRAL, grab: true });
+    for (let i = 0; i < 4; i += 1) grabber.applyInput(NEUTRAL);
+    grabber.resolveGrabConnect(victim);
+    expect(victim.isGrabbed()).toBe(true);
+    victim.resetForRound(500, 100);
+    expect(victim.isGrabbed()).toBe(false);
+    expect(grabber.getGrabState().name).toBe('idle');
+    grabber.applyInput(NEUTRAL);
+    expect(victim.getPosition()).toEqual({ x: 500, y: 100 });
+  });
+});
+
 describe('Character — SDI (Tier 3 — drift during hitlag)', () => {
   const SDI_HIT: HitInfo = {
     damage: 12,
@@ -4653,7 +4987,7 @@ describe('Character — SDI (Tier 3 — drift during hitlag)', () => {
 
   it('a fresh stick flick nudges the victim position during the freeze', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 100, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 100, spawnY: 0 });
     ch.applyHit(SDI_HIT);
     expect(ch.getHitlagRemaining()).toBeGreaterThan(0);
     const before = ch.getPosition().x;
@@ -4663,7 +4997,7 @@ describe('Character — SDI (Tier 3 — drift during hitlag)', () => {
 
   it('a HELD stick nudges only once (each nudge needs a fresh flick)', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 100, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 100, spawnY: 0 });
     ch.applyHit(SDI_HIT);
     const before = ch.getPosition().x;
     for (let i = 0; i < 20 && ch.getHitlagRemaining() > 0; i += 1) {
@@ -4674,7 +5008,7 @@ describe('Character — SDI (Tier 3 — drift during hitlag)', () => {
 
   it('a neutral stick does not SDI', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 100, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 100, spawnY: 0 });
     ch.applyHit(SDI_HIT);
     const before = ch.getPosition().x;
     ch.applyInput(NEUTRAL);
@@ -4705,7 +5039,7 @@ describe('Character — jab combos (Tier 4)', () => {
 
   function comboChar(): { ch: Character; m: MockScene } {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack(JAB1);
     ch.registerAttack(JAB2);
     ch.registerAttack(JAB3);
@@ -4778,7 +5112,7 @@ describe('Character — jab combos (Tier 4)', () => {
 
   it('backward-compat: a single-jab roster re-press mid-jab is a no-op', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack(JAB3); // no jabChain
     ground(ch, m);
     ch.applyInput({ moveX: 0, jump: false, attack: true });
@@ -4793,23 +5127,23 @@ describe('Character — jab combos (Tier 4)', () => {
 describe('Character — crouch (Tier 5)', () => {
   const CROUCH: CharacterInput = { moveX: 0, jump: false, moveY: 0.9 };
 
-  function crouchedWolf(): { ch: Character; m: MockScene } {
+  function crouched(): { ch: Character; m: MockScene } {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ground(ch, m);
     ch.applyInput(CROUCH);
     return { ch, m };
   }
 
   it('holding down while grounded enters the crouch state', () => {
-    const { ch } = crouchedWolf();
+    const { ch } = crouched();
     expect(ch.isCrouching()).toBe(true);
     expect(ch.getLocomotionStateName()).toBe('crouch');
   });
 
   it('a clear lateral tilt beats crouch (down + side is not a crouch)', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ground(ch, m);
     ch.applyInput({ moveX: 0.6, jump: false, moveY: 0.9 });
     expect(ch.isCrouching()).toBe(false);
@@ -4823,19 +5157,19 @@ describe('Character — crouch (Tier 5)', () => {
     };
     const standingMag = (() => {
       const m = createMockScene();
-      const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+      const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
       ground(ch, m);
       ch.applyInput(NEUTRAL); // standing
       return ch.applyHit(hit).magnitude;
     })();
-    const { ch } = crouchedWolf();
+    const { ch } = crouched();
     const crouchMag = ch.applyHit(hit).magnitude;
     expect(crouchMag).toBeLessThan(standingMag);
     expect(crouchMag).toBeCloseTo(standingMag * CROUCH_KNOCKBACK_REDUCTION, 4);
   });
 
   it('the crouch hurtbox ducks (shorter, bottom-anchored)', () => {
-    const { ch } = crouchedWolf();
+    const { ch } = crouched();
     const body = ch.getBodyHurtbox();
     const hb = ch.getActiveHurtboxes()[0]!;
     expect(hb.height).toBeLessThan(body.height); // shorter
@@ -4848,7 +5182,7 @@ describe('Character — crouch (Tier 5)', () => {
   });
 
   it('standing up (release down) leaves crouch', () => {
-    const { ch } = crouchedWolf();
+    const { ch } = crouched();
     expect(ch.isCrouching()).toBe(true);
     ch.applyInput(NEUTRAL);
     expect(ch.isCrouching()).toBe(false);
@@ -4856,7 +5190,7 @@ describe('Character — crouch (Tier 5)', () => {
 
   it('a down-attack from crouch fires the down-tilt and KEEPS the crouch state', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ground(ch, m);
     const tilt = {
       id: 't.tilt',
@@ -4891,7 +5225,7 @@ describe('Character — crouch (Tier 5)', () => {
   });
 
   it('crouch does not survive a launch (no airborne crouch perks)', () => {
-    const { ch } = crouchedWolf();
+    const { ch } = crouched();
     expect(ch.isCrouching()).toBe(true);
     ch.applyHit({ damage: 8, knockback: { x: 6, y: -4, scaling: 0.2 }, facing: 1 });
     // The hit resets locomotion to standing, so a juggled fighter can't
@@ -4901,7 +5235,7 @@ describe('Character — crouch (Tier 5)', () => {
 
   it('a fighter launched out of a run resets locomotion (no spurious pivot out of hitstun)', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ground(ch, m);
     for (let i = 0; i < 20; i += 1) ch.applyInput({ moveX: 1, jump: false });
     expect(ch.getLocomotionStateName()).toBe('run');
@@ -4926,7 +5260,7 @@ describe('Character — dash grab (Tier 4)', () => {
 
   it('a grab from a standstill is a standing grab (no dash latch)', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.setGrabSpec(DASH_GRAB_SPEC);
     ground(ch, m);
     ch.applyInput({ moveX: 0, jump: false, grab: true });
@@ -4936,7 +5270,7 @@ describe('Character — dash grab (Tier 4)', () => {
 
   it('a grab pressed while running latches a dash grab and carries momentum', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.setGrabSpec(DASH_GRAB_SPEC);
     ground(ch, m);
     const runVx = runUpToSpeed(ch);
@@ -4950,7 +5284,7 @@ describe('Character — dash grab (Tier 4)', () => {
 
   it('a standing-grab spec does NOT carry momentum even while running', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.setGrabSpec(TEST_GRAB_SPEC); // no dashGrab field
     ground(ch, m);
     const runVx = runUpToSpeed(ch);
@@ -4962,7 +5296,7 @@ describe('Character — dash grab (Tier 4)', () => {
 
   it('respawn clears the dash-grab latch', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.setGrabSpec(DASH_GRAB_SPEC);
     ground(ch, m);
     runUpToSpeed(ch);
@@ -4976,38 +5310,38 @@ describe('Character — dash grab (Tier 4)', () => {
 describe('Character — stale-move queue (Tier 3 attacker-side)', () => {
   it('returns prior occurrences and grows with repeats', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
-    expect(ch.registerLandedMove('wolf.jab')).toBe(0); // fresh
-    expect(ch.registerLandedMove('wolf.jab')).toBe(1); // seen once
-    expect(ch.registerLandedMove('wolf.jab')).toBe(2);
-    expect(ch.registerLandedMove('wolf.smash')).toBe(0); // different move, fresh
-    expect(ch.getStaleOccurrences('wolf.jab')).toBe(3);
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
+    expect(ch.registerLandedMove('fixture.jab')).toBe(0); // fresh
+    expect(ch.registerLandedMove('fixture.jab')).toBe(1); // seen once
+    expect(ch.registerLandedMove('fixture.jab')).toBe(2);
+    expect(ch.registerLandedMove('fixture.smash')).toBe(0); // different move, fresh
+    expect(ch.getStaleOccurrences('fixture.jab')).toBe(3);
   });
 
   it('trims to the queue size (old entries freshen out)', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
-    ch.registerLandedMove('wolf.jab'); // oldest
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
+    ch.registerLandedMove('fixture.jab'); // oldest
     for (let i = 0; i < STALE_QUEUE_SIZE; i += 1) {
-      ch.registerLandedMove('wolf.tilt'); // push the jab out of the window
+      ch.registerLandedMove('fixture.tilt'); // push the jab out of the window
     }
-    expect(ch.getStaleOccurrences('wolf.jab')).toBe(0); // freshened
+    expect(ch.getStaleOccurrences('fixture.jab')).toBe(0); // freshened
   });
 
   it('resets the stale queue on respawn', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
-    ch.registerLandedMove('wolf.jab');
-    ch.registerLandedMove('wolf.jab');
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
+    ch.registerLandedMove('fixture.jab');
+    ch.registerLandedMove('fixture.jab');
     ch.setPosition(400, 100); // respawn flow
-    expect(ch.getStaleOccurrences('wolf.jab')).toBe(0);
+    expect(ch.getStaleOccurrences('fixture.jab')).toBe(0);
   });
 });
 
 describe('Character — out-of-shield options & perfect shield (Tier 2)', () => {
-  function shieldedWolf(): { ch: Character; m: MockScene } {
+  function shielded(): { ch: Character; m: MockScene } {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.setGrabSpec(TEST_GRAB_SPEC);
     ground(ch, m);
     ch.applyInput({ moveX: 0, jump: false, shield: true }); // raise
@@ -5016,42 +5350,50 @@ describe('Character — out-of-shield options & perfect shield (Tier 2)', () => 
   }
 
   it('shield-grab — a grab press from shield drops the shield and grabs', () => {
-    const { ch } = shieldedWolf();
+    const { ch } = shielded();
     ch.applyInput({ moveX: 0, jump: false, shield: true, grab: true });
     expect(ch.getGrabState().name).toBe('whiffStartup');
     expect(ch.isShielding()).toBe(false);
   });
 
   it('jump-out-of-shield — a jump press from shield drops the shield and jumps', () => {
-    const { ch } = shieldedWolf();
+    const { ch } = shielded();
     ch.applyInput({ moveX: 0, jump: true, shield: true });
+    expect(ch.isShielding()).toBe(false);
+    advanceJumpsquat(ch);
     expect(ch.getVelocity().y).toBeLessThan(0);
     expect(ch.isShielding()).toBe(false);
   });
 
-  it('a perfect shield (hit in the raise window) costs no HP and no shieldstun', () => {
-    const { ch } = shieldedWolf(); // shield up exactly 1 frame
+  it('a release parry costs no HP and arms protected ordinary shieldstun', () => {
+    const { ch } = shielded();
+    ch.applyInput({ moveX: 0, jump: false, shield: true });
+    ch.applyInput({ moveX: 0, jump: false, shield: true });
+    ch.applyInput({ moveX: 0, jump: false });
+    expect(ch.isShieldParrying()).toBe(true);
     const before = ch.getShieldHealth();
     const r = ch.applyHit(STANDARD_HIT);
     expect(r.magnitude).toBe(0); // still absorbed
     expect(ch.getShieldHealth()).toBe(before); // no HP cost
-    expect(ch.getShieldState().blockStunRemaining).toBe(0); // no lock
+    expect(ch.getShieldParryStunRemaining()).toBe(Math.floor(STANDARD_HIT.damage * 0.8 + 3) - 1);
+    expect(ch.canAttack()).toBe(false);
   });
 
   it('a late block (held past the window) costs HP and arms shieldstun', () => {
-    const { ch } = shieldedWolf();
+    const { ch } = shielded();
     // Hold past the perfect-shield window.
     for (let i = 0; i < 6; i += 1) {
       ch.applyInput({ moveX: 0, jump: false, shield: true });
     }
     const before = ch.getShieldHealth();
     ch.applyHit(STANDARD_HIT);
-    expect(ch.getShieldHealth()).toBeCloseTo(before - STANDARD_HIT.damage, 4);
+    // SmashWiki Shield: Ultimate shields lose 1.19× the damage (https://www.ssbwiki.com/Shield).
+    expect(ch.getShieldHealth()).toBeCloseTo(before - STANDARD_HIT.damage * 1.19, 4);
     expect(ch.getShieldState().blockStunRemaining).toBeGreaterThan(0);
   });
 
   it('shieldstun locks out the OoS grab until it drains', () => {
-    const { ch } = shieldedWolf();
+    const { ch } = shielded();
     for (let i = 0; i < 6; i += 1) {
       ch.applyInput({ moveX: 0, jump: false, shield: true }); // past window
     }
@@ -5061,6 +5403,62 @@ describe('Character — out-of-shield options & perfect shield (Tier 2)', () => 
     ch.applyInput({ moveX: 0, jump: false, shield: true, grab: true });
     expect(ch.getGrabState().name).toBe('idle');
     expect(ch.isShielding()).toBe(true); // still locked in shield
+  });
+
+  it('executes a late buffered jump after shieldstun while shield stays held', () => {
+    const { ch } = shielded();
+    const heldShield = { ...NEUTRAL, shield: true };
+    for (let i = 0; i < 6; i += 1) ch.applyInput(heldShield);
+    ch.applyHit(STANDARD_HIT);
+    while (ch.getShieldState().blockStunRemaining > 2) ch.applyInput(heldShield);
+    ch.applyInput({ ...heldShield, jump: true });
+    expect(ch.getJumpsquatRemaining()).toBe(0);
+    for (let i = 0; i < 2; i += 1) ch.applyInput(heldShield);
+    expect(ch.isShielding()).toBe(false);
+    expect(ch.getJumpsquatRemaining()).toBe(3);
+    for (let i = 0; i < 3; i += 1) ch.applyInput(heldShield);
+    expect(ch.getVelocity().y).toBeLessThan(0);
+  });
+});
+
+// SmashWiki Revival platform (https://www.ssbwiki.com/Revival_platform): the fighter waits on the platform, intangible,
+// until it moves or attacks or 5 seconds pass; leaving grants 120 frames of invincibility, fewer the longer it waited
+// (minimum 60).
+describe('Character — revival platform hold', () => {
+  const revived = () => { const m = createMockScene(); const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: -300 });
+    ch.beginRevivalPlatform(); return ch; };
+  it('waits intangible on neutral input up to 300 frames, then drops with the minimum 60 invincibility frames', () => {
+    const ch = revived();
+    for (let i = 0; i < REVIVAL_PLATFORM_MAX_FRAMES; i += 1) {
+      ch.applyInput(NEUTRAL);
+      expect(ch.isOnRevivalPlatform()).toBe(true);
+      expect(ch.isInvincible()).toBe(true);
+    }
+    ch.applyInput(NEUTRAL);
+    expect(ch.isOnRevivalPlatform()).toBe(false);
+    expect(ch.getInvincibilityRemaining()).toBe(60 - 1); // granted then drained by this step
+  });
+  it('a stick movement dismounts at once, keeping invincibility proportional to the wait', () => {
+    const ch = revived();
+    for (let i = 0; i < 30; i += 1) ch.applyInput(NEUTRAL);
+    ch.applyInput({ moveX: 1, jump: false });
+    expect(ch.isOnRevivalPlatform()).toBe(false);
+    expect(ch.getInvincibilityRemaining()).toBe(114 - 1);
+  });
+  // SmashWiki Revival platform: "After a KO, the character will simply descend from the sky on the revival platform" (no
+  // revival animation since Smash 64); On-screen appearance: Entry/EntryR is the intro "before the beginning of a match".
+  it('DK starts no Entry cue on respawn: he stands (wait) on the platform', () => {
+    const m = createMockScene(); const ch = new Character(m.scene, { id: 'donkeykong', spawnX: 0, spawnY: -300 });
+    ch.beginRevivalPlatform(); ch.beginPikachuRespawnPresentation();
+    expect(ch.getPikachuRespawnPresentationState()).toBeNull();
+    ch.applyInput(NEUTRAL);
+    expect(ch.getPikachuRespawnPresentationState()).toBeNull();
+    expect(ch.isOnRevivalPlatform()).toBe(true);
+  });
+  it('the platform is a floor for the wait clock: the standing (idle) presentation runs while waiting', () => {
+    const ch = revived();
+    for (let i = 0; i < 30; i += 1) ch.applyInput(NEUTRAL);
+    expect(ch.getOrdinaryPresentationState()).toMatchObject({ sheet: 'idle', framesElapsed: 29 });
   });
 });
 
@@ -5073,7 +5471,7 @@ describe('Character — teching & knockdown (launch → floor loop)', () => {
 
   function launchedChar(): { ch: Character; m: MockScene } {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.applyHit(HARD_HIT);
     // Drain hitlag so the launch applies + tumble engages.
     for (let i = 0; i < 20 && !ch.isTumbling(); i += 1) ch.applyInput(NEUTRAL);
@@ -5083,7 +5481,7 @@ describe('Character — teching & knockdown (launch → floor loop)', () => {
 
   it('a hard hit tumbles; a light hit does not', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.applyHit({ damage: 4, knockback: { x: 2, y: -1, scaling: 0.05 }, facing: 1 });
     for (let i = 0; i < 10; i += 1) ch.applyInput(NEUTRAL);
     expect(ch.isTumbling()).toBe(false); // below the tumble threshold
@@ -5110,6 +5508,8 @@ describe('Character — teching & knockdown (launch → floor loop)', () => {
     ground(ch, m);
     ch.applyInput(NEUTRAL); // → knockdown
     expect(ch.isKnockedDown()).toBe(true);
+    // SmashWiki Lucario (SSBU)/Floor getups: options only after 25 prone frames.
+    for (let i = 1; i < KNOCKDOWN_OPTION_LOCK_FRAMES; i += 1) ch.applyInput(NEUTRAL);
     ch.applyInput({ moveX: 0, jump: true }); // get-up
     expect(ch.isKnockedDown()).toBe(false);
     expect(ch.isInvincible()).toBe(true);
@@ -5119,24 +5519,28 @@ describe('Character — teching & knockdown (launch → floor loop)', () => {
     const { ch, m } = launchedChar();
     ground(ch, m);
     ch.applyInput(NEUTRAL); // → knockdown
-    for (let i = 0; i < 40; i += 1) ch.applyInput(NEUTRAL); // wait it out
+    for (let i = 0; i < KNOCKDOWN_FRAMES; i += 1) ch.applyInput(NEUTRAL); // wait it out
     expect(ch.isKnockedDown()).toBe(false);
   });
 
   it('a tech WITH a held direction becomes a directional tech-roll', () => {
     const { ch, m } = launchedChar();
     ground(ch, m);
+    const facing = ch.getFacing();
     ch.applyInput({ moveX: 1, jump: false, shield: true }); // tech-roll →
     expect(ch.isGetupRolling()).toBe(true);
     expect(ch.isKnockedDown()).toBe(false);
     expect(ch.isInvincible()).toBe(true);
-    expect(ch.getFacing()).toBe(1); // turned to face the roll
+    // Native passive_stand_f / _b roll without turning: the sheet carries the direction.
+    expect(ch.getFacing()).toBe(facing);
   });
 
   it('a roll-get-up from knockdown (held direction) rolls intangibly', () => {
     const { ch, m } = launchedChar();
     ground(ch, m);
     ch.applyInput(NEUTRAL); // → knockdown
+    // SmashWiki Lucario (SSBU)/Floor getups: options only after 25 prone frames.
+    for (let i = 1; i < KNOCKDOWN_OPTION_LOCK_FRAMES; i += 1) ch.applyInput(NEUTRAL);
     ch.applyInput({ moveX: -1, jump: false }); // roll-get-up ←
     expect(ch.isGetupRolling()).toBe(true);
     expect(ch.isKnockedDown()).toBe(false);
@@ -5147,9 +5551,59 @@ describe('Character — teching & knockdown (launch → floor loop)', () => {
     const { ch, m } = launchedChar();
     ground(ch, m);
     ch.applyInput(NEUTRAL); // → knockdown
+    // SmashWiki Lucario (SSBU)/Floor getups: options only after 25 prone frames.
+    for (let i = 1; i < KNOCKDOWN_OPTION_LOCK_FRAMES; i += 1) ch.applyInput(NEUTRAL);
     ch.applyInput({ moveX: 0, jump: false, attack: true }); // get-up attack
     expect(ch.isKnockedDown()).toBe(false);
     expect(ch.isInvincible()).toBe(true);
+  });
+
+  // SmashWiki Lucario (SSBU)/Floor getups (front/back): "can choose a floor getup option after 25 frames. However, when
+  // an option isn't selected, Lucario will be prone for 245 frames(including missed tech tumble) before automatically
+  // doing a neutral getup" (https://www.ssbwiki.com/Lucario_(SSBU)/Floor_getups_(front)).
+  it('prone and trip clocks carry the SmashWiki Ultimate values', () => {
+    expect([KNOCKDOWN_FRAMES, KNOCKDOWN_OPTION_LOCK_FRAMES, TRIP_KNOCKDOWN_FRAMES, TRIP_OPTION_LOCK_FRAMES]).toEqual([245, 25, 99, 39]);
+  });
+
+  it('a missed tech lies prone 245 frames (landing frame included), then stands on its own', () => {
+    const { ch, m } = launchedChar();
+    ground(ch, m);
+    ch.applyInput(NEUTRAL); // frame 1 of the prone state
+    for (let i = 0; i < KNOCKDOWN_FRAMES - 1; i += 1) ch.applyInput(NEUTRAL);
+    expect(ch.isKnockedDown()).toBe(true); // frame 245
+    ch.applyInput(NEUTRAL); // frame 246: automatic neutral getup
+    expect(ch.isKnockedDown()).toBe(false);
+    expect(ch.isInvincible()).toBe(true);
+  });
+
+  it('floor getup options are refused for the first 25 prone frames, accepted on frame 26', () => {
+    const { ch, m } = launchedChar();
+    ground(ch, m);
+    ch.applyInput(NEUTRAL); // frame 1
+    for (let i = 0; i < KNOCKDOWN_OPTION_LOCK_FRAMES - 1; i += 1) {
+      ch.applyInput({ moveX: 1, jump: i % 2 === 0, attack: i % 2 === 1 }); // frames 2..25: every option refused
+      expect(ch.isKnockedDown()).toBe(true);
+    }
+    ch.applyInput({ moveX: 0, jump: true }); // frame 26: fresh get-up press
+    expect(ch.isKnockedDown()).toBe(false);
+  });
+
+  // SmashWiki Lucario (SSBU)/Floor getups (trip): "When a big trip a.k.a. hard trip occurs, Lucario ... can choose a floor
+  // getup option right after 39 frames. However, when an option isn't selected, Lucario will be prone for 99 frames
+  // (including the trip effect) before automatically doing a neutral getup on the 100th frame."
+  it('a trip (hard trip) refuses options 39 frames and stands on the 100th frame', () => {
+    const { ch, m } = (() => { const m = createMockScene(); return { ch: new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 }), m }; })();
+    ground(ch, m);
+    ch.applyInput(NEUTRAL);
+    ch.applyTrip(); // frame 1 of the trip
+    for (let i = 0; i < TRIP_OPTION_LOCK_FRAMES - 1; i += 1) {
+      ch.applyInput({ moveX: 0, jump: i % 2 === 0 });
+      expect(ch.isKnockedDown()).toBe(true);
+    }
+    for (let i = TRIP_OPTION_LOCK_FRAMES; i < TRIP_KNOCKDOWN_FRAMES; i += 1) ch.applyInput(NEUTRAL);
+    expect(ch.isKnockedDown()).toBe(true); // frame 99
+    ch.applyInput(NEUTRAL); // frame 100
+    expect(ch.isKnockedDown()).toBe(false);
   });
 
   it('a mistimed (too-early) tech locks out — the real landing knocks down', () => {
@@ -5157,7 +5611,7 @@ describe('Character — teching & knockdown (launch → floor loop)', () => {
     // Press shield while still airborne (no ground contact) — too early.
     ch.applyInput({ moveX: 0, jump: false, shield: true });
     // Drain the buffer in the air → lockout engages.
-    for (let i = 0; i < TECH_WINDOW_FRAMES + 1; i += 1) ch.applyInput(NEUTRAL);
+    for (let i = 0; i < TECH_INPUT_FRAMES + 1; i += 1) ch.applyInput(NEUTRAL);
     expect(ch.isTechLockedOut()).toBe(true);
     // Now land and try to tech again — locked out → knockdown.
     ground(ch, m);
@@ -5169,14 +5623,14 @@ describe('Character — teching & knockdown (launch → floor loop)', () => {
 describe('Character — grab subsystem ticking (M4.5 foundation)', () => {
   it('initial grab state is idle', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     expect(ch.getGrabState().name).toBe('idle');
     expect(ch.getGrabSpec()).toBeNull();
   });
 
   it('grab presses are ignored when no GrabSpec is registered', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ground(ch, m);
     ch.applyInput({ moveX: 0, jump: false, grab: true });
     expect(ch.getGrabState().name).toBe('idle');
@@ -5184,7 +5638,7 @@ describe('Character — grab subsystem ticking (M4.5 foundation)', () => {
 
   it('setGrabSpec validates the record (rejects malformed input)', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     expect(() =>
       ch.setGrabSpec({ ...TEST_GRAB_SPEC, activeFrames: 0 } as unknown as typeof TEST_GRAB_SPEC),
     ).toThrow(/activeFrames/);
@@ -5192,7 +5646,7 @@ describe('Character — grab subsystem ticking (M4.5 foundation)', () => {
 
   it('grab press while grounded transitions into whiffStartup', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.setGrabSpec(TEST_GRAB_SPEC);
     ground(ch, m);
     ch.applyInput({ moveX: 0, jump: false, grab: true });
@@ -5201,7 +5655,7 @@ describe('Character — grab subsystem ticking (M4.5 foundation)', () => {
 
   it('grab press while airborne is ignored', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.setGrabSpec(TEST_GRAB_SPEC);
     // Airborne (no ground contact)
     ch.applyInput({ moveX: 0, jump: false, grab: true });
@@ -5210,7 +5664,7 @@ describe('Character — grab subsystem ticking (M4.5 foundation)', () => {
 
   it('rising-edge gating — held grab button does NOT re-trigger after release', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.setGrabSpec(TEST_GRAB_SPEC);
     ground(ch, m);
     // First press — fires.
@@ -5228,7 +5682,7 @@ describe('Character — grab subsystem ticking (M4.5 foundation)', () => {
 
   it('setPosition() resets grab state to idle (transient combat state)', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.setGrabSpec(TEST_GRAB_SPEC);
     ground(ch, m);
     ch.applyInput({ moveX: 0, jump: false, grab: true });
@@ -5239,8 +5693,8 @@ describe('Character — grab subsystem ticking (M4.5 foundation)', () => {
 
   it('hitting the grabber BREAKS the grab and frees the victim', () => {
     const m = createMockScene();
-    const grabber = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
-    const victim = new Character(m.scene, { id: 'cat', spawnX: 20, spawnY: 0 });
+    const grabber = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
+    const victim = new Character(m.scene, { id: 'donkeykong', spawnX: 20, spawnY: 0 });
     grabber.setGrabSpec(TEST_GRAB_SPEC);
     ground(grabber, m);
     grabber.applyInput({ moveX: 0, jump: false, grab: true }); // press → whiffStartup
@@ -5257,10 +5711,78 @@ describe('Character — grab subsystem ticking (M4.5 foundation)', () => {
     expect(grabber.getGrabState().name).not.toBe('holding');
   });
 
+  function grabShieldingVictim(inShieldstun = false): {
+    grabber: Character;
+    victim: Character;
+    shieldHealth: number;
+  } {
+    const m = createMockScene();
+    const grabber = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
+    const victim = new Character(m.scene, { id: 'donkeykong', spawnX: 20, spawnY: 0 });
+    grabber.setGrabSpec(TEST_GRAB_SPEC);
+    ground(grabber, m);
+    ground(victim, m);
+    victim.applyInput({ ...NEUTRAL, shield: true });
+    grabber.applyInput({ ...NEUTRAL, grab: true });
+    for (let i = 0; i < 30 && grabber.getGrabState().name !== 'whiffActive'; i += 1) {
+      grabber.applyInput(NEUTRAL);
+      victim.applyInput({ ...NEUTRAL, shield: true });
+    }
+    expect(grabber.getGrabState().name).toBe('whiffActive');
+    if (inShieldstun) {
+      victim.applyHit(STANDARD_HIT);
+      expect(victim.getShieldState().blockStunRemaining).toBeGreaterThan(0);
+    }
+    const shieldHealth = victim.getShieldHealth();
+    grabber.resolveGrabConnect(victim);
+    expect(victim.isGrabbed()).toBe(true);
+    return { grabber, victim, shieldHealth };
+  }
+
+  it.each([false, true])('capture lowers a shield without refilling it (shieldstun: %s)', (inShieldstun) => {
+    const { victim, shieldHealth } = grabShieldingVictim(inShieldstun);
+    expect(victim.isShielding()).toBe(false);
+    expect(victim.getShieldState().blockStunRemaining).toBe(0);
+    expect(victim.getShieldHealth()).toBe(shieldHealth);
+    victim.applyInput({ ...NEUTRAL, shield: true });
+    expect(victim.isShielding()).toBe(false);
+  });
+
+  it('pummels damage a captured shielding fighter without draining its shield', () => {
+    const { grabber, victim, shieldHealth } = grabShieldingVictim();
+    victim.applyInput({ ...NEUTRAL, shield: true });
+    grabber.applyInput({ ...NEUTRAL, attack: true });
+    expect(victim.getDamagePercent()).toBeCloseTo(TEST_GRAB_SPEC.pummel.damage * STALE_FRESH_MULTIPLIER, 10);
+    expect(victim.isGrabbed()).toBe(true);
+    expect(victim.getShieldHealth()).toBe(shieldHealth);
+  });
+
+  it.each([
+    ['forward', 1, 0],
+    ['back', -1, 0],
+    ['up', 0, -1],
+    ['down', 0, 1],
+  ] as const)('%s throw damages and launches a captured shielding fighter', (direction, moveX, moveY) => {
+    const { grabber, victim, shieldHealth } = grabShieldingVictim(true);
+    const throwSpec = TEST_GRAB_SPEC.throws[direction];
+    grabber.applyInput({ ...NEUTRAL, moveX, moveY });
+    expect(grabber.getGrabState().name).toBe('throwing');
+    for (let i = 0; i < throwSpec.animationFrames; i += 1) {
+      victim.applyInput({ ...NEUTRAL, shield: true });
+      grabber.applyInput(NEUTRAL);
+    }
+    expect(victim.isGrabbed()).toBe(false);
+    expect(victim.getDamagePercent()).toBeCloseTo(throwSpec.damage * STALE_FRESH_MULTIPLIER, 10);
+    expect(victim.getShieldHealth()).toBe(shieldHealth);
+    tickPastHitlag(victim);
+    expect(Math.hypot(victim.getVelocity().x, victim.getVelocity().y)).toBeGreaterThan(0);
+    expect(victim.getHitstunRemaining()).toBeGreaterThan(0);
+  });
+
   it('a fighter mid-grab is locked out of walking/jumping (grab commitment)', () => {
     const m = createMockScene();
-    const grabber = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
-    const victim = new Character(m.scene, { id: 'cat', spawnX: 20, spawnY: 0 });
+    const grabber = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
+    const victim = new Character(m.scene, { id: 'donkeykong', spawnX: 20, spawnY: 0 });
     grabber.setGrabSpec(TEST_GRAB_SPEC);
     ground(grabber, m);
     grabber.applyInput({ moveX: 0, jump: false, grab: true });
@@ -5280,15 +5802,13 @@ describe('Character — grab subsystem ticking (M4.5 foundation)', () => {
 // ---------------------------------------------------------------------------
 
 describe('Character — variable jump height (short hop)', () => {
-  it('clamps the rise to jumpImpulse * jumpCutFactor when jump is released mid-rise', () => {
+  it('selects a short hop when jump is released during jumpsquat', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ground(ch, m);
     const tuning = ch.getTuning();
     ch.applyInput({ moveX: 0, jump: true });
-    expect(ch.getVelocity().y).toBeCloseTo(-tuning.jumpImpulse);
-    // Release on the very next frame — a TAP. The rise is cut.
-    ch.applyInput({ moveX: 0, jump: false });
+    advanceJumpsquat(ch, false);
     expect(ch.getVelocity().y).toBeCloseTo(
       -tuning.jumpImpulse * tuning.jumpCutFactor,
     );
@@ -5296,41 +5816,32 @@ describe('Character — variable jump height (short hop)', () => {
 
   it('keeps the full rise while jump stays held', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ground(ch, m);
     const tuning = ch.getTuning();
     ch.applyInput({ moveX: 0, jump: true });
+    advanceJumpsquat(ch);
     // Held through the rise — no cut (mock scene applies no gravity,
     // so an unclipped vy stays at the full impulse).
-    ch.applyInput({ moveX: 0, jump: true });
-    ch.applyInput({ moveX: 0, jump: true });
     expect(ch.getVelocity().y).toBeCloseTo(-tuning.jumpImpulse);
   });
 
-  it('only cuts once — a second release frame does not re-clamp a faster rise', () => {
+  it('a squat-decided short hop is not re-clamped after takeoff', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ground(ch, m);
     const tuning = ch.getTuning();
     ch.applyInput({ moveX: 0, jump: true });
-    ch.applyInput({ moveX: 0, jump: false }); // cut fires, arm persists while rising
-    // Simulate an external upward boost beyond the cut threshold while
-    // STILL armed and rising — the cut may clamp again this frame…
-    ch.applyInput({ moveX: 0, jump: false });
-    // …but once the rise ends (vy >= 0) the arm clears, and a later
-    // upward velocity (e.g. a launch) is never cut by the idle button.
-    (ch.body as { velocity: { x: number; y: number } }).velocity.y = 1;
-    ch.applyInput(NEUTRAL); // vy >= 0 → arm cleared
+    advanceJumpsquat(ch, false);
     (ch.body as { velocity: { x: number; y: number } }).velocity.y =
       -tuning.jumpImpulse;
     ch.applyInput(NEUTRAL);
-    // No jump arm → upward velocity passes through un-cut.
     expect(ch.getVelocity().y).toBeCloseTo(-tuning.jumpImpulse);
   });
 
   it('does not cut an upward LAUNCH that was not started by a jump', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     // Airborne with a strong upward velocity (a knockback launch), no
     // jump press anywhere in the history.
     (ch.body as { velocity: { x: number; y: number } }).velocity.y = -15;
@@ -5342,7 +5853,7 @@ describe('Character — variable jump height (short hop)', () => {
 describe('Character — fast-fall + per-fighter gravity (Smash-feel pack)', () => {
   it('adds fallAccel while airborne and falling', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     const tuning = ch.getTuning();
     (ch.body as { velocity: { x: number; y: number } }).velocity.y = 2;
     ch.applyInput(NEUTRAL);
@@ -5351,7 +5862,7 @@ describe('Character — fast-fall + per-fighter gravity (Smash-feel pack)', () =
 
   it('does NOT add fallAccel while rising (jump heights stay pre-pack)', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     (ch.body as { velocity: { x: number; y: number } }).velocity.y = -6;
     ch.applyInput(NEUTRAL);
     expect(ch.getVelocity().y).toBeCloseTo(-6);
@@ -5359,7 +5870,7 @@ describe('Character — fast-fall + per-fighter gravity (Smash-feel pack)', () =
 
   it('clamps self-accelerated falls at maxFallSpeed (terminal velocity)', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     const tuning = ch.getTuning();
     // Just below terminal — the next fallAccel tick would overshoot,
     // so the clamp catches it exactly at terminal.
@@ -5369,9 +5880,43 @@ describe('Character — fast-fall + per-fighter gravity (Smash-feel pack)', () =
     expect(ch.getVelocity().y).toBeCloseTo(tuning.maxFallSpeed);
   });
 
+  it('removes Matter gravity that would push a normal fall past terminal', () => {
+    const m = createMockScene();
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
+    const terminal = ch.getTuning().maxFallSpeed;
+    (ch.body as { velocity: { x: number; y: number } }).velocity.y = terminal;
+    ch.applyInput(NEUTRAL);
+    // Simulate the global gravity Matter applies after applyInput.
+    m.scene.matter.body.setVelocity(ch.body, { x: 2, y: terminal + 1 });
+    ch.applyPostPhysicsVelocityConstraints();
+    expect(ch.getVelocity()).toEqual({ x: 2, y: terminal });
+  });
+
+  it('preserves pre-step external downward velocity while removing added gravity', () => {
+    const m = createMockScene();
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
+    const externalVelocity = ch.getTuning().maxFallSpeed + 7;
+    (ch.body as { velocity: { x: number; y: number } }).velocity.y = externalVelocity;
+    ch.applyInput(NEUTRAL);
+    m.scene.matter.body.setVelocity(ch.body, { x: 0, y: externalVelocity + 1 });
+    ch.applyPostPhysicsVelocityConstraints();
+    expect(ch.getVelocity().y).toBeCloseTo(externalVelocity);
+  });
+
+  it('clamps post-step gravity to the fast-fall terminal after latching', () => {
+    const m = createMockScene();
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
+    const fastTerminal = ch.getTuning().fastFallSpeed;
+    (ch.body as { velocity: { x: number; y: number } }).velocity.y = 2;
+    ch.applyInput({ moveX: 0, moveY: 1, jump: false });
+    m.scene.matter.body.setVelocity(ch.body, { x: 0, y: fastTerminal + 1 });
+    ch.applyPostPhysicsVelocityConstraints();
+    expect(ch.getVelocity().y).toBeCloseTo(fastTerminal);
+  });
+
   it('does NOT reduce an externally-injected velocity above terminal (wind gusts survive)', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     // A hazard shoved the body far past terminal — the soft clamp only
     // caps OUR OWN acceleration, never an external push.
     (ch.body as { velocity: { x: number; y: number } }).velocity.y = 50;
@@ -5381,7 +5926,7 @@ describe('Character — fast-fall + per-fighter gravity (Smash-feel pack)', () =
 
   it('latches fast-fall on a down-stick press during a descent and snaps to fastFallSpeed', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     const tuning = ch.getTuning();
     (ch.body as { velocity: { x: number; y: number } }).velocity.y = 2;
     ch.applyInput({ moveX: 0, jump: false, moveY: 1 });
@@ -5390,7 +5935,7 @@ describe('Character — fast-fall + per-fighter gravity (Smash-feel pack)', () =
 
   it('keeps the fast-fall latched after the stick returns to neutral (Smash contract)', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     const tuning = ch.getTuning();
     (ch.body as { velocity: { x: number; y: number } }).velocity.y = 2;
     ch.applyInput({ moveX: 0, jump: false, moveY: 1 });
@@ -5401,7 +5946,7 @@ describe('Character — fast-fall + per-fighter gravity (Smash-feel pack)', () =
 
   it('does not latch fast-fall while rising', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     const tuning = ch.getTuning();
     (ch.body as { velocity: { x: number; y: number } }).velocity.y = -8;
     ch.applyInput({ moveX: 0, jump: false, moveY: 1 });
@@ -5414,7 +5959,7 @@ describe('Character — fast-fall + per-fighter gravity (Smash-feel pack)', () =
 
   it('clears the fast-fall latch on landing', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     const tuning = ch.getTuning();
     (ch.body as { velocity: { x: number; y: number } }).velocity.y = 2;
     ch.applyInput({ moveX: 0, jump: false, moveY: 1 });
@@ -5434,17 +5979,19 @@ describe('Character — fast-fall + per-fighter gravity (Smash-feel pack)', () =
     expect(ch.getVelocity().y).toBeCloseTo(tuning.maxFallSpeed);
   });
 
-  it('gives the floaty fighter (Owl) a lower terminal velocity than the fast-faller (Cat)', () => {
+  it('gives the floatier fighter (Pikachu) a lower terminal velocity than the faster faller (DK)', () => {
+    expect(PIKACHU_MOVEMENT_PROFILE.maxFallSpeed).toBeLessThan(DONKEYKONG_MOVEMENT_PROFILE.maxFallSpeed);
     // Drive both into a self-accelerated fall and let fallAccel carry
     // them to their respective terminal caps.
-    const reachTerminal = (id: 'owl' | 'cat'): number => {
+    const reachTerminal = (id: 'pikachu' | 'donkeykong'): number => {
       const s = createMockScene();
       const ch = new Character(s.scene, { id, spawnX: 0, spawnY: 0 });
       (ch.body as { velocity: { x: number; y: number } }).velocity.y = 1;
       for (let i = 0; i < 120; i += 1) ch.applyInput(NEUTRAL);
       return ch.getVelocity().y;
     };
-    expect(reachTerminal('owl')).toBeLessThan(reachTerminal('cat'));
+    expect(reachTerminal('pikachu')).toBeCloseTo(PIKACHU_MOVEMENT_PROFILE.maxFallSpeed, 8);
+    expect(reachTerminal('donkeykong')).toBeCloseTo(DONKEYKONG_MOVEMENT_PROFILE.maxFallSpeed, 8);
   });
 });
 
@@ -5475,7 +6022,7 @@ describe('Character — smash-attack charging (Tier 4)', () => {
 
   function smashChar(): { ch: Character; m: MockScene } {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack(CHARGE_SMASH);
     ground(ch, m);
     return { ch, m };
@@ -5485,6 +6032,16 @@ describe('Character — smash-attack charging (Tier 4)', () => {
     moveX: 0,
     jump: false,
     attackHeavy: heavy,
+  });
+
+  it('capture cancels smash charge before a non-throw release', () => {
+    const { ch, m } = smashChar();
+    ch.applyInput(HV(true));
+    ch.applyGrabbed(new Character(m.scene, { id: 'donkeykong', spawnX: 0, spawnY: 0 }));
+    ch.releaseFromGrab();
+    ch.applyInput(NEUTRAL);
+    expect(ch.getChargeProgress()).toBeNull();
+    expect(ch.isAttacking()).toBe(false);
   });
 
   it('a heavy press on a charge-smash STARTS charging instead of firing', () => {
@@ -5573,7 +6130,7 @@ describe('Character — smash-attack charging (Tier 4)', () => {
 
   it('backward-compat: a smash with NO charge ramp fires instantly', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     const { charge, ...instant } = CHARGE_SMASH;
     void charge;
     ch.registerAttack({ ...instant, id: 't.instant' });
@@ -5593,16 +6150,18 @@ describe('Character — smash-attack charging (Tier 4)', () => {
     expect(ch.getChargeProgress()).toBeGreaterThan(0); // still rooted, charging
   });
 
-  it('a held item smash-override fires the item move, not a native charge', () => {
+  it('a held item forward smash without a charge ramp fires the item move, not a native charge', () => {
     const { ch } = smashChar();
-    let overrideRan = false;
-    ch.setSlotOverride('smash', () => {
-      overrideRan = true;
-      return true;
-    });
+    const { charge, ...instant } = CHARGE_SMASH;
+    void charge;
+    const itemFsmash = { ...instant, id: 'item.test.fsmash' };
+    let uses = 0;
+    ch.addAttack(itemFsmash);
+    ch.equipItem({ definition: { itemClass: 'battering', uses: { fsmash: itemFsmash } }, canUse: () => true, noteUse: () => { uses++; }, spendShot: () => false, getAmmo: () => null });
     ch.applyInput(HV(true)); // heavy press
-    expect(overrideRan).toBe(true); // item override fired
-    expect(ch.getChargeProgress()).toBe(null); // did NOT enter a native charge
+    expect(ch.getActiveAttack()?.move.id).toBe('item.test.fsmash');
+    expect(uses).toBe(1);
+    expect(ch.getAnimationActionState().chargingMove).toBeNull(); // did NOT enter a native charge
   });
 });
 
@@ -5630,7 +6189,7 @@ describe('Character — charge-hold neutral special', () => {
 
   function chargeChar(): { ch: Character; m: MockScene } {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack(CHARGE_SPECIAL);
     ground(ch, m);
     return { ch, m };
@@ -5719,7 +6278,7 @@ describe('Character — charge-hold neutral special', () => {
 
 describe('Character — charge-beam projectile (travelling shot + store)', () => {
   // A `'projectile'` neutral special carrying the optional charge overlay —
-  // the Nova / Samus shape. registerAttack auto-fills the neutralSpecialId
+  // the Samus shape. registerAttack auto-fills the neutralSpecialId
   // slot for type 'special'.
   const BEAM = {
     id: 'test.beam',
@@ -5758,7 +6317,7 @@ describe('Character — charge-beam projectile (travelling shot + store)', () =>
 
   function beamChar(): { ch: Character; m: MockScene } {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack(BEAM);
     ground(ch, m);
     return { ch, m };
@@ -5777,6 +6336,22 @@ describe('Character — charge-beam projectile (travelling shot + store)', () =>
     ch.applyInput(SP(true));
     expect(ch.isAttacking()).toBe(false);
     expect(ch.getChargeProgress()).toBe(0);
+  });
+
+  it('an available airborne charge special fires and cancels tumble before landing', () => {
+    const m = createMockScene();
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
+    ch.registerAttack(BEAM);
+    ch.applyHit({ damage: 12, knockback: { x: 12, y: 0, scaling: 0 }, facing: 1 });
+    while (ch.getHitlagRemaining() > 0 || ch.getHitstunRemaining() > 0) ch.applyInput(NEUTRAL);
+    expect(ch.isTumbling()).toBe(true);
+    ch.applyInput(SP(true));
+    expect(ch.getActiveAttack()?.move.id).toBe(BEAM.id);
+    expect(ch.getAnimationActionState().chargingMove).toBeNull();
+    expect(ch.isTumbling()).toBe(false);
+    ground(ch, m);
+    ch.applyInput(NEUTRAL);
+    expect(ch.isKnockedDown()).toBe(false);
   });
 
   it('release surfaces the held-frame count via getActiveAttack (for the spawner)', () => {
@@ -5804,9 +6379,15 @@ describe('Character — charge-beam projectile (travelling shot + store)', () =>
     ch.applyInput(SP(true)); // start, held 0
     ch.applyInput(SP(true)); // held 1
     ch.applyInput(SP(true)); // held 2
+    expect(ch.getAnimationActionState()).toEqual({
+      chargingMove: BEAM, chargeHeldFrames: 2, landingRecoveryRemaining: 0,
+    });
     ch.applyInput(SP(true, true)); // shield rising-edge → BANK at held 2
     expect(ch.isAttacking()).toBe(false);
     expect(ch.getChargeProgress()).toBeCloseTo(2 / 10);
+    expect(ch.getAnimationActionState()).toEqual({
+      chargingMove: null, chargeHeldFrames: 0, landingRecoveryRemaining: 0,
+    });
     // Idle frames (no special, no shield) — the bank persists.
     ch.applyInput(NEUTRAL);
     ch.applyInput(NEUTRAL);
@@ -5819,7 +6400,14 @@ describe('Character — charge-beam projectile (travelling shot + store)', () =>
     ch.applyInput(SP(true)); // 1
     ch.applyInput(SP(true)); // 2
     ch.applyInput(SP(true, true)); // bank at 2
+    ch.applyInput({ ...NEUTRAL, shield: true });
+    ch.applyInput({ ...NEUTRAL, shield: true });
     ch.applyInput(NEUTRAL); // release shield, bank kept
+    for (let i = 0; i < 10; i += 1) {
+      ch.applyInput(NEUTRAL);
+      expect(ch.getChargeProgress()).toBeCloseTo(2 / 10);
+      expect(ch.getAnimationActionState().chargingMove).toBeNull();
+    }
     ch.applyInput(SP(true)); // re-press → resume at 2
     expect(ch.getChargeProgress()).toBeCloseTo(2 / 10);
     ch.applyInput(SP(true)); // climbs to 3
@@ -5831,7 +6419,10 @@ describe('Character — charge-beam projectile (travelling shot + store)', () =>
     const { ch } = beamChar();
     for (let i = 0; i < 12; i += 1) ch.applyInput(SP(true)); // caps at 10
     ch.applyInput(SP(true, true)); // bank at full
+    ch.applyInput({ ...NEUTRAL, shield: true });
+    ch.applyInput({ ...NEUTRAL, shield: true });
     ch.applyInput(NEUTRAL); // release shield
+    for (let i = 0; i < 10; i += 1) ch.applyInput(NEUTRAL);
     expect(ch.getChargeProgress()).toBe(1); // banked full — glow stays lit
     ch.applyInput(SP(true)); // press → fires the full shot
     expect(ch.isAttacking()).toBe(true);
@@ -5843,9 +6434,14 @@ describe('Character — charge-beam projectile (travelling shot + store)', () =>
     ch.applyInput(SP(true)); // 0
     ch.applyInput(SP(true)); // 1
     ch.applyInput(SP(true, true)); // bank at 1
-    ch.applyInput(NEUTRAL); // release shield, bank kept
+    // Finish minimum shield hold, then let the release/parry commitment end
+    // so this assertion exercises an actual damaging hit on the bank.
+    ch.applyInput({ ...NEUTRAL, shield: true });
+    ch.applyInput({ ...NEUTRAL, shield: true });
+    for (let frame = 0; frame < 12; frame++) ch.applyInput(NEUTRAL);
     expect(ch.getChargeProgress()).toBeCloseTo(1 / 10);
     ch.applyHit({ damage: 10, knockback: { x: 3, y: -1, scaling: 0.2 }, facing: 1 });
+    expect(ch.getDamagePercent()).toBe(10);
     // Bank survives — Samus: a merely-held stored charge isn't lost to a hit.
     expect(ch.getChargeProgress()).toBeCloseTo(1 / 10);
   });
@@ -5859,6 +6455,17 @@ describe('Character — charge-beam projectile (travelling shot + store)', () =>
     expect(ch.getChargeProgress()).not.toBeNull();
     ch.setPosition(500, 200);
     expect(ch.getChargeProgress()).toBeNull();
+  });
+
+  it('capture cancels live special charge before a non-throw release', () => {
+    const { ch, m } = beamChar();
+    ch.applyInput(SP(true));
+    ch.applyInput(SP(true));
+    ch.applyGrabbed(new Character(m.scene, { id: 'donkeykong', spawnX: 0, spawnY: 0 }));
+    ch.releaseFromGrab();
+    ch.applyInput(NEUTRAL);
+    expect(ch.getChargeProgress()).toBeNull();
+    expect(ch.isAttacking()).toBe(false);
   });
 
   it('ROOTS the fighter — you CANNOT move while charging the cannon (Samus)', () => {
@@ -5883,7 +6490,7 @@ describe('Character — charge-beam projectile (travelling shot + store)', () =>
 
   it('CANNOT charge in the air — an airborne neutral-special press fires uncharged', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack(BEAM);
     expect(ch.isGrounded()).toBe(false); // airborne from the start
     ch.applyInput(SP(true)); // airborne press → fires, does NOT start a charge
@@ -5897,6 +6504,11 @@ describe('Character — charge-beam projectile (travelling shot + store)', () =>
     ch.applyInput(SP(true)); // charge
     ch.applyInput(SP(true, true)); // bank with shield
     ch.applyInput(NEUTRAL); // release shield
+    for (let i = 0; i < 10; i += 1) {
+      ch.applyInput({ moveX: 1, jump: false });
+      expect(ch.getVelocity().x).toBe(0);
+      expect(ch.getChargeProgress()).not.toBeNull();
+    }
     for (let i = 0; i < 5; i += 1) ch.applyInput({ moveX: 1, jump: false });
     expect(ch.getVelocity().x).toBeGreaterThan(0); // walks while holding the bank
     expect(ch.getChargeProgress()).not.toBeNull(); // bank still lit
@@ -5933,7 +6545,7 @@ describe('Character — down-special dive (groundPound)', () => {
   function diveChar(): { ch: Character; m: MockScene } {
     const m = createMockScene();
     // Airborne (NOT grounded) so the plunge has room to play out.
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack(DIVE);
     ch.setDownSpecial('test.dive');
     return { ch, m };
@@ -6065,7 +6677,7 @@ describe('Character — multi-hit ladder (side-special multiHit barrage)', () =>
 
   function barrageChar(): { ch: Character; m: MockScene } {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack(BARRAGE);
     ground(ch, m);
     return { ch, m };
@@ -6164,7 +6776,7 @@ describe('Character — dashStrike side-special (forward lunge)', () => {
 
   function dashChar(): { ch: Character; m: MockScene } {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack(DASH);
     ground(ch, m);
     return { ch, m };
@@ -6207,6 +6819,63 @@ describe('Character — dashStrike side-special (forward lunge)', () => {
     // closes the body must damp, NOT settle at maxRunSpeed.
     for (let i = 0; i < 20; i += 1) ch.applyInput(SIDE_SPECIAL);
     expect(Math.abs(ch.getVelocity().x)).toBeLessThan(runSpeed * 0.5);
+  });
+});
+
+describe('Character — explicit hit outcomes', () => {
+  it('reports landed damage separately from knockback', () => {
+    const m = createMockScene();
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
+    const application = ch.applyHitDetailed(STANDARD_HIT);
+    expect(application.outcome).toBe('landed');
+    expect(application.damageApplied).toBe(STANDARD_HIT.damage);
+    expect(application.knockback.magnitude).toBeGreaterThan(0);
+  });
+
+  it('distinguishes shield, respawn invincibility, and dodge rejection', () => {
+    const shieldScene = createMockScene();
+    const shielded = new Character(shieldScene.scene, {
+      ...GENERIC_FIXTURE,
+      spawnX: 0,
+      spawnY: 0,
+    });
+    ground(shielded, shieldScene);
+    shielded.applyInput({ moveX: 0, jump: false, shield: true });
+    expect(shielded.applyHitDetailed(STANDARD_HIT).outcome).toBe('shielded');
+
+    const invincibleScene = createMockScene();
+    const invincible = new Character(invincibleScene.scene, {
+      ...GENERIC_FIXTURE,
+      spawnX: 0,
+      spawnY: 0,
+    });
+    invincible.setInvincibility(10);
+    expect(invincible.applyHitDetailed(STANDARD_HIT).outcome).toBe('invincible');
+
+    const dodgeScene = createMockScene();
+    const dodging = new Character(dodgeScene.scene, {
+      ...GENERIC_FIXTURE,
+      spawnX: 0,
+      spawnY: 0,
+    });
+    dodging.applyInput({ moveX: 0, jump: false, dodge: true });
+    // The profile's air dodge turns intangible on its authored start frame.
+    const iframeStartFrame = resolveDodgeTuning(LINK_MOVEMENT_PROFILE.dodge).air.iframeStartFrame ?? 0;
+    expect(iframeStartFrame).toBeGreaterThan(0);
+    for (let i = 0; i < iframeStartFrame; i += 1) dodging.applyInput(NEUTRAL);
+    expect(dodging.applyHitDetailed(STANDARD_HIT).outcome).toBe('dodged');
+  });
+
+  it('reports destroyed fighters without mutating damage', () => {
+    const m = createMockScene();
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
+    ch.destroy();
+    const application = ch.applyHitDetailed(STANDARD_HIT);
+    expect(application).toMatchObject({
+      outcome: 'destroyed',
+      damageApplied: 0,
+      knockback: { magnitude: 0, hitstunFrames: 0 },
+    });
   });
 });
 
@@ -6265,21 +6934,22 @@ describe('Character — counter (parry + retaliate; neutral and down share one h
 
   it('absorbs a hit inside the parry window — no damage taken', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack(NEUTRAL_COUNTER);
     ground(ch, m);
     ch.applyInput(NEUTRAL_SPECIAL); // fire counter (framesElapsed 0)
     ch.applyInput(NEUTRAL); // 1 (startup)
     ch.applyInput(NEUTRAL); // 2 → inside window [2,16)
-    const result = ch.applyHit(HIT);
-    expect(result.hitstunFrames).toBe(0);
-    expect(result.magnitude).toBe(0);
+    const application = ch.applyHitDetailed(HIT);
+    expect(application.outcome).toBe('parried');
+    expect(application.knockback.hitstunFrames).toBe(0);
+    expect(application.knockback.magnitude).toBe(0);
     expect(ch.getDamagePercent()).toBe(0); // absorbed
   });
 
   it('retaliates with damage = absorbed × multiplier, clamped', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack(NEUTRAL_COUNTER);
     ground(ch, m);
     ch.applyInput(NEUTRAL_SPECIAL);
@@ -6295,7 +6965,7 @@ describe('Character — counter (parry + retaliate; neutral and down share one h
 
   it('a hit OUTSIDE the window lands normally (no parry)', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack(NEUTRAL_COUNTER);
     ground(ch, m);
     ch.applyInput(NEUTRAL_SPECIAL); // framesElapsed 0 — BEFORE window start (2)
@@ -6306,7 +6976,7 @@ describe('Character — counter (parry + retaliate; neutral and down share one h
 
   it('the DOWN-special counter shares the same parry handler', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack(DOWN_COUNTER);
     ch.setDownSpecial('test.dcounter');
     ground(ch, m);
@@ -6337,7 +7007,7 @@ describe('Character — teleport up-special invulnerable vanish', () => {
 
   function teleportChar(): { ch: Character; m: MockScene } {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack(TELEPORT);
     ch.setUpSpecial('test.teleport');
     return { ch, m };
@@ -6391,13 +7061,13 @@ describe('Character — trap down-special (place-and-arm mine)', () => {
     },
   };
 
-  function trapChar(): { ch: Character; m: MockScene } {
+  function trapChar(): { ch: Character; m: MockScene; platform: ReturnType<typeof makePlatform> } {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack(TRAP);
     ch.setDownSpecial('test.trap');
-    ground(ch, m);
-    return { ch, m };
+    const platform = ground(ch, m);
+    return { ch, m, platform };
   }
 
   const DOWN_SPECIAL: CharacterInput = {
@@ -6438,12 +7108,45 @@ describe('Character — trap down-special (place-and-arm mine)', () => {
     expect((armed!.options['plugin'] as { damage: number }).damage).toBe(8);
   });
 
+  it.each(['hitlag', 'hitstun', 'capture'] as const)('placed traps keep arming and expiring during owner %s', (lockout) => {
+    const { ch, m, platform } = trapChar();
+    ch.applyInput(DOWN_SPECIAL);
+    ch.applyInput(NEUTRAL);
+    ch.applyInput(NEUTRAL);
+    expect(ch.getActiveTraps()).toHaveLength(1);
+    if (lockout === 'hitlag') ch.armAttackerHitlag(100);
+    if (lockout === 'hitstun') {
+      m.emit('collisionend', [{ bodyA: ch.body, bodyB: platform }]);
+      ch.applyHit({ damage: 12, knockback: { x: 40, y: 0, scaling: 0 }, facing: 1 });
+    }
+    if (lockout === 'capture') {
+      ch.applyGrabbed(new Character(m.scene, { id: 'donkeykong', spawnX: 0, spawnY: 0 }));
+    }
+    for (let i = 0; i < 3; i += 1) ch.applyInput(NEUTRAL);
+    expect(liveTrap(m)).toBeDefined();
+    for (let i = 3; i < TRAP.trap.trapLifetimeFrames; i += 1) ch.applyInput(NEUTRAL);
+    expect(liveTrap(m)).toBeUndefined();
+    expect(ch.getActiveTraps()).toHaveLength(0);
+    if (lockout === 'hitstun') expect(ch.getHitstunRemaining()).toBeGreaterThan(0);
+  });
+
   it('expires at its lifetime', () => {
     const { ch, m } = trapChar();
     ch.applyInput(DOWN_SPECIAL);
     for (let i = 0; i < 6; i += 1) ch.applyInput(NEUTRAL); // place + arm
     expect(liveTrap(m)).toBeDefined();
     for (let i = 0; i < 42; i += 1) ch.applyInput(NEUTRAL); // past lifetime (40)
+    expect(liveTrap(m)).toBeUndefined();
+  });
+
+  it.each(['setPosition', 'resetForRound', 'destroy'] as const)('%s removes placed objects and their armed sensors', (reset) => {
+    const { ch, m } = trapChar();
+    ch.applyInput(DOWN_SPECIAL);
+    for (let i = 0; i < 6; i += 1) ch.applyInput(NEUTRAL);
+    expect(liveTrap(m)).toBeDefined();
+    if (reset === 'destroy') ch.destroy();
+    else ch[reset](200, 0);
+    expect(ch.getActiveTraps()).toHaveLength(0);
     expect(liveTrap(m)).toBeUndefined();
   });
 
@@ -6493,7 +7196,7 @@ describe('Character — timed bomb down-special (fuse + bomb-jump)', () => {
 
   function bombChar(): { ch: Character; m: MockScene } {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack(BOMB);
     ch.setDownSpecial('test.bomb');
     ground(ch, m);
@@ -6546,13 +7249,24 @@ describe('Character — timed bomb down-special (fuse + bomb-jump)', () => {
     for (let i = 0; i < 10; i += 1) ch.applyInput(NEUTRAL); // well past the blast window
     expect(liveBomb(m)).toBeUndefined(); // cleared — not a persistent contact mine
   });
+
+  it('reports the timed detonation even when the bomb has no self-bounce', () => {
+    const { ch, m } = bombChar();
+    const bomb = { ...BOMB, trap: { ...BOMB.trap, selfBounceVelocity: undefined } };
+    ch.registerAttack(bomb);
+    ch.applyInput(DOWN_SPECIAL);
+    for (let i = 0; i < 12 && !liveBomb(m); i++) ch.applyInput(NEUTRAL);
+    expect(liveBomb(m)).toBeDefined();
+    expect(ch.getActiveTraps()[0]).toMatchObject({ fused: true, detonated: true, objectId: 0 });
+    expect(ch.getVelocity().y).toBe(0);
+  });
 });
 
 // ---------------------------------------------------------------------------
 // Special-direction dispatch — a HELD down-stick + special must fire the
 // DOWN-special, not fall through to the neutral special. REGRESSION: `down`
 // only read `dropThrough`, so holding down + special gave the NEUTRAL special
-// (e.g. Nova's bomb was unreachable — you got the cannon charge instead).
+// (a down-special bomb was unreachable — you got the cannon charge instead).
 // ---------------------------------------------------------------------------
 
 describe('Character — special direction: held down-stick fires the down-special', () => {
@@ -6593,7 +7307,7 @@ describe('Character — special direction: held down-stick fires the down-specia
 
   function twoSpecialChar(): Character {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack(NEUTRAL_SP);
     ch.setNeutralSpecial('test.neutral_sp');
     ch.registerAttack(DOWN_SP);
@@ -6628,7 +7342,7 @@ describe('Character — special direction: held down-stick fires the down-specia
 describe('Character — directional air-dodge (T2.9)', () => {
   it('an air-dodge with a stick direction bursts in that direction (was a vx=0 root)', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     // Airborne (no ground contact). Air-dodge to the RIGHT.
     ch.applyInput({ moveX: 1, jump: false, dodge: true });
     expect(ch.getVelocity().x).toBeCloseTo(AIRDODGE_BURST_SPEED, 0);
@@ -6636,14 +7350,14 @@ describe('Character — directional air-dodge (T2.9)', () => {
 
   it('a NEUTRAL air-dodge still roots in place (vx = 0)', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.applyInput({ moveX: 0, jump: false, dodge: true }); // no direction held
     expect(ch.getVelocity().x).toBe(0);
   });
 
   it('only ONE directional air-dodge per airtime — the second is blocked', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.applyInput({ moveX: 1, jump: false, dodge: true }); // air-dodge #1 → burst
     expect(ch.getVelocity().x).toBeCloseTo(AIRDODGE_BURST_SPEED, 0);
     // Let the dodge finish (well past its duration), button released.
@@ -6679,7 +7393,7 @@ describe('Character — command grab (unblockable throw on connect)', () => {
 
   it('spawns an opening hitbox carrying the THROW value + unblockable tag', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack(COMMAND_GRAB);
     ground(ch, m);
     ch.applyInput({ moveX: 0, jump: false, special: true }); // fire
@@ -6694,7 +7408,7 @@ describe('Character — command grab (unblockable throw on connect)', () => {
 
   it('an unblockable hit bypasses a raised shield (grabs beat shield)', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ground(ch, m);
     for (let i = 0; i < 3; i += 1) ch.applyInput({ moveX: 0, jump: false, shield: true });
     expect(ch.isShielding()).toBe(true);
@@ -6736,7 +7450,7 @@ describe('Character — helpless free-fall after committal aerial specials', () 
 
   function burstChar(): { ch: Character; m: MockScene } {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack(BURST);
     ch.setUpSpecial('test.burst');
     return { ch, m }; // airborne (not grounded) — the burst ends in the air
@@ -6761,6 +7475,41 @@ describe('Character — helpless free-fall after committal aerial specials', () 
     ground(ch, m);
     ch.applyInput(NEUTRAL);
     expect(ch.isHelpless()).toBe(false);
+  });
+
+  it.each(['dodge', 'shield'] as const)('blocks airborne %s while helpless', (action) => {
+    const { ch } = burstChar();
+    ch.attemptUpSpecial(0, -1);
+    for (let i = 0; i < 12; i += 1) ch.applyInput(NEUTRAL);
+    ch.applyInput({ ...NEUTRAL, [action]: true });
+    expect(ch.isHelpless()).toBe(true);
+    expect(ch.isDodging()).toBe(false);
+  });
+
+  it('a ledge catch clears helpless and restores an air jump after dropping', () => {
+    const { ch, m } = burstChar();
+    ch.attemptUpSpecial(0, -1);
+    for (let i = 0; i < 12; i += 1) ch.applyInput(NEUTRAL);
+    expect(ch.isHelpless()).toBe(true);
+    m.scene.matter.body.setPosition(ch.body, { x: 90, y: 105 });
+    m.scene.matter.body.setVelocity(ch.body, { x: 0, y: 3 });
+    ch.setLedgeCandidates([{ x: 100, y: 100, side: 'left', platformId: 'ledge' }]);
+    ch.applyInput(NEUTRAL);
+    expect(ch.getLedgeHangState().name).toBe('hanging');
+    expect(ch.isHelpless()).toBe(false);
+    ch.applyInput({ ...NEUTRAL, ledgeRelease: 'dropDown' });
+    ch.applyInput({ ...NEUTRAL, jump: true });
+    expect(ch.getVelocity().y).toBeLessThan(0);
+  });
+
+  it('a damaging hit ends helpless without restoring spent jumps', () => {
+    const { ch } = burstChar();
+    ch.attemptUpSpecial(0, -1);
+    for (let i = 0; i < 12; i += 1) ch.applyInput(NEUTRAL);
+    const jumpsBefore = ch.getJumpsUsed();
+    ch.applyHit(STANDARD_HIT);
+    expect(ch.isHelpless()).toBe(false);
+    expect(ch.getJumpsUsed()).toBe(jumpsBefore);
   });
 });
 
@@ -6790,7 +7539,7 @@ describe('Character — tether up-special (hookshot reel-to-ledge)', () => {
 
   function tetherChar(): { ch: Character; m: MockScene } {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack(TETHER);
     ch.setUpSpecial('test.tether');
     return { ch, m };
@@ -6837,7 +7586,7 @@ describe('Character — directional aerials (up-air / down-air dispatch)', () =>
 
   function aerialChar(): { ch: Character; m: MockScene } {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ch.registerAttack(mkAerial('t.nair', 'neutral'));
     ch.registerAttack(mkAerial('t.uair', 'up'));
     ch.registerAttack(mkAerial('t.dair', 'down'));
@@ -6897,7 +7646,7 @@ describe('Character — directional grounded attacks (up-tilt / up-smash)', () =
 
   it('an up-stick LIGHT press fires the up-tilt', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ground(ch, m);
     ch.registerAttack(mkGrounded('t.tilt', 'tilt'));
     ch.registerAttack({ ...mkGrounded('t.utilt', 'tilt'), id: 't.utilt' });
@@ -6908,7 +7657,7 @@ describe('Character — directional grounded attacks (up-tilt / up-smash)', () =
 
   it('an up-stick HEAVY press fires the up-smash', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ground(ch, m);
     ch.registerAttack(mkGrounded('t.smash', 'smash'));
     ch.registerAttack({ ...mkGrounded('t.usmash', 'smash'), id: 't.usmash' });
@@ -6919,7 +7668,7 @@ describe('Character — directional grounded attacks (up-tilt / up-smash)', () =
 
   it('a neutral light press still fires jab (no regression)', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ground(ch, m);
     ch.registerAttack(mkGrounded('t.jab', 'jab'));
     ch.registerAttack({ ...mkGrounded('t.utilt', 'tilt'), id: 't.utilt' });
@@ -6930,7 +7679,7 @@ describe('Character — directional grounded attacks (up-tilt / up-smash)', () =
 
   it('a down-stick LIGHT press fires the down-tilt', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ground(ch, m);
     ch.registerAttack(mkGrounded('t.tilt', 'tilt'));
     ch.registerAttack({ ...mkGrounded('t.dtilt', 'tilt'), id: 't.dtilt' });
@@ -6941,7 +7690,7 @@ describe('Character — directional grounded attacks (up-tilt / up-smash)', () =
 
   it('a down-stick HEAVY press fires the down-smash', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ground(ch, m);
     ch.registerAttack(mkGrounded('t.smash', 'smash'));
     ch.registerAttack({ ...mkGrounded('t.dsmash', 'smash'), id: 't.dsmash' });
@@ -6952,7 +7701,7 @@ describe('Character — directional grounded attacks (up-tilt / up-smash)', () =
 
   it('a light press while RUNNING fires the dash attack', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ground(ch, m);
     ch.registerAttack(mkGrounded('t.tilt', 'tilt'));
     ch.registerAttack({ ...mkGrounded('t.dash', 'tilt'), id: 't.dash' });
@@ -6964,7 +7713,7 @@ describe('Character — directional grounded attacks (up-tilt / up-smash)', () =
 
   it('a forward press from near-standstill fires the forward tilt, NOT dash', () => {
     const m = createMockScene();
-    const ch = new Character(m.scene, { id: 'wolf', spawnX: 0, spawnY: 0 });
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
     ground(ch, m);
     ch.registerAttack(mkGrounded('t.tilt', 'tilt'));
     ch.registerAttack({ ...mkGrounded('t.dash', 'tilt'), id: 't.dash' });
@@ -6973,5 +7722,236 @@ describe('Character — directional grounded attacks (up-tilt / up-smash)', () =
     // First frame holding forward — barely moving, so it's a tilt not a dash.
     ch.applyInput({ moveX: 1, jump: false, attack: true });
     expect(ch.getActiveAttack()?.move.id).toBe('t.tilt');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Dedicated smash input — smash key and right stick (attackStickX / Y)
+// ---------------------------------------------------------------------------
+
+describe('Character — dedicated smash input (smash key / right stick)', () => {
+  const mkMove = (id: string, type: 'jab' | 'smash' | 'aerial', dir?: 'neutral' | 'forward' | 'back' | 'up' | 'down') => ({
+    id,
+    type,
+    ...(dir ? { aerialDirection: dir } : {}),
+    damage: 10,
+    knockback: { x: 2, y: -1, scaling: 0.1 },
+    hitbox: { offsetX: 30, offsetY: 0, width: 30, height: 20 },
+    startupFrames: 2,
+    activeFrames: 4,
+    recoveryFrames: 6,
+    cooldownFrames: 6,
+  });
+  const CHARGE = {
+    minChargeFrames: 0,
+    maxChargeFrames: 10,
+    minDamage: 10,
+    maxDamage: 30,
+    minKnockback: { x: 3, y: -1, scaling: 0.1 },
+    maxKnockback: { x: 6, y: -2, scaling: 0.4 },
+  };
+
+  /** Full kit: jab, forward / up / down smash and five aerials. */
+  function fighter(options: { chargeable?: boolean; grounded?: boolean } = {}): { ch: Character; m: MockScene } {
+    const m = createMockScene();
+    const ch = new Character(m.scene, { ...GENERIC_FIXTURE, spawnX: 0, spawnY: 0 });
+    ch.registerAttack(mkMove('t.jab', 'jab'));
+    const fsmash = mkMove('t.fsmash', 'smash');
+    const chargeable = { ...fsmash, charge: CHARGE };
+    ch.registerAttack(options.chargeable ? chargeable : fsmash);
+    ch.registerAttack(mkMove('t.usmash', 'smash'));
+    ch.registerAttack(mkMove('t.dsmash', 'smash'));
+    ch.setUpSmash('t.usmash');
+    ch.setDownSmash('t.dsmash');
+    for (const dir of ['neutral', 'forward', 'back', 'up', 'down'] as const) {
+      ch.registerAttack(mkMove(`t.${dir}-air`, 'aerial', dir));
+    }
+    if (options.grounded ?? true) ground(ch, m);
+    return { ch, m };
+  }
+
+  const press = (extra: Partial<CharacterInput> = {}): CharacterInput => ({
+    moveX: 0, moveY: 0, jump: false, attackHeavy: true, ...extra,
+  });
+
+  it('a right-stick forward smash toward the back turns around (instant smash)', () => {
+    const { ch } = fighter();
+    expect(ch.getFacing()).toBe(1);
+    ch.applyInput(press({ attackStickX: -1 }));
+    expect(ch.getActiveAttack()?.move.id).toBe('t.fsmash');
+    expect(ch.getFacing()).toBe(-1);
+    expect(ch.getActiveAttack()?.facing).toBe(-1);
+  });
+
+  it('a right-stick forward smash toward the back turns around (chargeable smash)', () => {
+    const { ch } = fighter({ chargeable: true });
+    ch.applyInput(press({ attackStickX: -1 }));
+    expect(ch.getChargeProgress()).toBe(0);
+    expect(ch.getFacing()).toBe(-1);
+    ch.applyInput(press({ attackHeavy: false })); // stick smash: one-frame press
+    expect(ch.getActiveAttack()?.move.id).toBe('t.fsmash');
+    expect(ch.getActiveAttack()?.facing).toBe(-1);
+  });
+
+  it('a smash key with a neutral left stick keeps the current facing', () => {
+    const { ch } = fighter();
+    ch.applyInput(press());
+    expect(ch.getActiveAttack()?.move.id).toBe('t.fsmash');
+    expect(ch.getFacing()).toBe(1);
+  });
+
+  it.each([
+    ['up while crouching (left stick down)', { moveY: 1, attackStickY: -1 }, 't.usmash'],
+    ['forward while crouching (left stick down)', { moveY: 1, attackStickX: 1 }, 't.fsmash'],
+    ['down while holding the left stick up', { moveY: -1, attackStickY: 1 }, 't.dsmash'],
+  ] as const)('the right stick picks the smash: %s', (_name, extra, moveId) => {
+    const { ch } = fighter();
+    // Hold the left stick for a few frames so the vertical leniency window
+    // is full of it — the stick direction must still win.
+    for (let i = 0; i < 4; i += 1) ch.applyInput({ moveX: 0, moveY: extra.moveY, jump: false });
+    ch.applyInput(press(extra));
+    expect(ch.getActiveAttack()?.move.id).toBe(moveId);
+  });
+
+  it('a buffered right-stick smash keeps its own direction', () => {
+    const { ch } = fighter();
+    ch.applyInput({ moveX: 0, jump: false, attack: true }); // jab occupies the fighter
+    expect(ch.getActiveAttack()?.move.id).toBe('t.jab');
+    for (let i = 0; i < 11; i += 1) ch.applyInput({ moveX: 0, jump: false });
+    ch.applyInput(press({ attackStickY: -1 })); // buffered while still busy
+    expect(ch.getActiveAttack()?.move.id).not.toBe('t.usmash');
+    let fired: string | undefined;
+    for (let i = 0; i < 20 && fired === undefined; i += 1) {
+      ch.applyInput({ moveX: 0, moveY: 1, jump: false }); // left stick now down
+      const id = ch.getActiveAttack()?.move.id;
+      if (id !== undefined && id !== 't.jab') fired = id;
+    }
+    expect(fired).toBe('t.usmash');
+  });
+
+  it('shield + right-stick up is an out-of-shield up smash with a neutral left stick', () => {
+    const { ch } = fighter();
+    for (let i = 0; i < 4; i += 1) ch.applyInput({ moveX: 0, jump: false, shield: true });
+    expect(ch.isShielding()).toBe(true);
+    ch.applyInput(press({ shield: true, attackStickY: -1 }));
+    expect(ch.isShielding()).toBe(false);
+    expect(ch.getActiveAttack()?.move.id).toBe('t.usmash');
+  });
+
+  it.each([
+    ['smash key, neutral', {}, 't.neutral-air'],
+    ['smash key, left stick forward', { moveX: 1 }, 't.forward-air'],
+    ['smash key, left stick back', { moveX: -1 }, 't.back-air'],
+    ['smash key, left stick up', { moveY: -1 }, 't.up-air'],
+    ['smash key, left stick down', { moveY: 1 }, 't.down-air'],
+    ['right stick forward', { attackStickX: 1 }, 't.forward-air'],
+    ['right stick back', { attackStickX: -1 }, 't.back-air'],
+    ['right stick up', { attackStickY: -1 }, 't.up-air'],
+    ['right stick down', { attackStickY: 1 }, 't.down-air'],
+    ['right stick forward over a left stick back', { moveX: -1, attackStickX: 1 }, 't.forward-air'],
+    ['right stick up over a left stick down', { moveY: 1, attackStickY: -1 }, 't.up-air'],
+  ] as const)('an airborne heavy press fires the matching aerial: %s', (_name, extra, moveId) => {
+    const { ch } = fighter({ grounded: false });
+    ch.applyInput(press(extra));
+    expect(ch.getActiveAttack()?.move.id).toBe(moveId);
+    expect(ch.getFacing()).toBe(1); // aerials never turn the fighter around
+  });
+
+  it('a right-stick down aerial does not fast-fall; the left stick still does', () => {
+    const stick = fighter({ grounded: false });
+    const fastFall = stick.ch.getTuning().fastFallSpeed;
+    (stick.ch.body as { velocity: { x: number; y: number } }).velocity.y = 2;
+    stick.ch.applyInput(press({ attackStickY: 1 }));
+    expect(stick.ch.getActiveAttack()?.move.id).toBe('t.down-air');
+    stick.ch.applyInput({ moveX: 0, moveY: 0, jump: false });
+    expect(stick.ch.getVelocity().y).toBeLessThan(fastFall);
+
+    const leftStick = fighter({ grounded: false });
+    (leftStick.ch.body as { velocity: { x: number; y: number } }).velocity.y = 2;
+    leftStick.ch.applyInput(press({ moveY: 1 }));
+    expect(leftStick.ch.getActiveAttack()?.move.id).toBe('t.down-air');
+    expect(leftStick.ch.getVelocity().y).toBeCloseTo(fastFall);
+  });
+
+  it('the stick direction never moves the fighter (no drift, dash or turn from motion)', () => {
+    const trace = (grounded: boolean, extra: Partial<CharacterInput>) => {
+      const { ch } = fighter({ grounded });
+      const out: Array<[number, number, string]> = [];
+      // Stick values on non-press frames too: they must be inert.
+      ch.applyInput({ moveX: 0, jump: false, ...extra, attackHeavy: false });
+      ch.applyInput(press(extra));
+      for (let i = 0; i < 6; i += 1) {
+        ch.applyInput({ moveX: 0, jump: false, attackStickX: extra.attackStickX, attackStickY: extra.attackStickY });
+        const v = ch.getVelocity();
+        out.push([v.x, v.y, ch.getLocomotionStateName()]);
+      }
+      return out;
+    };
+    // Grounded forward smash: stick vs smash key (same move, same facing).
+    expect(trace(true, { attackStickX: 1 })).toEqual(trace(true, {}));
+    for (const [vx] of trace(true, { attackStickX: 1 })) expect(vx).toBe(0);
+    // Airborne: a forward-stick aerial adds no horizontal drift.
+    for (const [vx] of trace(false, { attackStickX: 1 })) expect(vx).toBe(0);
+  });
+
+  describe('through the input resolver', () => {
+    function pipeline(chargeable: boolean) {
+      const keys = new Set<number>();
+      const axes = new Map<number, number>();
+      const store = new InputBindingsStore();
+      store.setAction(1, 'smash', [{ kind: 'keyboard', keyCode: 86 /* V */ }]);
+      store.setAction(3, 'smash', [2, 3].flatMap((axisIndex) => ([-1, 1] as const).map((direction) => ({
+        kind: 'gamepad' as const,
+        gamepadIndex: 0,
+        source: { type: 'axis' as const, axisIndex, direction, threshold: 0.6 },
+      }))));
+      const dispatcher = new DeviceInputDispatcher({
+        bindings: store,
+        keyboard: { isDown: (code: number) => keys.has(code) },
+        gamepad: {
+          isConnected: (i: number) => i === 0,
+          getButton: () => ({ pressed: false, value: 0 }),
+          getAxis: (i: number, axis: number) => (i === 0 ? axes.get(axis) ?? 0 : 0),
+        },
+      });
+      const resolver = new InputResolver({ dispatcher, slots: [1, 3] });
+      const key = fighter({ chargeable });
+      const stick = fighter({ chargeable });
+      let frame = 0;
+      const step = () => {
+        resolver.update(frame);
+        frame += 1;
+        key.ch.applyInput(buildCharacterInputFromResolver(resolver, 1));
+        stick.ch.applyInput(buildCharacterInputFromResolver(resolver, 3));
+      };
+      step(); // neutral edge baseline
+      return { keys, axes, key, stick, step };
+    }
+
+    const hitboxDamage = (m: MockScene) =>
+      (m.bodies.find((b) => b.label === HITBOX_LABEL)?.options?.plugin as { damage?: number } | undefined)?.damage;
+
+    it('a held smash key charges; a held right stick fires uncharged', () => {
+      const { keys, axes, key, stick, step } = pipeline(true);
+      keys.add(86);
+      axes.set(2, 1);
+      for (let i = 0; i < 5; i += 1) step();
+      expect(key.ch.isAttacking()).toBe(false);
+      expect(key.ch.getChargeProgress()).toBeCloseTo(4 / 10);
+      expect(stick.ch.isAttacking()).toBe(true); // released the frame after the press
+      expect(stick.ch.getChargeProgress()).toBeNull();
+      expect(hitboxDamage(stick.m)).toBeCloseTo(CHARGE.minDamage);
+      keys.delete(86);
+      step();
+      expect(key.ch.getActiveAttack()?.move.id).toBe('t.fsmash');
+    });
+
+    it('a right-stick flick backward turns the fighter and smashes that way', () => {
+      const { axes, stick, step } = pipeline(false);
+      axes.set(2, -1);
+      step();
+      expect(stick.ch.getActiveAttack()?.move.id).toBe('t.fsmash');
+      expect(stick.ch.getFacing()).toBe(-1);
+    });
   });
 });

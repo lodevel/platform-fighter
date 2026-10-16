@@ -1,240 +1,185 @@
 /**
- * Item definition contract — T3 items framework, AC 10-20.
+ * Item definition contract (Ultimate items, phase 1).
  *
- * The Seed's `itemEntity` ontology calls out a category, durability,
- * TTL, declared slot overrides, and a throw behaviour. This module
- * declares the canonical {@link ItemDefinition} shape every concrete
- * item subclass (Bat, RayGun, Bomb, plus a hypothetical 4th item) ships
- * a frozen instance of.
+ * One frozen {@link ItemDefinition} per item type, pure data. A held item
+ * changes a fighter's attacks only through {@link ItemDefinition.uses}: a
+ * table from the Ultimate item-use inputs to the move the holder runs
+ * through the ordinary attack / charge / projectile pipeline. The single
+ * input→use decision is {@link import('./resolveItemInput').resolveItemInput};
+ * `Character` consults it, nothing else installs per-item callbacks.
  *
- * Open-closed extensibility (Seed `extensibility_invariant` exit)
- * --------------------------------------------------------------
+ * Rules (docs/review/2026-10-11/ultimate-items/spec/universal-rules.json):
+ *   • shooting items fire on the neutral attack and neutral aerial and keep the legs moving
+ *     (`attackInput.shootingFire` / `shootingMovement`): their {@link ItemDefinition.shooting} session, not a use
+ *     move; an empty one is thrown on that press (`emptyShootingItem`);
+ *   • battering items replace neutral attack, forward tilt, dash attack and
+ *     forward smash (`attackInput.battering`); other tilts, smashes and
+ *     aerials are SOURCE_SILENT, so the fighter's own moves run;
+ *   • a battering forward smash is charged through the existing smash-charge
+ *     path when its move carries `charge` (the Home-Run Bat's does not);
+ *   • any other smash input with an item is a smash throw
+ *     (`attackInput.smashAttacksThrowItem`), and every throw, drop and catch
+ *     runs through the shared planner (`itemActions.ts`, `itemCatch.ts`);
+ *   • a throwing item (Bob-omb, Banana Peel) is simply thrown by the attack button
+ *     (`attackInput.throwingItemAttackButton`): no swing, the press is a planner throw.
  *
- *   • New items land as new files. Each file exports a frozen
- *     {@link ItemDefinition} value plus the per-slot
- *     {@link SlotOverrideFactory} callbacks; nothing else in the
- *     framework needs to change. Adding a 4th item type therefore
- *     requires zero edits to the spawn manager, pickup, item-base, or
- *     inventory framework.
- *
- *   • Slot overrides are declared by name from the
- *     {@link AttackMovesetSlotName} taxonomy — no per-category special
- *     cases. A bat declares `['jab', 'tilt', 'smash']` overrides; a
- *     ray gun declares `['neutralSpecial']`; a bomb declares
- *     `['neutralSpecial']` for the throw-fire path. The dispatcher
- *     reads the same {@link AttackMovesetSlotName} → callback map for
- *     every category.
- *
- * Determinism (Seed `determinism_intact` exit)
- * --------------------------------------------
- *
- * Every {@link ItemDefinition} is frozen pure data. The
- * {@link SlotOverrideFactory} callbacks are pure functions of their
- * inputs and the per-item runtime state — they perform no
- * `Math.random()`, no wall-clock reads. Two simulations driven by the
- * same input stream produce identical item interactions tick-for-tick.
- *
- * Phaser-free
- * -----------
- *
- * No Phaser, Matter, or DOM imports. Item subclasses that need a
- * Matter body for collision (the bat's swing hitbox, the bomb's
- * explosion radius) wire the Phaser side via the runtime
- * {@link ItemEntity} layer; the definition itself is pure data.
+ * Phaser-free and deterministic: no Phaser / Matter / DOM imports.
  */
 
 import type { AttackMove } from '../characters/attacks';
-import type { AttackMovesetSlotName } from '../characters/movesetContract';
+import type { ItemSocketAxis } from '../characters/heldItemSocket';
+import type { CharacterId } from '../types';
+import type { NativeItemThrowProfile } from './nativeItemThrow';
+import type { ShootingSpec } from './itemShooting';
+import type { ItemAction } from './itemActions';
+import type { ContainerSpec } from './itemContainer';
+import type { BobOmbSpec, ItemExplosionSpec } from './BobOmb';
+import type { HammerSpec,HammerState } from './Hammer';
+import type {RecoverySpec} from './itemHealing';
+import type {FoodVariant} from './Food';
 
-// ---------------------------------------------------------------------------
-// Item categories
-// ---------------------------------------------------------------------------
-
-/**
- * The 4 canonical item categories the Seed's `itemCategory` ontology
- * names. Used by the AI bot's item-priority logic and by the debug HUD;
- * the dispatcher itself reads {@link ItemDefinition.slotOverrides} not
- * the category.
- */
-export type ItemCategory =
-  | 'melee-weapon'
-  | 'ranged-weapon'
-  | 'throwable'
-  | 'effect-consumable';
+/** Ultimate item classes present in the engine so far (spec engine-gap.md §5.1). */
+export type ItemClass = 'battering' | 'shooting' | 'throwing' | 'container' | 'locked' | 'recovery';
 
 /**
- * Frozen list of every category in canonical authoring order. Iteration
- * convenience for tests, debug HUD, and AI priority tuning.
+ * Item-use inputs. The four battering swipes, plus `aerial` (any aerial
+ * attack press) which only the remaining test items still declare until their
+ * own batch replaces them; no Ultimate battering item uses it.
  */
-export const ITEM_CATEGORIES: ReadonlyArray<ItemCategory> = Object.freeze([
-  'melee-weapon',
-  'ranged-weapon',
-  'throwable',
-  'effect-consumable',
-]);
+export type ItemUseInput = 'jab' | 'ftilt' | 'dashAttack' | 'fsmash' | 'aerial';
+
+/** Move the holder runs for each declared input. Absent input = native move. */
+export type ItemUseTable = Readonly<Partial<Record<ItemUseInput, AttackMove>>>;
 
 // ---------------------------------------------------------------------------
-// Throw behaviour
+// Visual descriptor
 // ---------------------------------------------------------------------------
 
 /**
- * Throw direction the input layer resolved from the holder's stick at
- * the throw-press frame. Mirrors the canonical Smash idiom — a holder
- * with no direction held drops the item in place; a holder with a
- * direction throws it Smash-style.
- *
- *   • `'forward'` — direction matches the holder's facing.
- *   • `'back'` — opposite the holder's facing.
- *   • `'up'` — vertical up.
- *   • `'down'` — vertical down.
- *   • `'drop'` — no direction held; drop in place.
+ * How MatchScene draws the item: one sprite, bottom at the item root when on
+ * the ground, at the hand anchor when held. Angles are Phaser degrees authored
+ * facing right (0 = pointing up, 90 = pointing forward); the held container is
+ * mirrored for a left-facing holder. `swingArc` is swept over startup + active
+ * of any of the item's own uses (absent: the item stays at `restAngle`).
  */
-export type ThrowDirection = 'forward' | 'back' | 'up' | 'down' | 'drop';
-
-/**
- * Per-throw-direction launch impulse declaration. The runtime applies
- * `(velocityX * facing, velocityY)` to the released item body so an
- * authored "forward throw at 12 px/step" lands the item the same
- * distance regardless of whether the holder was facing left or right.
- */
-export interface ThrowVector {
-  readonly velocityX: number;
-  readonly velocityY: number;
-}
-
-/**
- * Full per-direction throw table. Every direction is required so the
- * item never falls through to a runtime null-check.
- */
-export interface ThrowBehavior {
-  readonly forward: ThrowVector;
-  readonly back: ThrowVector;
-  readonly up: ThrowVector;
-  readonly down: ThrowVector;
-  readonly drop: ThrowVector;
-  /**
-   * If true, the item explodes / is consumed on impact after a throw.
-   * The Bomb sets this to true; Bat and RayGun set it to false (they
-   * land grounded after a throw, fully usable).
-   */
-  readonly consumeOnImpact: boolean;
+export interface ItemVisual {
+  readonly spriteKey: string;
+  readonly width: number;
+  readonly height: number;
+  readonly restAngle: number;
+  readonly swingArc?: readonly [from: number, to: number];
+  /** Native socket axis the sprite's long axis follows (heldItemSocket.ts): 'y' blades / bats / rods and the
+   * shoulder-held Super Scope (default), 'z' the Ray Gun barrel and the Fire Flower's head. */
+  readonly socketAxis?: ItemSocketAxis;
 }
 
 // ---------------------------------------------------------------------------
-// Slot override factory
+// Held-item handle (what Character sees)
 // ---------------------------------------------------------------------------
 
 /**
- * Runtime context handed to a {@link SlotOverrideFactory}. The factory
- * builds a slot-press callback closed over both the holder fighter and
- * the live item runtime state — the callback can spawn hitboxes off the
- * holder, decrement the item's durability, schedule a break event, and
- * so on.
- *
- * The context is intentionally minimal — concrete items extend it via
- * closure capture (e.g. the bat captures its own runtime `Bat` object
- * to read / decrement durability without the framework knowing the
- * shape). This keeps the framework category-agnostic.
+ * The held item as the holder's attack dispatch sees it. {@link ItemEntity}
+ * implements it: `canUse` gates the uses (ammo, lifecycle) and `noteUse` is
+ * the one place a use is counted.
  */
-export interface SlotOverrideContext {
-  /**
-   * The holder fighter. Typed as `unknown` here so the
-   * {@link ItemDefinition} type stays Phaser-free; concrete item
-   * subclasses cast to {@link Character} at the moment they wire
-   * a hitbox spawn.
-   */
-  readonly holder: unknown;
-  /** Current frame index for cooldown / durability bookkeeping. */
-  readonly frame: number;
-  /**
-   * Read the held item entity's runtime state — durability, ammo, etc.
-   * Typed as `unknown` for the same Phaser-free reason as `holder`;
-   * the override callback narrows when it consumes the value.
-   */
-  readonly itemEntity: unknown;
+export interface HeldItemHandle {
+  readonly definition: Pick<ItemDefinition, 'uses' | 'usesByFighter' | 'itemClass' | 'heavy' | 'visual' | 'shooting' | 'hammer' | 'generated'>;
+  canUse(): boolean;
+  noteUse(frame: number, position: { readonly x: number; readonly y: number }): void;
+  /** Pay `cost` ammo for a shot; false = not enough left (nothing is fired). */
+  spendShot(cost?: number): boolean;
+  getAmmo(): number | null;
+  getHammerState?(): HammerState | null;
+  setHammerState?(state: HammerState): void;
 }
-
-/**
- * A factory that produces the per-slot press callback an item installs
- * via {@link Character.setSlotOverride}. The factory runs once at
- * pickup time; the produced callback runs every time the slot's input
- * fires while the item is held.
- *
- * The callback returns `boolean` — `true` consumes the press (the
- * override fired), `false` declines (e.g. ray gun out of ammo, bomb
- * already thrown) and the fighter's native slot move runs as a
- * fallback.
- */
-export type SlotOverrideFactory = (
-  ctx: SlotOverrideContext,
-) => () => boolean;
 
 // ---------------------------------------------------------------------------
 // Item definition
 // ---------------------------------------------------------------------------
 
-/**
- * Frozen per-item-type declaration. One value per concrete item
- * subclass; the framework reads off this contract uniformly so
- * adding a 4th item type requires only authoring a new definition
- * file.
- *
- * Required fields:
- *
- *   • `type` — short stable id used by the replay log
- *     ({@link ItemSpawnEvent.type}) and AI item-priority lookup.
- *
- *   • `category` — taxonomy bucket; AI uses it for
- *     attack-vs-throw / ranged-priority decisions.
- *
- *   • `maxDurability` — initial uses-remaining (5 for the bat, 6 for
- *     the ray gun, 1 for the bomb). The slot-override callback
- *     decrements this each fire and returns `false` when it reaches
- *     zero, triggering the broken transition.
- *
- *   • `ttlFrames` — frames an unpicked grounded item lives before
- *     despawning. Tuned per category; melee weapons stick around
- *     longer, throwables / consumables expire sooner.
- *
- *   • `brokenDespawnFrames` — frames a broken item's debris stays
- *     visible before despawning. Short by design — the player needs
- *     to read "spent" then the entity reclaims.
- *
- *   • `slotOverrides` — array of {@link AttackMovesetSlotName} the item
- *     replaces while held. Bat replaces `['jab', 'tilt', 'smash']`;
- *     ray gun replaces `['neutralSpecial']`; bomb replaces
- *     `['neutralSpecial']` (its press throws the bomb, which then
- *     explodes on impact). The pickup module reads this list and
- *     installs the per-slot factory output via
- *     {@link Character.setSlotOverride}.
- *
- *   • `buildSlotOverride` — factory that produces the per-slot press
- *     callback. Same factory for every slot the item replaces (the
- *     bat's swing fires from jab/tilt/smash with the same callback);
- *     a future item that wants per-slot variation can branch on the
- *     `slot` arg.
- *
- *   • `throwBehavior` — direction-aware throw vector table.
- */
 export interface ItemDefinition {
+  /** Intrinsic generated objects are separate from the ordinary switch and
+   * weighted spawn table. Ownership/lifetime live in their actual consumers. */
+  readonly generated?: { readonly kind: 'link-arrow'; readonly vanishesOnImpact: true }
+    | { readonly kind:'link-remote-bomb';readonly vanishesOnImpact:false };
+  /** Stable id used by the replay spawn log. */
   readonly type: string;
-  readonly category: ItemCategory;
-  readonly maxDurability: number;
-  readonly ttlFrames: number;
-  readonly brokenDespawnFrames: number;
-  readonly slotOverrides: ReadonlyArray<AttackMovesetSlotName>;
-  readonly buildSlotOverride: (
-    slot: AttackMovesetSlotName,
-    ctx: SlotOverrideContext,
-  ) => () => boolean;
-  readonly throwBehavior: ThrowBehavior;
+  readonly itemClass: ItemClass;
+  /** Acquisition traits; light holdable items are the default. */
+  readonly holdable?: boolean;
+  readonly heavy?: boolean;
+  /** Explicit source eligibility for container loot; absent ordinary items
+   * retain their existing eligibility. Standalone resources opt out. */
+  readonly containerEligible?:boolean;
+  readonly recovery?:RecoverySpec;
+  readonly foodVariant?:FoodVariant;
+  /** Thrown-item packet and flight (Ultimate formula; `ultimateItemThrowProfile`). */
+  readonly throwProfile: NativeItemThrowProfile;
+  /** Per-item thrown-hit rules beyond the shared formula (throwing items). */
+  readonly thrownHit?: ThrownHitRules;
+  /** Bob-omb: fuse, walking and explosion (BobOmb.ts). */
+  readonly bobOmb?: BobOmbSpec;
+  /** Blast of an item that explodes on command rather than by the Bob-omb rules (Link's Remote Bomb). */
+  readonly explosion?: ItemExplosionSpec;
+  readonly hammer?: HammerSpec;
+  readonly container?: ContainerSpec;
+  /** Banana Peel: a grounded opponent touching the lying item slips (soft trip); the placer never does. */
+  readonly slipsOnContact?: true;
+  /** A free item that attacks send flying as a thrown item of the hitter (SmashWiki Link (SSBU), Remote Bomb:
+   * "can be knocked back by attacks, which also causes it to damage opponents in range"). */
+  readonly launchedByAttacks?: true;
+  /** Slips and / or throws before the item disappears (SmashWiki Banana Peel, Ultimate: 2). Absent = no count. */
+  readonly durability?: number;
+  readonly pickupBounds?: { readonly offsetX: number; readonly offsetY: number; readonly width: number; readonly height: number };
   /**
-   * Optional moves this item registers on the holder at pickup time
-   * via `Character.addAttack`. The slot-override callback then fires
-   * one of these via `attemptAttack(move.id)` so a held-item swing
-   * runs through the canonical startup/active/recovery + hitbox
-   * pipeline. Items with no moves (or that drive their effect
-   * through `throwBehavior` only) leave this empty.
+   * Uses before the item breaks (shots, swings), or a shooting item's ammo / fuel (Ray Gun shots, Super Scope
+   * units, Fire Flower frames). Absent = unlimited: SmashWiki states no break count for Ultimate battering items.
    */
-  readonly attackMoves?: ReadonlyArray<AttackMove>;
+  readonly ammo?: number;
+  /**
+   * Only shots spend ammo (`AttackMove.itemShot`, or a {@link shooting} session's shots and fuel). An empty battering
+   * item keeps its swings (SmashWiki Star Rod); an empty shooting item is thrown on its fire press (SmashWiki Item).
+   * Absent: every started use spends one and the last use breaks the item.
+   */
+  readonly ammoSpentOnShot?: true;
+  /** Shooting items: the fire session their fire press starts (itemShooting.ts). */
+  readonly shooting?: ShootingSpec;
+  /** Frames an unpicked grounded item lives (authored; Ultimate value SOURCE_SILENT). */
+  readonly ttlFrames: number;
+  /** Frames a broken item's debris stays visible. */
+  readonly brokenDespawnFrames: number;
+  /** Per-input item uses; registered on the holder at pickup. */
+  readonly uses?: ItemUseTable;
+  /** Per-fighter replacements of single uses (native per-fighter data, e.g. a reflector box). */
+  readonly usesByFighter?: Readonly<Partial<Record<CharacterId, ItemUseTable>>>;
+  readonly visual?: ItemVisual;
+}
+
+/**
+ * Thrown-hit rules of one item. SmashWiki lists Ultimate thrown damage per throw kind for some items
+ * (Bob-omb, Banana Peel); that table replaces the speed formula for the listed throws.
+ */
+export interface ThrownHitRules {
+  readonly damageByAction: Readonly<Partial<Record<ItemAction, number>>>;
+  /** Launch of a downward throw (Bob-omb: meteor smash when thrown downward). */
+  readonly downKnockback?: NativeItemThrowProfile['knockback'];
+  /** A grounded target is slipped (native game_Throw collision_attr_slip on COLLISION_SITUATION_MASK_G). */
+  readonly slipGrounded?: true;
+}
+
+/** The use table a given fighter runs: the item's uses with that fighter's replacements. */
+export function itemUsesFor(def: Pick<ItemDefinition, 'uses' | 'usesByFighter'>, fighterId: CharacterId): ItemUseTable | undefined {
+  const own = def.usesByFighter?.[fighterId];
+  return own ? { ...def.uses, ...own } : def.uses;
+}
+
+/** Every distinct move an item's uses run for a fighter (registered on the holder at pickup). */
+export function itemUseMoves(def: Pick<ItemDefinition, 'uses' | 'usesByFighter'>, fighterId: CharacterId): AttackMove[] {
+  return [...new Set(Object.values(itemUsesFor(def, fighterId) ?? {}))];
+}
+
+/** True iff `moveId` is one of this item's own use moves (any fighter's variant). */
+export function isItemUseMove(def: Pick<ItemDefinition, 'uses' | 'usesByFighter'>, moveId: string): boolean {
+  return [def.uses, ...Object.values(def.usesByFighter ?? {})].some(table =>
+    Object.values(table ?? {}).some(move => move.id === moveId));
 }

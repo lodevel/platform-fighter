@@ -17,6 +17,7 @@ import {
   tickLedgeHang,
   type LedgeHangInput,
   type LedgeHangState,
+  ultimateLedgeHangIntangibilityFrames,
 } from './ledgeHangState';
 import type { LedgeCandidate } from './ledgeDetection';
 
@@ -116,8 +117,10 @@ describe('ledgeHangState — construction', () => {
 
 describe('LEDGE_HANG_DEFAULTS', () => {
   it('matches sane Smash-like values', () => {
-    expect(LEDGE_HANG_DEFAULTS.maxHangFrames).toBe(360);
-    expect(LEDGE_HANG_DEFAULTS.hangIframeFrames).toBe(24);
+    // SmashWiki Edge "Hang time": SSB4 and SSBU 6.5 seconds = 390 frames (was 360).
+    expect(LEDGE_HANG_DEFAULTS.maxHangFrames).toBe(390);
+    // No fixed hang budget: a fresh catch uses the SmashWiki Edge airtime/percent formula.
+    expect(LEDGE_HANG_DEFAULTS.hangIframeFrames).toBeUndefined();
     expect(LEDGE_HANG_DEFAULTS.climbFrames).toBe(28);
     expect(LEDGE_HANG_DEFAULTS.tetherCooldownFrames).toBe(30);
     expect(LEDGE_HANG_DEFAULTS.dropDownClearance).toBe(20);
@@ -142,7 +145,8 @@ describe('detection latch', () => {
     expect(r.state.active!.candidate).toBe(TEST_CANDIDATE);
     expect(r.state.active!.latchX).toBe(100);
     expect(r.state.active!.framesElapsed).toBe(0);
-    expect(r.state.hangIframesRemaining).toBe(LEDGE_HANG_DEFAULTS.hangIframeFrames);
+    // SmashWiki Edge: 19 + 60·(0/300) + 44 − 0 = 63 at zero airtime and 0 % (was a fixed 24).
+    expect(r.state.hangIframesRemaining).toBe(ultimateLedgeHangIntangibilityFrames(0, 0));
   });
 
   it('latches even with no release intent', () => {
@@ -176,6 +180,17 @@ describe('detection latch', () => {
       makeInput({ detection: makeDetection(), facing: -1 }),
     );
     expect(r.state.active?.facing).toBe(-1);
+  });
+
+  it.each(['left', 'right'] as const)('faces into the stage after a %s grab from either incoming direction', side => {
+    const inward = side === 'left' ? 1 : -1;
+    for (const incoming of [1, -1] as const) {
+      const detection = {...makeDetection(), candidate: {...TEST_CANDIDATE, side}};
+      const caught = tickLedgeHang(createLedgeHangState(), makeInput({detection, facing: incoming}), LEDGE_HANG_DEFAULTS);
+      expect(caught.state.active?.facing).toBe(inward);
+      const hanging = tickLedgeHang(caught.state, makeInput({facing: incoming}), LEDGE_HANG_DEFAULTS);
+      expect(hanging.state.active?.facing).toBe(inward);
+    }
   });
 });
 
@@ -946,8 +961,9 @@ describe('SMASH-PARITY — 2-frame ledge-grab punish window', () => {
 
 describe('SMASH-PARITY — regrab i-frame depletion (ledge-stall fix)', () => {
   it('exposes the depletion tuning defaults', () => {
-    expect(LEDGE_HANG_DEFAULTS.regrabIframeThreshold).toBe(2);
-    expect(LEDGE_HANG_DEFAULTS.regrabIframePenalty).toBe(8);
+    expect(LEDGE_HANG_DEFAULTS.regrabIframeThreshold).toBe(1);
+    // A regrab removes the whole (formula) budget; SmashWiki Edge maximum 123 (was 24 = old fixed budget).
+    expect(LEDGE_HANG_DEFAULTS.regrabIframePenalty).toBe(123);
   });
 
   /**
@@ -977,15 +993,14 @@ describe('SMASH-PARITY — regrab i-frame depletion (ledge-stall fix)', () => {
 
   it('the first `threshold` grabs latch with the full budget', () => {
     const budgets = regrabIframeBudgets(2);
-    expect(budgets[0]).toBe(LEDGE_HANG_DEFAULTS.hangIframeFrames); // 24
-    expect(budgets[1]).toBe(LEDGE_HANG_DEFAULTS.hangIframeFrames); // 24
+    expect(budgets[0]).toBe(63); // SmashWiki Edge formula at airtime 0, 0 %
+    expect(budgets[1]).toBe(0);
   });
 
   it('grabs beyond the threshold deplete by `penalty` each, flooring at 0', () => {
     const budgets = regrabIframeBudgets(6);
-    // threshold 2, penalty 8, full 24:
-    //   #1,#2 = 24, #3 = 16, #4 = 8, #5 = 0, #6 = 0.
-    expect(budgets).toEqual([24, 24, 16, 8, 0, 0]);
+    // Second and later catches have no hang invulnerability.
+    expect(budgets).toEqual([63, 0, 0, 0, 0, 0]); // SmashWiki Edge formula at airtime 0, 0 %
   });
 
   it('the counter increments on each consecutive airborne regrab', () => {
@@ -1025,7 +1040,7 @@ describe('SMASH-PARITY — regrab i-frame depletion (ledge-stall fix)', () => {
       makeInput({ detection: makeDetection(), airborne: true }),
       tuning,
     ).state;
-    expect(s.hangIframesRemaining).toBe(LEDGE_HANG_DEFAULTS.hangIframeFrames);
+    expect(s.hangIframesRemaining).toBe(ultimateLedgeHangIntangibilityFrames(0, 0));
   });
 
   it('a landing DURING cooldown also resets the counter', () => {
@@ -1045,7 +1060,7 @@ describe('SMASH-PARITY — regrab i-frame depletion (ledge-stall fix)', () => {
       5,
       resolveLedgeHangTuning({ regrabIframePenalty: 0 }),
     );
-    expect(budgets.every((b) => b === LEDGE_HANG_DEFAULTS.hangIframeFrames)).toBe(
+    expect(budgets.every((b) => b === ultimateLedgeHangIntangibilityFrames(0, 0))).toBe(
       true,
     );
   });

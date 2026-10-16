@@ -480,7 +480,7 @@ export function remapSlotBindings(
   let anyChanged = false;
 
   for (const action of LOGICAL_ACTIONS) {
-    const list = map[action];
+    const list = (map[action] ?? []);
     let perActionChanged = false;
     let updated: InputBinding[] | null = null;
     for (let i = 0; i < list.length; i += 1) {

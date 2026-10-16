@@ -77,6 +77,13 @@
  * (taunt). Up and jump remain distinct entries so a player can
  * separate "press up to jump" from "tap up" without the rebinding UI
  * having to encode both meanings in one slot.
+ *
+ * `smash` (a dedicated smash-attack input: one key, or the right stick
+ * as four half-axis bindings like Ultimate's C-stick) is appended last,
+ * after `taunt`, so every earlier row index stays put. Bindings saved
+ * before it existed have no `smash` key; the load paths fill it through
+ * `fillMissingSmash` (src/input/smashBindingDefaults.ts) instead of
+ * bumping the schema version.
  */
 export const LOGICAL_ACTIONS = [
   'left',
@@ -89,6 +96,9 @@ export const LOGICAL_ACTIONS = [
   'shield',
   'grab',
   'taunt',
+  'smash',
+  'appeal',
+  'walk',
 ] as const;
 
 /**
@@ -242,7 +252,8 @@ export type PlayerBindingsIndex = 1 | 2 | 3 | 4;
  * action for the player. The dispatcher treats the action as released
  * for every frame the array is empty.
  */
-export type ActionBindings = Readonly<Record<LogicalAction, ReadonlyArray<InputBinding>>>;
+/** Older profiles may omit appeal/walk; loaders preserve historical controls. Walk is a held digital-horizontal magnitude modifier. */
+export type ActionBindings = Readonly<Record<Exclude<LogicalAction, 'appeal' | 'walk'>, ReadonlyArray<InputBinding>> & Partial<Record<'appeal' | 'walk', ReadonlyArray<InputBinding>>>>;
 
 /**
  * Complete binding profile for a single player slot.

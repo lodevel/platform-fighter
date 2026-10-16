@@ -1,0 +1,149 @@
+[
+  {
+    "script": "ItemLightGet",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ItemLightGet.txt",
+    "revision": "59004685238a3f6f93bae905d3a4e079701c40b4",
+    "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/items/ItemLightGet.txt",
+    "sha256": "bfea08a4015491269f7a9131ecb587c071aaf783107e183bf3af0fac123fef42"
+  },
+  {
+    "script": "ItemLightWalkGet",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ItemLightWalkGet.txt",
+    "revision": "59004685238a3f6f93bae905d3a4e079701c40b4",
+    "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/items/ItemLightWalkGet.txt",
+    "sha256": "f249bce8dffd11c3599cfcadb90fcb28d4da924daf45d95d99e4f2c87885d5a8"
+  },
+  {
+    "script": "WaitItem",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/WaitItem.txt",
+    "revision": "59004685238a3f6f93bae905d3a4e079701c40b4",
+    "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/items/WaitItem.txt",
+    "sha256": "795c25be075790eda83dee3767e352773f6a0396e8cdd39132902ab3230bd61a"
+  },
+  {
+    "script": "ItemLightThrowDash",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ItemLightThrowDash.txt",
+    "revision": "59004685238a3f6f93bae905d3a4e079701c40b4",
+    "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/items/ItemLightThrowDash.txt",
+    "sha256": "60197b7e081a714d3ef63aef971d8843fe961a651b522bea27a61cf68f22da4b"
+  },
+  {
+    "script": "ItemLightThrowDrop",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ItemLightThrowDrop.txt",
+    "revision": "59004685238a3f6f93bae905d3a4e079701c40b4",
+    "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/items/ItemLightThrowDrop.txt",
+    "sha256": "ccb057d47333c6a3ac9cf0833e9cb402f929a6ac18310d0c13d7b1a18441dc7e"
+  },
+  {
+    "script": "ItemLightThrowF",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ItemLightThrowF.txt",
+    "revision": "59004685238a3f6f93bae905d3a4e079701c40b4",
+    "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/items/ItemLightThrowF.txt",
+    "sha256": "5409a1f821284b8b20a7b0f5c6245727cf5f01e4507333c095cb34ad5af9a23d"
+  },
+  {
+    "script": "ItemLightThrowF4",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ItemLightThrowF4.txt",
+    "revision": "59004685238a3f6f93bae905d3a4e079701c40b4",
+    "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/items/ItemLightThrowF4.txt",
+    "sha256": "601c7fc2f850509a7e36fe85d9470f79940932341e04f9216364417c86c01766"
+  },
+  {
+    "script": "ItemLightThrowB",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ItemLightThrowB.txt",
+    "revision": "59004685238a3f6f93bae905d3a4e079701c40b4",
+    "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/items/ItemLightThrowB.txt",
+    "sha256": "9f7380f1e474f17eede13a943a0143dea250f5812fd908a3e609593add3fd89d"
+  },
+  {
+    "script": "ItemLightThrowB4",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ItemLightThrowB4.txt",
+    "revision": "59004685238a3f6f93bae905d3a4e079701c40b4",
+    "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/items/ItemLightThrowB4.txt",
+    "sha256": "e0b0265da672c36513bdc13c43fcfc03ec61016a8f7a7f1bd9c6954befb07a77"
+  },
+  {
+    "script": "ItemLightThrowHi",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ItemLightThrowHi.txt",
+    "revision": "59004685238a3f6f93bae905d3a4e079701c40b4",
+    "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/items/ItemLightThrowHi.txt",
+    "sha256": "eb69159296d6b6c1ad7ba90558c0ee666ed6fff5fa70606ffc380cf4eccb076c"
+  },
+  {
+    "script": "ItemLightThrowHi4",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ItemLightThrowHi4.txt",
+    "revision": "59004685238a3f6f93bae905d3a4e079701c40b4",
+    "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/items/ItemLightThrowHi4.txt",
+    "sha256": "14dea431aa32115d75845a49db8ca6e7dfc6784797e686ba5dd2e1ccbace2945"
+  },
+  {
+    "script": "ItemLightThrowLw",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ItemLightThrowLw.txt",
+    "revision": "59004685238a3f6f93bae905d3a4e079701c40b4",
+    "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/items/ItemLightThrowLw.txt",
+    "sha256": "891d0531d3ffe7c3dbf838960afb544236c549478cb8c6de0a15532df72fca0b"
+  },
+  {
+    "script": "ItemLightThrowLw4",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ItemLightThrowLw4.txt",
+    "revision": "59004685238a3f6f93bae905d3a4e079701c40b4",
+    "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/items/ItemLightThrowLw4.txt",
+    "sha256": "d85af3477af3cce7674e0b873e7cf5723e555886ffa90b50fad3f2b7827f3141"
+  },
+  {
+    "script": "ItemLightThrowAirF",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ItemLightThrowAirF.txt",
+    "revision": "59004685238a3f6f93bae905d3a4e079701c40b4",
+    "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/items/ItemLightThrowAirF.txt",
+    "sha256": "0a915a8b390166ecccd15a72098a7684dd780fb492c0705676cb033c54799de1"
+  },
+  {
+    "script": "ItemLightThrowAirF4",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ItemLightThrowAirF4.txt",
+    "revision": "59004685238a3f6f93bae905d3a4e079701c40b4",
+    "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/items/ItemLightThrowAirF4.txt",
+    "sha256": "1b3485621b67474ed90c0dcf756b5e250663865750e8a93e18d86ab7fe237117"
+  },
+  {
+    "script": "ItemLightThrowAirB",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ItemLightThrowAirB.txt",
+    "revision": "59004685238a3f6f93bae905d3a4e079701c40b4",
+    "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/items/ItemLightThrowAirB.txt",
+    "sha256": "d225fffe43fa7056ba1183449abb06bac4a3954915adc75770d78408b20fba99"
+  },
+  {
+    "script": "ItemLightThrowAirB4",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ItemLightThrowAirB4.txt",
+    "revision": "59004685238a3f6f93bae905d3a4e079701c40b4",
+    "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/items/ItemLightThrowAirB4.txt",
+    "sha256": "1dc733db4160e29b8cca4c7e0150b3279fa177f9b26f96a58a52bbeab9120c5b"
+  },
+  {
+    "script": "ItemLightThrowAirHi",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ItemLightThrowAirHi.txt",
+    "revision": "59004685238a3f6f93bae905d3a4e079701c40b4",
+    "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/items/ItemLightThrowAirHi.txt",
+    "sha256": "dad38ad435d529220c312bb52d1b7e49fabab1b203f7a833f16e0116d6b8f2ad"
+  },
+  {
+    "script": "ItemLightThrowAirHi4",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ItemLightThrowAirHi4.txt",
+    "revision": "59004685238a3f6f93bae905d3a4e079701c40b4",
+    "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/items/ItemLightThrowAirHi4.txt",
+    "sha256": "afc70ca1d7fe7463f15f90c291ecb00d7d4ea6901b5956891cb3a5a2aa327312"
+  },
+  {
+    "script": "ItemLightThrowAirLw",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ItemLightThrowAirLw.txt",
+    "revision": "59004685238a3f6f93bae905d3a4e079701c40b4",
+    "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/items/ItemLightThrowAirLw.txt",
+    "sha256": "5c1ef6f58341928242c04fc97e446683d498ac0e1acc47ee94e4815bc5d1b012"
+  },
+  {
+    "script": "ItemLightThrowAirLw4",
+    "url": "https://raw.githubusercontent.com/WuBoytH/SSBU-Dumped-Scripts/59004685238a3f6f93bae905d3a4e079701c40b4/smashline/lua2cpp_donkey/donkey/ItemLightThrowAirLw4.txt",
+    "revision": "59004685238a3f6f93bae905d3a4e079701c40b4",
+    "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/items/ItemLightThrowAirLw4.txt",
+    "sha256": "e621550b072f4360e6a0c18837e550f1c43979006964d0366f84d80df23462b3"
+  }
+]

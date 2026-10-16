@@ -10,6 +10,7 @@ import {
   CRUMBLING_STAGE_DEFAULTS,
   MOVING_PLATFORM_STAGE,
   MOVING_PLATFORM_STAGE_DEFAULTS,
+  INFERNO_STAGE,
   STAGES,
   STAGE_DESIGN_WIDTH,
   STAGE_DESIGN_HEIGHT,
@@ -32,12 +33,53 @@ import {
  *   - There is at least one solid ground platform and at least one
  *     pass-through floating platform (the AC literally requires both).
  *   - Every platform fits inside the design viewport.
- *   - The blast zone fully encloses the design viewport.
+ *   - Default surfaces and blast distances use the fighter-data scale.
+ *   - The blast zone encloses playable geometry, including custom floors.
  *   - Spawn points sit above the highest non-pass-through platform so
  *     characters always drop onto solid ground.
  *   - Up to 4 spawn points exist (matches `GAME_CONFIG.maxPlayers`).
  */
 describe('FLAT_STAGE — flat stage layout invariants', () => {
+  it('widens the floor and side spacing while retaining reference vertical geometry', () => {
+    // Independent expected coordinates from the extracted Battlefield LVD,
+    // plus the explicit gameplay calibration (1180 px floor, 100 px side spread).
+    const ground = FLAT_STAGE.platforms.find((p) => !p.passThrough)!;
+    const groundTop = ground.y - ground.height / 2;
+    expect(ground.width).toBe(1180);
+    expect(groundTop).toBe(930);
+    expect(ground.height).toBe(80); // Project collider depth, not the LVD shape.
+
+    const floats = FLAT_STAGE.platforms.filter((p) => p.passThrough);
+    expect(floats).toHaveLength(3);
+    const expectedSurfaces = [
+      { x: 960 + ((-59.422 + -24.789) / 2) * 5 - 100, height: 24.119 * 5 },
+      { x: 960 + ((24.789 + 59.42199) / 2) * 5 + 100, height: 24.119 * 5 },
+      { x: 960, height: 47.189003 * 5 },
+    ];
+    for (const [index, platform] of floats.entries()) {
+      const surface = expectedSurfaces[index]!;
+      expect(platform.x).toBeCloseTo(surface.x, 3);
+      expect(platform.width).toBeCloseTo(34.633 * 5, 3);
+      expect(groundTop - (platform.y - platform.height / 2)).toBeCloseTo(
+        surface.height,
+        3,
+      );
+      expect(platform.height).toBe(24); // Project pass-through collider thickness.
+    }
+  });
+
+  it('retains Battlefield offstage margins and vertical blast distances', () => {
+    const ground = FLAT_STAGE.platforms.find((p) => !p.passThrough)!;
+    const groundTop = ground.y - ground.height / 2;
+    const z = FLAT_STAGE.blastZone;
+    expect(ground.x - ground.width / 2 - z.left).toBe(160 * 5);
+    expect(z.right - ground.x - ground.width / 2).toBe(160 * 5);
+    expect(groundTop - z.top).toBe(192 * 5);
+    expect(z.bottom - groundTop).toBe(140 * 5);
+    expect(z.right - z.left).toBe(2780);
+    expect(z.top).toBe(-30);
+  });
+
   it('has both a solid ground platform and floating pass-through platforms', () => {
     const solid = FLAT_STAGE.platforms.filter((p) => !p.passThrough);
     const floats = FLAT_STAGE.platforms.filter((p) => p.passThrough);
@@ -88,11 +130,14 @@ describe('FLAT_STAGE — flat stage layout invariants', () => {
     const groundTop = ground.y - ground.height / 2;
 
     for (const sp of FLAT_STAGE.spawnPoints) {
-      // Spawn above the ground (smaller y in screen space) and within
-      // the design width so characters don't get KO'd on spawn.
+      // Spawn above all surfaces and over solid ground. Viewport-based
+      // quarter points would be offstage on the narrower default floor.
       expect(sp.y).toBeLessThan(groundTop);
-      expect(sp.x).toBeGreaterThanOrEqual(0);
-      expect(sp.x).toBeLessThanOrEqual(STAGE_DESIGN_WIDTH);
+      expect(sp.x).toBeGreaterThan(ground.x - ground.width / 2);
+      expect(sp.x).toBeLessThan(ground.x + ground.width / 2);
+      for (const platform of FLAT_STAGE.platforms) {
+        expect(sp.y).toBeLessThan(platform.y - platform.height / 2);
+      }
     }
   });
 
@@ -145,13 +190,57 @@ describe('createFlatStage() — Sub-AC 1: configurable flat ground geometry', ()
     expect(stage.platforms[0]!.passThrough).toBe(false);
   });
 
-  it('still encloses the design viewport inside the blast zone for custom ground sizes', () => {
-    const stage = createFlatStage({ groundWidth: 800, groundHeight: 40 });
+  it.each([
+    { groundWidth: 280, groundHeight: 40, groundBottomInset: 200 },
+    { groundWidth: 1800, groundHeight: 120, groundBottomInset: 200 },
+    { groundWidth: 4000, groundHeight: 1000, groundBottomInset: 1200 },
+    { groundWidth: 800, groundHeight: 80, groundBottomInset: -400 },
+  ])('encloses custom geometry and spawn points for %j', (options) => {
+    const stage = createFlatStage(options);
     const z = stage.blastZone;
-    expect(z.left).toBeLessThan(0);
-    expect(z.right).toBeGreaterThan(STAGE_DESIGN_WIDTH);
-    expect(z.top).toBeLessThan(0);
-    expect(z.bottom).toBeGreaterThan(STAGE_DESIGN_HEIGHT);
+    const ground = stage.platforms.find((p) => !p.passThrough)!;
+    const groundTop = ground.y - ground.height / 2;
+    for (const platform of stage.platforms) {
+      expect(platform.x - platform.width / 2).toBeGreaterThan(z.left);
+      expect(platform.x + platform.width / 2).toBeLessThan(z.right);
+      expect(platform.y - platform.height / 2).toBeGreaterThan(z.top);
+      expect(platform.y + platform.height / 2).toBeLessThan(z.bottom);
+    }
+    for (const spawn of stage.spawnPoints) {
+      expect(spawn.x).toBeGreaterThan(ground.x - ground.width / 2);
+      expect(spawn.x).toBeLessThan(ground.x + ground.width / 2);
+      expect(spawn.y).toBeGreaterThan(z.top);
+      for (const platform of stage.platforms) {
+        expect(spawn.y).toBeLessThan(platform.y - platform.height / 2);
+      }
+    }
+    expect(groundTop - z.top).toBe(960);
+    expect(ground.x - ground.width / 2 - z.left).toBeGreaterThanOrEqual(800);
+    expect(z.right - (ground.x + ground.width / 2)).toBeGreaterThanOrEqual(800);
+  });
+
+  it('preserves surface heights, item hover and blast distances when the floor moves', () => {
+    const custom = createFlatStage({ groundHeight: 120, groundBottomInset: 200 });
+    const ground = custom.platforms.find((p) => !p.passThrough)!;
+    const groundTop = ground.y - ground.height / 2;
+    const defaultTop = 930;
+    const translation = groundTop - defaultTop;
+    for (const [index, platform] of custom.platforms.entries()) {
+      if (!platform.passThrough) continue;
+      expect(platform.y - FLAT_STAGE.platforms[index]!.y).toBe(translation);
+    }
+    for (const [index, anchor] of custom.itemSpawnAnchors!.entries()) {
+      const platform = custom.platforms[index]!;
+      expect(platform.y - platform.height / 2 - anchor.y).toBe(60);
+    }
+    expect(custom.blastZone.top - FLAT_STAGE.blastZone.top).toBe(translation);
+    expect(custom.blastZone.bottom - FLAT_STAGE.blastZone.bottom).toBe(translation);
+  });
+
+  it('expands side bounds for wide floors while preserving ledge-to-blast distance', () => {
+    const stage = createFlatStage({ groundWidth: 4000 });
+    expect(stage.blastZone.left).toBe(960 - 2000 - 800);
+    expect(stage.blastZone.right).toBe(960 + 2000 + 800);
   });
 
   it('places spawn points strictly above the configured ground', () => {
@@ -166,6 +255,12 @@ describe('createFlatStage() — Sub-AC 1: configurable flat ground geometry', ()
   it('throws a clear error when ground dimensions are non-positive', () => {
     expect(() => createFlatStage({ groundWidth: 0 })).toThrow(/groundWidth/);
     expect(() => createFlatStage({ groundHeight: -10 })).toThrow(/groundHeight/);
+  });
+
+  it('rejects non-finite ground geometry instead of producing unusable blast bounds', () => {
+    expect(() => createFlatStage({ groundWidth: NaN })).toThrow(/groundWidth/);
+    expect(() => createFlatStage({ groundHeight: Infinity })).toThrow(/groundHeight/);
+    expect(() => createFlatStage({ groundBottomInset: Infinity })).toThrow(/groundBottomInset/);
   });
 });
 
@@ -389,8 +484,9 @@ describe('Sub-AC 2 of AC 90302 — four hazard stages declare platforms with exp
     expect(STAGES[WIND_STAGE.id]).toBe(WIND_STAGE);
     expect(STAGES[CRUMBLING_STAGE.id]).toBe(CRUMBLING_STAGE);
     expect(STAGES[MOVING_PLATFORM_STAGE.id]).toBe(MOVING_PLATFORM_STAGE);
-    // Five entries total: flat + four hazard stages.
-    expect(Object.keys(STAGES).length).toBe(5);
+    expect(STAGES[INFERNO_STAGE.id]).toBe(INFERNO_STAGE);
+    // Six entries total: flat + four hazard stages + the Inferno.
+    expect(Object.keys(STAGES).length).toBe(6);
   });
 
   for (const [name, stage] of HAZARD_STAGES) {

@@ -119,7 +119,7 @@ class RecorderSink implements CombatSfxSink {
 function baseOptions(overrides: Partial<FighterOptions> = {}): FighterOptions {
   return {
     playerIndex: 1,
-    characterId: 'wolf',
+    characterId: 'donkeykong',
     paletteIndex: 0,
     spawnX: 100,
     spawnY: 200,

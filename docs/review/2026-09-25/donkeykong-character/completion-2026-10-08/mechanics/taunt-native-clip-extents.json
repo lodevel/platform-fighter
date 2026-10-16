@@ -1,0 +1,53 @@
+{
+  "scope": "Native animation extents only, no control lock beyond source49. Patch/unmodified vanilla unknown.",
+  "motions": [
+    {
+      "selector": "appeal_hi_r",
+      "path": "assets/gen/dk-native-reference/raw-motion/fighter/donkey/motion/body/c00/j01appealhir.nuanmb",
+      "sha256": "ea971fae34f70035e8a878492459b449987c8b224dfe09080597f5e2ba66d68f",
+      "nativeLastSample": 79.0,
+      "presentationFrames": 80,
+      "nativeCancelFrame": 50
+    },
+    {
+      "selector": "appeal_hi_l",
+      "path": "assets/gen/dk-native-reference/raw-motion/fighter/donkey/motion/body/c00/j01appealhir.nuanmb",
+      "sha256": "ea971fae34f70035e8a878492459b449987c8b224dfe09080597f5e2ba66d68f",
+      "nativeLastSample": 79.0,
+      "presentationFrames": 80,
+      "nativeCancelFrame": 50
+    },
+    {
+      "selector": "appeal_s_r",
+      "path": "assets/gen/dk-native-reference/raw-motion/fighter/donkey/motion/body/c00/j01appealsr.nuanmb",
+      "sha256": "ce76caf89e55fab0d788524c460cddac9105dab81f924f19889a2ce7ccb059a7",
+      "nativeLastSample": 69.0,
+      "presentationFrames": 70,
+      "nativeCancelFrame": 50
+    },
+    {
+      "selector": "appeal_s_l",
+      "path": "assets/gen/dk-native-reference/raw-motion/fighter/donkey/motion/body/c00/j01appealsr.nuanmb",
+      "sha256": "ce76caf89e55fab0d788524c460cddac9105dab81f924f19889a2ce7ccb059a7",
+      "nativeLastSample": 69.0,
+      "presentationFrames": 70,
+      "nativeCancelFrame": 50
+    },
+    {
+      "selector": "appeal_lw_r",
+      "path": "assets/gen/dk-native-reference/raw-motion/fighter/donkey/motion/body/c00/j01appeallwr.nuanmb",
+      "sha256": "e4377c04433bbf8f599cad8687231fcf3c1db505c6e82a1e5e01b85882778ac6",
+      "nativeLastSample": 59.0,
+      "presentationFrames": 60,
+      "nativeCancelFrame": 50
+    },
+    {
+      "selector": "appeal_lw_l",
+      "path": "assets/gen/dk-native-reference/raw-motion/fighter/donkey/motion/body/c00/j01appeallwr.nuanmb",
+      "sha256": "e4377c04433bbf8f599cad8687231fcf3c1db505c6e82a1e5e01b85882778ac6",
+      "nativeLastSample": 59.0,
+      "presentationFrames": 60,
+      "nativeCancelFrame": 50
+    }
+  ]
+}

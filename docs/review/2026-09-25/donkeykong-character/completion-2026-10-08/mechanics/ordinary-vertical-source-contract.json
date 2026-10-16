@@ -1,0 +1,156 @@
+{
+  "checked_date": "2026-10-09",
+  "scope": "Source-only ordinary DK vertical proposal during checkpoint7 source freeze; no production edits or final runtime promotion",
+  "sources": [
+    {
+      "url": "https://w.atwiki.jp/smashsp_kensyou/pages/75.html",
+      "direct_acquisition_error": "HTTP Error 403: Forbidden",
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/jump-page75.web.json",
+      "sha256": "b4a2e8f23b05896cd5cc26620642735702dae56d0e63f31bab835e84fbc55cb6",
+      "capture_method": "web tool rendered text; raw HTTP403 retained explicitly",
+      "checked_date": "2026-10-09"
+    },
+    {
+      "url": "https://w.atwiki.jp/smashsp_kensyou/pages/147.html",
+      "direct_acquisition_error": "HTTP Error 403: Forbidden",
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/fastfall-page147.web.json",
+      "sha256": "596110751d49b53dde70e264bc86179c3eadcc4de1aae01e69ca8fb633b968db",
+      "capture_method": "web tool rendered text; raw HTTP403 retained explicitly",
+      "checked_date": "2026-10-09"
+    },
+    {
+      "url": "https://www.ssbwiki.com/Jump",
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/jump-smashwiki.html",
+      "sha256": "cf21272cd405d796b19d73891ca07de41bb80ec37c5e53a0cbfc43a516426bc3",
+      "checked_date": "2026-10-09"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/sbergeron42/ssbu-decomp/d55c91c94d18ee476bd7ffb596cedc3259c5e9f0/src/app/FighterKineticEnergyGravity.cpp",
+      "path": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/heavy-status/engine-FighterKineticEnergyGravity-d55c91c9.cpp",
+      "sha256": "7e0881c7c03ca417d652f8280512732b1815ae6d6d2b453a908c250dc190b91f",
+      "role": "Only setters/getters recovered; reset/update/setup consumer not included, not gravity integrator proof."
+    }
+  ],
+  "native_parameters": {
+    "workbook": "docs/review/2026-09-25/donkeykong-character/completion-2026-10-08/mechanics/sources/ultimate-13.0.1-params.xlsx",
+    "sha256": "90ffc428a0377d43bfbf1a7d1806d18d08edbe735bfef5deb4696e8178f00748",
+    "sheet": "fighter_param (13.0.1)",
+    "cells": {
+      "N5": {
+        "field": "jump_squat_frame",
+        "value": 3
+      },
+      "S5": {
+        "field": "jump_initial_y",
+        "value": 18.7,
+        "semantics": "Initial height reached in first4fullhop steps, not velocity; workbook label is researcher annotation."
+      },
+      "T5": {
+        "field": "jump_y",
+        "value": 34
+      },
+      "U5": {
+        "field": "mini_jump_y",
+        "value": 17.3
+      },
+      "V5": {
+        "field": "jump_aerial_y",
+        "value": 35.5
+      },
+      "AA5": {
+        "field": "air_accel_y",
+        "value": 0.085
+      },
+      "AB5": {
+        "field": "air_speed_y_stable",
+        "value": 1.63
+      },
+      "AE5": {
+        "field": "air_brake_y",
+        "value": 0.015
+      },
+      "AF5": {
+        "field": "dive_speed_y",
+        "value": 2.608
+      }
+    }
+  },
+  "selected_world_units_per_native_unit": 5,
+  "mini_and_air": {
+    "original_research_section": "page75 JumpYvelocity, mini/air/mini-footstool",
+    "native0F_formula": "sqrt(2*g*H)+g/2",
+    "native1F_formula": "sqrt(2*g*H)-g/2",
+    "mini": {
+      "H": 17.3,
+      "native0F": 1.757434401077779,
+      "world0F": 8.787172005388895,
+      "world1F": 8.362172005388896
+    },
+    "air": {
+      "H": 35.5,
+      "native0F": 2.4991236993076495,
+      "world0F": 12.495618496538247,
+      "world1F": 12.070618496538248
+    },
+    "caller_contract": "Set pre-physics0F velocity; subtract exactly nativegravity\u00d75 each ordinary unfrozen airborne step. Need owned Matter worldgravity cancellation to avoid double gravity. Do not install1F velocity before another gravity integration. Source integrator/order requires live assertions."
+  },
+  "fullhop": {
+    "source_height_initial": 18.7,
+    "source_steps_initial": 4,
+    "source_world_height_after4": 93.5,
+    "source_height_rest": 15.3,
+    "published_limit": "Original research page75 acknowledges1\u20135F accelerated motion but states algorithm unknown. SmashWiki explains initialheight first4 then ordinary remainingheight. Native get_jump_initial_speed_y and get_jump_initial_accel_y bodies not recovered; common .3 and4 alone do not prove equation.",
+    "existing_beta": {
+      "initialWorldSpeed": 14.305555555555552,
+      "totalRiseGravity": 0.5777777777777777,
+      "first4WorldDisplacementUnderDocumentedIntegrator": 51.44444444444443
+    },
+    "required_gap": "Preserve beta as authored until native acceleration consumer or reproducible source measurement; 34-unit peak alone does not establish native first4 profile."
+  },
+  "ordinary_fall": {
+    "native_accel": 0.085,
+    "world_accel": 0.425,
+    "native_terminal": 1.63,
+    "world_terminal": 8.15,
+    "existing_beta_total_accel": 0.5777777777777777,
+    "consumer_contract": "Source fall acceleration must replace the whole ordinary vertical dose, not add .425 on top of Matter. Above-terminal special/launch energies require separate scoped transition/brake; do not universally clamp launch trajectories."
+  },
+  "fastfall": {
+    "native_speed": 2.608,
+    "world_speed": 13.04,
+    "published_entry": "Fresh down flick while nativeYvelocity<=0 (project screenY>=0) sets speed immediately; buffer4, qualifyingflick within5. Hitstun and damageflyspin exclude.",
+    "published_relaxation": "Neutralairdodge and aerialitemthrow relax toward ordinaryterminal via per-fighter air_brake_y. DK.015native\u2192.075world perstep.",
+    "required_selector_limit": "Existing authored down threshold/flick sensitivity remains project adapter unless common consumer captured. Walljump/otherexcludedcontext source-specific applicable; DK ordinary walljump unavailable but surface techjump owns separate policy."
+  },
+  "native_availability": {
+    "common_tree": "heavy-action-rate-source-availability.json",
+    "get_jump_speed_y_csv": "0x710047b880,U,72bytes",
+    "get_jump_initial_speed_y_body": "not captured",
+    "get_jump_initial_accel_y_body": "not captured",
+    "gravity_implementation": "Only field setters/getters retained; update/reset hidden bodies unavailable."
+  },
+  "implementation": {
+    "leaf": "src/characters/donkeykongVerticalMovement.ts",
+    "consumer_owner": "dk_runtime Character and fighterMovementProfiles DK opt-in only; integration not yet frozen-built or accepted",
+    "tests": "src/characters/donkeykongVerticalMovement.test.ts:7 source/math tests authored, not run by specialist",
+    "fullhop_calibration": {
+      "initial_postphysics_y": [
+        -38.473691966570634,
+        -28.40789732219021,
+        -18.34210267780979,
+        -8.276308033429368
+      ],
+      "four_step_rise": 93.5,
+      "tail_positive_steps": 19,
+      "tail_rise": 76.49985263515799,
+      "discrete_peak": 169.999852635158,
+      "declared_math_tolerance_pixels": 0.001,
+      "provenance": "AUTHORED linear initial4 curve constrained source height18.7 +remainingheight15.3; not native acceleration equation"
+    },
+    "full_footstool_basis": {
+      "selected_legacy_beta": 14.305555555555552,
+      "source_initial_acceleration": "unresolved; kept separate from new ordinary fullhop initialstep"
+    },
+    "heavy_jump": "Nativepre uses commonJUMP; selectedordinaryfull/mini profile after source6samplesquat is explicit commonkineticadapter until originalsetup recovered"
+  }
+}

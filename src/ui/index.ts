@@ -1,44 +1,10 @@
-/**
- * UI module.
- *
- * In-game HUD (percent meters, stocks, timer), menus, and the
- * VCR overlay for replay playback.
- *
- * Sub-AC 3 of AC 60003: the {@link DamageHud} component owns the
- * on-screen damage-percent readout for every active fighter — the
- * canonical Smash-Bros bottom strip. Pure formatting helpers live
- * in `damageHudFormat.ts` so they can be unit-tested under plain
- * Node without booting Phaser.
- */
-export { DamageHud } from './DamageHud';
-export type { DamageHudPlayer, DamageHudOptions } from './DamageHud';
+
 export {
   DAMAGE_HUD_COLOR_RAMP,
   formatDamagePercent,
   damagePercentColor,
   colorIntToHexString,
 } from './damageHudFormat';
-
-// ---------------------------------------------------------------------------
-// AC 60401 Sub-AC 1 — per-fighter shield bubble overlay
-// ---------------------------------------------------------------------------
-//
-// Translucent coloured "bubble" rendered around each fighter while
-// their shield key is held; ramps blue → amber → red as health drains
-// and shrinks linearly with shield HP. Switches to a strobing red /
-// cream "shatter" ring during the broken-state stun lockout. Pure
-// formatter helpers (colour ramp, radius curve, strobe phase) live in
-// `shieldBubbleFormat.ts` so the unit suite drives them under plain
-// Node; the Phaser-touching component in `ShieldBubble.ts` wraps a
-// single `Phaser.GameObjects.Arc` per fighter for trivial per-frame
-// cost.
-export { ShieldBubble, createShieldBubble } from './ShieldBubble';
-export type {
-  ShieldBubbleOptions,
-  ShieldBubbleSnapshot,
-  ShieldArcLike,
-  ShieldBubbleSceneShim,
-} from './ShieldBubble';
 export {
   SHIELD_BUBBLE_ACTIVE_FILL_ALPHA,
   SHIELD_BUBBLE_ACTIVE_STROKE_ALPHA,
@@ -60,28 +26,6 @@ export type {
   ShieldBubbleInput,
   ShieldBubbleVisual,
 } from './shieldBubbleFormat';
-
-// ---------------------------------------------------------------------------
-// Per-fighter charge / wind-up indicator overlay
-// ---------------------------------------------------------------------------
-//
-// Procedural "charging" effect drawn around each fighter while they wind
-// a move up (Falcon-Punch-style specials, smash finishers, the heavy
-// hammer swing) — a pulsing cool → hot aura ring plus a head-mounted
-// charge bar, both driven off `Character.getChargeProgress()`. Pure
-// formatter helpers (colour ramp, pulse phase, bar width) live in
-// `chargeIndicatorFormat.ts` so the unit suite drives them under plain
-// Node; the Phaser-touching component in `ChargeIndicator.ts` wraps an
-// aura `Arc` + bar `Rectangle` pair per fighter for trivial per-frame
-// cost.
-export { ChargeIndicator, createChargeIndicator } from './ChargeIndicator';
-export type {
-  ChargeIndicatorOptions,
-  ChargeIndicatorSnapshot,
-  ChargeArcLike,
-  ChargeRectLike,
-  ChargeIndicatorSceneShim,
-} from './ChargeIndicator';
 export {
   CHARGE_INDICATOR_BAR_FILL_ALPHA,
   CHARGE_INDICATOR_BAR_GAP_ABOVE_HEAD,
@@ -109,18 +53,6 @@ export type {
   ChargeIndicatorInput,
   ChargeIndicatorVisual,
 } from './chargeIndicatorFormat';
-
-// ---------------------------------------------------------------------------
-// Sub-AC 3 of AC 3 — FPS counter overlay
-// ---------------------------------------------------------------------------
-//
-// Render-rate + simulation tick-rate readout pinned to the top-left of
-// every gameplay scene. The Phaser-touching overlay class is in
-// `FpsCounter.ts`; pure rolling-window + formatting helpers live in
-// `fpsCounterFormat.ts` so the unit suite can drive them with a
-// synthetic clock.
-export { FpsCounter } from './FpsCounter';
-export type { FpsCounterOptions } from './FpsCounter';
 export {
   TickRateMeter,
   formatFpsLine,
@@ -129,20 +61,6 @@ export {
   FPS_HEALTH_RAMP,
 } from './fpsCounterFormat';
 export type { TickRateMeterOptions } from './fpsCounterFormat';
-
-// ---------------------------------------------------------------------------
-// M5 input-rebinding screen layout (AC 40101 Sub-AC 1)
-// ---------------------------------------------------------------------------
-
-export { RebindingScreen } from './RebindingScreen';
-export type {
-  RebindingScreenOptions,
-  RebindingScreenActionRowSnapshot,
-  RebindingScreenPanelSnapshot,
-  RebindingScreenSceneShim,
-  RebindingScreenBindingsSource,
-  RebindingCaptureResult,
-} from './RebindingScreen';
 export {
   CAPTURE_PROMPT_LABEL,
   CAPTURE_HOVER_HINT,
@@ -152,6 +70,7 @@ export {
   buildKeyboardCaptureBinding,
   buildGamepadButtonCaptureBinding,
   buildGamepadAxisCaptureBinding,
+  captureBindingsForAction,
   isAxisPastCaptureThreshold,
   isCaptureCancelKey,
   isCaptureCancelGamepadButton,
@@ -176,15 +95,20 @@ export {
   formatActionLabel,
   formatBinding,
   formatBindingList,
+  formatControlsHelpLine,
+  formatStickLabel,
   formatDeviceLabel,
   formatGamepadBinding,
   formatGamepadSource,
   formatKeyCode,
+  groupStickBindings,
   inferDeviceOption,
+  inferKeyboardHalf,
   nextDeviceOption,
   buildActionRows,
 } from './rebindingScreenFormat';
 export type {
+  BindingDisplayItem,
   RebindingActionRow,
   RebindingDeviceOption,
 } from './rebindingScreenFormat';
@@ -204,7 +128,9 @@ export {
   detectInterPlayerKeyboardConflictsForSlots,
   detectIntraPlayerConflicts,
   formatConflictBannerLines,
+  formatConflictEntryPrompt,
   formatConflictResolutionPrompt,
+  groupConflictsForBanner,
   isAllowedOverlap,
 } from './bindingConflicts';
 export type {
@@ -214,23 +140,6 @@ export type {
   BindingLocation,
   ConflictReport,
 } from './bindingConflicts';
-
-// ---------------------------------------------------------------------------
-// AC 30203 Sub-AC 3 — M4 desync report overlay
-// ---------------------------------------------------------------------------
-//
-// Phaser-touching overlay (DesyncReportOverlay) and its pure formatter
-// helpers (desyncReportFormat) render the structured DesyncReport the
-// `replay/DesyncRecoveryController` accumulates. The overlay surfaces
-// the verdict, divergence list, diff summary, and recovery action
-// buttons so a player can halt or continue playback from the in-game
-// banner.
-export { DesyncReportOverlay } from './DesyncReportOverlay';
-export type {
-  DesyncReportOverlayOptions,
-  DesyncReportOverlayActions,
-  DesyncReportOverlaySceneShim,
-} from './DesyncReportOverlay';
 export {
   DESYNC_VERDICT_COLOR_RAMP,
   buildBannerLines,
@@ -246,23 +155,6 @@ export {
   verdictColor,
 } from './desyncReportFormat';
 export type { DivergenceRow } from './desyncReportFormat';
-
-// ---------------------------------------------------------------------------
-// AC 14 Sub-AC 3 — controller reconnect-prompt overlay
-// ---------------------------------------------------------------------------
-//
-// Phaser-touching overlay (ReconnectPromptOverlay) and its pure
-// formatter helpers (reconnectPromptFormat) render the prompt the
-// MatchScene shows while the {@link DisconnectPauseController} is
-// holding a pause. The overlay surfaces the affected player slot(s),
-// remediation copy, and a per-slot accent strip; the formatter
-// produces the strings deterministically so unit tests can drive every
-// branch under plain Node.
-export { ReconnectPromptOverlay } from './ReconnectPromptOverlay';
-export type {
-  ReconnectPromptOverlayOptions,
-  ReconnectPromptOverlaySceneShim,
-} from './ReconnectPromptOverlay';
 export {
   RECONNECT_SLOT_ACCENTS,
   buildPromptLines,
@@ -278,25 +170,6 @@ export type {
   ReconnectPromptPhase,
   ReconnectPromptSnapshot,
 } from './reconnectPromptFormat';
-
-// ---------------------------------------------------------------------------
-// AC 30301 Sub-AC 1 — M4 replay VCR control overlay
-// ---------------------------------------------------------------------------
-//
-// `VcrOverlay` is the Phaser-touching presentation layer for the M4
-// replay player's transport controls — pause / play / rewind /
-// slow-motion toggle / frame-advance with keyboard shortcut bindings
-// and visual band indicators (idle / hover / active / disabled). The
-// pure formatting helpers (`vcrOverlayFormat`) live alongside so the
-// vitest suite drives them under plain Node.
-export { VcrOverlay, buildVcrPlaybackState } from './VcrOverlay';
-export type {
-  VcrOverlayOptions,
-  VcrOverlayActions,
-  VcrOverlaySceneShim,
-  VcrKeyboardBinder,
-  VcrPlaybackStateSource,
-} from './VcrOverlay';
 export {
   VCR_CONTROL,
   VCR_CONTROL_ORDER,

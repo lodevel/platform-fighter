@@ -1,0 +1,9 @@
+<!doctype html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Pikachu · forward tilt preview</title>
+<style>body{margin:0;background:#111a29;color:#edf4ff;font:16px system-ui}main{max-width:1100px;margin:24px auto;padding:0 20px}h1{font-size:25px;margin-bottom:8px}p{color:#bbc8dc;line-height:1.5}button{font:inherit;color:#edf4ff;background:#273d5b;border:1px solid #577295;border-radius:8px;padding:10px 15px;cursor:pointer;margin:4px}#game{border:1px solid #3a4d68;border-radius:12px;overflow:hidden;margin-top:16px}#state{min-height:24px;color:#fbe38d;font-variant-numeric:tabular-nums}.legend{font-size:14px}canvas{display:block;width:100%}</style>  <script type="module" src="/src/previews/PikachuNormalPreview.ts"></script>
+</head>
+<body><main><h1>Pikachu · forward tilt preview</h1><p>Eight rough attack drawings on the move’s 29-frame timeline, with a separate drawing for each active frame. The side-facing neutral drawing appears while waiting; the back view belongs to the attack’s startup. This is an isolated attack preview. Open the playable beta from the progress page.</p>
+<div><button id="attack">Forward tilt / T</button><button id="play">Play / pause</button><button id="step">Next frame / N</button><button id="freeze">Freeze 3 steps</button><button id="reset">Reset</button><button id="mirror">Face left</button></div>
+<div><button data-probe="near">Near contact</button><button data-probe="edge">Reach edge</button><button data-probe="miss">Beyond reach</button><button id="overlay">Hide overlays</button></div>
+<p id="state">Loading drawings…</p><div id="game"></div><p class="legend">Orange: attack regions. Blue: one-pixel damage probe. Cyan: registered sprite root. Green: authored movement body. Posed attack positions are reviewed 2D projections; native 3D bone transforms and posed Pikachu hurtboxes remain unverified.</p>
+</main></body></html>

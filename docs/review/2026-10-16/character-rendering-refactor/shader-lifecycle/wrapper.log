@@ -1,0 +1,25 @@
+{
+  "result": "PASS",
+  "report": "docs/review/2026-10-16/character-rendering-refactor/shader-lifecycle/report.json",
+  "cases": [
+    {
+      "case": "loading-holds-until-real-program-completion",
+      "result": "PASS"
+    },
+    {
+      "case": "leave-during-pending-preparation",
+      "result": "PASS"
+    },
+    {
+      "case": "simulated-program-link-failure-and-restart",
+      "result": "PASS"
+    },
+    {
+      "case": "real-context-loss-during-pending-preparation",
+      "result": "PASS"
+    }
+  ],
+  "failure": null
+}
+{"event":"harness-exit","code":0,"signal":null}
+{"event":"owned-edge-cleanup","profileRemoved":true,"exitCode":0}

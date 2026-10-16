@@ -74,6 +74,11 @@ import {
   type PlayerBindingsIndex,
 } from '../types/inputBindings';
 import { assertValidPlayerBindings } from './InputBindingsStore';
+import {
+  fillMissingSmashInPlayerBindings,
+  fillMissingSmashInSnapshot,
+  keyboardHalfForSlot,
+} from './smashBindingDefaults';
 
 // ---------------------------------------------------------------------------
 // Schema version
@@ -96,6 +101,11 @@ import { assertValidPlayerBindings } from './InputBindingsStore';
  *   • Removing or renaming a {@link LogicalAction} bumps the constant
  *     and requires a migration entry — replays from before the rename
  *     are otherwise unrecoverable.
+ *   • Appending a {@link LogicalAction} does not bump it when the
+ *     deserialisers fill the missing key before validation, as they do
+ *     for `smash` (see `smashBindingDefaults.ts`). Older builds ignore
+ *     the extra key, and the storage key (which embeds this version)
+ *     stays the same, so saves remain readable in both directions.
  */
 export const BINDINGS_SCHEMA_VERSION = 1 as const;
 
@@ -189,7 +199,7 @@ function canonicaliseGamepadSource(source: GamepadBindingSource): Record<string,
 function canonicaliseActionBindings(map: ActionBindings): Record<string, unknown> {
   const out: Record<string, unknown> = {};
   for (const action of LOGICAL_ACTIONS) {
-    out[action] = map[action].map(canonicaliseBinding);
+    out[action] = (map[action] ?? []).map(canonicaliseBinding);
   }
   return out;
 }
@@ -339,11 +349,25 @@ export function deserializePlayerBindings(
 ): PlayerBindings {
   const candidate = parseJson(json);
   assertValidEnvelope(candidate, 'playerBindings');
+  // Saves from before the `smash` action existed lack that key; fill it
+  // (schema version stays 1) so they still load. The slot picks the
+  // keyboard half (1 → V, 2 → Numpad 0, 3/4 → vote over the set's keys).
+  const data = fillMissingSmashInPlayerBindings(candidate.data, {
+    keyboardHalf: keyboardHalfForSlot(hintSlot(candidate.data, expectedSlot)),
+  });
   // assertValidPlayerBindings throws if the body is malformed; the slot
   // check is delegated to that helper so error messages stay consistent
   // across import paths.
-  assertValidPlayerBindings(candidate.data, expectedSlot);
-  return candidate.data;
+  assertValidPlayerBindings(data, expectedSlot);
+  return data;
+}
+
+function hintSlot(data: unknown, expectedSlot: PlayerBindingsIndex | undefined): PlayerBindingsIndex {
+  const index = typeof data === 'object' && data !== null
+    ? (data as { playerIndex?: unknown }).playerIndex
+    : undefined;
+  if (index === 1 || index === 2 || index === 3 || index === 4) return index;
+  return expectedSlot ?? 1;
 }
 
 /**
@@ -362,7 +386,10 @@ export function deserializeBindingsSnapshot(
   if (typeof candidate.data !== 'object' || candidate.data === null) {
     throw new Error('InputBindingsSerializer: snapshot data must be an object keyed by slot.');
   }
-  const data = candidate.data as Record<string, unknown>;
+  // Pre-`smash` snapshots: fill the missing action per slot before the
+  // strict check. Slot 1 gets V and slot 2 Numpad 0 unless another slot
+  // already binds that key (see `fillMissingSmashInSnapshot`).
+  const data = fillMissingSmashInSnapshot(candidate.data as Record<string, unknown>);
   const slots: ReadonlyArray<PlayerBindingsIndex> = [1, 2, 3, 4];
   const result: Partial<Record<PlayerBindingsIndex, PlayerBindings>> = {};
   for (const slot of slots) {

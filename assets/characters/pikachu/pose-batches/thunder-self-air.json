@@ -1,0 +1,164 @@
+{
+  "state": "packed_cells_visually_reviewed_runtime_pending",
+  "scope": "Accepted rough Thunder body only; electrical effects and running-match verification separate",
+  "coordinateContract": {
+    "canonicalCanvas": [
+      2048,
+      2048
+    ],
+    "canonicalRoot": [
+      1024,
+      1664
+    ],
+    "frameWidth": 512,
+    "frameHeight": 512,
+    "root": [
+      256,
+      416
+    ],
+    "scaleToWorld": 0.4666666666666667,
+    "bodyCentreFromRoot": [
+      0,
+      -25
+    ]
+  },
+  "clockContract": "docs/review/2026-10-06/pikachu-character/sources/special-runtime-clock-contract.json",
+  "clockContractSha256": "402ef43b0f2ee1ad61dad926b86ddf031b36c13450b752b01fcb278949e3f26a",
+  "animations": {
+    "down_special_air_hit": {
+      "strip": "animations/down_special_air_hit.png",
+      "frameCount": 6,
+      "sha256": "bb535c0635d1354ed2d4ccd73d9055376873c37528f7a6e64f47799982538d4f",
+      "frameWindows": [
+        {
+          "startFrame": 0,
+          "endFrame": 1,
+          "artFrameIndex": 0
+        },
+        {
+          "startFrame": 1,
+          "endFrame": 3,
+          "artFrameIndex": 1
+        },
+        {
+          "startFrame": 3,
+          "endFrame": 6,
+          "artFrameIndex": 2
+        },
+        {
+          "startFrame": 6,
+          "endFrame": 15,
+          "artFrameIndex": 3
+        },
+        {
+          "startFrame": 15,
+          "endFrame": 24,
+          "artFrameIndex": 4
+        },
+        {
+          "startFrame": 24,
+          "endFrame": 35,
+          "artFrameIndex": 5
+        }
+      ]
+    }
+  },
+  "sources": [
+    {
+      "sourceKey": "thunder-self-contact-air-sample0-source0",
+      "nativeSample": 0,
+      "file": "docs/review/2026-10-06/pikachu-character/art/thunder-self-contact-air-sample0-source0-attempt1-cutout.png",
+      "sha256": "b123ce8412d9d35d5903b997a8cc49f87f1e97dab0f01a268eeb4dba411cefc3",
+      "review": "docs/review/2026-10-06/pikachu-character/art/thunder-self-contact-air-sample0-source0-attempt1.review.json",
+      "reviewSha256": "977fb9217f750062f8fa07a0a69265aab7113f3145f30967e6dddb97d68336ca",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null
+    },
+    {
+      "sourceKey": "thunder-self-contact-air-sample1-source1",
+      "nativeSample": 1,
+      "file": "docs/review/2026-10-06/pikachu-character/art/thunder-self-contact-air-sample1-source1-attempt1-cutout.png",
+      "sha256": "2e25cfa08ec716a4527775bc8db74a2d1a44d6f65f323a89427557bd19e985e7",
+      "review": "docs/review/2026-10-06/pikachu-character/art/thunder-self-contact-air-sample1-source1-attempt1.review.json",
+      "reviewSha256": "b5da313e851be9f57f8b8a97bd6fec15b1ef62cf64928d008e3dcbd2babc0f63",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null
+    },
+    {
+      "sourceKey": "thunder-self-contact-air-sample3-source3",
+      "nativeSample": 3,
+      "file": "docs/review/2026-10-06/pikachu-character/art/thunder-self-contact-air-sample3-source3-attempt1-cutout.png",
+      "sha256": "842af72b6eb5f6cd745d47a08211a887e6df219d9b45b7a248ef2cc821acad19",
+      "review": "docs/review/2026-10-06/pikachu-character/art/thunder-self-contact-air-sample3-source3-attempt1.review.json",
+      "reviewSha256": "b60e6704f8bb239f21041b3a80cd4631839176fb7a75317e78018394c8ba5bc6",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null
+    },
+    {
+      "sourceKey": "thunder-self-contact-air-sample6-source6",
+      "nativeSample": 6,
+      "file": "docs/review/2026-10-06/pikachu-character/art/thunder-self-contact-air-sample6-source6-attempt1-cutout.png",
+      "sha256": "b8c423b54f6795ab90b99bb3024199de3629dee8a9a22f07cb0b4d69f9241e88",
+      "review": "docs/review/2026-10-06/pikachu-character/art/thunder-self-contact-air-sample6-source6-attempt1.review.json",
+      "reviewSha256": "759efa2db0ab8b826492dc015c554bbf8357f7ede1571fd7464c860144e5d154",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null
+    },
+    {
+      "sourceKey": "thunder-self-contact-air-sample15-source15",
+      "nativeSample": 15,
+      "file": "docs/review/2026-10-06/pikachu-character/art/thunder-self-contact-air-sample15-source15-attempt1-cutout.png",
+      "sha256": "fe1bc50fac542658192af8588b3a942f7637d79d1cc9db5299511b040e98a21e",
+      "review": "docs/review/2026-10-06/pikachu-character/art/thunder-self-contact-air-sample15-source15-attempt1.review.json",
+      "reviewSha256": "5fa2c319612033fb430354718d74bb8e11f30c61104ddc04bf4505fc28b8e0df",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null
+    },
+    {
+      "sourceKey": "thunder-self-contact-air-sample24-source24",
+      "nativeSample": 24,
+      "file": "docs/review/2026-10-06/pikachu-character/art/thunder-self-contact-air-sample24-source24-attempt1-cutout.png",
+      "sha256": "a827283fa75edd5bb88ba69c6c73f0e42c475ea34ca975b828e0765136df89be",
+      "review": "docs/review/2026-10-06/pikachu-character/art/thunder-self-contact-air-sample24-source24-attempt1.review.json",
+      "reviewSha256": "51b122f494e9ef52bef632a56c83f06395e90ea153e23469e586ef5b479a67b0",
+      "translation": [
+        0,
+        0
+      ],
+      "scale": 0.25,
+      "crop": null
+    }
+  ],
+  "galleries": {
+    "docs/review/2026-10-06/pikachu-character/thunder-body/packed-preparation/down_special_air_hit-cells-1.png": "abf22e1f0bedb93fceb344a2aea824d3e914e77f791460fd46dad26e8a12d0dd",
+    "docs/review/2026-10-06/pikachu-character/thunder-body/packed-preparation/down_special_air_hit-cells-2.png": "08be8ce90dbd2752ada89ea174091a5865e324e80cea1e31a28385a1aa7b97c0"
+  },
+  "discardedPostActionNativeSamples": [
+    35,
+    48
+  ],
+  "actualPackedReview": {
+    "reviewer": "pikachu_art_motion",
+    "observations": "Actually inspected all6 quarter-scale cells against both light/dark backgrounds. Fixed512square root256,416, exact source order0/1/3/6/15/24, full attached tail and original face/back occlusion retained; rough isolated body only."
+  }
+}

@@ -103,11 +103,12 @@
  */
 
 import type { AttackMove } from './attacks';
+import type { NeutralSpecialProjectileSpec } from './specialSchema';
 import type {
   AttackMoveWithAnimation,
   KnockbackSpec,
 } from './moveSchema';
-import { computeAttackPhase, getMoveBusyFrames } from './moveSchema';
+import { computeAttackPhase, getMoveBusyFrames, validateSpecialLandingLagFrames } from './moveSchema';
 
 // ---------------------------------------------------------------------------
 // Side-special-kind discriminator
@@ -153,6 +154,7 @@ import { computeAttackPhase, getMoveBusyFrames } from './moveSchema';
  *                       punishable on reads.
  */
 export type SideSpecialKind =
+  | 'boomerang'
   | 'dashStrike'
   | 'multiHit'
   | 'reflector'
@@ -386,6 +388,25 @@ export interface MultiHitSideSpecialMove extends SideSpecialMoveBase {
   readonly multiHit: SideSpecialMultiHitSpec;
 }
 
+/** A travelling projectile that turns and returns to its current owner. */
+export interface BoomerangSideSpecialMove extends SideSpecialMoveBase {
+  readonly sideSpecialKind: 'boomerang';
+  readonly projectile: NeutralSpecialProjectileSpec;
+  readonly boomerang: {
+    readonly outboundFrames: number;
+    readonly returnSpeed: number;
+    readonly returnDamage: number;
+    /** Optional launch replacement on the return pass. */
+    readonly returnKnockback?: KnockbackSpec;
+    /** One-based article frame; replacement retains outbound hit deduplication. */
+    readonly lateOutbound?: {
+      readonly startFrame: number;
+      readonly damage: number;
+      readonly knockback: KnockbackSpec;
+    };
+  };
+}
+
 /** Reflector side-special. */
 export interface ReflectorSideSpecialMove extends SideSpecialMoveBase {
   readonly sideSpecialKind: 'reflector';
@@ -404,6 +425,7 @@ export interface CommandDashSideSpecialMove extends SideSpecialMoveBase {
  * compiler narrows to the matching detail record automatically.
  */
 export type SideSpecialMove =
+  | BoomerangSideSpecialMove
   | DashStrikeSideSpecialMove
   | MultiHitSideSpecialMove
   | ReflectorSideSpecialMove
@@ -418,6 +440,7 @@ export function isSideSpecialMove(move: AttackMove): move is SideSpecialMove {
   if (move.type !== 'sideSpecial') return false;
   const kind = (move as Partial<SideSpecialMoveBase>).sideSpecialKind;
   return (
+    kind === 'boomerang' ||
     kind === 'dashStrike' ||
     kind === 'multiHit' ||
     kind === 'reflector' ||
@@ -577,17 +600,42 @@ export function validateSideSpecialMove(move: SideSpecialMove): SideSpecialMove 
       `SideSpecialMove '${move.id}': type must be 'sideSpecial', got '${move.type}'`,
     );
   }
+  validateSpecialLandingLagFrames(move);
   const busyTotal = getMoveBusyFrames(move);
 
   switch (move.sideSpecialKind) {
+    case 'boomerang': {
+      const p = move.projectile, b = move.boomerang;
+      if (!p || !b || !Number.isFinite(p.speed) || p.speed <= 0
+        || !Number.isInteger(p.lifetimeFrames) || p.lifetimeFrames < 1
+        || !Number.isFinite(p.width) || p.width <= 0 || !Number.isFinite(p.height) || p.height <= 0
+        || !Number.isFinite(p.spawnOffsetX) || !Number.isFinite(p.spawnOffsetY)
+        || !Number.isInteger(b.outboundFrames) || b.outboundFrames < 1 || b.outboundFrames >= p.lifetimeFrames
+        || !Number.isFinite(b.returnSpeed) || b.returnSpeed <= 0
+        || !Number.isFinite(b.returnDamage) || b.returnDamage < 0) {
+        throw new Error(`SideSpecialMove '${move.id}': invalid boomerang projectile`);
+      }
+      if (b.lateOutbound && (!Number.isInteger(b.lateOutbound.startFrame) || b.lateOutbound.startFrame < 1
+        || b.lateOutbound.startFrame > b.outboundFrames || !Number.isFinite(b.lateOutbound.damage)
+        || b.lateOutbound.damage < 0)) {
+        throw new Error(`SideSpecialMove '${move.id}': invalid boomerang.lateOutbound`);
+      }
+      for (const knockback of [b.returnKnockback, b.lateOutbound?.knockback]) {
+        if (knockback && ![knockback.x, knockback.y, knockback.scaling].every(Number.isFinite)) {
+          throw new Error(`SideSpecialMove '${move.id}': boomerang phase knockback must be finite`);
+        }
+      }
+      break;
+    }
     case 'dashStrike': {
       const d = move.dashStrike;
-      if (!Number.isFinite(d.dashSpeed) || d.dashSpeed <= 0) {
+      const momentumOwned = move.entryVelocityScale !== undefined && d.dashSpeed === 0 && d.dashFrames === 0;
+      if (!Number.isFinite(d.dashSpeed) || (!momentumOwned && d.dashSpeed <= 0)) {
         throw new Error(
           `SideSpecialMove '${move.id}': dashStrike.dashSpeed must be > 0, got ${d.dashSpeed}`,
         );
       }
-      if (!Number.isInteger(d.dashFrames) || d.dashFrames < 1) {
+      if (!Number.isInteger(d.dashFrames) || (!momentumOwned && d.dashFrames < 1)) {
         throw new Error(
           `SideSpecialMove '${move.id}': dashStrike.dashFrames must be a positive integer, got ${d.dashFrames}`,
         );
