@@ -203,10 +203,11 @@
         "version": 8
       },
       "repeatDownload": {
-        "path": "docs/review/2026-10-16/post-match-replay/first-right-repeat.replay.json",
         "suggestedFilename": "replay-flat-000274f8-20261016-143016.replay.json",
         "bytes": 434233,
-        "sha256": "f2cf67432ec60db153db59fb5477e52da7f6ab0eb8d858ccae3021302bc2aefd"
+        "sha256": "f2cf67432ec60db153db59fb5477e52da7f6ab0eb8d858ccae3021302bc2aefd",
+        "retainedFile": "docs/review/2026-10-16/post-match-replay/first-right.replay.json",
+        "duplicateRemoved": true
       },
       "afterSaveStatus": "Replay download started: replay-flat-000274f8-20261016-143016.replay.json.",
       "screenshot": "docs/review/2026-10-16/post-match-replay/first-right-results.png"
@@ -409,6 +410,26 @@
       23184,
       4328,
       13112
+    ]
+  },
+  "visualReview": {
+    "result": "PASS",
+    "screenshots": [
+      "first-right-results.png",
+      "rematch-left-results.png"
+    ],
+    "observations": [
+      "Save Replay is visible, focusable and readable between Rematch and Back to Lobby.",
+      "Actual browser download status displays the suggested replay filename.",
+      "Both result tables and status fit the panel without overlap or capture artifacts."
+    ]
+  },
+  "cleanupSummary": {
+    "browserProfileRemoved": true,
+    "identicalRepeatDownloadRemoved": true,
+    "retainedReplayFiles": [
+      "first-right.replay.json",
+      "rematch-left.replay.json"
     ]
   }
 }
