@@ -24,6 +24,9 @@ files referenced by the asset manifest. The Inferno head is included at
 `assets/stages/inferno-head.png`, so a clone and standalone build use the same
 stage artwork.
 
+The [Final Smash previews](artifacts/final-smash-previews/README.md) include
+60 fps clips of Link, Pikachu and Donkey Kong, with slow motion and frame stepping.
+
 ## Code
 
 - `src/sim/MatchSim.ts` owns gameplay, the fixed clock, items, rules and replay history.

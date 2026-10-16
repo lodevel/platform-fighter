@@ -1,0 +1,512 @@
+{
+  "url": "http://127.0.0.1:4173/platform-fighter/final-smash-previews/index.html",
+  "method": "Real Windows Edge HTML video decoding and controls. Actual playback cadence, displayed decoded frame timestamps, loop and network range checks. No game or footage modifications.",
+  "harnessSha256": "fd1b9d2787b0912eb1b6749eb460a787ae5e860e12bce5bc4e539d0f6c3077dd",
+  "recordingSha256": "e5842423e8b626bba42b28bc0c0eb8aab5029e5e4433680ff6aa38e184d89f9c",
+  "errors": [],
+  "cases": [
+    {
+      "owner": "link",
+      "metadata": {
+        "width": 1256,
+        "height": 674,
+        "duration": 4.133333,
+        "controls": true,
+        "muted": true,
+        "loop": true,
+        "source": "http://127.0.0.1:4173/platform-fighter/final-smash-previews/link.mp4",
+        "canPlay": "maybe",
+        "error": null
+      },
+      "range": {
+        "status": 206,
+        "type": "video/mp4",
+        "contentRange": "bytes 0-1023/2615311",
+        "bytes": 1024
+      },
+      "normal": {
+        "rate": 1,
+        "wallMs": 1004.6999999992549,
+        "elapsed": 1.0047979999999999,
+        "ratio": 1.0000975415554345,
+        "decodedFrames": 60,
+        "droppedFrames": 0,
+        "pressed": "true",
+        "error": null
+      },
+      "slow": {
+        "rate": 0.5,
+        "wallMs": 1203.199999999255,
+        "elapsed": 0.6015999999999999,
+        "ratio": 0.5000000000003095,
+        "decodedFrames": 36,
+        "droppedFrames": 0,
+        "pressed": "true",
+        "error": null
+      },
+      "next": {
+        "before": 1,
+        "after": 1.016666,
+        "paused": true,
+        "displayed": {
+          "mediaTime": 1,
+          "presentedFrames": 101
+        }
+      },
+      "previous": {
+        "before": 1.016666,
+        "after": 0.999999,
+        "paused": true,
+        "displayed": {
+          "mediaTime": 0.983333,
+          "presentedFrames": 102
+        }
+      },
+      "repeatedSteps": [
+        {
+          "direction": 1,
+          "before": 0.999999,
+          "after": 1.016664,
+          "paused": true,
+          "displayed": {
+            "mediaTime": 1,
+            "presentedFrames": 103
+          },
+          "decodedDelta": 0.016666999999999987
+        },
+        {
+          "direction": 1,
+          "before": 1.016664,
+          "after": 1.03333,
+          "paused": true,
+          "displayed": {
+            "mediaTime": 1.016667,
+            "presentedFrames": 104
+          },
+          "decodedDelta": 0.016666999999999987
+        },
+        {
+          "direction": 1,
+          "before": 1.03333,
+          "after": 1.049996,
+          "paused": true,
+          "displayed": {
+            "mediaTime": 1.033333,
+            "presentedFrames": 105
+          },
+          "decodedDelta": 0.01666600000000007
+        },
+        {
+          "direction": 1,
+          "before": 1.049996,
+          "after": 1.066662,
+          "paused": true,
+          "displayed": {
+            "mediaTime": 1.05,
+            "presentedFrames": 106
+          },
+          "decodedDelta": 0.016666999999999987
+        },
+        {
+          "direction": 1,
+          "before": 1.066662,
+          "after": 1.083328,
+          "paused": true,
+          "displayed": {
+            "mediaTime": 1.066667,
+            "presentedFrames": 107
+          },
+          "decodedDelta": 0.016666999999999987
+        },
+        {
+          "direction": 1,
+          "before": 1.083328,
+          "after": 1.099994,
+          "paused": true,
+          "displayed": {
+            "mediaTime": 1.083333,
+            "presentedFrames": 108
+          },
+          "decodedDelta": 0.01666600000000007
+        },
+        {
+          "direction": -1,
+          "before": 1.099994,
+          "after": 1.083327,
+          "paused": true,
+          "displayed": {
+            "mediaTime": 1.066667,
+            "presentedFrames": 109
+          },
+          "decodedDelta": -0.01666600000000007
+        },
+        {
+          "direction": -1,
+          "before": 1.083327,
+          "after": 1.06666,
+          "paused": true,
+          "displayed": {
+            "mediaTime": 1.05,
+            "presentedFrames": 110
+          },
+          "decodedDelta": -0.016666999999999987
+        }
+      ],
+      "loop": {
+        "time": 0.376936,
+        "ended": false,
+        "error": null
+      }
+    },
+    {
+      "owner": "pikachu",
+      "metadata": {
+        "width": 1256,
+        "height": 674,
+        "duration": 7.583333,
+        "controls": true,
+        "muted": true,
+        "loop": true,
+        "source": "http://127.0.0.1:4173/platform-fighter/final-smash-previews/pikachu.mp4",
+        "canPlay": "maybe",
+        "error": null
+      },
+      "range": {
+        "status": 206,
+        "type": "video/mp4",
+        "contentRange": "bytes 0-1023/3625473",
+        "bytes": 1024
+      },
+      "normal": {
+        "rate": 1,
+        "wallMs": 1005.6999999992549,
+        "elapsed": 1.005726,
+        "ratio": 1.000025852640693,
+        "decodedFrames": 59,
+        "droppedFrames": 0,
+        "pressed": "true",
+        "error": null
+      },
+      "slow": {
+        "rate": 0.5,
+        "wallMs": 1200.4000000003725,
+        "elapsed": 0.600197,
+        "ratio": 0.49999750083290045,
+        "decodedFrames": 36,
+        "droppedFrames": 0,
+        "pressed": "true",
+        "error": null
+      },
+      "next": {
+        "before": 1,
+        "after": 1.016666,
+        "paused": true,
+        "displayed": {
+          "mediaTime": 1,
+          "presentedFrames": 100
+        }
+      },
+      "previous": {
+        "before": 1.016666,
+        "after": 0.999999,
+        "paused": true,
+        "displayed": {
+          "mediaTime": 0.983333,
+          "presentedFrames": 101
+        }
+      },
+      "repeatedSteps": [
+        {
+          "direction": 1,
+          "before": 0.999999,
+          "after": 1.016664,
+          "paused": true,
+          "displayed": {
+            "mediaTime": 1,
+            "presentedFrames": 102
+          },
+          "decodedDelta": 0.016666999999999987
+        },
+        {
+          "direction": 1,
+          "before": 1.016664,
+          "after": 1.03333,
+          "paused": true,
+          "displayed": {
+            "mediaTime": 1.016667,
+            "presentedFrames": 103
+          },
+          "decodedDelta": 0.016666999999999987
+        },
+        {
+          "direction": 1,
+          "before": 1.03333,
+          "after": 1.049996,
+          "paused": true,
+          "displayed": {
+            "mediaTime": 1.033333,
+            "presentedFrames": 104
+          },
+          "decodedDelta": 0.01666600000000007
+        },
+        {
+          "direction": 1,
+          "before": 1.049996,
+          "after": 1.066662,
+          "paused": true,
+          "displayed": {
+            "mediaTime": 1.05,
+            "presentedFrames": 105
+          },
+          "decodedDelta": 0.016666999999999987
+        },
+        {
+          "direction": 1,
+          "before": 1.066662,
+          "after": 1.083328,
+          "paused": true,
+          "displayed": {
+            "mediaTime": 1.066667,
+            "presentedFrames": 106
+          },
+          "decodedDelta": 0.016666999999999987
+        },
+        {
+          "direction": 1,
+          "before": 1.083328,
+          "after": 1.099994,
+          "paused": true,
+          "displayed": {
+            "mediaTime": 1.083333,
+            "presentedFrames": 107
+          },
+          "decodedDelta": 0.01666600000000007
+        },
+        {
+          "direction": -1,
+          "before": 1.099994,
+          "after": 1.083327,
+          "paused": true,
+          "displayed": {
+            "mediaTime": 1.066667,
+            "presentedFrames": 108
+          },
+          "decodedDelta": -0.01666600000000007
+        },
+        {
+          "direction": -1,
+          "before": 1.083327,
+          "after": 1.06666,
+          "paused": true,
+          "displayed": {
+            "mediaTime": 1.05,
+            "presentedFrames": 109
+          },
+          "decodedDelta": -0.016666999999999987
+        }
+      ],
+      "loop": {
+        "time": 0.376271,
+        "ended": false,
+        "error": null
+      }
+    },
+    {
+      "owner": "donkeykong",
+      "metadata": {
+        "width": 1256,
+        "height": 674,
+        "duration": 6.283333,
+        "controls": true,
+        "muted": true,
+        "loop": true,
+        "source": "http://127.0.0.1:4173/platform-fighter/final-smash-previews/donkeykong.mp4",
+        "canPlay": "maybe",
+        "error": null
+      },
+      "range": {
+        "status": 206,
+        "type": "video/mp4",
+        "contentRange": "bytes 0-1023/4283202",
+        "bytes": 1024
+      },
+      "normal": {
+        "rate": 1,
+        "wallMs": 1005.5,
+        "elapsed": 1.005495,
+        "ratio": 0.9999950273495772,
+        "decodedFrames": 60,
+        "droppedFrames": 0,
+        "pressed": "true",
+        "error": null
+      },
+      "slow": {
+        "rate": 0.5,
+        "wallMs": 1200.5,
+        "elapsed": 0.6002289999999999,
+        "ratio": 0.4999825072886297,
+        "decodedFrames": 36,
+        "droppedFrames": 0,
+        "pressed": "true",
+        "error": null
+      },
+      "next": {
+        "before": 1,
+        "after": 1.016666,
+        "paused": true,
+        "displayed": {
+          "mediaTime": 1,
+          "presentedFrames": 101
+        }
+      },
+      "previous": {
+        "before": 1.016666,
+        "after": 0.999999,
+        "paused": true,
+        "displayed": {
+          "mediaTime": 0.983333,
+          "presentedFrames": 102
+        }
+      },
+      "repeatedSteps": [
+        {
+          "direction": 1,
+          "before": 0.999999,
+          "after": 1.016664,
+          "paused": true,
+          "displayed": {
+            "mediaTime": 1,
+            "presentedFrames": 103
+          },
+          "decodedDelta": 0.016666999999999987
+        },
+        {
+          "direction": 1,
+          "before": 1.016664,
+          "after": 1.03333,
+          "paused": true,
+          "displayed": {
+            "mediaTime": 1.016667,
+            "presentedFrames": 104
+          },
+          "decodedDelta": 0.016666999999999987
+        },
+        {
+          "direction": 1,
+          "before": 1.03333,
+          "after": 1.049996,
+          "paused": true,
+          "displayed": {
+            "mediaTime": 1.033333,
+            "presentedFrames": 105
+          },
+          "decodedDelta": 0.01666600000000007
+        },
+        {
+          "direction": 1,
+          "before": 1.049996,
+          "after": 1.066662,
+          "paused": true,
+          "displayed": {
+            "mediaTime": 1.05,
+            "presentedFrames": 106
+          },
+          "decodedDelta": 0.016666999999999987
+        },
+        {
+          "direction": 1,
+          "before": 1.066662,
+          "after": 1.083328,
+          "paused": true,
+          "displayed": {
+            "mediaTime": 1.066667,
+            "presentedFrames": 107
+          },
+          "decodedDelta": 0.016666999999999987
+        },
+        {
+          "direction": 1,
+          "before": 1.083328,
+          "after": 1.099994,
+          "paused": true,
+          "displayed": {
+            "mediaTime": 1.083333,
+            "presentedFrames": 108
+          },
+          "decodedDelta": 0.01666600000000007
+        },
+        {
+          "direction": -1,
+          "before": 1.099994,
+          "after": 1.083327,
+          "paused": true,
+          "displayed": {
+            "mediaTime": 1.066667,
+            "presentedFrames": 109
+          },
+          "decodedDelta": -0.01666600000000007
+        },
+        {
+          "direction": -1,
+          "before": 1.083327,
+          "after": 1.06666,
+          "paused": true,
+          "displayed": {
+            "mediaTime": 1.05,
+            "presentedFrames": 110
+          },
+          "decodedDelta": -0.016666999999999987
+        }
+      ],
+      "loop": {
+        "time": 0.372302,
+        "ended": false,
+        "error": null
+      }
+    }
+  ],
+  "browser": "155.0.4283.45",
+  "viewport": {
+    "width": 1280,
+    "height": 900,
+    "devicePixelRatio": 1,
+    "visual": {
+      "width": 1265,
+      "height": 900
+    }
+  },
+  "reviewScreenshot": ".tmp/final-preview-gallery/gallery.png",
+  "result": "PASS_PLAYBACK_CONTROLS",
+  "browserCleanup": {
+    "profile": "C:\\Users\\lombet\\AppData\\Local\\Temp\\platform-fighter-edge-cdp-a2992817-9b37-42a4-9c89-88cb788d615e",
+    "profileRemoved": true,
+    "ownedProcessIds": [
+      19336,
+      24368,
+      7108,
+      25048,
+      12672,
+      15180,
+      9892,
+      22592,
+      24724,
+      11944,
+      23292,
+      23608,
+      3192,
+      6216,
+      26088,
+      22684,
+      20536
+    ]
+  },
+  "visualReview": {
+    "status": "PASS",
+    "observations": [
+      "Gallery title, controls and decoded Link charge frame are readable.",
+      "1256x674 picture fills its natural video area; no unused compositor borders visible."
+    ],
+    "screenshotSha256": "914de2a0c1ee82671ac5778cd37040d57b53179efbc9538d5f8b9f8cb4633f4d"
+  },
+  "gallerySha256": "af06a2bd928ab52011c332e5c3fea6ffcc93fca3c45b22ac974677f5ed075598"
+}

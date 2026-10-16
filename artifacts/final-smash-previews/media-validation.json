@@ -1,0 +1,26 @@
+{
+  "result": "PASS",
+  "clips": [
+    {
+      "owner": "link",
+      "decodedFrames": 248,
+      "width": 1256,
+      "height": 674,
+      "fps": 60
+    },
+    {
+      "owner": "pikachu",
+      "decodedFrames": 455,
+      "width": 1256,
+      "height": 674,
+      "fps": 60
+    },
+    {
+      "owner": "donkeykong",
+      "decodedFrames": 377,
+      "width": 1256,
+      "height": 674,
+      "fps": 60
+    }
+  ]
+}

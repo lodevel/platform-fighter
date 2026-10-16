@@ -1,0 +1,104 @@
+{
+  "url": "http://127.0.0.1:4173/platform-fighter/",
+  "fps": 60,
+  "width": 1280,
+  "height": 800,
+  "method": "Actual Windows Edge match rendering, one fixed simulation tick per video frame. Saved DOM special binding activates the move. Final resources and initial target placement are demonstration fixtures. No game code or animation timing is changed. Capture throughput is not a performance measurement. Silent footage.",
+  "cases": [
+    {
+      "owner": "link",
+      "script": "http://127.0.0.1:4173/platform-fighter/assets/game-BL2B4bsg.js",
+      "setup": {
+        "binding": {
+          "kind": "keyboard",
+          "keyCode": 71
+        },
+        "buildIdentity": "platform-fighter-sha256-e236b17191fa7db98aa7d508f28193b773b06ffa7632a37ea0ea5570b51cd1d9"
+      },
+      "frames": 248,
+      "phases": [
+        "ancient-bow"
+      ],
+      "maxDamage": 44.1,
+      "maxCaptures": 0,
+      "poster": "link.jpg",
+      "seconds": 4.133333333333334,
+      "sha256": "e3d99081313367037d4e478735d48b98817b0eb22edf5edebe3c77b3339f59e5"
+    },
+    {
+      "owner": "pikachu",
+      "script": "http://127.0.0.1:4173/platform-fighter/assets/game-BL2B4bsg.js",
+      "setup": {
+        "binding": {
+          "kind": "keyboard",
+          "keyCode": 71
+        },
+        "buildIdentity": "platform-fighter-sha256-e236b17191fa7db98aa7d508f28193b773b06ffa7632a37ea0ea5570b51cd1d9"
+      },
+      "frames": 455,
+      "phases": [
+        "startup",
+        "hit",
+        "attack",
+        "attack2",
+        "attack-finish",
+        "return",
+        "finish"
+      ],
+      "maxDamage": 62.370000000000005,
+      "maxCaptures": 1,
+      "poster": "pikachu.jpg",
+      "seconds": 7.583333333333333,
+      "sha256": "7d9108f257165f85f29e753a175b8732b423b37c1575c47d9250ee92e55ac8e7"
+    },
+    {
+      "owner": "donkeykong",
+      "script": "http://127.0.0.1:4173/platform-fighter/assets/game-BL2B4bsg.js",
+      "setup": {
+        "binding": {
+          "kind": "keyboard",
+          "keyCode": 71
+        },
+        "buildIdentity": "platform-fighter-sha256-e236b17191fa7db98aa7d508f28193b773b06ffa7632a37ea0ea5570b51cd1d9"
+      },
+      "frames": 377,
+      "phases": [
+        "start",
+        "success",
+        "end"
+      ],
+      "maxDamage": 77.99400000000004,
+      "maxCaptures": 1,
+      "poster": "donkeykong.jpg",
+      "seconds": 6.283333333333333,
+      "sha256": "dbbf5b7ec99f0ffcc94972e133a8cf257fa363074a3a68323f3312d65e7a9dd4"
+    }
+  ],
+  "errors": [],
+  "browser": "155.0.4283.45",
+  "result": "PASS",
+  "cleanup": {
+    "profile": "C:\\Users\\lombet\\AppData\\Local\\Temp\\platform-fighter-edge-cdp-fd006d6e-173e-4b4e-8043-8736217eb356",
+    "profileRemoved": true,
+    "ownedProcessIds": [
+      20156,
+      19644,
+      24804,
+      7056,
+      9772,
+      22444,
+      9868,
+      23600,
+      18268,
+      23660,
+      17012
+    ]
+  },
+  "deliveryCrop": {
+    "x": 0,
+    "y": 0,
+    "width": 1256,
+    "height": 674,
+    "reason": "Remove unused compositor area beyond the visible browser content; no game picture removed."
+  }
+}
