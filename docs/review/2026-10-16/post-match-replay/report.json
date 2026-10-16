@@ -1,0 +1,414 @@
+{
+  "url": "http://127.0.0.1:4173/platform-fighter/",
+  "method": "One-stock matches end through normal DOM movement and actual blast-zone stock loss, driven by the normal RAF loop. No positions, damage, velocities, result, stock count after start, simulation step, or recording payload is injected. Results Save Replay triggers a real Chromium file download; Node replays those exact bytes.",
+  "harnessSha256": "e304026d31157153194b1e259da2e950a5a60c3a5ea411e954b8878c4e6cec88",
+  "config": {
+    "mode": "stocks",
+    "stockCount": 1,
+    "stageId": "flat",
+    "rngSeed": 161016,
+    "itemFrequency": "off",
+    "linkIntroPolicy": "none",
+    "finalSmashRules": {
+      "schemaVersion": 1,
+      "meterEnabled": false,
+      "smashBallEnabled": false
+    },
+    "players": [
+      {
+        "index": 1,
+        "characterId": "pikachu",
+        "paletteIndex": 0,
+        "inputType": "keyboard_p1"
+      },
+      {
+        "index": 2,
+        "characterId": "pikachu",
+        "paletteIndex": 1,
+        "inputType": "keyboard_p2"
+      }
+    ]
+  },
+  "errors": [],
+  "cases": [
+    {
+      "key": "first-right",
+      "direction": 1,
+      "initial": {
+        "initialFrame": 0,
+        "initialRecording": {
+          "phase": "recording",
+          "frameCount": 0,
+          "lastFrame": null,
+          "isRecording": true
+        },
+        "config": {
+          "mode": "stocks",
+          "stockCount": 1,
+          "stageId": "flat",
+          "rngSeed": 161016,
+          "itemFrequency": "off",
+          "linkIntroPolicy": "none",
+          "finalSmashRules": {
+            "schemaVersion": 1,
+            "meterEnabled": false,
+            "smashBallEnabled": false
+          },
+          "players": [
+            {
+              "index": 1,
+              "characterId": "pikachu",
+              "paletteIndex": 0,
+              "inputType": "keyboard_p1",
+              "participantId": "player-1",
+              "inputDevice": {
+                "kind": "keyboard",
+                "layout": "keyboard_p1"
+              },
+              "bindingProfileIndex": 1,
+              "bindingProfileId": "keyboard-wasd"
+            },
+            {
+              "index": 2,
+              "characterId": "pikachu",
+              "paletteIndex": 1,
+              "inputType": "keyboard_p2",
+              "participantId": "player-2",
+              "inputDevice": {
+                "kind": "keyboard",
+                "layout": "keyboard_p2"
+              },
+              "bindingProfileIndex": 2,
+              "bindingProfileId": "keyboard-arrows"
+            }
+          ]
+        },
+        "buildIdentity": "platform-fighter-sha256-ed70855adcedfbc7c96b95bb4215b15a66a5ed491977b0b2ff53ae39eed13a44",
+        "binding": {
+          "kind": "keyboard",
+          "keyCode": 68
+        }
+      },
+      "live": {
+        "deciding": {
+          "observedFrame": 944,
+          "endFrame": 943,
+          "digest": "a14731dcac30e2b3",
+          "recording": {
+            "phase": "stopped",
+            "frameCount": 944,
+            "lastFrame": 943,
+            "isRecording": false
+          }
+        },
+        "result": {
+          "winnerIndex": 0,
+          "winnerName": "Pikachu",
+          "finalStocks": [
+            1,
+            0
+          ],
+          "playerNames": [
+            "Pikachu",
+            "Pikachu"
+          ],
+          "endFrame": 943,
+          "stageName": "Flat Stage",
+          "playerStats": [
+            {
+              "kos": 0,
+              "deaths": 0,
+              "damageDealt": 0,
+              "damageTaken": 0,
+              "survivalFrames": 943,
+              "eliminated": false
+            },
+            {
+              "kos": 0,
+              "deaths": 1,
+              "damageDealt": 0,
+              "damageTaken": 0,
+              "survivalFrames": 943,
+              "eliminated": true
+            }
+          ],
+          "mode": "stocks",
+          "decidedBySuddenDeath": false
+        },
+        "fault": null,
+        "screen": "results",
+        "simulationDisposed": true,
+        "buttonDisabled": false,
+        "status": "Save a replay to share this match for debugging.",
+        "headline": "PIKACHU WINS"
+      },
+      "download": {
+        "path": "docs/review/2026-10-16/post-match-replay/first-right.replay.json",
+        "suggestedFilename": "replay-flat-000274f8-20261016-143016.replay.json",
+        "bytes": 434233,
+        "sha256": "f2cf67432ec60db153db59fb5477e52da7f6ab0eb8d858ccae3021302bc2aefd"
+      },
+      "replay": {
+        "result": "IDENTICAL",
+        "observedFrame": 944,
+        "decidingFrame": 943,
+        "liveDigest": "a14731dcac30e2b3",
+        "replayDigest": "a14731dcac30e2b3",
+        "replayResult": {
+          "winnerIndex": 0,
+          "winnerName": "Pikachu",
+          "finalStocks": [
+            1,
+            0
+          ],
+          "playerNames": [
+            "Pikachu",
+            "Pikachu"
+          ],
+          "endFrame": 943,
+          "stageName": "Flat Stage",
+          "playerStats": [
+            {
+              "kos": 0,
+              "deaths": 0,
+              "damageDealt": 0,
+              "damageTaken": 0,
+              "survivalFrames": 943,
+              "eliminated": false
+            },
+            {
+              "kos": 0,
+              "deaths": 1,
+              "damageDealt": 0,
+              "damageTaken": 0,
+              "survivalFrames": 943,
+              "eliminated": true
+            }
+          ],
+          "mode": "stocks",
+          "decidedBySuddenDeath": false
+        },
+        "inputFrames": 944,
+        "firstInputFrame": 0,
+        "lastInputFrame": 943,
+        "metadata": {
+          "recordedAt": "2026-10-16T14:30:16.688Z",
+          "durationFrames": 944,
+          "fixedTimestepMs": 16.666666666666668,
+          "playerCount": 2,
+          "engineVersion": "platform-fighter-sha256-ed70855adcedfbc7c96b95bb4215b15a66a5ed491977b0b2ff53ae39eed13a44",
+          "notes": ""
+        },
+        "seed": 161016,
+        "version": 8
+      },
+      "repeatDownload": {
+        "path": "docs/review/2026-10-16/post-match-replay/first-right-repeat.replay.json",
+        "suggestedFilename": "replay-flat-000274f8-20261016-143016.replay.json",
+        "bytes": 434233,
+        "sha256": "f2cf67432ec60db153db59fb5477e52da7f6ab0eb8d858ccae3021302bc2aefd"
+      },
+      "afterSaveStatus": "Replay download started: replay-flat-000274f8-20261016-143016.replay.json.",
+      "screenshot": "docs/review/2026-10-16/post-match-replay/first-right-results.png"
+    },
+    {
+      "key": "rematch-left",
+      "direction": -1,
+      "initial": {
+        "initialFrame": 2,
+        "initialRecording": {
+          "phase": "recording",
+          "frameCount": 2,
+          "lastFrame": 1,
+          "isRecording": true
+        },
+        "config": {
+          "mode": "stocks",
+          "stockCount": 1,
+          "stageId": "flat",
+          "rngSeed": 161016,
+          "itemFrequency": "off",
+          "linkIntroPolicy": "none",
+          "finalSmashRules": {
+            "schemaVersion": 1,
+            "meterEnabled": false,
+            "smashBallEnabled": false
+          },
+          "players": [
+            {
+              "index": 1,
+              "characterId": "pikachu",
+              "paletteIndex": 0,
+              "inputType": "keyboard_p1",
+              "participantId": "player-1",
+              "inputDevice": {
+                "kind": "keyboard",
+                "layout": "keyboard_p1"
+              },
+              "bindingProfileIndex": 1,
+              "bindingProfileId": "keyboard-wasd"
+            },
+            {
+              "index": 2,
+              "characterId": "pikachu",
+              "paletteIndex": 1,
+              "inputType": "keyboard_p2",
+              "participantId": "player-2",
+              "inputDevice": {
+                "kind": "keyboard",
+                "layout": "keyboard_p2"
+              },
+              "bindingProfileIndex": 2,
+              "bindingProfileId": "keyboard-arrows"
+            }
+          ]
+        },
+        "buildIdentity": "platform-fighter-sha256-ed70855adcedfbc7c96b95bb4215b15a66a5ed491977b0b2ff53ae39eed13a44",
+        "binding": {
+          "kind": "keyboard",
+          "keyCode": 65
+        }
+      },
+      "live": {
+        "deciding": {
+          "observedFrame": 172,
+          "endFrame": 171,
+          "digest": "a56d053baf5810ab",
+          "recording": {
+            "phase": "stopped",
+            "frameCount": 172,
+            "lastFrame": 171,
+            "isRecording": false
+          }
+        },
+        "result": {
+          "winnerIndex": 1,
+          "winnerName": "Pikachu",
+          "finalStocks": [
+            0,
+            1
+          ],
+          "playerNames": [
+            "Pikachu",
+            "Pikachu"
+          ],
+          "endFrame": 171,
+          "stageName": "Flat Stage",
+          "playerStats": [
+            {
+              "kos": 0,
+              "deaths": 1,
+              "damageDealt": 0,
+              "damageTaken": 0,
+              "survivalFrames": 171,
+              "eliminated": true
+            },
+            {
+              "kos": 0,
+              "deaths": 0,
+              "damageDealt": 0,
+              "damageTaken": 0,
+              "survivalFrames": 171,
+              "eliminated": false
+            }
+          ],
+          "mode": "stocks",
+          "decidedBySuddenDeath": false
+        },
+        "fault": null,
+        "screen": "results",
+        "simulationDisposed": true,
+        "buttonDisabled": false,
+        "status": "Save a replay to share this match for debugging.",
+        "headline": "PIKACHU WINS"
+      },
+      "download": {
+        "path": "docs/review/2026-10-16/post-match-replay/rematch-left.replay.json",
+        "suggestedFilename": "replay-flat-000274f8-20261016-143040.replay.json",
+        "bytes": 80055,
+        "sha256": "789be7336ebc9169f690d589416c276f8c66a62e4c3da1ddfa0bec21ce3f71a7"
+      },
+      "replay": {
+        "result": "IDENTICAL",
+        "observedFrame": 172,
+        "decidingFrame": 171,
+        "liveDigest": "a56d053baf5810ab",
+        "replayDigest": "a56d053baf5810ab",
+        "replayResult": {
+          "winnerIndex": 1,
+          "winnerName": "Pikachu",
+          "finalStocks": [
+            0,
+            1
+          ],
+          "playerNames": [
+            "Pikachu",
+            "Pikachu"
+          ],
+          "endFrame": 171,
+          "stageName": "Flat Stage",
+          "playerStats": [
+            {
+              "kos": 0,
+              "deaths": 1,
+              "damageDealt": 0,
+              "damageTaken": 0,
+              "survivalFrames": 171,
+              "eliminated": true
+            },
+            {
+              "kos": 0,
+              "deaths": 0,
+              "damageDealt": 0,
+              "damageTaken": 0,
+              "survivalFrames": 171,
+              "eliminated": false
+            }
+          ],
+          "mode": "stocks",
+          "decidedBySuddenDeath": false
+        },
+        "inputFrames": 172,
+        "firstInputFrame": 0,
+        "lastInputFrame": 171,
+        "metadata": {
+          "recordedAt": "2026-10-16T14:30:40.770Z",
+          "durationFrames": 172,
+          "fixedTimestepMs": 16.666666666666668,
+          "playerCount": 2,
+          "engineVersion": "platform-fighter-sha256-ed70855adcedfbc7c96b95bb4215b15a66a5ed491977b0b2ff53ae39eed13a44",
+          "notes": ""
+        },
+        "seed": 161016,
+        "version": 8
+      },
+      "afterSaveStatus": "Replay download started: replay-flat-000274f8-20261016-143040.replay.json.",
+      "screenshot": "docs/review/2026-10-16/post-match-replay/rematch-left-results.png"
+    }
+  ],
+  "browser": "155.0.4283.45",
+  "script": "http://127.0.0.1:4173/platform-fighter/assets/game-TKk1n6vp.js",
+  "bundleSha256": "ed80e95197329a98fcc30c75f8c148dad936629c48299d280ebb0258651e58eb",
+  "graphics": {
+    "renderer": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x0000A7A0) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+  },
+  "result": "PASS",
+  "cleanup": {
+    "profile": "C:\\Users\\lombet\\AppData\\Local\\Temp\\platform-fighter-edge-cdp-09e4eafb-2934-4827-9516-71affd6e1d26",
+    "profileRemoved": true,
+    "ownedProcessIds": [
+      15628,
+      512,
+      14812,
+      3176,
+      4416,
+      20716,
+      21852,
+      22756,
+      520,
+      23184,
+      4328,
+      13112
+    ]
+  }
+}

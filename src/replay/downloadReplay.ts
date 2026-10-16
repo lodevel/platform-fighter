@@ -169,6 +169,7 @@ export function downloadReplayFile(
       engineVersion: replay.metadata.engineVersion,
       notes: replay.metadata.notes,
       fixedTimestepMs: replay.metadata.fixedTimestepMs,
+      itemSpawnEvents: replay.itemSpawnEvents,
     },
     options.pretty === true,
   );

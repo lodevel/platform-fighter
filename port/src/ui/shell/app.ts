@@ -6,6 +6,7 @@ import type { MatchResultPayload } from '../../../../src/match';
 import type { AppearanceSubmission } from '../../fighters/appearance';
 import type { MenuEvent, MenuInput, SelectionOwner } from './input';
 import type { FrameFault } from './frameLoop';
+import type { ReplayFile } from '../../../../src/replay/ReplayFile';
 
 /**
  * Contracts between the shell and the screens. Screens depend on these
@@ -31,6 +32,9 @@ export interface FlowData {
   /** Physical selection hands survive stage select, matches and results. */
   readonly selectionOwners?: readonly SelectionOwner[];
   readonly result?: MatchResultPayload;
+  /** Frozen recording retained after the live simulation is disposed. */
+  readonly replay?: { readonly file: ReplayFile; readonly fileName: string };
+  readonly replayError?: string;
 }
 
 export type ScreenName = 'gate' | 'title' | 'controls' | 'rules' | 'fighters' | 'stages' | 'match' | 'results';

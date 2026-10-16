@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import type { MatchConfig, PlayerSlot } from '../types';
 import { RecordingController } from './RecordingController';
+import { ItemSpawnEventLog } from './ItemSpawnEventLog';
 import {
   REPLAY_MIME_TYPE,
   DownloadReplayUnsupportedError,
@@ -134,10 +135,11 @@ function makeMatchConfig(): MatchConfig {
   };
 }
 
-function buildReplay() {
+function buildReplay(itemSpawnEventLog?: ItemSpawnEventLog) {
   const c = new RecordingController({
     engineVersion: '1.0.0',
     nowFactory: () => new Date('2026-04-30T12:00:00.000Z'),
+    itemSpawnEventLog,
   });
   c.start({ matchConfig: makeMatchConfig() });
   c.captureFrame(0, [
@@ -215,6 +217,24 @@ describe('downloadReplayFile — happy path', () => {
     expect(round.inputTimeline.entries.length).toBe(2);
     expect(round.matchConfig.players.length).toBe(2);
     expect(round.rngSeed).toBe(0xc0ffee);
+  });
+
+  it('preserves every recorded item spawn in the downloaded final snapshot', async () => {
+    const events = new ItemSpawnEventLog();
+    const spawned = [
+      { frame: 0, type: 'bomb', x: 170.5, y: 240, anchorIndex: 0 },
+      { frame: 1, type: 'rayGun', x: -23, y: 180.25, anchorIndex: -1 },
+      { frame: 1, type: 'bat', x: 430, y: 180.25, anchorIndex: 1 },
+    ];
+    for (const event of spawned) events.record(event);
+    const { controller, replay } = buildReplay(events);
+    // Results keep a completed snapshot after the match's live log is gone.
+    events.reset();
+    const harness = makeDomHarness(controller.suggestFileName());
+    downloadReplayFile(replay, harness.options);
+    const round = deserializeReplayFromString(await harness.capturedBlob!.text());
+    expect(round.itemSpawnEvents).toEqual(spawned);
+    expect(round).toEqual(replay);
   });
 
   it('pretty-prints the JSON when requested', async () => {

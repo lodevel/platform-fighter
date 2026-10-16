@@ -241,7 +241,18 @@ export function matchScreen(app: App, data: FlowData = {}): Screen {
       if (!ready || pause || manual) return;
       sim.advance(delta, (frame) => sim.getSourceIntroSnapshot() ? undefined : input.sample(frame));
       render(delta);
-      if (sim.isFinished && sim.result) app.go('results', { ...data, pending: config, result: sim.result });
+      if (sim.isFinished && sim.result) {
+        // Leaving the screen disposes the simulation. Retain its completed
+        // recording now so results can download it more than once safely.
+        let recording: Pick<FlowData, 'replay' | 'replayError'>;
+        try {
+          const controller = sim.getRecordingController();
+          recording = { replay: { file: controller.buildReplayFile(), fileName: controller.suggestFileName() }, replayError: undefined };
+        } catch (error) {
+          recording = { replay: undefined, replayError: error instanceof Error ? error.message : String(error) };
+        }
+        app.go('results', { ...data, pending: config, result: sim.result, ...recording });
+      }
     },
     onFault: stopAfterFault,
     leave() {
