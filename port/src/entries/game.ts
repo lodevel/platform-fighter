@@ -10,6 +10,9 @@ import type { App, Screen, ScreenName } from '../ui/shell/app';
 import type { MatchConfig } from '../../../src/types';
 import { startFrameLoop, type FrameFault } from '../ui/shell/frameLoop';
 import { createFrameRateMeter } from '../ui/components/frameRateMeter';
+import { createAppVersionBadge } from '../ui/components/appVersion';
+import { SIMULATION_BUILD_ID } from '../../../src/engine/buildIdentity';
+import { version } from '../../../package.json';
 
 /**
  * The port's game shell: HTML/CSS menus over a live 3D arena. Replaces the
@@ -21,6 +24,7 @@ const vignette = document.querySelector<HTMLElement>('.vignette')!;
 const host = document.getElementById('screens')!;
 const input = new MenuInput();
 const frameRate = createFrameRateMeter(document.body);
+createAppVersionBadge(document.body, { version, buildIdentity: SIMULATION_BUILD_ID });
 let current: Screen | null = null;
 let currentName: ScreenName = 'gate';
 let inputFaulted = false, screenFaulted = false, rendererFaulted = false;

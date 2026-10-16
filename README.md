@@ -6,6 +6,8 @@ human or CPU players, six built-in arenas, items and Final Smash rules.
 Keyboard and gamepad controls support saved per-player profiles.
 The upper-left FPS counter shows rendered frames per second in menus and matches;
 gameplay advances independently at 60 fixed steps per second.
+The lower-right version badge shows the app version and a source build identifier
+so you can compare installations. These changes are on the `rework/gameplay` branch.
 
 ## Run
 
