@@ -1,0 +1,86 @@
+{
+  "_doc": "Targeted additions for actual Link footstool disappearance; existing native/cel pipeline, c00 motion resources pinned in 2026-10-12 source receipt. Retain every second native frame and endpoints; a06stepfall native frames0..40 form a41-step loop (existing packed native sampler). No existing clip rewritten.",
+  "clips": [
+    {
+      "sheet": "a06steppose",
+      "motion": "a06steppose",
+      "samples": [
+        1,
+        3,
+        5,
+        7,
+        9
+      ]
+    },
+    {
+      "sheet": "a06stepback",
+      "motion": "a06stepback",
+      "samples": [
+        1,
+        3,
+        5,
+        7,
+        9,
+        11,
+        13,
+        15,
+        17,
+        19,
+        21,
+        23,
+        24
+      ]
+    },
+    {
+      "sheet": "a06stepairpose",
+      "motion": "a06stepairpose",
+      "samples": [
+        1,
+        3,
+        5,
+        7,
+        9
+      ]
+    },
+    {
+      "sheet": "a06stepfall",
+      "motion": "a06stepfall",
+      "samples": [
+        1,
+        3,
+        5,
+        7,
+        9,
+        11,
+        13,
+        15,
+        17,
+        19,
+        21,
+        23,
+        25,
+        27,
+        29,
+        31,
+        33,
+        35,
+        37,
+        39,
+        41
+      ],
+      "loopDuration": 41
+    },
+    {
+      "sheet": "a06stepjump",
+      "motion": "a06stepjump",
+      "samples": [
+        1,
+        3,
+        5,
+        7,
+        9
+      ]
+    }
+  ],
+  "articles": []
+}

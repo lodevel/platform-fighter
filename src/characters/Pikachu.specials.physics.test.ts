@@ -682,6 +682,42 @@ describe('Pikachu source specials through normal input and real Matter', () => {
     f.pikachu.setPosition(0, -500);
     expect(f.pikachu.getOrdinaryPresentationState()).toMatchObject({ sheet: 'fall', framesElapsed: 0 });
   });
+  it.each([1, -1] as const)('Quick Attack restores falling after replacing a recovered launch facing%s', facing => {
+    const f = fixture();
+    f.target.setPosition(100000, 0);
+    f.pikachu.setFacing(facing);
+    f.pikachu.setDamagePercent(80);
+    f.pikachu.applyHit({ damage: PIKACHU_UP_SPECIAL.damage, knockback: PIKACHU_UP_SPECIAL.knockback, facing });
+    for (let frame = 0; frame < 300 && (f.pikachu.isInHitlag() || f.pikachu.isInHitstun()); frame++) f.step();
+    expect(f.pikachu.isInHitlag()).toBe(false);
+    expect(f.pikachu.isInHitstun()).toBe(false);
+    // Let the old launch's natural gravity reach its fall-speed limit. The
+    // recovery must install its own kinetics even after that energy is capped.
+    f.frames(30);
+    f.step({ ...neutral, special: true, moveY: -1 });
+    expect(f.pikachu.getPikachuSpecialState()?.kind).toBe('quickAttack');
+    for (let frame = 1; frame <= 83; frame++) {
+      f.step(frame < 20 ? { ...neutral, moveY: -1 } : { ...neutral, moveX: facing });
+      if (frame === 41) {
+        expect(f.pikachu.getPikachuSpecialState()).toMatchObject({ second: true, gravity: 0.475 });
+        expect(f.pikachu.getVelocity().y).toBeCloseTo(0.475, 6);
+      }
+    }
+    expect(f.pikachu.getPikachuSpecialState()).toBeNull();
+    expect(f.pikachu.isHelpless()).toBe(true);
+    const ended = f.pikachu.getPosition();
+    const ordinary = fixture();
+    ordinary.target.setPosition(100000, 0);
+    ordinary.pikachu.setPosition(ended.x, ended.y);
+    Body.setVelocity(ordinary.pikachu.body, f.pikachu.getVelocity());
+    for (let frame = 0; frame < 30; frame++) {
+      f.step({ ...neutral, moveX: facing });
+      ordinary.step({ ...neutral, moveX: facing });
+      expect(f.pikachu.getPosition().y).toBeCloseTo(ordinary.pikachu.getPosition().y, 6);
+    }
+    expect(f.pikachu.getVelocity().y).toBeCloseTo(7.75, 6);
+    expect(f.pikachu.getPosition().y - ended.y).toBeGreaterThan(30 * 7.75);
+  });
   it('Quick Attack waits14 startup steps and travels exactly five11-unit steps without gravity', () => {
     const f = fixture(); f.step({ ...neutral, special: true, moveY: -1 }); f.frames(13);
     expect(f.pikachu.getPikachuSpecialState()?.frame).toBe(13);

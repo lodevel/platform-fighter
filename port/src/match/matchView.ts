@@ -7,6 +7,7 @@ import type { SimView } from '../../../src/sim/view';
 import { ShapeLayer } from '../engine/shapes/shapeLayer';
 import { CameraRig } from './cameraRig';
 import { drawDamageAreas } from './effects/damageAreas';
+import { LinkFinalPresentation } from './effects/linkFinal';
 import { drawChargeIndicator, drawShieldBubble } from './effects/fighterOverlays';
 import { ExplosionArt } from './effects/explosionArt';
 import { HitSparks } from './effects/hitSparks';
@@ -33,6 +34,7 @@ export class MatchView {
   private readonly shapes = new ShapeLayer(2000);
   private readonly sparks = new HitSparks();
   private readonly blasts = new ExplosionArt();
+  private readonly linkFinal = new LinkFinalPresentation();
   /** Effect sprites above the effect shapes (explosion bursts). */
   private readonly overlay: SpriteLayer;
   private readonly appearances = new AppearanceCollection();
@@ -113,6 +115,7 @@ export class MatchView {
     }
     this.appearances.retain(retained);
     drawDamageAreas(this.glow, view.explosions, this.debug ? view.projectiles : []);
+    this.linkFinal.draw(this.glow, view);
     if (this.debug) for (const area of view.debugAreas ?? []) {
       const capsule = area.capsule;
       if (capsule) {
@@ -186,8 +189,8 @@ export class MatchView {
 
   /** Selected presentation effects versus quads submitted by the last draw. */
   presentationSprites() {
-    return (this.view?.presentationSprites ?? []).map(sprite => {
-      const layer = sprite.space === 'screen' ? this.presenter.screenSprites : this.presenter.sprites;
+    return [...(this.view?.presentationSprites ?? []), ...this.linkFinal.sprites].map(sprite => {
+      const layer = 'space' in sprite && sprite.space === 'screen' ? this.presenter.screenSprites : this.presenter.sprites;
       const submitted = layer.submittedDraws().find(draw => draw.key === sprite.key && draw.frame === sprite.frame && draw.x === sprite.x && draw.y === sprite.y);
       const sheet = layer.textures.resident(sprite.key);
       const image = sheet?.texture.image as { width?: number; height?: number } | undefined;
@@ -207,6 +210,6 @@ export class MatchView {
       rotation: it.angle, depth: 10, tint,
     }));
     const projectiles = view.projectiles.flatMap((p) => { const sprite = projectileSprite(p); return sprite ? [sprite] : []; });
-    return [...items, ...projectiles, ...(view.presentationSprites?.filter((sprite) => sprite.space !== 'screen') ?? [])];
+    return [...items, ...projectiles, ...this.linkFinal.sprites, ...(view.presentationSprites?.filter((sprite) => sprite.space !== 'screen') ?? [])];
   }
 }

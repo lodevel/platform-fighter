@@ -2,14 +2,15 @@ import * as THREE from 'three';
 import type { GazeView, StageClock } from '../../contract';
 import { restEye } from '../../../engine/space';
 import { LEGACY_LIGHT, glowSprite } from '../../kit/toonKit';
+import { INFERNO_HEAD_IMAGE_URL } from '../../../../../src/assets/manifest';
 
 /**
  * The Inferno's giant head, filling most of the screen behind the stage.
- * The picture is a personal one, served from port/private (never built or
- * committed); without it a carved stone face stands in. Eye positions are
+ * The picture is a manifest-listed stage resource included in Git and static
+ * builds. A carved stone face covers loading/failure. Eye positions are
  * in texture UVs of the 1024² cut-out (head-cutout from the upscale).
  */
-export const HEAD_IMAGE_URL = `${import.meta.env.BASE_URL}private/inferno-head.png`;
+export const HEAD_IMAGE_URL = INFERNO_HEAD_IMAGE_URL;
 const EYES: readonly [THREE.Vector2, THREE.Vector2] = [new THREE.Vector2(0.4, 1 - 0.508), new THREE.Vector2(0.596, 1 - 0.523)];
 /**
  * The strip between the nose and the upper lip, in texture UVs (v up): where
@@ -45,7 +46,7 @@ const FRAG = `
     gl_FragColor = vec4(col, tex.a);
   }`;
 
-/** Stand-in face when the personal picture is absent: carved stone with horns. */
+/** Loading/error stand-in: carved stone with horns. */
 function stoneFace(): THREE.CanvasTexture {
   const c = document.createElement('canvas');
   c.width = c.height = 512;

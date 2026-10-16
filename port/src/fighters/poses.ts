@@ -7,6 +7,7 @@ import { finalBodyPose } from '../../../src/finalSmash/finalBodyPose';
 import type { SpriteDraw } from '../engine/sprites/spriteLayer';
 import { artTextureKey } from '../../../src/characters/artFrameSelector';
 import { costumeRecolor } from './palette';
+import { pikachuFinalVisualPose } from './finalVisual';
 import { shootingLayerLayout, upperBodyCutRow } from '../../../src/characters/upperBodyLayer';
 import type { KnockoutFlightView } from '../../../src/sim/knockoutFlight';
 
@@ -46,6 +47,8 @@ const METRICS: Readonly<Record<string, (sheet: string) => Metrics | null>> = {
 /** A fighter's drawing for any sheet (idle, crouch, tumble...), via its own presentation module's clock. */
 const POSES: Readonly<Record<string, (sheet: string, age: number, facing: Facing) => Pose | null>> = {
   pikachu: (sheet, age) => {
+    const visual = pikachuFinalVisualPose(sheet, age);
+    if (visual) return visual;
     const m = METRICS.pikachu!(sheet);
     return m && { ...m, key: `char.pikachu.${sheet}`, frame: getPikachuReviewedStateClock(sheet, age)?.artFrameIndex ?? 0 };
   },
@@ -108,13 +111,15 @@ export function fighterDrawFromArt(
   const final = animation?.finalSmash;
   const finalMetrics = animation?.finalVictimSelection ? animation.finalVictimPose
     : final?.sheet ? finalBodyPose(f.characterId, final.sheet, final.age) : null;
+  const visual = f.characterId === 'pikachu' && final?.role === 'owner' && final.sheet && !animation?.finalVictimSelection
+    ? pikachuFinalVisualPose(final.sheet, final.age) : null;
   const base = METRICS[f.characterId]?.(sheet);
-  const m = finalMetrics ? { ...finalMetrics, scale: finalMetrics.scaleToWorld } : base;
-  const textureKey = artTextureKey(art.key);
+  const m = visual ?? (finalMetrics ? { ...finalMetrics, scale: finalMetrics.scaleToWorld } : base);
+  const textureKey = visual?.key ?? artTextureKey(art.key);
   if (!m || !textureKey) return null;
   const flip = art.facing === -1;
   const draw: SpriteDraw = {
-    key: textureKey, frame: art.frameIndex, x: f.position.x, y: f.position.y - m.bodyCentreFromRootY, depth: f.depth ?? 0, tint,
+    key: textureKey, frame: visual?.frame ?? art.frameIndex, x: f.position.x, y: f.position.y - m.bodyCentreFromRootY, depth: f.depth ?? 0, tint,
     recolor: costumeRecolor(f.characterId as CharacterId, f.paletteIndex ?? 0),
     originX: flip ? 1 - m.originX : m.originX, originY: m.originY, scaleX: m.scale * art.scaleX, scaleY: m.scale * art.scaleY, flipX: flip,
     rotation: finalMetrics && !animation?.finalVictimSelection ? (final?.rotationDegrees ?? 0) * Math.PI / 180 : 0,

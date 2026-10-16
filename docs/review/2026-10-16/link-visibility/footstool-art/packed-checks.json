@@ -1,0 +1,74 @@
+{
+ "clips": 5,
+ "articleSheets": 0,
+ "drawings": 49,
+ "schemaProblems": [],
+ "grounded": {
+  "clips": 2,
+  "drawings": 18,
+  "limitPx": 3,
+  "overLimit": [],
+  "maxSink": 2.84,
+  "floating": []
+ },
+ "floorTable": {
+  "a06stepback": {
+   "motion": "a06stepback",
+   "groundedDrawings": 13,
+   "drawings": 13,
+   "maxSink": 2.21,
+   "minFloat": 1.26,
+   "devs": [
+    2.21,
+    1.89,
+    1.58,
+    1.26,
+    1.58,
+    1.26,
+    1.58,
+    2.21,
+    2.21,
+    2.21,
+    2.21,
+    2.21,
+    2.21
+   ],
+   "lift": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "a06steppose": {
+   "motion": "a06steppose",
+   "groundedDrawings": 5,
+   "drawings": 5,
+   "maxSink": 2.84,
+   "minFloat": 1.26,
+   "devs": [
+    2.84,
+    1.26,
+    1.26,
+    1.89,
+    2.52
+   ],
+   "lift": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  }
+ }
+}

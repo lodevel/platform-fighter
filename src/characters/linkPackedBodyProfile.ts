@@ -27,6 +27,10 @@ export const LINK_SHEET_ALIASES: Readonly<Record<string, string>> = {
   landing_soft: 'a05landinglight', landing_hard: 'a05landingheavy',
   // Air-dodge landing lag is the special-fall landing motion (LandingFallSpecial).
   landing_air_dodge: 'a04landingfallspecial',
+  // Footstool bodies retain the already-owned source recipient/performer clock.
+  step_pose: 'a06steppose', step_pose_back: 'a06stepback', step_pose_air: 'a06stepairpose',
+  step_fall: 'a06stepfall', step_jump: 'a06stepjump',
+  footstool_pose: 'a06steppose', footstool_air_pose: 'a06stepairpose', footstool_fall: 'a06stepfall',
   // Match entry: the left-side entry plays the right motion facing the other way (as the taunts do).
   entry_r: 'j00entryr', entry_l: 'entry_r',
   // Defence (b00–b02). The directional air dodges play the one escape_air motion.
@@ -115,7 +119,9 @@ export const LINK_BODY_PROFILE: PackedBodyProfile = {
   bodyCentreFromRootY: -36,
   // Forward smash's second swing plays its own motion (attack_s4_s2); the driver names both swings `smash`.
   attackSheet: (sheet, a) => a.move.id === 'link.smash2' ? 'smash2' : sheet,
-  aerialLandingSheet: moveId => (moveId && LINK_AERIAL_LANDING[moveId]) || 'landing_aerial',
+  // Saved moves may rename their gameplay ID while retaining the native pose
+  // identity. Landing keeps that same source identity through its whole lag.
+  aerialLandingSheet: (moveId, sourcePoseId) => LINK_AERIAL_LANDING[sourcePoseId ?? moveId ?? ''] || 'landing_aerial',
   // Link's only special fall is the aerial Spin Attack.
   specialLandingSheet: () => 'a04landingfallspecial',
 };

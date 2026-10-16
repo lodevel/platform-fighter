@@ -1,0 +1,1323 @@
+{
+  "date": "2026-10-16",
+  "recordVersion": 1,
+  "viewport": {
+    "width": 1280,
+    "height": 800,
+    "deviceScaleFactor": 1
+  },
+  "evidenceRetention": "Measurements, build/tool/raw-report hashes, input fixtures and accepted visual-review receipts retained; reviewed raw captures and traces removed after bounded cleanup.",
+  "result": "PASS_CORRECTNESS_PACING_RECORDED",
+  "liveTool": "tools/final-visual-pacing-acceptance.mjs",
+  "runs": {
+    "before": {
+      "result": "PASS_CORRECTNESS_PACING_RECORDED",
+      "bundle": "game-BNZfv5Ng.js",
+      "bundleSha256": "66e3ae1472f058ad804b560ddfc6cd39c6a65bd971b81b8106ebfc88e303fc16",
+      "buildIdentity": "platform-fighter-sha256-0067e47aa8dad11d9fe4e4501c5db226e6d40d5f9dc5ab70e8693fbb2a1bd191",
+      "browser": "155.0.4283.45",
+      "graphics": {
+        "renderer": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x0000A7A0) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "parallelShaderCompile": true
+      },
+      "harnessSha256": "3e6018237cbb60b446be943719ac7b877ef2afe835fb074e3a1e3c0e5bf83815",
+      "rawReport": {
+        "path": "docs/review/2026-10-16/final-visual-pacing/before/report.json",
+        "bytes": 1421600,
+        "sha256": "82210d6238b3b02cd8c0c09e29ce8002d906016affbcf38026c0f4d3287dc652"
+      },
+      "pageErrors": [],
+      "profileRemoved": true,
+      "cases": [
+        {
+          "owner": "pikachu",
+          "activation": "first",
+          "fixture": {
+            "binding": {
+              "kind": "keyboard",
+              "keyCode": 71
+            },
+            "fighters": [
+              {
+                "position": {
+                  "x": 960,
+                  "y": 905.050000277778
+                },
+                "velocity": {
+                  "x": 0,
+                  "y": 0
+                },
+                "grounded": true,
+                "facing": 1,
+                "damage": 0
+              },
+              {
+                "position": {
+                  "x": 1080,
+                  "y": 888.1228178696844
+                },
+                "velocity": {
+                  "x": 0,
+                  "y": 0
+                },
+                "grounded": true,
+                "facing": -1,
+                "damage": 0
+              }
+            ],
+            "startFrame": 250
+          },
+          "summary": {
+            "observations": 854,
+            "wallMs": 6844.5999999996275,
+            "activeFixedTicks": 350,
+            "rafGaps": {
+              "count": 853,
+              "p50": 7,
+              "p95": 13.899999999999636,
+              "p99": 14,
+              "max": 41.600000000000364,
+              "over25ms": 3,
+              "over50ms": 0,
+              "over100ms": 0
+            },
+            "wallGaps": {
+              "count": 853,
+              "p50": 7.800000000745058,
+              "p95": 11,
+              "p99": 14,
+              "max": 36.90000000037253,
+              "over25ms": 3,
+              "over50ms": 0,
+              "over100ms": 0
+            },
+            "largestGaps": [
+              {
+                "ms": 41.600000000000364,
+                "observedMs": 10.200000001117587,
+                "fromFrame": 486,
+                "toFrame": 488,
+                "phase": "finish",
+                "age": 2
+              },
+              {
+                "ms": 34.70000000000073,
+                "observedMs": 18.40000000037253,
+                "fromFrame": 314,
+                "toFrame": 316,
+                "phase": "hit",
+                "age": 0
+              },
+              {
+                "ms": 28,
+                "observedMs": 14,
+                "fromFrame": 251,
+                "toFrame": 253,
+                "phase": "startup",
+                "age": 2
+              },
+              {
+                "ms": 20.899999999999636,
+                "observedMs": 9.099999999627471,
+                "fromFrame": 316,
+                "toFrame": 317,
+                "phase": "hit",
+                "age": 1
+              },
+              {
+                "ms": 20.800000000000182,
+                "observedMs": 6.199999999254942,
+                "fromFrame": 322,
+                "toFrame": 323,
+                "phase": "attack",
+                "age": 0
+              }
+            ],
+            "missingOwner": 0,
+            "uniqueOwnerDrawings": 76,
+            "phases": [
+              "startup",
+              "hit",
+              "attack",
+              "attack2",
+              "attack-finish",
+              "return",
+              "finish"
+            ],
+            "maxCaptures": 1,
+            "maxDamage": 62.370000000000005
+          },
+          "apiDelta": {
+            "compileShader": 0,
+            "linkProgram": 0,
+            "createTexture": 12,
+            "deleteTexture": 0,
+            "texImage2D": 0,
+            "texSubImage2D": 12,
+            "texStorage2D": 12,
+            "texImage3D": 0,
+            "texSubImage3D": 0,
+            "texStorage3D": 0
+          },
+          "longTaskCount": 0,
+          "resourcesBefore": {
+            "rgbaBytes": 920945792,
+            "residents": 472,
+            "pending": [],
+            "failures": {},
+            "rendererMemory": {
+              "geometries": 108,
+              "textures": 14
+            }
+          },
+          "resourcesAfter": {
+            "rgbaBytes": 920945792,
+            "residents": 472,
+            "pending": [],
+            "failures": {},
+            "rendererMemory": {
+              "geometries": 109,
+              "textures": 26
+            }
+          },
+          "finalPagesBeforeSha256": "36fa06e93d6f6911de0b7c1311b2c9b1560703190a3a0f154604bf6ba805bba9",
+          "finalPagesAfterSha256": "36fa06e93d6f6911de0b7c1311b2c9b1560703190a3a0f154604bf6ba805bba9",
+          "observationsSha256": "deb39a736de28347e541aad9aa1db52b2c5be307826fbb89f1529be88dc5d4d4",
+          "uploadEventsSha256": "d2f485a190ea080dd0b52343b30f7b0a43d3d8d5236e28a593f11edd76cadcd0"
+        },
+        {
+          "owner": "pikachu",
+          "activation": "repeat",
+          "fixture": {
+            "binding": {
+              "kind": "keyboard",
+              "keyCode": 71
+            },
+            "fighters": [
+              {
+                "position": {
+                  "x": 960,
+                  "y": 905.050000277778
+                },
+                "velocity": {
+                  "x": 0,
+                  "y": 0
+                },
+                "grounded": true,
+                "facing": 1,
+                "damage": 0
+              },
+              {
+                "position": {
+                  "x": 1080,
+                  "y": 888.1228178696832
+                },
+                "velocity": {
+                  "x": 0,
+                  "y": 0
+                },
+                "grounded": true,
+                "facing": -1,
+                "damage": 0
+              }
+            ],
+            "startFrame": 670
+          },
+          "summary": {
+            "observations": 886,
+            "wallMs": 6837.800000000745,
+            "activeFixedTicks": 350,
+            "rafGaps": {
+              "count": 885,
+              "p50": 7,
+              "p95": 13.899999999999636,
+              "p99": 14,
+              "max": 14.199999999998909,
+              "over25ms": 0,
+              "over50ms": 0,
+              "over100ms": 0
+            },
+            "wallGaps": {
+              "count": 885,
+              "p50": 7.699999999254942,
+              "p95": 10.800000000745058,
+              "p99": 12.599999999627471,
+              "max": 15.5,
+              "over25ms": 0,
+              "over50ms": 0,
+              "over100ms": 0
+            },
+            "largestGaps": [
+              {
+                "ms": 14.199999999998909,
+                "observedMs": 11.800000000745058,
+                "fromFrame": 890,
+                "toFrame": 891,
+                "phase": "attack2",
+                "age": 0
+              },
+              {
+                "ms": 14.100000000002183,
+                "observedMs": 4.199999999254942,
+                "fromFrame": 1058,
+                "toFrame": 1059,
+                "phase": null,
+                "age": null
+              },
+              {
+                "ms": 14.100000000000364,
+                "observedMs": 8.599999999627471,
+                "fromFrame": 813,
+                "toFrame": 814,
+                "phase": "attack",
+                "age": 1
+              },
+              {
+                "ms": 14.100000000000364,
+                "observedMs": 9.5,
+                "fromFrame": 920,
+                "toFrame": 921,
+                "phase": "finish",
+                "age": 9
+              },
+              {
+                "ms": 14,
+                "observedMs": 5,
+                "fromFrame": 679,
+                "toFrame": 680,
+                "phase": "startup",
+                "age": 9
+              }
+            ],
+            "missingOwner": 0,
+            "uniqueOwnerDrawings": 77,
+            "phases": [
+              "startup",
+              "hit",
+              "attack",
+              "attack2",
+              "attack-finish",
+              "return",
+              "finish"
+            ],
+            "maxCaptures": 1,
+            "maxDamage": 62.370000000000005
+          },
+          "apiDelta": {
+            "compileShader": 0,
+            "linkProgram": 0,
+            "createTexture": 0,
+            "deleteTexture": 0,
+            "texImage2D": 0,
+            "texSubImage2D": 0,
+            "texStorage2D": 0,
+            "texImage3D": 0,
+            "texSubImage3D": 0,
+            "texStorage3D": 0
+          },
+          "longTaskCount": 0,
+          "resourcesBefore": {
+            "rgbaBytes": 920945792,
+            "residents": 472,
+            "pending": [],
+            "failures": {},
+            "rendererMemory": {
+              "geometries": 109,
+              "textures": 26
+            }
+          },
+          "resourcesAfter": {
+            "rgbaBytes": 920945792,
+            "residents": 472,
+            "pending": [],
+            "failures": {},
+            "rendererMemory": {
+              "geometries": 109,
+              "textures": 26
+            }
+          },
+          "finalPagesBeforeSha256": "36fa06e93d6f6911de0b7c1311b2c9b1560703190a3a0f154604bf6ba805bba9",
+          "finalPagesAfterSha256": "36fa06e93d6f6911de0b7c1311b2c9b1560703190a3a0f154604bf6ba805bba9",
+          "observationsSha256": "71345cac3e1a91771d18e9dce1a67d163c95ca04f3ea7b70aa8c336c2423e407",
+          "uploadEventsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "owner": "link",
+          "activation": "first",
+          "fixture": {
+            "binding": {
+              "kind": "keyboard",
+              "keyCode": 71
+            },
+            "fighters": [
+              {
+                "position": {
+                  "x": 960,
+                  "y": 894.050000277778
+                },
+                "velocity": {
+                  "x": 0,
+                  "y": 0
+                },
+                "grounded": true,
+                "facing": 1,
+                "damage": 0
+              },
+              {
+                "position": {
+                  "x": 660,
+                  "y": 888.1228178696844
+                },
+                "velocity": {
+                  "x": 0,
+                  "y": 0
+                },
+                "grounded": true,
+                "facing": -1,
+                "damage": 0
+              }
+            ],
+            "startFrame": 250
+          },
+          "summary": {
+            "observations": 415,
+            "wallMs": 3389.300000000745,
+            "activeFixedTicks": 143,
+            "rafGaps": {
+              "count": 414,
+              "p50": 7,
+              "p95": 14,
+              "p99": 14.099999999999454,
+              "max": 34.69999999999982,
+              "over25ms": 1,
+              "over50ms": 0,
+              "over100ms": 0
+            },
+            "wallGaps": {
+              "count": 414,
+              "p50": 8,
+              "p95": 10.799999998882413,
+              "p99": 14.599999999627471,
+              "max": 33.90000000037253,
+              "over25ms": 1,
+              "over50ms": 0,
+              "over100ms": 0
+            },
+            "largestGaps": [
+              {
+                "ms": 34.69999999999982,
+                "observedMs": 14.599999999627471,
+                "fromFrame": 251,
+                "toFrame": 253,
+                "phase": "ancient-bow",
+                "age": 2
+              },
+              {
+                "ms": 21,
+                "observedMs": 14.5,
+                "fromFrame": 420,
+                "toFrame": 422,
+                "phase": null,
+                "age": null
+              },
+              {
+                "ms": 14.100000000000364,
+                "observedMs": 10.699999999254942,
+                "fromFrame": 267,
+                "toFrame": 268,
+                "phase": "ancient-bow",
+                "age": 17
+              },
+              {
+                "ms": 14.100000000000364,
+                "observedMs": 8.800000000745058,
+                "fromFrame": 389,
+                "toFrame": 390,
+                "phase": "ancient-bow",
+                "age": 128
+              },
+              {
+                "ms": 14.099999999999454,
+                "observedMs": 9.899999998509884,
+                "fromFrame": 285,
+                "toFrame": 286,
+                "phase": "ancient-bow",
+                "age": 35
+              }
+            ],
+            "missingOwner": 0,
+            "uniqueOwnerDrawings": 72,
+            "phases": [
+              "ancient-bow"
+            ],
+            "maxCaptures": 0,
+            "maxDamage": 0
+          },
+          "apiDelta": {
+            "compileShader": 0,
+            "linkProgram": 0,
+            "createTexture": 2,
+            "deleteTexture": 0,
+            "texImage2D": 0,
+            "texSubImage2D": 2,
+            "texStorage2D": 2,
+            "texImage3D": 0,
+            "texSubImage3D": 0,
+            "texStorage3D": 0
+          },
+          "longTaskCount": 0,
+          "resourcesBefore": {
+            "rgbaBytes": 1011946048,
+            "residents": 502,
+            "pending": [],
+            "failures": {},
+            "rendererMemory": {
+              "geometries": 108,
+              "textures": 13
+            }
+          },
+          "resourcesAfter": {
+            "rgbaBytes": 1011946048,
+            "residents": 502,
+            "pending": [],
+            "failures": {},
+            "rendererMemory": {
+              "geometries": 109,
+              "textures": 15
+            }
+          },
+          "finalPagesBeforeSha256": "a70c438aaf37543676ae006ec743d147dd27927c3d9d8ea6398b77288e75dda3",
+          "finalPagesAfterSha256": "a70c438aaf37543676ae006ec743d147dd27927c3d9d8ea6398b77288e75dda3",
+          "observationsSha256": "7ad675ed0fffaa74e513eca33cd046c45c03b2352e2e2cd2e2c4a50acf65fe6c",
+          "uploadEventsSha256": "5ef0f51a36df428fc84489ff4b63411a562021f2c48e94e4e9cc25d401492008"
+        },
+        {
+          "owner": "link",
+          "activation": "repeat",
+          "fixture": {
+            "binding": {
+              "kind": "keyboard",
+              "keyCode": 71
+            },
+            "fighters": [
+              {
+                "position": {
+                  "x": 960,
+                  "y": 894.050000277778
+                },
+                "velocity": {
+                  "x": 0,
+                  "y": 0
+                },
+                "grounded": true,
+                "facing": 1,
+                "damage": 0
+              },
+              {
+                "position": {
+                  "x": 660,
+                  "y": 888.1228178696844
+                },
+                "velocity": {
+                  "x": 0,
+                  "y": 0
+                },
+                "grounded": true,
+                "facing": -1,
+                "damage": 0
+              }
+            ],
+            "startFrame": 463
+          },
+          "summary": {
+            "observations": 451,
+            "wallMs": 3387.0999999996275,
+            "activeFixedTicks": 143,
+            "rafGaps": {
+              "count": 450,
+              "p50": 7,
+              "p95": 13.899999999999636,
+              "p99": 14,
+              "max": 14.100000000000364,
+              "over25ms": 0,
+              "over50ms": 0,
+              "over100ms": 0
+            },
+            "wallGaps": {
+              "count": 450,
+              "p50": 7.300000000745058,
+              "p95": 9.800000000745058,
+              "p99": 11.599999999627471,
+              "max": 13.5,
+              "over25ms": 0,
+              "over50ms": 0,
+              "over100ms": 0
+            },
+            "largestGaps": [
+              {
+                "ms": 14.100000000000364,
+                "observedMs": 10.599999999627471,
+                "fromFrame": 475,
+                "toFrame": 476,
+                "phase": "ancient-bow",
+                "age": 12
+              },
+              {
+                "ms": 14.100000000000364,
+                "observedMs": 7.200000001117587,
+                "fromFrame": 534,
+                "toFrame": 534,
+                "phase": "ancient-bow",
+                "age": 70
+              },
+              {
+                "ms": 14,
+                "observedMs": 9,
+                "fromFrame": 466,
+                "toFrame": 467,
+                "phase": "ancient-bow",
+                "age": 3
+              },
+              {
+                "ms": 14,
+                "observedMs": 7.800000000745058,
+                "fromFrame": 469,
+                "toFrame": 470,
+                "phase": "ancient-bow",
+                "age": 6
+              },
+              {
+                "ms": 14,
+                "observedMs": 7.600000001490116,
+                "fromFrame": 506,
+                "toFrame": 506,
+                "phase": "ancient-bow",
+                "age": 42
+              }
+            ],
+            "missingOwner": 0,
+            "uniqueOwnerDrawings": 72,
+            "phases": [
+              "ancient-bow"
+            ],
+            "maxCaptures": 0,
+            "maxDamage": 0
+          },
+          "apiDelta": {
+            "compileShader": 0,
+            "linkProgram": 0,
+            "createTexture": 0,
+            "deleteTexture": 0,
+            "texImage2D": 0,
+            "texSubImage2D": 0,
+            "texStorage2D": 0,
+            "texImage3D": 0,
+            "texSubImage3D": 0,
+            "texStorage3D": 0
+          },
+          "longTaskCount": 0,
+          "resourcesBefore": {
+            "rgbaBytes": 1011946048,
+            "residents": 502,
+            "pending": [],
+            "failures": {},
+            "rendererMemory": {
+              "geometries": 109,
+              "textures": 15
+            }
+          },
+          "resourcesAfter": {
+            "rgbaBytes": 1011946048,
+            "residents": 502,
+            "pending": [],
+            "failures": {},
+            "rendererMemory": {
+              "geometries": 109,
+              "textures": 15
+            }
+          },
+          "finalPagesBeforeSha256": "a70c438aaf37543676ae006ec743d147dd27927c3d9d8ea6398b77288e75dda3",
+          "finalPagesAfterSha256": "a70c438aaf37543676ae006ec743d147dd27927c3d9d8ea6398b77288e75dda3",
+          "observationsSha256": "b618163cb926c386357eddf722463c1bdb6f589a1f7e2e1f0eb01f8f47a353fe",
+          "uploadEventsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ]
+    },
+    "after": {
+      "result": "PASS_CORRECTNESS_PACING_RECORDED",
+      "bundle": "game-_LoddHLw.js",
+      "bundleSha256": "45fcc17418246d97d688ec005ee47a72e13142af7f04c58bb4983076c93ab58d",
+      "buildIdentity": "platform-fighter-sha256-e236b17191fa7db98aa7d508f28193b773b06ffa7632a37ea0ea5570b51cd1d9",
+      "browser": "155.0.4283.45",
+      "graphics": {
+        "renderer": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x0000A7A0) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "parallelShaderCompile": true
+      },
+      "harnessSha256": "3e6018237cbb60b446be943719ac7b877ef2afe835fb074e3a1e3c0e5bf83815",
+      "rawReport": {
+        "path": "docs/review/2026-10-16/final-visual-pacing/after/report.json",
+        "bytes": 1396328,
+        "sha256": "14651078de808c85ad2a4c5f05f6ec23b6af91573bbd50863c8359d1346b3a32"
+      },
+      "pageErrors": [],
+      "profileRemoved": true,
+      "cases": [
+        {
+          "owner": "pikachu",
+          "activation": "first",
+          "fixture": {
+            "binding": {
+              "kind": "keyboard",
+              "keyCode": 71
+            },
+            "fighters": [
+              {
+                "position": {
+                  "x": 960,
+                  "y": 905.050000277778
+                },
+                "velocity": {
+                  "x": 0,
+                  "y": 0
+                },
+                "grounded": true,
+                "facing": 1,
+                "damage": 0
+              },
+              {
+                "position": {
+                  "x": 1080,
+                  "y": 888.1228178696844
+                },
+                "velocity": {
+                  "x": 0,
+                  "y": 0
+                },
+                "grounded": true,
+                "facing": -1,
+                "damage": 0
+              }
+            ],
+            "startFrame": 250
+          },
+          "summary": {
+            "observations": 798,
+            "wallMs": 6841,
+            "activeFixedTicks": 350,
+            "rafGaps": {
+              "count": 797,
+              "p50": 7,
+              "p95": 14,
+              "p99": 14.200000000000728,
+              "max": 41.599999999999454,
+              "over25ms": 3,
+              "over50ms": 0,
+              "over100ms": 0
+            },
+            "wallGaps": {
+              "count": 797,
+              "p50": 8.5,
+              "p95": 12,
+              "p99": 16.199999999254942,
+              "max": 42,
+              "over25ms": 3,
+              "over50ms": 0,
+              "over100ms": 0
+            },
+            "largestGaps": [
+              {
+                "ms": 41.599999999999454,
+                "observedMs": 23.699999999254942,
+                "fromFrame": 314,
+                "toFrame": 316,
+                "phase": "hit",
+                "age": 0
+              },
+              {
+                "ms": 34.70000000000073,
+                "observedMs": 8.599999999627471,
+                "fromFrame": 486,
+                "toFrame": 488,
+                "phase": "finish",
+                "age": 2
+              },
+              {
+                "ms": 27.899999999999636,
+                "observedMs": 13.599999999627471,
+                "fromFrame": 251,
+                "toFrame": 252,
+                "phase": "startup",
+                "age": 1
+              },
+              {
+                "ms": 20.899999999999636,
+                "observedMs": 16,
+                "fromFrame": 317,
+                "toFrame": 319,
+                "phase": "hit",
+                "age": 3
+              },
+              {
+                "ms": 20.800000000000182,
+                "observedMs": 16.59999999962747,
+                "fromFrame": 316,
+                "toFrame": 317,
+                "phase": "hit",
+                "age": 1
+              }
+            ],
+            "missingOwner": 0,
+            "uniqueOwnerDrawings": 157,
+            "phases": [
+              "startup",
+              "hit",
+              "attack",
+              "attack2",
+              "attack-finish",
+              "return",
+              "finish"
+            ],
+            "maxCaptures": 1,
+            "maxDamage": 62.370000000000005
+          },
+          "apiDelta": {
+            "compileShader": 0,
+            "linkProgram": 0,
+            "createTexture": 14,
+            "deleteTexture": 0,
+            "texImage2D": 0,
+            "texSubImage2D": 14,
+            "texStorage2D": 14,
+            "texImage3D": 0,
+            "texSubImage3D": 0,
+            "texStorage3D": 0
+          },
+          "longTaskCount": 0,
+          "resourcesBefore": {
+            "rgbaBytes": 1013517632,
+            "residents": 479,
+            "pending": [],
+            "failures": {},
+            "rendererMemory": {
+              "geometries": 108,
+              "textures": 15
+            }
+          },
+          "resourcesAfter": {
+            "rgbaBytes": 1013517632,
+            "residents": 479,
+            "pending": [],
+            "failures": {},
+            "rendererMemory": {
+              "geometries": 109,
+              "textures": 29
+            }
+          },
+          "finalPagesBeforeSha256": "b3fc7add41fc21878ac050fefdc5f7da010af03d9226cba0f380b49632be3c55",
+          "finalPagesAfterSha256": "b3fc7add41fc21878ac050fefdc5f7da010af03d9226cba0f380b49632be3c55",
+          "observationsSha256": "e2b342f38694707cd8a4ada920aefea2d5d278c381c8ab36786a490e74a3dd1c",
+          "uploadEventsSha256": "0cbc752da2d0087a3517d58cc66ea31a7025afd0e840fd3e65b254c294b7c68e"
+        },
+        {
+          "owner": "pikachu",
+          "activation": "repeat",
+          "fixture": {
+            "binding": {
+              "kind": "keyboard",
+              "keyCode": 71
+            },
+            "fighters": [
+              {
+                "position": {
+                  "x": 960,
+                  "y": 905.050000277778
+                },
+                "velocity": {
+                  "x": 0,
+                  "y": 0
+                },
+                "grounded": true,
+                "facing": 1,
+                "damage": 0
+              },
+              {
+                "position": {
+                  "x": 1080,
+                  "y": 888.1228178696832
+                },
+                "velocity": {
+                  "x": 0,
+                  "y": 0
+                },
+                "grounded": true,
+                "facing": -1,
+                "damage": 0
+              }
+            ],
+            "startFrame": 670
+          },
+          "summary": {
+            "observations": 857,
+            "wallMs": 6839.9000000003725,
+            "activeFixedTicks": 350,
+            "rafGaps": {
+              "count": 856,
+              "p50": 7,
+              "p95": 13.900000000001455,
+              "p99": 14,
+              "max": 20.799999999999272,
+              "over25ms": 0,
+              "over50ms": 0,
+              "over100ms": 0
+            },
+            "wallGaps": {
+              "count": 856,
+              "p50": 7.900000000372529,
+              "p95": 11.5,
+              "p99": 13.400000000372529,
+              "max": 18.90000000037253,
+              "over25ms": 0,
+              "over50ms": 0,
+              "over100ms": 0
+            },
+            "largestGaps": [
+              {
+                "ms": 20.799999999999272,
+                "observedMs": 13.400000000372529,
+                "fromFrame": 748,
+                "toFrame": 749,
+                "phase": "attack",
+                "age": 1
+              },
+              {
+                "ms": 20.799999999999272,
+                "observedMs": 15.099999999627471,
+                "fromFrame": 899,
+                "toFrame": 900,
+                "phase": "attack-finish",
+                "age": 0
+              },
+              {
+                "ms": 14.200000000000728,
+                "observedMs": 8.699999999254942,
+                "fromFrame": 994,
+                "toFrame": 994,
+                "phase": "finish",
+                "age": 68
+              },
+              {
+                "ms": 14.100000000000364,
+                "observedMs": 5.299999998882413,
+                "fromFrame": 755,
+                "toFrame": 756,
+                "phase": "attack",
+                "age": 0
+              },
+              {
+                "ms": 14.100000000000364,
+                "observedMs": 3.900000000372529,
+                "fromFrame": 865,
+                "toFrame": 866,
+                "phase": "attack",
+                "age": 0
+              }
+            ],
+            "missingOwner": 0,
+            "uniqueOwnerDrawings": 158,
+            "phases": [
+              "startup",
+              "hit",
+              "attack",
+              "attack2",
+              "attack-finish",
+              "return",
+              "finish"
+            ],
+            "maxCaptures": 1,
+            "maxDamage": 62.370000000000005
+          },
+          "apiDelta": {
+            "compileShader": 0,
+            "linkProgram": 0,
+            "createTexture": 0,
+            "deleteTexture": 0,
+            "texImage2D": 0,
+            "texSubImage2D": 0,
+            "texStorage2D": 0,
+            "texImage3D": 0,
+            "texSubImage3D": 0,
+            "texStorage3D": 0
+          },
+          "longTaskCount": 0,
+          "resourcesBefore": {
+            "rgbaBytes": 1013517632,
+            "residents": 479,
+            "pending": [],
+            "failures": {},
+            "rendererMemory": {
+              "geometries": 109,
+              "textures": 29
+            }
+          },
+          "resourcesAfter": {
+            "rgbaBytes": 1013517632,
+            "residents": 479,
+            "pending": [],
+            "failures": {},
+            "rendererMemory": {
+              "geometries": 109,
+              "textures": 29
+            }
+          },
+          "finalPagesBeforeSha256": "b3fc7add41fc21878ac050fefdc5f7da010af03d9226cba0f380b49632be3c55",
+          "finalPagesAfterSha256": "b3fc7add41fc21878ac050fefdc5f7da010af03d9226cba0f380b49632be3c55",
+          "observationsSha256": "09249db5b2e4caaee2c6cc33ff59234d02b28c35e78ef346511fb4097af86962",
+          "uploadEventsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "owner": "link",
+          "activation": "first",
+          "fixture": {
+            "binding": {
+              "kind": "keyboard",
+              "keyCode": 71
+            },
+            "fighters": [
+              {
+                "position": {
+                  "x": 960,
+                  "y": 894.050000277778
+                },
+                "velocity": {
+                  "x": 0,
+                  "y": 0
+                },
+                "grounded": true,
+                "facing": 1,
+                "damage": 0
+              },
+              {
+                "position": {
+                  "x": 660,
+                  "y": 888.1228178696844
+                },
+                "velocity": {
+                  "x": 0,
+                  "y": 0
+                },
+                "grounded": true,
+                "facing": -1,
+                "damage": 0
+              }
+            ],
+            "startFrame": 250
+          },
+          "summary": {
+            "observations": 424,
+            "wallMs": 3398.699999999255,
+            "activeFixedTicks": 143,
+            "rafGaps": {
+              "count": 423,
+              "p50": 7,
+              "p95": 13.900000000000546,
+              "p99": 14.100000000000364,
+              "max": 34.69999999999982,
+              "over25ms": 1,
+              "over50ms": 0,
+              "over100ms": 0
+            },
+            "wallGaps": {
+              "count": 423,
+              "p50": 7.800000000745058,
+              "p95": 10.699999999254942,
+              "p99": 12.699999999254942,
+              "max": 32.899999998509884,
+              "over25ms": 1,
+              "over50ms": 0,
+              "over100ms": 0
+            },
+            "largestGaps": [
+              {
+                "ms": 34.69999999999982,
+                "observedMs": 16.5,
+                "fromFrame": 251,
+                "toFrame": 253,
+                "phase": "ancient-bow",
+                "age": 2
+              },
+              {
+                "ms": 14.100000000000364,
+                "observedMs": 8.099999999627471,
+                "fromFrame": 335,
+                "toFrame": 336,
+                "phase": "ancient-bow",
+                "age": 82
+              },
+              {
+                "ms": 14.100000000000364,
+                "observedMs": 3.599999999627471,
+                "fromFrame": 354,
+                "toFrame": 354,
+                "phase": "ancient-bow",
+                "age": 98
+              },
+              {
+                "ms": 14.100000000000364,
+                "observedMs": 8.400000000372529,
+                "fromFrame": 380,
+                "toFrame": 381,
+                "phase": "ancient-bow",
+                "age": 120
+              },
+              {
+                "ms": 14.100000000000364,
+                "observedMs": 11.5,
+                "fromFrame": 450,
+                "toFrame": 451,
+                "phase": null,
+                "age": null
+              }
+            ],
+            "missingOwner": 0,
+            "uniqueOwnerDrawings": 72,
+            "phases": [
+              "ancient-bow"
+            ],
+            "maxCaptures": 0,
+            "maxDamage": 0
+          },
+          "apiDelta": {
+            "compileShader": 0,
+            "linkProgram": 0,
+            "createTexture": 2,
+            "deleteTexture": 0,
+            "texImage2D": 0,
+            "texSubImage2D": 2,
+            "texStorage2D": 2,
+            "texImage3D": 0,
+            "texSubImage3D": 0,
+            "texStorage3D": 0
+          },
+          "longTaskCount": 0,
+          "resourcesBefore": {
+            "rgbaBytes": 1011946048,
+            "residents": 502,
+            "pending": [],
+            "failures": {},
+            "rendererMemory": {
+              "geometries": 108,
+              "textures": 13
+            }
+          },
+          "resourcesAfter": {
+            "rgbaBytes": 1011946048,
+            "residents": 502,
+            "pending": [],
+            "failures": {},
+            "rendererMemory": {
+              "geometries": 109,
+              "textures": 15
+            }
+          },
+          "finalPagesBeforeSha256": "5cd9166fd6e1a9c73c9d71fb9295ffa466b929fb731bcc5d5acaaca2a7862d3a",
+          "finalPagesAfterSha256": "5cd9166fd6e1a9c73c9d71fb9295ffa466b929fb731bcc5d5acaaca2a7862d3a",
+          "observationsSha256": "5ffbfed106a552a2a484ca35c8c12f67e20bc222cff03494923d016d03b03f18",
+          "uploadEventsSha256": "035d850f5a14dcf10e1bc93e397a3364c5c0b87c69330bef4f58ccc60b65b640"
+        },
+        {
+          "owner": "link",
+          "activation": "repeat",
+          "fixture": {
+            "binding": {
+              "kind": "keyboard",
+              "keyCode": 71
+            },
+            "fighters": [
+              {
+                "position": {
+                  "x": 960,
+                  "y": 894.050000277778
+                },
+                "velocity": {
+                  "x": 0,
+                  "y": 0
+                },
+                "grounded": true,
+                "facing": 1,
+                "damage": 0
+              },
+              {
+                "position": {
+                  "x": 660,
+                  "y": 888.1228178696844
+                },
+                "velocity": {
+                  "x": 0,
+                  "y": 0
+                },
+                "grounded": true,
+                "facing": -1,
+                "damage": 0
+              }
+            ],
+            "startFrame": 463
+          },
+          "summary": {
+            "observations": 443,
+            "wallMs": 3382.5,
+            "activeFixedTicks": 143,
+            "rafGaps": {
+              "count": 442,
+              "p50": 7,
+              "p95": 13.899999999999636,
+              "p99": 14.100000000000364,
+              "max": 14.399999999999636,
+              "over25ms": 0,
+              "over50ms": 0,
+              "over100ms": 0
+            },
+            "wallGaps": {
+              "count": 442,
+              "p50": 7.599999999627471,
+              "p95": 9.799999998882413,
+              "p99": 11.200000001117587,
+              "max": 15.5,
+              "over25ms": 0,
+              "over50ms": 0,
+              "over100ms": 0
+            },
+            "largestGaps": [
+              {
+                "ms": 14.399999999999636,
+                "observedMs": 9.199999999254942,
+                "fromFrame": 625,
+                "toFrame": 626,
+                "phase": null,
+                "age": null
+              },
+              {
+                "ms": 14.300000000001091,
+                "observedMs": 8.099999999627471,
+                "fromFrame": 491,
+                "toFrame": 492,
+                "phase": "ancient-bow",
+                "age": 28
+              },
+              {
+                "ms": 14.200000000000728,
+                "observedMs": 7.399999998509884,
+                "fromFrame": 614,
+                "toFrame": 614,
+                "phase": null,
+                "age": null
+              },
+              {
+                "ms": 14.100000000000364,
+                "observedMs": 10.099999999627471,
+                "fromFrame": 479,
+                "toFrame": 480,
+                "phase": "ancient-bow",
+                "age": 16
+              },
+              {
+                "ms": 14.100000000000364,
+                "observedMs": 10.200000001117587,
+                "fromFrame": 510,
+                "toFrame": 511,
+                "phase": "ancient-bow",
+                "age": 47
+              }
+            ],
+            "missingOwner": 0,
+            "uniqueOwnerDrawings": 72,
+            "phases": [
+              "ancient-bow"
+            ],
+            "maxCaptures": 0,
+            "maxDamage": 0
+          },
+          "apiDelta": {
+            "compileShader": 0,
+            "linkProgram": 0,
+            "createTexture": 0,
+            "deleteTexture": 0,
+            "texImage2D": 0,
+            "texSubImage2D": 0,
+            "texStorage2D": 0,
+            "texImage3D": 0,
+            "texSubImage3D": 0,
+            "texStorage3D": 0
+          },
+          "longTaskCount": 0,
+          "resourcesBefore": {
+            "rgbaBytes": 1011946048,
+            "residents": 502,
+            "pending": [],
+            "failures": {},
+            "rendererMemory": {
+              "geometries": 109,
+              "textures": 15
+            }
+          },
+          "resourcesAfter": {
+            "rgbaBytes": 1011946048,
+            "residents": 502,
+            "pending": [],
+            "failures": {},
+            "rendererMemory": {
+              "geometries": 109,
+              "textures": 15
+            }
+          },
+          "finalPagesBeforeSha256": "5cd9166fd6e1a9c73c9d71fb9295ffa466b929fb731bcc5d5acaaca2a7862d3a",
+          "finalPagesAfterSha256": "5cd9166fd6e1a9c73c9d71fb9295ffa466b929fb731bcc5d5acaaca2a7862d3a",
+          "observationsSha256": "66a1178a1099debef2d29c550c346026e4418fdf9fb5dcbda062549968017266",
+          "uploadEventsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ]
+    }
+  },
+  "visualReview": {
+    "result": "PASS",
+    "owner": "Independent render agent",
+    "linkSamples": [
+      "ground-right-miss-age-55.png (before and after)",
+      "ground-right-miss-age-61.png (before and after)",
+      "ground-left-hit-age-55.png (after)",
+      "air-left-hit-age-55.png (after)",
+      "air-left-hit-age-61.png (after)"
+    ],
+    "observations": [
+      "Loaded arrow and charge glow are clearly positioned at the bow in both facings and airborne.",
+      "Bright release and travel strip clarify projectile motion and direction.",
+      "Reviewed captures are clean; screenshot FPS labels are not used for pacing conclusions."
+    ],
+    "companionRecords": [
+      "../link-final-visuals/README.md",
+      "../pikachu-final-density/README.md"
+    ]
+  },
+  "method": "Fresh browser context per owner, first and repeated Final in the same match/context. Normal saved DOM special press, natural RAF through completion and60post-action fixed ticks. No screenshots, explicit draws, manual steps, polling, or simulation wrappers during observation. Passive upload/compile counters and minimal per-RAF reads add observation overhead.",
+  "limits": "First use follows actual application readiness policy; no cache eviction. One Edge/GPU session and bounded fixtures do not establish universal performance, physical-controller feel, source timing parity, or GPU driver compilation time. Deterministic animation density/authority and visual screenshots are qualified by the separate fighter harnesses.",
+  "conclusions": {
+    "pacing": "All eight runs p95 13.9\u201314.0ms; zero intervals over50ms, zero observed long tasks. One bounded run per condition/device is not a universal performance guarantee.",
+    "shaderCalls": "Zero action-time compileShader/linkProgram calls in all eight observations; driver-internal work is not measured.",
+    "firstUseUploads": "Pikachu texSubImage2D uploads12\u219214; Link2\u21922. All warm repeats0. First-use GPU object counts grow as expected; warm repeats stable.",
+    "decodeResidency": "No decoded RGBA estimate or resident-bank count growth within any activation. Pikachu preloaded decoded estimate920945792\u21921013517632 bytes, delta92571840; this is not measured physical GPU memory.",
+    "drawingCadence": "Pikachu distinct submitted owner drawings76/77\u2192157/158 on first/repeat naturalRAF. Exact per-fixed-tick density and authority are in companion record.",
+    "combat": "Pikachu capture1/maxdamage62.37/350active fixed ticks unchanged; Linkmiss/143active ticks unchanged.",
+    "faults": "Zero missing owner submissions, pending resources, resource failures or runtime faults."
+  },
+  "cleanup": {
+    "status": "COMPLETE",
+    "approvedBy": "Coordinating agent /root after exact path/hash review",
+    "filesRemoved": 2,
+    "bytesRemoved": 2817928,
+    "retained": [
+      "README.md",
+      "qualification.json",
+      "live acceptance tool and input fixtures"
+    ],
+    "baselineBuildsRemoved": false
+  }
+}

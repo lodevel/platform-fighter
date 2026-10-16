@@ -1,0 +1,599 @@
+{
+  "fighter": "link",
+  "downscale": 1.0,
+  "ppu": 10.714284948979646,
+  "bodyCentreFromRootY": -36,
+  "clips": {
+    "a06stepairpose": {
+      "layout": {
+        "format": "tight",
+        "atlas": [
+          216,
+          920
+        ],
+        "cell": [
+          256,
+          248
+        ],
+        "root": [
+          108,
+          161
+        ],
+        "frames": 5
+      },
+      "frames": [
+        {
+          "frame": 0,
+          "png": "a06stepairpose-000.png",
+          "cellMarginPx": 4,
+          "floorMinusRootPackedPx": 23.0,
+          "sourceFloorMinusRootArtPx": 23.0,
+          "edgeTexels": 1912,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        },
+        {
+          "frame": 1,
+          "png": "a06stepairpose-002.png",
+          "cellMarginPx": 16,
+          "floorMinusRootPackedPx": 24.0,
+          "sourceFloorMinusRootArtPx": 24.0,
+          "edgeTexels": 1850,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        },
+        {
+          "frame": 2,
+          "png": "a06stepairpose-004.png",
+          "cellMarginPx": 4,
+          "floorMinusRootPackedPx": 56.0,
+          "sourceFloorMinusRootArtPx": 56.0,
+          "edgeTexels": 1668,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        },
+        {
+          "frame": 3,
+          "png": "a06stepairpose-006.png",
+          "cellMarginPx": 11,
+          "floorMinusRootPackedPx": 73.0,
+          "sourceFloorMinusRootArtPx": 73.0,
+          "edgeTexels": 2069,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        },
+        {
+          "frame": 4,
+          "png": "a06stepairpose-008.png",
+          "cellMarginPx": 12,
+          "floorMinusRootPackedPx": 70.0,
+          "sourceFloorMinusRootArtPx": 70.0,
+          "edgeTexels": 2068,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        }
+      ]
+    },
+    "a06stepback": {
+      "layout": {
+        "format": "tight",
+        "atlas": [
+          164,
+          2432
+        ],
+        "cell": [
+          184,
+          216
+        ],
+        "root": [
+          90,
+          205
+        ],
+        "frames": 13
+      },
+      "frames": [
+        {
+          "frame": 0,
+          "png": "a06stepback-000.png",
+          "cellMarginPx": 6,
+          "floorMinusRootPackedPx": 2.0,
+          "sourceFloorMinusRootArtPx": 2.0,
+          "edgeTexels": 1976,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        },
+        {
+          "frame": 1,
+          "png": "a06stepback-002.png",
+          "cellMarginPx": 7,
+          "floorMinusRootPackedPx": 2.0,
+          "sourceFloorMinusRootArtPx": 2.0,
+          "edgeTexels": 2065,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        },
+        {
+          "frame": 2,
+          "png": "a06stepback-004.png",
+          "cellMarginPx": 7,
+          "floorMinusRootPackedPx": 2.0,
+          "sourceFloorMinusRootArtPx": 2.0,
+          "edgeTexels": 2098,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        },
+        {
+          "frame": 3,
+          "png": "a06stepback-006.png",
+          "cellMarginPx": 7,
+          "floorMinusRootPackedPx": 1.0,
+          "sourceFloorMinusRootArtPx": 1.0,
+          "edgeTexels": 2082,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        },
+        {
+          "frame": 4,
+          "png": "a06stepback-008.png",
+          "cellMarginPx": 7,
+          "floorMinusRootPackedPx": 2.0,
+          "sourceFloorMinusRootArtPx": 2.0,
+          "edgeTexels": 2288,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        },
+        {
+          "frame": 5,
+          "png": "a06stepback-010.png",
+          "cellMarginPx": 7,
+          "floorMinusRootPackedPx": 1.0,
+          "sourceFloorMinusRootArtPx": 1.0,
+          "edgeTexels": 2330,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        },
+        {
+          "frame": 6,
+          "png": "a06stepback-012.png",
+          "cellMarginPx": 7,
+          "floorMinusRootPackedPx": 2.0,
+          "sourceFloorMinusRootArtPx": 2.0,
+          "edgeTexels": 2238,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        },
+        {
+          "frame": 7,
+          "png": "a06stepback-014.png",
+          "cellMarginPx": 6,
+          "floorMinusRootPackedPx": 2.0,
+          "sourceFloorMinusRootArtPx": 2.0,
+          "edgeTexels": 2012,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        },
+        {
+          "frame": 8,
+          "png": "a06stepback-016.png",
+          "cellMarginPx": 6,
+          "floorMinusRootPackedPx": 2.0,
+          "sourceFloorMinusRootArtPx": 2.0,
+          "edgeTexels": 2026,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        },
+        {
+          "frame": 9,
+          "png": "a06stepback-018.png",
+          "cellMarginPx": 6,
+          "floorMinusRootPackedPx": 2.0,
+          "sourceFloorMinusRootArtPx": 2.0,
+          "edgeTexels": 2076,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        },
+        {
+          "frame": 10,
+          "png": "a06stepback-020.png",
+          "cellMarginPx": 4,
+          "floorMinusRootPackedPx": 2.0,
+          "sourceFloorMinusRootArtPx": 2.0,
+          "edgeTexels": 2131,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        },
+        {
+          "frame": 11,
+          "png": "a06stepback-022.png",
+          "cellMarginPx": 4,
+          "floorMinusRootPackedPx": 2.0,
+          "sourceFloorMinusRootArtPx": 2.0,
+          "edgeTexels": 2151,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        },
+        {
+          "frame": 12,
+          "png": "a06stepback-023.png",
+          "cellMarginPx": 4,
+          "floorMinusRootPackedPx": 2.0,
+          "sourceFloorMinusRootArtPx": 2.0,
+          "edgeTexels": 2123,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        }
+      ]
+    },
+    "a06stepfall": {
+      "layout": {
+        "format": "tight",
+        "atlas": [
+          1836,
+          380
+        ],
+        "cell": [
+          232,
+          232
+        ],
+        "root": [
+          109,
+          146
+        ],
+        "frames": 21
+      },
+      "frames": [
+        {
+          "frame": 0,
+          "png": "a06stepfall-000.png",
+          "cellMarginPx": 13,
+          "floorMinusRootPackedPx": 70.0,
+          "sourceFloorMinusRootArtPx": 70.0,
+          "edgeTexels": 2064,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        },
+        {
+          "frame": 1,
+          "png": "a06stepfall-002.png",
+          "cellMarginPx": 19,
+          "floorMinusRootPackedPx": 64.0,
+          "sourceFloorMinusRootArtPx": 64.0,
+          "edgeTexels": 2038,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        },
+        {
+          "frame": 2,
+          "png": "a06stepfall-004.png",
+          "cellMarginPx": 19,
+          "floorMinusRootPackedPx": 64.0,
+          "sourceFloorMinusRootArtPx": 64.0,
+          "edgeTexels": 1952,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        },
+        {
+          "frame": 3,
+          "png": "a06stepfall-006.png",
+          "cellMarginPx": 8,
+          "floorMinusRootPackedPx": 65.0,
+          "sourceFloorMinusRootArtPx": 65.0,
+          "edgeTexels": 1784,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        },
+        {
+          "frame": 4,
+          "png": "a06stepfall-008.png",
+          "cellMarginPx": 7,
+          "floorMinusRootPackedPx": 66.0,
+          "sourceFloorMinusRootArtPx": 66.0,
+          "edgeTexels": 1693,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        },
+        {
+          "frame": 5,
+          "png": "a06stepfall-010.png",
+          "cellMarginPx": 16,
+          "floorMinusRootPackedPx": 68.0,
+          "sourceFloorMinusRootArtPx": 68.0,
+          "edgeTexels": 1673,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        },
+        {
+          "frame": 6,
+          "png": "a06stepfall-012.png",
+          "cellMarginPx": 14,
+          "floorMinusRootPackedPx": 70.0,
+          "sourceFloorMinusRootArtPx": 70.0,
+          "edgeTexels": 1692,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        },
+        {
+          "frame": 7,
+          "png": "a06stepfall-014.png",
+          "cellMarginPx": 13,
+          "floorMinusRootPackedPx": 70.0,
+          "sourceFloorMinusRootArtPx": 70.0,
+          "edgeTexels": 1643,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        },
+        {
+          "frame": 8,
+          "png": "a06stepfall-016.png",
+          "cellMarginPx": 14,
+          "floorMinusRootPackedPx": 69.0,
+          "sourceFloorMinusRootArtPx": 69.0,
+          "edgeTexels": 1757,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        },
+        {
+          "frame": 9,
+          "png": "a06stepfall-018.png",
+          "cellMarginPx": 20,
+          "floorMinusRootPackedPx": 63.0,
+          "sourceFloorMinusRootArtPx": 63.0,
+          "edgeTexels": 1720,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        },
+        {
+          "frame": 10,
+          "png": "a06stepfall-020.png",
+          "cellMarginPx": 27,
+          "floorMinusRootPackedPx": 56.0,
+          "sourceFloorMinusRootArtPx": 56.0,
+          "edgeTexels": 1740,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        },
+        {
+          "frame": 11,
+          "png": "a06stepfall-022.png",
+          "cellMarginPx": 17,
+          "floorMinusRootPackedPx": 64.0,
+          "sourceFloorMinusRootArtPx": 64.0,
+          "edgeTexels": 1804,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        },
+        {
+          "frame": 12,
+          "png": "a06stepfall-024.png",
+          "cellMarginPx": 5,
+          "floorMinusRootPackedPx": 53.0,
+          "sourceFloorMinusRootArtPx": 53.0,
+          "edgeTexels": 1761,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        },
+        {
+          "frame": 13,
+          "png": "a06stepfall-026.png",
+          "cellMarginPx": 19,
+          "floorMinusRootPackedPx": 28.0,
+          "sourceFloorMinusRootArtPx": 28.0,
+          "edgeTexels": 1688,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 2
+        },
+        {
+          "frame": 14,
+          "png": "a06stepfall-028.png",
+          "cellMarginPx": 4,
+          "floorMinusRootPackedPx": 16.0,
+          "sourceFloorMinusRootArtPx": 16.0,
+          "edgeTexels": 1692,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        },
+        {
+          "frame": 15,
+          "png": "a06stepfall-030.png",
+          "cellMarginPx": 10,
+          "floorMinusRootPackedPx": 32.0,
+          "sourceFloorMinusRootArtPx": 32.0,
+          "edgeTexels": 1679,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        },
+        {
+          "frame": 16,
+          "png": "a06stepfall-032.png",
+          "cellMarginPx": 16,
+          "floorMinusRootPackedPx": 33.0,
+          "sourceFloorMinusRootArtPx": 33.0,
+          "edgeTexels": 1701,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        },
+        {
+          "frame": 17,
+          "png": "a06stepfall-034.png",
+          "cellMarginPx": 4,
+          "floorMinusRootPackedPx": 60.0,
+          "sourceFloorMinusRootArtPx": 60.0,
+          "edgeTexels": 1766,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        },
+        {
+          "frame": 18,
+          "png": "a06stepfall-036.png",
+          "cellMarginPx": 7,
+          "floorMinusRootPackedPx": 76.0,
+          "sourceFloorMinusRootArtPx": 76.0,
+          "edgeTexels": 1887,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        },
+        {
+          "frame": 19,
+          "png": "a06stepfall-038.png",
+          "cellMarginPx": 5,
+          "floorMinusRootPackedPx": 79.0,
+          "sourceFloorMinusRootArtPx": 79.0,
+          "edgeTexels": 1957,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        },
+        {
+          "frame": 20,
+          "png": "a06stepfall-040.png",
+          "cellMarginPx": 13,
+          "floorMinusRootPackedPx": 70.0,
+          "sourceFloorMinusRootArtPx": 70.0,
+          "edgeTexels": 2064,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        }
+      ]
+    },
+    "a06stepjump": {
+      "layout": {
+        "format": "tight",
+        "atlas": [
+          160,
+          816
+        ],
+        "cell": [
+          176,
+          232
+        ],
+        "root": [
+          79,
+          198
+        ],
+        "frames": 5
+      },
+      "frames": [
+        {
+          "frame": 0,
+          "png": "a06stepjump-000.png",
+          "cellMarginPx": 5,
+          "floorMinusRootPackedPx": 6.0,
+          "sourceFloorMinusRootArtPx": 6.0,
+          "edgeTexels": 1865,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 3
+        },
+        {
+          "frame": 1,
+          "png": "a06stepjump-002.png",
+          "cellMarginPx": 8,
+          "floorMinusRootPackedPx": 3.0,
+          "sourceFloorMinusRootArtPx": 3.0,
+          "edgeTexels": 1504,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        },
+        {
+          "frame": 2,
+          "png": "a06stepjump-004.png",
+          "cellMarginPx": 5,
+          "floorMinusRootPackedPx": 23.0,
+          "sourceFloorMinusRootArtPx": 23.0,
+          "edgeTexels": 1538,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        },
+        {
+          "frame": 3,
+          "png": "a06stepjump-006.png",
+          "cellMarginPx": 4,
+          "floorMinusRootPackedPx": 8.0,
+          "sourceFloorMinusRootArtPx": 8.0,
+          "edgeTexels": 1496,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        },
+        {
+          "frame": 4,
+          "png": "a06stepjump-008.png",
+          "cellMarginPx": 4,
+          "floorMinusRootPackedPx": 12.0,
+          "sourceFloorMinusRootArtPx": 12.0,
+          "edgeTexels": 1949,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        }
+      ]
+    },
+    "a06steppose": {
+      "layout": {
+        "format": "tight",
+        "atlas": [
+          944,
+          164
+        ],
+        "cell": [
+          240,
+          168
+        ],
+        "root": [
+          141,
+          159
+        ],
+        "frames": 5
+      },
+      "frames": [
+        {
+          "frame": 0,
+          "png": "a06steppose-000.png",
+          "cellMarginPx": 4,
+          "floorMinusRootPackedPx": 3.0,
+          "sourceFloorMinusRootArtPx": 3.0,
+          "edgeTexels": 2045,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        },
+        {
+          "frame": 1,
+          "png": "a06steppose-002.png",
+          "cellMarginPx": 4,
+          "floorMinusRootPackedPx": 1.0,
+          "sourceFloorMinusRootArtPx": 1.0,
+          "edgeTexels": 2307,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        },
+        {
+          "frame": 2,
+          "png": "a06steppose-004.png",
+          "cellMarginPx": 5,
+          "floorMinusRootPackedPx": 1.0,
+          "sourceFloorMinusRootArtPx": 1.0,
+          "edgeTexels": 2267,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        },
+        {
+          "frame": 3,
+          "png": "a06steppose-006.png",
+          "cellMarginPx": 5,
+          "floorMinusRootPackedPx": 2.0,
+          "sourceFloorMinusRootArtPx": 2.0,
+          "edgeTexels": 2098,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        },
+        {
+          "frame": 4,
+          "png": "a06steppose-008.png",
+          "cellMarginPx": 4,
+          "floorMinusRootPackedPx": 3.0,
+          "sourceFloorMinusRootArtPx": 3.0,
+          "edgeTexels": 2088,
+          "magentaEdgeTexels": 0,
+          "offColourEdgeTexels": 0
+        }
+      ]
+    }
+  },
+  "failures": []
+}

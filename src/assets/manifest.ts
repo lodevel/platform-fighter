@@ -40,6 +40,7 @@
 import {FOOD_VARIANTS} from '../items/Food';
 import {packedLayoutOf,type FrameTrim} from './packedFrames';
 import pikachuReviewedFrameMetadata from '../../assets/characters/pikachu/frames.json';
+import pikachuFinalVisualMetadata from '../../assets/characters/pikachu/final-visual-frames.json';
 import donkeykongFrameMetadata from '../../assets/characters/donkeykong/frames.json';
 import linkFrameMetadata from '../../assets/characters/link/frames.json';
 
@@ -585,6 +586,8 @@ export const ASSET_KEYS = {
   stageBgDunes: 'stage.bg.dunes',
   /** Hill crests — rolling green hills, tintable (`tile_0014`). */
   stageBgHills: 'stage.bg.hills',
+  /** Inferno giant-head artwork, shipped with every standalone build. */
+  stageInfernoHead: 'stage.inferno.head',
 
   // ---------------- items --------------------------------------------
   /** Bob-omb item sprite — 80×92 authored PLACEHOLDER (black bomb, wind-up key, feet), feet at the bottom (Ultimate items phase 5). */
@@ -743,6 +746,8 @@ function packedFighterSpritesheets(fighter: string, animations: Readonly<Record<
 
 // Link — fresh native-model renders packed by tools/fighter-pack.py (tight layout).
 const linkSpritesheets = packedFighterSpritesheets('link', linkFrameMetadata.animations);
+// A display-only bank: the original Final frames remain the authoritative pose tracks.
+const pikachuFinalVisualSpritesheets = packedFighterSpritesheets('pikachu', pikachuFinalVisualMetadata.pages);
 
 /** The art-owner aggregate contains only actually reviewed packed strips.
  * Reserved keys are separate from acceptance: a future key without metadata
@@ -803,7 +808,10 @@ const stageM1Spritesheets: readonly SpritesheetAssetEntry[] = [
 // `tilemap-backgrounds` set: 0008/0010 are cloud rows, 0012 is a sandy
 // dune crest, 0014 is a rolling hill crest that tints well.
 
+export const INFERNO_HEAD_IMAGE_URL = `${STAGE_ROOT}/inferno-head.png`;
+
 const stageBackgroundImages: readonly ImageAssetEntry[] = [
+  { key: ASSET_KEYS.stageInfernoHead, kind: 'image', url: INFERNO_HEAD_IMAGE_URL },
   {
     key: ASSET_KEYS.stageBgClouds,
     kind: 'image',
@@ -975,6 +983,7 @@ export const ASSET_MANIFEST: AssetManifest = {
     ...linkSpritesheets,
     ...donkeykongSpritesheets,
     ...pikachuSpritesheets,
+    ...pikachuFinalVisualSpritesheets,
     ...stageM1Spritesheets,
     ...itemSpritesheets,
   ],

@@ -1,0 +1,123 @@
+{
+  "schema": "pikachu-final-dense-display-source/1",
+  "authoritativeRows": 187,
+  "displaySemanticSamples": 423,
+  "newRenderedPoses": 236,
+  "uniqueTextureDrawings": 417,
+  "decodedBytes": 179202240,
+  "pageCount": 14,
+  "pageLimit": 2048,
+  "renderOperatorSha256": "5dca109edd8bbb8adec372aef16474972718f97129ded19006924c38eb5961f3",
+  "authoritativeSevenClipsJavascriptCanonicalSha256": "f80db2f96a33168d17412f307ecf850159f6a82fb6b07e8c3c80e4330121181f",
+  "sources": [
+    {
+      "sheet": "final",
+      "motion": "assets/gen/pikachu-native-reference/raw-motion/fighter/pikachu/motion/body/c00/d04final.nuanmb",
+      "sha256": "2cb167a739cc844d97b107358452332a49828d5ef648f181230da02efb487aa6",
+      "oldSamples": 31,
+      "integerSamples": 64,
+      "loopDuration": null
+    },
+    {
+      "sheet": "final_air",
+      "motion": "assets/gen/pikachu-native-reference/raw-motion/fighter/pikachu/motion/body/c00/d04finalair.nuanmb",
+      "sha256": "183308a18848f03bcdf6d731daf14ff23a2205f27e3277e9a4fc3d413944b090",
+      "oldSamples": 31,
+      "integerSamples": 64,
+      "loopDuration": null
+    },
+    {
+      "sheet": "final_dash",
+      "motion": "assets/gen/pikachu-native-reference/raw-motion/fighter/pikachu/motion/body/c00/d04finaldash.nuanmb",
+      "sha256": "c22ae2a20c796f3da952958fbc0a0a1ff9539e528c7111362501c03709593f41",
+      "oldSamples": 7,
+      "integerSamples": 7,
+      "loopDuration": 6
+    },
+    {
+      "sheet": "final_dash_end",
+      "motion": "assets/gen/pikachu-native-reference/raw-motion/fighter/pikachu/motion/body/c00/d04finaldashend.nuanmb",
+      "sha256": "866a8813b1280587ae7fd315fbf9e87c7a0c4324eef02c2329a3d21f952cdf57",
+      "oldSamples": 31,
+      "integerSamples": 91,
+      "loopDuration": null
+    },
+    {
+      "sheet": "final_air_dash_end",
+      "motion": "assets/gen/pikachu-native-reference/raw-motion/fighter/pikachu/motion/body/c00/d04finalairdashend.nuanmb",
+      "sha256": "5713baee510f272a20fda094ec8b0e6f1ecc801b4be2222f1f7de64e740d4260",
+      "oldSamples": 22,
+      "integerSamples": 62,
+      "loopDuration": null
+    },
+    {
+      "sheet": "final2",
+      "motion": "assets/gen/pikachu-native-reference/raw-motion/fighter/pikachu/motion/body/c00/d04final2.nuanmb",
+      "sha256": "739086fbfa3b7e4ccf7f0278d74047647bae5f5e8253124395c35a8bddcbbaef",
+      "oldSamples": 42,
+      "integerSamples": 95,
+      "loopDuration": null
+    },
+    {
+      "sheet": "final_air2",
+      "motion": "assets/gen/pikachu-native-reference/raw-motion/fighter/pikachu/motion/body/c00/d04finalair2.nuanmb",
+      "sha256": "bf80b3a97133b073048f5ef0d9d3b8e514d815c8ff40a4ae7ad3c46635a267b4",
+      "oldSamples": 23,
+      "integerSamples": 40,
+      "loopDuration": null
+    }
+  ],
+  "sourceUrls": [
+    "https://www.smashbros.com/en_US/fighter/08.html",
+    "https://ultimateframedata.com/pikachu"
+  ],
+  "environment": {
+    "logicalCpus": 20,
+    "affinityCpus": 20,
+    "effectiveCpus": 20,
+    "workers": 20,
+    "cpuMax": "max 100000",
+    "memoryMax": "max",
+    "blasThreads": 1
+  },
+  "pilot": {
+    "environment": {
+      "logicalCpus": 20,
+      "affinityCpus": 20,
+      "effectiveCpus": 20,
+      "workers": 4,
+      "cpuMax": "max 100000",
+      "memoryMax": "max",
+      "blasThreads": 1
+    },
+    "rendered": 4,
+    "wallSeconds": 2.290983464999954,
+    "workerCpuSeconds": 6.111090431,
+    "peakWorkerRssKiB": 142464,
+    "rendererSha256": "5dca109edd8bbb8adec372aef16474972718f97129ded19006924c38eb5961f3",
+    "generatorSha256": "1b858b6e479c4e74cb2a55e9459af809d080894bb248a27a42763c1527463f17"
+  },
+  "batch": {
+    "environment": {
+      "logicalCpus": 20,
+      "affinityCpus": 20,
+      "effectiveCpus": 20,
+      "workers": 20,
+      "cpuMax": "max 100000",
+      "memoryMax": "max",
+      "blasThreads": 1
+    },
+    "rendered": 232,
+    "wallSeconds": 38.90747071400074,
+    "workerCpuSeconds": 733.9981989969999,
+    "peakWorkerRssKiB": 156268,
+    "rendererSha256": "5dca109edd8bbb8adec372aef16474972718f97129ded19006924c38eb5961f3",
+    "generatorSha256": "1b858b6e479c4e74cb2a55e9459af809d080894bb248a27a42763c1527463f17"
+  },
+  "allNewTransSamplesZero": true,
+  "limitations": [
+    "Existing authored toon recipe omits helper-orient constraints; unchanged accepted visual approximation.",
+    "Adds native display samples only; no movement interpolation, timing change or general FPS claim."
+  ],
+  "review": "All seven complete pose contact sheets were inspected; retained and new samples join without changed root/scale/registration. Original187 accepted crops independently compared byte-for-byte by installer."
+}

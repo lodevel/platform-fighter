@@ -163,6 +163,10 @@ export class Link extends ContractFighter {
     const entry=this.contextualPresentation?.entry,route=entry?selectLinkEntryPresentation(entry):this.intrinsicBodyRoute();
     return route&&{sheet:route.motion,age:route.rawAge,facing:route.facing};
   }
+  override getPackedBodyState(){
+    const state=super.getPackedBodyState(),route=this.getSourceLinkFootstoolPresentationRoute();
+    return {...state,footstool:route&&{sheet:route.motion,age:route.rawAge,facing:route.facing}};
+  }
   private intrinsicEquipmentRoute(){
     if(!this.sourceSpecial&&(this.sourceSpin?.phase==='helpless'||this.sourceSpin?.phase==='done'))return null;
     return this.intrinsicBodyRoute()??(this.sourceBodyTail?{motion:this.sourceBodyTail.motion,rawAge:this.sourceBodyTail.rawAge,facing:this.sourceBodyTail.facing}:null);

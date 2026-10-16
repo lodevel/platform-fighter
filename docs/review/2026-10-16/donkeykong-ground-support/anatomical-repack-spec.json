@@ -1,0 +1,184 @@
+{
+  "clips": {
+    "down_wait_face_down": {
+      "frames": [
+        {
+          "png": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/art/families/ledge-recovery/down_wait_face_down/down_wait_face_down-01-native1-cutout.png",
+          "root": [
+            454,
+            401
+          ],
+          "nativeSample": 1,
+          "grounded": true,
+          "snapRootToFloor": true,
+          "floorContactRegion": [
+            651,
+            0,
+            272,
+            646
+          ]
+        },
+        {
+          "png": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/art/families/ledge-recovery/down_wait_face_down/down_wait_face_down-02-native9-cutout.png",
+          "root": [
+            454,
+            372
+          ],
+          "nativeSample": 9,
+          "grounded": true,
+          "snapRootToFloor": true,
+          "floorContactRegion": [
+            651,
+            0,
+            275,
+            592
+          ]
+        },
+        {
+          "png": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/art/families/ledge-recovery/down_wait_face_down/down_wait_face_down-03-native17-cutout.png",
+          "root": [
+            452,
+            373
+          ],
+          "nativeSample": 17,
+          "grounded": true,
+          "snapRootToFloor": true,
+          "floorContactRegion": [
+            649,
+            0,
+            276,
+            592
+          ]
+        },
+        {
+          "png": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/art/families/ledge-recovery/down_wait_face_down/down_wait_face_down-04-native25-cutout.png",
+          "root": [
+            451,
+            387
+          ],
+          "nativeSample": 25,
+          "grounded": true,
+          "snapRootToFloor": true,
+          "floorContactRegion": [
+            648,
+            0,
+            278,
+            612
+          ]
+        },
+        {
+          "png": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/art/families/ledge-recovery/down_wait_face_down/down_wait_face_down-05-native33-cutout.png",
+          "root": [
+            450,
+            384
+          ],
+          "nativeSample": 33,
+          "grounded": true,
+          "snapRootToFloor": true,
+          "floorContactRegion": [
+            647,
+            0,
+            276,
+            612
+          ]
+        },
+        {
+          "png": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/art/families/ledge-recovery/down_wait_face_down/down_wait_face_down-06-native41-cutout.png",
+          "root": [
+            450,
+            385
+          ],
+          "nativeSample": 41,
+          "grounded": true,
+          "snapRootToFloor": true,
+          "floorContactRegion": [
+            647,
+            0,
+            276,
+            615
+          ]
+        },
+        {
+          "png": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/art/families/ledge-recovery/down_wait_face_down/down_wait_face_down-07-native48-cutout.png",
+          "root": [
+            451,
+            384
+          ],
+          "nativeSample": 48,
+          "grounded": true,
+          "snapRootToFloor": true,
+          "floorContactRegion": [
+            648,
+            0,
+            277,
+            615
+          ]
+        },
+        {
+          "png": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/art/families/ledge-recovery/down_wait_face_down/down_wait_face_down-08-native56-cutout.png",
+          "root": [
+            451,
+            378
+          ],
+          "nativeSample": 56,
+          "grounded": true,
+          "snapRootToFloor": true,
+          "floorContactRegion": [
+            648,
+            0,
+            278,
+            610
+          ]
+        },
+        {
+          "png": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/art/families/ledge-recovery/down_wait_face_down/down_wait_face_down-09-native64-cutout.png",
+          "root": [
+            452,
+            372
+          ],
+          "nativeSample": 64,
+          "grounded": true,
+          "snapRootToFloor": true,
+          "floorContactRegion": [
+            649,
+            0,
+            277,
+            610
+          ]
+        },
+        {
+          "png": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/art/families/ledge-recovery/down_wait_face_down/down_wait_face_down-10-native72-cutout.png",
+          "root": [
+            453,
+            368
+          ],
+          "nativeSample": 72,
+          "grounded": true,
+          "snapRootToFloor": true,
+          "floorContactRegion": [
+            650,
+            0,
+            275,
+            613
+          ]
+        },
+        {
+          "png": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/art/families/ledge-recovery/down_wait_face_down/down_wait_face_down-11-native80-cutout.png",
+          "root": [
+            454,
+            367
+          ],
+          "nativeSample": 80,
+          "grounded": true,
+          "snapRootToFloor": true,
+          "floorContactRegion": [
+            651,
+            0,
+            272,
+            613
+          ]
+        }
+      ]
+    }
+  }
+}

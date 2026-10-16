@@ -65,7 +65,7 @@ export interface PackedBodyProfile {
   /** Single-age reviewed catch drawings by grab variant. */
   readonly grabPilots?: Readonly<Partial<Record<GrabVariant, { readonly sheet: string; readonly age: number; readonly nativeSample: number }>>>;
   /** The landing-lag sheet after an aerial. Default: `landing_aerial`. */
-  readonly aerialLandingSheet?: (moveId?: string) => string;
+  readonly aerialLandingSheet?: (moveId?: string, sourcePoseId?: string) => string;
   /** The landing sheet after a special fall (moveId: the special that caused it, when known). */
   readonly specialLandingSheet: (moveId?: string) => string;
 }
@@ -88,6 +88,8 @@ export interface PackedBodyState {
   readonly heavyItem?:{sheet:string;age:number;facing:1|-1}|null;
   readonly surfaceTech?:{kind:'wall'|'wall-jump'|'ceiling';framesElapsed:number;facing:1|-1;protected:boolean}|null;
   readonly footstoolPerformer?:{framesElapsed:number;facing:1|-1;mini:boolean}|null;
+  /** A fighter-owned footstool source route, including recipient side/phase. */
+  readonly footstool?:{sheet:string;age:number;facing:1|-1}|null;
   readonly punch?:{phase:'start'|'loop'|'cancel'|'end';age:number;grounded:boolean;facing:1|-1;jumpCancel:boolean}|null;
   /** A fighter-owned special's current phase motion on its own clock (Link's bow, boomerang, bomb and spin). */
   readonly intrinsic?:{sheet:string;age:number;facing:1|-1}|null;
@@ -248,6 +250,7 @@ function baseBodyCandidate(P:PackedBodyProfile,s:SimulationAnimationSnapshot):Pa
   if(s.buriedPresentation){const p=s.buriedPresentation;return pick(p.phase==='buried'?'buried':'buried_escape',p.framesElapsed,p.facing);}
   if(body.surfaceTech){const p=body.surfaceTech;return pick(p.kind==='wall-jump'?'tech_wall_jump':p.kind==='ceiling'?'tech_ceiling':'tech_wall',p.framesElapsed,p.facing);}
   if(body.committed)return pick(body.committed.sheet,body.committed.framesElapsed,body.committed.facing);
+  if(body.footstool){const p=body.footstool;return pick(p.sheet,p.age,p.facing);}
   if(s.footstoolRecipientPresentation){const p=s.footstoolRecipientPresentation;return pick(p.grounded?'footstool_pose':p.framesElapsed<8?'footstool_air_pose':'footstool_fall',p.grounded||p.framesElapsed<8?p.framesElapsed:p.framesElapsed-8,p.facing);}
   const reaction=s.reactionPresentation;
   if(reaction&&['damage','tumble','prone','trip'].includes(reaction.kind))return pick(reaction.kind==='damage'?(s.grounded?'hurt':'hurt_air'):reaction.kind==='prone'?(reaction.origin==='face-down'?'down_wait_face_down':'down_wait'):reaction.kind,reaction.framesElapsed,reaction.facing);
@@ -300,7 +303,7 @@ function baseBodyCandidate(P:PackedBodyProfile,s:SimulationAnimationSnapshot):Pa
       return act(sheet,p.framesElapsed,p.variant==='pivot'?(-p.facing) as 1|-1:p.facing);
     }}
   if(s.jumpsquatRemaining>0)return pick('jumpsquat',3-s.jumpsquatRemaining);
-  if(s.landingPresentation){const p=s.landingPresentation;return pick(p.kind==='soft'?'landing_soft':p.kind==='hard'?'landing_hard':p.kind==='special'?P.specialLandingSheet(p.moveId):p.kind==='aerial'?(P.aerialLandingSheet?.(p.moveId)??'landing_aerial'):'landing_air_dodge',p.framesElapsed);}
+  if(s.landingPresentation){const p=s.landingPresentation;return pick(p.kind==='soft'?'landing_soft':p.kind==='hard'?'landing_hard':p.kind==='special'?P.specialLandingSheet(p.moveId):p.kind==='aerial'?(P.aerialLandingSheet?.(p.moveId,p.sourcePoseId)??'landing_aerial'):'landing_air_dodge',p.framesElapsed);}
   // Touchdown step of a special fall: physics has grounded the body, but the landing lag starts on
   // the next input step (Character.tickLanding). Show the landing's first drawing, not standing idle.
   if(s.helpless&&s.grounded)return pick(P.specialLandingSheet(),0);

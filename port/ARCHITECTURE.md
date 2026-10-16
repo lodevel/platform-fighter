@@ -64,7 +64,8 @@ require textures or sprites.
   leases), `lineup.ts`, `gazeDemo.ts`. Only the legacy backend calls `poses.ts`.
   `engine/presentation/` supplies managed geometry, shader preparation and
   composite snapshots. Single legacy menu images keep the original snapshot path.
-- `private/` (outside `src/`) holds personal pictures; dev and preview serve it, builds and git never include it.
+- `private/` (outside `src/`) is local-only. The Inferno head is a normal
+  manifest-listed asset at `assets/stages/inferno-head.png` and ships with builds.
 - `ui/assets/`: menu art derived from game assets.
 
 ## Rules of thumb

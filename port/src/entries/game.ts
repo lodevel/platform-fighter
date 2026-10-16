@@ -9,6 +9,7 @@ import { MenuInput } from '../ui/shell/input';
 import type { App, Screen, ScreenName } from '../ui/shell/app';
 import type { MatchConfig } from '../../../src/types';
 import { startFrameLoop, type FrameFault } from '../ui/shell/frameLoop';
+import { createFrameRateMeter } from '../ui/components/frameRateMeter';
 
 /**
  * The port's game shell: HTML/CSS menus over a live 3D arena. Replaces the
@@ -19,6 +20,7 @@ const presenter = new StagePresenter(document.getElementById('backdrop')!, 'cove
 const vignette = document.querySelector<HTMLElement>('.vignette')!;
 const host = document.getElementById('screens')!;
 const input = new MenuInput();
+const frameRate = createFrameRateMeter(document.body);
 let current: Screen | null = null;
 let currentName: ScreenName = 'gate';
 let inputFaulted = false, screenFaulted = false, rendererFaulted = false;
@@ -75,7 +77,7 @@ input.on((event) => current?.onAction?.(event));
 
 function frameFault(fault: FrameFault): void {
   if (fault.phase === 'input') inputFaulted = true;
-  if (fault.phase === 'renderer') rendererFaulted = true;
+  if (fault.phase === 'renderer') { rendererFaulted = true; frameRate.reset(); }
   screenFaulted = true;
   faults.push({...fault, screen: currentName});
   if (faults.length > 20) faults.shift();
@@ -114,7 +116,9 @@ startFrameLoop({requestFrame: callback => window.requestAnimationFrame(callback)
   stages: [
     {phase: 'input', run: now => { if (!inputFaulted) input.poll(now); }},
     {phase: 'screen', run: now => { if (!screenFaulted) current?.onFrame?.(now); }},
-    {phase: 'renderer', run: now => { if (!rendererFaulted) presenter.frame(now); }},
+    {phase: 'renderer', run: now => {
+      if (!rendererFaulted) { presenter.frame(now); frameRate.rendered(now); }
+    }},
   ], onFault: frameFault});
 
 /** Dedicated sandbox and probes launch the same match screen as the menus. */

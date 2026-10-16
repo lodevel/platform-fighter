@@ -1,0 +1,558 @@
+{
+  "scope": "DK grounded face-down prone after a real launch/landing; other aerial and landing poses are not floor-normalized",
+  "alphaCutoff": 32,
+  "pixelConvention": "pixel centres; exclusive bottom minus 0.5",
+  "supportSelection": "Reviewed forward hand/finger underside in each pose; whole-alpha tie is excluded. Foot/hindleg and forearm/belly were crosschecked visually.",
+  "worldTolerance": 0.5,
+  "atlasSha256": "b8c615079354fd7a9ac515ea0af501cbe0d0e7df35d152a03e222cbf28730ebe",
+  "originalClip": {
+    "strip": "animations/down_wait_face_down.png",
+    "sha256": "b8c615079354fd7a9ac515ea0af501cbe0d0e7df35d152a03e222cbf28730ebe",
+    "frameCount": 11,
+    "frameWidth": 336,
+    "frameHeight": 224,
+    "atlas": [
+      332,
+      2376
+    ],
+    "trims": [
+      [
+        0,
+        1524,
+        328,
+        214,
+        2,
+        2
+      ],
+      [
+        0,
+        1956,
+        330,
+        208,
+        1,
+        9
+      ],
+      [
+        0,
+        2168,
+        329,
+        207,
+        2,
+        10
+      ],
+      [
+        0,
+        1740,
+        330,
+        211,
+        2,
+        5
+      ],
+      [
+        0,
+        440,
+        328,
+        215,
+        3,
+        2
+      ],
+      [
+        0,
+        220,
+        329,
+        216,
+        3,
+        1
+      ],
+      [
+        0,
+        0,
+        330,
+        216,
+        3,
+        1
+      ],
+      [
+        0,
+        660,
+        330,
+        214,
+        2,
+        3
+      ],
+      [
+        0,
+        876,
+        330,
+        214,
+        2,
+        3
+      ],
+      [
+        0,
+        1308,
+        329,
+        214,
+        2,
+        3
+      ],
+      [
+        0,
+        1092,
+        330,
+        214,
+        1,
+        3
+      ]
+    ],
+    "root": [
+      163,
+      213
+    ],
+    "scaleToWorld": 0.4666667,
+    "bodyCentreFromRootY": -42,
+    "nativeSampleIndices": [
+      1,
+      9,
+      17,
+      25,
+      33,
+      41,
+      48,
+      56,
+      64,
+      72,
+      80
+    ],
+    "loopDuration": 80
+  },
+  "rows": [
+    {
+      "frame": 0,
+      "nativeSample": 1,
+      "originalTrim": [
+        0,
+        1524,
+        328,
+        214,
+        2,
+        2
+      ],
+      "atlasContactRegion": [
+        233,
+        1597,
+        95,
+        75
+      ],
+      "atlasContactPixel": [
+        287,
+        1653
+      ],
+      "contactPart": "forward hand/finger underside; prone forelimb support",
+      "originalCellSupportBottom": 132,
+      "translationPackedY": 81,
+      "oldWorldGap": 38.03333605,
+      "sourcePng": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/art/families/ledge-recovery/down_wait_face_down/down_wait_face_down-01-native1-cutout.png",
+      "sourceSha256": "cb4f8f9b7a9438faaa4114eda1afc3456b7a35104627c16544168557d279464d",
+      "sourceContactRegion": [
+        651,
+        0,
+        272,
+        646
+      ],
+      "sourceRoot": [
+        454,
+        401
+      ]
+    },
+    {
+      "frame": 1,
+      "nativeSample": 9,
+      "originalTrim": [
+        0,
+        1956,
+        330,
+        208,
+        1,
+        9
+      ],
+      "atlasContactRegion": [
+        234,
+        2022,
+        96,
+        75
+      ],
+      "atlasContactPixel": [
+        266,
+        2087
+      ],
+      "contactPart": "forward hand/finger underside; prone forelimb support",
+      "originalCellSupportBottom": 141,
+      "translationPackedY": 72,
+      "oldWorldGap": 33.833335749999996,
+      "sourcePng": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/art/families/ledge-recovery/down_wait_face_down/down_wait_face_down-02-native9-cutout.png",
+      "sourceSha256": "f009686a0362af8b5cc9eddb0d24034d67404d2d513cbfa325cb42aec3250e2e",
+      "sourceContactRegion": [
+        651,
+        0,
+        275,
+        592
+      ],
+      "sourceRoot": [
+        454,
+        372
+      ]
+    },
+    {
+      "frame": 2,
+      "nativeSample": 17,
+      "originalTrim": [
+        0,
+        2168,
+        329,
+        207,
+        2,
+        10
+      ],
+      "atlasContactRegion": [
+        233,
+        2233,
+        96,
+        75
+      ],
+      "atlasContactPixel": [
+        261,
+        2299
+      ],
+      "contactPart": "forward hand/finger underside; prone forelimb support",
+      "originalCellSupportBottom": 142,
+      "translationPackedY": 71,
+      "oldWorldGap": 33.36666905,
+      "sourcePng": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/art/families/ledge-recovery/down_wait_face_down/down_wait_face_down-03-native17-cutout.png",
+      "sourceSha256": "654cf61a62ee7a3ebfa1c03d2bf40a89b6a69cec99f360a90a38cc364bdfbfe1",
+      "sourceContactRegion": [
+        649,
+        0,
+        276,
+        592
+      ],
+      "sourceRoot": [
+        452,
+        373
+      ]
+    },
+    {
+      "frame": 3,
+      "nativeSample": 25,
+      "originalTrim": [
+        0,
+        1740,
+        330,
+        211,
+        2,
+        5
+      ],
+      "atlasContactRegion": [
+        233,
+        1810,
+        97,
+        75
+      ],
+      "atlasContactPixel": [
+        260,
+        1874
+      ],
+      "contactPart": "forward hand/finger underside; prone forelimb support",
+      "originalCellSupportBottom": 140,
+      "translationPackedY": 73,
+      "oldWorldGap": 34.30000245,
+      "sourcePng": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/art/families/ledge-recovery/down_wait_face_down/down_wait_face_down-04-native25-cutout.png",
+      "sourceSha256": "07a59ab79ce86ad3223b03db9e27b319986b913455ed7e0aca5c921438d681b5",
+      "sourceContactRegion": [
+        648,
+        0,
+        278,
+        612
+      ],
+      "sourceRoot": [
+        451,
+        387
+      ]
+    },
+    {
+      "frame": 4,
+      "nativeSample": 33,
+      "originalTrim": [
+        0,
+        440,
+        328,
+        215,
+        3,
+        2
+      ],
+      "atlasContactRegion": [
+        232,
+        513,
+        96,
+        75
+      ],
+      "atlasContactPixel": [
+        261,
+        575
+      ],
+      "contactPart": "forward hand/finger underside; prone forelimb support",
+      "originalCellSupportBottom": 138,
+      "translationPackedY": 75,
+      "oldWorldGap": 35.233335849999996,
+      "sourcePng": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/art/families/ledge-recovery/down_wait_face_down/down_wait_face_down-05-native33-cutout.png",
+      "sourceSha256": "cf052746f879b8218c90a51583503ece6e4b3891871dc537f34743e5ef5044cd",
+      "sourceContactRegion": [
+        647,
+        0,
+        276,
+        612
+      ],
+      "sourceRoot": [
+        450,
+        384
+      ]
+    },
+    {
+      "frame": 5,
+      "nativeSample": 41,
+      "originalTrim": [
+        0,
+        220,
+        329,
+        216,
+        3,
+        1
+      ],
+      "atlasContactRegion": [
+        232,
+        294,
+        97,
+        75
+      ],
+      "atlasContactPixel": [
+        264,
+        355
+      ],
+      "contactPart": "forward hand/finger underside; prone forelimb support",
+      "originalCellSupportBottom": 137,
+      "translationPackedY": 76,
+      "oldWorldGap": 35.70000255,
+      "sourcePng": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/art/families/ledge-recovery/down_wait_face_down/down_wait_face_down-06-native41-cutout.png",
+      "sourceSha256": "ac49dc440c17ac34c065367b553b3ea18d0ba47238d2b71a206f0fe7cc532f64",
+      "sourceContactRegion": [
+        647,
+        0,
+        276,
+        615
+      ],
+      "sourceRoot": [
+        450,
+        385
+      ]
+    },
+    {
+      "frame": 6,
+      "nativeSample": 48,
+      "originalTrim": [
+        0,
+        0,
+        330,
+        216,
+        3,
+        1
+      ],
+      "atlasContactRegion": [
+        232,
+        74,
+        98,
+        75
+      ],
+      "atlasContactPixel": [
+        279,
+        135
+      ],
+      "contactPart": "forward hand/finger underside; prone forelimb support",
+      "originalCellSupportBottom": 137,
+      "translationPackedY": 76,
+      "oldWorldGap": 35.70000255,
+      "sourcePng": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/art/families/ledge-recovery/down_wait_face_down/down_wait_face_down-07-native48-cutout.png",
+      "sourceSha256": "6c1e18809b8e7628d0c1fa66646a99f41b8c51d5caa118371285ce5083cbe0bf",
+      "sourceContactRegion": [
+        648,
+        0,
+        277,
+        615
+      ],
+      "sourceRoot": [
+        451,
+        384
+      ]
+    },
+    {
+      "frame": 7,
+      "nativeSample": 56,
+      "originalTrim": [
+        0,
+        660,
+        330,
+        214,
+        2,
+        3
+      ],
+      "atlasContactRegion": [
+        233,
+        732,
+        97,
+        75
+      ],
+      "atlasContactPixel": [
+        282,
+        792
+      ],
+      "contactPart": "forward hand/finger underside; prone forelimb support",
+      "originalCellSupportBottom": 136,
+      "translationPackedY": 77,
+      "oldWorldGap": 36.16666925,
+      "sourcePng": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/art/families/ledge-recovery/down_wait_face_down/down_wait_face_down-08-native56-cutout.png",
+      "sourceSha256": "5762bc9d50fc772b59061e3ea3b042ad8838848d66859a6824157f49dac65b8a",
+      "sourceContactRegion": [
+        648,
+        0,
+        278,
+        610
+      ],
+      "sourceRoot": [
+        451,
+        378
+      ]
+    },
+    {
+      "frame": 8,
+      "nativeSample": 64,
+      "originalTrim": [
+        0,
+        876,
+        330,
+        214,
+        2,
+        3
+      ],
+      "atlasContactRegion": [
+        233,
+        948,
+        97,
+        75
+      ],
+      "atlasContactPixel": [
+        284,
+        1006
+      ],
+      "contactPart": "forward hand/finger underside; prone forelimb support",
+      "originalCellSupportBottom": 134,
+      "translationPackedY": 79,
+      "oldWorldGap": 37.10000265,
+      "sourcePng": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/art/families/ledge-recovery/down_wait_face_down/down_wait_face_down-09-native64-cutout.png",
+      "sourceSha256": "75b7c3689e656a7f1591c289ff2dc2762817659d3c15e50f6904a68880152b61",
+      "sourceContactRegion": [
+        649,
+        0,
+        277,
+        610
+      ],
+      "sourceRoot": [
+        452,
+        372
+      ]
+    },
+    {
+      "frame": 9,
+      "nativeSample": 72,
+      "originalTrim": [
+        0,
+        1308,
+        329,
+        214,
+        2,
+        3
+      ],
+      "atlasContactRegion": [
+        233,
+        1380,
+        96,
+        75
+      ],
+      "atlasContactPixel": [
+        286,
+        1437
+      ],
+      "contactPart": "forward hand/finger underside; prone forelimb support",
+      "originalCellSupportBottom": 133,
+      "translationPackedY": 80,
+      "oldWorldGap": 37.56666935,
+      "sourcePng": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/art/families/ledge-recovery/down_wait_face_down/down_wait_face_down-10-native72-cutout.png",
+      "sourceSha256": "63f63cb4396265ad5343fafbbf29a2a613f61903ab76ceaaaff1352cc067d07f",
+      "sourceContactRegion": [
+        650,
+        0,
+        275,
+        613
+      ],
+      "sourceRoot": [
+        453,
+        368
+      ]
+    },
+    {
+      "frame": 10,
+      "nativeSample": 80,
+      "originalTrim": [
+        0,
+        1092,
+        330,
+        214,
+        1,
+        3
+      ],
+      "atlasContactRegion": [
+        234,
+        1164,
+        96,
+        75
+      ],
+      "atlasContactPixel": [
+        288,
+        1220
+      ],
+      "contactPart": "forward hand/finger underside; prone forelimb support",
+      "originalCellSupportBottom": 132,
+      "translationPackedY": 81,
+      "oldWorldGap": 38.03333605,
+      "sourcePng": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/art/families/ledge-recovery/down_wait_face_down/down_wait_face_down-11-native80-cutout.png",
+      "sourceSha256": "779a5a304d2d35d4838688673c2a9fca6adad107d50d404f3566485ab4600371",
+      "sourceContactRegion": [
+        651,
+        0,
+        272,
+        613
+      ],
+      "sourceRoot": [
+        454,
+        367
+      ]
+    }
+  ],
+  "otherClipsSha256": "309b705d39747421d75d6706e3f118c2e022469e1e6eccbe42dda0c71215ba83",
+  "nativeMotion": "f04downwaitd.nuanmb",
+  "nativeSelector": "down_wait_d",
+  "sourcePlan": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/clip-plan.json",
+  "implementation": "Per-frame integer trim translation; virtual cell expanded to retain identical atlas texels. Physics root, body collider, clocks, receiving and protection unchanged.",
+  "inspectedGuide": {
+    "path": "docs/review/2026-09-25/donkeykong-character/rework-2026-10-10/art/families/ledge-recovery/poses/down_wait_face_down-01-native1-guide.png",
+    "sha256": "9c690d74e26cd56f3ca50876e3cc725fb7b7da840e2c2cc6da5f09f2b87b2433"
+  }
+}

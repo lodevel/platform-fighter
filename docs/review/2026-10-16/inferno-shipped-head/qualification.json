@@ -1,0 +1,236 @@
+{
+  "date": "2026-10-16",
+  "recordVersion": 1,
+  "viewport": {
+    "width": 1280,
+    "height": 800,
+    "deviceScaleFactor": 1
+  },
+  "evidenceRetention": "Measurements, build/tool/raw-report hashes, input fixtures and accepted visual-review receipts retained; reviewed raw captures and traces removed after bounded cleanup.",
+  "result": "PASS",
+  "liveTool": "tools/inferno-shipped-head-acceptance.mjs",
+  "harnessSha256": "112e2ae563d35adcf74b35dafcfe90da676c292fd6206e3ea407c7e4bb4f6d4b",
+  "rawReport": {
+    "path": "docs/review/2026-10-16/inferno-shipped-head/after/report.json",
+    "bytes": 185109,
+    "sha256": "e426701856023d324f1bec4010829bc8cbf4b7a2818b67d6e35feb12899744e5"
+  },
+  "browser": "155.0.4283.45",
+  "graphics": {
+    "renderer": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x0000A7A0) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "parallelShaderCompile": true
+  },
+  "bundle": "game-BNZfv5Ng.js",
+  "bundleSha256": "66e3ae1472f058ad804b560ddfc6cd39c6a65bd971b81b8106ebfc88e303fc16",
+  "buildIdentity": "platform-fighter-sha256-0067e47aa8dad11d9fe4e4501c5db226e6d40d5f9dc5ab70e8693fbb2a1bd191",
+  "server": {
+    "kind": "node:http direct immutable dist files",
+    "root": "/home/lombet/Workspace/platform-fighter/.tmp/game-bugs-base-fps-dist",
+    "base": "/platform-fighter/",
+    "sourceMiddleware": false,
+    "privateMiddleware": false
+  },
+  "scope": "The actual Inferno match runs genuine fixed ticks into rising and glare. Image request bytes/MIME are checked against the committed manifest asset. Screenshots require visual inspection for the actual head artwork, beyond network success. No physical-controller or hazard gameplay audit is claimed.",
+  "asset": {
+    "source": "assets/stages/inferno-head.png",
+    "shipped": "/home/lombet/Workspace/platform-fighter/.tmp/game-bugs-base-fps-dist/stages/inferno-head.png",
+    "bytes": 798404,
+    "sourceSha256": "d3b36e7ddabf88738c28f9b845c38f64419bab9f1b501be7e249ca02110f5540",
+    "shippedSha256": "d3b36e7ddabf88738c28f9b845c38f64419bab9f1b501be7e249ca02110f5540"
+  },
+  "privateRoutes": [
+    {
+      "url": "http://127.0.0.1:4194/platform-fighter/private/inferno-head.png",
+      "status": 404
+    },
+    {
+      "url": "http://127.0.0.1:4194/platform-fighter/port/private/inferno-head.png",
+      "status": 404
+    }
+  ],
+  "imageRequest": {
+    "url": "http://127.0.0.1:4194/platform-fighter/stages/inferno-head.png",
+    "status": 200,
+    "contentType": "image/png",
+    "resourceType": "image",
+    "bytes": 798404,
+    "sha256": "d3b36e7ddabf88738c28f9b845c38f64419bab9f1b501be7e249ca02110f5540",
+    "width": 1024,
+    "height": 1024
+  },
+  "menuFrameRate": {
+    "text": "3 FPS",
+    "pointerEvents": "none",
+    "connected": true,
+    "screen": "title"
+  },
+  "frameRatePlayback": {
+    "beforeFrame": 0,
+    "afterFrame": 132,
+    "durationMs": 2201.2000000000007,
+    "observedRafFrames": 138,
+    "comparisons": [
+      {
+        "now": 9018,
+        "displayed": 62,
+        "observedFps": 62
+      },
+      {
+        "now": 9274.8,
+        "displayed": 61,
+        "observedFps": 61
+      },
+      {
+        "now": 9531.7,
+        "displayed": 64,
+        "observedFps": 64
+      },
+      {
+        "now": 9788.6,
+        "displayed": 65,
+        "observedFps": 65
+      }
+    ],
+    "fault": null
+  },
+  "errors": [],
+  "networkFailures": [],
+  "visualReview": {
+    "status": "PASS",
+    "reviewed": [
+      "fps-title.png",
+      "inferno-frame1740.png",
+      "inferno-frame1840.png"
+    ],
+    "observations": [
+      "Actual shipped photographic head is visibly rendered after rising, including glare eye effects; stone fallback is not shown.",
+      "FPS counter remains readable at the top-left on title and match screens and does not obstruct controls."
+    ],
+    "cadenceQualification": "Normal RAF playback only: displayed62/61/64/65 exactly match independent callback counts. FPS labels in manually stepped captures are not performance benchmarks."
+  },
+  "samples": [
+    {
+      "frame": 1499,
+      "fault": null,
+      "frameRateText": "45 FPS",
+      "gaze": [
+        {
+          "frame": 1499,
+          "phase": "dormant",
+          "progress": 0
+        }
+      ],
+      "actualImageResources": [
+        {
+          "url": "http://127.0.0.1:4194/platform-fighter/stages/inferno-head.png",
+          "initiatorType": "img",
+          "transferSize": 798704,
+          "decodedBodySize": 798404
+        }
+      ]
+    },
+    {
+      "frame": 1620,
+      "fault": null,
+      "frameRateText": "38 FPS",
+      "gaze": [
+        {
+          "frame": 1620,
+          "phase": "rising",
+          "progress": 0.5
+        }
+      ],
+      "actualImageResources": [
+        {
+          "url": "http://127.0.0.1:4194/platform-fighter/stages/inferno-head.png",
+          "initiatorType": "img",
+          "transferSize": 798704,
+          "decodedBodySize": 798404
+        }
+      ]
+    },
+    {
+      "frame": 1740,
+      "fault": null,
+      "frameRateText": "37 FPS",
+      "gaze": [
+        {
+          "frame": 1740,
+          "phase": "glare",
+          "progress": 0
+        }
+      ],
+      "actualImageResources": [
+        {
+          "url": "http://127.0.0.1:4194/platform-fighter/stages/inferno-head.png",
+          "initiatorType": "img",
+          "transferSize": 798704,
+          "decodedBodySize": 798404
+        }
+      ]
+    },
+    {
+      "frame": 1840,
+      "fault": null,
+      "frameRateText": "40 FPS",
+      "gaze": [
+        {
+          "frame": 1840,
+          "phase": "glare",
+          "progress": 0.6666666666666666
+        }
+      ],
+      "actualImageResources": [
+        {
+          "url": "http://127.0.0.1:4194/platform-fighter/stages/inferno-head.png",
+          "initiatorType": "img",
+          "transferSize": 798704,
+          "decodedBodySize": 798404
+        }
+      ]
+    }
+  ],
+  "profileRemoved": true,
+  "visualReceipts": [
+    {
+      "path": "docs/review/2026-10-16/inferno-shipped-head/after/fps-title.png",
+      "bytes": 646664,
+      "sha256": "4a42e370dc1fdca651867165e08af0e01c622311cc50bbbb34bdcd5dcfce3cd8"
+    },
+    {
+      "path": "docs/review/2026-10-16/inferno-shipped-head/after/inferno-frame1740.png",
+      "bytes": 696456,
+      "sha256": "a1ce50e855b6421168844e768c29af9de24950153766ecd9c163e1d6eb455f8a"
+    },
+    {
+      "path": "docs/review/2026-10-16/inferno-shipped-head/after/inferno-frame1840.png",
+      "bytes": 707710,
+      "sha256": "bc61c81254ccf6e3172ac3b2d1e93ba350e393c4434ffd52cb13cb2cea083a33"
+    }
+  ],
+  "focusedChecks": {
+    "result": "PASS",
+    "tests": 8,
+    "receipt": {
+      "path": ".tmp/frame-rate-meter-focused.log",
+      "bytes": 360,
+      "sha256": "790799ea41b21bdea988b415f2dee4e90e9a9f38e1c20e93794d73c14e5d6ec5"
+    }
+  },
+  "limits": [
+    "Actual normal-RAF readings qualify observed counter cadence; manually stepped screenshot FPS labels and title startup values are not performance benchmarks.",
+    "No full Inferno hazard mechanics audit."
+  ],
+  "cleanup": {
+    "status": "COMPLETE",
+    "approvedBy": "Coordinating agent /root after exact path/hash review",
+    "filesRemoved": 7,
+    "bytesRemoved": 3468931,
+    "retained": [
+      "README.md",
+      "qualification.json",
+      "live acceptance tool and input fixtures"
+    ],
+    "baselineBuildsRemoved": false
+  }
+}

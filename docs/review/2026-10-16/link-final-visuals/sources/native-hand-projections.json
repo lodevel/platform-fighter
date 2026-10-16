@@ -1,0 +1,1061 @@
+{
+  "basis": "Native retained render hand projections, world pixels from body centre, right-facing. Native frame is zero-based. HaveR is the authored nock point; HaveL is the authored bow passage point. Common article parenting remains unrecovered.",
+  "records": [
+    {
+      "sheet": "d04final",
+      "nativeFrame": 0,
+      "nock": {
+        "x": -32.697,
+        "y": -19.168
+      },
+      "bow": {
+        "x": 40.711,
+        "y": -34.302
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04final/d04final-000.json",
+        "sha256": "034a1fb5f99bd03828ada8f13b0afd207094b219b47ea262456630bb8ee2be1c"
+      }
+    },
+    {
+      "sheet": "d04final",
+      "nativeFrame": 2,
+      "nock": {
+        "x": -32.959,
+        "y": -19.231
+      },
+      "bow": {
+        "x": 41.224,
+        "y": -36.472
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04final/d04final-002.json",
+        "sha256": "41a00d23130d532c27a862323fc723d6eeb60e26ef7cf49a8befa6d3bd1e8724"
+      }
+    },
+    {
+      "sheet": "d04final",
+      "nativeFrame": 4,
+      "nock": {
+        "x": -33.836,
+        "y": -21.699
+      },
+      "bow": {
+        "x": 41.65,
+        "y": -39.516
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04final/d04final-004.json",
+        "sha256": "c27ab1afdaf93bb0a3e5364b1ce0e08ba09c1724af642b384d004585e712fdcb"
+      }
+    },
+    {
+      "sheet": "d04final",
+      "nativeFrame": 6,
+      "nock": {
+        "x": -35.921,
+        "y": -26.327
+      },
+      "bow": {
+        "x": 41.31,
+        "y": -40.843
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04final/d04final-006.json",
+        "sha256": "cfea5aa0d23c6108f62c5bbf321fd89041ff44c3d336466607637d48f7257f09"
+      }
+    },
+    {
+      "sheet": "d04final",
+      "nativeFrame": 8,
+      "nock": {
+        "x": -36.624,
+        "y": -33.231
+      },
+      "bow": {
+        "x": 40.762,
+        "y": -42.786
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04final/d04final-008.json",
+        "sha256": "d1eb73c207763dbbf8859a710404c3f7664ded9a2461f3c1e0abdd766c1e20f3"
+      }
+    },
+    {
+      "sheet": "d04final",
+      "nativeFrame": 10,
+      "nock": {
+        "x": -34.789,
+        "y": -46.821
+      },
+      "bow": {
+        "x": 41.639,
+        "y": -42.748
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04final/d04final-010.json",
+        "sha256": "a856c8b754cf6bc0d272f149d1f7c1a75a22448be6fb3da24a038c0fb78901a8"
+      }
+    },
+    {
+      "sheet": "d04final",
+      "nativeFrame": 12,
+      "nock": {
+        "x": -23.58,
+        "y": -60.044
+      },
+      "bow": {
+        "x": 41.531,
+        "y": -45.803
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04final/d04final-012.json",
+        "sha256": "219120c7d45d3617bbfaa72ce560916670b4be4740c36f9826106cd877938fb1"
+      }
+    },
+    {
+      "sheet": "d04final",
+      "nativeFrame": 14,
+      "nock": {
+        "x": -0.782,
+        "y": -66.945
+      },
+      "bow": {
+        "x": 40.369,
+        "y": -51.047
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04final/d04final-014.json",
+        "sha256": "f0d018726c4a4de03efeb72a172099b4b6d4cecd603990be555aba9cf93aef4d"
+      }
+    },
+    {
+      "sheet": "d04final",
+      "nativeFrame": 16,
+      "nock": {
+        "x": 16.72,
+        "y": -63.538
+      },
+      "bow": {
+        "x": 39.254,
+        "y": -53.248
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04final/d04final-016.json",
+        "sha256": "8a78ce9478c2911f69aa8f74ccdee4f55ef37225c8950d8deb75e8da8bc89d20"
+      }
+    },
+    {
+      "sheet": "d04final",
+      "nativeFrame": 18,
+      "nock": {
+        "x": 24.213,
+        "y": -58.936
+      },
+      "bow": {
+        "x": 38.15,
+        "y": -54.65
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04final/d04final-018.json",
+        "sha256": "bbc800086c6d9efa19d0b0a35df2436c1b34b890c9ff223cb432187f0af54c38"
+      }
+    },
+    {
+      "sheet": "d04final",
+      "nativeFrame": 20,
+      "nock": {
+        "x": 25.357,
+        "y": -58.175
+      },
+      "bow": {
+        "x": 37.379,
+        "y": -55.564
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04final/d04final-020.json",
+        "sha256": "5f0c74e3ffc6cba385e65900469c8cdfb3812d8502bbdba26dc97e736b142693"
+      }
+    },
+    {
+      "sheet": "d04final",
+      "nativeFrame": 22,
+      "nock": {
+        "x": 26.21,
+        "y": -57.168
+      },
+      "bow": {
+        "x": 37.601,
+        "y": -55.881
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04final/d04final-022.json",
+        "sha256": "3f1cc998650595a537f066e8a0872e31156275c85ec9a5daa56deda71aa471c7"
+      }
+    },
+    {
+      "sheet": "d04final",
+      "nativeFrame": 24,
+      "nock": {
+        "x": 26.724,
+        "y": -55.429
+      },
+      "bow": {
+        "x": 38.076,
+        "y": -55.095
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04final/d04final-024.json",
+        "sha256": "e8332c653dce8a04c48bf006c82e7a306aeff223862cc9a7b216f71f2014776b"
+      }
+    },
+    {
+      "sheet": "d04final",
+      "nativeFrame": 26,
+      "nock": {
+        "x": 27.215,
+        "y": -52.868
+      },
+      "bow": {
+        "x": 39.324,
+        "y": -49.772
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04final/d04final-026.json",
+        "sha256": "a669789ff6ddbc5ee37b3818263b9d35db5e6e74ad3268fe67f2c7cadc03f809"
+      }
+    },
+    {
+      "sheet": "d04final",
+      "nativeFrame": 28,
+      "nock": {
+        "x": 24.135,
+        "y": -45.208
+      },
+      "bow": {
+        "x": 39.676,
+        "y": -42.234
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04final/d04final-028.json",
+        "sha256": "f574bf722f49484275f98c8761828d5b1ca81512c1b7b4adf6bb566b68f55824"
+      }
+    },
+    {
+      "sheet": "d04final",
+      "nativeFrame": 30,
+      "nock": {
+        "x": 15.135,
+        "y": -39.361
+      },
+      "bow": {
+        "x": 36.062,
+        "y": -34.381
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04final/d04final-030.json",
+        "sha256": "36a620fad0d80349680ec00e1f9f26af1cb13dfc95ae994a374eab24f4991e4a"
+      }
+    },
+    {
+      "sheet": "d04final",
+      "nativeFrame": 32,
+      "nock": {
+        "x": 2.335,
+        "y": -27.263
+      },
+      "bow": {
+        "x": 32.465,
+        "y": -24.234
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04final/d04final-032.json",
+        "sha256": "ed333b3abb7f4a104e436336d406fcc9143b59434eeec0a8f71184b506ef34ab"
+      }
+    },
+    {
+      "sheet": "d04final",
+      "nativeFrame": 34,
+      "nock": {
+        "x": -2.338,
+        "y": -21.457
+      },
+      "bow": {
+        "x": 30.447,
+        "y": -17.892
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04final/d04final-034.json",
+        "sha256": "6338a28423555db77dd724767c489e4ff1253ac69caed62bf89bbf5c8ba8ec97"
+      }
+    },
+    {
+      "sheet": "d04final",
+      "nativeFrame": 35,
+      "nock": {
+        "x": -3.214,
+        "y": -20.1
+      },
+      "bow": {
+        "x": 30.093,
+        "y": -16.72
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04final/d04final-035.json",
+        "sha256": "0c59f58b15f743667e2f7e4aa7276030dd3ab5ce8897675d044e55af58d063e7"
+      }
+    },
+    {
+      "sheet": "d04final",
+      "nativeFrame": 36,
+      "nock": {
+        "x": -4.009,
+        "y": -18.864
+      },
+      "bow": {
+        "x": 29.947,
+        "y": -15.638
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04final/d04final-036.json",
+        "sha256": "18f7738481e97da442d99e2d15c228a987e96c9267bb6119431a8d33206d2727"
+      }
+    },
+    {
+      "sheet": "d04final",
+      "nativeFrame": 38,
+      "nock": {
+        "x": -4.902,
+        "y": -16.936
+      },
+      "bow": {
+        "x": 29.767,
+        "y": -13.909
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04final/d04final-038.json",
+        "sha256": "507f48c36a0ffe93b5bcf02467aada5c1ad2f4e948563790adb17463ae3707bf"
+      }
+    },
+    {
+      "sheet": "d04final",
+      "nativeFrame": 40,
+      "nock": {
+        "x": -6.509,
+        "y": -15.701
+      },
+      "bow": {
+        "x": 29.703,
+        "y": -12.848
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04final/d04final-040.json",
+        "sha256": "6c41aa48ecce846ca99f028a71ceec3cd52683d1155697419908b7002a8ff0c2"
+      }
+    },
+    {
+      "sheet": "d04final",
+      "nativeFrame": 42,
+      "nock": {
+        "x": -8.217,
+        "y": -14.702
+      },
+      "bow": {
+        "x": 29.63,
+        "y": -11.816
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04final/d04final-042.json",
+        "sha256": "98a34a83342da2e0112fd72d0c6203cf5b310dfddb72000449fca791cb88832f"
+      }
+    },
+    {
+      "sheet": "d04final",
+      "nativeFrame": 44,
+      "nock": {
+        "x": -9.846,
+        "y": -14.064
+      },
+      "bow": {
+        "x": 29.525,
+        "y": -11.313
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04final/d04final-044.json",
+        "sha256": "1018f0afaa9574ad2ed31975d660f9e563b79a8bf0f5f13c3236034a6e43e448"
+      }
+    },
+    {
+      "sheet": "d04final",
+      "nativeFrame": 46,
+      "nock": {
+        "x": -10.883,
+        "y": -13.58
+      },
+      "bow": {
+        "x": 29.376,
+        "y": -10.791
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04final/d04final-046.json",
+        "sha256": "7b627dde93a04b5ce8441b681c21bb052f2e1afa9abdba63bf44ab92538c5451"
+      }
+    },
+    {
+      "sheet": "d04final",
+      "nativeFrame": 47,
+      "nock": {
+        "x": -11.331,
+        "y": -13.36
+      },
+      "bow": {
+        "x": 29.298,
+        "y": -10.673
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04final/d04final-047.json",
+        "sha256": "63e2c5aaaf7b6d3c4cefaa6c99967618f2aca84bac21fd20d7f2a1ce50ce7503"
+      }
+    },
+    {
+      "sheet": "d04final",
+      "nativeFrame": 48,
+      "nock": {
+        "x": -12.12,
+        "y": -13.328
+      },
+      "bow": {
+        "x": 29.214,
+        "y": -10.619
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04final/d04final-048.json",
+        "sha256": "113c009df05806cf4e91bd73c5068ba96e9425fd1719fa2a4f41bd0274ffa8ac"
+      }
+    },
+    {
+      "sheet": "d04final",
+      "nativeFrame": 50,
+      "nock": {
+        "x": -12.676,
+        "y": -13.133
+      },
+      "bow": {
+        "x": 29.031,
+        "y": -10.471
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04final/d04final-050.json",
+        "sha256": "669327597f24aae59a6e82e9d55b36e575f4819916e9e1276b8e70d95c600c3c"
+      }
+    },
+    {
+      "sheet": "d04final",
+      "nativeFrame": 52,
+      "nock": {
+        "x": -13.69,
+        "y": -13.127
+      },
+      "bow": {
+        "x": 28.882,
+        "y": -10.504
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04final/d04final-052.json",
+        "sha256": "bb44c5f37d5c8de7d5e3da01f7ad21460716e4a5e48cd8c2d9e8ae4bf16a5498"
+      }
+    },
+    {
+      "sheet": "d04final",
+      "nativeFrame": 54,
+      "nock": {
+        "x": -13.883,
+        "y": -12.962
+      },
+      "bow": {
+        "x": 28.755,
+        "y": -10.417
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04final/d04final-054.json",
+        "sha256": "e6e27489060c9ccc91dded49fae751c2c6a1ff435d160050f285d3f35c554069"
+      }
+    },
+    {
+      "sheet": "d04final",
+      "nativeFrame": 56,
+      "nock": {
+        "x": -14.788,
+        "y": -12.952
+      },
+      "bow": {
+        "x": 28.653,
+        "y": -10.422
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04final/d04final-056.json",
+        "sha256": "c6a596d0239e0cb6ef2ac5ccf4cd72ccf106b3f07f3043d64491044ce48a9ff8"
+      }
+    },
+    {
+      "sheet": "d04final",
+      "nativeFrame": 58,
+      "nock": {
+        "x": -14.979,
+        "y": -12.96
+      },
+      "bow": {
+        "x": 28.599,
+        "y": -10.43
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04final/d04final-058.json",
+        "sha256": "2c4091996f30f30afaeaf13c7a6e0b63cb619b3fca43a7c11eed55d2006c4ecb"
+      }
+    },
+    {
+      "sheet": "d04final",
+      "nativeFrame": 59,
+      "nock": {
+        "x": 6.295,
+        "y": -11.809
+      },
+      "bow": {
+        "x": 28.702,
+        "y": -11.518
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04final/d04final-059.json",
+        "sha256": "bc023eab8bc9e7e0f4adbc46f4b2fb70dc2a2fa7727a111bc61b41410ee5784b"
+      }
+    },
+    {
+      "sheet": "d04finalair",
+      "nativeFrame": 0,
+      "nock": {
+        "x": -32.575,
+        "y": -21.792
+      },
+      "bow": {
+        "x": 40.711,
+        "y": -36.809
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04finalair/d04finalair-000.json",
+        "sha256": "eeaa25e3d554a915acebf4557aa04db4d595d04a72b18651fe4d672430b5a5a5"
+      }
+    },
+    {
+      "sheet": "d04finalair",
+      "nativeFrame": 2,
+      "nock": {
+        "x": -32.919,
+        "y": -21.76
+      },
+      "bow": {
+        "x": 41.224,
+        "y": -38.979
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04finalair/d04finalair-002.json",
+        "sha256": "a4ae632ec5d1800defa998fba1235757763c31d71ad143adb69dc4ac70022b8e"
+      }
+    },
+    {
+      "sheet": "d04finalair",
+      "nativeFrame": 4,
+      "nock": {
+        "x": -33.776,
+        "y": -24.235
+      },
+      "bow": {
+        "x": 41.65,
+        "y": -42.023
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04finalair/d04finalair-004.json",
+        "sha256": "965faf8aaa20cb82652d4d94a29d51d2de9e922dbdb29c8cd42762b40bef6116"
+      }
+    },
+    {
+      "sheet": "d04finalair",
+      "nativeFrame": 6,
+      "nock": {
+        "x": -35.842,
+        "y": -28.831
+      },
+      "bow": {
+        "x": 41.31,
+        "y": -43.351
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04finalair/d04finalair-006.json",
+        "sha256": "dac768a3902af85be46444c91d068d46404974eb189b599bc65d403dc03ad17e"
+      }
+    },
+    {
+      "sheet": "d04finalair",
+      "nativeFrame": 8,
+      "nock": {
+        "x": -36.544,
+        "y": -35.674
+      },
+      "bow": {
+        "x": 40.763,
+        "y": -45.293
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04finalair/d04finalair-008.json",
+        "sha256": "572d158cd22ce6e62710bbe459472ccdea9b1d1588cc82dddf98a2afeb1799f3"
+      }
+    },
+    {
+      "sheet": "d04finalair",
+      "nativeFrame": 10,
+      "nock": {
+        "x": -34.756,
+        "y": -49.239
+      },
+      "bow": {
+        "x": 41.639,
+        "y": -45.255
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04finalair/d04finalair-010.json",
+        "sha256": "6d759bf5409292ec34961a8b5e1d9b7834238ac37144a737f935d1b3647875a9"
+      }
+    },
+    {
+      "sheet": "d04finalair",
+      "nativeFrame": 12,
+      "nock": {
+        "x": -23.588,
+        "y": -62.511
+      },
+      "bow": {
+        "x": 41.531,
+        "y": -48.309
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04finalair/d04finalair-012.json",
+        "sha256": "28be6a48ade18c94b3b656ab79e5562bf35528cdf7abd0534142b772ee995db7"
+      }
+    },
+    {
+      "sheet": "d04finalair",
+      "nativeFrame": 14,
+      "nock": {
+        "x": -0.779,
+        "y": -69.458
+      },
+      "bow": {
+        "x": 40.37,
+        "y": -53.554
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04finalair/d04finalair-014.json",
+        "sha256": "022e6b71670ea2720e0df22e72a83f1516af20d7a7b632e288e0cdb30c9a96c3"
+      }
+    },
+    {
+      "sheet": "d04finalair",
+      "nativeFrame": 16,
+      "nock": {
+        "x": 16.725,
+        "y": -66.032
+      },
+      "bow": {
+        "x": 39.254,
+        "y": -55.755
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04finalair/d04finalair-016.json",
+        "sha256": "07b9e7b9e4280af162d9fbf0466aad5bfcbb946a57405d9504dd6a3476f44860"
+      }
+    },
+    {
+      "sheet": "d04finalair",
+      "nativeFrame": 18,
+      "nock": {
+        "x": 24.207,
+        "y": -61.418
+      },
+      "bow": {
+        "x": 38.15,
+        "y": -57.156
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04finalair/d04finalair-018.json",
+        "sha256": "a60244e9a9334897b65e155c74da2b1ff503d798592da779a8918513448ed81c"
+      }
+    },
+    {
+      "sheet": "d04finalair",
+      "nativeFrame": 20,
+      "nock": {
+        "x": 25.349,
+        "y": -60.656
+      },
+      "bow": {
+        "x": 37.379,
+        "y": -58.071
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04finalair/d04finalair-020.json",
+        "sha256": "534e8cccd70dbc37e9771ed5e02d5cffd8d68218ae56bfaa1f8d422a2496e911"
+      }
+    },
+    {
+      "sheet": "d04finalair",
+      "nativeFrame": 22,
+      "nock": {
+        "x": 26.2,
+        "y": -59.649
+      },
+      "bow": {
+        "x": 37.601,
+        "y": -58.388
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04finalair/d04finalair-022.json",
+        "sha256": "144e88b29f338d086c23f028784b62dac068c00cba227b3e54332224c421b600"
+      }
+    },
+    {
+      "sheet": "d04finalair",
+      "nativeFrame": 24,
+      "nock": {
+        "x": 26.71,
+        "y": -57.911
+      },
+      "bow": {
+        "x": 38.076,
+        "y": -57.602
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04finalair/d04finalair-024.json",
+        "sha256": "74f2b36446be46b0617c6809a9a3a7323a1007642358a2d42c5a8bd29dcf86db"
+      }
+    },
+    {
+      "sheet": "d04finalair",
+      "nativeFrame": 26,
+      "nock": {
+        "x": 27.202,
+        "y": -55.362
+      },
+      "bow": {
+        "x": 39.323,
+        "y": -52.28
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04finalair/d04finalair-026.json",
+        "sha256": "9baf2ab797be47993c19bfa7d656078eeaab7cc6e836d611d90e2e8d2c366897"
+      }
+    },
+    {
+      "sheet": "d04finalair",
+      "nativeFrame": 28,
+      "nock": {
+        "x": 24.125,
+        "y": -47.71
+      },
+      "bow": {
+        "x": 39.591,
+        "y": -44.54
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04finalair/d04finalair-028.json",
+        "sha256": "9b2ae92bbf24c9ea45280692750873d50ac9e06c3b2307658ee03ab3c152efc0"
+      }
+    },
+    {
+      "sheet": "d04finalair",
+      "nativeFrame": 30,
+      "nock": {
+        "x": 15.13,
+        "y": -41.871
+      },
+      "bow": {
+        "x": 35.929,
+        "y": -36.631
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04finalair/d04finalair-030.json",
+        "sha256": "31ec7cf182eb7959d4a5312da67e6fedcde7d5b5d3def1ba5a1a23aa0728eb55"
+      }
+    },
+    {
+      "sheet": "d04finalair",
+      "nativeFrame": 32,
+      "nock": {
+        "x": 2.324,
+        "y": -29.774
+      },
+      "bow": {
+        "x": 32.504,
+        "y": -26.914
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04finalair/d04finalair-032.json",
+        "sha256": "12019c268f720042d4b4545913593c58f6c8cd6c753829f53964fcf1cf3a8412"
+      }
+    },
+    {
+      "sheet": "d04finalair",
+      "nativeFrame": 34,
+      "nock": {
+        "x": -2.348,
+        "y": -23.974
+      },
+      "bow": {
+        "x": 30.176,
+        "y": -20.402
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04finalair/d04finalair-034.json",
+        "sha256": "795f557e619c96da796c5a13391ab94f5bb32af9550565cbd4869405dcf1d270"
+      }
+    },
+    {
+      "sheet": "d04finalair",
+      "nativeFrame": 36,
+      "nock": {
+        "x": -4.017,
+        "y": -21.379
+      },
+      "bow": {
+        "x": 29.667,
+        "y": -18.144
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04finalair/d04finalair-036.json",
+        "sha256": "927aefc094a8be2532cb583ac6eec82b93212d81e5473e8776bcda84f68945e6"
+      }
+    },
+    {
+      "sheet": "d04finalair",
+      "nativeFrame": 38,
+      "nock": {
+        "x": -4.906,
+        "y": -19.449
+      },
+      "bow": {
+        "x": 29.529,
+        "y": -16.415
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04finalair/d04finalair-038.json",
+        "sha256": "74fd583c009e11ce944d96f4691692b9bdf250b53e462ef385df421ffb6967c4"
+      }
+    },
+    {
+      "sheet": "d04finalair",
+      "nativeFrame": 39,
+      "nock": {
+        "x": -5.486,
+        "y": -18.753
+      },
+      "bow": {
+        "x": 29.51,
+        "y": -15.844
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04finalair/d04finalair-039.json",
+        "sha256": "e8c2e11c3d3e3fe8870b0aa5f7ddc509fb70a703c8abfa93677a24e28a8058cc"
+      }
+    },
+    {
+      "sheet": "d04finalair",
+      "nativeFrame": 40,
+      "nock": {
+        "x": -6.508,
+        "y": -18.212
+      },
+      "bow": {
+        "x": 29.51,
+        "y": -15.355
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04finalair/d04finalair-040.json",
+        "sha256": "45f2795c425d135a044b5b1a8cc38f3147b79acea010a323ee76b0b4d760462d"
+      }
+    },
+    {
+      "sheet": "d04finalair",
+      "nativeFrame": 42,
+      "nock": {
+        "x": -8.21,
+        "y": -17.21
+      },
+      "bow": {
+        "x": 29.481,
+        "y": -14.323
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04finalair/d04finalair-042.json",
+        "sha256": "7c106ee6d1d8a28124a447ef63bf7d9f279e64a7a9a21bc0a66401fabd5879e1"
+      }
+    },
+    {
+      "sheet": "d04finalair",
+      "nativeFrame": 44,
+      "nock": {
+        "x": -9.833,
+        "y": -16.569
+      },
+      "bow": {
+        "x": 29.411,
+        "y": -13.822
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04finalair/d04finalair-044.json",
+        "sha256": "e5adf210408f0d88ec2173444858b4d65d429538e724971e616f47e078188745"
+      }
+    },
+    {
+      "sheet": "d04finalair",
+      "nativeFrame": 46,
+      "nock": {
+        "x": -10.867,
+        "y": -16.084
+      },
+      "bow": {
+        "x": 29.284,
+        "y": -13.301
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04finalair/d04finalair-046.json",
+        "sha256": "ba413aa206d7310131fb152600b2279935893ac6a529e356374b644e4b01eea9"
+      }
+    },
+    {
+      "sheet": "d04finalair",
+      "nativeFrame": 48,
+      "nock": {
+        "x": -12.098,
+        "y": -15.83
+      },
+      "bow": {
+        "x": 29.126,
+        "y": -13.13
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04finalair/d04finalair-048.json",
+        "sha256": "58008e633e97973c162656f4a40659e5e700267cd91c4f7dcfa6c29080cefc2f"
+      }
+    },
+    {
+      "sheet": "d04finalair",
+      "nativeFrame": 49,
+      "nock": {
+        "x": -12.544,
+        "y": -15.764
+      },
+      "bow": {
+        "x": 29.029,
+        "y": -13.016
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04finalair/d04finalair-049.json",
+        "sha256": "7b9be4903afa6928e17e7d9db33277d93bf7ef79fc77658f5b8b442d44ddc712"
+      }
+    },
+    {
+      "sheet": "d04finalair",
+      "nativeFrame": 50,
+      "nock": {
+        "x": -12.65,
+        "y": -15.632
+      },
+      "bow": {
+        "x": 28.932,
+        "y": -12.982
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04finalair/d04finalair-050.json",
+        "sha256": "f9ba9861f3c72ca8c0eec6b13e6e5471d62d05c3abf7603997455cc7f6fdeeae"
+      }
+    },
+    {
+      "sheet": "d04finalair",
+      "nativeFrame": 52,
+      "nock": {
+        "x": -13.659,
+        "y": -15.625
+      },
+      "bow": {
+        "x": 28.757,
+        "y": -13.017
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04finalair/d04finalair-052.json",
+        "sha256": "393b611470e3c1430c3c966843f44e7f2b280f5c7360fab0715ccde666ec2bf0"
+      }
+    },
+    {
+      "sheet": "d04finalair",
+      "nativeFrame": 54,
+      "nock": {
+        "x": -13.849,
+        "y": -15.457
+      },
+      "bow": {
+        "x": 28.595,
+        "y": -12.932
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04finalair/d04finalair-054.json",
+        "sha256": "8adadbb74771d13c11c5880fa0858bdd56bb390f793b5549785f6887afa9d6ad"
+      }
+    },
+    {
+      "sheet": "d04finalair",
+      "nativeFrame": 56,
+      "nock": {
+        "x": -14.75,
+        "y": -15.445
+      },
+      "bow": {
+        "x": 28.451,
+        "y": -12.94
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04finalair/d04finalair-056.json",
+        "sha256": "dd4e7773d211255b76460b8b20a2c808c70d7b897f4fdbcc3acabeb6448950bd"
+      }
+    },
+    {
+      "sheet": "d04finalair",
+      "nativeFrame": 58,
+      "nock": {
+        "x": -14.939,
+        "y": -15.452
+      },
+      "bow": {
+        "x": 28.352,
+        "y": -12.948
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04finalair/d04finalair-058.json",
+        "sha256": "75eb4103bbcbf0099d60a92b0d2601293e96a2027beb515072aa67d98bc0cc04"
+      }
+    },
+    {
+      "sheet": "d04finalair",
+      "nativeFrame": 59,
+      "nock": {
+        "x": 6.376,
+        "y": -14.305
+      },
+      "bow": {
+        "x": 27.911,
+        "y": -14.005
+      },
+      "source": {
+        "path": "docs/review/2026-10-15/user-bugs/link/smooth-raw/d04finalair/d04finalair-059.json",
+        "sha256": "3cf62b99c192b257a106ebac4f52b551881902f6d754c3c00f066eb3a4352eac"
+      }
+    }
+  ]
+}

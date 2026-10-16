@@ -1,0 +1,323 @@
+{
+  "result": "PASS",
+  "beforeScript": "http://127.0.0.1:4173/platform-fighter/assets/game-BNZfv5Ng.js",
+  "afterScript": "http://127.0.0.1:4173/platform-fighter/assets/game-_LoddHLw.js",
+  "source": "Retained native NUANMB integer poses rendered by the accepted CPU toon operator; seven original authority clips are untouched.",
+  "restoreCoverage": "Display repeat/rewind/reset is unit tested. Whole-world checkpoint replay is not claimed for these injected setup probes, since grants and placement are outside input history.",
+  "scope": "8 ground/air \u00d7 left/right \u00d7 hit/miss real matches. Injected grant/placement; saved keyboard activation; all subsequent ordinary physics and Final choreography retained.",
+  "authorityFields": "Every captured physics, velocity, phase, motion-age, owner/victim control, damage, capture, receiving geometry, victim body/attachment and timeline field. Full canonical original seven-clip hash also covers outgoing/attachment/source-root tracks.",
+  "decodedBytes": 179202240,
+  "decodedBudgetBytes": 184549376,
+  "pages": 14,
+  "semanticSamples": 423,
+  "retainedOriginalDrawings": 187,
+  "newNativePoses": 236,
+  "beforeTraceSetSha256": "7eb74a2b6db9c5331eb842c70de02650fa8e4dd386a55b11ac85e258c7b04815",
+  "afterTraceSetSha256": "7eb74a2b6db9c5331eb842c70de02650fa8e4dd386a55b11ac85e258c7b04815",
+  "rows": [
+    {
+      "case": "ground-right-hit",
+      "ticks": 350,
+      "authoritySha256": "ae5bf7f01c7dc606070e52fdb80c08a0c98b5bbc6d56822026c34d7f78979b70",
+      "authorityIdentical": true,
+      "victimGeometryAndPixelsUnchanged": true,
+      "rootScaleFacingRotationIdentical": true,
+      "displayedOwnerTicks": 349,
+      "ticksShowingNewNativePoses": 86,
+      "phases": [
+        "startup",
+        "hit",
+        "attack",
+        "attack2",
+        "attack-finish",
+        "return",
+        "finish"
+      ],
+      "damage": 62.370000000000005,
+      "captures": 1,
+      "sheets": {
+        "final": {
+          "ticks": 63,
+          "beforeDrawings": 30,
+          "afterDrawings": 63
+        },
+        "final_dash": {
+          "ticks": 172,
+          "beforeDrawings": 6,
+          "afterDrawings": 6
+        },
+        "final2": {
+          "ticks": 114,
+          "beforeDrawings": 41,
+          "afterDrawings": 94
+        }
+      }
+    },
+    {
+      "case": "ground-right-miss",
+      "ticks": 209,
+      "authoritySha256": "0679db572a47b25a08a97ea516c092efc7778b888d8b6ac2a2023b13696f012f",
+      "authorityIdentical": true,
+      "victimGeometryAndPixelsUnchanged": true,
+      "rootScaleFacingRotationIdentical": true,
+      "displayedOwnerTicks": 208,
+      "ticksShowingNewNativePoses": 118,
+      "phases": [
+        "startup",
+        "dash",
+        "miss"
+      ],
+      "damage": 0,
+      "captures": 0,
+      "sheets": {
+        "final": {
+          "ticks": 63,
+          "beforeDrawings": 30,
+          "afterDrawings": 63
+        },
+        "final_dash": {
+          "ticks": 16,
+          "beforeDrawings": 6,
+          "afterDrawings": 6
+        },
+        "final_dash_end": {
+          "ticks": 129,
+          "beforeDrawings": 30,
+          "afterDrawings": 90
+        }
+      }
+    },
+    {
+      "case": "ground-left-hit",
+      "ticks": 350,
+      "authoritySha256": "0429fa896e7ae4290bcc780ed51895629eb4369fc73dc0bc35658239a5e97f30",
+      "authorityIdentical": true,
+      "victimGeometryAndPixelsUnchanged": true,
+      "rootScaleFacingRotationIdentical": true,
+      "displayedOwnerTicks": 349,
+      "ticksShowingNewNativePoses": 86,
+      "phases": [
+        "startup",
+        "hit",
+        "attack",
+        "attack2",
+        "attack-finish",
+        "return",
+        "finish"
+      ],
+      "damage": 62.370000000000005,
+      "captures": 1,
+      "sheets": {
+        "final": {
+          "ticks": 63,
+          "beforeDrawings": 30,
+          "afterDrawings": 63
+        },
+        "final_dash": {
+          "ticks": 172,
+          "beforeDrawings": 6,
+          "afterDrawings": 6
+        },
+        "final2": {
+          "ticks": 114,
+          "beforeDrawings": 41,
+          "afterDrawings": 94
+        }
+      }
+    },
+    {
+      "case": "ground-left-miss",
+      "ticks": 209,
+      "authoritySha256": "65e0ac0377995e6565a18db547c9911dc825c4cc087f7a842586832185a23f53",
+      "authorityIdentical": true,
+      "victimGeometryAndPixelsUnchanged": true,
+      "rootScaleFacingRotationIdentical": true,
+      "displayedOwnerTicks": 208,
+      "ticksShowingNewNativePoses": 118,
+      "phases": [
+        "startup",
+        "dash",
+        "miss"
+      ],
+      "damage": 0,
+      "captures": 0,
+      "sheets": {
+        "final": {
+          "ticks": 63,
+          "beforeDrawings": 30,
+          "afterDrawings": 63
+        },
+        "final_dash": {
+          "ticks": 16,
+          "beforeDrawings": 6,
+          "afterDrawings": 6
+        },
+        "final_dash_end": {
+          "ticks": 129,
+          "beforeDrawings": 30,
+          "afterDrawings": 90
+        }
+      }
+    },
+    {
+      "case": "air-right-hit",
+      "ticks": 296,
+      "authoritySha256": "5ad7676b7a6dd2cfc4e3ffbcef66e4fd7b26196224894096ecc9967dc9411a18",
+      "authorityIdentical": true,
+      "victimGeometryAndPixelsUnchanged": true,
+      "rootScaleFacingRotationIdentical": true,
+      "displayedOwnerTicks": 295,
+      "ticksShowingNewNativePoses": 50,
+      "phases": [
+        "startup",
+        "dash",
+        "hit",
+        "attack",
+        "attack2",
+        "attack-finish",
+        "return",
+        "finish"
+      ],
+      "damage": 58.59,
+      "captures": 1,
+      "sheets": {
+        "final_air": {
+          "ticks": 63,
+          "beforeDrawings": 30,
+          "afterDrawings": 63
+        },
+        "final_dash": {
+          "ticks": 173,
+          "beforeDrawings": 6,
+          "afterDrawings": 6
+        },
+        "final_air2": {
+          "ticks": 59,
+          "beforeDrawings": 22,
+          "afterDrawings": 39
+        }
+      }
+    },
+    {
+      "case": "air-right-miss",
+      "ticks": 141,
+      "authoritySha256": "db943faef0eb0cf6f79666efb0fdbecc4d52c8d903b4051d59177301d614ea25",
+      "authorityIdentical": true,
+      "victimGeometryAndPixelsUnchanged": true,
+      "rootScaleFacingRotationIdentical": true,
+      "displayedOwnerTicks": 140,
+      "ticksShowingNewNativePoses": 73,
+      "phases": [
+        "startup",
+        "dash",
+        "miss"
+      ],
+      "damage": 0,
+      "captures": 0,
+      "sheets": {
+        "final_air": {
+          "ticks": 63,
+          "beforeDrawings": 30,
+          "afterDrawings": 63
+        },
+        "final_dash": {
+          "ticks": 16,
+          "beforeDrawings": 6,
+          "afterDrawings": 6
+        },
+        "final_air_dash_end": {
+          "ticks": 61,
+          "beforeDrawings": 21,
+          "afterDrawings": 61
+        }
+      }
+    },
+    {
+      "case": "air-left-hit",
+      "ticks": 302,
+      "authoritySha256": "dcb0dd87fa49fb619cc5e1364bf134fe64a279c80b1d179c71d574c5d385cd5a",
+      "authorityIdentical": true,
+      "victimGeometryAndPixelsUnchanged": true,
+      "rootScaleFacingRotationIdentical": true,
+      "displayedOwnerTicks": 301,
+      "ticksShowingNewNativePoses": 50,
+      "phases": [
+        "startup",
+        "dash",
+        "hit",
+        "attack",
+        "attack2",
+        "attack-finish",
+        "return",
+        "finish"
+      ],
+      "damage": 62.370000000000005,
+      "captures": 1,
+      "sheets": {
+        "final_air": {
+          "ticks": 63,
+          "beforeDrawings": 30,
+          "afterDrawings": 63
+        },
+        "final_dash": {
+          "ticks": 179,
+          "beforeDrawings": 6,
+          "afterDrawings": 6
+        },
+        "final_air2": {
+          "ticks": 59,
+          "beforeDrawings": 22,
+          "afterDrawings": 39
+        }
+      }
+    },
+    {
+      "case": "air-left-miss",
+      "ticks": 141,
+      "authoritySha256": "9ae14d18023ec87ff180d432e4be6e4dc84be4ec41764b804ddc1c316e828b0a",
+      "authorityIdentical": true,
+      "victimGeometryAndPixelsUnchanged": true,
+      "rootScaleFacingRotationIdentical": true,
+      "displayedOwnerTicks": 140,
+      "ticksShowingNewNativePoses": 73,
+      "phases": [
+        "startup",
+        "dash",
+        "miss"
+      ],
+      "damage": 0,
+      "captures": 0,
+      "sheets": {
+        "final_air": {
+          "ticks": 63,
+          "beforeDrawings": 30,
+          "afterDrawings": 63
+        },
+        "final_dash": {
+          "ticks": 16,
+          "beforeDrawings": 6,
+          "afterDrawings": 6
+        },
+        "final_air_dash_end": {
+          "ticks": 61,
+          "beforeDrawings": 21,
+          "afterDrawings": 61
+        }
+      }
+    }
+  ],
+  "browserProfilesRemoved": {
+    "before": true,
+    "after": true
+  },
+  "acceptedReviewCleanup": {
+    "completedAtUtc": "2026-10-16T11:48:40.135553+00:00",
+    "generatedDirectoriesRemoved": 6,
+    "separatelyListedReviewImagesRemoved": 7,
+    "totalFilesRemoved": 639,
+    "bytesRemoved": 181769349,
+    "trackedFilesRemoved": 0,
+    "requiredInputsAndFixturesRetained": true,
+    "scope": "Exact reviewed DK/Pikachu plan: six generated directories and seven review images; native/libs inputs, installed assets, tests, recipes, tools and compact numeric/source records retained."
+  }
+}

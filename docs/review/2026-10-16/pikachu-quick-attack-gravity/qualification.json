@@ -1,0 +1,3271 @@
+{
+  "date": "2026-10-16",
+  "recordVersion": 1,
+  "viewport": {
+    "width": 1280,
+    "height": 800,
+    "deviceScaleFactor": 1
+  },
+  "evidenceRetention": "Measurements, build/tool/raw-report hashes, input fixtures and accepted visual-review receipts retained; reviewed raw captures and traces removed after bounded cleanup.",
+  "result": "PASS",
+  "scope": "Pikachu Quick Attack Up+special then left/right, early first-burst steering and later second-burst steering; ground/air/launched entry and240-tick release timeline. Human physical-controller feel and source-game numeric parity are not claimed.",
+  "method": "Default saved-profile resolution; simulated standard gamepad axes/button3(Y) polled by unchanged navigator adapter, plus real DOM W+G keyboard bindings. host.step() has no injected CharacterInput. Ground positions and60%entry damage are labeled setup; airborne cases use normal jump and launched cases use opponent right-stick up-smash with natural hitlag/hitstun. Manual simulation steps, normal RAF renders.",
+  "browser": "155.0.4283.45",
+  "graphics": {
+    "renderer": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x0000A7A0) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "parallelShaderCompile": true
+  },
+  "liveTool": "tools/pikachu-quick-attack-gravity-acceptance.mjs",
+  "runs": {
+    "before": {
+      "result": "OBSERVED_NO_STUCK_POST_ACTION",
+      "bundle": "game-CDiv0wP3.js",
+      "bundleSha256": "203a5bc93ebe1fba3ec10080fd1a8d8e06ca4431f598cc836995532876926977",
+      "buildIdentity": "platform-fighter-sha256-8801bf0c4941c9a7c639cf2e69652ebf398af18acdabbc36bd02a82cb722b757",
+      "harnessSha256": "04654f42c48e7af90a80ecac694fd48d4eeefaa4a9cf93c2e1e2a1796c4c7204",
+      "rawReport": {
+        "path": "docs/review/2026-10-16/pikachu-quick-attack-gravity/before/report.json",
+        "bytes": 3764289,
+        "sha256": "fac17dc3e7363381cbd24510b465fea291d8efeb25d4942e6cb76eb466be90d8"
+      },
+      "pageErrors": [],
+      "cases": [
+        {
+          "key": "simulated-gamepad-ground-left-steer20",
+          "input": "simulated-gamepad",
+          "entry": "ground",
+          "direction": -1,
+          "steerTick": 20,
+          "launchTiming": null,
+          "samples": 241,
+          "traceSha256": "b1e359dfe58e14b9f2ad5ca9728f7ac4df393cf94165efa722f9dc21cc6fa219",
+          "setup": {
+            "initialGrounded": true,
+            "initialPosition": {
+              "x": 960,
+              "y": 905.050000277778
+            },
+            "initialVelocity": {
+              "x": 0,
+              "y": 0
+            },
+            "fixedStepMs": 16.666666666666668
+          },
+          "launchSetup": null,
+          "summary": {
+            "startedTick": 0,
+            "endedTick": 68,
+            "sourceEndFrame": 67,
+            "secondBurst": true,
+            "firstDownwardAfterWarpTick": 41,
+            "firstDownwardAfterEndTick": null,
+            "landedTick": 68,
+            "airbornePostActionFrames": 0,
+            "zeroVerticalPostActionFrames": 0,
+            "postActionVerticalDisplacement": null,
+            "stuckAfterAction": false
+          },
+          "tick0ReferenceLaunch": null,
+          "tick41Velocity": {
+            "x": -2.870999999999981,
+            "y": 0.47500000000002274
+          },
+          "last": {
+            "tick": 240,
+            "position": {
+              "x": 593.9900056461399,
+              "y": 784.455000277778
+            },
+            "root": {
+              "x": 593.9900056461399,
+              "y": 809.455000277778
+            },
+            "velocity": {
+              "x": 0,
+              "y": 0
+            },
+            "grounded": true,
+            "helpless": false,
+            "special": null,
+            "attack": null,
+            "referenceLaunch": null,
+            "launchVelocity": null,
+            "fault": null
+          }
+        },
+        {
+          "key": "simulated-gamepad-ground-right-steer20",
+          "input": "simulated-gamepad",
+          "entry": "ground",
+          "direction": 1,
+          "steerTick": 20,
+          "launchTiming": null,
+          "samples": 241,
+          "traceSha256": "f856c4e7b39e5bd55c82ab72db53fdcc67deb39bfe741d3a9b842f286b248549",
+          "setup": {
+            "initialGrounded": true,
+            "initialPosition": {
+              "x": 960,
+              "y": 905.050000277778
+            },
+            "initialVelocity": {
+              "x": 0,
+              "y": 0
+            },
+            "fixedStepMs": 16.666666666666668
+          },
+          "launchSetup": null,
+          "summary": {
+            "startedTick": 0,
+            "endedTick": 68,
+            "sourceEndFrame": 67,
+            "secondBurst": true,
+            "firstDownwardAfterWarpTick": 41,
+            "firstDownwardAfterEndTick": null,
+            "landedTick": 68,
+            "airbornePostActionFrames": 0,
+            "zeroVerticalPostActionFrames": 0,
+            "postActionVerticalDisplacement": null,
+            "stuckAfterAction": false
+          },
+          "tick0ReferenceLaunch": null,
+          "tick41Velocity": {
+            "x": 2.8710000000000946,
+            "y": 0.47500000000002274
+          },
+          "last": {
+            "tick": 240,
+            "position": {
+              "x": 1326.0099943538314,
+              "y": 784.455000277778
+            },
+            "root": {
+              "x": 1326.0099943538314,
+              "y": 809.455000277778
+            },
+            "velocity": {
+              "x": 0,
+              "y": 0
+            },
+            "grounded": true,
+            "helpless": false,
+            "special": null,
+            "attack": null,
+            "referenceLaunch": null,
+            "launchVelocity": null,
+            "fault": null
+          }
+        },
+        {
+          "key": "simulated-gamepad-air-left-steer20",
+          "input": "simulated-gamepad",
+          "entry": "air",
+          "direction": -1,
+          "steerTick": 20,
+          "launchTiming": null,
+          "samples": 241,
+          "traceSha256": "b18181723f920576138c9fd0ec6617e9439a5969988471e0e2bbd0c810b78d7b",
+          "setup": {
+            "initialGrounded": false,
+            "initialPosition": {
+              "x": 960,
+              "y": 827.9565792251495
+            },
+            "initialVelocity": {
+              "x": 0,
+              "y": -3.0802631578943647
+            },
+            "fixedStepMs": 16.666666666666668
+          },
+          "launchSetup": null,
+          "summary": {
+            "startedTick": 0,
+            "endedTick": 78,
+            "sourceEndFrame": 77,
+            "secondBurst": true,
+            "firstDownwardAfterWarpTick": 41,
+            "firstDownwardAfterEndTick": null,
+            "landedTick": 78,
+            "airbornePostActionFrames": 0,
+            "zeroVerticalPostActionFrames": 0,
+            "postActionVerticalDisplacement": null,
+            "stuckAfterAction": false
+          },
+          "tick0ReferenceLaunch": null,
+          "tick41Velocity": {
+            "x": -2.870999999999981,
+            "y": 0.47500000000002274
+          },
+          "last": {
+            "tick": 240,
+            "position": {
+              "x": 564.9678264253007,
+              "y": 784.5090417158458
+            },
+            "root": {
+              "x": 564.9678264253007,
+              "y": 809.5090417158458
+            },
+            "velocity": {
+              "x": -0.0012072602760326845,
+              "y": 6.5752916498240666e-06
+            },
+            "grounded": true,
+            "helpless": false,
+            "special": null,
+            "attack": null,
+            "referenceLaunch": null,
+            "launchVelocity": null,
+            "fault": null
+          }
+        },
+        {
+          "key": "simulated-gamepad-air-right-steer20",
+          "input": "simulated-gamepad",
+          "entry": "air",
+          "direction": 1,
+          "steerTick": 20,
+          "launchTiming": null,
+          "samples": 241,
+          "traceSha256": "23a7fcc32a65bbb7437d32ff717ff7d664251d868b3e7cfb1fd18a3d5e74c438",
+          "setup": {
+            "initialGrounded": false,
+            "initialPosition": {
+              "x": 960,
+              "y": 827.9565792251495
+            },
+            "initialVelocity": {
+              "x": 0,
+              "y": -3.0802631578943647
+            },
+            "fixedStepMs": 16.666666666666668
+          },
+          "launchSetup": null,
+          "summary": {
+            "startedTick": 0,
+            "endedTick": 78,
+            "sourceEndFrame": 77,
+            "secondBurst": true,
+            "firstDownwardAfterWarpTick": 41,
+            "firstDownwardAfterEndTick": null,
+            "landedTick": 78,
+            "airbornePostActionFrames": 0,
+            "zeroVerticalPostActionFrames": 0,
+            "postActionVerticalDisplacement": null,
+            "stuckAfterAction": false
+          },
+          "tick0ReferenceLaunch": null,
+          "tick41Velocity": {
+            "x": 2.8710000000000946,
+            "y": 0.47500000000002274
+          },
+          "last": {
+            "tick": 240,
+            "position": {
+              "x": 1354.7199943538324,
+              "y": 784.455000277778
+            },
+            "root": {
+              "x": 1354.7199943538324,
+              "y": 809.455000277778
+            },
+            "velocity": {
+              "x": 0,
+              "y": 0
+            },
+            "grounded": true,
+            "helpless": false,
+            "special": null,
+            "attack": null,
+            "referenceLaunch": null,
+            "launchVelocity": null,
+            "fault": null
+          }
+        },
+        {
+          "key": "simulated-gamepad-ground-left-steer1",
+          "input": "simulated-gamepad",
+          "entry": "ground",
+          "direction": -1,
+          "steerTick": 1,
+          "launchTiming": null,
+          "samples": 241,
+          "traceSha256": "f87605961177093395297dc1c17525fbb74d45cd5cd56a7c5124da0dfd4b56ec",
+          "setup": {
+            "initialGrounded": true,
+            "initialPosition": {
+              "x": 960,
+              "y": 905.050000277778
+            },
+            "initialVelocity": {
+              "x": 0,
+              "y": 0
+            },
+            "fixedStepMs": 16.666666666666668
+          },
+          "launchSetup": null,
+          "summary": {
+            "startedTick": 0,
+            "endedTick": 52,
+            "sourceEndFrame": 51,
+            "secondBurst": false,
+            "firstDownwardAfterWarpTick": 56,
+            "firstDownwardAfterEndTick": 58,
+            "landedTick": 52,
+            "airbornePostActionFrames": 183,
+            "zeroVerticalPostActionFrames": 96,
+            "postActionVerticalDisplacement": -291.43208329108984,
+            "stuckAfterAction": false
+          },
+          "tick0ReferenceLaunch": null,
+          "tick41Velocity": {
+            "x": -0.22030129669269627,
+            "y": 0
+          },
+          "last": {
+            "tick": 240,
+            "position": {
+              "x": 665,
+              "y": 614.0550000000001
+            },
+            "root": {
+              "x": 665,
+              "y": 639.0550000000001
+            },
+            "velocity": {
+              "x": 0,
+              "y": 0
+            },
+            "grounded": false,
+            "helpless": false,
+            "special": null,
+            "attack": null,
+            "referenceLaunch": null,
+            "launchVelocity": null,
+            "fault": null
+          }
+        },
+        {
+          "key": "simulated-gamepad-ground-right-steer1",
+          "input": "simulated-gamepad",
+          "entry": "ground",
+          "direction": 1,
+          "steerTick": 1,
+          "launchTiming": null,
+          "samples": 241,
+          "traceSha256": "9e7cd1cd95453dd1236077c72d27662aae853a6fb7779b3811764dd28002111c",
+          "setup": {
+            "initialGrounded": true,
+            "initialPosition": {
+              "x": 960,
+              "y": 905.050000277778
+            },
+            "initialVelocity": {
+              "x": 0,
+              "y": 0
+            },
+            "fixedStepMs": 16.666666666666668
+          },
+          "launchSetup": null,
+          "summary": {
+            "startedTick": 0,
+            "endedTick": 52,
+            "sourceEndFrame": 51,
+            "secondBurst": false,
+            "firstDownwardAfterWarpTick": null,
+            "firstDownwardAfterEndTick": null,
+            "landedTick": 52,
+            "airbornePostActionFrames": 0,
+            "zeroVerticalPostActionFrames": 0,
+            "postActionVerticalDisplacement": null,
+            "stuckAfterAction": false
+          },
+          "tick0ReferenceLaunch": null,
+          "tick41Velocity": {
+            "x": -0.028394782510076766,
+            "y": 0
+          },
+          "last": {
+            "tick": 240,
+            "position": {
+              "x": 1488.8147634575057,
+              "y": 905.050000277778
+            },
+            "root": {
+              "x": 1488.8147634575057,
+              "y": 930.050000277778
+            },
+            "velocity": {
+              "x": 0,
+              "y": 0
+            },
+            "grounded": true,
+            "helpless": false,
+            "special": null,
+            "attack": null,
+            "referenceLaunch": null,
+            "launchVelocity": null,
+            "fault": null
+          }
+        },
+        {
+          "key": "real-keyboard-ground-left-steer20",
+          "input": "real-keyboard",
+          "entry": "ground",
+          "direction": -1,
+          "steerTick": 20,
+          "launchTiming": null,
+          "samples": 241,
+          "traceSha256": "d02931eacb177a371a837dde033b65557a362e361c8546ced4c27c78f8a457e9",
+          "setup": {
+            "initialGrounded": true,
+            "initialPosition": {
+              "x": 960,
+              "y": 905.050000277778
+            },
+            "initialVelocity": {
+              "x": 0,
+              "y": 0
+            },
+            "fixedStepMs": 16.666666666666668
+          },
+          "launchSetup": null,
+          "summary": {
+            "startedTick": 0,
+            "endedTick": 68,
+            "sourceEndFrame": 67,
+            "secondBurst": true,
+            "firstDownwardAfterWarpTick": 41,
+            "firstDownwardAfterEndTick": null,
+            "landedTick": 68,
+            "airbornePostActionFrames": 0,
+            "zeroVerticalPostActionFrames": 0,
+            "postActionVerticalDisplacement": null,
+            "stuckAfterAction": false
+          },
+          "tick0ReferenceLaunch": null,
+          "tick41Velocity": {
+            "x": -2.870999999999981,
+            "y": 0.47500000000002274
+          },
+          "last": {
+            "tick": 240,
+            "position": {
+              "x": 593.9900056461399,
+              "y": 784.455000277778
+            },
+            "root": {
+              "x": 593.9900056461399,
+              "y": 809.455000277778
+            },
+            "velocity": {
+              "x": 0,
+              "y": 0
+            },
+            "grounded": true,
+            "helpless": false,
+            "special": null,
+            "attack": null,
+            "referenceLaunch": null,
+            "launchVelocity": null,
+            "fault": null
+          }
+        },
+        {
+          "key": "real-keyboard-ground-right-steer20",
+          "input": "real-keyboard",
+          "entry": "ground",
+          "direction": 1,
+          "steerTick": 20,
+          "launchTiming": null,
+          "samples": 241,
+          "traceSha256": "a7e7c8cd2c9a28931e406378cc08c68890477da1fc334fc23d4c249fb61dd85d",
+          "setup": {
+            "initialGrounded": true,
+            "initialPosition": {
+              "x": 960,
+              "y": 905.050000277778
+            },
+            "initialVelocity": {
+              "x": 0,
+              "y": 0
+            },
+            "fixedStepMs": 16.666666666666668
+          },
+          "launchSetup": null,
+          "summary": {
+            "startedTick": 0,
+            "endedTick": 68,
+            "sourceEndFrame": 67,
+            "secondBurst": true,
+            "firstDownwardAfterWarpTick": 41,
+            "firstDownwardAfterEndTick": null,
+            "landedTick": 68,
+            "airbornePostActionFrames": 0,
+            "zeroVerticalPostActionFrames": 0,
+            "postActionVerticalDisplacement": null,
+            "stuckAfterAction": false
+          },
+          "tick0ReferenceLaunch": null,
+          "tick41Velocity": {
+            "x": 2.8710000000000946,
+            "y": 0.47500000000002274
+          },
+          "last": {
+            "tick": 240,
+            "position": {
+              "x": 1326.0099943538314,
+              "y": 784.455000277778
+            },
+            "root": {
+              "x": 1326.0099943538314,
+              "y": 809.455000277778
+            },
+            "velocity": {
+              "x": 0,
+              "y": 0
+            },
+            "grounded": true,
+            "helpless": false,
+            "special": null,
+            "attack": null,
+            "referenceLaunch": null,
+            "launchVelocity": null,
+            "fault": null
+          }
+        }
+      ]
+    },
+    "before-launch": {
+      "result": "BUG_REPRODUCED",
+      "bundle": "game-CDiv0wP3.js",
+      "bundleSha256": "203a5bc93ebe1fba3ec10080fd1a8d8e06ca4431f598cc836995532876926977",
+      "buildIdentity": "platform-fighter-sha256-8801bf0c4941c9a7c639cf2e69652ebf398af18acdabbc36bd02a82cb722b757",
+      "harnessSha256": "160be9ab8e1e3703b1194c70b4082d9a6fbd1cbf7927151554f1bf56a893644a",
+      "rawReport": {
+        "path": "docs/review/2026-10-16/pikachu-quick-attack-gravity/before-launch/report.json",
+        "bytes": 3792595,
+        "sha256": "8f475715a3d0dda000548089229031bb6798dd975105933ae257da014acddedd"
+      },
+      "pageErrors": [],
+      "cases": [
+        {
+          "key": "simulated-gamepad-launched-left-steer20-immediate",
+          "input": "simulated-gamepad",
+          "entry": "launched",
+          "direction": -1,
+          "steerTick": 20,
+          "launchTiming": "immediate",
+          "samples": 241,
+          "traceSha256": "2d177a61da412f0370bd4530ac174c583af594ae1a32a9516e599b751512481f",
+          "setup": {
+            "initialGrounded": false,
+            "initialPosition": {
+              "x": 1011.3514585995382,
+              "y": 472.93580175108843
+            },
+            "initialVelocity": {
+              "x": 0.38247258940896245,
+              "y": 1.7019882422025034
+            },
+            "fixedStepMs": 16.666666666666668
+          },
+          "launchSetup": {
+            "samples": 65,
+            "traceSha256": "a788410213a41beae0c2cac96e1e7ef4d85666adf172d42e40c643398d935296",
+            "first": {
+              "tick": 0,
+              "frame": 286,
+              "damage": 60,
+              "grounded": true,
+              "hitlag": 0,
+              "hitstun": 0,
+              "position": {
+                "x": 968.2372867379277,
+                "y": 905.050000277778
+              },
+              "velocity": {
+                "x": 0.016933491993881944,
+                "y": 0
+              },
+              "referenceLaunch": null,
+              "launchVelocity": null,
+              "opponentAttack": null
+            },
+            "last": {
+              "tick": 64,
+              "frame": 350,
+              "damage": 76.38,
+              "grounded": false,
+              "hitlag": 0,
+              "hitstun": 0,
+              "position": {
+                "x": 1011.3514585995382,
+                "y": 472.93580175108843
+              },
+              "velocity": {
+                "x": 0.38247258940896245,
+                "y": 1.7019882422025034
+              },
+              "referenceLaunch": {
+                "profile": {
+                  "gravity": 0.095,
+                  "fallSpeed": 1.55,
+                  "verticalGravity": 0.068544,
+                  "verticalFallSpeed": 1.8
+                },
+                "vertical": true,
+                "groups": [
+                  2,
+                  3,
+                  4,
+                  3,
+                  2,
+                  3,
+                  2,
+                  2,
+                  2,
+                  1,
+                  2,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1
+                ],
+                "gravityY": 9,
+                "firstStep": false,
+                "groupIndex": 41,
+                "interrupted": false
+              },
+              "launchVelocity": {
+                "x": 0.38247258940778783,
+                "y": -7.298011757799337
+              },
+              "opponentAttack": null
+            }
+          },
+          "summary": {
+            "startedTick": 0,
+            "endedTick": 83,
+            "sourceEndFrame": 82,
+            "secondBurst": true,
+            "firstDownwardAfterWarpTick": null,
+            "firstDownwardAfterEndTick": null,
+            "landedTick": null,
+            "airbornePostActionFrames": 157,
+            "zeroVerticalPostActionFrames": 157,
+            "postActionVerticalDisplacement": 0,
+            "stuckAfterAction": true
+          },
+          "tick0ReferenceLaunch": {
+            "profile": {
+              "gravity": 0.095,
+              "fallSpeed": 1.55,
+              "verticalGravity": 0.068544,
+              "verticalFallSpeed": 1.8
+            },
+            "vertical": true,
+            "groups": [
+              2,
+              3,
+              4,
+              3,
+              2,
+              3,
+              2,
+              2,
+              2,
+              1,
+              2,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "gravityY": 8.525,
+            "firstStep": false,
+            "groupIndex": 41,
+            "interrupted": false
+          },
+          "tick41Velocity": {
+            "x": -2.870999999999981,
+            "y": 0
+          },
+          "last": {
+            "tick": 240,
+            "position": {
+              "x": 549.1091991005422,
+              "y": 181.51080175108768
+            },
+            "root": {
+              "x": 549.1091991005422,
+              "y": 206.51080175108768
+            },
+            "velocity": {
+              "x": 0,
+              "y": 0
+            },
+            "grounded": false,
+            "helpless": true,
+            "special": null,
+            "attack": null,
+            "referenceLaunch": {
+              "profile": {
+                "gravity": 0.095,
+                "fallSpeed": 1.55,
+                "verticalGravity": 0.068544,
+                "verticalFallSpeed": 1.8
+              },
+              "vertical": true,
+              "groups": [
+                2,
+                3,
+                4,
+                3,
+                2,
+                3,
+                2,
+                2,
+                2,
+                1,
+                2,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1
+              ],
+              "gravityY": 7.75,
+              "firstStep": false,
+              "groupIndex": 41,
+              "interrupted": false
+            },
+            "launchVelocity": {
+              "x": 0,
+              "y": 0
+            },
+            "fault": null
+          }
+        },
+        {
+          "key": "simulated-gamepad-launched-right-steer20-immediate",
+          "input": "simulated-gamepad",
+          "entry": "launched",
+          "direction": 1,
+          "steerTick": 20,
+          "launchTiming": "immediate",
+          "samples": 241,
+          "traceSha256": "96e0170f6556e6c258debffd67870f3853dccde690e51d7a5077806ea200e405",
+          "setup": {
+            "initialGrounded": false,
+            "initialPosition": {
+              "x": 1011.3514585995382,
+              "y": 472.93580175108843
+            },
+            "initialVelocity": {
+              "x": 0.38247258940896245,
+              "y": 1.7019882422025034
+            },
+            "fixedStepMs": 16.666666666666668
+          },
+          "launchSetup": {
+            "samples": 65,
+            "traceSha256": "a788410213a41beae0c2cac96e1e7ef4d85666adf172d42e40c643398d935296",
+            "first": {
+              "tick": 0,
+              "frame": 286,
+              "damage": 60,
+              "grounded": true,
+              "hitlag": 0,
+              "hitstun": 0,
+              "position": {
+                "x": 968.2372867379277,
+                "y": 905.050000277778
+              },
+              "velocity": {
+                "x": 0.016933491993881944,
+                "y": 0
+              },
+              "referenceLaunch": null,
+              "launchVelocity": null,
+              "opponentAttack": null
+            },
+            "last": {
+              "tick": 64,
+              "frame": 350,
+              "damage": 76.38,
+              "grounded": false,
+              "hitlag": 0,
+              "hitstun": 0,
+              "position": {
+                "x": 1011.3514585995382,
+                "y": 472.93580175108843
+              },
+              "velocity": {
+                "x": 0.38247258940896245,
+                "y": 1.7019882422025034
+              },
+              "referenceLaunch": {
+                "profile": {
+                  "gravity": 0.095,
+                  "fallSpeed": 1.55,
+                  "verticalGravity": 0.068544,
+                  "verticalFallSpeed": 1.8
+                },
+                "vertical": true,
+                "groups": [
+                  2,
+                  3,
+                  4,
+                  3,
+                  2,
+                  3,
+                  2,
+                  2,
+                  2,
+                  1,
+                  2,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1
+                ],
+                "gravityY": 9,
+                "firstStep": false,
+                "groupIndex": 41,
+                "interrupted": false
+              },
+              "launchVelocity": {
+                "x": 0.38247258940778783,
+                "y": -7.298011757799337
+              },
+              "opponentAttack": null
+            }
+          },
+          "summary": {
+            "startedTick": 0,
+            "endedTick": 83,
+            "sourceEndFrame": 82,
+            "secondBurst": true,
+            "firstDownwardAfterWarpTick": null,
+            "firstDownwardAfterEndTick": null,
+            "landedTick": null,
+            "airbornePostActionFrames": 157,
+            "zeroVerticalPostActionFrames": 157,
+            "postActionVerticalDisplacement": 0,
+            "stuckAfterAction": true
+          },
+          "tick0ReferenceLaunch": {
+            "profile": {
+              "gravity": 0.095,
+              "fallSpeed": 1.55,
+              "verticalGravity": 0.068544,
+              "verticalFallSpeed": 1.8
+            },
+            "vertical": true,
+            "groups": [
+              2,
+              3,
+              4,
+              3,
+              2,
+              3,
+              2,
+              2,
+              2,
+              1,
+              2,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "gravityY": 8.525,
+            "firstStep": false,
+            "groupIndex": 41,
+            "interrupted": false
+          },
+          "tick41Velocity": {
+            "x": 2.8710000000000946,
+            "y": 0
+          },
+          "last": {
+            "tick": 240,
+            "position": {
+              "x": 1472.7532176611387,
+              "y": 181.51080175108768
+            },
+            "root": {
+              "x": 1472.7532176611387,
+              "y": 206.51080175108768
+            },
+            "velocity": {
+              "x": 0,
+              "y": 0
+            },
+            "grounded": false,
+            "helpless": true,
+            "special": null,
+            "attack": null,
+            "referenceLaunch": {
+              "profile": {
+                "gravity": 0.095,
+                "fallSpeed": 1.55,
+                "verticalGravity": 0.068544,
+                "verticalFallSpeed": 1.8
+              },
+              "vertical": true,
+              "groups": [
+                2,
+                3,
+                4,
+                3,
+                2,
+                3,
+                2,
+                2,
+                2,
+                1,
+                2,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1
+              ],
+              "gravityY": 7.75,
+              "firstStep": false,
+              "groupIndex": 41,
+              "interrupted": false
+            },
+            "launchVelocity": {
+              "x": 0,
+              "y": 0
+            },
+            "fault": null
+          }
+        },
+        {
+          "key": "simulated-gamepad-launched-left-steer20-descending",
+          "input": "simulated-gamepad",
+          "entry": "launched",
+          "direction": -1,
+          "steerTick": 20,
+          "launchTiming": "descending",
+          "samples": 241,
+          "traceSha256": "2d177a61da412f0370bd4530ac174c583af594ae1a32a9516e599b751512481f",
+          "setup": {
+            "initialGrounded": false,
+            "initialPosition": {
+              "x": 1011.3514585995382,
+              "y": 472.93580175108843
+            },
+            "initialVelocity": {
+              "x": 0.38247258940896245,
+              "y": 1.7019882422025034
+            },
+            "fixedStepMs": 16.666666666666668
+          },
+          "launchSetup": {
+            "samples": 65,
+            "traceSha256": "a788410213a41beae0c2cac96e1e7ef4d85666adf172d42e40c643398d935296",
+            "first": {
+              "tick": 0,
+              "frame": 286,
+              "damage": 60,
+              "grounded": true,
+              "hitlag": 0,
+              "hitstun": 0,
+              "position": {
+                "x": 968.2372867379277,
+                "y": 905.050000277778
+              },
+              "velocity": {
+                "x": 0.016933491993881944,
+                "y": 0
+              },
+              "referenceLaunch": null,
+              "launchVelocity": null,
+              "opponentAttack": null
+            },
+            "last": {
+              "tick": 64,
+              "frame": 350,
+              "damage": 76.38,
+              "grounded": false,
+              "hitlag": 0,
+              "hitstun": 0,
+              "position": {
+                "x": 1011.3514585995382,
+                "y": 472.93580175108843
+              },
+              "velocity": {
+                "x": 0.38247258940896245,
+                "y": 1.7019882422025034
+              },
+              "referenceLaunch": {
+                "profile": {
+                  "gravity": 0.095,
+                  "fallSpeed": 1.55,
+                  "verticalGravity": 0.068544,
+                  "verticalFallSpeed": 1.8
+                },
+                "vertical": true,
+                "groups": [
+                  2,
+                  3,
+                  4,
+                  3,
+                  2,
+                  3,
+                  2,
+                  2,
+                  2,
+                  1,
+                  2,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1
+                ],
+                "gravityY": 9,
+                "firstStep": false,
+                "groupIndex": 41,
+                "interrupted": false
+              },
+              "launchVelocity": {
+                "x": 0.38247258940778783,
+                "y": -7.298011757799337
+              },
+              "opponentAttack": null
+            }
+          },
+          "summary": {
+            "startedTick": 0,
+            "endedTick": 83,
+            "sourceEndFrame": 82,
+            "secondBurst": true,
+            "firstDownwardAfterWarpTick": null,
+            "firstDownwardAfterEndTick": null,
+            "landedTick": null,
+            "airbornePostActionFrames": 157,
+            "zeroVerticalPostActionFrames": 157,
+            "postActionVerticalDisplacement": 0,
+            "stuckAfterAction": true
+          },
+          "tick0ReferenceLaunch": {
+            "profile": {
+              "gravity": 0.095,
+              "fallSpeed": 1.55,
+              "verticalGravity": 0.068544,
+              "verticalFallSpeed": 1.8
+            },
+            "vertical": true,
+            "groups": [
+              2,
+              3,
+              4,
+              3,
+              2,
+              3,
+              2,
+              2,
+              2,
+              1,
+              2,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "gravityY": 8.525,
+            "firstStep": false,
+            "groupIndex": 41,
+            "interrupted": false
+          },
+          "tick41Velocity": {
+            "x": -2.870999999999981,
+            "y": 0
+          },
+          "last": {
+            "tick": 240,
+            "position": {
+              "x": 549.1091991005422,
+              "y": 181.51080175108768
+            },
+            "root": {
+              "x": 549.1091991005422,
+              "y": 206.51080175108768
+            },
+            "velocity": {
+              "x": 0,
+              "y": 0
+            },
+            "grounded": false,
+            "helpless": true,
+            "special": null,
+            "attack": null,
+            "referenceLaunch": {
+              "profile": {
+                "gravity": 0.095,
+                "fallSpeed": 1.55,
+                "verticalGravity": 0.068544,
+                "verticalFallSpeed": 1.8
+              },
+              "vertical": true,
+              "groups": [
+                2,
+                3,
+                4,
+                3,
+                2,
+                3,
+                2,
+                2,
+                2,
+                1,
+                2,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1
+              ],
+              "gravityY": 7.75,
+              "firstStep": false,
+              "groupIndex": 41,
+              "interrupted": false
+            },
+            "launchVelocity": {
+              "x": 0,
+              "y": 0
+            },
+            "fault": null
+          }
+        },
+        {
+          "key": "simulated-gamepad-launched-right-steer20-descending",
+          "input": "simulated-gamepad",
+          "entry": "launched",
+          "direction": 1,
+          "steerTick": 20,
+          "launchTiming": "descending",
+          "samples": 241,
+          "traceSha256": "96e0170f6556e6c258debffd67870f3853dccde690e51d7a5077806ea200e405",
+          "setup": {
+            "initialGrounded": false,
+            "initialPosition": {
+              "x": 1011.3514585995382,
+              "y": 472.93580175108843
+            },
+            "initialVelocity": {
+              "x": 0.38247258940896245,
+              "y": 1.7019882422025034
+            },
+            "fixedStepMs": 16.666666666666668
+          },
+          "launchSetup": {
+            "samples": 65,
+            "traceSha256": "a788410213a41beae0c2cac96e1e7ef4d85666adf172d42e40c643398d935296",
+            "first": {
+              "tick": 0,
+              "frame": 286,
+              "damage": 60,
+              "grounded": true,
+              "hitlag": 0,
+              "hitstun": 0,
+              "position": {
+                "x": 968.2372867379277,
+                "y": 905.050000277778
+              },
+              "velocity": {
+                "x": 0.016933491993881944,
+                "y": 0
+              },
+              "referenceLaunch": null,
+              "launchVelocity": null,
+              "opponentAttack": null
+            },
+            "last": {
+              "tick": 64,
+              "frame": 350,
+              "damage": 76.38,
+              "grounded": false,
+              "hitlag": 0,
+              "hitstun": 0,
+              "position": {
+                "x": 1011.3514585995382,
+                "y": 472.93580175108843
+              },
+              "velocity": {
+                "x": 0.38247258940896245,
+                "y": 1.7019882422025034
+              },
+              "referenceLaunch": {
+                "profile": {
+                  "gravity": 0.095,
+                  "fallSpeed": 1.55,
+                  "verticalGravity": 0.068544,
+                  "verticalFallSpeed": 1.8
+                },
+                "vertical": true,
+                "groups": [
+                  2,
+                  3,
+                  4,
+                  3,
+                  2,
+                  3,
+                  2,
+                  2,
+                  2,
+                  1,
+                  2,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1
+                ],
+                "gravityY": 9,
+                "firstStep": false,
+                "groupIndex": 41,
+                "interrupted": false
+              },
+              "launchVelocity": {
+                "x": 0.38247258940778783,
+                "y": -7.298011757799337
+              },
+              "opponentAttack": null
+            }
+          },
+          "summary": {
+            "startedTick": 0,
+            "endedTick": 83,
+            "sourceEndFrame": 82,
+            "secondBurst": true,
+            "firstDownwardAfterWarpTick": null,
+            "firstDownwardAfterEndTick": null,
+            "landedTick": null,
+            "airbornePostActionFrames": 157,
+            "zeroVerticalPostActionFrames": 157,
+            "postActionVerticalDisplacement": 0,
+            "stuckAfterAction": true
+          },
+          "tick0ReferenceLaunch": {
+            "profile": {
+              "gravity": 0.095,
+              "fallSpeed": 1.55,
+              "verticalGravity": 0.068544,
+              "verticalFallSpeed": 1.8
+            },
+            "vertical": true,
+            "groups": [
+              2,
+              3,
+              4,
+              3,
+              2,
+              3,
+              2,
+              2,
+              2,
+              1,
+              2,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "gravityY": 8.525,
+            "firstStep": false,
+            "groupIndex": 41,
+            "interrupted": false
+          },
+          "tick41Velocity": {
+            "x": 2.8710000000000946,
+            "y": 0
+          },
+          "last": {
+            "tick": 240,
+            "position": {
+              "x": 1472.7532176611387,
+              "y": 181.51080175108768
+            },
+            "root": {
+              "x": 1472.7532176611387,
+              "y": 206.51080175108768
+            },
+            "velocity": {
+              "x": 0,
+              "y": 0
+            },
+            "grounded": false,
+            "helpless": true,
+            "special": null,
+            "attack": null,
+            "referenceLaunch": {
+              "profile": {
+                "gravity": 0.095,
+                "fallSpeed": 1.55,
+                "verticalGravity": 0.068544,
+                "verticalFallSpeed": 1.8
+              },
+              "vertical": true,
+              "groups": [
+                2,
+                3,
+                4,
+                3,
+                2,
+                3,
+                2,
+                2,
+                2,
+                1,
+                2,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1
+              ],
+              "gravityY": 7.75,
+              "firstStep": false,
+              "groupIndex": 41,
+              "interrupted": false
+            },
+            "launchVelocity": {
+              "x": 0,
+              "y": 0
+            },
+            "fault": null
+          }
+        }
+      ]
+    },
+    "after": {
+      "result": "PASS",
+      "bundle": "game-BNZfv5Ng.js",
+      "bundleSha256": "66e3ae1472f058ad804b560ddfc6cd39c6a65bd971b81b8106ebfc88e303fc16",
+      "buildIdentity": "platform-fighter-sha256-0067e47aa8dad11d9fe4e4501c5db226e6d40d5f9dc5ab70e8693fbb2a1bd191",
+      "harnessSha256": "10daef4ab5768afb95309c3e47b5ca51db1e07a5a73e97c0f13972a7e92287de",
+      "rawReport": {
+        "path": "docs/review/2026-10-16/pikachu-quick-attack-gravity/after/report.json",
+        "bytes": 4273901,
+        "sha256": "8b0989ff9a89a1168e047dd5540f1aa5d47f0f28c8543fbe158bd9137f5b1406"
+      },
+      "pageErrors": [],
+      "cases": [
+        {
+          "key": "simulated-gamepad-ground-left-steer20",
+          "input": "simulated-gamepad",
+          "entry": "ground",
+          "direction": -1,
+          "steerTick": 20,
+          "launchTiming": null,
+          "samples": 241,
+          "traceSha256": "4ac4848bb233b60b8a9761ebf1334513e3f2062e1842b57c22e36146b8daa9ba",
+          "setup": {
+            "initialGrounded": true,
+            "initialPosition": {
+              "x": 960,
+              "y": 905.050000277778
+            },
+            "initialVelocity": {
+              "x": 0,
+              "y": 0
+            },
+            "fixedStepMs": 16.666666666666668
+          },
+          "launchSetup": null,
+          "summary": {
+            "startedTick": 0,
+            "endedTick": 68,
+            "sourceEndFrame": 67,
+            "secondBurst": true,
+            "firstDownwardAfterWarpTick": 41,
+            "firstDownwardAfterEndTick": null,
+            "landedTick": 68,
+            "airbornePostActionFrames": 0,
+            "zeroVerticalPostActionFrames": 0,
+            "postActionVerticalDisplacement": null,
+            "stuckAfterAction": false
+          },
+          "tick0ReferenceLaunch": null,
+          "tick41Velocity": {
+            "x": -2.870999999999981,
+            "y": 0.47500000000002274
+          },
+          "last": {
+            "tick": 240,
+            "position": {
+              "x": 593.9900056461399,
+              "y": 784.455000277778
+            },
+            "root": {
+              "x": 593.9900056461399,
+              "y": 809.455000277778
+            },
+            "velocity": {
+              "x": 0,
+              "y": 0
+            },
+            "grounded": true,
+            "helpless": false,
+            "special": null,
+            "attack": null,
+            "referenceLaunch": null,
+            "launchVelocity": null,
+            "fault": null
+          }
+        },
+        {
+          "key": "simulated-gamepad-ground-right-steer20",
+          "input": "simulated-gamepad",
+          "entry": "ground",
+          "direction": 1,
+          "steerTick": 20,
+          "launchTiming": null,
+          "samples": 241,
+          "traceSha256": "6b8bb9ab0e25598961383c091e38ebcb714dd42620da3d2b29b4f83b45db4868",
+          "setup": {
+            "initialGrounded": true,
+            "initialPosition": {
+              "x": 960,
+              "y": 905.050000277778
+            },
+            "initialVelocity": {
+              "x": 0,
+              "y": 0
+            },
+            "fixedStepMs": 16.666666666666668
+          },
+          "launchSetup": null,
+          "summary": {
+            "startedTick": 0,
+            "endedTick": 68,
+            "sourceEndFrame": 67,
+            "secondBurst": true,
+            "firstDownwardAfterWarpTick": 41,
+            "firstDownwardAfterEndTick": null,
+            "landedTick": 68,
+            "airbornePostActionFrames": 0,
+            "zeroVerticalPostActionFrames": 0,
+            "postActionVerticalDisplacement": null,
+            "stuckAfterAction": false
+          },
+          "tick0ReferenceLaunch": null,
+          "tick41Velocity": {
+            "x": 2.8710000000000946,
+            "y": 0.47500000000002274
+          },
+          "last": {
+            "tick": 240,
+            "position": {
+              "x": 1326.0099943538314,
+              "y": 784.455000277778
+            },
+            "root": {
+              "x": 1326.0099943538314,
+              "y": 809.455000277778
+            },
+            "velocity": {
+              "x": 0,
+              "y": 0
+            },
+            "grounded": true,
+            "helpless": false,
+            "special": null,
+            "attack": null,
+            "referenceLaunch": null,
+            "launchVelocity": null,
+            "fault": null
+          }
+        },
+        {
+          "key": "simulated-gamepad-air-left-steer20",
+          "input": "simulated-gamepad",
+          "entry": "air",
+          "direction": -1,
+          "steerTick": 20,
+          "launchTiming": null,
+          "samples": 241,
+          "traceSha256": "00888d32ea19095e968fb30d70ffc1e727ba7eba1ad9bc3737703328f6e1abe0",
+          "setup": {
+            "initialGrounded": false,
+            "initialPosition": {
+              "x": 960,
+              "y": 827.9565792251495
+            },
+            "initialVelocity": {
+              "x": 0,
+              "y": -3.0802631578943647
+            },
+            "fixedStepMs": 16.666666666666668
+          },
+          "launchSetup": null,
+          "summary": {
+            "startedTick": 0,
+            "endedTick": 78,
+            "sourceEndFrame": 77,
+            "secondBurst": true,
+            "firstDownwardAfterWarpTick": 41,
+            "firstDownwardAfterEndTick": null,
+            "landedTick": 78,
+            "airbornePostActionFrames": 0,
+            "zeroVerticalPostActionFrames": 0,
+            "postActionVerticalDisplacement": null,
+            "stuckAfterAction": false
+          },
+          "tick0ReferenceLaunch": null,
+          "tick41Velocity": {
+            "x": -2.870999999999981,
+            "y": 0.47500000000002274
+          },
+          "last": {
+            "tick": 240,
+            "position": {
+              "x": 564.9678264253007,
+              "y": 784.5090417158458
+            },
+            "root": {
+              "x": 564.9678264253007,
+              "y": 809.5090417158458
+            },
+            "velocity": {
+              "x": -0.0012072602760326845,
+              "y": 6.5752916498240666e-06
+            },
+            "grounded": true,
+            "helpless": false,
+            "special": null,
+            "attack": null,
+            "referenceLaunch": null,
+            "launchVelocity": null,
+            "fault": null
+          }
+        },
+        {
+          "key": "simulated-gamepad-air-right-steer20",
+          "input": "simulated-gamepad",
+          "entry": "air",
+          "direction": 1,
+          "steerTick": 20,
+          "launchTiming": null,
+          "samples": 241,
+          "traceSha256": "8013b02404bcfb98c0488b0a00bb50bdbf360203e40f82af8091cc029bdb47ec",
+          "setup": {
+            "initialGrounded": false,
+            "initialPosition": {
+              "x": 960,
+              "y": 827.9565792251495
+            },
+            "initialVelocity": {
+              "x": 0,
+              "y": -3.0802631578943647
+            },
+            "fixedStepMs": 16.666666666666668
+          },
+          "launchSetup": null,
+          "summary": {
+            "startedTick": 0,
+            "endedTick": 78,
+            "sourceEndFrame": 77,
+            "secondBurst": true,
+            "firstDownwardAfterWarpTick": 41,
+            "firstDownwardAfterEndTick": null,
+            "landedTick": 78,
+            "airbornePostActionFrames": 0,
+            "zeroVerticalPostActionFrames": 0,
+            "postActionVerticalDisplacement": null,
+            "stuckAfterAction": false
+          },
+          "tick0ReferenceLaunch": null,
+          "tick41Velocity": {
+            "x": 2.8710000000000946,
+            "y": 0.47500000000002274
+          },
+          "last": {
+            "tick": 240,
+            "position": {
+              "x": 1354.7199943538324,
+              "y": 784.455000277778
+            },
+            "root": {
+              "x": 1354.7199943538324,
+              "y": 809.455000277778
+            },
+            "velocity": {
+              "x": 0,
+              "y": 0
+            },
+            "grounded": true,
+            "helpless": false,
+            "special": null,
+            "attack": null,
+            "referenceLaunch": null,
+            "launchVelocity": null,
+            "fault": null
+          }
+        },
+        {
+          "key": "simulated-gamepad-ground-left-steer1",
+          "input": "simulated-gamepad",
+          "entry": "ground",
+          "direction": -1,
+          "steerTick": 1,
+          "launchTiming": null,
+          "samples": 241,
+          "traceSha256": "6eeb9402fd2be2321ef20891161b2b231196bc6e572bff86f37910d5d016404c",
+          "setup": {
+            "initialGrounded": true,
+            "initialPosition": {
+              "x": 960,
+              "y": 905.050000277778
+            },
+            "initialVelocity": {
+              "x": 0,
+              "y": 0
+            },
+            "fixedStepMs": 16.666666666666668
+          },
+          "launchSetup": null,
+          "summary": {
+            "startedTick": 0,
+            "endedTick": 52,
+            "sourceEndFrame": 51,
+            "secondBurst": false,
+            "firstDownwardAfterWarpTick": 56,
+            "firstDownwardAfterEndTick": 58,
+            "landedTick": 52,
+            "airbornePostActionFrames": 183,
+            "zeroVerticalPostActionFrames": 96,
+            "postActionVerticalDisplacement": -291.43208329108984,
+            "stuckAfterAction": false
+          },
+          "tick0ReferenceLaunch": null,
+          "tick41Velocity": {
+            "x": -0.22030129669269627,
+            "y": 0
+          },
+          "last": {
+            "tick": 240,
+            "position": {
+              "x": 665,
+              "y": 614.0550000000001
+            },
+            "root": {
+              "x": 665,
+              "y": 639.0550000000001
+            },
+            "velocity": {
+              "x": 0,
+              "y": 0
+            },
+            "grounded": false,
+            "helpless": false,
+            "special": null,
+            "attack": null,
+            "referenceLaunch": null,
+            "launchVelocity": null,
+            "fault": null
+          }
+        },
+        {
+          "key": "simulated-gamepad-ground-right-steer1",
+          "input": "simulated-gamepad",
+          "entry": "ground",
+          "direction": 1,
+          "steerTick": 1,
+          "launchTiming": null,
+          "samples": 241,
+          "traceSha256": "b7602973e2d4fc48dca930e8277cb7fda020889a65001ed5d246d481615586be",
+          "setup": {
+            "initialGrounded": true,
+            "initialPosition": {
+              "x": 960,
+              "y": 905.050000277778
+            },
+            "initialVelocity": {
+              "x": 0,
+              "y": 0
+            },
+            "fixedStepMs": 16.666666666666668
+          },
+          "launchSetup": null,
+          "summary": {
+            "startedTick": 0,
+            "endedTick": 52,
+            "sourceEndFrame": 51,
+            "secondBurst": false,
+            "firstDownwardAfterWarpTick": null,
+            "firstDownwardAfterEndTick": null,
+            "landedTick": 52,
+            "airbornePostActionFrames": 0,
+            "zeroVerticalPostActionFrames": 0,
+            "postActionVerticalDisplacement": null,
+            "stuckAfterAction": false
+          },
+          "tick0ReferenceLaunch": null,
+          "tick41Velocity": {
+            "x": -0.028394782510076766,
+            "y": 0
+          },
+          "last": {
+            "tick": 240,
+            "position": {
+              "x": 1488.8147634575057,
+              "y": 905.050000277778
+            },
+            "root": {
+              "x": 1488.8147634575057,
+              "y": 930.050000277778
+            },
+            "velocity": {
+              "x": 0,
+              "y": 0
+            },
+            "grounded": true,
+            "helpless": false,
+            "special": null,
+            "attack": null,
+            "referenceLaunch": null,
+            "launchVelocity": null,
+            "fault": null
+          }
+        },
+        {
+          "key": "real-keyboard-ground-left-steer20",
+          "input": "real-keyboard",
+          "entry": "ground",
+          "direction": -1,
+          "steerTick": 20,
+          "launchTiming": null,
+          "samples": 241,
+          "traceSha256": "7b75595a12cdd0ca2e740801b2b57fad6537c0b831ac47dc690815cfa55c5aec",
+          "setup": {
+            "initialGrounded": true,
+            "initialPosition": {
+              "x": 960,
+              "y": 905.050000277778
+            },
+            "initialVelocity": {
+              "x": 0,
+              "y": 0
+            },
+            "fixedStepMs": 16.666666666666668
+          },
+          "launchSetup": null,
+          "summary": {
+            "startedTick": 0,
+            "endedTick": 68,
+            "sourceEndFrame": 67,
+            "secondBurst": true,
+            "firstDownwardAfterWarpTick": 41,
+            "firstDownwardAfterEndTick": null,
+            "landedTick": 68,
+            "airbornePostActionFrames": 0,
+            "zeroVerticalPostActionFrames": 0,
+            "postActionVerticalDisplacement": null,
+            "stuckAfterAction": false
+          },
+          "tick0ReferenceLaunch": null,
+          "tick41Velocity": {
+            "x": -2.870999999999981,
+            "y": 0.47500000000002274
+          },
+          "last": {
+            "tick": 240,
+            "position": {
+              "x": 593.9900056461399,
+              "y": 784.455000277778
+            },
+            "root": {
+              "x": 593.9900056461399,
+              "y": 809.455000277778
+            },
+            "velocity": {
+              "x": 0,
+              "y": 0
+            },
+            "grounded": true,
+            "helpless": false,
+            "special": null,
+            "attack": null,
+            "referenceLaunch": null,
+            "launchVelocity": null,
+            "fault": null
+          }
+        },
+        {
+          "key": "real-keyboard-ground-right-steer20",
+          "input": "real-keyboard",
+          "entry": "ground",
+          "direction": 1,
+          "steerTick": 20,
+          "launchTiming": null,
+          "samples": 241,
+          "traceSha256": "4c73cdfdecdb1714f3a481b53c51de2c0274d468e2202276dac5c0f3d2c4484c",
+          "setup": {
+            "initialGrounded": true,
+            "initialPosition": {
+              "x": 960,
+              "y": 905.050000277778
+            },
+            "initialVelocity": {
+              "x": 0,
+              "y": 0
+            },
+            "fixedStepMs": 16.666666666666668
+          },
+          "launchSetup": null,
+          "summary": {
+            "startedTick": 0,
+            "endedTick": 68,
+            "sourceEndFrame": 67,
+            "secondBurst": true,
+            "firstDownwardAfterWarpTick": 41,
+            "firstDownwardAfterEndTick": null,
+            "landedTick": 68,
+            "airbornePostActionFrames": 0,
+            "zeroVerticalPostActionFrames": 0,
+            "postActionVerticalDisplacement": null,
+            "stuckAfterAction": false
+          },
+          "tick0ReferenceLaunch": null,
+          "tick41Velocity": {
+            "x": 2.8710000000000946,
+            "y": 0.47500000000002274
+          },
+          "last": {
+            "tick": 240,
+            "position": {
+              "x": 1326.0099943538314,
+              "y": 784.455000277778
+            },
+            "root": {
+              "x": 1326.0099943538314,
+              "y": 809.455000277778
+            },
+            "velocity": {
+              "x": 0,
+              "y": 0
+            },
+            "grounded": true,
+            "helpless": false,
+            "special": null,
+            "attack": null,
+            "referenceLaunch": null,
+            "launchVelocity": null,
+            "fault": null
+          }
+        }
+      ]
+    },
+    "after-launch": {
+      "result": "PASS",
+      "bundle": "game-BNZfv5Ng.js",
+      "bundleSha256": "66e3ae1472f058ad804b560ddfc6cd39c6a65bd971b81b8106ebfc88e303fc16",
+      "buildIdentity": "platform-fighter-sha256-0067e47aa8dad11d9fe4e4501c5db226e6d40d5f9dc5ab70e8693fbb2a1bd191",
+      "harnessSha256": "10daef4ab5768afb95309c3e47b5ca51db1e07a5a73e97c0f13972a7e92287de",
+      "rawReport": {
+        "path": "docs/review/2026-10-16/pikachu-quick-attack-gravity/after-launch/report.json",
+        "bytes": 2670569,
+        "sha256": "4fe391fb0ea18b566ac2346fda14ff80c9440bf65b8b02dd5c3fb767aeacad9e"
+      },
+      "pageErrors": [],
+      "cases": [
+        {
+          "key": "simulated-gamepad-launched-left-steer20-immediate",
+          "input": "simulated-gamepad",
+          "entry": "launched",
+          "direction": -1,
+          "steerTick": 20,
+          "launchTiming": "immediate",
+          "samples": 241,
+          "traceSha256": "0c13e03cf2ee51967b453a9a4453fc26c0d6c1b19abb3806dbb37aaa7429a7e3",
+          "setup": {
+            "initialGrounded": false,
+            "initialPosition": {
+              "x": 1011.3514585995382,
+              "y": 472.93580175108843
+            },
+            "initialVelocity": {
+              "x": 0.38247258940896245,
+              "y": 1.7019882422025034
+            },
+            "fixedStepMs": 16.666666666666668
+          },
+          "launchSetup": {
+            "samples": 65,
+            "traceSha256": "a788410213a41beae0c2cac96e1e7ef4d85666adf172d42e40c643398d935296",
+            "first": {
+              "tick": 0,
+              "frame": 286,
+              "damage": 60,
+              "grounded": true,
+              "hitlag": 0,
+              "hitstun": 0,
+              "position": {
+                "x": 968.2372867379277,
+                "y": 905.050000277778
+              },
+              "velocity": {
+                "x": 0.016933491993881944,
+                "y": 0
+              },
+              "referenceLaunch": null,
+              "launchVelocity": null,
+              "opponentAttack": null
+            },
+            "last": {
+              "tick": 64,
+              "frame": 350,
+              "damage": 76.38,
+              "grounded": false,
+              "hitlag": 0,
+              "hitstun": 0,
+              "position": {
+                "x": 1011.3514585995382,
+                "y": 472.93580175108843
+              },
+              "velocity": {
+                "x": 0.38247258940896245,
+                "y": 1.7019882422025034
+              },
+              "referenceLaunch": {
+                "profile": {
+                  "gravity": 0.095,
+                  "fallSpeed": 1.55,
+                  "verticalGravity": 0.068544,
+                  "verticalFallSpeed": 1.8
+                },
+                "vertical": true,
+                "groups": [
+                  2,
+                  3,
+                  4,
+                  3,
+                  2,
+                  3,
+                  2,
+                  2,
+                  2,
+                  1,
+                  2,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1
+                ],
+                "gravityY": 9,
+                "firstStep": false,
+                "groupIndex": 41,
+                "interrupted": false
+              },
+              "launchVelocity": {
+                "x": 0.38247258940778783,
+                "y": -7.298011757799337
+              },
+              "opponentAttack": null
+            }
+          },
+          "summary": {
+            "startedTick": 0,
+            "endedTick": 83,
+            "sourceEndFrame": 82,
+            "secondBurst": true,
+            "firstDownwardAfterWarpTick": 41,
+            "firstDownwardAfterEndTick": 84,
+            "landedTick": 121,
+            "airbornePostActionFrames": 37,
+            "zeroVerticalPostActionFrames": 0,
+            "postActionVerticalDisplacement": 289.0000000000017,
+            "stuckAfterAction": false
+          },
+          "tick0ReferenceLaunch": null,
+          "tick41Velocity": {
+            "x": -2.870999999999981,
+            "y": 0.4749999999999943
+          },
+          "last": {
+            "tick": 240,
+            "position": {
+              "x": 560.1806971111946,
+              "y": 784.5351146120987
+            },
+            "root": {
+              "x": 560.1806971111946,
+              "y": 809.5351146120987
+            },
+            "velocity": {
+              "x": -0.0012072602760326845,
+              "y": 6.575291763510904e-06
+            },
+            "grounded": true,
+            "helpless": false,
+            "special": null,
+            "attack": null,
+            "referenceLaunch": null,
+            "launchVelocity": null,
+            "fault": null
+          }
+        },
+        {
+          "key": "simulated-gamepad-launched-right-steer20-immediate",
+          "input": "simulated-gamepad",
+          "entry": "launched",
+          "direction": 1,
+          "steerTick": 20,
+          "launchTiming": "immediate",
+          "samples": 241,
+          "traceSha256": "8c23128a49ef56ed55c5f7993b1b8544965c61ca1c926d9022383b2bd60af3a6",
+          "setup": {
+            "initialGrounded": false,
+            "initialPosition": {
+              "x": 1011.3514585995382,
+              "y": 472.93580175108843
+            },
+            "initialVelocity": {
+              "x": 0.38247258940896245,
+              "y": 1.7019882422025034
+            },
+            "fixedStepMs": 16.666666666666668
+          },
+          "launchSetup": {
+            "samples": 65,
+            "traceSha256": "a788410213a41beae0c2cac96e1e7ef4d85666adf172d42e40c643398d935296",
+            "first": {
+              "tick": 0,
+              "frame": 286,
+              "damage": 60,
+              "grounded": true,
+              "hitlag": 0,
+              "hitstun": 0,
+              "position": {
+                "x": 968.2372867379277,
+                "y": 905.050000277778
+              },
+              "velocity": {
+                "x": 0.016933491993881944,
+                "y": 0
+              },
+              "referenceLaunch": null,
+              "launchVelocity": null,
+              "opponentAttack": null
+            },
+            "last": {
+              "tick": 64,
+              "frame": 350,
+              "damage": 76.38,
+              "grounded": false,
+              "hitlag": 0,
+              "hitstun": 0,
+              "position": {
+                "x": 1011.3514585995382,
+                "y": 472.93580175108843
+              },
+              "velocity": {
+                "x": 0.38247258940896245,
+                "y": 1.7019882422025034
+              },
+              "referenceLaunch": {
+                "profile": {
+                  "gravity": 0.095,
+                  "fallSpeed": 1.55,
+                  "verticalGravity": 0.068544,
+                  "verticalFallSpeed": 1.8
+                },
+                "vertical": true,
+                "groups": [
+                  2,
+                  3,
+                  4,
+                  3,
+                  2,
+                  3,
+                  2,
+                  2,
+                  2,
+                  1,
+                  2,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1
+                ],
+                "gravityY": 9,
+                "firstStep": false,
+                "groupIndex": 41,
+                "interrupted": false
+              },
+              "launchVelocity": {
+                "x": 0.38247258940778783,
+                "y": -7.298011757799337
+              },
+              "opponentAttack": null
+            }
+          },
+          "summary": {
+            "startedTick": 0,
+            "endedTick": 83,
+            "sourceEndFrame": 82,
+            "secondBurst": true,
+            "firstDownwardAfterWarpTick": 41,
+            "firstDownwardAfterEndTick": 84,
+            "landedTick": 136,
+            "airbornePostActionFrames": 52,
+            "zeroVerticalPostActionFrames": 0,
+            "postActionVerticalDisplacement": 409.41666666666913,
+            "stuckAfterAction": false
+          },
+          "tick0ReferenceLaunch": null,
+          "tick41Velocity": {
+            "x": 2.8710000000000946,
+            "y": 0.4749999999999943
+          },
+          "last": {
+            "tick": 240,
+            "position": {
+              "x": 1467.2327982160048,
+              "y": 905.0500002777776
+            },
+            "root": {
+              "x": 1467.2327982160048,
+              "y": 930.0500002777776
+            },
+            "velocity": {
+              "x": 0,
+              "y": 0
+            },
+            "grounded": true,
+            "helpless": false,
+            "special": null,
+            "attack": null,
+            "referenceLaunch": null,
+            "launchVelocity": null,
+            "fault": null
+          }
+        },
+        {
+          "key": "simulated-gamepad-launched-left-steer20-descending",
+          "input": "simulated-gamepad",
+          "entry": "launched",
+          "direction": -1,
+          "steerTick": 20,
+          "launchTiming": "descending",
+          "samples": 241,
+          "traceSha256": "0c13e03cf2ee51967b453a9a4453fc26c0d6c1b19abb3806dbb37aaa7429a7e3",
+          "setup": {
+            "initialGrounded": false,
+            "initialPosition": {
+              "x": 1011.3514585995382,
+              "y": 472.93580175108843
+            },
+            "initialVelocity": {
+              "x": 0.38247258940896245,
+              "y": 1.7019882422025034
+            },
+            "fixedStepMs": 16.666666666666668
+          },
+          "launchSetup": {
+            "samples": 65,
+            "traceSha256": "a788410213a41beae0c2cac96e1e7ef4d85666adf172d42e40c643398d935296",
+            "first": {
+              "tick": 0,
+              "frame": 286,
+              "damage": 60,
+              "grounded": true,
+              "hitlag": 0,
+              "hitstun": 0,
+              "position": {
+                "x": 968.2372867379277,
+                "y": 905.050000277778
+              },
+              "velocity": {
+                "x": 0.016933491993881944,
+                "y": 0
+              },
+              "referenceLaunch": null,
+              "launchVelocity": null,
+              "opponentAttack": null
+            },
+            "last": {
+              "tick": 64,
+              "frame": 350,
+              "damage": 76.38,
+              "grounded": false,
+              "hitlag": 0,
+              "hitstun": 0,
+              "position": {
+                "x": 1011.3514585995382,
+                "y": 472.93580175108843
+              },
+              "velocity": {
+                "x": 0.38247258940896245,
+                "y": 1.7019882422025034
+              },
+              "referenceLaunch": {
+                "profile": {
+                  "gravity": 0.095,
+                  "fallSpeed": 1.55,
+                  "verticalGravity": 0.068544,
+                  "verticalFallSpeed": 1.8
+                },
+                "vertical": true,
+                "groups": [
+                  2,
+                  3,
+                  4,
+                  3,
+                  2,
+                  3,
+                  2,
+                  2,
+                  2,
+                  1,
+                  2,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1
+                ],
+                "gravityY": 9,
+                "firstStep": false,
+                "groupIndex": 41,
+                "interrupted": false
+              },
+              "launchVelocity": {
+                "x": 0.38247258940778783,
+                "y": -7.298011757799337
+              },
+              "opponentAttack": null
+            }
+          },
+          "summary": {
+            "startedTick": 0,
+            "endedTick": 83,
+            "sourceEndFrame": 82,
+            "secondBurst": true,
+            "firstDownwardAfterWarpTick": 41,
+            "firstDownwardAfterEndTick": 84,
+            "landedTick": 121,
+            "airbornePostActionFrames": 37,
+            "zeroVerticalPostActionFrames": 0,
+            "postActionVerticalDisplacement": 289.0000000000017,
+            "stuckAfterAction": false
+          },
+          "tick0ReferenceLaunch": null,
+          "tick41Velocity": {
+            "x": -2.870999999999981,
+            "y": 0.4749999999999943
+          },
+          "last": {
+            "tick": 240,
+            "position": {
+              "x": 560.1806971111946,
+              "y": 784.5351146120987
+            },
+            "root": {
+              "x": 560.1806971111946,
+              "y": 809.5351146120987
+            },
+            "velocity": {
+              "x": -0.0012072602760326845,
+              "y": 6.575291763510904e-06
+            },
+            "grounded": true,
+            "helpless": false,
+            "special": null,
+            "attack": null,
+            "referenceLaunch": null,
+            "launchVelocity": null,
+            "fault": null
+          }
+        },
+        {
+          "key": "simulated-gamepad-launched-right-steer20-descending",
+          "input": "simulated-gamepad",
+          "entry": "launched",
+          "direction": 1,
+          "steerTick": 20,
+          "launchTiming": "descending",
+          "samples": 241,
+          "traceSha256": "8c23128a49ef56ed55c5f7993b1b8544965c61ca1c926d9022383b2bd60af3a6",
+          "setup": {
+            "initialGrounded": false,
+            "initialPosition": {
+              "x": 1011.3514585995382,
+              "y": 472.93580175108843
+            },
+            "initialVelocity": {
+              "x": 0.38247258940896245,
+              "y": 1.7019882422025034
+            },
+            "fixedStepMs": 16.666666666666668
+          },
+          "launchSetup": {
+            "samples": 65,
+            "traceSha256": "a788410213a41beae0c2cac96e1e7ef4d85666adf172d42e40c643398d935296",
+            "first": {
+              "tick": 0,
+              "frame": 286,
+              "damage": 60,
+              "grounded": true,
+              "hitlag": 0,
+              "hitstun": 0,
+              "position": {
+                "x": 968.2372867379277,
+                "y": 905.050000277778
+              },
+              "velocity": {
+                "x": 0.016933491993881944,
+                "y": 0
+              },
+              "referenceLaunch": null,
+              "launchVelocity": null,
+              "opponentAttack": null
+            },
+            "last": {
+              "tick": 64,
+              "frame": 350,
+              "damage": 76.38,
+              "grounded": false,
+              "hitlag": 0,
+              "hitstun": 0,
+              "position": {
+                "x": 1011.3514585995382,
+                "y": 472.93580175108843
+              },
+              "velocity": {
+                "x": 0.38247258940896245,
+                "y": 1.7019882422025034
+              },
+              "referenceLaunch": {
+                "profile": {
+                  "gravity": 0.095,
+                  "fallSpeed": 1.55,
+                  "verticalGravity": 0.068544,
+                  "verticalFallSpeed": 1.8
+                },
+                "vertical": true,
+                "groups": [
+                  2,
+                  3,
+                  4,
+                  3,
+                  2,
+                  3,
+                  2,
+                  2,
+                  2,
+                  1,
+                  2,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1,
+                  1
+                ],
+                "gravityY": 9,
+                "firstStep": false,
+                "groupIndex": 41,
+                "interrupted": false
+              },
+              "launchVelocity": {
+                "x": 0.38247258940778783,
+                "y": -7.298011757799337
+              },
+              "opponentAttack": null
+            }
+          },
+          "summary": {
+            "startedTick": 0,
+            "endedTick": 83,
+            "sourceEndFrame": 82,
+            "secondBurst": true,
+            "firstDownwardAfterWarpTick": 41,
+            "firstDownwardAfterEndTick": 84,
+            "landedTick": 136,
+            "airbornePostActionFrames": 52,
+            "zeroVerticalPostActionFrames": 0,
+            "postActionVerticalDisplacement": 409.41666666666913,
+            "stuckAfterAction": false
+          },
+          "tick0ReferenceLaunch": null,
+          "tick41Velocity": {
+            "x": 2.8710000000000946,
+            "y": 0.4749999999999943
+          },
+          "last": {
+            "tick": 240,
+            "position": {
+              "x": 1467.2327982160048,
+              "y": 905.0500002777776
+            },
+            "root": {
+              "x": 1467.2327982160048,
+              "y": 930.0500002777776
+            },
+            "velocity": {
+              "x": 0,
+              "y": 0
+            },
+            "grounded": true,
+            "helpless": false,
+            "special": null,
+            "attack": null,
+            "referenceLaunch": null,
+            "launchVelocity": null,
+            "fault": null
+          }
+        }
+      ]
+    }
+  },
+  "inputProfiles": {
+    "simulated-gamepad": {
+      "bindings": {
+        "playerIndex": 1,
+        "bindings": {
+          "left": [
+            {
+              "kind": "gamepad",
+              "gamepadIndex": 0,
+              "source": {
+                "type": "axis",
+                "axisIndex": 0,
+                "direction": -1,
+                "threshold": 0.5
+              }
+            }
+          ],
+          "right": [
+            {
+              "kind": "gamepad",
+              "gamepadIndex": 0,
+              "source": {
+                "type": "axis",
+                "axisIndex": 0,
+                "direction": 1,
+                "threshold": 0.5
+              }
+            }
+          ],
+          "up": [
+            {
+              "kind": "gamepad",
+              "gamepadIndex": 0,
+              "source": {
+                "type": "axis",
+                "axisIndex": 1,
+                "direction": -1,
+                "threshold": 0.5
+              }
+            }
+          ],
+          "down": [
+            {
+              "kind": "gamepad",
+              "gamepadIndex": 0,
+              "source": {
+                "type": "axis",
+                "axisIndex": 1,
+                "direction": 1,
+                "threshold": 0.5
+              }
+            }
+          ],
+          "jump": [
+            {
+              "kind": "gamepad",
+              "gamepadIndex": 0,
+              "source": {
+                "type": "button",
+                "buttonIndex": 0
+              }
+            }
+          ],
+          "attack": [
+            {
+              "kind": "gamepad",
+              "gamepadIndex": 0,
+              "source": {
+                "type": "button",
+                "buttonIndex": 2
+              }
+            }
+          ],
+          "special": [
+            {
+              "kind": "gamepad",
+              "gamepadIndex": 0,
+              "source": {
+                "type": "button",
+                "buttonIndex": 3
+              }
+            }
+          ],
+          "shield": [
+            {
+              "kind": "gamepad",
+              "gamepadIndex": 0,
+              "source": {
+                "type": "button",
+                "buttonIndex": 5
+              }
+            }
+          ],
+          "grab": [
+            {
+              "kind": "gamepad",
+              "gamepadIndex": 0,
+              "source": {
+                "type": "button",
+                "buttonIndex": 4
+              }
+            }
+          ],
+          "taunt": [
+            {
+              "kind": "gamepad",
+              "gamepadIndex": 0,
+              "source": {
+                "type": "button",
+                "buttonIndex": 1
+              }
+            }
+          ],
+          "smash": [
+            {
+              "kind": "gamepad",
+              "gamepadIndex": 0,
+              "source": {
+                "type": "axis",
+                "axisIndex": 2,
+                "direction": -1,
+                "threshold": 0.6
+              }
+            },
+            {
+              "kind": "gamepad",
+              "gamepadIndex": 0,
+              "source": {
+                "type": "axis",
+                "axisIndex": 2,
+                "direction": 1,
+                "threshold": 0.6
+              }
+            },
+            {
+              "kind": "gamepad",
+              "gamepadIndex": 0,
+              "source": {
+                "type": "axis",
+                "axisIndex": 3,
+                "direction": -1,
+                "threshold": 0.6
+              }
+            },
+            {
+              "kind": "gamepad",
+              "gamepadIndex": 0,
+              "source": {
+                "type": "axis",
+                "axisIndex": 3,
+                "direction": 1,
+                "threshold": 0.6
+              }
+            }
+          ],
+          "appeal": [
+            {
+              "kind": "gamepad",
+              "gamepadIndex": 0,
+              "source": {
+                "type": "button",
+                "buttonIndex": 8
+              }
+            }
+          ],
+          "walk": []
+        }
+      },
+      "keyboard": {
+        "up": null,
+        "left": null,
+        "right": null,
+        "special": null,
+        "jump": null
+      },
+      "savedProfiles": null
+    },
+    "real-keyboard": {
+      "bindings": {
+        "playerIndex": 1,
+        "bindings": {
+          "left": [
+            {
+              "kind": "keyboard",
+              "keyCode": 65
+            }
+          ],
+          "right": [
+            {
+              "kind": "keyboard",
+              "keyCode": 68
+            }
+          ],
+          "up": [
+            {
+              "kind": "keyboard",
+              "keyCode": 87
+            }
+          ],
+          "down": [
+            {
+              "kind": "keyboard",
+              "keyCode": 83
+            }
+          ],
+          "jump": [
+            {
+              "kind": "keyboard",
+              "keyCode": 87
+            }
+          ],
+          "attack": [
+            {
+              "kind": "keyboard",
+              "keyCode": 70
+            }
+          ],
+          "special": [
+            {
+              "kind": "keyboard",
+              "keyCode": 71
+            }
+          ],
+          "shield": [
+            {
+              "kind": "keyboard",
+              "keyCode": 72
+            }
+          ],
+          "grab": [
+            {
+              "kind": "keyboard",
+              "keyCode": 84
+            }
+          ],
+          "taunt": [
+            {
+              "kind": "keyboard",
+              "keyCode": 82
+            }
+          ],
+          "smash": [
+            {
+              "kind": "keyboard",
+              "keyCode": 86
+            }
+          ],
+          "appeal": [
+            {
+              "kind": "keyboard",
+              "keyCode": 66
+            }
+          ],
+          "walk": [
+            {
+              "kind": "keyboard",
+              "keyCode": 16
+            }
+          ]
+        }
+      },
+      "keyboard": {
+        "up": 87,
+        "left": 65,
+        "right": 68,
+        "special": 71,
+        "jump": 87
+      },
+      "savedProfiles": null
+    }
+  },
+  "ordinaryControlComparison": {
+    "fields": [
+      "position",
+      "root",
+      "velocity",
+      "grounded",
+      "helpless",
+      "special",
+      "attack"
+    ],
+    "rows": 1928,
+    "cases": [
+      {
+        "case": "simulated-gamepad-ground-left-steer20",
+        "rows": 241,
+        "beforeSha256": "09729438b8a65fc24de8c9027dcaf9c14a8f16817c2ef5cf920dda284ccd563f",
+        "afterSha256": "09729438b8a65fc24de8c9027dcaf9c14a8f16817c2ef5cf920dda284ccd563f",
+        "equal": true
+      },
+      {
+        "case": "simulated-gamepad-ground-right-steer20",
+        "rows": 241,
+        "beforeSha256": "3344769f6d2dbdc0d76045bc223cb9fb78df89ed5f145fa05d256ce6e6542702",
+        "afterSha256": "3344769f6d2dbdc0d76045bc223cb9fb78df89ed5f145fa05d256ce6e6542702",
+        "equal": true
+      },
+      {
+        "case": "simulated-gamepad-air-left-steer20",
+        "rows": 241,
+        "beforeSha256": "4d6733483ec5f7ed1307956dcd5f48ef5a4367777d2d52401b7a7f2dd7bd126b",
+        "afterSha256": "4d6733483ec5f7ed1307956dcd5f48ef5a4367777d2d52401b7a7f2dd7bd126b",
+        "equal": true
+      },
+      {
+        "case": "simulated-gamepad-air-right-steer20",
+        "rows": 241,
+        "beforeSha256": "c8bcc92eb27778e258b08a9833d4f1a46c51914bf1556d4dfa6e3f4e648dfe0b",
+        "afterSha256": "c8bcc92eb27778e258b08a9833d4f1a46c51914bf1556d4dfa6e3f4e648dfe0b",
+        "equal": true
+      },
+      {
+        "case": "simulated-gamepad-ground-left-steer1",
+        "rows": 241,
+        "beforeSha256": "0e5ecb7bb5445b9429c107a6c7f01cf2a7493ed39435b202afefcc56322733f9",
+        "afterSha256": "0e5ecb7bb5445b9429c107a6c7f01cf2a7493ed39435b202afefcc56322733f9",
+        "equal": true
+      },
+      {
+        "case": "simulated-gamepad-ground-right-steer1",
+        "rows": 241,
+        "beforeSha256": "573fbb4c731b299a89cf24d5dbeb58d7368c8ace1f4db089a2acb46f21ac8e94",
+        "afterSha256": "573fbb4c731b299a89cf24d5dbeb58d7368c8ace1f4db089a2acb46f21ac8e94",
+        "equal": true
+      },
+      {
+        "case": "real-keyboard-ground-left-steer20",
+        "rows": 241,
+        "beforeSha256": "09729438b8a65fc24de8c9027dcaf9c14a8f16817c2ef5cf920dda284ccd563f",
+        "afterSha256": "09729438b8a65fc24de8c9027dcaf9c14a8f16817c2ef5cf920dda284ccd563f",
+        "equal": true
+      },
+      {
+        "case": "real-keyboard-ground-right-steer20",
+        "rows": 241,
+        "beforeSha256": "3344769f6d2dbdc0d76045bc223cb9fb78df89ed5f145fa05d256ce6e6542702",
+        "afterSha256": "3344769f6d2dbdc0d76045bc223cb9fb78df89ed5f145fa05d256ce6e6542702",
+        "equal": true
+      }
+    ]
+  },
+  "causeAndFix": "Source-special setVelocity retained referenceLaunch, whose terminal gravity correction canceled requested and later ordinary gravity. Route it through existing setIntrinsicSourceVelocity to clear old launch ownership. Gravity values and action durations unchanged; neutral Thunder Jolt does not call this setter.",
+  "physicsRegression": {
+    "before": {
+      "result": "FAIL_REPRODUCED_BOTH_FACINGS",
+      "expectedRecoveryVy": 0.475,
+      "actualRecoveryVy": 0,
+      "receipt": {
+        "path": ".tmp/pikachu-recovered-launch-before.log",
+        "bytes": 2007,
+        "sha256": "643288afd10a278cd3238b05da1ac9a9b39b06109f9a36630db2098c4833aef3"
+      }
+    },
+    "after": {
+      "result": "PASS",
+      "tests": 146,
+      "files": 6,
+      "receipt": {
+        "path": ".tmp/pikachu-recovered-launch-after.log",
+        "bytes": 998,
+        "sha256": "fbbf6c8a0b963a105b6ad691e21c2c6d7caf1d68b8a37eba0a630c7898630bda"
+      }
+    },
+    "postActionCheck": "30 vertical steps compared with independent ordinary-fall character, preserving post-Matter speed-cap behavior."
+  },
+  "visualReview": {
+    "result": "PASS",
+    "observations": [
+      "Both facings suspended after action in baseline; both land after fix.",
+      "Clean left descending and right immediate tick240 captures reviewed; left immediate tick240 capture with repeated strips excluded as browser capture artifact.",
+      "FPS values on manually stepped screenshots are not performance measurements."
+    ],
+    "acceptedReceipts": [
+      {
+        "path": "docs/review/2026-10-16/pikachu-quick-attack-gravity/before-launch/simulated-gamepad-launched-left-steer20-immediate-tick240.png",
+        "bytes": 572238,
+        "sha256": "1fc9a578926d58a1ab174b9206c8c5128e4e6104d3b78b885afd0a271460ff2f"
+      },
+      {
+        "path": "docs/review/2026-10-16/pikachu-quick-attack-gravity/before-launch/simulated-gamepad-launched-right-steer20-immediate-tick240.png",
+        "bytes": 573871,
+        "sha256": "c2e90855b0f80263ca9e9962a8b7c8982415cbe9979eee0bae0da6ab4e8156b9"
+      },
+      {
+        "path": "docs/review/2026-10-16/pikachu-quick-attack-gravity/after-launch/simulated-gamepad-launched-left-steer20-descending-tick240.png",
+        "bytes": 591135,
+        "sha256": "0fd1161f2b85fcff1efaf52b5a3d4f1b18d90209934556ea875161de3a3766e7"
+      },
+      {
+        "path": "docs/review/2026-10-16/pikachu-quick-attack-gravity/after-launch/simulated-gamepad-launched-right-steer20-immediate-tick240.png",
+        "bytes": 589162,
+        "sha256": "e908ad7d073b046d6e1fb87e5613b4799bb56ce85420c22d65c8368c021d2b8a"
+      }
+    ]
+  },
+  "limits": [
+    "Four launched runs repeat two distinct directional trajectories: immediate and descending predicates both select setup tick64.",
+    "Simulated gamepads are explicitly browser API fixtures; no physical-controller assessment.",
+    "Optional held suite was not run.",
+    "Initial probe typo read input.up rather than input.moveUp; corrected before qualified runs."
+  ],
+  "initialProbeCorrection": {
+    "path": "docs/review/2026-10-16/pikachu-quick-attack-gravity/probe-correction/initial-report.json",
+    "bytes": 471585,
+    "sha256": "b5950d2d90abf97e32d74ed353bf2c2c1b6e776ba707ecaadf087728181233ef"
+  },
+  "cleanup": {
+    "status": "COMPLETE",
+    "approvedBy": "Coordinating agent /root after exact path/hash review",
+    "filesRemoved": 103,
+    "bytesRemoved": 71233466,
+    "retained": [
+      "README.md",
+      "qualification.json",
+      "live acceptance tool and input fixtures"
+    ],
+    "baselineBuildsRemoved": false
+  }
+}

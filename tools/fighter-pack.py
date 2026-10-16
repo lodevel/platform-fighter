@@ -19,7 +19,8 @@ SPEC.json
            "root": [x, y],                  # ground root inside that PNG (or crop), art px
            "nativeSample": 22,
            "grounded": true,                # optional: run the floor check on this frame
-           "snapRootToFloor": false}        # optional: root y := lowest opaque row edge
+           "snapRootToFloor": false,        # optional: root y := support row edge
+           "floorContactRegion": [x,y,w,h]} # optional anatomical contact ROI; excludes cloth/equipment
         ]}}}
 
 --fighter selects the ppu/bodyHeight defaults in FIGHTER_DEFAULTS; spec fields override them, and a
@@ -286,6 +287,28 @@ def tight_pack_layout(cells, cw: int, ch: int, name: str):
     return atlas, {'atlas': size, 'trims': trims}
 
 
+def floor_contact_bbox(alpha, region=None):
+    """An explicitly reviewed support region, or the legacy whole-alpha check.
+
+    Contact regions use the visible edge (alpha >= 32), not the lowest opaque
+    clothing pixel. Coordinates are pixel edges in the source/cropped image.
+    A missing or empty anatomical region is an authoring error, never fallback.
+    """
+    if region is None:
+        return alpha_bbox(alpha, ALPHA_SOLID)
+    if (not isinstance(region, (list, tuple)) or len(region) != 4 or
+            any(not isinstance(v, int) or isinstance(v, bool) for v in region)):
+        raise ValueError('floorContactRegion must be four integer pixel edges [x,y,w,h]')
+    x, y, w, h = region
+    if x < 0 or y < 0 or w <= 0 or h <= 0 or x + w > alpha.shape[1] or y + h > alpha.shape[0]:
+        raise ValueError('floorContactRegion must be nonempty and inside the image')
+    selected = alpha[y:y+h, x:x+w]
+    if not np.any(selected >= FAINT_ALPHA):
+        raise ValueError('floorContactRegion contains no visible anatomical support')
+    left, right, top, bottom = alpha_bbox(selected, FAINT_ALPHA - 1)
+    return left + x, right + x, top + y, bottom + y
+
+
 def pack_clip(name, clip, s, body_centre, out_dir, fails, layout_name='grid'):
     loaded = []
     for fr in clip['frames']:
@@ -293,10 +316,11 @@ def pack_clip(name, clip, s, body_centre, out_dir, fails, layout_name='grid'):
         img = load_cutout(fr)
         a = np.array(img)[..., 3]
         rx, ry = float(fr['root'][0]), float(fr['root'][1])
+        contact = floor_contact_bbox(a, fr.get('floorContactRegion'))
         if fr.get('snapRootToFloor'):
-            ry = float(alpha_bbox(a, ALPHA_SOLID)[3])
+            ry = float(contact[3])
         loaded.append(dict(img=img, root=(rx, ry), bbox=alpha_bbox(a), path=path, fr=fr,
-                           src_floor=alpha_bbox(a, ALPHA_SOLID)[3] - ry))
+                           src_floor=contact[3] - ry))
 
     pad = int(clip.get('pad', 4))
     left = max((l['root'][0] - l['bbox'][0]) * s for l in loaded)
@@ -316,7 +340,15 @@ def pack_clip(name, clip, s, body_centre, out_dir, fails, layout_name='grid'):
         rendered.append(arr)
         bx0, bx1, by0, by1 = alpha_bbox(arr[..., 3])
         margin = min(bx0, cw - bx1, by0, ch - by1)
-        floor = alpha_bbox(arr[..., 3], ALPHA_SOLID)[3] - ry
+        region = l['fr'].get('floorContactRegion')
+        if region is not None:
+            x, y, w, h = region
+            left = max(0, math.floor(rx + (x - l['root'][0]) * s))
+            top = max(0, math.floor(ry + (y - l['root'][1]) * s))
+            right = min(cw, math.ceil(rx + (x + w - l['root'][0]) * s))
+            bottom = min(ch, math.ceil(ry + (y + h - l['root'][1]) * s))
+            region = [left, top, right - left, bottom - top]
+        floor = floor_contact_bbox(arr[..., 3], region)[3] - ry
         n_edge, magenta, dark = fringe_report(arr)
         checks.append(dict(frame=i, png=l['path'].name, cellMarginPx=margin,
                            floorMinusRootPackedPx=round(float(floor), 2),

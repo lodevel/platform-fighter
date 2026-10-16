@@ -2,6 +2,7 @@ import { getAllAssetEntries } from '../../../../src/assets/manifest';
 import type { CharacterId } from '../../../../src/types';
 import type { SheetTexture, TextureStore } from '../../engine/sprites/textureStore';
 import { LEGACY_SPRITE_CAPABILITY } from '../../../../src/characterPresentation/legacy/profiles';
+import { pikachuFinalStartupPage, replacedPikachuFinalOwnerPage } from '../finalVisual';
 import { registerAppearanceResourceProvider, registerSharedAppearanceResources } from '../resources';
 
 const preloadEpoch = new WeakMap<TextureStore, number>();
@@ -12,6 +13,7 @@ const GPU_WARM_BYTES = 64 * 1024 * 1024;
 function warmPriority(key: string): number {
   const sheet = key.split('.').at(-1);
   if (sheet === 'idle' || sheet === 'j00entryr' || sheet === 'entry') return 0;
+  if (pikachuFinalStartupPage(key)) return 1;
   if (sheet && ['final', 'final_air', 'final_start', 'final_air_start', 'd04final', 'd04finalair'].includes(sheet)) return 1;
   return 2;
 }
@@ -26,6 +28,7 @@ export async function preloadLegacyMatchArt(textures: TextureStore, fighters: re
   textures.retainMatchFighters(fighters);
   const prefixes = [...new Set(fighters)].map((fighter) => `char.${fighter}.`);
   const entries = getAllAssetEntries().filter((entry) => (entry.kind === 'image' || entry.kind === 'spritesheet')
+    && !replacedPikachuFinalOwnerPage(entry.key)
     && (prefixes.some((prefix) => entry.key.startsWith(prefix)) || (includeItems && entry.key.startsWith('item.'))))
     .sort((a, b) => warmPriority(a.key) - warmPriority(b.key));
   let next = 0, done = 0, warmedBytes = 0;

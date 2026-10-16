@@ -1464,7 +1464,10 @@ export class Character {
   private getPikachuSpecialRuntime(): PikachuSpecialRuntime {
     return this.pikachuSpecialRuntime ??= new PikachuSpecialRuntime({ id: this.id, body: this.body,
       scene: this.scene, grounded: () => this.isGrounded(),
-      setVelocity: vector => this.scene.matter.body.setVelocity(this.body, vector),
+      // These status-owned velocities replace launch kinetics. Keeping a
+      // capped launch gravity energy would cancel every later world dose,
+      // even after Quick Attack finishes and its own gravity is released.
+      setVelocity: vector => this.setIntrinsicSourceVelocity(vector),
       facing: value => { this.facing = value; },
       finish: (helpless, landingFrames) => {
         this.specialFallAirSpeedMultiplier = helpless && this.activeAttack?.move.pikachuSpecial?.kind === 'quickAttack' ? 0.4 : 1;

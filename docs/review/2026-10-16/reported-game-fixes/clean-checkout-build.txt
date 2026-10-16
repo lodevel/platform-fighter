@@ -1,0 +1,65 @@
+
+> platform-fighter@0.1.0 build:static
+> npm run build && npm run assets:copy
+
+
+> platform-fighter@0.1.0 build
+> npm run typecheck && node --max-old-space-size=8192 node_modules/vite/bin/vite.js build
+
+
+> platform-fighter@0.1.0 typecheck
+> tsc --noEmit && node port/scripts/check-layers.mjs
+
+layers ok (104 modules)
+portable presentation imports ok (2 modules)
+vite v5.4.21 building for production...
+transforming...
+✓ 571 modules transformed.
+rendering chunks...
+computing gzip size...
+../dist/index.html                                                   1.07 kB │ gzip:     0.42 kB
+../dist/sandbox.html                                                 1.95 kB │ gzip:     0.95 kB
+../dist/costumes.html                                                2.06 kB │ gzip:     0.95 kB
+../dist/viewer.html                                                  2.66 kB │ gzip:     1.09 kB
+../dist/assets/bungee-vietnamese-400-normal-B6gKbkHm.woff2           4.12 kB
+../dist/assets/chakra-petch-vietnamese-600-normal-Pvj4qcw_.woff      5.11 kB
+../dist/assets/chakra-petch-vietnamese-500-normal-BVzUBLGs.woff      5.12 kB
+../dist/assets/bungee-vietnamese-400-normal-CmjDSWyd.woff            5.57 kB
+../dist/assets/chakra-petch-thai-500-normal-DeexCGiz.woff2           7.51 kB
+../dist/assets/chakra-petch-thai-600-normal-C620THcd.woff2           7.56 kB
+../dist/assets/chakra-petch-latin-ext-500-normal-gA6791b0.woff2      9.03 kB
+../dist/assets/chakra-petch-latin-ext-600-normal-CdGvbdDU.woff2      9.06 kB
+../dist/assets/chakra-petch-thai-500-normal-CJG_V2_m.woff            9.91 kB
+../dist/assets/chakra-petch-thai-600-normal-BiM5MXH8.woff            9.95 kB
+../dist/assets/chakra-petch-latin-500-normal-BR1ody1F.woff2          9.96 kB
+../dist/assets/chakra-petch-latin-600-normal-DVQm9bgb.woff2          9.97 kB
+../dist/assets/bungee-latin-ext-400-normal-DWzJMwsA.woff2           10.71 kB
+../dist/assets/chakra-petch-latin-ext-500-normal-BCHeNDEx.woff      12.18 kB
+../dist/assets/chakra-petch-latin-ext-600-normal-nL80L4xU.woff      12.22 kB
+../dist/assets/chakra-petch-latin-500-normal-CnUQnZ4D.woff          13.41 kB
+../dist/assets/chakra-petch-latin-600-normal-DQKfcdKo.woff          13.43 kB
+../dist/assets/bungee-latin-ext-400-normal-DXe9_7Rr.woff            13.85 kB
+../dist/assets/bungee-latin-400-normal-Dfnurram.woff2               14.34 kB
+../dist/assets/bungee-latin-400-normal-DA8IEVW_.woff                18.25 kB
+../dist/assets/lineup-D0p1CN7T.css                                   4.17 kB │ gzip:     1.75 kB
+../dist/assets/presenter-Enxzuygu.css                                6.56 kB │ gzip:     4.31 kB
+../dist/assets/game-CgVKSBA0.css                                    23.15 kB │ gzip:     9.19 kB
+../dist/assets/modulepreload-polyfill-B5Qt9EMX.js                    0.77 kB │ gzip:     0.44 kB │ map:     0.12 kB
+../dist/assets/finalSmashSchema-DvHlJSCx.js                          0.81 kB │ gzip:     0.40 kB │ map:     4.07 kB
+../dist/assets/costumes-BB0zkan1.js                                  1.08 kB │ gzip:     0.69 kB │ map:     3.62 kB
+../dist/assets/sandbox-DPcEguKh.js                                   2.61 kB │ gzip:     1.48 kB │ map:     3.41 kB
+../dist/assets/viewer-CEJRw6ZR.js                                    3.84 kB │ gzip:     1.93 kB │ map:    15.70 kB
+../dist/assets/game-BL2B4bsg.js                                  1,031.01 kB │ gzip:   248.33 kB │ map: 4,089.65 kB
+../dist/assets/lineup-BHhiTa3U.js                                3,350.57 kB │ gzip:   944.51 kB │ map: 7,621.94 kB
+../dist/assets/presenter-CsMd4DuX.js                             5,943.17 kB │ gzip: 1,566.82 kB │ map: 4,585.70 kB
+
+(!) Some chunks are larger than 4000 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 9.18s
+
+> platform-fighter@0.1.0 assets:copy
+> tsx scripts/copy-runtime-assets.ts
+
+Copied 743 runtime assets into dist/

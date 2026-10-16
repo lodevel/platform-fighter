@@ -1,0 +1,1565 @@
+{
+  "scope": "Targeted disappearing Link routes: retained-source authored aerial landings and default footstool recipient/performer, both facings and palettes0/3. Not a complete fighter audit.",
+  "input": "Saved DOM jump/attack with explicit deterministic placement and source-retaining authored move fixtures.",
+  "buildAfter": {
+    "script": "game-BNZfv5Ng.js",
+    "source": "platform-fighter-sha256-0067e47aa8dad11d9fe4e4501c5db226e6d40d5f9dc5ab70e8693fbb2a1bd191"
+  },
+  "runs": [
+    {
+      "label": "before",
+      "reportSha256": "05ef6acecc4794ae8d50c0638cb9553ae7a7430262c8fa18fdbcbe49a3a50d59",
+      "harnessSha256": "22eee3ba0bba3a43b61e07365b2e0b23b646f9e51303d959120800b8bfdd002a",
+      "script": "http://127.0.0.1:4173/platform-fighter/assets/game-CDiv0wP3.js",
+      "browser": "155.0.4283.45",
+      "graphics": {
+        "renderer": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x0000A7A0) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "parallelShaderCompile": true
+      },
+      "cases": 26,
+      "measuredTicks": 3240,
+      "missingTicks": 0,
+      "errors": [],
+      "rows": [
+        {
+          "name": "short-hop",
+          "facing": 1,
+          "paletteIndex": 0,
+          "summary": {
+            "ticks": 91,
+            "missing": 0,
+            "requestedSheets": [
+              "idle",
+              "a03jumpsquat",
+              "jump",
+              "fall",
+              "a05landinglight"
+            ],
+            "landings": [
+              "{\"kind\":\"soft\"}"
+            ],
+            "activeMoves": [],
+            "drawnSheets": [
+              "char.link.idle",
+              "char.link.a03jumpsquat",
+              "char.link.jump",
+              "char.link.fall",
+              "char.link.a05landinglight"
+            ]
+          },
+          "authorityTraceSha256": "89b698d86c03c4b059de31c70624b1a43b5c5684eaddf8a72730fbcb33cd4382"
+        },
+        {
+          "name": "full-jump",
+          "facing": 1,
+          "paletteIndex": 0,
+          "summary": {
+            "ticks": 110,
+            "missing": 0,
+            "requestedSheets": [
+              "idle",
+              "a03jumpsquat",
+              "jump",
+              "fall",
+              "a05landinglight"
+            ],
+            "landings": [
+              "{\"kind\":\"soft\"}"
+            ],
+            "activeMoves": [],
+            "drawnSheets": [
+              "char.link.idle",
+              "char.link.a03jumpsquat",
+              "char.link.jump",
+              "char.link.fall",
+              "char.link.a05landinglight"
+            ]
+          },
+          "authorityTraceSha256": "f3ed678e92197c88bed8714e8311abd873781ecc2c0614687e41a7bf352cb3bb"
+        },
+        {
+          "name": "double-jump",
+          "facing": 1,
+          "paletteIndex": 0,
+          "summary": {
+            "ticks": 132,
+            "missing": 0,
+            "requestedSheets": [
+              "idle",
+              "a03jumpsquat",
+              "jump",
+              "airjump",
+              "fall_aerial",
+              "a05landinglight"
+            ],
+            "landings": [
+              "{\"kind\":\"soft\"}"
+            ],
+            "activeMoves": [],
+            "drawnSheets": [
+              "char.link.idle",
+              "char.link.a03jumpsquat",
+              "char.link.jump",
+              "char.link.airjump",
+              "char.link.fall_aerial",
+              "char.link.a05landinglight"
+            ]
+          },
+          "authorityTraceSha256": "b4309e81f8348a7fdf67a8d06f5cf10cee44ce6d4b5477e54bf1c2c36d42252c"
+        },
+        {
+          "name": "nair",
+          "facing": 1,
+          "paletteIndex": 0,
+          "summary": {
+            "ticks": 121,
+            "missing": 0,
+            "requestedSheets": [
+              "idle",
+              "a03jumpsquat",
+              "jump",
+              "nair",
+              "landing_air_n"
+            ],
+            "landings": [
+              "{\"kind\":\"aerial\",\"moveId\":\"link.nair\",\"sourcePoseId\":\"link.nair\"}"
+            ],
+            "activeMoves": [
+              "link.nair"
+            ],
+            "drawnSheets": [
+              "char.link.idle",
+              "char.link.a03jumpsquat",
+              "char.link.jump",
+              "char.link.nair",
+              "char.link.landing_air_n"
+            ]
+          },
+          "authorityTraceSha256": "0a9198eb7d545adae7a321a45c3ba7538a7fc97e946129457059f12dd2f5764a"
+        },
+        {
+          "name": "fair",
+          "facing": 1,
+          "paletteIndex": 0,
+          "summary": {
+            "ticks": 121,
+            "missing": 0,
+            "requestedSheets": [
+              "idle",
+              "a03jumpsquat",
+              "jump",
+              "fair",
+              "landing_air_f"
+            ],
+            "landings": [
+              "{\"kind\":\"aerial\",\"moveId\":\"link.fair\",\"sourcePoseId\":\"link.fair\"}"
+            ],
+            "activeMoves": [
+              "link.fair"
+            ],
+            "drawnSheets": [
+              "char.link.idle",
+              "char.link.a03jumpsquat",
+              "char.link.jump",
+              "char.link.fair",
+              "char.link.landing_air_f"
+            ]
+          },
+          "authorityTraceSha256": "f1f69731e93f531b45264a93b20fd34968c32ab0e0b29dc250aa3f5441a2db31"
+        },
+        {
+          "name": "bair",
+          "facing": 1,
+          "paletteIndex": 0,
+          "summary": {
+            "ticks": 121,
+            "missing": 0,
+            "requestedSheets": [
+              "idle",
+              "a03jumpsquat",
+              "jump",
+              "bair",
+              "landing_air_b"
+            ],
+            "landings": [
+              "{\"kind\":\"aerial\",\"moveId\":\"link.bair\",\"sourcePoseId\":\"link.bair\"}"
+            ],
+            "activeMoves": [
+              "link.bair"
+            ],
+            "drawnSheets": [
+              "char.link.idle",
+              "char.link.a03jumpsquat",
+              "char.link.jump",
+              "char.link.bair",
+              "char.link.landing_air_b"
+            ]
+          },
+          "authorityTraceSha256": "155da861540725056b1c16c803eff943232a60e44fbc84e1d5ebc569ad85de69"
+        },
+        {
+          "name": "uair",
+          "facing": 1,
+          "paletteIndex": 0,
+          "summary": {
+            "ticks": 121,
+            "missing": 0,
+            "requestedSheets": [
+              "idle",
+              "a03jumpsquat",
+              "jump",
+              "uair",
+              "a05landingheavy"
+            ],
+            "landings": [
+              "{\"kind\":\"hard\"}"
+            ],
+            "activeMoves": [
+              "link.uair"
+            ],
+            "drawnSheets": [
+              "char.link.idle",
+              "char.link.a03jumpsquat",
+              "char.link.jump",
+              "char.link.uair",
+              "char.link.a05landingheavy"
+            ]
+          },
+          "authorityTraceSha256": "9ded32fa274cc0ed45d3459d25afc445295c8b2d9c6971bccfe3f0c34a9a59a3"
+        },
+        {
+          "name": "dair",
+          "facing": 1,
+          "paletteIndex": 0,
+          "summary": {
+            "ticks": 121,
+            "missing": 0,
+            "requestedSheets": [
+              "idle",
+              "a03jumpsquat",
+              "jump",
+              "dair",
+              "landing_air_lw"
+            ],
+            "landings": [
+              "{\"kind\":\"aerial\",\"moveId\":\"link.dair\",\"sourcePoseId\":\"link.dair\"}"
+            ],
+            "activeMoves": [
+              "link.dair"
+            ],
+            "drawnSheets": [
+              "char.link.idle",
+              "char.link.a03jumpsquat",
+              "char.link.jump",
+              "char.link.dair",
+              "char.link.landing_air_lw"
+            ]
+          },
+          "authorityTraceSha256": "d15d004ec9ddd0cf2ac7fc9396d392e3ad839b852eae082fce88be97b07b9c0a"
+        },
+        {
+          "name": "air-dodge",
+          "facing": 1,
+          "paletteIndex": 0,
+          "summary": {
+            "ticks": 121,
+            "missing": 0,
+            "requestedSheets": [
+              "idle",
+              "a03jumpsquat",
+              "jump",
+              "air_dodge",
+              "a04landingfallspecial"
+            ],
+            "landings": [
+              "{\"kind\":\"air-dodge\"}"
+            ],
+            "activeMoves": [],
+            "drawnSheets": [
+              "char.link.idle",
+              "char.link.a03jumpsquat",
+              "char.link.jump",
+              "char.link.air_dodge",
+              "char.link.a04landingfallspecial"
+            ]
+          },
+          "authorityTraceSha256": "4d59c5fe4cadfcdeca75f7b5fd97f971887b6d4fd9363d3affcdaf7e5467198d"
+        },
+        {
+          "name": "directional-air-dodge",
+          "facing": 1,
+          "paletteIndex": 0,
+          "summary": {
+            "ticks": 121,
+            "missing": 0,
+            "requestedSheets": [
+              "idle",
+              "a03jumpsquat",
+              "jump",
+              "air_dodge",
+              "a04landingfallspecial"
+            ],
+            "landings": [
+              "{\"kind\":\"directional-air-dodge\"}"
+            ],
+            "activeMoves": [],
+            "drawnSheets": [
+              "char.link.idle",
+              "char.link.a03jumpsquat",
+              "char.link.jump",
+              "char.link.air_dodge",
+              "char.link.a04landingfallspecial"
+            ]
+          },
+          "authorityTraceSha256": "6e5f7ee3cd3a032a008df8679065bac29ac0ea758a92a583b1151b277e1e1a95"
+        },
+        {
+          "name": "air-spin",
+          "facing": 1,
+          "paletteIndex": 0,
+          "summary": {
+            "ticks": 159,
+            "missing": 0,
+            "requestedSheets": [
+              "idle",
+              "a03jumpsquat",
+              "jump",
+              "d02specialairhi",
+              "a04landingfallspecial"
+            ],
+            "landings": [
+              "{\"kind\":\"special\"}"
+            ],
+            "activeMoves": [
+              "link.up_special"
+            ],
+            "drawnSheets": [
+              "char.link.idle",
+              "char.link.a03jumpsquat",
+              "char.link.jump",
+              "char.link.d02specialairhi",
+              "char.link.a04landingfallspecial"
+            ]
+          },
+          "authorityTraceSha256": "03e2b5c7624f8b08f10ceb1d59b9e259464adad89dee0a79f4fc060ca56fb967"
+        },
+        {
+          "name": "air-bow",
+          "facing": 1,
+          "paletteIndex": 0,
+          "summary": {
+            "ticks": 133,
+            "missing": 0,
+            "requestedSheets": [
+              "idle",
+              "a03jumpsquat",
+              "jump",
+              "d02specialairhi",
+              "a04landingfallspecial"
+            ],
+            "landings": [
+              "{\"kind\":\"special\"}"
+            ],
+            "activeMoves": [
+              "link.up_special"
+            ],
+            "drawnSheets": [
+              "char.link.idle",
+              "char.link.a03jumpsquat",
+              "char.link.jump",
+              "char.link.d02specialairhi",
+              "char.link.a04landingfallspecial"
+            ]
+          },
+          "authorityTraceSha256": "5194463d6ca896c68e46bace62d887531dfe815bd91f1641294213ece9823803"
+        },
+        {
+          "name": "repeat-boomerang",
+          "facing": 1,
+          "paletteIndex": 0,
+          "summary": {
+            "ticks": 148,
+            "missing": 0,
+            "requestedSheets": [
+              "d01specials1",
+              "idle",
+              "d01specials2"
+            ],
+            "landings": [],
+            "activeMoves": [
+              "link.side_special"
+            ],
+            "drawnSheets": [
+              "char.link.d01specials1",
+              "char.link.idle",
+              "char.link.d01specials2"
+            ]
+          },
+          "authorityTraceSha256": "1f1d32f4112df89954fe2bdf486824f1bcc6a5343268c91078d3b6a9bbb680e9"
+        },
+        {
+          "name": "short-hop",
+          "facing": -1,
+          "paletteIndex": 3,
+          "summary": {
+            "ticks": 91,
+            "missing": 0,
+            "requestedSheets": [
+              "idle",
+              "a03jumpsquat",
+              "jump",
+              "fall",
+              "a05landinglight"
+            ],
+            "landings": [
+              "{\"kind\":\"soft\"}"
+            ],
+            "activeMoves": [],
+            "drawnSheets": [
+              "char.link.idle",
+              "char.link.a03jumpsquat",
+              "char.link.jump",
+              "char.link.fall",
+              "char.link.a05landinglight"
+            ]
+          },
+          "authorityTraceSha256": "89b698d86c03c4b059de31c70624b1a43b5c5684eaddf8a72730fbcb33cd4382"
+        },
+        {
+          "name": "full-jump",
+          "facing": -1,
+          "paletteIndex": 3,
+          "summary": {
+            "ticks": 110,
+            "missing": 0,
+            "requestedSheets": [
+              "idle",
+              "a03jumpsquat",
+              "jump",
+              "fall",
+              "a05landinglight"
+            ],
+            "landings": [
+              "{\"kind\":\"soft\"}"
+            ],
+            "activeMoves": [],
+            "drawnSheets": [
+              "char.link.idle",
+              "char.link.a03jumpsquat",
+              "char.link.jump",
+              "char.link.fall",
+              "char.link.a05landinglight"
+            ]
+          },
+          "authorityTraceSha256": "f3ed678e92197c88bed8714e8311abd873781ecc2c0614687e41a7bf352cb3bb"
+        },
+        {
+          "name": "double-jump",
+          "facing": -1,
+          "paletteIndex": 3,
+          "summary": {
+            "ticks": 132,
+            "missing": 0,
+            "requestedSheets": [
+              "idle",
+              "a03jumpsquat",
+              "jump",
+              "airjump",
+              "fall_aerial",
+              "a05landinglight"
+            ],
+            "landings": [
+              "{\"kind\":\"soft\"}"
+            ],
+            "activeMoves": [],
+            "drawnSheets": [
+              "char.link.idle",
+              "char.link.a03jumpsquat",
+              "char.link.jump",
+              "char.link.airjump",
+              "char.link.fall_aerial",
+              "char.link.a05landinglight"
+            ]
+          },
+          "authorityTraceSha256": "b4309e81f8348a7fdf67a8d06f5cf10cee44ce6d4b5477e54bf1c2c36d42252c"
+        },
+        {
+          "name": "nair",
+          "facing": -1,
+          "paletteIndex": 3,
+          "summary": {
+            "ticks": 121,
+            "missing": 0,
+            "requestedSheets": [
+              "idle",
+              "a03jumpsquat",
+              "jump",
+              "nair",
+              "landing_air_n"
+            ],
+            "landings": [
+              "{\"kind\":\"aerial\",\"moveId\":\"link.nair\",\"sourcePoseId\":\"link.nair\"}"
+            ],
+            "activeMoves": [
+              "link.nair"
+            ],
+            "drawnSheets": [
+              "char.link.idle",
+              "char.link.a03jumpsquat",
+              "char.link.jump",
+              "char.link.nair",
+              "char.link.landing_air_n"
+            ]
+          },
+          "authorityTraceSha256": "4e8ba41a86f3ffe822753cc8925dc7ef63cf1ce3a8c9d6129e75770676365d77"
+        },
+        {
+          "name": "fair",
+          "facing": -1,
+          "paletteIndex": 3,
+          "summary": {
+            "ticks": 121,
+            "missing": 0,
+            "requestedSheets": [
+              "idle",
+              "a03jumpsquat",
+              "jump",
+              "fair",
+              "landing_air_f"
+            ],
+            "landings": [
+              "{\"kind\":\"aerial\",\"moveId\":\"link.fair\",\"sourcePoseId\":\"link.fair\"}"
+            ],
+            "activeMoves": [
+              "link.fair"
+            ],
+            "drawnSheets": [
+              "char.link.idle",
+              "char.link.a03jumpsquat",
+              "char.link.jump",
+              "char.link.fair",
+              "char.link.landing_air_f"
+            ]
+          },
+          "authorityTraceSha256": "64adbda374b5bb9fcec4776f4022ec3ff20708bbd2213664ee9f3755eb5b8cba"
+        },
+        {
+          "name": "bair",
+          "facing": -1,
+          "paletteIndex": 3,
+          "summary": {
+            "ticks": 121,
+            "missing": 0,
+            "requestedSheets": [
+              "idle",
+              "a03jumpsquat",
+              "jump",
+              "bair",
+              "landing_air_b"
+            ],
+            "landings": [
+              "{\"kind\":\"aerial\",\"moveId\":\"link.bair\",\"sourcePoseId\":\"link.bair\"}"
+            ],
+            "activeMoves": [
+              "link.bair"
+            ],
+            "drawnSheets": [
+              "char.link.idle",
+              "char.link.a03jumpsquat",
+              "char.link.jump",
+              "char.link.bair",
+              "char.link.landing_air_b"
+            ]
+          },
+          "authorityTraceSha256": "3e7b0aa41907edbce656410d0433cd2599c6d61754bf69216dd3cf58e9c3d6a4"
+        },
+        {
+          "name": "uair",
+          "facing": -1,
+          "paletteIndex": 3,
+          "summary": {
+            "ticks": 121,
+            "missing": 0,
+            "requestedSheets": [
+              "idle",
+              "a03jumpsquat",
+              "jump",
+              "uair",
+              "a05landingheavy"
+            ],
+            "landings": [
+              "{\"kind\":\"hard\"}"
+            ],
+            "activeMoves": [
+              "link.uair"
+            ],
+            "drawnSheets": [
+              "char.link.idle",
+              "char.link.a03jumpsquat",
+              "char.link.jump",
+              "char.link.uair",
+              "char.link.a05landingheavy"
+            ]
+          },
+          "authorityTraceSha256": "9ded32fa274cc0ed45d3459d25afc445295c8b2d9c6971bccfe3f0c34a9a59a3"
+        },
+        {
+          "name": "dair",
+          "facing": -1,
+          "paletteIndex": 3,
+          "summary": {
+            "ticks": 121,
+            "missing": 0,
+            "requestedSheets": [
+              "idle",
+              "a03jumpsquat",
+              "jump",
+              "dair",
+              "landing_air_lw"
+            ],
+            "landings": [
+              "{\"kind\":\"aerial\",\"moveId\":\"link.dair\",\"sourcePoseId\":\"link.dair\"}"
+            ],
+            "activeMoves": [
+              "link.dair"
+            ],
+            "drawnSheets": [
+              "char.link.idle",
+              "char.link.a03jumpsquat",
+              "char.link.jump",
+              "char.link.dair",
+              "char.link.landing_air_lw"
+            ]
+          },
+          "authorityTraceSha256": "647af9acedb1d415f3cbb5a5584e6979c519c91632abc0977e16291aaa21f6b1"
+        },
+        {
+          "name": "air-dodge",
+          "facing": -1,
+          "paletteIndex": 3,
+          "summary": {
+            "ticks": 121,
+            "missing": 0,
+            "requestedSheets": [
+              "idle",
+              "a03jumpsquat",
+              "jump",
+              "air_dodge",
+              "a04landingfallspecial"
+            ],
+            "landings": [
+              "{\"kind\":\"air-dodge\"}"
+            ],
+            "activeMoves": [],
+            "drawnSheets": [
+              "char.link.idle",
+              "char.link.a03jumpsquat",
+              "char.link.jump",
+              "char.link.air_dodge",
+              "char.link.a04landingfallspecial"
+            ]
+          },
+          "authorityTraceSha256": "4d59c5fe4cadfcdeca75f7b5fd97f971887b6d4fd9363d3affcdaf7e5467198d"
+        },
+        {
+          "name": "directional-air-dodge",
+          "facing": -1,
+          "paletteIndex": 3,
+          "summary": {
+            "ticks": 121,
+            "missing": 0,
+            "requestedSheets": [
+              "idle",
+              "a03jumpsquat",
+              "jump",
+              "air_dodge",
+              "a04landingfallspecial"
+            ],
+            "landings": [
+              "{\"kind\":\"directional-air-dodge\"}"
+            ],
+            "activeMoves": [],
+            "drawnSheets": [
+              "char.link.idle",
+              "char.link.a03jumpsquat",
+              "char.link.jump",
+              "char.link.air_dodge",
+              "char.link.a04landingfallspecial"
+            ]
+          },
+          "authorityTraceSha256": "9adcbb80fccce1787927db26a7e433b0f3d0cf85427e44a48bed080d5096ced9"
+        },
+        {
+          "name": "air-spin",
+          "facing": -1,
+          "paletteIndex": 3,
+          "summary": {
+            "ticks": 159,
+            "missing": 0,
+            "requestedSheets": [
+              "idle",
+              "a03jumpsquat",
+              "jump",
+              "d02specialairhi",
+              "a04landingfallspecial"
+            ],
+            "landings": [
+              "{\"kind\":\"special\"}"
+            ],
+            "activeMoves": [
+              "link.up_special"
+            ],
+            "drawnSheets": [
+              "char.link.idle",
+              "char.link.a03jumpsquat",
+              "char.link.jump",
+              "char.link.d02specialairhi",
+              "char.link.a04landingfallspecial"
+            ]
+          },
+          "authorityTraceSha256": "03e2b5c7624f8b08f10ceb1d59b9e259464adad89dee0a79f4fc060ca56fb967"
+        },
+        {
+          "name": "air-bow",
+          "facing": -1,
+          "paletteIndex": 3,
+          "summary": {
+            "ticks": 133,
+            "missing": 0,
+            "requestedSheets": [
+              "idle",
+              "a03jumpsquat",
+              "jump",
+              "d02specialairhi",
+              "a04landingfallspecial"
+            ],
+            "landings": [
+              "{\"kind\":\"special\"}"
+            ],
+            "activeMoves": [
+              "link.up_special"
+            ],
+            "drawnSheets": [
+              "char.link.idle",
+              "char.link.a03jumpsquat",
+              "char.link.jump",
+              "char.link.d02specialairhi",
+              "char.link.a04landingfallspecial"
+            ]
+          },
+          "authorityTraceSha256": "5194463d6ca896c68e46bace62d887531dfe815bd91f1641294213ece9823803"
+        },
+        {
+          "name": "repeat-boomerang",
+          "facing": -1,
+          "paletteIndex": 3,
+          "summary": {
+            "ticks": 148,
+            "missing": 0,
+            "requestedSheets": [
+              "d01specials1",
+              "idle",
+              "d01specials2"
+            ],
+            "landings": [],
+            "activeMoves": [
+              "link.side_special"
+            ],
+            "drawnSheets": [
+              "char.link.d01specials1",
+              "char.link.idle",
+              "char.link.d01specials2"
+            ]
+          },
+          "authorityTraceSha256": "c5f9746ef176a1c9480ecba3ce6146b9fb14b444179856d5a356c674dcb95ff2"
+        }
+      ]
+    },
+    {
+      "label": "contexts-before",
+      "reportSha256": "91c8460b41fd81cf3520f12c4034daa211bf593fcfc3001c463370d4efd1f3d8",
+      "harnessSha256": "115d3179a0885c68dd1db04fd73510552a157ad8707ec03135c406711a335799",
+      "script": "http://127.0.0.1:4173/platform-fighter/assets/game-CDiv0wP3.js",
+      "browser": "155.0.4283.45",
+      "graphics": {
+        "renderer": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x0000A7A0) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "parallelShaderCompile": true
+      },
+      "cases": 10,
+      "measuredTicks": 958,
+      "errors": [],
+      "rows": [
+        {
+          "name": "authored-nair",
+          "facing": 1,
+          "paletteIndex": 0,
+          "summary": {
+            "ticks": 91,
+            "missing": 6,
+            "requestedSheets": [
+              "idle",
+              "a03jumpsquat",
+              "jump",
+              "nair",
+              "landing_aerial"
+            ],
+            "landings": [
+              "{\"kind\":\"aerial\",\"moveId\":\"visibility.saved.nair\",\"sourcePoseId\":\"link.nair\"}"
+            ],
+            "activeMoves": [
+              "visibility.saved.nair"
+            ],
+            "drawnSheets": [
+              "char.link.idle",
+              "char.link.a03jumpsquat",
+              "char.link.jump",
+              "char.link.nair",
+              null
+            ]
+          },
+          "authorityTraceSha256": "ddfe91169313d0562d6ee615bde5815aa9f734ef8d230825a133916cd5ecde7e"
+        },
+        {
+          "name": "uair-lag",
+          "facing": 1,
+          "paletteIndex": 0,
+          "summary": {
+            "ticks": 91,
+            "missing": 0,
+            "requestedSheets": [
+              "idle",
+              "a03jumpsquat",
+              "jump",
+              "uair",
+              "landing_air_hi"
+            ],
+            "landings": [
+              "{\"kind\":\"aerial\",\"moveId\":\"link.uair\",\"sourcePoseId\":\"link.uair\"}"
+            ],
+            "activeMoves": [
+              "link.uair"
+            ],
+            "drawnSheets": [
+              "char.link.idle",
+              "char.link.a03jumpsquat",
+              "char.link.jump",
+              "char.link.uair",
+              "char.link.landing_air_hi"
+            ]
+          },
+          "authorityTraceSha256": "906be6efbc8fc777e06b7630cbf7ce68a2b23632578b071d2a1c5c570f20d3fd"
+        },
+        {
+          "name": "air-bow",
+          "facing": 1,
+          "paletteIndex": 0,
+          "summary": {
+            "ticks": 135,
+            "missing": 0,
+            "requestedSheets": [
+              "idle",
+              "a03jumpsquat",
+              "jump",
+              "d02specialairhi",
+              "a04landingfallspecial"
+            ],
+            "landings": [
+              "{\"kind\":\"special\"}"
+            ],
+            "activeMoves": [
+              "link.up_special"
+            ],
+            "drawnSheets": [
+              "char.link.idle",
+              "char.link.a03jumpsquat",
+              "char.link.jump",
+              "char.link.d02specialairhi",
+              "char.link.a04landingfallspecial"
+            ]
+          },
+          "authorityTraceSha256": "3e0f8b1d26febb8ce4fde56a6154fad074ac573edd91aa2255252252e261e8a5"
+        },
+        {
+          "name": "footstool-recipient-ground",
+          "facing": 1,
+          "paletteIndex": 0,
+          "summary": {
+            "ticks": 71,
+            "missing": 9,
+            "requestedSheets": [
+              "footstool_pose",
+              "idle"
+            ],
+            "landings": [],
+            "activeMoves": [],
+            "drawnSheets": [
+              null,
+              "char.link.idle"
+            ]
+          },
+          "authorityTraceSha256": "8b117ae5fd2d48590bf530d825281c54151ca390329f5775952e6cf819d6f31c"
+        },
+        {
+          "name": "footstool-recipient-air",
+          "facing": 1,
+          "paletteIndex": 0,
+          "summary": {
+            "ticks": 91,
+            "missing": 31,
+            "requestedSheets": [
+              "footstool_air_pose",
+              "footstool_fall",
+              "f03downwaitu"
+            ],
+            "landings": [],
+            "activeMoves": [],
+            "drawnSheets": [
+              null,
+              "char.link.f03downwaitu"
+            ]
+          },
+          "authorityTraceSha256": "70368b24aed095c28c9c2c0c025b5e8ca4437147afc387bab8aabe7f1cd0cd9c"
+        },
+        {
+          "name": "authored-nair",
+          "facing": -1,
+          "paletteIndex": 3,
+          "summary": {
+            "ticks": 91,
+            "missing": 6,
+            "requestedSheets": [
+              "idle",
+              "a03jumpsquat",
+              "jump",
+              "nair",
+              "landing_aerial"
+            ],
+            "landings": [
+              "{\"kind\":\"aerial\",\"moveId\":\"visibility.saved.nair\",\"sourcePoseId\":\"link.nair\"}"
+            ],
+            "activeMoves": [
+              "visibility.saved.nair"
+            ],
+            "drawnSheets": [
+              "char.link.idle",
+              "char.link.a03jumpsquat",
+              "char.link.jump",
+              "char.link.nair",
+              null
+            ]
+          },
+          "authorityTraceSha256": "53a9faf2d80ff198ba873de12009a62f86718fc3e9a10e883d51e7b2f0411470"
+        },
+        {
+          "name": "uair-lag",
+          "facing": -1,
+          "paletteIndex": 3,
+          "summary": {
+            "ticks": 91,
+            "missing": 0,
+            "requestedSheets": [
+              "idle",
+              "a03jumpsquat",
+              "jump",
+              "uair",
+              "landing_air_hi"
+            ],
+            "landings": [
+              "{\"kind\":\"aerial\",\"moveId\":\"link.uair\",\"sourcePoseId\":\"link.uair\"}"
+            ],
+            "activeMoves": [
+              "link.uair"
+            ],
+            "drawnSheets": [
+              "char.link.idle",
+              "char.link.a03jumpsquat",
+              "char.link.jump",
+              "char.link.uair",
+              "char.link.landing_air_hi"
+            ]
+          },
+          "authorityTraceSha256": "a807865049a751352f0e427675813b94fad12ab275f834110743e9f821d219d8"
+        },
+        {
+          "name": "air-bow",
+          "facing": -1,
+          "paletteIndex": 3,
+          "summary": {
+            "ticks": 135,
+            "missing": 0,
+            "requestedSheets": [
+              "idle",
+              "a03jumpsquat",
+              "jump",
+              "d02specialairhi",
+              "a04landingfallspecial"
+            ],
+            "landings": [
+              "{\"kind\":\"special\"}"
+            ],
+            "activeMoves": [
+              "link.up_special"
+            ],
+            "drawnSheets": [
+              "char.link.idle",
+              "char.link.a03jumpsquat",
+              "char.link.jump",
+              "char.link.d02specialairhi",
+              "char.link.a04landingfallspecial"
+            ]
+          },
+          "authorityTraceSha256": "3e0f8b1d26febb8ce4fde56a6154fad074ac573edd91aa2255252252e261e8a5"
+        },
+        {
+          "name": "footstool-recipient-ground",
+          "facing": -1,
+          "paletteIndex": 3,
+          "summary": {
+            "ticks": 71,
+            "missing": 9,
+            "requestedSheets": [
+              "footstool_pose",
+              "idle"
+            ],
+            "landings": [],
+            "activeMoves": [],
+            "drawnSheets": [
+              null,
+              "char.link.idle"
+            ]
+          },
+          "authorityTraceSha256": "b35e26f1cfcdcea60e6f86d04f42c0963e4678bbdd8bb0fddb580ff4807e731b"
+        },
+        {
+          "name": "footstool-recipient-air",
+          "facing": -1,
+          "paletteIndex": 3,
+          "summary": {
+            "ticks": 91,
+            "missing": 31,
+            "requestedSheets": [
+              "footstool_air_pose",
+              "footstool_fall",
+              "f03downwaitu"
+            ],
+            "landings": [],
+            "activeMoves": [],
+            "drawnSheets": [
+              null,
+              "char.link.f03downwaitu"
+            ]
+          },
+          "authorityTraceSha256": "cd23803a11c3a49777df61ebd37e51d207c610bf1e0f921974e61620dea4ff47"
+        }
+      ],
+      "missingTicks": 92
+    },
+    {
+      "label": "contexts-after",
+      "reportSha256": "3cc8525302f9d1545fff676f1117277cc2dced65a89e1a97fd02aed8aef32327",
+      "harnessSha256": "6d47cabfdc599dbcb880a9f0b38080528fdf40d71136b9019ff4f1828680ab43",
+      "script": "http://127.0.0.1:4173/platform-fighter/assets/game-BNZfv5Ng.js",
+      "browser": "155.0.4283.45",
+      "graphics": {
+        "renderer": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x0000A7A0) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "parallelShaderCompile": true
+      },
+      "cases": 18,
+      "measuredTicks": 1604,
+      "errors": [],
+      "rows": [
+        {
+          "name": "authored-nair",
+          "facing": 1,
+          "paletteIndex": 0,
+          "summary": {
+            "ticks": 101,
+            "missing": 0,
+            "requestedSheets": [
+              "idle",
+              "a03jumpsquat",
+              "jump",
+              "nair",
+              "landing_air_n"
+            ],
+            "landings": [
+              "{\"kind\":\"aerial\",\"moveId\":\"visibility.saved.nair\",\"sourcePoseId\":\"link.nair\"}"
+            ],
+            "activeMoves": [
+              "visibility.saved.nair"
+            ],
+            "drawnSheets": [
+              "char.link.idle",
+              "char.link.a03jumpsquat",
+              "char.link.jump",
+              "char.link.nair",
+              "char.link.landing_air_n"
+            ]
+          },
+          "authorityTraceSha256": "d4b036924888414eb6f6fa3a29a3db7924483b0e03bfe96b1e1cf8e04c7137d4"
+        },
+        {
+          "name": "authored-fair",
+          "facing": 1,
+          "paletteIndex": 0,
+          "summary": {
+            "ticks": 101,
+            "missing": 0,
+            "requestedSheets": [
+              "idle",
+              "a03jumpsquat",
+              "jump",
+              "fair",
+              "landing_air_f"
+            ],
+            "landings": [
+              "{\"kind\":\"aerial\",\"moveId\":\"visibility.saved.fair\",\"sourcePoseId\":\"link.fair\"}"
+            ],
+            "activeMoves": [
+              "visibility.saved.fair"
+            ],
+            "drawnSheets": [
+              "char.link.idle",
+              "char.link.a03jumpsquat",
+              "char.link.jump",
+              "char.link.fair",
+              "char.link.landing_air_f"
+            ]
+          },
+          "authorityTraceSha256": "aa6a3add842f5af5e7a8505e2410d619fd1a66872d8b5e88a029bc30dab68541"
+        },
+        {
+          "name": "authored-bair",
+          "facing": 1,
+          "paletteIndex": 0,
+          "summary": {
+            "ticks": 101,
+            "missing": 0,
+            "requestedSheets": [
+              "idle",
+              "a03jumpsquat",
+              "jump",
+              "bair",
+              "landing_air_b"
+            ],
+            "landings": [
+              "{\"kind\":\"aerial\",\"moveId\":\"visibility.saved.bair\",\"sourcePoseId\":\"link.bair\"}"
+            ],
+            "activeMoves": [
+              "visibility.saved.bair"
+            ],
+            "drawnSheets": [
+              "char.link.idle",
+              "char.link.a03jumpsquat",
+              "char.link.jump",
+              "char.link.bair",
+              "char.link.landing_air_b"
+            ]
+          },
+          "authorityTraceSha256": "64111671fd66155f03ca26178dfee0f7d6a1bdb0a22f89b9b52dc55bc492d5ef"
+        },
+        {
+          "name": "authored-uair",
+          "facing": 1,
+          "paletteIndex": 0,
+          "summary": {
+            "ticks": 91,
+            "missing": 0,
+            "requestedSheets": [
+              "idle",
+              "a03jumpsquat",
+              "jump",
+              "uair",
+              "landing_air_hi"
+            ],
+            "landings": [
+              "{\"kind\":\"aerial\",\"moveId\":\"visibility.saved.uair\",\"sourcePoseId\":\"link.uair\"}"
+            ],
+            "activeMoves": [
+              "visibility.saved.uair"
+            ],
+            "drawnSheets": [
+              "char.link.idle",
+              "char.link.a03jumpsquat",
+              "char.link.jump",
+              "char.link.uair",
+              "char.link.landing_air_hi"
+            ]
+          },
+          "authorityTraceSha256": "daac08827f0912994999841762ebf73834322d79b35181db3c26670d309f7513"
+        },
+        {
+          "name": "authored-dair",
+          "facing": 1,
+          "paletteIndex": 0,
+          "summary": {
+            "ticks": 101,
+            "missing": 0,
+            "requestedSheets": [
+              "idle",
+              "a03jumpsquat",
+              "jump",
+              "dair",
+              "landing_air_lw"
+            ],
+            "landings": [
+              "{\"kind\":\"aerial\",\"moveId\":\"visibility.saved.dair\",\"sourcePoseId\":\"link.dair\"}"
+            ],
+            "activeMoves": [
+              "visibility.saved.dair"
+            ],
+            "drawnSheets": [
+              "char.link.idle",
+              "char.link.a03jumpsquat",
+              "char.link.jump",
+              "char.link.dair",
+              "char.link.landing_air_lw"
+            ]
+          },
+          "authorityTraceSha256": "9a8724ae50c9480d8e7511eaed60b2a957f0861143a5211040aef3f73b84cd37"
+        },
+        {
+          "name": "footstool-recipient-ground",
+          "facing": 1,
+          "paletteIndex": 0,
+          "summary": {
+            "ticks": 71,
+            "missing": 0,
+            "requestedSheets": [
+              "a06steppose",
+              "idle"
+            ],
+            "landings": [],
+            "activeMoves": [],
+            "drawnSheets": [
+              "char.link.a06steppose",
+              "char.link.idle"
+            ]
+          },
+          "authorityTraceSha256": "4b3c0c8073da19972d35c803d80ede40a93c67c36684ce7ab22dbbcb185cd62b"
+        },
+        {
+          "name": "footstool-recipient-back",
+          "facing": 1,
+          "paletteIndex": 0,
+          "summary": {
+            "ticks": 71,
+            "missing": 0,
+            "requestedSheets": [
+              "a06stepback",
+              "idle"
+            ],
+            "landings": [],
+            "activeMoves": [],
+            "drawnSheets": [
+              "char.link.a06stepback",
+              "char.link.idle"
+            ]
+          },
+          "authorityTraceSha256": "ea1164995a8777ffc0a864ff5990fec31bc75a27d7275514d7db9a85f17391b6"
+        },
+        {
+          "name": "footstool-recipient-air",
+          "facing": 1,
+          "paletteIndex": 0,
+          "summary": {
+            "ticks": 91,
+            "missing": 0,
+            "requestedSheets": [
+              "a06stepairpose",
+              "a06stepfall",
+              "f03downwaitu"
+            ],
+            "landings": [],
+            "activeMoves": [],
+            "drawnSheets": [
+              "char.link.a06stepairpose",
+              "char.link.a06stepfall",
+              "char.link.f03downwaitu"
+            ]
+          },
+          "authorityTraceSha256": "542d36df0034a167182f572736d3b09de987edd1e5dbb7dae5ef27ce2b876eb6"
+        },
+        {
+          "name": "footstool-performer",
+          "facing": 1,
+          "paletteIndex": 0,
+          "summary": {
+            "ticks": 74,
+            "missing": 0,
+            "requestedSheets": [
+              "a06stepjump",
+              "fall"
+            ],
+            "landings": [],
+            "activeMoves": [],
+            "drawnSheets": [
+              "char.link.a06stepjump",
+              "char.link.fall"
+            ]
+          },
+          "authorityTraceSha256": "a6bfdd153d0c649bf6e0154f8ec74157d6e90ba673e366b4d8b2d6f28b61e04d"
+        },
+        {
+          "name": "authored-nair",
+          "facing": -1,
+          "paletteIndex": 3,
+          "summary": {
+            "ticks": 101,
+            "missing": 0,
+            "requestedSheets": [
+              "idle",
+              "a03jumpsquat",
+              "jump",
+              "nair",
+              "landing_air_n"
+            ],
+            "landings": [
+              "{\"kind\":\"aerial\",\"moveId\":\"visibility.saved.nair\",\"sourcePoseId\":\"link.nair\"}"
+            ],
+            "activeMoves": [
+              "visibility.saved.nair"
+            ],
+            "drawnSheets": [
+              "char.link.idle",
+              "char.link.a03jumpsquat",
+              "char.link.jump",
+              "char.link.nair",
+              "char.link.landing_air_n"
+            ]
+          },
+          "authorityTraceSha256": "ef753efaeeae0a5c269368508511a9d416f0bf0bdd35316029b2d9816a7620a8"
+        },
+        {
+          "name": "authored-fair",
+          "facing": -1,
+          "paletteIndex": 3,
+          "summary": {
+            "ticks": 101,
+            "missing": 0,
+            "requestedSheets": [
+              "idle",
+              "a03jumpsquat",
+              "jump",
+              "fair",
+              "landing_air_f"
+            ],
+            "landings": [
+              "{\"kind\":\"aerial\",\"moveId\":\"visibility.saved.fair\",\"sourcePoseId\":\"link.fair\"}"
+            ],
+            "activeMoves": [
+              "visibility.saved.fair"
+            ],
+            "drawnSheets": [
+              "char.link.idle",
+              "char.link.a03jumpsquat",
+              "char.link.jump",
+              "char.link.fair",
+              "char.link.landing_air_f"
+            ]
+          },
+          "authorityTraceSha256": "2c6c0d4521bdb5cae5f4d6c9533fb9afd3977b7e8b114532f6a95deeed180eaf"
+        },
+        {
+          "name": "authored-bair",
+          "facing": -1,
+          "paletteIndex": 3,
+          "summary": {
+            "ticks": 101,
+            "missing": 0,
+            "requestedSheets": [
+              "idle",
+              "a03jumpsquat",
+              "jump",
+              "bair",
+              "landing_air_b"
+            ],
+            "landings": [
+              "{\"kind\":\"aerial\",\"moveId\":\"visibility.saved.bair\",\"sourcePoseId\":\"link.bair\"}"
+            ],
+            "activeMoves": [
+              "visibility.saved.bair"
+            ],
+            "drawnSheets": [
+              "char.link.idle",
+              "char.link.a03jumpsquat",
+              "char.link.jump",
+              "char.link.bair",
+              "char.link.landing_air_b"
+            ]
+          },
+          "authorityTraceSha256": "92133377a5fde1c5e9cc20d27ec5be43ebd22fe9c56f8c190b7210bb7968edde"
+        },
+        {
+          "name": "authored-uair",
+          "facing": -1,
+          "paletteIndex": 3,
+          "summary": {
+            "ticks": 91,
+            "missing": 0,
+            "requestedSheets": [
+              "idle",
+              "a03jumpsquat",
+              "jump",
+              "uair",
+              "landing_air_hi"
+            ],
+            "landings": [
+              "{\"kind\":\"aerial\",\"moveId\":\"visibility.saved.uair\",\"sourcePoseId\":\"link.uair\"}"
+            ],
+            "activeMoves": [
+              "visibility.saved.uair"
+            ],
+            "drawnSheets": [
+              "char.link.idle",
+              "char.link.a03jumpsquat",
+              "char.link.jump",
+              "char.link.uair",
+              "char.link.landing_air_hi"
+            ]
+          },
+          "authorityTraceSha256": "172a38109003231915b925128dc89b3bc6307687c1aa4bfa395cb2d490ed63d2"
+        },
+        {
+          "name": "authored-dair",
+          "facing": -1,
+          "paletteIndex": 3,
+          "summary": {
+            "ticks": 101,
+            "missing": 0,
+            "requestedSheets": [
+              "idle",
+              "a03jumpsquat",
+              "jump",
+              "dair",
+              "landing_air_lw"
+            ],
+            "landings": [
+              "{\"kind\":\"aerial\",\"moveId\":\"visibility.saved.dair\",\"sourcePoseId\":\"link.dair\"}"
+            ],
+            "activeMoves": [
+              "visibility.saved.dair"
+            ],
+            "drawnSheets": [
+              "char.link.idle",
+              "char.link.a03jumpsquat",
+              "char.link.jump",
+              "char.link.dair",
+              "char.link.landing_air_lw"
+            ]
+          },
+          "authorityTraceSha256": "ad4f59aa5f72c2dcb6f3610c266acb386f66e34b4c8b491539a8695c4591f63b"
+        },
+        {
+          "name": "footstool-recipient-ground",
+          "facing": -1,
+          "paletteIndex": 3,
+          "summary": {
+            "ticks": 71,
+            "missing": 0,
+            "requestedSheets": [
+              "a06steppose",
+              "idle"
+            ],
+            "landings": [],
+            "activeMoves": [],
+            "drawnSheets": [
+              "char.link.a06steppose",
+              "char.link.idle"
+            ]
+          },
+          "authorityTraceSha256": "f4ec18570d73a76d59866934fe33badb95901ac0fc2cd80826659c125403d3d3"
+        },
+        {
+          "name": "footstool-recipient-back",
+          "facing": -1,
+          "paletteIndex": 3,
+          "summary": {
+            "ticks": 71,
+            "missing": 0,
+            "requestedSheets": [
+              "a06stepback",
+              "idle"
+            ],
+            "landings": [],
+            "activeMoves": [],
+            "drawnSheets": [
+              "char.link.a06stepback",
+              "char.link.idle"
+            ]
+          },
+          "authorityTraceSha256": "6f28d8a27f1bdadf761c14bc184a33875939d104b76fe3ce384608c39760ced4"
+        },
+        {
+          "name": "footstool-recipient-air",
+          "facing": -1,
+          "paletteIndex": 3,
+          "summary": {
+            "ticks": 91,
+            "missing": 0,
+            "requestedSheets": [
+              "a06stepairpose",
+              "a06stepfall",
+              "f03downwaitu"
+            ],
+            "landings": [],
+            "activeMoves": [],
+            "drawnSheets": [
+              "char.link.a06stepairpose",
+              "char.link.a06stepfall",
+              "char.link.f03downwaitu"
+            ]
+          },
+          "authorityTraceSha256": "91b8ac4e654e1f83f976cf5e4b02c557cf25f6d03ee615d64912ebc8c3468512"
+        },
+        {
+          "name": "footstool-performer",
+          "facing": -1,
+          "paletteIndex": 3,
+          "summary": {
+            "ticks": 74,
+            "missing": 0,
+            "requestedSheets": [
+              "a06stepjump",
+              "fall"
+            ],
+            "landings": [],
+            "activeMoves": [],
+            "drawnSheets": [
+              "char.link.a06stepjump",
+              "char.link.fall"
+            ]
+          },
+          "authorityTraceSha256": "00c383219390ec39dbb3fb7f5b30921493b34185fc964b9e836736a005f3a16f"
+        }
+      ],
+      "missingTicks": 0
+    }
+  ],
+  "visualReview": {
+    "status": "PASS",
+    "observations": [
+      "Floating-platform aerial landing is visible.",
+      "Native air footstool fall shows actual Link body.",
+      "Performer jump shows body in left-facing palette3.",
+      "Allfive native footstool keys actually submitted; allfive aerial landing keys submitted."
+    ],
+    "reviewed": [
+      "contexts-after/authored-nair-right-landing.png",
+      "contexts-after/footstool-recipient-air-right-a06stepfall.png",
+      "contexts-after/footstool-performer-left-a06stepjump.png"
+    ]
+  },
+  "focusedTests": {
+    "files": 2,
+    "tests": 16,
+    "result": "PASS"
+  },
+  "newArt": {
+    "clips": 5,
+    "drawings": 49,
+    "pngBytes": 1296997,
+    "existing227ClipsUnchanged": true
+  },
+  "cleanup": "Full reports/screenshots/raw staged renders may be removed after coordinator visual review; retain this receipt, README, installed art, native input extraction, clip-plan and live regen tools."
+}

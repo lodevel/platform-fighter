@@ -67,7 +67,9 @@ describe('ASSET_MANIFEST structure', () => {
     // A packed fighter's sheets are its frames.json clips (char.<fighter>.<clip>), declared by that file.
     const packedKeys = ['donkeykong', 'link'].flatMap(fighter => Object.keys(JSON.parse(readFileSync(
       resolve(`assets/characters/${fighter}/frames.json`), 'utf8')).animations).map(clip => `char.${fighter}.${clip}`));
-    const declared = new Set<string>([...Object.values(ASSET_KEYS), ...packedKeys]);
+    const displayPages = Object.keys(JSON.parse(readFileSync(resolve('assets/characters/pikachu/final-visual-frames.json'), 'utf8')).pages)
+      .map(page => `char.pikachu.${page}`);
+    const declared = new Set<string>([...Object.values(ASSET_KEYS), ...packedKeys, ...displayPages]);
     const seen = new Set<string>();
     for (const entry of getAllAssetEntries()) {
       expect(declared.has(entry.key), entry.key).toBe(true);
@@ -77,8 +79,8 @@ describe('ASSET_MANIFEST structure', () => {
     // Pikachu reserves its complete action inventory before generation.
     // Pending keys must remain unloaded; accepted metadata is the asset gate.
     const reviewed = JSON.parse(readFileSync(resolve('assets/characters/pikachu/frames.json'), 'utf8'));
-    const acceptedPikachuKeys = new Set(Object.keys(reviewed.animations).map(sheet =>
-      `char.pikachu.${sheet === 'ftilt' ? 'tilt' : sheet}`));
+    const acceptedPikachuKeys = new Set([...displayPages, ...Object.keys(reviewed.animations).map(sheet =>
+      `char.pikachu.${sheet === 'ftilt' ? 'tilt' : sheet}`)]);
     for (const key of declared) {
       expect(seen.has(key), key).toBe(key.startsWith('char.pikachu.')
         ? acceptedPikachuKeys.has(key) : true);

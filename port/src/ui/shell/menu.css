@@ -4,6 +4,11 @@
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font: 500 16px/1.35 var(--ui); overflow: hidden; }
 button { font: inherit; color: inherit; }
+.frame-rate-meter {
+  position: fixed; top: 6px; left: 8px; z-index: 20; pointer-events: none; user-select: none;
+  padding: 2px 6px; border-radius: 4px; background: #101729c9; color: #ffffffd9;
+  font: 500 12px/1.4 var(--ui); font-variant-numeric: tabular-nums;
+}
 
 /* ---------- backdrop ---------- */
 #backdrop { position: fixed; inset: 0; }

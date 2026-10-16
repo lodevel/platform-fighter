@@ -1,0 +1,15 @@
+{
+  "result": "PASS",
+  "runtimeFilesByteIdentical": true,
+  "filesCompared": 787,
+  "sourceMapOnlyDifference": {
+    "file": "assets/presenter-CsMd4DuX.js.map",
+    "field": "sources",
+    "reason": "relative path to shared Three.js dependency from clean export"
+  },
+  "mainBundle": "game-BL2B4bsg.js",
+  "bundleSha256": "48155e265aac9c771902acdd733b5c219583c9bac30c84c54454bc5c3a16bea5",
+  "sourceIdentity": "platform-fighter-sha256-e236b17191fa7db98aa7d508f28193b773b06ffa7632a37ea0ea5570b51cd1d9",
+  "runtimeAssetCount": 743,
+  "localDependencies": "root package-lock; obsolete nested port/node_modules cache removed"
+}

@@ -1,0 +1,70 @@
+{
+  "result": "PASS",
+  "beforeScript": "http://127.0.0.1:4187/platform-fighter/assets/game-CDiv0wP3.js",
+  "afterScript": "http://127.0.0.1:4173/platform-fighter/assets/game-BNZfv5Ng.js",
+  "toleranceWorldPx": 0.5,
+  "rows": [
+    {
+      "facing": 1,
+      "beforeMaximumAnatomicalFloorGap": 37.98333569940439,
+      "afterMaximumAnatomicalFloorGap": 0.18333299940434244,
+      "authorityIdentical": true,
+      "authoritySha256": "20a56efb5726d042be1f697d172f328afb2a2d32ac2c54277b861340b47412a9",
+      "reachableDrawings": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "actualSubmittedResidentEveryProneTick": true,
+      "savedKeyboardGetup": {
+        "kind": "keyboard",
+        "keyCode": 87
+      }
+    },
+    {
+      "facing": -1,
+      "beforeMaximumAnatomicalFloorGap": 37.98333569940439,
+      "afterMaximumAnatomicalFloorGap": 0.18333299940434244,
+      "authorityIdentical": true,
+      "authoritySha256": "f7185dd83eee3df5904162d6f41989af536b76b629d06d43f36df89db7279e94",
+      "reachableDrawings": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "actualSubmittedResidentEveryProneTick": true,
+      "savedKeyboardGetup": {
+        "kind": "keyboard",
+        "keyCode": 87
+      }
+    }
+  ],
+  "browserProfilesRemoved": {
+    "before": true,
+    "after": true
+  },
+  "acceptedReviewCleanup": {
+    "completedAtUtc": "2026-10-16T11:48:40.135553+00:00",
+    "generatedDirectoriesRemoved": 6,
+    "separatelyListedReviewImagesRemoved": 7,
+    "totalFilesRemoved": 639,
+    "bytesRemoved": 181769349,
+    "trackedFilesRemoved": 0,
+    "requiredInputsAndFixturesRetained": true,
+    "scope": "Exact reviewed DK/Pikachu plan: six generated directories and seven review images; native/libs inputs, installed assets, tests, recipes, tools and compact numeric/source records retained."
+  }
+}

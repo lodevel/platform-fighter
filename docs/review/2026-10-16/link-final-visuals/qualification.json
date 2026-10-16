@@ -1,0 +1,279 @@
+{
+  "scope": "Link Final visual correction: four seeded production scenarios, ground/air and right miss/left hit, palettes0/3. Not a complete fighter audit.",
+  "input": "Real saved DOM special binding; explicit resource grant and deterministic positions. Each tick calls host.step once and draws the returned view.",
+  "result": "PASS",
+  "comparison": {
+    "identicalAuthorityTicks": 494,
+    "compared": [
+      "digest before/after draw",
+      "actor positions/roots/velocities/grounding/damage/hitlag/hurtboxes",
+      "Final controls/phase/clocks",
+      "article states",
+      "explosion damage areas",
+      "events"
+    ],
+    "bodyFramesUnchanged": {
+      "ground": 72,
+      "air": 57
+    }
+  },
+  "focusedTests": {
+    "tests": 12,
+    "files": 1,
+    "result": "PASS"
+  },
+  "typecheck": "PASS",
+  "visualReview": {
+    "status": "PASS",
+    "reviewed": [
+      "ground-right-miss-age-55.png",
+      "ground-right-miss-age-61.png",
+      "ground-left-hit-age-55.png",
+      "air-right-miss-age-24.png",
+      "air-left-hit-age-55.png",
+      "air-left-hit-age-61.png",
+      "air-left-hit-arrow-fighter-blast.png"
+    ],
+    "observations": [
+      "Loaded arrow follows both hands in either facing, with deliberate foreshortening during the draw.",
+      "Charge flare is legible without hiding Link body or bow silhouette.",
+      "Release flare and native flying arrow remain visible.",
+      "Tracer fills actual observed travel segment in either direction and ends at the clamped collision point.",
+      "Actual fighter blast and airborne victim remain readable."
+    ],
+    "coordinatorReview": [
+      "ground-right-miss-age-55.png",
+      "ground-right-miss-arrow-fly.png",
+      "ground-right-miss-age-61.png"
+    ],
+    "reviewedCaptureHashes": {
+      "ground-right-miss-age-55.png": "e3e60b81eca058c248e79f11b3e3d6b65e73fec5af68363ec9e1075b84b86035",
+      "ground-right-miss-age-61.png": "30e1f00cc71d78cb86710db40f27ebed6ba7ff854c1bb750424a27f7f27d7d35",
+      "ground-left-hit-age-55.png": "58abc0b2bec4f171c53ccb1854fde60f32d65114f7b91525131097e02842ff74",
+      "air-right-miss-age-24.png": "62de6bb810d03a6da01b4dacfc492f7739bcfaf56bd9bfeb07f0bf3fe2944498",
+      "air-left-hit-age-55.png": "09720bca1896fb617b6267686643fe0f594c620d74a759e1518889ec856b053d",
+      "air-left-hit-age-61.png": "2a6fc07dfbc7ab61959e7025df6b62dab5cdbfd7a1cca30266d5dd744cd5c407",
+      "air-left-hit-arrow-fighter-blast.png": "275227ea17dd363c84331b146e3a2e644128ab8a86581e8f93b1e82eabc519bc"
+    },
+    "independentReview": {
+      "agent": "render",
+      "status": "PASS",
+      "reviewed": [
+        "ground-right-miss-age-55.png",
+        "ground-right-miss-age-61.png",
+        "ground-left-hit-age-55.png",
+        "air-left-hit-age-55.png",
+        "air-left-hit-age-61.png"
+      ],
+      "observations": "Loaded arrow and charge glow clear at bow; travel strip clarifies motion; mirrored hand fit reads correctly; no obstruction or capture artifact. Airborne charge follows bow, leftward release/travel and opponent hit are readable; captures clean."
+    }
+  },
+  "provenance": {
+    "nativeSource": "Have held-article flare0/hold35; owner Final shoot60/detach63; retained native body-hand projections.",
+    "authored": [
+      "Owner0/35 mapping of held-article0/35 pending source generation timing",
+      "Projected two-hand arrow fit and foreshortening because common article parenting is unrecovered",
+      "Light shape/color/intensity and short release flash"
+    ],
+    "sourceBundle": "sources/native-hand-projections.json",
+    "generator": "tools/link-final-visual-anchors.py",
+    "newRasterAssets": 0
+  },
+  "runs": [
+    {
+      "label": "before",
+      "script": "http://127.0.0.1:4187/platform-fighter/assets/game-CDiv0wP3.js",
+      "sourceBuild": "platform-fighter-sha256-8801bf0c4941c9a7c639cf2e69652ebf398af18acdabbc36bd02a82cb722b757",
+      "browser": "155.0.4283.45",
+      "graphics": {
+        "renderer": "WebKit WebGL",
+        "unmaskedRenderer": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x0000A7A0) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      },
+      "harnessSha256": "9965f81e203379efeafcd4c4475dc4c684cb4b9d7913c4be0caba9f96824b96b",
+      "reportSha256": "c7f7d1f638e6ac754db34ed6cbb0e1d568b77fb3fef1c125c695883ca1344ace",
+      "errors": [],
+      "rows": [
+        {
+          "key": "ground-right-miss",
+          "ticks": 143,
+          "distinctOwnerDrawings": 72,
+          "ownerKeys": [
+            "char.link.d04final"
+          ],
+          "missingOwnerTicks": 0,
+          "loadedArrowTicks": 0,
+          "maxDamage": 0,
+          "arrowPhases": [
+            "fly"
+          ],
+          "firstAuthorityDigest": "76f38c4542a9b605",
+          "lastAuthorityDigest": "be6e56cdb685f509",
+          "authorityTraceSha256": "272826ddf32aa4435220daa6ece41c6b018d06579350e4bfd5d269266da9bfd1",
+          "ownerFrameSequenceSha256": "13d86472bd265bcd01b740a9ff23a1c4367155767db3045f61dac7821deab147"
+        },
+        {
+          "key": "ground-left-hit",
+          "ticks": 143,
+          "distinctOwnerDrawings": 72,
+          "ownerKeys": [
+            "char.link.d04final"
+          ],
+          "missingOwnerTicks": 0,
+          "loadedArrowTicks": 0,
+          "maxDamage": 44.1,
+          "arrowPhases": [
+            "fly",
+            "fighter-blast"
+          ],
+          "firstAuthorityDigest": "06be87dbb7ef8ae6",
+          "lastAuthorityDigest": "65dad9b8dd4ca264",
+          "authorityTraceSha256": "f370fc8b73c3fa9bf5e69b59f42d09b9828515fecd72caceb10e3706faf1478c",
+          "ownerFrameSequenceSha256": "13d86472bd265bcd01b740a9ff23a1c4367155767db3045f61dac7821deab147"
+        },
+        {
+          "key": "air-right-miss",
+          "ticks": 104,
+          "distinctOwnerDrawings": 57,
+          "ownerKeys": [
+            "char.link.d04finalair"
+          ],
+          "missingOwnerTicks": 0,
+          "loadedArrowTicks": 0,
+          "maxDamage": 0,
+          "arrowPhases": [
+            "fly"
+          ],
+          "firstAuthorityDigest": "01785ee3eb55372d",
+          "lastAuthorityDigest": "c134e71bfd4a9c23",
+          "authorityTraceSha256": "67416717b97e0cd9f75544a5c7d2f2e6b9060642973a1bda4ab7f98c0798552b",
+          "ownerFrameSequenceSha256": "df98d4886768a496ac7b1bf0cea791c2d3757c78e2ee0badb4dd25fddba2b46f"
+        },
+        {
+          "key": "air-left-hit",
+          "ticks": 104,
+          "distinctOwnerDrawings": 57,
+          "ownerKeys": [
+            "char.link.d04finalair"
+          ],
+          "missingOwnerTicks": 0,
+          "loadedArrowTicks": 0,
+          "maxDamage": 44.1,
+          "arrowPhases": [
+            "fly",
+            "fighter-blast"
+          ],
+          "firstAuthorityDigest": "cc863c42586fba9b",
+          "lastAuthorityDigest": "32f7bdd77a452cd6",
+          "authorityTraceSha256": "efdbd9b503a5f078fdfec822771700630c9171b3bfa54c8fa930760a46299f3a",
+          "ownerFrameSequenceSha256": "df98d4886768a496ac7b1bf0cea791c2d3757c78e2ee0badb4dd25fddba2b46f"
+        }
+      ]
+    },
+    {
+      "label": "after",
+      "script": "http://127.0.0.1:4173/platform-fighter/assets/game-_LoddHLw.js",
+      "sourceBuild": "platform-fighter-sha256-e236b17191fa7db98aa7d508f28193b773b06ffa7632a37ea0ea5570b51cd1d9",
+      "browser": "155.0.4283.45",
+      "graphics": {
+        "renderer": "WebKit WebGL",
+        "unmaskedRenderer": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x0000A7A0) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+      },
+      "harnessSha256": "e04cf4d6b5c80ce53a53c07168423c938428957ffc2632ef2e4d2b29992b588b",
+      "reportSha256": "5f7c7d15e7581943580bea1eb16bf10c096f32c82c8777ce0e0c124b45d5667c",
+      "errors": [],
+      "rows": [
+        {
+          "key": "ground-right-miss",
+          "ticks": 143,
+          "distinctOwnerDrawings": 72,
+          "ownerKeys": [
+            "char.link.d04final"
+          ],
+          "missingOwnerTicks": 0,
+          "loadedArrowTicks": 60,
+          "maxDamage": 0,
+          "arrowPhases": [
+            "fly"
+          ],
+          "firstAuthorityDigest": "76f38c4542a9b605",
+          "lastAuthorityDigest": "be6e56cdb685f509",
+          "authorityTraceSha256": "272826ddf32aa4435220daa6ece41c6b018d06579350e4bfd5d269266da9bfd1",
+          "ownerFrameSequenceSha256": "13d86472bd265bcd01b740a9ff23a1c4367155767db3045f61dac7821deab147"
+        },
+        {
+          "key": "ground-left-hit",
+          "ticks": 143,
+          "distinctOwnerDrawings": 72,
+          "ownerKeys": [
+            "char.link.d04final"
+          ],
+          "missingOwnerTicks": 0,
+          "loadedArrowTicks": 60,
+          "maxDamage": 44.1,
+          "arrowPhases": [
+            "fly",
+            "fighter-blast"
+          ],
+          "firstAuthorityDigest": "06be87dbb7ef8ae6",
+          "lastAuthorityDigest": "65dad9b8dd4ca264",
+          "authorityTraceSha256": "f370fc8b73c3fa9bf5e69b59f42d09b9828515fecd72caceb10e3706faf1478c",
+          "ownerFrameSequenceSha256": "13d86472bd265bcd01b740a9ff23a1c4367155767db3045f61dac7821deab147"
+        },
+        {
+          "key": "air-right-miss",
+          "ticks": 104,
+          "distinctOwnerDrawings": 57,
+          "ownerKeys": [
+            "char.link.d04finalair"
+          ],
+          "missingOwnerTicks": 0,
+          "loadedArrowTicks": 60,
+          "maxDamage": 0,
+          "arrowPhases": [
+            "fly"
+          ],
+          "firstAuthorityDigest": "01785ee3eb55372d",
+          "lastAuthorityDigest": "c134e71bfd4a9c23",
+          "authorityTraceSha256": "67416717b97e0cd9f75544a5c7d2f2e6b9060642973a1bda4ab7f98c0798552b",
+          "ownerFrameSequenceSha256": "df98d4886768a496ac7b1bf0cea791c2d3757c78e2ee0badb4dd25fddba2b46f"
+        },
+        {
+          "key": "air-left-hit",
+          "ticks": 104,
+          "distinctOwnerDrawings": 57,
+          "ownerKeys": [
+            "char.link.d04finalair"
+          ],
+          "missingOwnerTicks": 0,
+          "loadedArrowTicks": 60,
+          "maxDamage": 44.1,
+          "arrowPhases": [
+            "fly",
+            "fighter-blast"
+          ],
+          "firstAuthorityDigest": "cc863c42586fba9b",
+          "lastAuthorityDigest": "32f7bdd77a452cd6",
+          "authorityTraceSha256": "efdbd9b503a5f078fdfec822771700630c9171b3bfa54c8fa930760a46299f3a",
+          "ownerFrameSequenceSha256": "df98d4886768a496ac7b1bf0cea791c2d3757c78e2ee0badb4dd25fddba2b46f"
+        }
+      ]
+    }
+  ],
+  "naturalRaf": {
+    "qualification": "../final-visual-pacing/qualification.json",
+    "linkFirstMaximumMs": 34.7,
+    "linkRepeatMaximumBeforeMs": 14.1,
+    "linkRepeatMaximumAfterMs": 14.4,
+    "p95RangeMs": [
+      13.9,
+      14.0
+    ],
+    "gapsOver50Ms": 0,
+    "longTasks": 0,
+    "shaderCompileLinkCalls": 0,
+    "warmRepeatTextureUploadDelta": 0,
+    "sourceTicksUnchanged": 143,
+    "ownerDrawingsUnchanged": 72,
+    "scope": "Independent render-agent natural RAF cold/repeat Link miss; not all possible hardware or interactions."
+  }
+}

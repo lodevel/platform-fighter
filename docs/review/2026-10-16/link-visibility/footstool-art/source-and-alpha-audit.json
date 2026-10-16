@@ -1,0 +1,156 @@
+{
+  "clips": [
+    {
+      "sheet": "a06stepairpose",
+      "motion": {
+        "path": "assets/gen/link-native-reference/extracted/fighter/link/motion/body/c00/a06stepairpose.nuanmb",
+        "sha256": "b787e2b4d4bfcfad271c9c86773ea34463b2781831a310808be43318b74b1b2e",
+        "finalFrameIndex": 8.0,
+        "groupTypes": [
+          "<GroupType.Transform: 1>",
+          "<GroupType.Visibility: 2>",
+          "<GroupType.Material: 4>"
+        ]
+      },
+      "sourceHashMatches": true,
+      "drawings": 5,
+      "alphaPixelsAt32": [
+        10786,
+        10521,
+        10242,
+        13362,
+        12719
+      ],
+      "minimumAlphaPixels": 10242,
+      "pngBytes": 131057,
+      "decodedRGBABytes": 794880
+    },
+    {
+      "sheet": "a06stepback",
+      "motion": {
+        "path": "assets/gen/link-native-reference/extracted/fighter/link/motion/body/c00/a06stepback.nuanmb",
+        "sha256": "cc85ef4732ca17f3191853f0ea0de8f670d67c583e76eb755b5bbfaef707fc5d",
+        "finalFrameIndex": 23.0,
+        "groupTypes": [
+          "<GroupType.Transform: 1>",
+          "<GroupType.Visibility: 2>",
+          "<GroupType.Material: 4>"
+        ]
+      },
+      "sourceHashMatches": true,
+      "drawings": 13,
+      "alphaPixelsAt32": [
+        12035,
+        12014,
+        12207,
+        12558,
+        12970,
+        13171,
+        12764,
+        13166,
+        13808,
+        14085,
+        14112,
+        14069,
+        14066
+      ],
+      "minimumAlphaPixels": 12014,
+      "pngBytes": 369590,
+      "decodedRGBABytes": 1595392
+    },
+    {
+      "sheet": "a06stepfall",
+      "motion": {
+        "path": "assets/gen/link-native-reference/extracted/fighter/link/motion/body/c00/a06stepfall.nuanmb",
+        "sha256": "69a70072e316ded9ffa6994c12f85884088c8c2d65c98a40373c17a00af1192a",
+        "finalFrameIndex": 40.0,
+        "groupTypes": [
+          "<GroupType.Transform: 1>",
+          "<GroupType.Visibility: 2>",
+          "<GroupType.Material: 4>"
+        ]
+      },
+      "sourceHashMatches": true,
+      "drawings": 21,
+      "alphaPixelsAt32": [
+        12716,
+        12719,
+        12537,
+        11802,
+        11446,
+        11108,
+        11119,
+        11236,
+        11143,
+        11036,
+        10958,
+        10994,
+        10966,
+        10998,
+        10928,
+        11153,
+        11664,
+        12182,
+        12702,
+        12896,
+        12716
+      ],
+      "minimumAlphaPixels": 10928,
+      "pngBytes": 530137,
+      "decodedRGBABytes": 2790720
+    },
+    {
+      "sheet": "a06stepjump",
+      "motion": {
+        "path": "assets/gen/link-native-reference/extracted/fighter/link/motion/body/c00/a06stepjump.nuanmb",
+        "sha256": "09bc4a2d1f569e81a65cec88d84aa136db69b7e89466f19d6f29ed8e4cf29fa3",
+        "finalFrameIndex": 8.0,
+        "groupTypes": [
+          "<GroupType.Transform: 1>",
+          "<GroupType.Visibility: 2>",
+          "<GroupType.Material: 4>"
+        ]
+      },
+      "sourceHashMatches": true,
+      "drawings": 5,
+      "alphaPixelsAt32": [
+        11673,
+        10981,
+        11239,
+        11129,
+        13926
+      ],
+      "minimumAlphaPixels": 10981,
+      "pngBytes": 130975,
+      "decodedRGBABytes": 522240
+    },
+    {
+      "sheet": "a06steppose",
+      "motion": {
+        "path": "assets/gen/link-native-reference/extracted/fighter/link/motion/body/c00/a06steppose.nuanmb",
+        "sha256": "7ca70ed559c5562105a4aad4031e81009fc4ff88f8bec3cd33e2b60e6852990e",
+        "finalFrameIndex": 8.0,
+        "groupTypes": [
+          "<GroupType.Transform: 1>",
+          "<GroupType.Visibility: 2>",
+          "<GroupType.Material: 4>"
+        ]
+      },
+      "sourceHashMatches": true,
+      "drawings": 5,
+      "alphaPixelsAt32": [
+        13496,
+        12455,
+        12205,
+        11642,
+        12029
+      ],
+      "minimumAlphaPixels": 11642,
+      "pngBytes": 135238,
+      "decodedRGBABytes": 619264
+    }
+  ],
+  "drawings": 49,
+  "allSourceHashesMatch": true,
+  "allDrawingsNonempty": true
+}

@@ -4,6 +4,8 @@ A local platform fighter with **Three.js arenas, HTML menus and a deterministic
 Matter.js simulation**. Play Donkey Kong, Pikachu and Link with up to four
 human or CPU players, six built-in arenas, items and Final Smash rules.
 Keyboard and gamepad controls support saved per-player profiles.
+The upper-left FPS counter shows rendered frames per second in menus and matches;
+gameplay advances independently at 60 fixed steps per second.
 
 ## Run
 
@@ -18,8 +20,9 @@ npm test
 
 Local previews serve sprites and audio directly from `assets/`. For a standalone
 static hosting artifact, run `npm run build:static`; it copies only the runtime
-files referenced by the asset manifest. Personal images in `port/private/` stay
-local and use the procedural fallback when absent.
+files referenced by the asset manifest. The Inferno head is included at
+`assets/stages/inferno-head.png`, so a clone and standalone build use the same
+stage artwork.
 
 ## Code
 

@@ -1,0 +1,11 @@
+{
+  "result": "PASS",
+  "semanticSamples": 423,
+  "acceptedOriginalDrawingsByteExact": 187,
+  "pages": 14,
+  "decodedBytes": 179202240,
+  "authoritativeFramesSha256": "dc81e58e217e2bca3e8f224f572a88f1d16decb2f23f5f29bc2fa19d66e07d9c",
+  "bankSha256": "fdd0ec876569c15b919f6ebc02165ff9db6d89ddfa60ecb83af948c90f5da80a",
+  "generatorSha256": "0614f9b2facbe40158d143acc87badaa358ac2165374f1cb978898a37c190e99",
+  "installerSha256": "7a6f3681f73958a66fd48490899f21424a218f54aeaa2a4c83d4120ecaf60086"
+}

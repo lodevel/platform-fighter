@@ -1,0 +1,17 @@
+{
+  "result": "COMPLETE",
+  "scope": "Only completed owned build copies, capture outputs and obsolete nested dependency cache; installed assets, source inputs and root dependencies retained",
+  "directories": [
+    ".tmp/game-bugs-before-dist",
+    ".tmp/game-bugs-base-fps-dist",
+    ".tmp/game-bugs-before-site",
+    ".tmp/rendering-baseline",
+    ".tmp/push-checkout",
+    ".tmp/game-fixes-checkout",
+    ".tmp/game-fixes-clean-browser",
+    ".tmp/port-node-modules-legacy-before-gamefixes"
+  ],
+  "fileCount": 15877,
+  "logicalBytes": 1724685817,
+  "retained": "native/model/texture/motion data, Python dependency cache, root node_modules, runtime assets, tests, regeneration tools/recipes and compact qualification records"
+}
