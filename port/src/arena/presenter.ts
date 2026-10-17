@@ -42,6 +42,7 @@ export class StagePresenter {
   constructor(private readonly host: HTMLElement, private readonly fit: 'contain' | 'cover' = 'contain') {
     this.renderer = createRenderer(host);
     this.renderer.info.autoReset = false;
+    this.sprites.textures.attachRenderer(this.renderer);
     addEventListener('resize', () => this.refit());
     this.refit();
   }

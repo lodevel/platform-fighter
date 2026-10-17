@@ -24,7 +24,8 @@ const simulationBuildIdentity = (): Plugin => ({
 
 const ASSETS = path.resolve(__dirname, '../assets');
 const PRIVATE = path.resolve(__dirname, 'private');
-const MIME: Record<string, string> = { '.png': 'image/png', '.json': 'application/json', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.ogg': 'audio/ogg', '.mp3': 'audio/mpeg', '.wav': 'audio/wav' };
+const BASIS = path.resolve(__dirname, '../node_modules/three/examples/jsm/libs/basis');
+const MIME: Record<string, string> = { '.png': 'image/png', '.ktx2': 'image/ktx2', '.wasm': 'application/wasm', '.js': 'text/javascript', '.json': 'application/json', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.ogg': 'audio/ogg', '.mp3': 'audio/mpeg', '.wav': 'audio/wav' };
 
 /** Serve files under `root` at `mount` (no copy into the build). */
 function serveDir(mount: string, root: string) {
@@ -41,17 +42,23 @@ function serveDir(mount: string, root: string) {
 /**
  * ../assets is served by the preview server instead of being copied into
  * every build; port/private (personal pictures) is served by dev and preview
- * only, so it never reaches a build or a deploy.
+ * only, so it never reaches a build or a deploy. three's KTX2 transcoder is
+ * served at basis/ by both, as the deploy copy places it.
  */
 const sharedFiles = (): Plugin => ({
   name: 'shared-files',
-  configureServer(server) { server.middlewares.use(serveDir('/private/', PRIVATE)); },
+  configureServer(server) {
+    server.middlewares.use(serveDir('/private/', PRIVATE));
+    server.middlewares.use(serveDir('/basis/', BASIS));
+  },
   configurePreviewServer(server) {
     server.middlewares.use(serveDir('/private/', PRIVATE));
+    server.middlewares.use(serveDir('/basis/', BASIS));
     server.middlewares.use(serveDir('/', ASSETS));
     const base = server.config.base;
     if (base !== '/') {
       server.middlewares.use(serveDir(`${base}private/`, PRIVATE));
+      server.middlewares.use(serveDir(`${base}basis/`, BASIS));
       server.middlewares.use(serveDir(base, ASSETS));
     }
   },

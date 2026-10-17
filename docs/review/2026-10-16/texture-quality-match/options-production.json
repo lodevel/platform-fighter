@@ -1,0 +1,15 @@
+{
+ "storageBefore": null,
+ "optionsText": "OPTIONS\n\nGame options\n\nChanges apply right away and are saved on this device.\n\nTEXTURE QUALITY\n‹\nFull quality\n›\nOriginal sprites. Applies to the next match.\nBack\n↑\n↓\nsetting\n←\n→\nchange\nEsc\nB\nback",
+ "storageAfter": "{\"textureQuality\":\"compressed\"}",
+ "optionsTextAfter": "OPTIONS\n\nGame options\n\nChanges apply right away and are saved on this device.\n\nTEXTURE QUALITY\n‹\nCompressed\n›\nFighter sprites use about 4× less memory. Outlines may differ by a pixel in alternative costumes. Detected: bptc, s3tc.\nBack\n↑\n↓\nsetting\n←\n→\nchange\nEsc\nB\nback",
+ "match": {
+  "textureQuality": "compressed",
+  "formats": {
+   "bc7": 425
+  },
+  "fallbacks": 0,
+  "textureMiB": 242.9925994873047
+ },
+ "errors": []
+}

@@ -3,6 +3,7 @@ import '@fontsource/chakra-petch/500.css';
 import '@fontsource/chakra-petch/600.css';
 import '../ui/shell/menu.css';
 import { isUnlocked } from '../../../src/config/accessGate';
+import { loadGameSettings } from '../../../src/config/gameSettings';
 import { SCREENS } from '../ui/screens';
 import { StagePresenter } from '../arena/presenter';
 import { MenuInput } from '../ui/shell/input';
@@ -20,6 +21,8 @@ import { version } from '../../../package.json';
  */
 
 const presenter = new StagePresenter(document.getElementById('backdrop')!, 'cover');
+// Before any screen loads sprites, so the first match uses the saved quality.
+presenter.sprites.textures.setTextureQuality(loadGameSettings().textureQuality);
 const vignette = document.querySelector<HTMLElement>('.vignette')!;
 const host = document.getElementById('screens')!;
 const input = new MenuInput();

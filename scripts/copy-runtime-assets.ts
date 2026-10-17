@@ -1,7 +1,7 @@
 /** Standalone hosting artifact: copy only manifest-referenced runtime files.
  * Local previews serve the same files directly from assets/, avoiding copies
  * of source captures, pose-generation work and personal images per build. */
-import { copyFileSync, mkdirSync } from 'node:fs';
+import { cpSync, copyFileSync, existsSync, mkdirSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { getAllAssetEntries } from '../src/assets/manifest';
 
@@ -17,4 +17,19 @@ for (const url of files) {
   mkdirSync(path.dirname(target), { recursive: true });
   copyFileSync(path.join(root, 'assets', relative), target);
 }
-process.stdout.write(`Copied ${files.size} runtime assets into dist/\n`);
+
+// Optional compressed fighter sheets (tools/encode-compressed-sheets.py) and the Basis transcoder that reads them.
+const countFiles = (dir: string): number =>
+  readdirSync(dir, { withFileTypes: true }).reduce((n, e) => n + (e.isDirectory() ? countFiles(path.join(dir, e.name)) : 1), 0);
+let compressed = 0;
+for (const id of readdirSync(path.join(root, 'assets/characters'))) {
+  const source = path.join(root, 'assets/characters', id, 'compressed');
+  if (!existsSync(source)) continue;
+  cpSync(source, path.join(root, 'dist/characters', id, 'compressed'), { recursive: true });
+  compressed += countFiles(source);
+}
+const basis = path.join(root, 'node_modules/three/examples/jsm/libs/basis');
+mkdirSync(path.join(root, 'dist/basis'), { recursive: true });
+for (const name of ['basis_transcoder.js', 'basis_transcoder.wasm'])
+  copyFileSync(path.join(basis, name), path.join(root, 'dist/basis', name));
+process.stdout.write(`Copied ${files.size} runtime assets, ${compressed} compressed sheet files and the Basis transcoder into dist/\n`);

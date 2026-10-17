@@ -11,6 +11,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "assets:copy": "tsx scripts/copy-runtime-assets.ts",
+    "assets:compress": "python3 tools/encode-compressed-sheets.py",
     "build:static": "npm run build && npm run assets:copy"
   },
   "keywords": [

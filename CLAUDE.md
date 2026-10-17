@@ -164,7 +164,9 @@ coordinate contract before transforming article, socket or camera positions.
 entries; URLs go through `import.meta.env.BASE_URL` because production is
 served under `/platform-fighter/`. Fighters are recoloured at runtime
 (`paletteSwapShader.ts` / `runtimePaletteRenderer.ts`); there is no build-time
-palette step. Generated art in `assets/gen/`
+palette step. Compressed (KTX2) fighter sheets for the optional texture quality
+are git-ignored; `tools/build-basisu.sh` then `npm run assets:compress` builds
+them locally, and the Pages deploy does the same. Generated art in `assets/gen/`
 is git-ignored except clip-spec JSON. Art direction is locked to
 Brawlhalla-style clean 2D cartoon, not pixel art (`docs/ART-STYLE.md`);
 generation runs through a local ComfyUI via `tools/` (`docs/ART-PIPELINE.md`).

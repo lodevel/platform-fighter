@@ -1,0 +1,1811 @@
+{
+ "schema": "texture-quality-match/1",
+ "url": "http://127.0.0.1:4173/platform-fighter/",
+ "frames": 1200,
+ "config": {
+  "mode": "stocks",
+  "stockCount": 9,
+  "stageId": "flat",
+  "rngSeed": 20261016,
+  "itemFrequency": "off",
+  "linkIntroPolicy": "none",
+  "finalSmashRules": {
+   "schemaVersion": 1,
+   "meterEnabled": false,
+   "smashBallEnabled": false
+  },
+  "players": [
+   {
+    "index": 1,
+    "characterId": "donkeykong",
+    "paletteIndex": 0,
+    "inputType": "ai",
+    "aiDifficulty": "hard"
+   },
+   {
+    "index": 2,
+    "characterId": "link",
+    "paletteIndex": 1,
+    "inputType": "ai",
+    "aiDifficulty": "hard"
+   },
+   {
+    "index": 3,
+    "characterId": "pikachu",
+    "paletteIndex": 2,
+    "inputType": "ai",
+    "aiDifficulty": "hard"
+   }
+  ]
+ },
+ "runs": [
+  {
+   "quality": "full",
+   "script": "http://127.0.0.1:4173/platform-fighter/assets/game-C0AF7Q68.js",
+   "gpu": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x0000A7A0) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+   "preparation": {
+    "ms": 5044.79999999702
+   },
+   "afterLoad": {
+    "textures": {
+     "textureQuality": "full",
+     "resident": 711,
+     "characterFormats": {
+      "rgba8": {
+       "sheets": 657,
+       "textureBytes": 1306859968
+      }
+     },
+     "textureBytes": 1308625984,
+     "rgbaBytes": 1308625984,
+     "fallbacks": 0,
+     "fallbackSample": [],
+     "pending": 0,
+     "renderer": {
+      "geometries": 108,
+      "textures": 17
+     }
+    },
+    "process": {
+     "processes": 19,
+     "workingSet": 3242876928,
+     "privateBytes": 2672066560,
+     "gpuProcessPrivateBytes": 625532928,
+     "rendererPrivateBytes": 1829982208,
+     "gpuDedicated": 0,
+     "gpuShared": 476803072,
+     "rows": [
+      {
+       "pid": 27812,
+       "type": "browser",
+       "workingSet": 234434560,
+       "privateBytes": 103084032,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 26984,
+       "type": "crashpad-handler",
+       "workingSet": 10674176,
+       "privateBytes": 2633728,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 23620,
+       "type": "gpu-process",
+       "workingSet": 652767232,
+       "privateBytes": 625532928,
+       "gpuDedicated": 0,
+       "gpuShared": 476803072
+      },
+      {
+       "pid": 27708,
+       "type": "utility",
+       "workingSet": 104730624,
+       "privateBytes": 77619200,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 30524,
+       "type": "utility",
+       "workingSet": 20455424,
+       "privateBytes": 8093696,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 25416,
+       "type": "renderer",
+       "workingSet": 62984192,
+       "privateBytes": 25595904,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 19036,
+       "type": "renderer",
+       "workingSet": 49852416,
+       "privateBytes": 21377024,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 9096,
+       "type": "renderer",
+       "workingSet": 46837760,
+       "privateBytes": 21712896,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 11736,
+       "type": "renderer",
+       "workingSet": 48336896,
+       "privateBytes": 21270528,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 21240,
+       "type": "utility",
+       "workingSet": 18006016,
+       "privateBytes": 7405568,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 9612,
+       "type": "renderer",
+       "workingSet": 46481408,
+       "privateBytes": 20549632,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 12292,
+       "type": "renderer",
+       "workingSet": 46501888,
+       "privateBytes": 20553728,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 9816,
+       "type": "renderer",
+       "workingSet": 51142656,
+       "privateBytes": 25219072,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 24608,
+       "type": "renderer",
+       "workingSet": 51019776,
+       "privateBytes": 29118464,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 22004,
+       "type": "renderer",
+       "workingSet": 1615241216,
+       "privateBytes": 1557360640,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 11436,
+       "type": "utility",
+       "workingSet": 24461312,
+       "privateBytes": 8478720,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 18980,
+       "type": "utility",
+       "workingSet": 22208512,
+       "privateBytes": 9236480,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 25896,
+       "type": "renderer",
+       "workingSet": 102162432,
+       "privateBytes": 69578752,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 13748,
+       "type": "renderer",
+       "workingSet": 34578432,
+       "privateBytes": 17645568,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      }
+     ]
+    }
+   },
+   "timing": {
+    "frames": 1200,
+    "meanMs": 3.9606666666579744,
+    "p50": 3.5,
+    "p95": 7.200000002980232,
+    "p99": 9.800000004470348,
+    "max": 46.79999999701977,
+    "over16ms": 2,
+    "over33ms": 1,
+    "worst": [
+     {
+      "frame": 0,
+      "ms": 46.79999999701977
+     },
+     {
+      "frame": 129,
+      "ms": 20.30000000447035
+     },
+     {
+      "frame": 152,
+      "ms": 14
+     },
+     {
+      "frame": 130,
+      "ms": 13.099999994039536
+     },
+     {
+      "frame": 1,
+      "ms": 12.200000002980232
+     },
+     {
+      "frame": 115,
+      "ms": 12
+     },
+     {
+      "frame": 17,
+      "ms": 11.600000001490116
+     },
+     {
+      "frame": 2,
+      "ms": 11.100000001490116
+     }
+    ]
+   },
+   "afterPlay": {
+    "textures": {
+     "textureQuality": "full",
+     "resident": 711,
+     "characterFormats": {
+      "rgba8": {
+       "sheets": 657,
+       "textureBytes": 1306859968
+      }
+     },
+     "textureBytes": 1308625984,
+     "rgbaBytes": 1308625984,
+     "fallbacks": 0,
+     "fallbackSample": [],
+     "pending": 0,
+     "renderer": {
+      "geometries": 112,
+      "textures": 89
+     }
+    },
+    "process": {
+     "processes": 19,
+     "workingSet": 3532357632,
+     "privateBytes": 2974347264,
+     "gpuProcessPrivateBytes": 787103744,
+     "rendererPrivateBytes": 1964728320,
+     "gpuDedicated": 0,
+     "gpuShared": 681418752,
+     "rows": [
+      {
+       "pid": 27812,
+       "type": "browser",
+       "workingSet": 237150208,
+       "privateBytes": 107606016,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 26984,
+       "type": "crashpad-handler",
+       "workingSet": 10674176,
+       "privateBytes": 2633728,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 23620,
+       "type": "gpu-process",
+       "workingSet": 814292992,
+       "privateBytes": 787103744,
+       "gpuDedicated": 0,
+       "gpuShared": 681418752
+      },
+      {
+       "pid": 27708,
+       "type": "utility",
+       "workingSet": 106029056,
+       "privateBytes": 79060992,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 30524,
+       "type": "utility",
+       "workingSet": 20459520,
+       "privateBytes": 8093696,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 25416,
+       "type": "renderer",
+       "workingSet": 62992384,
+       "privateBytes": 25600000,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 19036,
+       "type": "renderer",
+       "workingSet": 49418240,
+       "privateBytes": 20860928,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 9096,
+       "type": "renderer",
+       "workingSet": 46858240,
+       "privateBytes": 21716992,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 11736,
+       "type": "renderer",
+       "workingSet": 48353280,
+       "privateBytes": 21270528,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 21240,
+       "type": "utility",
+       "workingSet": 18014208,
+       "privateBytes": 7405568,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 9612,
+       "type": "renderer",
+       "workingSet": 46518272,
+       "privateBytes": 20549632,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 12292,
+       "type": "renderer",
+       "workingSet": 46538752,
+       "privateBytes": 20553728,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 9816,
+       "type": "renderer",
+       "workingSet": 51163136,
+       "privateBytes": 25223168,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 24608,
+       "type": "renderer",
+       "workingSet": 49979392,
+       "privateBytes": 27865088,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 22004,
+       "type": "renderer",
+       "workingSet": 1658204160,
+       "privateBytes": 1602707456,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 11436,
+       "type": "utility",
+       "workingSet": 24465408,
+       "privateBytes": 8478720,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 18980,
+       "type": "utility",
+       "workingSet": 22216704,
+       "privateBytes": 9236480,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 25896,
+       "type": "renderer",
+       "workingSet": 184401920,
+       "privateBytes": 160710656,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 13748,
+       "type": "renderer",
+       "workingSet": 34627584,
+       "privateBytes": 17670144,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      }
+     ]
+    }
+   },
+   "jsHeap": {
+    "used": 52244752,
+    "total": 88306208
+   },
+   "play": [
+    {
+     "characterId": null,
+     "damage": 37.19205,
+     "stocks": null
+    },
+    {
+     "characterId": null,
+     "damage": 69.74205,
+     "stocks": null
+    },
+    {
+     "characterId": null,
+     "damage": 44.1,
+     "stocks": null
+    }
+   ],
+   "fault": null,
+   "errors": [
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)"
+   ]
+  },
+  {
+   "quality": "compressed",
+   "script": "http://127.0.0.1:4173/platform-fighter/assets/game-C0AF7Q68.js",
+   "gpu": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x0000A7A0) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+   "preparation": {
+    "ms": 3715.1999999955297
+   },
+   "afterLoad": {
+    "textures": {
+     "textureQuality": "compressed",
+     "resident": 711,
+     "characterFormats": {
+      "bc7": {
+       "sheets": 657,
+       "textureBytes": 326807280
+      }
+     },
+     "textureBytes": 328573296,
+     "rgbaBytes": 1308995136,
+     "fallbacks": 0,
+     "fallbackSample": [],
+     "pending": 0,
+     "renderer": {
+      "geometries": 108,
+      "textures": 23
+     }
+    },
+    "process": {
+     "processes": 19,
+     "workingSet": 2401038336,
+     "privateBytes": 1948205056,
+     "gpuProcessPrivateBytes": 496013312,
+     "rendererPrivateBytes": 1237188608,
+     "gpuDedicated": 0,
+     "gpuShared": 349757440,
+     "rows": [
+      {
+       "pid": 7856,
+       "type": "browser",
+       "workingSet": 224624640,
+       "privateBytes": 97009664,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 17120,
+       "type": "crashpad-handler",
+       "workingSet": 10678272,
+       "privateBytes": 2637824,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 29060,
+       "type": "gpu-process",
+       "workingSet": 521035776,
+       "privateBytes": 496013312,
+       "gpuDedicated": 0,
+       "gpuShared": 349757440
+      },
+      {
+       "pid": 27928,
+       "type": "utility",
+       "workingSet": 101138432,
+       "privateBytes": 74088448,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 28564,
+       "type": "utility",
+       "workingSet": 20353024,
+       "privateBytes": 8056832,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 28328,
+       "type": "renderer",
+       "workingSet": 65716224,
+       "privateBytes": 28581888,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 12704,
+       "type": "renderer",
+       "workingSet": 47001600,
+       "privateBytes": 20054016,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 26992,
+       "type": "renderer",
+       "workingSet": 46460928,
+       "privateBytes": 20582400,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 18656,
+       "type": "renderer",
+       "workingSet": 47996928,
+       "privateBytes": 21123072,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 27864,
+       "type": "utility",
+       "workingSet": 17989632,
+       "privateBytes": 7368704,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 1100,
+       "type": "renderer",
+       "workingSet": 48971776,
+       "privateBytes": 23306240,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 24804,
+       "type": "renderer",
+       "workingSet": 46112768,
+       "privateBytes": 20451328,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 12500,
+       "type": "renderer",
+       "workingSet": 49725440,
+       "privateBytes": 23326720,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 22872,
+       "type": "renderer",
+       "workingSet": 50610176,
+       "privateBytes": 28987392,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 26096,
+       "type": "renderer",
+       "workingSet": 37126144,
+       "privateBytes": 20389888,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 24628,
+       "type": "renderer",
+       "workingSet": 1000058880,
+       "privateBytes": 1030385664,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 11016,
+       "type": "utility",
+       "workingSet": 24412160,
+       "privateBytes": 8445952,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 6408,
+       "type": "utility",
+       "workingSet": 22200320,
+       "privateBytes": 9224192,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 12772,
+       "type": "utility",
+       "workingSet": 18825216,
+       "privateBytes": 8171520,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      }
+     ]
+    }
+   },
+   "timing": {
+    "frames": 1200,
+    "meanMs": 4.242833333332092,
+    "p50": 3.8000000044703484,
+    "p95": 7.199999995529652,
+    "p99": 9.200000002980232,
+    "max": 28,
+    "over16ms": 2,
+    "over33ms": 0,
+    "worst": [
+     {
+      "frame": 0,
+      "ms": 28
+     },
+     {
+      "frame": 129,
+      "ms": 20
+     },
+     {
+      "frame": 152,
+      "ms": 16.100000001490116
+     },
+     {
+      "frame": 186,
+      "ms": 12.199999995529652
+     },
+     {
+      "frame": 508,
+      "ms": 11.399999998509884
+     },
+     {
+      "frame": 130,
+      "ms": 10.5
+     },
+     {
+      "frame": 50,
+      "ms": 10.400000005960464
+     },
+     {
+      "frame": 53,
+      "ms": 10
+     }
+    ]
+   },
+   "afterPlay": {
+    "textures": {
+     "textureQuality": "compressed",
+     "resident": 711,
+     "characterFormats": {
+      "bc7": {
+       "sheets": 657,
+       "textureBytes": 326807280
+      }
+     },
+     "textureBytes": 328573296,
+     "rgbaBytes": 1308995136,
+     "fallbacks": 0,
+     "fallbackSample": [],
+     "pending": 0,
+     "renderer": {
+      "geometries": 112,
+      "textures": 95
+     }
+    },
+    "process": {
+     "processes": 19,
+     "workingSet": 2406973440,
+     "privateBytes": 1844215808,
+     "gpuProcessPrivateBytes": 490987520,
+     "rendererPrivateBytes": 1134186496,
+     "gpuDedicated": 0,
+     "gpuShared": 356929536,
+     "rows": [
+      {
+       "pid": 7856,
+       "type": "browser",
+       "workingSet": 238055424,
+       "privateBytes": 107970560,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 17120,
+       "type": "crashpad-handler",
+       "workingSet": 10678272,
+       "privateBytes": 2637824,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 29060,
+       "type": "gpu-process",
+       "workingSet": 519020544,
+       "privateBytes": 490987520,
+       "gpuDedicated": 0,
+       "gpuShared": 356929536
+      },
+      {
+       "pid": 27928,
+       "type": "utility",
+       "workingSet": 102420480,
+       "privateBytes": 75317248,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 28564,
+       "type": "utility",
+       "workingSet": 20443136,
+       "privateBytes": 8077312,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 28328,
+       "type": "renderer",
+       "workingSet": 66056192,
+       "privateBytes": 28692480,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 12704,
+       "type": "renderer",
+       "workingSet": 49500160,
+       "privateBytes": 20860928,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 26992,
+       "type": "renderer",
+       "workingSet": 46841856,
+       "privateBytes": 20676608,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 18656,
+       "type": "renderer",
+       "workingSet": 48336896,
+       "privateBytes": 21258240,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 27864,
+       "type": "utility",
+       "workingSet": 17997824,
+       "privateBytes": 7368704,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 1100,
+       "type": "renderer",
+       "workingSet": 49385472,
+       "privateBytes": 23412736,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 24804,
+       "type": "renderer",
+       "workingSet": 46514176,
+       "privateBytes": 20549632,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 12500,
+       "type": "renderer",
+       "workingSet": 50085888,
+       "privateBytes": 23429120,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 22872,
+       "type": "renderer",
+       "workingSet": 49930240,
+       "privateBytes": 27824128,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 24628,
+       "type": "renderer",
+       "workingSet": 829173760,
+       "privateBytes": 771895296,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 11016,
+       "type": "utility",
+       "workingSet": 24428544,
+       "privateBytes": 8445952,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 6408,
+       "type": "utility",
+       "workingSet": 22208512,
+       "privateBytes": 9224192,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 7144,
+       "type": "renderer",
+       "workingSet": 181252096,
+       "privateBytes": 157896704,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 28892,
+       "type": "renderer",
+       "workingSet": 34643968,
+       "privateBytes": 17690624,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      }
+     ]
+    }
+   },
+   "jsHeap": {
+    "used": 389154840,
+    "total": 418826364
+   },
+   "play": [
+    {
+     "characterId": null,
+     "damage": 37.19205,
+     "stocks": null
+    },
+    {
+     "characterId": null,
+     "damage": 69.74205,
+     "stocks": null
+    },
+    {
+     "characterId": null,
+     "damage": 44.1,
+     "stocks": null
+    }
+   ],
+   "fault": null,
+   "errors": [
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)"
+   ]
+  },
+  {
+   "quality": "compressed",
+   "script": "http://127.0.0.1:4173/platform-fighter/assets/game-C0AF7Q68.js",
+   "gpu": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x0000A7A0) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+   "preparation": {
+    "ms": 3888.5
+   },
+   "afterLoad": {
+    "textures": {
+     "textureQuality": "compressed",
+     "resident": 711,
+     "characterFormats": {
+      "bc7": {
+       "sheets": 657,
+       "textureBytes": 326807280
+      }
+     },
+     "textureBytes": 328573296,
+     "rgbaBytes": 1308995136,
+     "fallbacks": 0,
+     "fallbackSample": [],
+     "pending": 0,
+     "renderer": {
+      "geometries": 108,
+      "textures": 23
+     }
+    },
+    "process": {
+     "processes": 19,
+     "workingSet": 2410196992,
+     "privateBytes": 1946624000,
+     "gpuProcessPrivateBytes": 502579200,
+     "rendererPrivateBytes": 1228767232,
+     "gpuDedicated": 0,
+     "gpuShared": 345018368,
+     "rows": [
+      {
+       "pid": 1404,
+       "type": "browser",
+       "workingSet": 224555008,
+       "privateBytes": 96964608,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 30516,
+       "type": "crashpad-handler",
+       "workingSet": 10678272,
+       "privateBytes": 2633728,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 18980,
+       "type": "gpu-process",
+       "workingSet": 528388096,
+       "privateBytes": 502579200,
+       "gpuDedicated": 0,
+       "gpuShared": 345018368
+      },
+      {
+       "pid": 20220,
+       "type": "utility",
+       "workingSet": 101773312,
+       "privateBytes": 74629120,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 29624,
+       "type": "utility",
+       "workingSet": 20430848,
+       "privateBytes": 8081408,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 25436,
+       "type": "renderer",
+       "workingSet": 62853120,
+       "privateBytes": 26771456,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 23620,
+       "type": "renderer",
+       "workingSet": 46956544,
+       "privateBytes": 20033536,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 27936,
+       "type": "renderer",
+       "workingSet": 46342144,
+       "privateBytes": 20443136,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 15468,
+       "type": "renderer",
+       "workingSet": 48070656,
+       "privateBytes": 21200896,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 19800,
+       "type": "utility",
+       "workingSet": 18010112,
+       "privateBytes": 7401472,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 26108,
+       "type": "renderer",
+       "workingSet": 46116864,
+       "privateBytes": 20443136,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 27780,
+       "type": "renderer",
+       "workingSet": 46125056,
+       "privateBytes": 20463616,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 27796,
+       "type": "renderer",
+       "workingSet": 49483776,
+       "privateBytes": 22720512,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 7436,
+       "type": "renderer",
+       "workingSet": 47792128,
+       "privateBytes": 26169344,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 26164,
+       "type": "renderer",
+       "workingSet": 34320384,
+       "privateBytes": 17551360,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 3584,
+       "type": "renderer",
+       "workingSet": 1013227520,
+       "privateBytes": 1032970240,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 28792,
+       "type": "utility",
+       "workingSet": 24432640,
+       "privateBytes": 8458240,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 30100,
+       "type": "utility",
+       "workingSet": 22192128,
+       "privateBytes": 9228288,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 27732,
+       "type": "utility",
+       "workingSet": 18448384,
+       "privateBytes": 7880704,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      }
+     ]
+    }
+   },
+   "timing": {
+    "frames": 1200,
+    "meanMs": 4.253083333310982,
+    "p50": 4,
+    "p95": 6.799999997019768,
+    "p99": 8.200000002980232,
+    "max": 31.600000001490116,
+    "over16ms": 2,
+    "over33ms": 0,
+    "worst": [
+     {
+      "frame": 0,
+      "ms": 31.600000001490116
+     },
+     {
+      "frame": 152,
+      "ms": 16.69999999552965
+     },
+     {
+      "frame": 536,
+      "ms": 11.200000002980232
+     },
+     {
+      "frame": 129,
+      "ms": 10.899999998509884
+     },
+     {
+      "frame": 372,
+      "ms": 10.299999997019768
+     },
+     {
+      "frame": 539,
+      "ms": 9.900000005960464
+     },
+     {
+      "frame": 240,
+      "ms": 8.5
+     },
+     {
+      "frame": 751,
+      "ms": 8.5
+     }
+    ]
+   },
+   "afterPlay": {
+    "textures": {
+     "textureQuality": "compressed",
+     "resident": 711,
+     "characterFormats": {
+      "bc7": {
+       "sheets": 657,
+       "textureBytes": 326807280
+      }
+     },
+     "textureBytes": 328573296,
+     "rgbaBytes": 1308995136,
+     "fallbacks": 0,
+     "fallbackSample": [],
+     "pending": 0,
+     "renderer": {
+      "geometries": 112,
+      "textures": 95
+     }
+    },
+    "process": {
+     "processes": 19,
+     "workingSet": 2357854208,
+     "privateBytes": 1784143872,
+     "gpuProcessPrivateBytes": 484556800,
+     "rendererPrivateBytes": 1089236992,
+     "gpuDedicated": 0,
+     "gpuShared": 350363648,
+     "rows": [
+      {
+       "pid": 1404,
+       "type": "browser",
+       "workingSet": 228839424,
+       "privateBytes": 98734080,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 30516,
+       "type": "crashpad-handler",
+       "workingSet": 10678272,
+       "privateBytes": 2633728,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 18980,
+       "type": "gpu-process",
+       "workingSet": 512851968,
+       "privateBytes": 484556800,
+       "gpuDedicated": 0,
+       "gpuShared": 350363648
+      },
+      {
+       "pid": 20220,
+       "type": "utility",
+       "workingSet": 102936576,
+       "privateBytes": 75812864,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 29624,
+       "type": "utility",
+       "workingSet": 20434944,
+       "privateBytes": 8081408,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 25436,
+       "type": "renderer",
+       "workingSet": 63176704,
+       "privateBytes": 26869760,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 23620,
+       "type": "renderer",
+       "workingSet": 49451008,
+       "privateBytes": 20836352,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 27936,
+       "type": "renderer",
+       "workingSet": 46727168,
+       "privateBytes": 20549632,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 15468,
+       "type": "renderer",
+       "workingSet": 48394240,
+       "privateBytes": 21286912,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 19800,
+       "type": "utility",
+       "workingSet": 18018304,
+       "privateBytes": 7401472,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 26108,
+       "type": "renderer",
+       "workingSet": 46514176,
+       "privateBytes": 20545536,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 27780,
+       "type": "renderer",
+       "workingSet": 46546944,
+       "privateBytes": 20578304,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 27796,
+       "type": "renderer",
+       "workingSet": 49815552,
+       "privateBytes": 22786048,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 7436,
+       "type": "renderer",
+       "workingSet": 47149056,
+       "privateBytes": 25026560,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 3584,
+       "type": "renderer",
+       "workingSet": 832462848,
+       "privateBytes": 774873088,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 28792,
+       "type": "utility",
+       "workingSet": 24485888,
+       "privateBytes": 8458240,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 30100,
+       "type": "utility",
+       "workingSet": 22200320,
+       "privateBytes": 9228288,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 29412,
+       "type": "renderer",
+       "workingSet": 152514560,
+       "privateBytes": 118157312,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 4632,
+       "type": "renderer",
+       "workingSet": 34656256,
+       "privateBytes": 17727488,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      }
+     ]
+    }
+   },
+   "jsHeap": {
+    "used": 385960233,
+    "total": 416384517
+   },
+   "play": [
+    {
+     "characterId": null,
+     "damage": 37.19205,
+     "stocks": null
+    },
+    {
+     "characterId": null,
+     "damage": 69.74205,
+     "stocks": null
+    },
+    {
+     "characterId": null,
+     "damage": 44.1,
+     "stocks": null
+    }
+   ],
+   "fault": null,
+   "errors": [
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)"
+   ]
+  },
+  {
+   "quality": "full",
+   "script": "http://127.0.0.1:4173/platform-fighter/assets/game-C0AF7Q68.js",
+   "gpu": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x0000A7A0) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+   "preparation": {
+    "ms": 4566.39999999851
+   },
+   "afterLoad": {
+    "textures": {
+     "textureQuality": "full",
+     "resident": 711,
+     "characterFormats": {
+      "rgba8": {
+       "sheets": 657,
+       "textureBytes": 1306859968
+      }
+     },
+     "textureBytes": 1308625984,
+     "rgbaBytes": 1308625984,
+     "fallbacks": 0,
+     "fallbackSample": [],
+     "pending": 0,
+     "renderer": {
+      "geometries": 108,
+      "textures": 17
+     }
+    },
+    "process": {
+     "processes": 17,
+     "workingSet": 3088769024,
+     "privateBytes": 2573950976,
+     "gpuProcessPrivateBytes": 619294720,
+     "rendererPrivateBytes": 1743839232,
+     "gpuDedicated": 0,
+     "gpuShared": 474124288,
+     "rows": [
+      {
+       "pid": 25124,
+       "type": "browser",
+       "workingSet": 224976896,
+       "privateBytes": 96423936,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 18680,
+       "type": "crashpad-handler",
+       "workingSet": 10682368,
+       "privateBytes": 2637824,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 30140,
+       "type": "gpu-process",
+       "workingSet": 646443008,
+       "privateBytes": 619294720,
+       "gpuDedicated": 0,
+       "gpuShared": 474124288
+      },
+      {
+       "pid": 24852,
+       "type": "utility",
+       "workingSet": 105598976,
+       "privateBytes": 78561280,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 24992,
+       "type": "utility",
+       "workingSet": 20451328,
+       "privateBytes": 8089600,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 14848,
+       "type": "renderer",
+       "workingSet": 63025152,
+       "privateBytes": 25935872,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 27376,
+       "type": "renderer",
+       "workingSet": 47210496,
+       "privateBytes": 20099072,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 28992,
+       "type": "renderer",
+       "workingSet": 46653440,
+       "privateBytes": 20602880,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 22764,
+       "type": "renderer",
+       "workingSet": 48148480,
+       "privateBytes": 21143552,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 24012,
+       "type": "utility",
+       "workingSet": 18010112,
+       "privateBytes": 7405568,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 27764,
+       "type": "renderer",
+       "workingSet": 49156096,
+       "privateBytes": 23359488,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 6936,
+       "type": "renderer",
+       "workingSet": 49160192,
+       "privateBytes": 23355392,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 26496,
+       "type": "renderer",
+       "workingSet": 50458624,
+       "privateBytes": 25374720,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 2216,
+       "type": "renderer",
+       "workingSet": 50884608,
+       "privateBytes": 30081024,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 29500,
+       "type": "renderer",
+       "workingSet": 1611296768,
+       "privateBytes": 1553887232,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 25044,
+       "type": "utility",
+       "workingSet": 22196224,
+       "privateBytes": 9244672,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 30136,
+       "type": "utility",
+       "workingSet": 24416256,
+       "privateBytes": 8454144,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      }
+     ]
+    }
+   },
+   "timing": {
+    "frames": 1200,
+    "meanMs": 4.398833333340784,
+    "p50": 4,
+    "p95": 7.200000002980232,
+    "p99": 9.5,
+    "max": 25.80000000447035,
+    "over16ms": 1,
+    "over33ms": 0,
+    "worst": [
+     {
+      "frame": 0,
+      "ms": 25.80000000447035
+     },
+     {
+      "frame": 129,
+      "ms": 15.900000005960464
+     },
+     {
+      "frame": 81,
+      "ms": 11.5
+     },
+     {
+      "frame": 278,
+      "ms": 11.5
+     },
+     {
+      "frame": 122,
+      "ms": 11.100000001490116
+     },
+     {
+      "frame": 798,
+      "ms": 9.900000005960464
+     },
+     {
+      "frame": 335,
+      "ms": 9.899999998509884
+     },
+     {
+      "frame": 221,
+      "ms": 9.800000004470348
+     }
+    ]
+   },
+   "afterPlay": {
+    "textures": {
+     "textureQuality": "full",
+     "resident": 711,
+     "characterFormats": {
+      "rgba8": {
+       "sheets": 657,
+       "textureBytes": 1306859968
+      }
+     },
+     "textureBytes": 1308625984,
+     "rgbaBytes": 1308625984,
+     "fallbacks": 0,
+     "fallbackSample": [],
+     "pending": 0,
+     "renderer": {
+      "geometries": 112,
+      "textures": 89
+     }
+    },
+    "process": {
+     "processes": 19,
+     "workingSet": 3477827584,
+     "privateBytes": 2906669056,
+     "gpuProcessPrivateBytes": 801710080,
+     "rendererPrivateBytes": 1880883200,
+     "gpuDedicated": 0,
+     "gpuShared": 680972288,
+     "rows": [
+      {
+       "pid": 25124,
+       "type": "browser",
+       "workingSet": 237711360,
+       "privateBytes": 108154880,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 18680,
+       "type": "crashpad-handler",
+       "workingSet": 10682368,
+       "privateBytes": 2637824,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 30140,
+       "type": "gpu-process",
+       "workingSet": 828928000,
+       "privateBytes": 801710080,
+       "gpuDedicated": 0,
+       "gpuShared": 680972288
+      },
+      {
+       "pid": 24852,
+       "type": "utility",
+       "workingSet": 107184128,
+       "privateBytes": 80089088,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 24992,
+       "type": "utility",
+       "workingSet": 20455424,
+       "privateBytes": 8089600,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 14848,
+       "type": "renderer",
+       "workingSet": 63111168,
+       "privateBytes": 25956352,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 27376,
+       "type": "renderer",
+       "workingSet": 49467392,
+       "privateBytes": 20828160,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 28992,
+       "type": "renderer",
+       "workingSet": 46821376,
+       "privateBytes": 20627456,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 22764,
+       "type": "renderer",
+       "workingSet": 48275456,
+       "privateBytes": 21188608,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 24012,
+       "type": "utility",
+       "workingSet": 18018304,
+       "privateBytes": 7405568,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 27764,
+       "type": "renderer",
+       "workingSet": 49352704,
+       "privateBytes": 23384064,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 6936,
+       "type": "renderer",
+       "workingSet": 49360896,
+       "privateBytes": 23392256,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 26496,
+       "type": "renderer",
+       "workingSet": 50610176,
+       "privateBytes": 25387008,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 2216,
+       "type": "renderer",
+       "workingSet": 49942528,
+       "privateBytes": 28884992,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 29500,
+       "type": "renderer",
+       "workingSet": 1654317056,
+       "privateBytes": 1598144512,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 25044,
+       "type": "utility",
+       "workingSet": 22204416,
+       "privateBytes": 9244672,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 30136,
+       "type": "utility",
+       "workingSet": 24469504,
+       "privateBytes": 8454144,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 25924,
+       "type": "renderer",
+       "workingSet": 109453312,
+       "privateBytes": 72540160,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      },
+      {
+       "pid": 28264,
+       "type": "renderer",
+       "workingSet": 37462016,
+       "privateBytes": 20549632,
+       "gpuDedicated": 0,
+       "gpuShared": 0
+      }
+     ]
+    }
+   },
+   "jsHeap": {
+    "used": 53734360,
+    "total": 88568352
+   },
+   "play": [
+    {
+     "characterId": null,
+     "damage": 37.19205,
+     "stocks": null
+    },
+    {
+     "characterId": null,
+     "damage": 69.74205,
+     "stocks": null
+    },
+    {
+     "characterId": null,
+     "damage": 44.1,
+     "stocks": null
+    }
+   ],
+   "fault": null,
+   "errors": [
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)"
+   ]
+  }
+ ]
+}

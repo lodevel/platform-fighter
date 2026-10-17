@@ -1,5 +1,13 @@
 # Recommendation after three failed Link idle experiments
 
+> **Superseded 2026-10-16.** The user reviewed UASTC→BC7 renders at match zoom
+> through the production renderer and accepted the quality as an opt-in
+> texture-quality setting; PNG stays the default. See the
+> [texture compression probe](../../../2026-10-16/texture-compression-probe/README.md).
+> The texel-level gates below still fail and are not claimed as passed. The
+> pilot builder `port/scripts/build-ktx2.mjs` was replaced by
+> `tools/encode-compressed-sheets.py` and remains in git history.
+
 Keep the accepted PNG path in production and leave Link KTX2 explicitly
 unfinished. Original UASTC RGBA quality 2, original quality 4, and the newly
 executed opaque-RGB/lossless-alpha quality-4 experiment all fail the unchanged

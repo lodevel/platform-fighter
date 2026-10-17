@@ -37,7 +37,7 @@ export interface FlowData {
   readonly replayError?: string;
 }
 
-export type ScreenName = 'gate' | 'title' | 'controls' | 'rules' | 'fighters' | 'stages' | 'match' | 'results';
+export type ScreenName = 'gate' | 'title' | 'controls' | 'options' | 'rules' | 'fighters' | 'stages' | 'match' | 'results';
 
 export interface BackdropOptions {
   readonly stage: string;

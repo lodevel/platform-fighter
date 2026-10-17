@@ -180,12 +180,18 @@ would leave roughly 396 MiB. A representative density/motion pilot must show
 whether the envelope and desired appearance can coexist before the numerical
 policy is adopted or a full conversion begins.
 
-The uncompressed fallback must fit. GPU compression can provide additional
-savings after its quality and device-support gates pass. The
+The uncompressed fallback must fit. GPU compression provides additional
+savings as an opt-in texture-quality setting (Options menu, default "Full
+quality" PNG). The
 [Link compression pilots](review/2026-10-15/user-bugs/link/ktx2-pilot/RECOMMENDATION.md)
-failed the existing quality criteria; no production compressed bank or loader
-currently establishes those savings. Changing PNG compression settings cannot
-solve decoded/GPU residency.
+failed the texel-level gates proposed in the art-budget plan, and the same UASTC
+codec still would. On 2026-10-16 the user instead reviewed
+[worst-case renders at match zoom](review/2026-10-16/texture-compression-probe/README.md)
+through the production renderer and accepted the quality for this option.
+`tools/encode-compressed-sheets.py` builds the bank with the pinned encoder from
+`tools/build-basisu.sh`; the bank is git-ignored and the Pages deploy builds it
+(cached, incremental). `TextureStore` loads it with per-sheet PNG fallback. Changing PNG compression settings cannot solve
+decoded/GPU residency.
 
 ## Loading and ownership contract
 

@@ -8,6 +8,7 @@ import type { App, Screen, ScreenName } from '../shell/app';
 const MODES: ReadonlyArray<{ num: string; name: string; what: string; go: ScreenName }> = [
   { num: '01', name: 'Versus', what: 'Local battle · 1–4 players', go: 'rules' },
   { num: '02', name: 'Controls', what: 'Keyboard and gamepad bindings', go: 'controls' },
+  { num: '03', name: 'Options', what: 'Game settings', go: 'options' },
 ];
 
 export function titleScreen(app: App): Screen {

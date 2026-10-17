@@ -102,7 +102,7 @@ try{
   assert.equal(setup.diagnostics.contextLost,false);
   assert.equal(setup.diagnostics.textures.preparedDuringLoading.some(row=>row.key==='char.link.d04final'),false);
   const owner=setup.diagnostics.textures.resident.find(row=>row.key==='char.link.d04final');
-  assert.deepEqual(owner,{key:'char.link.d04final',width:2192,height:1520,rgbaBytes:13327360});
+  assert.deepEqual(owner,{key:'char.link.d04final',width:2192,height:1520,rgbaBytes:13327360,format:'rgba8',textureBytes:13327360});
   if(activation===1)assert.equal(setup.ownerUploadsBefore.length,0,'first Final owner page must not already be uploaded');
   else{assert.ok(setup.ownerUploadsBefore.length>0);assert.equal(setup.ownerDeletesBefore.length,0);assert.deepEqual(setup.fixture,report.activations[0].setup.fixture,'placement/velocity/facing/damage fixture must match');}
   if(profiler){setup.profileClock={page:await page.evaluate(()=>({now:performance.now(),timeOrigin:performance.timeOrigin})),cdp:await profiler.send('Performance.getMetrics')};await profiler.send('Profiler.start');}

@@ -280,3 +280,4 @@ kbd, .pad {
 .match-pause { position: absolute; top: 18px; right: 22px; z-index: 4; border: 1px solid #ffffff70; background: #101729b8; border-radius: 10px; padding: 8px 18px; color: white; font: 600 22px var(--ui); cursor: pointer; }
 .match-status { position: absolute; inset: 35% 0 auto; text-align: center; font: 400 clamp(50px, 10vw, 160px) var(--display); color: #fff; text-shadow: 0 5px 0 #1c1232, 0 0 35px #ef3c85; pointer-events: none; }
 .match-status.is-loading { top: 45%; font: 600 clamp(18px, 3vw, 36px) var(--ui); text-shadow: 0 2px 5px #000; }
+.rule .detail { display: block; margin-top: 6px; color: var(--ink-2); font-size: 14px; text-align: center; }

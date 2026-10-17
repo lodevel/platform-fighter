@@ -30,6 +30,26 @@ jobs:
 
       - run: npm ci
       - run: npm run build
+
+      # Compressed fighter sheets for the optional texture quality are git-ignored
+      # and built here. The encoder output is deterministic and incremental, so the
+      # cached bank only re-encodes sheets whose PNG changed.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install numpy==2.4.6 pillow==12.2.0
+      - uses: actions/cache@v4
+        with:
+          path: .tmp/basisu-src/bin
+          key: basisu-${{ hashFiles('tools/build-basisu.sh') }}
+      - run: tools/build-basisu.sh
+      - uses: actions/cache@v4
+        with:
+          path: assets/characters/*/compressed
+          key: compressed-sheets-${{ hashFiles('tools/encode-compressed-sheets.py', 'tools/build-basisu.sh', 'assets/characters/**/*.png') }}
+          restore-keys: compressed-sheets-
+      - run: npm run assets:compress
+
       - run: npm run assets:copy
 
       # Pages must be enabled manually once (Settings → Pages → Source:

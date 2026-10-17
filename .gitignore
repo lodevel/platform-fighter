@@ -52,3 +52,6 @@ assets/gen/*
 
 # Reproducible GPU texture cache; retain the source PNG banks and build recipe.
 assets/generated/ktx2/
+
+# Generated compressed (KTX2) fighter sheets: python3 tools/encode-compressed-sheets.py
+assets/characters/*/compressed/

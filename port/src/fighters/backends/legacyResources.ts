@@ -1,6 +1,6 @@
 import { getAllAssetEntries } from '../../../../src/assets/manifest';
 import type { CharacterId } from '../../../../src/types';
-import type { SheetTexture, TextureStore } from '../../engine/sprites/textureStore';
+import { sheetTextureBytes, type SheetTexture, type TextureStore } from '../../engine/sprites/textureStore';
 import { LEGACY_SPRITE_CAPABILITY } from '../../../../src/characterPresentation/legacy/profiles';
 import { pikachuFinalStartupPage, replacedPikachuFinalOwnerPage } from '../finalVisual';
 import { registerAppearanceResourceProvider, registerSharedAppearanceResources } from '../resources';
@@ -39,8 +39,7 @@ export async function preloadLegacyMatchArt(textures: TextureStore, fighters: re
       const entry = entries[next++]!;
       const sheet = await textures.load(entry.key);
       if (active()) {
-        const image = sheet.texture.image as { width?: number; height?: number };
-        const bytes = (image.width ?? sheet.width) * (image.height ?? sheet.height) * 4;
+        const bytes = sheetTextureBytes(sheet);
         if (prepare && warmPriority(entry.key) < 2) warmCandidates.push({ key: entry.key, sheet, bytes });
         progress(++done, entries.length);
       }
