@@ -48,9 +48,10 @@ Each step: `npm run typecheck && npx vitest run && npm run build`, then a browse
 | 0 | Done (`d1538c8`): zero mismatches over 245,469 fighter-frames | [step0.md](step0.md) |
 | R | Done (`d1538c8`): GPU upload equals the estimate (+8 KiB palette) | [renderer.md](renderer.md) |
 | 1 | Done (`d1538c8`) for all three fighters behind `?packages=`: four-CPU Edge match, 3,600 frames, ~1% of pixels differ from legacy | [match/report.json](match/report.json) |
-| 2 | In progress: load on select, display setting, menus from packages | |
-| — | In progress: Link drawn as nothing for 410 of 3,600 frames in today's game (`link.missing-sheet:up_special`) | |
-| 4 | Done (not committed): the 12 effect strips are `effect.*` package actions; a packaged fighter's effects come from its package; 0 mismatches over 7,808 effect sprite-frames; Edge check | [effects.md](effects.md) |
+| 2 | Done (`3394909`): Options "Fighter art: Classic / Compact (new)", load on select, menus from packages; stage click → match 0.7 s (Classic 4.6 s). Follow-up running: drop CPU page copies, first-pick stall | [load-on-select.md](load-on-select.md) |
+| — | Done (`d274dc0`): Link no longer disappears after an aerial Spin Attack or while carrying heavy items (8,090 → 0 frames in 36 matches) | [invisible-fighters.md](invisible-fighters.md) |
+| — | In progress: held items drawn at the package's grip | |
+| 4 | Done (`88ccb4b`): the 12 effect strips are `effect.*` package actions; a packaged fighter's effects come from its package; 0 mismatches over 7,808 effect sprite-frames; Edge check | [effects.md](effects.md) |
 | 5 | Waits for the user's acceptance | |
 
 ## Known risks
