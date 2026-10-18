@@ -10,7 +10,8 @@
    "problems": [
     "None"
    ],
-   "drawnPixels": 16586
+   "drawnPixels": 16586,
+   "compared": null
   },
   {
    "package": "donkeykong",
@@ -22,7 +23,8 @@
    "problems": [
     "None"
    ],
-   "drawnPixels": 20994
+   "drawnPixels": 20994,
+   "compared": null
   },
   {
    "package": "donkeykong",
@@ -34,7 +36,8 @@
    "problems": [
     "None"
    ],
-   "drawnPixels": 22325
+   "drawnPixels": 22325,
+   "compared": null
   },
   {
    "package": "donkeykong",
@@ -46,7 +49,8 @@
    "problems": [
     "None"
    ],
-   "drawnPixels": 83388
+   "drawnPixels": 83388,
+   "compared": null
   },
   {
    "package": "donkeykong",
@@ -58,7 +62,8 @@
    "problems": [
     "None"
    ],
-   "drawnPixels": 19955
+   "drawnPixels": 19955,
+   "compared": null
   },
   {
    "package": "link",
@@ -69,7 +74,8 @@
    "problems": [
     "None"
    ],
-   "drawnPixels": 7543
+   "drawnPixels": 7543,
+   "compared": null
   },
   {
    "package": "link",
@@ -81,7 +87,8 @@
    "problems": [
     "None"
    ],
-   "drawnPixels": 6565
+   "drawnPixels": 6565,
+   "compared": null
   },
   {
    "package": "link",
@@ -93,7 +100,8 @@
    "problems": [
     "None"
    ],
-   "drawnPixels": 6480
+   "drawnPixels": 6480,
+   "compared": null
   },
   {
    "package": "pikachu",
@@ -104,7 +112,8 @@
    "problems": [
     "None"
    ],
-   "drawnPixels": 5917
+   "drawnPixels": 5917,
+   "compared": null
   },
   {
    "package": "donkeykong",
@@ -117,6 +126,7 @@
     "None"
    ],
    "drawnPixels": 16516,
+   "compared": null,
    "recolouredPixels": 8882,
    "status": "donkeykong: revision 81042ab0de3c"
   },
@@ -132,6 +142,7 @@
     "None"
    ],
    "drawnPixels": 8238,
+   "compared": null,
    "recolouredPixels": 1710,
    "status": "link: revision 9b29320a7862"
   },
@@ -147,13 +158,57 @@
     "None"
    ],
    "drawnPixels": 5988,
+   "compared": null,
    "recolouredPixels": 3826,
    "status": "pikachu: revision 3371fbae1ad1"
+  },
+  {
+   "package": "donkeykong",
+   "compare": "donkeykong~holds-0.12",
+   "action": "final_attack",
+   "tick": "tick 40 / 165  ·  drawing final_attack/26  ·  source frame 39",
+   "shot": "dk-final-holds-0.12",
+   "reference": "No Ultimate recording for this action yet.",
+   "problems": [
+    "None"
+   ],
+   "drawnPixels": 21238,
+   "compared": "Compared: donkeykong~holds-0.12 / final_attack"
+  },
+  {
+   "package": "link",
+   "compare": "link~holds-0.12",
+   "action": "d04final",
+   "tick": "tick 40 / 162  ·  drawing d04final/21  ·  source frame 41",
+   "shot": "link-final-holds-0.12",
+   "reference": "No Ultimate recording for this action yet.",
+   "problems": [
+    "None"
+   ],
+   "drawnPixels": 7552,
+   "compared": "Compared: link~holds-0.12 / d04final"
+  },
+  {
+   "package": "pikachu",
+   "compare": "pikachu~holds-0.12",
+   "action": "final2",
+   "tick": "tick 40 / 126  ·  drawing visual_final_10/21  ·  source frame 40",
+   "shot": "pikachu-final2-holds-0.12",
+   "reference": "No Ultimate recording for this action yet.",
+   "problems": [
+    "None"
+   ],
+   "drawnPixels": 4958,
+   "compared": "Compared: pikachu~holds-0.12 / final2"
   }
  ],
  "static": {
   "url": "http://127.0.0.1:5181/",
   "picker": "Folder: revision none"
  },
- "errors": []
+ "errors": [
+  "console: Failed to load resource: net::ERR_EMPTY_RESPONSE",
+  "console: Failed to load resource: net::ERR_CONNECTION_REFUSED",
+  "console: Failed to load resource: net::ERR_CONNECTION_REFUSED"
+ ]
 }

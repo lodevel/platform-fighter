@@ -35,6 +35,7 @@ npm run preview             # dist/ on :4173 under /platform-fighter/ (the --bas
 npx tsc --noEmit -p tools/tsconfig.json   # tools/ is outside the root tsconfig
 npm run character:export    # today's fighters → .tmp/character-packages (character-package/1)
 npm run lab                 # standalone character lab, http://localhost:5180 (lab:build → dist-lab/)
+npm run character:holds -- donkeykong --max-diff 0.12   # Phase 3 hold candidates beside the export (<id>~repack, <id>~holds-<limit>)
 ```
 
 Verification ritual before calling gameplay work done:

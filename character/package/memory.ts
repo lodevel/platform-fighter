@@ -1,4 +1,4 @@
-import type { ActionId, CharacterPackage } from '../package/types';
+import type { ActionId, CharacterPackage } from './types';
 
 /** Byte estimates from package data, not measured process memory. */
 export interface MemoryEstimate {

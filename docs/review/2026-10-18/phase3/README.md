@@ -68,7 +68,108 @@ the game build, the lab build, and the re-export of all three packages (zero
 differences over 1.52 million ticks; new revisions DK `81042ab0de3c`, Link
 `9b29320a7862`, Pikachu `3371fbae1ad1`).
 
+## Step 2: fewer stored drawings, held longer
+
+**Where the memory is.** Final Smashes dominate. They change drawing almost every
+tick (Pikachu's every tick), while other moves already hold each drawing about
+5 ticks:
+
+| Package | Pixels in Final actions | Median ticks per drawing | Windows lasting 1 tick |
+| --- | ---: | ---: | ---: |
+| donkeykong | 39% (6 actions) | 5 | 21% |
+| link | 8% | 6 | 15% |
+| pikachu | 61% (6 actions) | 2 | 50% |
+
+Consecutive drawings differ a lot. The measure below is the mean absolute
+premultiplied-RGBA difference over the cells either drawing covers, both placed
+at the same root on a 4 design-px grid (`signatureDiff`), on a scale of 0 to 1.
+Its median between consecutive drawings is about 0.2 for ordinary moves. Finals
+are lower: DK 0.20, Link 0.09, Pikachu 0.06.
+
+**Candidate.** `npm run character:holds -- <id> --max-diff 0.04,0.08,0.12,0.2`
+(`character/candidates/`) works one action at a time:
+1. It repeatedly drops the drawing that differs least from the kept drawing that
+   would replace it, while that difference stays within the limit. The first
+   drawing is always kept, and each difference is measured against what is
+   actually shown after earlier drops. A drop is refused when the kept drawing
+   would then be shown longer than 8 ticks (`--max-hold`) or than the action's
+   longest window, whichever is longer.
+2. The kept drawing is held over the freed ticks, and its sockets are held with it
+   (`retimeAction`).
+3. Unused drawings leave the package.
+
+The kept drawings go onto freshly packed pages. Every result is a normal
+validated package that the lab lists under `<id>~holds-<limit>`.
+
+The fair baseline is `<id>~repack`: the same drawings on pages packed the same
+way. My first shelf packer lost to today's pages (DK 739 vs 678 MiB). Searching
+over page widths fixed that: DK 632, Link 284 (today 281), Pikachu 256 (today 279).
+
+**First run, without the hold cap: idles froze.** Breathing changes each drawing
+so little that the mean difference stays tiny: Link's idle fell from 11 drawings
+to 1 even at 0.04, DK's from 0.08. The user watched the candidates on a phone page
+that plays today's art beside each limit, approved the look of 0.12 for the
+Finals, and found the idle freeze annoying. Much of the first run's saving on
+ordinary moves (18–20% of their pixels at 0.12) came from freezing slow motion
+like this. The hold cap above fixes it: idles, waits and other slow loops now keep
+every drawing.
+
+**Results with the cap**, as BC7 memory of the whole package against its repacked
+baseline ([reports](holds-reports/)):
+
+| Limit | DK | Link | Pikachu |
+| --- | --- | --- | --- |
+| baseline | 158.1 MiB | 70.9 MiB | 63.9 MiB |
+| 0.04 | 150.6 (−5%) | 69.7 (−2%) | 55.5 (−13%) |
+| 0.08 | 145.2 (−8%) | 68.4 (−4%) | 47.3 (−26%) |
+| **0.12 (chosen)** | 140.9 (−11%) | 66.8 (−6%) | 43.0 (−33%) |
+| 0.2 | 134.1 (−15%) | 63.1 (−11%) | 36.7 (−43%) |
+
+Share of drawn pixels removed, by kind of action:
+
+| Limit | DK Finals / others | Link Finals / others | Pikachu Finals / others |
+| --- | --- | --- | --- |
+| 0.04 | 12% / 0% | 16% / 0% | 22% / 1% |
+| 0.08 | 20% / 1% | 31% / 1% | 44% / 2% |
+| 0.12 | 26% / 2% | 52% / 2% | 53% / 4% |
+| 0.2 | 35% / 3% | 69% / 6% | 67% / 9% |
+
+At 0.12, Pikachu's `final2` keeps 50 of 95 drawings, Link's Final 34 of 72, DK's
+Final start 31 of 57 and its punches 66 of 74 (each punch is a different pose).
+The idles of all three keep every drawing.
+
+**What this means.** Holding drawings longer is a Final Smash technique. Finals
+change drawing almost every tick, and at 0.12 lose a quarter (DK) to a half (Link,
+Pikachu) of their pixels. Other moves already hold each drawing about 5 ticks and
+barely change. Whole packages save 11% (DK), 6% (Link) and 33% (Pikachu). This
+stacks with BC7 and with the techniques below, but it is far from the order of
+magnitude a larger roster needs.
+
+**Lab.** A "Compare with" selector adds a third pane showing any served package
+(such as a candidate) on the same tick, costume, facing and zoom. The window strip
+shows both packages' drawing windows, and the memory panel lists both. The probe
+captured each Final at limit 0.12 beside today's art:
+[DK](dk-final-holds-0.12.png), [Link](link-final-holds-0.12.png),
+[Pikachu](pikachu-final2-holds-0.12.png). These still images show placement only;
+the motion has to be watched live.
+
+**Side finding: the stored rectangles are mostly empty.** Only 55% (DK), 38%
+(Link) and 48% (Pikachu) of the pixels inside drawing rectangles have any alpha.
+Storing drawings as their non-empty tiles instead of whole rectangles would
+remove a large part of the remaining memory at no visual cost. It is the next
+candidate to try, and it combines with holds.
+
+**Checks** (after the hold cap): typecheck, the full suite (584 files, 12,219
+tests), the game build, the lab build, and the lab probe in Edge (15 views, three
+of them comparisons).
+Shared code was moved rather than copied:
+- the window compression the exporter used is now `character/package/schedule.ts`;
+- the memory estimate is now `character/package/memory.ts`.
+
+The three console errors in the probe report are reconnect attempts after the
+probe stops the dev server.
+
 ## Next
 
-Candidate representations on the reference set, starting with the cheapest to
-try: fewer stored drawings per action with deliberate holds, then reusable parts.
+1. Tile storage: non-empty tiles only, measured the same way.
+2. Reusable parts, where today's drawings allow.

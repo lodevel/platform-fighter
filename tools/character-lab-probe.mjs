@@ -27,6 +27,10 @@ const CASES = [
   { package: 'donkeykong', action: 'jab', tick: 6, costume: '2', shot: 'dk-jab-costume-2' },
   { package: 'link', action: 'jab', tick: 8, costume: '2', stage: 'light', shot: 'link-jab-costume-2' },
   { package: 'pikachu', action: 'jab', tick: 4, costume: '1', facing: '-1', shot: 'pikachu-jab-costume-1' },
+  // Phase 3 hold candidates beside today's art (run `npm run character:holds -- <id>` first).
+  { package: 'donkeykong', compare: 'donkeykong~holds-0.12', action: 'final_attack', tick: 40, shot: 'dk-final-holds-0.12' },
+  { package: 'link', compare: 'link~holds-0.12', action: 'd04final', tick: 40, shot: 'link-final-holds-0.12' },
+  { package: 'pikachu', compare: 'pikachu~holds-0.12', action: 'final2', tick: 40, shot: 'pikachu-final2-holds-0.12' },
 ];
 
 function server(args, url) {
@@ -40,7 +44,7 @@ function server(args, url) {
 }
 
 async function check(page, c) {
-  await page.goto(`${DEV}?package=${c.package}&action=${c.action}`);
+  await page.goto(`${DEV}?package=${c.package}&action=${c.action}${c.compare ? `&compare=${encodeURIComponent(c.compare)}` : ''}`);
   await page.waitForFunction(() => document.getElementById('status')?.textContent?.includes('revision'), null, { timeout: 60000 });
   await page.waitForFunction(() => !document.getElementById('reference-note')?.textContent?.startsWith('Loading'), null, { timeout: 60000 });
   await page.click('#play'); // the lab starts playing; pause it
@@ -64,6 +68,7 @@ async function check(page, c) {
     const costume = document.getElementById('costume');
     return { tick: document.getElementById('tick').textContent, reference: document.getElementById('reference-note').textContent,
       problems: [...document.querySelectorAll('#problems li')].map(li => li.textContent), drawnPixels: drawn,
+      compared: document.getElementById('compare-box').hidden ? null : document.getElementById('compare-caption').textContent,
       ...(asDrawn ? { costume: costume.selectedOptions[0]?.textContent, recolouredPixels: recoloured, status: document.getElementById('status').textContent } : {}) };
   }, asDrawn);
   await page.screenshot({ path: resolve(out, `${c.shot}.png`) });
@@ -96,7 +101,8 @@ try {
   page.on('pageerror', e => report.errors.push(String(e)));
   page.on('console', m => { if (m.type() === 'error') report.errors.push(`console: ${m.text()}`); });
   page.on('response', r => { if (r.status() >= 400) report.errors.push(`HTTP ${r.status()} ${r.url()}`); });
-  for (const c of CASES) { report.dev.push(await check(page, c)); console.log(c.shot, report.dev.at(-1).drawnPixels, 'px', report.dev.at(-1).recolouredPixels ?? ''); }
+  const served = await (await fetch(`${DEV}packages/index.json`)).json();
+  for (const c of CASES.filter(c => !c.compare || served.packages.includes(c.compare))) { report.dev.push(await check(page, c)); console.log(c.shot, report.dev.at(-1).drawnPixels, 'px', report.dev.at(-1).recolouredPixels ?? ''); }
 
   // The static build alone, opening a package through the folder picker.
   dev.stop();

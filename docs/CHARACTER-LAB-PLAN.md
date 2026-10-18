@@ -66,10 +66,11 @@ All new code lives under `character/`, outside `src/` and `port/`:
 
 | Folder | Contents | May import |
 | --- | --- | --- |
-| `character/package/` | Types for format `character-package/1`, the validator and the canonical serializer | nothing outside the folder |
+| `character/package/` | Types for format `character-package/1`, the validator, the canonical serializer, window compression and memory estimates | nothing outside the folder |
 | `character/evaluator/` | Pure sampling of an action at a tick: drawing, its source frame, body-centre offset and sockets | `package/` |
 | `character/render/` | Costume recolour: the colour shifts of a costume and the GLSL that applies them; the game's sprite layer uses the same file | `package/` |
 | `scripts/character-package/` | Temporary exporter turning today's fighters into packages (deleted in Phase 6) | The game and `character/package/`; it is game-side code |
+| `character/candidates/` | Phase 3 candidate generators (Node): retiming, hold selection, drawing signatures, page packing | `package/`, `evaluator/`, `node:`, pngjs |
 | `character/lab/` | Standalone Vite app with its own HTML entry | `package/`, `evaluator/`, `render/`, three |
 
 A vitest boundary test, like `src/sim/importGraph.test.ts`, walks each folder's

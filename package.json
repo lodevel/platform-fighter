@@ -15,7 +15,8 @@
     "build:static": "npm run build && npm run assets:copy",
     "lab": "vite --config vite.character-lab.config.ts",
     "lab:build": "vite build --config vite.character-lab.config.ts",
-    "character:export": "tsx scripts/export-character-packages.ts"
+    "character:export": "tsx scripts/export-character-packages.ts",
+    "character:holds": "tsx character/candidates/holdsCandidate.ts"
   },
   "keywords": [
     "three",

@@ -11,6 +11,7 @@
   <header class="bar">
     <h1>Character Lab</h1>
     <label class="field">Package <select id="package"></select></label>
+    <label class="field">Compare with <select id="compare-package"></select></label>
     <label class="button" for="folder">Open folder…</label>
     <input id="folder" type="file" webkitdirectory hidden>
     <span id="status" class="status" role="status"></span>
@@ -30,6 +31,10 @@
         <figure class="stage-box">
           <figcaption id="stage-caption">Package</figcaption>
           <canvas id="stage" aria-label="Character preview"></canvas>
+        </figure>
+        <figure class="stage-box" id="compare-box" hidden>
+          <figcaption id="compare-caption">Compared</figcaption>
+          <canvas id="compare" aria-label="Compared package preview"></canvas>
         </figure>
       </div>
       <div class="timeline">
@@ -67,7 +72,7 @@
       <h2>Action</h2>
       <dl id="action-facts"></dl>
       <h2>Memory</h2>
-      <p class="note">Estimated from package data: uncompressed RGBA8 and BC7 pages.</p>
+      <p class="note">Estimated from package data: uncompressed RGBA8 and BC7 pages, counting every page an action's drawings sit on.</p>
       <dl id="memory"></dl>
       <h2>Problems</h2>
       <ul id="problems" class="problems"></ul>

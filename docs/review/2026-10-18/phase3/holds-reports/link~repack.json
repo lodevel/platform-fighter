@@ -1,0 +1,3462 @@
+{
+ "schema": "character-candidate/1",
+ "candidate": "repack",
+ "source": {
+  "id": "link",
+  "revision": "9b29320a7862348230d12a9fe7b2fe5ee7bd82e48e0409644428c00d9bb20bbf"
+ },
+ "maxDiff": null,
+ "maxHold": null,
+ "problems": [],
+ "source_memory": {
+  "drawings": 1753,
+  "pages": 229,
+  "drawnPixels": 65203752,
+  "rgbaBytes": 294536576,
+  "bc7Bytes": 73634144
+ },
+ "memory": {
+  "drawings": 1753,
+  "pages": 229,
+  "drawnPixels": 65203752,
+  "rgbaBytes": 297364480,
+  "bc7Bytes": 74341120
+ },
+ "actions": [
+  {
+   "action": "a00waititem",
+   "windows": [
+    10,
+    10
+   ],
+   "drawings": [
+    10,
+    10
+   ],
+   "drawnPixels": [
+    338151,
+    338151
+   ]
+  },
+  {
+   "action": "a01turn",
+   "windows": [
+    3,
+    3
+   ],
+   "drawings": [
+    3,
+    3
+   ],
+   "drawnPixels": [
+    100667,
+    100667
+   ]
+  },
+  {
+   "action": "a01walkbrakel",
+   "windows": [
+    4,
+    4
+   ],
+   "drawings": [
+    4,
+    4
+   ],
+   "drawnPixels": [
+    115938,
+    115938
+   ]
+  },
+  {
+   "action": "a01walkbraker",
+   "windows": [
+    4,
+    4
+   ],
+   "drawings": [
+    4,
+    4
+   ],
+   "drawnPixels": [
+    115938,
+    115938
+   ]
+  },
+  {
+   "action": "a01walkfast",
+   "windows": [
+    4,
+    4
+   ],
+   "drawings": [
+    4,
+    4
+   ],
+   "drawnPixels": [
+    130878,
+    130878
+   ]
+  },
+  {
+   "action": "a01walkslow",
+   "windows": [
+    9,
+    9
+   ],
+   "drawings": [
+    9,
+    9
+   ],
+   "drawnPixels": [
+    256803,
+    256803
+   ]
+  },
+  {
+   "action": "a02dash",
+   "windows": [
+    5,
+    5
+   ],
+   "drawings": [
+    5,
+    5
+   ],
+   "drawnPixels": [
+    141501,
+    141501
+   ]
+  },
+  {
+   "action": "a02run",
+   "windows": [
+    5,
+    5
+   ],
+   "drawings": [
+    5,
+    5
+   ],
+   "drawnPixels": [
+    151030,
+    151030
+   ]
+  },
+  {
+   "action": "a02runbrakel",
+   "windows": [
+    5,
+    5
+   ],
+   "drawings": [
+    5,
+    5
+   ],
+   "drawnPixels": [
+    146270,
+    146270
+   ]
+  },
+  {
+   "action": "a02runbraker",
+   "windows": [
+    5,
+    5
+   ],
+   "drawings": [
+    5,
+    5
+   ],
+   "drawnPixels": [
+    181954,
+    181954
+   ]
+  },
+  {
+   "action": "a02turndash",
+   "windows": [
+    6,
+    6
+   ],
+   "drawings": [
+    6,
+    6
+   ],
+   "drawnPixels": [
+    178842,
+    178842
+   ]
+  },
+  {
+   "action": "a02turnrun",
+   "windows": [
+    5,
+    5
+   ],
+   "drawings": [
+    5,
+    5
+   ],
+   "drawnPixels": [
+    153998,
+    153998
+   ]
+  },
+  {
+   "action": "a02turnrunbrake",
+   "windows": [
+    4,
+    4
+   ],
+   "drawings": [
+    4,
+    4
+   ],
+   "drawnPixels": [
+    121913,
+    121913
+   ]
+  },
+  {
+   "action": "a03jumpsquat",
+   "windows": [
+    2,
+    2
+   ],
+   "drawings": [
+    2,
+    2
+   ],
+   "drawnPixels": [
+    55844,
+    55844
+   ]
+  },
+  {
+   "action": "a04damagefall",
+   "windows": [
+    5,
+    5
+   ],
+   "drawings": [
+    5,
+    5
+   ],
+   "drawnPixels": [
+    159092,
+    159092
+   ]
+  },
+  {
+   "action": "a04landingfallspecial",
+   "windows": [
+    6,
+    6
+   ],
+   "drawings": [
+    6,
+    6
+   ],
+   "drawnPixels": [
+    180494,
+    180494
+   ]
+  },
+  {
+   "action": "a05landingheavy",
+   "windows": [
+    5,
+    5
+   ],
+   "drawings": [
+    5,
+    5
+   ],
+   "drawnPixels": [
+    113060,
+    113060
+   ]
+  },
+  {
+   "action": "a05landinglight",
+   "windows": [
+    3,
+    3
+   ],
+   "drawings": [
+    3,
+    3
+   ],
+   "drawnPixels": [
+    79518,
+    79518
+   ]
+  },
+  {
+   "action": "a05squat",
+   "windows": [
+    2,
+    2
+   ],
+   "drawings": [
+    2,
+    2
+   ],
+   "drawnPixels": [
+    44549,
+    44549
+   ]
+  },
+  {
+   "action": "a05squatrv",
+   "windows": [
+    2,
+    2
+   ],
+   "drawings": [
+    2,
+    2
+   ],
+   "drawnPixels": [
+    51790,
+    51790
+   ]
+  },
+  {
+   "action": "a05squatwait",
+   "windows": [
+    10,
+    10
+   ],
+   "drawings": [
+    10,
+    10
+   ],
+   "drawnPixels": [
+    209656,
+    209656
+   ]
+  },
+  {
+   "action": "a05squatwaititem",
+   "windows": [
+    10,
+    10
+   ],
+   "drawings": [
+    10,
+    10
+   ],
+   "drawnPixels": [
+    214364,
+    214364
+   ]
+  },
+  {
+   "action": "a06stepairpose",
+   "windows": [
+    5,
+    5
+   ],
+   "drawings": [
+    5,
+    5
+   ],
+   "drawnPixels": [
+    169453,
+    169453
+   ]
+  },
+  {
+   "action": "a06stepback",
+   "windows": [
+    13,
+    13
+   ],
+   "drawings": [
+    13,
+    13
+   ],
+   "drawnPixels": [
+    364236,
+    364236
+   ]
+  },
+  {
+   "action": "a06stepfall",
+   "windows": [
+    20,
+    20
+   ],
+   "drawings": [
+    20,
+    20
+   ],
+   "drawnPixels": [
+    598509,
+    598509
+   ]
+  },
+  {
+   "action": "a06stepjump",
+   "windows": [
+    5,
+    5
+   ],
+   "drawings": [
+    5,
+    5
+   ],
+   "drawnPixels": [
+    122877,
+    122877
+   ]
+  },
+  {
+   "action": "a06steppose",
+   "windows": [
+    5,
+    5
+   ],
+   "drawings": [
+    5,
+    5
+   ],
+   "drawnPixels": [
+    146440,
+    146440
+   ]
+  },
+  {
+   "action": "air_dodge",
+   "windows": [
+    11,
+    11
+   ],
+   "drawings": [
+    11,
+    11
+   ],
+   "drawnPixels": [
+    403929,
+    403929
+   ]
+  },
+  {
+   "action": "air_drift",
+   "windows": [
+    3,
+    3
+   ],
+   "drawings": [
+    3,
+    3
+   ],
+   "drawnPixels": [
+    86220,
+    86220
+   ]
+  },
+  {
+   "action": "airjump",
+   "windows": [
+    9,
+    9
+   ],
+   "drawings": [
+    9,
+    9
+   ],
+   "drawnPixels": [
+    312955,
+    312955
+   ]
+  },
+  {
+   "action": "airjump_b",
+   "windows": [
+    9,
+    9
+   ],
+   "drawings": [
+    9,
+    9
+   ],
+   "drawnPixels": [
+    298932,
+    298932
+   ]
+  },
+  {
+   "action": "b00guard",
+   "windows": [
+    11,
+    11
+   ],
+   "drawings": [
+    11,
+    11
+   ],
+   "drawnPixels": [
+    279852,
+    279852
+   ]
+  },
+  {
+   "action": "b00guardoff",
+   "windows": [
+    3,
+    3
+   ],
+   "drawings": [
+    3,
+    3
+   ],
+   "drawnPixels": [
+    86503,
+    86503
+   ]
+  },
+  {
+   "action": "b00guardon",
+   "windows": [
+    3,
+    3
+   ],
+   "drawings": [
+    3,
+    3
+   ],
+   "drawnPixels": [
+    75466,
+    75466
+   ]
+  },
+  {
+   "action": "b00justshieldoff",
+   "windows": [
+    4,
+    4
+   ],
+   "drawings": [
+    4,
+    4
+   ],
+   "drawnPixels": [
+    126739,
+    126739
+   ]
+  },
+  {
+   "action": "b01guarddamage",
+   "windows": [
+    4,
+    4
+   ],
+   "drawings": [
+    4,
+    4
+   ],
+   "drawnPixels": [
+    94012,
+    94012
+   ]
+  },
+  {
+   "action": "b02escapeb",
+   "windows": [
+    8,
+    8
+   ],
+   "drawings": [
+    8,
+    8
+   ],
+   "drawnPixels": [
+    258911,
+    258911
+   ]
+  },
+  {
+   "action": "b02escapef",
+   "windows": [
+    7,
+    7
+   ],
+   "drawings": [
+    7,
+    7
+   ],
+   "drawnPixels": [
+    216696,
+    216696
+   ]
+  },
+  {
+   "action": "b02rebound",
+   "windows": [
+    6,
+    6
+   ],
+   "drawings": [
+    6,
+    6
+   ],
+   "drawnPixels": [
+    158798,
+    158798
+   ]
+  },
+  {
+   "action": "bair",
+   "windows": [
+    9,
+    9
+   ],
+   "drawings": [
+    9,
+    9
+   ],
+   "drawnPixels": [
+    306987,
+    306987
+   ]
+  },
+  {
+   "action": "d00specialairnend",
+   "windows": [
+    10,
+    10
+   ],
+   "drawings": [
+    10,
+    10
+   ],
+   "drawnPixels": [
+    388929,
+    388929
+   ]
+  },
+  {
+   "action": "d00specialairnloop",
+   "windows": [
+    7,
+    7
+   ],
+   "drawings": [
+    7,
+    7
+   ],
+   "drawnPixels": [
+    241527,
+    241527
+   ]
+  },
+  {
+   "action": "d00specialairnstart",
+   "windows": [
+    10,
+    10
+   ],
+   "drawings": [
+    10,
+    10
+   ],
+   "drawnPixels": [
+    320288,
+    320288
+   ]
+  },
+  {
+   "action": "d00specialnend",
+   "windows": [
+    10,
+    10
+   ],
+   "drawings": [
+    10,
+    10
+   ],
+   "drawnPixels": [
+    333958,
+    333958
+   ]
+  },
+  {
+   "action": "d00specialnloop",
+   "windows": [
+    7,
+    7
+   ],
+   "drawings": [
+    7,
+    7
+   ],
+   "drawnPixels": [
+    188886,
+    188886
+   ]
+  },
+  {
+   "action": "d00specialnstart",
+   "windows": [
+    10,
+    10
+   ],
+   "drawings": [
+    10,
+    10
+   ],
+   "drawnPixels": [
+    271317,
+    271317
+   ]
+  },
+  {
+   "action": "d01specialairs1",
+   "windows": [
+    11,
+    11
+   ],
+   "drawings": [
+    11,
+    11
+   ],
+   "drawnPixels": [
+    359608,
+    359608
+   ]
+  },
+  {
+   "action": "d01specialairs2",
+   "windows": [
+    7,
+    7
+   ],
+   "drawings": [
+    7,
+    7
+   ],
+   "drawnPixels": [
+    268920,
+    268920
+   ]
+  },
+  {
+   "action": "d01specials1",
+   "windows": [
+    11,
+    11
+   ],
+   "drawings": [
+    11,
+    11
+   ],
+   "drawnPixels": [
+    350236,
+    350236
+   ]
+  },
+  {
+   "action": "d01specials2",
+   "windows": [
+    7,
+    7
+   ],
+   "drawings": [
+    7,
+    7
+   ],
+   "drawnPixels": [
+    228047,
+    228047
+   ]
+  },
+  {
+   "action": "d02specialairhi",
+   "windows": [
+    13,
+    13
+   ],
+   "drawings": [
+    13,
+    13
+   ],
+   "drawnPixels": [
+    803457,
+    803457
+   ]
+  },
+  {
+   "action": "d02specialhi",
+   "windows": [
+    12,
+    12
+   ],
+   "drawings": [
+    12,
+    12
+   ],
+   "drawnPixels": [
+    433927,
+    433927
+   ]
+  },
+  {
+   "action": "d02specialhihold",
+   "windows": [
+    10,
+    10
+   ],
+   "drawings": [
+    10,
+    10
+   ],
+   "drawnPixels": [
+    395408,
+    395408
+   ]
+  },
+  {
+   "action": "d02specialhistart",
+   "windows": [
+    2,
+    2
+   ],
+   "drawings": [
+    2,
+    2
+   ],
+   "drawnPixels": [
+    82096,
+    82096
+   ]
+  },
+  {
+   "action": "d03specialairlw",
+   "windows": [
+    12,
+    12
+   ],
+   "drawings": [
+    12,
+    12
+   ],
+   "drawnPixels": [
+    342345,
+    342345
+   ]
+  },
+  {
+   "action": "d03specialairlwblast",
+   "windows": [
+    11,
+    11
+   ],
+   "drawings": [
+    11,
+    11
+   ],
+   "drawnPixels": [
+    378359,
+    378359
+   ]
+  },
+  {
+   "action": "d03speciallw",
+   "windows": [
+    12,
+    12
+   ],
+   "drawings": [
+    12,
+    12
+   ],
+   "drawnPixels": [
+    355815,
+    355815
+   ]
+  },
+  {
+   "action": "d03speciallwblast",
+   "windows": [
+    11,
+    11
+   ],
+   "drawings": [
+    11,
+    11
+   ],
+   "drawnPixels": [
+    358015,
+    358015
+   ]
+  },
+  {
+   "action": "d04final",
+   "windows": [
+    72,
+    72
+   ],
+   "drawings": [
+    72,
+    72
+   ],
+   "drawnPixels": [
+    2969442,
+    2969442
+   ]
+  },
+  {
+   "action": "d04finalair",
+   "windows": [
+    57,
+    57
+   ],
+   "drawings": [
+    57,
+    57
+   ],
+   "drawnPixels": [
+    2576278,
+    2576278
+   ]
+  },
+  {
+   "action": "dair",
+   "windows": [
+    12,
+    12
+   ],
+   "drawings": [
+    12,
+    12
+   ],
+   "drawnPixels": [
+    318516,
+    318516
+   ]
+  },
+  {
+   "action": "dash_attack",
+   "windows": [
+    11,
+    11
+   ],
+   "drawings": [
+    11,
+    11
+   ],
+   "drawnPixels": [
+    433157,
+    433157
+   ]
+  },
+  {
+   "action": "dsmash",
+   "windows": [
+    11,
+    11
+   ],
+   "drawings": [
+    11,
+    11
+   ],
+   "drawnPixels": [
+    392108,
+    392108
+   ]
+  },
+  {
+   "action": "dsmash_charge",
+   "windows": [
+    11,
+    11
+   ],
+   "drawings": [
+    11,
+    11
+   ],
+   "drawnPixels": [
+    435841,
+    435841
+   ]
+  },
+  {
+   "action": "dtilt",
+   "windows": [
+    6,
+    6
+   ],
+   "drawings": [
+    6,
+    6
+   ],
+   "drawnPixels": [
+    195939,
+    195939
+   ]
+  },
+  {
+   "action": "e00catch",
+   "windows": [
+    8,
+    8
+   ],
+   "drawings": [
+    8,
+    8
+   ],
+   "drawnPixels": [
+    258451,
+    258451
+   ]
+  },
+  {
+   "action": "e00catchattack",
+   "windows": [
+    5,
+    5
+   ],
+   "drawings": [
+    5,
+    5
+   ],
+   "drawnPixels": [
+    193072,
+    193072
+   ]
+  },
+  {
+   "action": "e00catchcut",
+   "windows": [
+    9,
+    9
+   ],
+   "drawings": [
+    9,
+    9
+   ],
+   "drawnPixels": [
+    286307,
+    286307
+   ]
+  },
+  {
+   "action": "e00catchdash",
+   "windows": [
+    10,
+    10
+   ],
+   "drawings": [
+    10,
+    10
+   ],
+   "drawnPixels": [
+    342545,
+    342545
+   ]
+  },
+  {
+   "action": "e00catchpull",
+   "windows": [
+    5,
+    5
+   ],
+   "drawings": [
+    5,
+    5
+   ],
+   "drawnPixels": [
+    155464,
+    155464
+   ]
+  },
+  {
+   "action": "e00catchturn",
+   "windows": [
+    9,
+    9
+   ],
+   "drawings": [
+    9,
+    9
+   ],
+   "drawnPixels": [
+    273540,
+    273540
+   ]
+  },
+  {
+   "action": "e00catchwait",
+   "windows": [
+    11,
+    11
+   ],
+   "drawings": [
+    11,
+    11
+   ],
+   "drawnPixels": [
+    310168,
+    310168
+   ]
+  },
+  {
+   "action": "e01throwb",
+   "windows": [
+    10,
+    10
+   ],
+   "drawings": [
+    10,
+    10
+   ],
+   "drawnPixels": [
+    343868,
+    343868
+   ]
+  },
+  {
+   "action": "e01throwf",
+   "windows": [
+    9,
+    9
+   ],
+   "drawings": [
+    9,
+    9
+   ],
+   "drawnPixels": [
+    292938,
+    292938
+   ]
+  },
+  {
+   "action": "e01throwhi",
+   "windows": [
+    12,
+    12
+   ],
+   "drawings": [
+    12,
+    12
+   ],
+   "drawnPixels": [
+    524067,
+    524067
+   ]
+  },
+  {
+   "action": "e01throwlw",
+   "windows": [
+    12,
+    12
+   ],
+   "drawings": [
+    12,
+    12
+   ],
+   "drawnPixels": [
+    423401,
+    423401
+   ]
+  },
+  {
+   "action": "e02capturedamagehi",
+   "windows": [
+    4,
+    4
+   ],
+   "drawings": [
+    4,
+    4
+   ],
+   "drawnPixels": [
+    150252,
+    150252
+   ]
+  },
+  {
+   "action": "e02capturepulledhi",
+   "windows": [
+    4,
+    4
+   ],
+   "drawings": [
+    4,
+    4
+   ],
+   "drawnPixels": [
+    150239,
+    150239
+   ]
+  },
+  {
+   "action": "e02capturewaithi",
+   "windows": [
+    8,
+    8
+   ],
+   "drawings": [
+    8,
+    8
+   ],
+   "drawnPixels": [
+    233840,
+    233840
+   ]
+  },
+  {
+   "action": "e03capturecut",
+   "windows": [
+    6,
+    6
+   ],
+   "drawings": [
+    6,
+    6
+   ],
+   "drawnPixels": [
+    177745,
+    177745
+   ]
+  },
+  {
+   "action": "e03capturedamagelw",
+   "windows": [
+    4,
+    4
+   ],
+   "drawings": [
+    4,
+    4
+   ],
+   "drawnPixels": [
+    121893,
+    121893
+   ]
+  },
+  {
+   "action": "e03capturejump",
+   "windows": [
+    8,
+    8
+   ],
+   "drawings": [
+    8,
+    8
+   ],
+   "drawnPixels": [
+    273098,
+    273098
+   ]
+  },
+  {
+   "action": "e03capturepulledlw",
+   "windows": [
+    4,
+    4
+   ],
+   "drawings": [
+    4,
+    4
+   ],
+   "drawnPixels": [
+    121872,
+    121872
+   ]
+  },
+  {
+   "action": "e03capturewaitlw",
+   "windows": [
+    7,
+    7
+   ],
+   "drawings": [
+    7,
+    7
+   ],
+   "drawnPixels": [
+    219581,
+    219581
+   ]
+  },
+  {
+   "action": "f00damagehi1",
+   "windows": [
+    4,
+    4
+   ],
+   "drawings": [
+    4,
+    4
+   ],
+   "drawnPixels": [
+    106962,
+    106962
+   ]
+  },
+  {
+   "action": "f00damagelw1",
+   "windows": [
+    4,
+    4
+   ],
+   "drawings": [
+    4,
+    4
+   ],
+   "drawnPixels": [
+    122696,
+    122696
+   ]
+  },
+  {
+   "action": "f00damagen1",
+   "windows": [
+    4,
+    4
+   ],
+   "drawings": [
+    4,
+    4
+   ],
+   "drawnPixels": [
+    106918,
+    106918
+   ]
+  },
+  {
+   "action": "f01damageair1",
+   "windows": [
+    3,
+    3
+   ],
+   "drawings": [
+    3,
+    3
+   ],
+   "drawnPixels": [
+    90640,
+    90640
+   ]
+  },
+  {
+   "action": "f01damageflyhi",
+   "windows": [
+    6,
+    6
+   ],
+   "drawings": [
+    6,
+    6
+   ],
+   "drawnPixels": [
+    208433,
+    208433
+   ]
+  },
+  {
+   "action": "f01damageflylw",
+   "windows": [
+    6,
+    6
+   ],
+   "drawings": [
+    6,
+    6
+   ],
+   "drawnPixels": [
+    228584,
+    228584
+   ]
+  },
+  {
+   "action": "f01damageflymeteor",
+   "windows": [
+    6,
+    6
+   ],
+   "drawings": [
+    6,
+    6
+   ],
+   "drawnPixels": [
+    233281,
+    233281
+   ]
+  },
+  {
+   "action": "f01damageflyn",
+   "windows": [
+    5,
+    5
+   ],
+   "drawings": [
+    5,
+    5
+   ],
+   "drawnPixels": [
+    217682,
+    217682
+   ]
+  },
+  {
+   "action": "f01damageflyroll",
+   "windows": [
+    7,
+    7
+   ],
+   "drawings": [
+    7,
+    7
+   ],
+   "drawnPixels": [
+    189040,
+    189040
+   ]
+  },
+  {
+   "action": "f01damageflytop",
+   "windows": [
+    11,
+    11
+   ],
+   "drawings": [
+    11,
+    11
+   ],
+   "drawnPixels": [
+    344448,
+    344448
+   ]
+  },
+  {
+   "action": "f02damageelec",
+   "windows": [
+    10,
+    10
+   ],
+   "drawings": [
+    10,
+    10
+   ],
+   "drawnPixels": [
+    333087,
+    333087
+   ]
+  },
+  {
+   "action": "f03downattacku",
+   "windows": [
+    11,
+    11
+   ],
+   "drawings": [
+    11,
+    11
+   ],
+   "drawnPixels": [
+    338183,
+    338183
+   ]
+  },
+  {
+   "action": "f03downbacku",
+   "windows": [
+    6,
+    6
+   ],
+   "drawings": [
+    6,
+    6
+   ],
+   "drawnPixels": [
+    180780,
+    180780
+   ]
+  },
+  {
+   "action": "f03downforwardu",
+   "windows": [
+    6,
+    6
+   ],
+   "drawings": [
+    6,
+    6
+   ],
+   "drawnPixels": [
+    169697,
+    169697
+   ]
+  },
+  {
+   "action": "f03downstandu",
+   "windows": [
+    6,
+    6
+   ],
+   "drawings": [
+    6,
+    6
+   ],
+   "drawnPixels": [
+    142399,
+    142399
+   ]
+  },
+  {
+   "action": "f03downwaitu",
+   "windows": [
+    9,
+    9
+   ],
+   "drawings": [
+    9,
+    9
+   ],
+   "drawnPixels": [
+    215517,
+    215517
+   ]
+  },
+  {
+   "action": "f04downattackd",
+   "windows": [
+    11,
+    11
+   ],
+   "drawings": [
+    11,
+    11
+   ],
+   "drawnPixels": [
+    332321,
+    332321
+   ]
+  },
+  {
+   "action": "f04downbackd",
+   "windows": [
+    6,
+    6
+   ],
+   "drawings": [
+    6,
+    6
+   ],
+   "drawnPixels": [
+    178496,
+    178496
+   ]
+  },
+  {
+   "action": "f04downforwardd",
+   "windows": [
+    6,
+    6
+   ],
+   "drawings": [
+    6,
+    6
+   ],
+   "drawnPixels": [
+    186408,
+    186408
+   ]
+  },
+  {
+   "action": "f04downstandd",
+   "windows": [
+    5,
+    5
+   ],
+   "drawings": [
+    5,
+    5
+   ],
+   "drawnPixels": [
+    128097,
+    128097
+   ]
+  },
+  {
+   "action": "f04downwaitd",
+   "windows": [
+    10,
+    10
+   ],
+   "drawings": [
+    10,
+    10
+   ],
+   "drawnPixels": [
+    278706,
+    278706
+   ]
+  },
+  {
+   "action": "f05passive",
+   "windows": [
+    6,
+    6
+   ],
+   "drawings": [
+    6,
+    6
+   ],
+   "drawnPixels": [
+    190223,
+    190223
+   ]
+  },
+  {
+   "action": "f05passiveceil",
+   "windows": [
+    5,
+    5
+   ],
+   "drawings": [
+    5,
+    5
+   ],
+   "drawnPixels": [
+    146123,
+    146123
+   ]
+  },
+  {
+   "action": "f05passivestandb",
+   "windows": [
+    7,
+    7
+   ],
+   "drawings": [
+    7,
+    7
+   ],
+   "drawnPixels": [
+    201098,
+    201098
+   ]
+  },
+  {
+   "action": "f05passivestandf",
+   "windows": [
+    7,
+    7
+   ],
+   "drawings": [
+    7,
+    7
+   ],
+   "drawnPixels": [
+    204216,
+    204216
+   ]
+  },
+  {
+   "action": "f05passivewall",
+   "windows": [
+    5,
+    5
+   ],
+   "drawings": [
+    5,
+    5
+   ],
+   "drawnPixels": [
+    174755,
+    174755
+   ]
+  },
+  {
+   "action": "f05passivewalljump",
+   "windows": [
+    6,
+    6
+   ],
+   "drawings": [
+    6,
+    6
+   ],
+   "drawnPixels": [
+    207102,
+    207102
+   ]
+  },
+  {
+   "action": "f06furafura",
+   "windows": [
+    10,
+    10
+   ],
+   "drawings": [
+    10,
+    10
+   ],
+   "drawnPixels": [
+    289543,
+    289543
+   ]
+  },
+  {
+   "action": "fair",
+   "windows": [
+    12,
+    12
+   ],
+   "drawings": [
+    12,
+    12
+   ],
+   "drawnPixels": [
+    556954,
+    556954
+   ]
+  },
+  {
+   "action": "fall",
+   "windows": [
+    2,
+    2
+   ],
+   "drawings": [
+    2,
+    2
+   ],
+   "drawnPixels": [
+    69616,
+    69616
+   ]
+  },
+  {
+   "action": "fall_aerial",
+   "windows": [
+    2,
+    2
+   ],
+   "drawings": [
+    2,
+    2
+   ],
+   "drawnPixels": [
+    59152,
+    59152
+   ]
+  },
+  {
+   "action": "fall_aerial_b",
+   "windows": [
+    2,
+    2
+   ],
+   "drawings": [
+    2,
+    2
+   ],
+   "drawnPixels": [
+    51877,
+    51877
+   ]
+  },
+  {
+   "action": "fall_aerial_f",
+   "windows": [
+    2,
+    2
+   ],
+   "drawings": [
+    2,
+    2
+   ],
+   "drawnPixels": [
+    56834,
+    56834
+   ]
+  },
+  {
+   "action": "fall_b",
+   "windows": [
+    3,
+    3
+   ],
+   "drawings": [
+    3,
+    3
+   ],
+   "drawnPixels": [
+    92041,
+    92041
+   ]
+  },
+  {
+   "action": "fall_special",
+   "windows": [
+    3,
+    3
+   ],
+   "drawings": [
+    3,
+    3
+   ],
+   "drawnPixels": [
+    128609,
+    128609
+   ]
+  },
+  {
+   "action": "fall_special_b",
+   "windows": [
+    3,
+    3
+   ],
+   "drawings": [
+    3,
+    3
+   ],
+   "drawnPixels": [
+    132216,
+    132216
+   ]
+  },
+  {
+   "action": "fall_special_f",
+   "windows": [
+    3,
+    3
+   ],
+   "drawings": [
+    3,
+    3
+   ],
+   "drawnPixels": [
+    75824,
+    75824
+   ]
+  },
+  {
+   "action": "final_victim_jungle_entry",
+   "windows": [
+    3,
+    3
+   ],
+   "drawings": [
+    3,
+    3
+   ],
+   "drawnPixels": [
+    786432,
+    786432
+   ]
+  },
+  {
+   "action": "final_victim_jungle_stagger_a",
+   "windows": [
+    3,
+    3
+   ],
+   "drawings": [
+    3,
+    3
+   ],
+   "drawnPixels": [
+    786432,
+    786432
+   ]
+  },
+  {
+   "action": "final_victim_jungle_stagger_b",
+   "windows": [
+    3,
+    3
+   ],
+   "drawings": [
+    3,
+    3
+   ],
+   "drawnPixels": [
+    786432,
+    786432
+   ]
+  },
+  {
+   "action": "final_victim_jungle_uppercut_pre",
+   "windows": [
+    3,
+    3
+   ],
+   "drawings": [
+    3,
+    3
+   ],
+   "drawnPixels": [
+    786432,
+    786432
+   ]
+  },
+  {
+   "action": "final_victim_volt_burst_pre",
+   "windows": [
+    3,
+    3
+   ],
+   "drawings": [
+    3,
+    3
+   ],
+   "drawnPixels": [
+    786432,
+    786432
+   ]
+  },
+  {
+   "action": "final_victim_volt_caught",
+   "windows": [
+    3,
+    3
+   ],
+   "drawings": [
+    3,
+    3
+   ],
+   "drawnPixels": [
+    786432,
+    786432
+   ]
+  },
+  {
+   "action": "final_victim_volt_vortex",
+   "windows": [
+    6,
+    6
+   ],
+   "drawings": [
+    6,
+    6
+   ],
+   "drawnPixels": [
+    1572864,
+    1572864
+   ]
+  },
+  {
+   "action": "g01cliffcatch",
+   "windows": [
+    5,
+    5
+   ],
+   "drawings": [
+    5,
+    5
+   ],
+   "drawnPixels": [
+    190489,
+    190489
+   ]
+  },
+  {
+   "action": "g01cliffwait",
+   "windows": [
+    11,
+    11
+   ],
+   "drawings": [
+    11,
+    11
+   ],
+   "drawnPixels": [
+    342545,
+    342545
+   ]
+  },
+  {
+   "action": "g02cliffattack",
+   "windows": [
+    12,
+    12
+   ],
+   "drawings": [
+    12,
+    12
+   ],
+   "drawnPixels": [
+    387507,
+    387507
+   ]
+  },
+  {
+   "action": "g02cliffclimb",
+   "windows": [
+    6,
+    6
+   ],
+   "drawings": [
+    6,
+    6
+   ],
+   "drawnPixels": [
+    188118,
+    188118
+   ]
+  },
+  {
+   "action": "g02cliffescape",
+   "windows": [
+    8,
+    8
+   ],
+   "drawings": [
+    8,
+    8
+   ],
+   "drawnPixels": [
+    251775,
+    251775
+   ]
+  },
+  {
+   "action": "g02cliffjump1",
+   "windows": [
+    3,
+    3
+   ],
+   "drawings": [
+    3,
+    3
+   ],
+   "drawnPixels": [
+    130730,
+    130730
+   ]
+  },
+  {
+   "action": "g02cliffjump2",
+   "windows": [
+    5,
+    5
+   ],
+   "drawings": [
+    5,
+    5
+   ],
+   "drawnPixels": [
+    191857,
+    191857
+   ]
+  },
+  {
+   "action": "g03slip",
+   "windows": [
+    5,
+    5
+   ],
+   "drawings": [
+    5,
+    5
+   ],
+   "drawnPixels": [
+    160837,
+    160837
+   ]
+  },
+  {
+   "action": "g03slipattack",
+   "windows": [
+    12,
+    12
+   ],
+   "drawings": [
+    12,
+    12
+   ],
+   "drawnPixels": [
+    440904,
+    440904
+   ]
+  },
+  {
+   "action": "g03slipdown",
+   "windows": [
+    6,
+    6
+   ],
+   "drawings": [
+    6,
+    6
+   ],
+   "drawnPixels": [
+    246996,
+    246996
+   ]
+  },
+  {
+   "action": "g03slipescapeb",
+   "windows": [
+    6,
+    6
+   ],
+   "drawings": [
+    6,
+    6
+   ],
+   "drawnPixels": [
+    186768,
+    186768
+   ]
+  },
+  {
+   "action": "g03slipescapef",
+   "windows": [
+    7,
+    7
+   ],
+   "drawings": [
+    7,
+    7
+   ],
+   "drawnPixels": [
+    206158,
+    206158
+   ]
+  },
+  {
+   "action": "g03slipstand",
+   "windows": [
+    5,
+    5
+   ],
+   "drawings": [
+    5,
+    5
+   ],
+   "drawnPixels": [
+    155353,
+    155353
+   ]
+  },
+  {
+   "action": "g03slipwait",
+   "windows": [
+    8,
+    8
+   ],
+   "drawings": [
+    8,
+    8
+   ],
+   "drawnPixels": [
+    291467,
+    291467
+   ]
+  },
+  {
+   "action": "h00lighteat",
+   "windows": [
+    4,
+    4
+   ],
+   "drawings": [
+    4,
+    4
+   ],
+   "drawnPixels": [
+    98910,
+    98910
+   ]
+  },
+  {
+   "action": "h00lightget",
+   "windows": [
+    2,
+    2
+   ],
+   "drawings": [
+    2,
+    2
+   ],
+   "drawnPixels": [
+    54284,
+    54284
+   ]
+  },
+  {
+   "action": "h00lightwalkeat",
+   "windows": [
+    4,
+    4
+   ],
+   "drawings": [
+    4,
+    4
+   ],
+   "drawnPixels": [
+    104502,
+    104502
+   ]
+  },
+  {
+   "action": "h00lightwalkget",
+   "windows": [
+    4,
+    4
+   ],
+   "drawings": [
+    4,
+    4
+   ],
+   "drawnPixels": [
+    102620,
+    102620
+   ]
+  },
+  {
+   "action": "h01lightthrowb",
+   "windows": [
+    6,
+    6
+   ],
+   "drawings": [
+    6,
+    6
+   ],
+   "drawnPixels": [
+    171943,
+    171943
+   ]
+  },
+  {
+   "action": "h01lightthrowdash",
+   "windows": [
+    8,
+    8
+   ],
+   "drawings": [
+    8,
+    8
+   ],
+   "drawnPixels": [
+    234165,
+    234165
+   ]
+  },
+  {
+   "action": "h01lightthrowdrop",
+   "windows": [
+    6,
+    6
+   ],
+   "drawings": [
+    6,
+    6
+   ],
+   "drawnPixels": [
+    231218,
+    231218
+   ]
+  },
+  {
+   "action": "h01lightthrowf",
+   "windows": [
+    6,
+    6
+   ],
+   "drawings": [
+    6,
+    6
+   ],
+   "drawnPixels": [
+    187074,
+    187074
+   ]
+  },
+  {
+   "action": "h01lightthrowhi",
+   "windows": [
+    6,
+    6
+   ],
+   "drawings": [
+    6,
+    6
+   ],
+   "drawnPixels": [
+    232872,
+    232872
+   ]
+  },
+  {
+   "action": "h01lightthrowlw",
+   "windows": [
+    6,
+    6
+   ],
+   "drawings": [
+    6,
+    6
+   ],
+   "drawnPixels": [
+    198950,
+    198950
+   ]
+  },
+  {
+   "action": "h02lightthrowairb",
+   "windows": [
+    6,
+    6
+   ],
+   "drawings": [
+    6,
+    6
+   ],
+   "drawnPixels": [
+    211416,
+    211416
+   ]
+  },
+  {
+   "action": "h02lightthrowairf",
+   "windows": [
+    6,
+    6
+   ],
+   "drawings": [
+    6,
+    6
+   ],
+   "drawnPixels": [
+    218798,
+    218798
+   ]
+  },
+  {
+   "action": "h02lightthrowairhi",
+   "windows": [
+    7,
+    7
+   ],
+   "drawings": [
+    7,
+    7
+   ],
+   "drawnPixels": [
+    249894,
+    249894
+   ]
+  },
+  {
+   "action": "h02lightthrowairlw",
+   "windows": [
+    5,
+    5
+   ],
+   "drawings": [
+    5,
+    5
+   ],
+   "drawnPixels": [
+    166932,
+    166932
+   ]
+  },
+  {
+   "action": "h03heavyget",
+   "windows": [
+    4,
+    4
+   ],
+   "drawings": [
+    4,
+    4
+   ],
+   "drawnPixels": [
+    81394,
+    81394
+   ]
+  },
+  {
+   "action": "h03heavythrowb",
+   "windows": [
+    9,
+    9
+   ],
+   "drawings": [
+    9,
+    9
+   ],
+   "drawnPixels": [
+    340033,
+    340033
+   ]
+  },
+  {
+   "action": "h03heavythrowf",
+   "windows": [
+    10,
+    10
+   ],
+   "drawings": [
+    10,
+    10
+   ],
+   "drawnPixels": [
+    349398,
+    349398
+   ]
+  },
+  {
+   "action": "h03heavythrowhi",
+   "windows": [
+    8,
+    8
+   ],
+   "drawings": [
+    8,
+    8
+   ],
+   "drawnPixels": [
+    304241,
+    304241
+   ]
+  },
+  {
+   "action": "h03heavythrowlw",
+   "windows": [
+    8,
+    8
+   ],
+   "drawings": [
+    8,
+    8
+   ],
+   "drawnPixels": [
+    275915,
+    275915
+   ]
+  },
+  {
+   "action": "h03heavywalk",
+   "windows": [
+    5,
+    5
+   ],
+   "drawings": [
+    5,
+    5
+   ],
+   "drawnPixels": [
+    119332,
+    119332
+   ]
+  },
+  {
+   "action": "h04swing1",
+   "windows": [
+    7,
+    7
+   ],
+   "drawings": [
+    7,
+    7
+   ],
+   "drawnPixels": [
+    204732,
+    204732
+   ]
+  },
+  {
+   "action": "h04swing3",
+   "windows": [
+    9,
+    9
+   ],
+   "drawings": [
+    9,
+    9
+   ],
+   "drawnPixels": [
+    314373,
+    314373
+   ]
+  },
+  {
+   "action": "h04swing4",
+   "windows": [
+    11,
+    11
+   ],
+   "drawings": [
+    11,
+    11
+   ],
+   "drawnPixels": [
+    375231,
+    375231
+   ]
+  },
+  {
+   "action": "h04swing4charge",
+   "windows": [
+    10,
+    10
+   ],
+   "drawings": [
+    10,
+    10
+   ],
+   "drawnPixels": [
+    284901,
+    284901
+   ]
+  },
+  {
+   "action": "h04swingdash",
+   "windows": [
+    9,
+    9
+   ],
+   "drawings": [
+    9,
+    9
+   ],
+   "drawnPixels": [
+    301972,
+    301972
+   ]
+  },
+  {
+   "action": "h05itemhammerair",
+   "windows": [
+    3,
+    3
+   ],
+   "drawings": [
+    3,
+    3
+   ],
+   "drawnPixels": [
+    149194,
+    149194
+   ]
+  },
+  {
+   "action": "h05itemhammermove",
+   "windows": [
+    2,
+    2
+   ],
+   "drawings": [
+    2,
+    2
+   ],
+   "drawnPixels": [
+    81590,
+    81590
+   ]
+  },
+  {
+   "action": "h05itemhammerwait",
+   "windows": [
+    2,
+    2
+   ],
+   "drawings": [
+    2,
+    2
+   ],
+   "drawnPixels": [
+    80114,
+    80114
+   ]
+  },
+  {
+   "action": "h06swing4bat",
+   "windows": [
+    11,
+    11
+   ],
+   "drawings": [
+    11,
+    11
+   ],
+   "drawnPixels": [
+    312264,
+    312264
+   ]
+  },
+  {
+   "action": "h10itemlegsjumpsquat",
+   "windows": [
+    2,
+    2
+   ],
+   "drawings": [
+    2,
+    2
+   ],
+   "drawnPixels": [
+    57364,
+    57364
+   ]
+  },
+  {
+   "action": "h10itemlegslanding",
+   "windows": [
+    3,
+    3
+   ],
+   "drawings": [
+    3,
+    3
+   ],
+   "drawnPixels": [
+    85890,
+    85890
+   ]
+  },
+  {
+   "action": "h10itemlegswalkb",
+   "windows": [
+    4,
+    4
+   ],
+   "drawings": [
+    4,
+    4
+   ],
+   "drawnPixels": [
+    113934,
+    113934
+   ]
+  },
+  {
+   "action": "h10itemlegswalkf",
+   "windows": [
+    4,
+    4
+   ],
+   "drawings": [
+    4,
+    4
+   ],
+   "drawnPixels": [
+    122632,
+    122632
+   ]
+  },
+  {
+   "action": "h11itemshoot",
+   "windows": [
+    6,
+    6
+   ],
+   "drawings": [
+    6,
+    6
+   ],
+   "drawnPixels": [
+    176890,
+    176890
+   ]
+  },
+  {
+   "action": "h11itemshootair",
+   "windows": [
+    6,
+    6
+   ],
+   "drawings": [
+    6,
+    6
+   ],
+   "drawnPixels": [
+    192996,
+    192996
+   ]
+  },
+  {
+   "action": "h11itemshootairloop",
+   "windows": [
+    5,
+    5
+   ],
+   "drawings": [
+    5,
+    5
+   ],
+   "drawnPixels": [
+    153850,
+    153850
+   ]
+  },
+  {
+   "action": "h11itemshootloop",
+   "windows": [
+    5,
+    5
+   ],
+   "drawings": [
+    5,
+    5
+   ],
+   "drawnPixels": [
+    142044,
+    142044
+   ]
+  },
+  {
+   "action": "h11itemshootloopupper",
+   "windows": [
+    5,
+    5
+   ],
+   "drawings": [
+    5,
+    5
+   ],
+   "drawnPixels": [
+    109507,
+    109507
+   ]
+  },
+  {
+   "action": "h11itemshootupper",
+   "windows": [
+    6,
+    6
+   ],
+   "drawings": [
+    6,
+    6
+   ],
+   "drawnPixels": [
+    124662,
+    124662
+   ]
+  },
+  {
+   "action": "h12itemscopeairend",
+   "windows": [
+    4,
+    4
+   ],
+   "drawings": [
+    4,
+    4
+   ],
+   "drawnPixels": [
+    138852,
+    138852
+   ]
+  },
+  {
+   "action": "h12itemscopeairfire",
+   "windows": [
+    5,
+    5
+   ],
+   "drawings": [
+    5,
+    5
+   ],
+   "drawnPixels": [
+    164950,
+    164950
+   ]
+  },
+  {
+   "action": "h12itemscopeairrapid",
+   "windows": [
+    2,
+    2
+   ],
+   "drawings": [
+    2,
+    2
+   ],
+   "drawnPixels": [
+    70416,
+    70416
+   ]
+  },
+  {
+   "action": "h12itemscopeairstart",
+   "windows": [
+    3,
+    3
+   ],
+   "drawings": [
+    3,
+    3
+   ],
+   "drawnPixels": [
+    102498,
+    102498
+   ]
+  },
+  {
+   "action": "h12itemscopeend",
+   "windows": [
+    4,
+    4
+   ],
+   "drawings": [
+    4,
+    4
+   ],
+   "drawnPixels": [
+    123910,
+    123910
+   ]
+  },
+  {
+   "action": "h12itemscopeendupper",
+   "windows": [
+    4,
+    4
+   ],
+   "drawings": [
+    4,
+    4
+   ],
+   "drawnPixels": [
+    91285,
+    91285
+   ]
+  },
+  {
+   "action": "h12itemscopefall",
+   "windows": [
+    2,
+    2
+   ],
+   "drawings": [
+    2,
+    2
+   ],
+   "drawnPixels": [
+    70416,
+    70416
+   ]
+  },
+  {
+   "action": "h12itemscopefire",
+   "windows": [
+    5,
+    5
+   ],
+   "drawings": [
+    5,
+    5
+   ],
+   "drawnPixels": [
+    154410,
+    154410
+   ]
+  },
+  {
+   "action": "h12itemscopefireupper",
+   "windows": [
+    5,
+    5
+   ],
+   "drawings": [
+    5,
+    5
+   ],
+   "drawnPixels": [
+    113492,
+    113492
+   ]
+  },
+  {
+   "action": "h12itemscoperapid",
+   "windows": [
+    2,
+    2
+   ],
+   "drawings": [
+    2,
+    2
+   ],
+   "drawnPixels": [
+    64222,
+    64222
+   ]
+  },
+  {
+   "action": "h12itemscoperapidupper",
+   "windows": [
+    2,
+    2
+   ],
+   "drawings": [
+    2,
+    2
+   ],
+   "drawnPixels": [
+    48574,
+    48574
+   ]
+  },
+  {
+   "action": "h12itemscopestart",
+   "windows": [
+    3,
+    3
+   ],
+   "drawings": [
+    3,
+    3
+   ],
+   "drawnPixels": [
+    93481,
+    93481
+   ]
+  },
+  {
+   "action": "h12itemscopestartupper",
+   "windows": [
+    3,
+    3
+   ],
+   "drawings": [
+    3,
+    3
+   ],
+   "drawnPixels": [
+    67854,
+    67854
+   ]
+  },
+  {
+   "action": "h12itemscopewait",
+   "windows": [
+    8,
+    8
+   ],
+   "drawings": [
+    8,
+    8
+   ],
+   "drawnPixels": [
+    252934,
+    252934
+   ]
+  },
+  {
+   "action": "h12itemscopewaitupper",
+   "windows": [
+    8,
+    8
+   ],
+   "drawings": [
+    8,
+    8
+   ],
+   "drawnPixels": [
+    192113,
+    192113
+   ]
+  },
+  {
+   "action": "idle",
+   "windows": [
+    11,
+    11
+   ],
+   "drawings": [
+    11,
+    11
+   ],
+   "drawnPixels": [
+    342185,
+    342185
+   ]
+  },
+  {
+   "action": "j00entryr",
+   "windows": [
+    67,
+    67
+   ],
+   "drawings": [
+    67,
+    67
+   ],
+   "drawnPixels": [
+    2934507,
+    2934507
+   ]
+  },
+  {
+   "action": "j01appealhir",
+   "windows": [
+    11,
+    11
+   ],
+   "drawings": [
+    11,
+    11
+   ],
+   "drawnPixels": [
+    380697,
+    380697
+   ]
+  },
+  {
+   "action": "j01appeallwr",
+   "windows": [
+    12,
+    12
+   ],
+   "drawings": [
+    12,
+    12
+   ],
+   "drawnPixels": [
+    418793,
+    418793
+   ]
+  },
+  {
+   "action": "j01appealsr",
+   "windows": [
+    12,
+    12
+   ],
+   "drawings": [
+    12,
+    12
+   ],
+   "drawnPixels": [
+    490798,
+    490798
+   ]
+  },
+  {
+   "action": "j02lose",
+   "windows": [
+    12,
+    12
+   ],
+   "drawings": [
+    12,
+    12
+   ],
+   "drawnPixels": [
+    265429,
+    265429
+   ]
+  },
+  {
+   "action": "j02win1",
+   "windows": [
+    12,
+    12
+   ],
+   "drawings": [
+    12,
+    12
+   ],
+   "drawnPixels": [
+    521802,
+    521802
+   ]
+  },
+  {
+   "action": "j02win1wait",
+   "windows": [
+    8,
+    8
+   ],
+   "drawings": [
+    8,
+    8
+   ],
+   "drawnPixels": [
+    225934,
+    225934
+   ]
+  },
+  {
+   "action": "j02win2",
+   "windows": [
+    12,
+    12
+   ],
+   "drawings": [
+    12,
+    12
+   ],
+   "drawnPixels": [
+    495276,
+    495276
+   ]
+  },
+  {
+   "action": "j02win2wait",
+   "windows": [
+    8,
+    8
+   ],
+   "drawings": [
+    8,
+    8
+   ],
+   "drawnPixels": [
+    451608,
+    451608
+   ]
+  },
+  {
+   "action": "j02win3",
+   "windows": [
+    12,
+    12
+   ],
+   "drawings": [
+    12,
+    12
+   ],
+   "drawnPixels": [
+    413647,
+    413647
+   ]
+  },
+  {
+   "action": "j02win3wait",
+   "windows": [
+    9,
+    9
+   ],
+   "drawings": [
+    9,
+    9
+   ],
+   "drawnPixels": [
+    233400,
+    233400
+   ]
+  },
+  {
+   "action": "jab",
+   "windows": [
+    5,
+    5
+   ],
+   "drawings": [
+    5,
+    5
+   ],
+   "drawnPixels": [
+    187151,
+    187151
+   ]
+  },
+  {
+   "action": "jab2",
+   "windows": [
+    7,
+    7
+   ],
+   "drawings": [
+    7,
+    7
+   ],
+   "drawnPixels": [
+    294886,
+    294886
+   ]
+  },
+  {
+   "action": "jab3",
+   "windows": [
+    8,
+    8
+   ],
+   "drawings": [
+    8,
+    8
+   ],
+   "drawnPixels": [
+    317096,
+    317096
+   ]
+  },
+  {
+   "action": "jump",
+   "windows": [
+    6,
+    6
+   ],
+   "drawings": [
+    6,
+    6
+   ],
+   "drawnPixels": [
+    213871,
+    213871
+   ]
+  },
+  {
+   "action": "jump_b",
+   "windows": [
+    6,
+    6
+   ],
+   "drawings": [
+    6,
+    6
+   ],
+   "drawnPixels": [
+    219406,
+    219406
+   ]
+  },
+  {
+   "action": "landing_air_b",
+   "windows": [
+    10,
+    10
+   ],
+   "drawings": [
+    10,
+    10
+   ],
+   "drawnPixels": [
+    272945,
+    272945
+   ]
+  },
+  {
+   "action": "landing_air_f",
+   "windows": [
+    7,
+    7
+   ],
+   "drawings": [
+    7,
+    7
+   ],
+   "drawnPixels": [
+    221105,
+    221105
+   ]
+  },
+  {
+   "action": "landing_air_hi",
+   "windows": [
+    6,
+    6
+   ],
+   "drawings": [
+    6,
+    6
+   ],
+   "drawnPixels": [
+    206804,
+    206804
+   ]
+  },
+  {
+   "action": "landing_air_lw",
+   "windows": [
+    12,
+    12
+   ],
+   "drawings": [
+    12,
+    12
+   ],
+   "drawnPixels": [
+    322332,
+    322332
+   ]
+  },
+  {
+   "action": "landing_air_n",
+   "windows": [
+    12,
+    12
+   ],
+   "drawings": [
+    12,
+    12
+   ],
+   "drawnPixels": [
+    337431,
+    337431
+   ]
+  },
+  {
+   "action": "nair",
+   "windows": [
+    10,
+    10
+   ],
+   "drawings": [
+    10,
+    10
+   ],
+   "drawnPixels": [
+    305218,
+    305218
+   ]
+  },
+  {
+   "action": "smash",
+   "windows": [
+    11,
+    11
+   ],
+   "drawings": [
+    11,
+    11
+   ],
+   "drawnPixels": [
+    374461,
+    374461
+   ]
+  },
+  {
+   "action": "smash2",
+   "windows": [
+    12,
+    12
+   ],
+   "drawings": [
+    12,
+    12
+   ],
+   "drawnPixels": [
+    470542,
+    470542
+   ]
+  },
+  {
+   "action": "smash_charge",
+   "windows": [
+    11,
+    11
+   ],
+   "drawings": [
+    11,
+    11
+   ],
+   "drawnPixels": [
+    327692,
+    327692
+   ]
+  },
+  {
+   "action": "spot_dodge",
+   "windows": [
+    6,
+    6
+   ],
+   "drawings": [
+    6,
+    6
+   ],
+   "drawnPixels": [
+    228192,
+    228192
+   ]
+  },
+  {
+   "action": "tilt",
+   "windows": [
+    10,
+    10
+   ],
+   "drawings": [
+    10,
+    10
+   ],
+   "drawnPixels": [
+    456366,
+    456366
+   ]
+  },
+  {
+   "action": "uair",
+   "windows": [
+    12,
+    12
+   ],
+   "drawings": [
+    12,
+    12
+   ],
+   "drawnPixels": [
+    578897,
+    578897
+   ]
+  },
+  {
+   "action": "usmash",
+   "windows": [
+    12,
+    12
+   ],
+   "drawings": [
+    12,
+    12
+   ],
+   "drawnPixels": [
+    582675,
+    582675
+   ]
+  },
+  {
+   "action": "usmash_charge",
+   "windows": [
+    11,
+    11
+   ],
+   "drawings": [
+    11,
+    11
+   ],
+   "drawnPixels": [
+    324273,
+    324273
+   ]
+  },
+  {
+   "action": "utilt",
+   "windows": [
+    8,
+    8
+   ],
+   "drawings": [
+    8,
+    8
+   ],
+   "drawnPixels": [
+    271792,
+    271792
+   ]
+  },
+  {
+   "action": "walk",
+   "windows": [
+    5,
+    5
+   ],
+   "drawings": [
+    5,
+    5
+   ],
+   "drawnPixels": [
+    193060,
+    193060
+   ]
+  }
+ ]
+}
