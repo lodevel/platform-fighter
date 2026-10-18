@@ -5,15 +5,13 @@
  * Reads <packages>/<id> and writes, beside it:
  *   <id>~small            every drawing shrunk to <zoom> screen px per design px on a
  *                         1080p screen (<final-zoom> for drawings only Finals show), BC7 priced;
- *   <id>~small-c<n>       the same, reduced to a palette of <n> entries (transparent included),
- *                         priced at ceil(log2 n) bits per page pixel. Pages stay RGBA so the
- *                         lab shows exactly the palette colours.
+ *   <id>~small-c<n>       the same, reduced to one palette of <n> entries (transparent included,
+ *                         at most 256) on indexed pages: one byte per pixel on the GPU.
  * Node only; no game code.
  */
-import type { MemoryEstimate } from '../package/memory';
 import type { Drawing, DrawingId } from '../package/types';
 import { readCandidateSource, writeCandidate } from './output';
-import { fitPalette, indexBits, quantize } from './palette';
+import { encodeIndexed, fitPalette, paletteColors, quantize } from './palette';
 import { crop, packDrawings, readPage } from './pixels';
 import { shrink } from './resample';
 import type { PNG } from 'pngjs';
@@ -21,7 +19,8 @@ import type { PNG } from 'pngjs';
 const input = readCandidateSource('shrinkCandidate.ts <id> [--zoom 1.4] [--final-zoom 2.8] [--colors 256] [--packages dir]');
 const zoom = Number(input.option('--zoom') ?? 1.4), finalZoom = Number(input.option('--final-zoom') ?? 2.8);
 const colors = (input.option('--colors') ?? '256').split(',').map(Number);
-const IMPORTER = { name: 'shrink candidate', version: '1' };
+if (colors.some(n => !(n >= 2 && n <= 256))) throw new Error('--colors must be between 2 and 256');
+const IMPORTER = { name: 'shrink candidate', version: '2' };
 const isFinal = (action: string) => action.includes('final') && !action.includes('victim');
 
 // A drawing shown by any ordinary action is stored for the ordinary zoom.
@@ -46,7 +45,7 @@ const settings = { zoom, finalZoom };
 await writeCandidate(input, 'small', IMPORTER, settings, dir => packDrawings(resized, dir, id => shrunk.get(id)!.image));
 for (const size of colors) {
   const palette = fitPalette([...shrunk.values()].map(s => s.image), size);
-  await writeCandidate(input, `small-c${size}`, IMPORTER, { ...settings, colors: size, palette },
-    dir => packDrawings(resized, dir, id => quantize(shrunk.get(id)!.image, palette)),
-    (m: MemoryEstimate) => Math.ceil(m.pagePixels * indexBits(size) / 8));
+  await writeCandidate(input, `small-c${size}`, IMPORTER, { ...settings, colors: size },
+    dir => ({ ...packDrawings(resized, dir, id => quantize(shrunk.get(id)!.image, palette), { format: 'indexed', encode: encodeIndexed }),
+      palette: paletteColors(palette) }));
 }

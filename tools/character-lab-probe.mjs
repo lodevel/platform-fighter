@@ -31,6 +31,10 @@ const CASES = [
   { package: 'donkeykong', compare: 'donkeykong~holds-0.12', action: 'final_attack', tick: 40, shot: 'dk-final-holds-0.12' },
   { package: 'link', compare: 'link~holds-0.12', action: 'd04final', tick: 40, shot: 'link-final-holds-0.12' },
   { package: 'pikachu', compare: 'pikachu~holds-0.12', action: 'final2', tick: 40, shot: 'pikachu-final2-holds-0.12' },
+  // Phase 3 decision: match-size drawings on indexed pages with one 256-colour palette (`npm run character:shrink -- <id>~holds-0.12`).
+  { package: 'donkeykong~holds-0.12~small-c256', compare: 'donkeykong', action: 'jab', tick: 6, shot: 'dk-jab-indexed' },
+  { package: 'donkeykong~holds-0.12~small-c256', compare: 'donkeykong', action: 'jab', tick: 6, costume: '2', shot: 'dk-jab-indexed-costume-2' },
+  { package: 'pikachu~holds-0.12~small-c256', compare: 'pikachu', action: 'final2', tick: 40, zoom: '2.8', shot: 'pikachu-final2-indexed' },
 ];
 
 function server(args, url) {
@@ -102,7 +106,7 @@ try {
   page.on('console', m => { if (m.type() === 'error') report.errors.push(`console: ${m.text()}`); });
   page.on('response', r => { if (r.status() >= 400) report.errors.push(`HTTP ${r.status()} ${r.url()}`); });
   const served = await (await fetch(`${DEV}packages/index.json`)).json();
-  for (const c of CASES.filter(c => !c.compare || served.packages.includes(c.compare))) { report.dev.push(await check(page, c)); console.log(c.shot, report.dev.at(-1).drawnPixels, 'px', report.dev.at(-1).recolouredPixels ?? ''); }
+  for (const c of CASES.filter(c => [c.package, c.compare].filter(Boolean).every(id => served.packages.includes(id)))) { report.dev.push(await check(page, c)); console.log(c.shot, report.dev.at(-1).drawnPixels, 'px', report.dev.at(-1).recolouredPixels ?? ''); }
 
   // The static build alone, opening a package through the folder picker.
   dev.stop();

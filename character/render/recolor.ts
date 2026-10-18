@@ -16,11 +16,41 @@ export interface HsvShift {
 }
 
 function hsv(hex: string): [number, number, number] {
-  const color = parseInt(hex.slice(1), 16);
-  const r = (color >> 16 & 255) / 255, g = (color >> 8 & 255) / 255, b = (color & 255) / 255;
+  const color = parseInt(hex.slice(1, 7), 16);
+  return rgbToHsv((color >> 16 & 255) / 255, (color >> 8 & 255) / 255, (color & 255) / 255);
+}
+
+function rgbToHsv(r: number, g: number, b: number): [number, number, number] {
   const max = Math.max(r, g, b), d = max - Math.min(r, g, b);
   const h = d === 0 ? 0 : max === r ? ((g - b) / d + 6) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
   return [h / 6, max === 0 ? 0 : d / max, max];
+}
+
+function hsvToRgb(h: number, s: number, v: number): [number, number, number] {
+  const channel = (offset: number) => {
+    const p = Math.abs((((h + offset) % 1) + 1) % 1 * 6 - 3);
+    return v * (1 + (Math.min(1, Math.max(0, p - 1)) - 1) * s);
+  };
+  return [channel(1), channel(2 / 3), channel(1 / 3)];
+}
+
+/**
+ * One straight-alpha colour (each channel 0..1) recoloured by `shifts`: the same
+ * maths as `recolor()` in `RECOLOR_GLSL`, applied to a palette entry instead of a texel.
+ */
+export function recolorColor([r, g, b, a]: readonly [number, number, number, number], shifts: readonly HsvShift[]): [number, number, number, number] {
+  if (shifts.length === 0 || a <= 0) return [r, g, b, a];
+  const [h, s, v] = rgbToHsv(r, g, b);
+  let best = Infinity, pick: HsvShift | undefined;
+  for (const shift of shifts.slice(0, MAX_COLOR_REGIONS)) {
+    const dh = Math.min(Math.abs(h - shift.key[0]), 1 - Math.abs(h - shift.key[0]));
+    const dist = Math.hypot(dh / shift.tolerance[0], Math.abs(s - shift.key[1]) / shift.tolerance[1], Math.abs(v - shift.key[2]) / shift.tolerance[2]);
+    if (dist < best) { best = dist; pick = shift; }
+  }
+  if (!pick || best >= 1) return [r, g, b, a];
+  const moved = hsvToRgb(((h + pick.hueShift) % 1 + 1) % 1, Math.min(1, Math.max(0, s * pick.saturationRatio)), Math.min(1, Math.max(0, v * pick.valueRatio)));
+  const edge = Math.min(1, Math.max(0, (best - 0.6) / 0.4)), weight = 1 - edge * edge * (3 - 2 * edge);
+  return [r + (moved[0] - r) * weight, g + (moved[1] - g) * weight, b + (moved[2] - b) * weight, a];
 }
 
 /**

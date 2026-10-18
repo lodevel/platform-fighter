@@ -25,7 +25,10 @@ export function fitPalette(images: readonly PNG[], size: number, samples = 300_0
   return [[0, 0, 0, 0], ...centres.map(c => c.map(Math.round) as [number, number, number, number])];
 }
 
-/** The image with every pixel replaced by its nearest palette entry. */
+/**
+ * The image as palette indices: every pixel becomes its nearest entry, stored in R, G and
+ * B, with alpha 255 (0 for the transparent entry) so packing pads with entry 0.
+ */
 export function quantize(image: PNG, palette: Palette): PNG {
   const out = new PNG({ width: image.width, height: image.height }), cache = new Map<number, number>();
   const visible = palette.slice(1).map(e => [...e]);
@@ -36,15 +39,21 @@ export function quantize(image: PNG, palette: Palette): PNG {
       index = d[i * 4 + 3]! < CLEAR ? 0 : 1 + nearest(visible, premultiplied(d, i));
       cache.set(key, index);
     }
-    const [r, g, b, a] = palette[index]!;
-    out.data[i * 4] = a ? Math.round(r * 255 / a) : 0; out.data[i * 4 + 1] = a ? Math.round(g * 255 / a) : 0;
-    out.data[i * 4 + 2] = a ? Math.round(b * 255 / a) : 0; out.data[i * 4 + 3] = a;
+    out.data.fill(index, i * 4, i * 4 + 3); out.data[i * 4 + 3] = index ? 255 : 0;
   }
   return out;
 }
 
-/** Bits per pixel needed to index a palette of `size` entries. */
-export const indexBits = (size: number) => Math.ceil(Math.log2(size));
+/** The palette as the package stores it: `#rrggbbaa`, straight alpha. */
+export const paletteColors = (palette: Palette): string[] => palette.map(([r, g, b, a]) =>
+  '#' + [a ? r * 255 / a : 0, a ? g * 255 / a : 0, a ? b * 255 / a : 0, a].map(c => Math.round(Math.min(255, c)).toString(16).padStart(2, '0')).join(''));
+
+/** An index image (from `quantize`) as a greyscale PNG, the file format of an indexed page. */
+export function encodeIndexed(page: PNG): Buffer {
+  const grey = Buffer.alloc(page.width * page.height);
+  for (let i = 0; i < grey.length; i++) grey[i] = page.data[i * 4]!;
+  return PNG.sync.write({ width: page.width, height: page.height, data: grey } as PNG, { colorType: 0, inputColorType: 0, inputHasAlpha: false });
+}
 
 const premultiplied = (data: Buffer, i: number): number[] => {
   const a = data[i * 4 + 3]!;

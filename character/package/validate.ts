@@ -7,7 +7,7 @@ export function validatePackage(value: unknown): string[] {
   if (!isObject(value)) return ['package: not an object'];
   const pkg = value as unknown as CharacterPackage;
 
-  allowKeys(value, ['schema', 'id', 'revision', 'pages', 'drawings', 'actions', 'costumes', 'provenance', 'extensions'], 'package', fail);
+  allowKeys(value, ['schema', 'id', 'revision', 'pages', 'drawings', 'actions', 'costumes', 'palette', 'provenance', 'extensions'], 'package', fail);
   if (pkg.schema !== PACKAGE_SCHEMA) fail('schema', `expected ${PACKAGE_SCHEMA}`);
   if (!isText(pkg.id)) fail('id', 'missing');
   if (typeof pkg.revision !== 'string') fail('revision', 'missing');
@@ -18,7 +18,9 @@ export function validatePackage(value: unknown): string[] {
   const pages = records(pkg.pages, 'pages', fail);
   for (const [id, page] of pages) {
     const path = `pages.${id}`;
-    allowKeys(page, ['file', 'width', 'height', 'sha256'], path, fail);
+    allowKeys(page, ['file', 'width', 'height', 'sha256', 'format'], path, fail);
+    if (page.format !== undefined && page.format !== 'indexed') fail(`${path}.format`, 'must be indexed when present');
+    if (page.format === 'indexed' && pkg.palette === undefined) fail(`${path}.format`, 'an indexed page needs the package palette');
     if (!isText(page.file) || page.file.startsWith('/') || page.file.split('/').includes('..')) fail(`${path}.file`, 'must be a relative path inside the package');
     if (!isCount(page.width) || !isCount(page.height)) fail(path, 'width and height must be positive integers');
     if (typeof page.sha256 !== 'string' || !/^[0-9a-f]{64}$/.test(page.sha256)) fail(`${path}.sha256`, 'must be 64 lowercase hex digits');
@@ -69,6 +71,7 @@ export function validatePackage(value: unknown): string[] {
   }
   for (const [id] of drawings) if (!usedDrawings.has(id)) fail(`drawings.${id}`, 'no action shows this drawing');
   if (pkg.costumes !== undefined) checkCostumes(pkg.costumes, fail);
+  if (pkg.palette !== undefined) checkPalette(pkg.palette, fail);
   return errors;
 }
 
@@ -98,6 +101,12 @@ function checkCostumes(costumes: Costumes, fail: Fail): void {
     for (const slot of slots) if (!isColor(costume.slots[slot])) fail(`${at}.slots.${slot}`, 'must be #rrggbb');
     for (const slot of Object.keys(costume.slots)) if (!slots.has(slot)) fail(`${at}.slots.${slot}`, 'no region uses this slot');
   });
+}
+
+function checkPalette(palette: readonly string[], fail: Fail): void {
+  if (!Array.isArray(palette) || palette.length < 2 || palette.length > 256) { fail('palette', 'needs 2 to 256 colours'); return; }
+  palette.forEach((color, i) => { if (typeof color !== 'string' || !/^#[0-9a-f]{8}$/.test(color)) fail(`palette[${i}]`, 'must be #rrggbbaa'); });
+  if (palette[0] !== '#00000000') fail('palette[0]', 'must be transparent (#00000000)');
 }
 
 type Fail = (path: string, message: string) => void;

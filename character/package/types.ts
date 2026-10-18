@@ -26,6 +26,11 @@ export interface CharacterPackage {
   readonly actions: Readonly<Record<ActionId, Action>>;
   /** Alternate colourings of the same drawings. Absent: the character is shown only as drawn. */
   readonly costumes?: Costumes;
+  /**
+   * Colours of `indexed` pages as `#rrggbbaa` (straight alpha), at most 256. Entry 0 is
+   * transparent. Costumes recolour these entries rather than the pixels.
+   */
+  readonly palette?: readonly string[];
   readonly provenance: Provenance;
   /** Data only one host understands, keyed by a versioned host name. Never read by the core. */
   readonly extensions?: Readonly<Record<string, unknown>>;
@@ -37,6 +42,11 @@ export interface Page {
   readonly width: number;
   readonly height: number;
   readonly sha256: string;
+  /**
+   * `indexed`: a greyscale PNG whose value is the pixel's entry in the package palette
+   * (one byte per pixel on the GPU). Absent: an RGBA PNG.
+   */
+  readonly format?: 'indexed';
 }
 
 /** One stored drawing: a rectangle of a page, placed by its root anchor. */

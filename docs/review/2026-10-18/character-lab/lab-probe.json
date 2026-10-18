@@ -200,6 +200,49 @@
    ],
    "drawnPixels": 4958,
    "compared": "Compared: pikachu~holds-0.12 / final2"
+  },
+  {
+   "package": "donkeykong~holds-0.12~small-c256",
+   "compare": "donkeykong",
+   "action": "jab",
+   "tick": "tick 6 / 54  ·  drawing jab/2  ·  source frame 6",
+   "shot": "dk-jab-indexed",
+   "reference": "Ultimate Frame Data recording, 24 ticks, played on the same clock.",
+   "problems": [
+    "None"
+   ],
+   "drawnPixels": 16125,
+   "compared": "Compared: donkeykong / jab"
+  },
+  {
+   "package": "donkeykong~holds-0.12~small-c256",
+   "compare": "donkeykong",
+   "action": "jab",
+   "tick": "tick 6 / 54  ·  drawing jab/2  ·  source frame 6",
+   "costume": "2 Cobalt",
+   "shot": "dk-jab-indexed-costume-2",
+   "reference": "Ultimate Frame Data recording, 24 ticks, played on the same clock.",
+   "problems": [
+    "None"
+   ],
+   "drawnPixels": 16096,
+   "compared": "Compared: donkeykong / jab",
+   "recolouredPixels": 9372,
+   "status": "donkeykong~holds-0.12~small-c256: revision aef1887a68b4"
+  },
+  {
+   "package": "pikachu~holds-0.12~small-c256",
+   "compare": "pikachu",
+   "action": "final2",
+   "tick": "tick 40 / 126  ·  drawing visual_final_10/21  ·  source frame 40",
+   "zoom": "2.8",
+   "shot": "pikachu-final2-indexed",
+   "reference": "No Ultimate recording for this action yet.",
+   "problems": [
+    "None"
+   ],
+   "drawnPixels": 16763,
+   "compared": "Compared: pikachu / final2"
   }
  ],
  "static": {

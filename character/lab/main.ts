@@ -112,7 +112,7 @@ function describe(): void {
 
 function memoryRows(title: string, m: MemoryEstimate, extra: [string, string][]): [string, string][] {
   return [[`${title[0]!.toUpperCase()}${title.slice(1)}: drawings`, String(m.drawings)], ['Pages', String(m.pages)], ['Drawn pixels', `${(m.drawnPixels / 1e6).toFixed(2)} M`],
-    ['RGBA8', mib(m.rgbaBytes)], ['BC7', mib(m.bc7Bytes)], ...extra];
+    ['RGBA8', mib(m.rgbaBytes)], ['BC7', mib(m.bc7Bytes)], ['GPU', mib(m.gpuBytes)], ...extra];
 }
 
 function facts(list: HTMLElement, rows: [string, string][]): void {

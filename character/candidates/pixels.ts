@@ -73,7 +73,8 @@ export function repack(pkg: CharacterPackage, sourceDir: string, outDir: string)
  * fresh pages grouped like the source pages, and returns the package pointing at them.
  * Each drawing keeps its fields except `rect`, which becomes the image's place.
  */
-export function packDrawings(pkg: CharacterPackage, outDir: string, image: (id: DrawingId, drawing: Drawing) => PNG): CharacterPackage {
+export function packDrawings(pkg: CharacterPackage, outDir: string, image: (id: DrawingId, drawing: Drawing) => PNG,
+  format?: { readonly format: 'indexed'; readonly encode: (page: PNG) => Buffer }): CharacterPackage {
   const byPage = new Map<PageId, DrawingId[]>();
   for (const [id, drawing] of Object.entries(pkg.drawings)) byPage.set(drawing.page, [...(byPage.get(drawing.page) ?? []), id]);
   const pages: Record<PageId, Page> = {}, drawings: Record<DrawingId, Drawing> = {};
@@ -88,9 +89,10 @@ export function packDrawings(pkg: CharacterPackage, outDir: string, image: (id: 
       PNG.bitblt(png, out, 0, 0, png.width, png.height, d.x + PADDING, d.y + PADDING);
       drawings[d.id] = { ...pkg.drawings[d.id]!, rect: [d.x + PADDING, d.y + PADDING, png.width, png.height] };
     }
-    const file = `pages/${pageId}.png`, bytes = PNG.sync.write(out);
+    const file = `pages/${pageId}.png`, bytes = format ? format.encode(out) : PNG.sync.write(out);
     writeFileSync(path.join(outDir, file), bytes);
-    pages[pageId] = { file, width: out.width, height: out.height, sha256: createHash('sha256').update(bytes).digest('hex') };
+    pages[pageId] = { file, width: out.width, height: out.height, sha256: createHash('sha256').update(bytes).digest('hex'),
+      ...(format ? { format: format.format } : {}) };
   }
   return { ...pkg, pages, drawings };
 }

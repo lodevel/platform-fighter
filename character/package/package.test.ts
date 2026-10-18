@@ -44,6 +44,15 @@ describe('validatePackage', () => {
     expect(validatePackage(edit(p => { p.costumes.regions = Array(5).fill(p.costumes.regions[0]); }))).toEqual(['costumes.regions: needs 1 to 4 regions']);
     expect(validatePackage(edit(p => { p.costumes.regions[0].tolerance = [0.1, 0, 0.1]; }))).toEqual(['costumes.regions[0].tolerance: must be three positive numbers']);
   });
+
+  it('checks indexed pages and the palette', () => {
+    expect(validatePackage(edit(p => { p.pages.p0.format = 'indexed'; p.palette = ['#00000000', '#704023ff']; }))).toEqual([]);
+    expect(validatePackage(edit(p => { p.pages.p0.format = 'indexed'; }))).toEqual(['pages.p0.format: an indexed page needs the package palette']);
+    expect(validatePackage(edit(p => { p.pages.p0.format = 'rgb'; }))).toEqual(['pages.p0.format: must be indexed when present']);
+    expect(validatePackage(edit(p => { p.palette = ['#704023ff', '#704023ff']; }))).toEqual(['palette[0]: must be transparent (#00000000)']);
+    expect(validatePackage(edit(p => { p.palette = ['#00000000', '#704023']; }))).toEqual(['palette[1]: must be #rrggbbaa']);
+    expect(validatePackage(edit(p => { p.palette = Array(257).fill('#00000000'); }))).toEqual(['palette: needs 2 to 256 colours']);
+  });
 });
 
 describe('canonical form', () => {
