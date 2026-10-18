@@ -15,6 +15,7 @@ import { createAppVersionBadge } from '../ui/components/appVersion';
 import { SIMULATION_BUILD_ID } from '../../../src/engine/buildIdentity';
 import { version } from '../../../package.json';
 import { packageLibrary } from '../fighters/packageLibrary';
+import { applyFighterDisplay } from '../fighters/appearance';
 
 /**
  * The port's game shell: HTML/CSS menus over a live 3D arena. Replaces the
@@ -22,8 +23,12 @@ import { packageLibrary } from '../fighters/packageLibrary';
  */
 
 const presenter = new StagePresenter(document.getElementById('backdrop')!, 'cover');
-// Before any screen loads sprites, so the first match uses the saved quality.
-presenter.sprites.textures.setTextureQuality(loadGameSettings().textureQuality);
+// Before any screen loads sprites, so the first match uses the saved quality and fighter art.
+const settings = loadGameSettings();
+presenter.sprites.textures.setTextureQuality(settings.textureQuality);
+applyFighterDisplay(settings.fighterDisplay);
+// Package pages upload as they decode, while the menus run, not at a match's first draw.
+packageLibrary.attachRenderer(presenter.renderer);
 const vignette = document.querySelector<HTMLElement>('.vignette')!;
 const host = document.getElementById('screens')!;
 const input = new MenuInput();
@@ -141,6 +146,6 @@ Object.assign(window, { __menu: { go: app.go, startMatch: (config: MatchConfig) 
     const sheet = presenter.sprites.textures.get(draw.key);
     return { ...draw, loaded: Boolean(sheet), frameWidth: sheet?.frameWidth, frameHeight: sheet?.frameHeight };
   }),
-  /** Character packages resident on the GPU (`?packages=` opt-in). */
-  packages: () => packageLibrary.diagnostics(),
+  /** Character packages: holders, load progress and time, resident bytes. */
+  packages: () => ({ ...packageLibrary.diagnostics(), rendererTextures: presenter.renderer.info.memory.textures }),
 } });

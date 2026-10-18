@@ -1,10 +1,12 @@
 import type { ActionDisplay, AppearanceRequest, PresentationPoint, PresentationProfile } from '../../../../src/characterPresentation/contracts';
 import { evaluate } from '../../../../character/evaluator/evaluate';
+import type { CharacterPackage, PageId } from '../../../../character/package/types';
 import { readLegacyAnimation } from '../../../../src/characterPresentation/legacy/bridge';
 import { createLegacyArtSelector } from '../../../../src/characterPresentation/legacy/selector';
 import { sheetDisplay } from '../../../../src/characters/actionDisplay';
 import type { CharacterId } from '../../../../src/types';
 import { SpriteSnapshotter } from '../../engine/sprites/spriteSnapshot';
+import { gpuFinished } from '../../engine/gpuFence';
 import { facingOriginX, type SpriteDraw, type SpriteLayer } from '../../engine/sprites/spriteLayer';
 import type { PresentationTarget } from '../../engine/presentation/submission';
 import { SHIPPED_PACKAGES } from '../packageIndex';
@@ -59,6 +61,18 @@ function layerDraw(loaded: LoadedPackage, request: AppearanceRequest, display: A
   return { draw, drawing: pose.drawing! };
 }
 
+/** The action a package shows for `action`: itself, else `idle`, else none. */
+function shownAction(pkg: CharacterPackage, action: string): string | null {
+  return pkg.actions[action] ? action : pkg.actions.idle ? 'idle' : null;
+}
+
+/** The pages a single-layer display (menu art) draws from. */
+function displayPages(pkg: CharacterPackage, display: ActionDisplay): PageId[] {
+  const action = shownAction(pkg, display.action);
+  const drawing = action === null ? null : evaluate(pkg, { action, tick: display.tick, facing: display.facing }).drawing;
+  return drawing === null ? [] : [pkg.drawings[drawing]!.page];
+}
+
 /**
  * The sprites `display` shows from a loaded package (the body, then an upper-body overlay
  * clipped at the waist), or null when the action shows nothing. An action the package does
@@ -66,8 +80,8 @@ function layerDraw(loaded: LoadedPackage, request: AppearanceRequest, display: A
  */
 export function packageDraws(loaded: LoadedPackage, request: AppearanceRequest, display: ActionDisplay): { draws: SpriteDraw[]; action: string; drawing: string } | null {
   const has = (action: string) => Boolean(loaded.pkg.actions[action]);
-  const action = has(display.action) ? display.action : 'idle';
-  if (!has(action)) return null;
+  const action = shownAction(loaded.pkg, display.action);
+  if (!action) return null;
   const { transform } = request;
   // Match requests carry the body centre; previews and knockout flights carry the root.
   const anchoredAtRoot = request.action.clock.domain === 'preview-ticks' && transform.root !== undefined;
@@ -156,17 +170,25 @@ export const packageSpriteBackend: AppearanceBackendFactory = {
   capability: PACKAGE_SPRITE_CAPABILITY,
   preparation: 'shared',
   create: () => new PackageSpriteAppearance(),
+  /** Menu art: the resident package, or only the page of the one drawing shown. */
   async snapshot(request) {
-    const lease = packageLibrary.acquire(request.characterId);
+    const display = requestDisplay(request);
+    const borrowed = await packageLibrary.borrow(request.characterId, pkg => displayPages(pkg, display));
     try {
-      const shown = packageDraws(await lease.ready, request, requestDisplay(request));
+      const shown = packageDraws(borrowed.loaded, request, display);
       if (shown?.draws.length !== 1) throw new Error(`Package preview needs one drawing: ${request.characterId}/${request.action.id}`);
       return await snapshotter.snapshot(shown.draws[0]!);
-    } finally { lease.release(); }
+    } finally { borrowed.release(); }
   },
 };
 
-/** One profile per shipped package, pinned to the indexed revision; selected only by opt-in. */
+/** The package a `package:<id>` resource names. */
+export function packageOfResource(resource: string): string {
+  if (!resource.startsWith(RESOURCE_PREFIX)) throw new Error(`Unsupported package resource '${resource}'`);
+  return resource.slice(RESOURCE_PREFIX.length);
+}
+
+/** One profile per shipped package, pinned to the indexed revision; selected by the Fighter art setting. */
 export function packagePresentationProfile(characterId: string): PresentationProfile | undefined {
   const entry = SHIPPED_PACKAGES.packages[characterId];
   return entry && { id: `package.${characterId}`, revision: entry.revision, characterId,
@@ -174,19 +196,21 @@ export function packagePresentationProfile(characterId: string): PresentationPro
 }
 
 /**
- * A match lease holds every package its fighters use until the lease is disposed
- * (its signal aborts), uploading pages to the match renderer as they decode.
+ * A match lease holds every package its fighters use until the lease is disposed (its signal
+ * aborts). Packages already loaded or loading for the fighter select are reused, and every page
+ * is on the match renderer before play.
  */
 export function registerPackageAppearanceResources(library: PackageLibrary = packageLibrary): void {
   registerAppearanceResourceProvider({ capability: PACKAGE_SPRITE_CAPABILITY,
     async prepare(resources, host, { signal, progress }) {
       library.attachRenderer(host.renderer);
       const part = combinedProgress(resources.length, progress);
-      const leases = resources.map((resource, index) => {
-        if (!resource.startsWith(RESOURCE_PREFIX)) throw new Error(`Unsupported package resource '${resource}'`);
-        return library.acquire(resource.slice(RESOURCE_PREFIX.length), { signal, progress: part(index) });
-      });
+      const leases = resources.map((resource, index) => library.acquire(packageOfResource(resource), { signal, progress: part(index) }));
       await Promise.all(leases.map(lease => lease.ready));
+      // Pages still queued for background upload go up now, and the GPU finishes them, while
+      // the match is loading rather than in its first frames.
+      library.flushUploads();
+      await gpuFinished(host.renderer, signal);
     },
   });
 }

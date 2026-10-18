@@ -9,7 +9,7 @@ import { SAMPLE } from '../../../../character/testing/samplePackage';
 import { PX_PER_UNIT } from '../../engine/space';
 import { SpriteLayer, type SpriteDraw } from '../../engine/sprites/spriteLayer';
 import type { TextureStore } from '../../engine/sprites/textureStore';
-import { AppearanceSystem, packageOptIn, selectPackageProfiles } from '../appearance';
+import { AppearanceSystem, applyFighterDisplay, packageFighters } from '../appearance';
 import type { LoadedPackage } from '../packageLibrary';
 import { SHIPPED_PACKAGES } from '../packageIndex';
 import { legacySpriteBackend } from './legacySprite';
@@ -102,20 +102,28 @@ describe('package profiles', () => {
     expect(packagePresentationProfile('nobody')).toBeUndefined();
   });
 
-  it('reads the opt-in flag and switches only the named fighters, back to legacy without it', () => {
-    expect([...packageOptIn('?packages=link,nobody')]).toEqual(['link']);
-    expect(packageOptIn('?packages=all').size).toBe(Object.keys(SHIPPED_PACKAGES.packages).length);
-    expect(packageOptIn('').size).toBe(0);
+  it('draws every shipped fighter from its package for the packages setting, the probe flag overriding it', () => {
+    const all = Object.keys(SHIPPED_PACKAGES.packages);
+    expect([...packageFighters('legacy', '')]).toEqual([]);
+    expect([...packageFighters('packages', '')]).toEqual(all);
+    expect([...packageFighters('legacy', '?packages=link,nobody')]).toEqual(['link']);
+    expect([...packageFighters('legacy', '?packages=all')]).toEqual(all);
+    expect([...packageFighters('packages', '?packages=none')]).toEqual([]);
+  });
+
+  it('switches each fighter between its package and legacy profiles', () => {
     const registry = createLegacyPresentationRegistry();
     registry.registerCapability({ id: PACKAGE_SPRITE_CAPABILITY });
-    registry.registerProfile(packagePresentationProfile('link')!);
+    for (const id of Object.keys(SHIPPED_PACKAGES.packages)) registry.registerProfile(packagePresentationProfile(id)!);
     const system = new AppearanceSystem(registry);
     system.registerBackend(legacySpriteBackend);
     system.registerBackend({ capability: PACKAGE_SPRITE_CAPABILITY, preparation: 'shared', create: () => { throw new Error('unused'); } });
-    selectPackageProfiles(['link', 'pikachu'], packageOptIn('?packages=link'), system);
+    applyFighterDisplay('legacy', '?packages=link', system);
     expect(system.profileFor('link').id).toBe('package.link');
-    expect(system.profileFor('pikachu')).toEqual(legacyPresentationProfile('pikachu'));
-    selectPackageProfiles(['link'], new Set(), system);
+    expect(system.profileFor('pikachu').id).toBe(legacyPresentationProfile('pikachu').id);
+    applyFighterDisplay('packages', '', system);
+    expect(system.profileFor('pikachu').id).toBe('package.pikachu');
+    applyFighterDisplay('legacy', '', system);
     expect(system.profileFor('link').id).toBe(legacyPresentationProfile('link').id);
   });
 });

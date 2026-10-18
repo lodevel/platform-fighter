@@ -10,6 +10,7 @@ import { legacySpriteBackend } from './backends/legacySprite';
 import { registerLegacyAppearanceResources } from './backends/legacyResources';
 import { PACKAGE_SPRITE_CAPABILITY, packagePresentationProfile, packageSpriteBackend, registerPackageAppearanceResources } from './backends/packageSprite';
 import { SHIPPED_PACKAGES } from './packageIndex';
+import { loadGameSettings, type FighterDisplay } from '../../../src/config/gameSettings';
 
 export type { AppearanceSubmission } from '../engine/presentation/submission';
 export type { AppearanceBackend, AppearanceBackendFactory, BackendPreparation } from './backends/types';
@@ -167,20 +168,27 @@ for (const id of Object.keys(SHIPPED_PACKAGES.packages)) characterAppearances.re
 characterAppearances.registerBackend(packageSpriteBackend);
 registerPackageAppearanceResources();
 
-/** Fighters named by the dev opt-in `?packages=link,pikachu` (or `all`) that ship a package. */
-export function packageOptIn(search: string): Set<string> {
-  const named = (new URLSearchParams(search).get('packages') ?? '').split(',').map(id => id.trim()).filter(Boolean);
-  const shipped = Object.keys(SHIPPED_PACKAGES.packages);
+/**
+ * The fighters drawn from their character packages: all of them when the Fighter art setting is
+ * `packages`, none for `legacy`. The probe flag `?packages=all|link,pikachu|none` overrides it.
+ */
+export function packageFighters(display: FighterDisplay, search: string): Set<string> {
+  const params = new URLSearchParams(search), shipped = Object.keys(SHIPPED_PACKAGES.packages);
+  const named = params.has('packages') ? params.get('packages')!.split(',').map(id => id.trim()).filter(Boolean)
+    : display === 'packages' ? ['all'] : [];
   return new Set(named.includes('all') ? shipped : named.filter(id => shipped.includes(id)));
 }
 
-/** Show each of `characterIds` from its package when opted in, else return it from a package to legacy. */
-export function selectPackageProfiles(characterIds: readonly string[], optIn: ReadonlySet<string>, system = characterAppearances): void {
-  for (const id of new Set(characterIds)) {
-    const selected = system.profileFor(id), packaged = packagePresentationProfile(id);
-    if (optIn.has(id) && packaged) system.selectProfile(packaged);
-    else if (packaged && selected.id === packaged.id) system.selectProfile(legacyPresentationProfile(id));
-  }
+/**
+ * The one place that chooses how each fighter is drawn (its profile), from the saved setting and
+ * the probe flag. Entries call it when they start and the Options screen when the setting
+ * changes, never during a match, so a match keeps the profiles it started with.
+ */
+export function applyFighterDisplay(display: FighterDisplay = loadGameSettings().fighterDisplay,
+  search: string = globalThis.location?.search ?? '', system = characterAppearances): void {
+  const packaged = packageFighters(display, search);
+  for (const id of Object.keys(SHIPPED_PACKAGES.packages))
+    system.selectProfile(packaged.has(id) ? packagePresentationProfile(id)! : legacyPresentationProfile(id));
 }
 
 export interface AppearancePose {

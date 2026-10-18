@@ -59,12 +59,14 @@ require textures or sprites.
 - `ui/shell/tokens.css`: design tokens shared by menus and HUD.
 - `ui/model/`: small view helpers (fighter names).
 - `scripts/golden/`: the golden-replay harness (step 5.1) driving the game build; see `docs/review/2026-10-13/threejs-port/step5/README.md`.
-- `fighters/`: `appearance.ts` (shared instances and profile selection),
-  `backends/` (legacy sprite/resource implementations; `packageSprite.ts` draws a fighter
-  from its character package, opt-in with `?packages=<id>`), `packageLibrary.ts` (shared,
-  reference-counted package leases: indexed pages as R8 textures plus a costume palette),
-  `packageIndex.ts` (the shipped packages' revisions), `resources.ts` (preparation
-  leases), `lineup.ts`, `gazeDemo.ts`. Only the legacy backend calls `poses.ts`.
+- `fighters/`: `appearance.ts` (shared instances and profile selection;
+  `applyFighterDisplay` picks legacy or package profiles from the Fighter art option, or the
+  probe flag `?packages=all|<id>|none`), `backends/` (legacy sprite/resource implementations;
+  `packageSprite.ts` draws a fighter from its character package), `packageLibrary.ts` (shared,
+  reference-counted package leases: indexed pages decoded on workers (`pageDecoder.ts`) into R8
+  textures plus a costume palette, uploaded a little per frame), `artHold.ts` (the fighter
+  select holds the picked fighters' packages), `packageIndex.ts` (the shipped packages'
+  revisions), `resources.ts` (preparation leases), `lineup.ts`, `gazeDemo.ts`. Only the legacy backend calls `poses.ts`.
   `engine/presentation/` supplies managed geometry, shader preparation and
   composite snapshots. Single legacy menu images keep the original snapshot path.
 - `private/` (outside `src/`) is local-only. The Inferno head is a normal

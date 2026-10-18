@@ -1,4 +1,5 @@
-import { loadGameSettings, saveGameSettings, type GameSettings, type TextureQuality } from '../../../../src/config/gameSettings';
+import { loadGameSettings, saveGameSettings, type FighterDisplay, type GameSettings, type TextureQuality } from '../../../../src/config/gameSettings';
+import { applyFighterDisplay } from '../../fighters/appearance';
 import { cycleChoice, type OptionChoice } from '../../../../src/scenes/optionsMenu';
 import { el, header, hints } from '../shell/dom';
 import type { App, Screen } from '../shell/app';
@@ -6,6 +7,11 @@ import type { App, Screen } from '../shell/app';
 const TEXTURE_CHOICES: readonly OptionChoice<TextureQuality>[] = [
   { value: 'full', label: 'Full quality' },
   { value: 'compressed', label: 'Compressed' },
+];
+
+const FIGHTER_DISPLAY_CHOICES: readonly OptionChoice<FighterDisplay>[] = [
+  { value: 'legacy', label: 'Classic' },
+  { value: 'packages', label: 'Compact (new)' },
 ];
 
 /** One settings row: a stepper over `choices`, plus a short explanation line. */
@@ -26,17 +32,29 @@ export function optionsScreen(app: App): Screen {
   const compressedDetail = support?.native === false
     ? 'This device has no supported compressed format, so this saves no memory.'
     : `Fighter sprites use about 4× less memory. Outlines may differ by a pixel in alternative costumes.${support?.formats.length ? ` Detected: ${support.formats.join(', ')}.` : ''}`;
+  const save = (next: GameSettings) => { saveGameSettings(next); return next; };
   const ROWS: readonly SettingRow[] = [{
     label: 'Texture quality',
     choices: TEXTURE_CHOICES,
     get: (s) => s.textureQuality,
     apply: (value) => {
-      const next = { ...settings, textureQuality: value as TextureQuality };
-      saveGameSettings(next);
+      const next = save({ ...settings, textureQuality: value as TextureQuality });
       textures.setTextureQuality(next.textureQuality);
       return next;
     },
     detail: (value) => (value === 'compressed' ? compressedDetail : 'Original sprites. Applies to the next match.'),
+  }, {
+    label: 'Fighter art',
+    choices: FIGHTER_DISPLAY_CHOICES,
+    get: (s) => s.fighterDisplay,
+    apply: (value) => {
+      const next = save({ ...settings, fighterDisplay: value as FighterDisplay });
+      applyFighterDisplay(next.fighterDisplay);
+      return next;
+    },
+    detail: (value) => (value === 'packages'
+      ? 'Fighters drawn from their new compact art, loaded when picked. Texture quality does not apply to it.'
+      : 'Fighters drawn from their original sprite sheets.'),
   }];
 
   let row = 0;

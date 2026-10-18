@@ -2,7 +2,7 @@ import '@fontsource/chakra-petch/600.css';
 import { getCharacterPalettes } from '../../../src/characters/palettes';
 import type { CharacterId } from '../../../src/types';
 import { StagePresenter } from '../arena/presenter';
-import { AppearanceCollection } from '../fighters/appearance';
+import { AppearanceCollection, applyFighterDisplay } from '../fighters/appearance';
 
 /** Every kept fighter in its 8 costumes, idling, for judging the recolours. */
 const ROWS: ReadonlyArray<{ id: CharacterId; y: number; zoom: number }> = [
@@ -13,6 +13,7 @@ const ROWS: ReadonlyArray<{ id: CharacterId; y: number; zoom: number }> = [
 const COLUMN = (i: number) => 150 + i * 231;
 
 const presenter = new StagePresenter(document.getElementById('view')!);
+applyFighterDisplay();
 const appearances = new AppearanceCollection();
 addEventListener('pagehide', () => appearances.dispose(), { once: true });
 presenter.setStage('flat');

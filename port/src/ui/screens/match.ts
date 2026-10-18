@@ -13,6 +13,7 @@ import type { CharacterInput } from '../../../../src/characters/Character';
 import { WebAudioSoundManager } from '../../engine/audio/webAudioSoundManager';
 import { MatchView } from '../../match/matchView';
 import { prepareMatchResources } from '../../match/preloadMatchArt';
+import { packageLibrary } from '../../fighters/packageLibrary';
 import { createPauseOverlay, type PauseOverlay } from '../components/pauseOverlay';
 import { createMatchControlsOverlay, type MatchControlsOverlay } from '../components/matchControlsOverlay';
 import { MatchHud } from '../hud/matchHud';
@@ -199,7 +200,7 @@ export function matchScreen(app: App, data: FlowData = {}): Screen {
     view: () => sim.view(),
     presentation: (playerIndex: number) => view.presentation(playerIndex),
     presentationSprites: () => view.presentationSprites(),
-    renderDiagnostics: () => ({textures: presenter.sprites.textures.diagnostics(),
+    renderDiagnostics: () => ({textures: presenter.sprites.textures.diagnostics(), packages: packageLibrary.diagnostics(),
       renderer: {memory: {...presenter.renderer.info.memory}, render: {...presenter.renderer.info.render}},
       contextLost: presenter.renderer.getContext().isContextLost()}),
     advance: (deltaMs: number) => {

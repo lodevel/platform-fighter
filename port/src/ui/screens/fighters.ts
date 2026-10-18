@@ -18,6 +18,7 @@ import { fighterShortName } from '../model/fighterNames';
 import { CPU_COLOUR, slotColour } from '../shell/players';
 import { restoreSelectionHand, restoreSelectionOwners, type SelectionOwner } from '../model/selectionDevices';
 import { createMatchControlsOverlay, type MatchControlsOverlay } from '../components/matchControlsOverlay';
+import { FighterArtHold } from '../../fighters/artHold';
 
 type SlotIndex = 1 | 2 | 3 | 4;
 const SLOTS: readonly SlotIndex[] = [1, 2, 3, 4];
@@ -47,6 +48,8 @@ export function fightersScreen(app: App, data: FlowData = {}): Screen {
   const padIds = new Map(restored.filter(owner => owner.padId).map(owner => [owner.device, owner.padId!]));
   let controls: MatchControlsOverlay | null = null;
   const status = el('p.status', { role: 'status' });
+  /** The picked fighters' art loads in the background while players choose. */
+  const pickedArt = new FighterArtHold();
 
   // ---------- roster ----------
   const portraits = SELECTABLE_CHARACTER_SPECS.map((spec, i) => {
@@ -333,6 +336,7 @@ export function fightersScreen(app: App, data: FlowData = {}): Screen {
       if (owned) h.style.transform = `translate(${slot.cursor.x}px, ${slot.cursor.y}px)`;
     });
     readyBar.hidden = !canConfirmMatch(projected) || buildPlayerSlotsFromHandCursor(hand).length < 2;
+    pickedArt.hold(hand.slots.flatMap(slot => slot.mode !== 'empty' && slot.pickedCharacterId ? [slot.pickedCharacterId] : []));
   }
 
   // ---------- pointer ----------
@@ -414,6 +418,6 @@ export function fightersScreen(app: App, data: FlowData = {}): Screen {
       }
       if (moved) render();
     },
-    leave() { controls?.dispose(); controls = null; app.input.suspended = false; },
+    leave() { controls?.dispose(); controls = null; app.input.suspended = false; pickedArt.dispose(); },
   };
 }

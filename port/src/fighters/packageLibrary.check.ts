@@ -106,6 +106,70 @@ describe('PackageLibrary', () => {
     await expect(packages.acquire('sample').ready).resolves.toMatchObject({ costumes: 2 });
   });
 
+  it('lends a resident package for one drawing, or loads only the pages asked for and disposes them', async () => {
+    const { fetch, calls, open } = server({ ...PKG, pages: { ...PKG.pages, p1: { ...PKG.pages.p0!, file: 'pages/p1.png' } },
+      drawings: { ...PKG.drawings, 'idle/1': { ...PKG.drawings['idle/1']!, page: 'p1' } } });
+    open();
+    const packages = library({ fetch });
+    const partial = await packages.borrow('sample', () => ['p1']);
+    expect([...partial.loaded.pages.keys()]).toEqual(['p1']);
+    expect(calls.filter(url => url.endsWith('.png'))).toEqual(['sample/pages/p1.png']);
+    expect(packages.diagnostics().packages).toEqual([]);
+    const disposed = vi.fn();
+    partial.loaded.pages.get('p1')!.texture.addEventListener('dispose', disposed);
+    partial.release(); partial.release();
+    expect(disposed).toHaveBeenCalledOnce();
+
+    const lease = packages.acquire('sample'), loaded = await lease.ready;
+    const lent = await packages.borrow('sample', () => ['p1']);
+    expect(lent.loaded).toBe(loaded);
+    lease.release();
+    // The borrow holds the package until it is returned.
+    expect(packages.resident('sample')).toBe(loaded);
+    lent.release();
+    expect(packages.resident('sample')).toBeUndefined();
+  });
+
+  it('borrows from a package that is still loading without fetching its description again', async () => {
+    const { fetch, calls, open } = server();
+    const packages = library({ fetch });
+    const lease = packages.acquire('sample'), borrowed = packages.borrow('sample', () => ['p0']);
+    open();
+    (await borrowed).release();
+    await lease.ready;
+    expect(calls.filter(url => url.endsWith('character.json'))).toHaveLength(1);
+    lease.release();
+  });
+
+  it('spreads uploads to the attached renderer over frames, all at once on request', async () => {
+    vi.useFakeTimers();
+    const { fetch, open } = server();
+    open();
+    const uploaded: THREE.Texture[] = [], packages = library({ fetch });
+    packages.attachRenderer({ initTexture: (texture: THREE.Texture) => uploaded.push(texture) } as unknown as THREE.WebGLRenderer);
+    const lease = packages.acquire('sample'), loaded = await lease.ready;
+    expect(uploaded).toEqual([]);
+    packages.flushUploads(1);
+    expect(uploaded).toEqual([loaded.pages.get('p0')!.texture]);
+    packages.flushUploads();
+    expect(uploaded).toEqual([loaded.pages.get('p0')!.texture, loaded.palette]);
+    vi.runAllTimers();
+    expect(uploaded).toHaveLength(2);
+    lease.release();
+  });
+
+  it('reports how long a load took and the resident bytes', async () => {
+    const { fetch, open } = server();
+    open();
+    const packages = library({ fetch, graceMs: 1000 });
+    const lease = packages.acquire('sample'), loaded = await lease.ready;
+    const [row] = packages.diagnostics().packages;
+    expect(row).toMatchObject({ id: 'sample', refs: 1, loading: false, gpuBytes: loaded.gpuBytes });
+    expect(row!.loadMs).toBeGreaterThanOrEqual(0);
+    expect(packages.diagnostics()).toMatchObject({ gpuBytes: loaded.gpuBytes, cpuBytes: loaded.gpuBytes });
+    lease.release();
+  });
+
   it('loads every shipped package at its indexed revision and size', async () => {
     const root = path.resolve(import.meta.dirname, '../../../assets');
     const fetch: PackageLibraryOptions['fetch'] = async url => new Response(new Uint8Array(readFileSync(path.join(root, url))));

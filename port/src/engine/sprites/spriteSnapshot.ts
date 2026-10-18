@@ -5,9 +5,29 @@ import { SpriteLayer, type SpriteDraw } from './spriteLayer';
 import { TextureStore } from './textureStore';
 
 /**
- * Draws one sprite, recolour included (sheet or indexed page), to a canvas for HTML (menu art), so
- * menus show exactly what the game draws. One small offscreen renderer;
- * each sprite is drawn at its frame's native resolution, centred.
+ * An indexed drawing at page resolution as straight RGBA: each index through the palette row,
+ * mirrored for `flipX`, times tint and alpha. Pages and palettes are DataTextures whose CPU
+ * copy this reads, so menu art needs no GPU work and never waits behind queued uploads.
+ */
+export function indexedPixels(draw: SpriteDraw): Uint8ClampedArray<ArrayBuffer> {
+  const { page, rect: [x0, y0, w, h], palette, paletteRow } = draw.indexed!;
+  const indices = (page.texture.image as { data?: Uint8Array }).data;
+  const colours = palette.image as { data?: Uint8Array; width: number };
+  if (!indices || !colours.data) throw new Error('Indexed menu art needs the page and palette bytes');
+  const tint = draw.tint ?? 0xffffff, alpha = draw.alpha ?? 1, row = paletteRow * colours.width;
+  const scale = [(tint >> 16 & 255) / 255, (tint >> 8 & 255) / 255, (tint & 255) / 255, alpha];
+  const out = new Uint8ClampedArray(w * h * 4);
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const entry = (row + indices[(y0 + y) * page.width + x0 + (draw.flipX ? w - 1 - x : x)]!) * 4, at = (y * w + x) * 4;
+    for (let c = 0; c < 4; c++) out[at + c] = colours.data[entry + c]! * scale[c]!;
+  }
+  return out;
+}
+
+/**
+ * Draws one sprite, recolour included, to a canvas for HTML (menu art), so menus show exactly
+ * what the game draws, at the frame's native resolution. Sheets go through one small offscreen
+ * renderer, centred; indexed package drawings are composed on the CPU (`indexedPixels`).
  */
 export class SpriteSnapshotter {
   private readonly textures = new TextureStore();
@@ -24,8 +44,12 @@ export class SpriteSnapshotter {
   }
 
   private async render(draw: SpriteDraw): Promise<HTMLCanvasElement> {
-    const { frameWidth: w, frameHeight: h } = draw.indexed
-      ? { frameWidth: draw.indexed.rect[2], frameHeight: draw.indexed.rect[3] } : await this.textures.load(draw.key);
+    if (draw.indexed) {
+      const [, , width, height] = draw.indexed.rect, out = Object.assign(document.createElement('canvas'), { width, height });
+      out.getContext('2d')!.putImageData(new ImageData(indexedPixels(draw), width, height), 0, 0);
+      return out;
+    }
+    const { frameWidth: w, frameHeight: h } = await this.textures.load(draw.key);
     const scale = Math.abs(draw.scaleX ?? 1);
     const renderer = this.renderer ??= this.createRenderer();
     renderer.setSize(w, h, false);

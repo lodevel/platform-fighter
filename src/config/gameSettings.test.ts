@@ -9,21 +9,25 @@ function memory(initial?: string) {
 afterEach(() => { vi.unstubAllGlobals(); });
 
 describe('game settings persistence', () => {
-  it('defaults to full texture quality when nothing is saved or storage is absent', () => {
-    expect(DEFAULT_GAME_SETTINGS).toEqual({ textureQuality: 'full' });
+  it('defaults to full texture quality and legacy fighter art when nothing is saved or storage is absent', () => {
+    expect(DEFAULT_GAME_SETTINGS).toEqual({ textureQuality: 'full', fighterDisplay: 'legacy' });
     expect(loadGameSettings(memory())).toEqual(DEFAULT_GAME_SETTINGS);
     expect(loadGameSettings(null)).toEqual(DEFAULT_GAME_SETTINGS);
   });
 
-  it('round-trips a saved texture quality under the versioned key', () => {
+  it('round-trips saved settings under the versioned key', () => {
     const storage = memory();
-    saveGameSettings({ textureQuality: 'compressed' }, storage);
-    expect(JSON.parse(storage.values.get('platformfighter.settings.v1')!)).toEqual({ textureQuality: 'compressed' });
-    expect(loadGameSettings(storage)).toEqual({ textureQuality: 'compressed' });
+    saveGameSettings({ textureQuality: 'compressed', fighterDisplay: 'packages' }, storage);
+    expect(JSON.parse(storage.values.get('platformfighter.settings.v1')!)).toEqual({ textureQuality: 'compressed', fighterDisplay: 'packages' });
+    expect(loadGameSettings(storage)).toEqual({ textureQuality: 'compressed', fighterDisplay: 'packages' });
+  });
+
+  it('keeps a save from before the fighter art option', () => {
+    expect(loadGameSettings(memory('{"textureQuality":"compressed"}'))).toEqual({ textureQuality: 'compressed', fighterDisplay: 'legacy' });
   });
 
   it('falls back to defaults for corrupt JSON and invalid or missing fields', () => {
-    for (const raw of ['{', 'null', '42', '[]', '{}', '{"textureQuality":"ultra"}', '{"textureQuality":1}']) {
+    for (const raw of ['{', 'null', '42', '[]', '{}', '{"textureQuality":"ultra"}', '{"textureQuality":1}', '{"fighterDisplay":"skeleton"}']) {
       expect(loadGameSettings(memory(raw))).toEqual(DEFAULT_GAME_SETTINGS);
     }
   });
@@ -31,7 +35,7 @@ describe('game settings persistence', () => {
   it('never throws when storage access, reads or writes throw', () => {
     const broken = { getItem: () => { throw new Error('denied'); }, setItem: () => { throw new Error('quota'); } };
     expect(loadGameSettings(broken)).toEqual(DEFAULT_GAME_SETTINGS);
-    expect(() => saveGameSettings({ textureQuality: 'compressed' }, broken)).not.toThrow();
+    expect(() => saveGameSettings({ ...DEFAULT_GAME_SETTINGS, textureQuality: 'compressed' }, broken)).not.toThrow();
     const original = Object.getOwnPropertyDescriptor(globalThis, 'localStorage');
     Object.defineProperty(globalThis, 'localStorage', { configurable: true, get() { throw new Error('blocked'); } });
     try {
@@ -46,7 +50,7 @@ describe('game settings persistence', () => {
   it('uses the ambient localStorage when no storage is passed', () => {
     const storage = memory();
     vi.stubGlobal('localStorage', storage);
-    saveGameSettings({ textureQuality: 'compressed' });
-    expect(loadGameSettings()).toEqual({ textureQuality: 'compressed' });
+    saveGameSettings({ ...DEFAULT_GAME_SETTINGS, textureQuality: 'compressed' });
+    expect(loadGameSettings()).toEqual({ ...DEFAULT_GAME_SETTINGS, textureQuality: 'compressed' });
   });
 });

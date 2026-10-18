@@ -8,7 +8,7 @@ const catalog = vi.hoisted(() => ({ keys: Array.from({ length: 20 }, (_, i) => `
 vi.mock('../../../src/assets/manifest', () => ({ getAllAssetEntries: () => catalog.keys.map(key => ({ kind: 'spritesheet', key })) }));
 vi.mock('../fighters/appearance', () => ({ appearanceResourcePlan: (fighters: readonly string[]) => fighters.map(characterId => ({
   profile: { id: `legacy.${characterId}`, revision: 'test' }, capability: 'legacy-sprite', resources: [`fighter:${characterId}`],
-})), packageOptIn: () => new Set(), selectPackageProfiles: () => undefined }));
+})) }));
 registerLegacyAppearanceResources();
 
 describe('match preload scheduling', () => {

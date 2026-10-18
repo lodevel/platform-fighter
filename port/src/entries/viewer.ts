@@ -5,7 +5,7 @@ import '@fontsource/chakra-petch/600.css';
 import { gazeDemoAppearances, gazeDemoHud } from '../fighters/gazeDemo';
 import { MatchHud } from '../ui/hud/matchHud';
 import { viewerFighterAppearances } from '../fighters/lineup';
-import { AppearanceCollection } from '../fighters/appearance';
+import { AppearanceCollection, applyFighterDisplay } from '../fighters/appearance';
 
 /**
  * Stage viewer: any built-in stage in 3D with the stand-in cast, the stage
@@ -14,6 +14,7 @@ import { AppearanceCollection } from '../fighters/appearance';
  */
 const params = new URLSearchParams(location.search);
 const presenter = new StagePresenter(document.getElementById('view')!);
+applyFighterDisplay();
 const appearances = new AppearanceCollection();
 addEventListener('pagehide', () => appearances.dispose(), { once: true });
 presenter.paused = params.get('pause') === '1';
