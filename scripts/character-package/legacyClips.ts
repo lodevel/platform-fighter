@@ -9,8 +9,10 @@ import pikachuFrames from '../../assets/characters/pikachu/frames.json';
 import pikachuFinalVisual from '../../assets/characters/pikachu/final-visual-frames.json';
 import type { CharacterId } from '../../src/types';
 import { getPackedBodyRenderMetrics, selectPackedDrawing } from '../../src/characters/packedBodyPresentation';
-import { getPikachuReviewedStateClock, getPikachuSheetRenderMetrics } from '../../src/characters/pikachuPresentation';
-import { pikachuAuxiliaryBodyLoopFrames, selectPikachuAuxiliaryBody } from '../../src/characters/pikachuAuxiliaryBody';
+import { getPikachuSheetRenderMetrics } from '../../src/characters/pikachuPresentation';
+import { pikachuAuxiliaryBodyLoopFrames } from '../../src/characters/pikachuAuxiliaryBody';
+import { clipDrawingAt, pikachuClipClock } from '../../src/characters/actionDisplay';
+import { DIRECTIONAL_AIR_DODGE_ACTION, directionalDodgeDrawing } from '../../src/characters/pikachuDirectionalDodge';
 import { sampleFinalBodyPose } from '../../src/characterPresentation/legacy/finalPoseData';
 import { finalVictimBodyPose } from '../../src/finalSmash/finalVictimBodyPose';
 import type { FinalVictimFighter, FinalVictimProfileKey } from '../../src/finalSmash/finalVictimPresentation';
@@ -86,6 +88,7 @@ export function exportClips(fighter: ExportedFighter): { clips: ExportClip[]; sk
     const chosen = fighter === 'pikachu' ? pikachuClip(name, clip) : packedClip(fighter, name, clip);
     if (typeof chosen === 'string') skipped.push({ clip: name, reason: chosen }); else clips.push(chosen);
   }
+  if (fighter === 'pikachu') clips.push(directionalAirDodgeClip());
   return { clips, skipped };
 }
 
@@ -127,19 +130,28 @@ function pikachuClip(name: string, clip: FramesClip): ExportClip | string {
         originX: pose.originX, originY: pose.originY, scale: pose.scale, bodyCentreFromRootY: pose.bodyCentreFromRootY };
     },
   };
-  const metrics = getPikachuSheetRenderMetrics(name);
-  const placed = (frame: number, sample?: number): ClipSample => ({ sheet: name, frame, ...(sample === undefined ? {} : { sample }),
-    originX: metrics.originX, originY: metrics.originY, scale: metrics.scaleToWorld, bodyCentreFromRootY: metrics.bodyCentreFromRootY });
   // The auxiliary source tables drive the display whenever a clip has one (simulationSpriteAnimation's auxiliary states).
-  if (selectPikachuAuxiliaryBody(name, 0) !== null) return {
-    action: name, socketClip: name, clock: 'selectPikachuAuxiliaryBody', loop: pikachuAuxiliaryBodyLoopFrames(name),
-    sample: age => { const pose = selectPikachuAuxiliaryBody(name, age); return pose && placed(pose.artFrameIndex, pose.nativeSample); },
+  const clock = pikachuClipClock(name);
+  if (!clock) return 'no timing in data or source tables';
+  return {
+    action: name, socketClip: name, clock: clock === 'auxiliary' ? 'selectPikachuAuxiliaryBody' : 'getPikachuReviewedStateClock',
+    loop: clock === 'auxiliary' ? pikachuAuxiliaryBodyLoopFrames(name) : clip.loopDuration ?? null,
+    sample: age => { const pose = clipDrawingAt('pikachu', name, age); return pose && pikachuPlaced(name, pose.artFrameIndex, pose.nativeSample); },
   };
-  if (clip.frameWindows?.length) return {
-    action: name, socketClip: name, clock: 'getPikachuReviewedStateClock', loop: clip.loopDuration ?? null,
-    sample: age => { const pose = getPikachuReviewedStateClock(name, age); return pose && placed(pose.artFrameIndex); },
+}
+
+function pikachuPlaced(sheet: string, frame: number, sample?: number): ClipSample {
+  const metrics = getPikachuSheetRenderMetrics(sheet);
+  return { sheet, frame, ...(sample === undefined ? {} : { sample }),
+    originX: metrics.originX, originY: metrics.originY, scale: metrics.scaleToWorld, bodyCentreFromRootY: metrics.bodyCentreFromRootY };
+}
+
+/** The directional air dodge shows neutral `air_dodge` drawings on its own sample table, never ending. */
+function directionalAirDodgeClip(): ExportClip {
+  return {
+    action: DIRECTIONAL_AIR_DODGE_ACTION, socketClip: 'air_dodge', clock: 'directionalDodgeDrawing', loop: null,
+    sample: age => { const drawing = directionalDodgeDrawing(age, age + 1); return drawing && pikachuPlaced(drawing.sheet, drawing.artFrameIndex, drawing.nativeSample); },
   };
-  return 'no timing in data or source tables';
 }
 
 function victimClip(fighter: FinalVictimFighter, name: string): ExportClip {

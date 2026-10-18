@@ -3,6 +3,7 @@ import { sampleFinalBodyPose as finalBodyPose } from '../characterPresentation/l
 import { itemChargeClip, itemMotionClip } from '../items/itemMotionClips';
 import pikachuChargePoses from '../../assets/characters/pikachu/pose-batches/smash-charges.json';
 import pikachuReviewedFrames from '../../assets/characters/pikachu/frames.json';
+import pikachuFinalVisual from '../../assets/characters/pikachu/final-visual-frames.json';
 import type { Character } from './Character';
 import type { CharacterId } from '../types';
 import type { ActiveAttack } from './attacks';
@@ -13,12 +14,13 @@ import { ledgeHangPresentationClock } from './ledgeHangState';
 import { resolvePikachuSpecialBodyClock } from './pikachuSpecialPresentation';
 import { getPikachuReviewedStateClock } from './pikachuPresentation';
 import { getPikachuGroundJumpLaunchPose } from './pikachuGroundJumpPresentation';
-import { directionalDodgeDrawing } from './pikachuDirectionalDodge';
+import { DIRECTIONAL_AIR_DODGE_ACTION, directionalDodgeDrawing } from './pikachuDirectionalDodge';
 import { pikachuCrouchCrawlDrawing } from './pikachuCrouchCrawl';
 import {selectPikachuSurfaceTechBody} from './pikachuSurfaceTech';
 import { selectPikachuAuxiliaryBody } from './pikachuAuxiliaryBody';
 import { resolvePackedBodyPose,installedPackedSheet,getPackedNativeTimedClip,selectPackedNativeSampleFrame,excludeCompleteStandingGrabFromNonstandingFallback } from './packedBodyPresentation';
 import { createArtFrameSelector } from './artFrameSelector';
+import type { ActionDisplay } from '../characterPresentation/contracts';
 import { attackMoveToSheets, classifySpriteAnimationState } from './spriteAnimationDriver';
 
 /** Read-only presentation data. The simulation remains the only action clock. */
@@ -99,6 +101,9 @@ export interface ActionPose {
   /** Upper-body layer drawn over this (legs) pose above the fighter's waist line: shooting while walking / jump squat /
    * landing composes the native `_upper` motion over `item_shoot_legs_*` (Ultimate shooting items). */
   readonly overlay?: ActionPose;
+  /** The package action and tick shown, when they are not the drawn sheet on this pose's clock (Finals, the directional
+   * air dodge, Pikachu's specials and smash charges whose `frame` holds the drawing). */
+  readonly display?: Pick<ActionDisplay, 'action' | 'tick' | 'rotation'>;
 }
 
 function attackPose(active: Pick<ActiveAttack, 'move' | 'framesElapsed'> & Partial<Pick<ActiveAttack, 'facing'>>): ActionPose {
@@ -142,8 +147,8 @@ function reviewedStateFrame(sheet: string, elapsed: number, count: number): numb
 /** Semantic precedence prevents running/attacking poses during defensive locks. */
 export function resolveSimulationAction(s: SimulationAnimationSnapshot): ActionPose {
   if (s.destroyed) return { state: 'idle', sheets: ['idle'], hold: 'first' };
-  if(s.finalVictimSelection){const drawing=s.finalVictimPose;return drawing?{state:s.finalVictimSelection.profileKey,sheets:[drawing.sheet],
-    frame:s.finalVictimSelection.authoredAge,facing:s.finalVictimSelection.facing,directArtFrame:drawing.index}:
+  if(s.finalVictimSelection){const drawing=s.finalVictimPose,selection=s.finalVictimSelection;return drawing?{state:selection.profileKey,sheets:[drawing.sheet],
+    frame:selection.authoredAge,facing:selection.facing,directArtFrame:drawing.index,display:{action:selection.profileKey,tick:selection.authoredAge}}:
     {state:'final-victim.missing-authored-profile',sheets:[]};}
   if (s.finalSmash?.sheet) {
     const drawing = finalBodyPose(s.characterId, s.finalSmash.sheet, s.finalSmash.age);
@@ -158,8 +163,12 @@ export function resolveSimulationAction(s: SimulationAnimationSnapshot): ActionP
           directArtFrame: selectPackedNativeSampleFrame('link', sheet, rawAge) };
       }
     }
+    // Pikachu's owner shows its Final display clip of the same name whatever the drawing below (port/src/fighters/finalVisual.ts).
+    const visual = s.characterId === 'pikachu' && s.finalSmash.role === 'owner' && Object.hasOwn(pikachuFinalVisual.clips, s.finalSmash.sheet);
+    const rotation = drawing && s.finalSmash.rotationDegrees ? s.finalSmash.rotationDegrees * Math.PI / 180 : 0;
     return { state: s.finalSmash.sheet, sheets: [drawing?.sheet??s.finalSmash.sheet], frame: s.finalSmash.age,
-      facing: s.finalSmash.facing, ...(drawing ? { directArtFrame: drawing.index } : {}) };
+      facing: s.finalSmash.facing, ...(drawing ? { directArtFrame: drawing.index } : {}),
+      ...(drawing || visual ? { display: { action: s.finalSmash.sheet, tick: s.finalSmash.age, ...(rotation ? { rotation } : {}) } } : {}) };
   } 
   const packed = resolvePackedBodyPose(s);
   if (packed) return packed;
@@ -292,7 +301,8 @@ export function resolveSimulationAction(s: SimulationAnimationSnapshot): ActionP
       if (active.kind === 'air' && active.directional) {
         const drawing = directionalDodgeDrawing(active.framesElapsed, active.framesElapsed + 1);
         if (drawing) return { state: 'dodge.directional-air', sheets: [drawing.sheet],
-          directArtFrame: drawing.artFrameIndex, frame: active.framesElapsed, facing: active.facing };
+          directArtFrame: drawing.artFrameIndex, frame: active.framesElapsed, facing: active.facing,
+          display: { action: DIRECTIONAL_AIR_DODGE_ACTION, tick: active.framesElapsed } };
       }
       const sheet = active.kind === 'spot' ? 'spot_dodge' : active.kind === 'roll'
         ? active.backward ? 'roll_back' : 'roll' : !active.directional ? 'air_dodge' : null;
@@ -332,7 +342,9 @@ export function resolveSimulationAction(s: SimulationAnimationSnapshot): ActionP
         if (!clip.frameWindows) throw new Error(`Reviewed Pikachu ${sheet} needs explicit drawing windows`);
         const pose = clip.frameWindows.find(window => window.startFrame <= local && (window.endFrame === null || local < window.endFrame));
         if (!pose) throw new Error(`Missing reviewed Pikachu ${sheet} drawing at source frame${local}`);
-        return { state: `special.${sheet}`, sheets: [sheet], frame: pose.artFrameIndex, duration: clip.frameCount };
+        // `frame` holds the drawing (receiving and capture read this pose); the package shows the clip at `local`.
+        return { state: `special.${sheet}`, sheets: [sheet], frame: pose.artFrameIndex, duration: clip.frameCount,
+          display: { action: sheet, tick: local } };
       }
       return { state: `special.missing.${sheet}`, sheets: ['idle'], hold: 'first' };
     }
@@ -362,7 +374,7 @@ export function resolveSimulationAction(s: SimulationAnimationSnapshot): ActionP
         const local = Math.min(60, s.chargeHeldFrames);
         const art = authored.frameWindows.find(window => window.startFrame <= local && (window.endFrame === null || local < window.endFrame));
         return { state: `charge.${s.chargingMove.id}`, sheets: [sheet], frame: art?.artFrameIndex ?? 0,
-          duration: authored.frameCount };
+          duration: authored.frameCount, display: { action: sheet, tick: local } };
       }
     }
     // Source-timed charge startup advances to the simulation's pause frame.
@@ -614,6 +626,8 @@ export interface SimulationSpritePose {
   readonly facing: 1 | -1;
   /** Upper-body layer drawn above the waist line over this pose (ActionPose.overlay). */
   readonly overlay?: { readonly key: string; readonly frameIndex: number };
+  /** The same drawing as a character package action and tick; absent when no exported action shows it. */
+  readonly display?: ActionDisplay;
 }
 
 export interface SimulationSpriteAnimationDriver {

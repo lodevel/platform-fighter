@@ -1,0 +1,808 @@
+{
+ "base": "http://127.0.0.1:4174/platform-fighter/",
+ "frames": 200,
+ "variants": {
+  "legacy": {
+   "flag": null,
+   "readyMs": 6161,
+   "fighters": [
+    {
+     "playerIndex": 0,
+     "characterId": "link",
+     "position": {
+      "x": 665,
+      "y": 773.455000277778
+     },
+     "screen": {
+      "x": 846.0462803348927,
+      "y": 361.38641098894425
+     },
+     "presentation": {
+      "key": "char.link.idle",
+      "frame": 7,
+      "x": 665,
+      "y": 809.455000277778,
+      "depth": 0,
+      "tint": 16770772,
+      "recolor": [],
+      "originX": 0.55,
+      "originY": 0.9583333333333334,
+      "scaleX": 0.4666667,
+      "scaleY": 0.4666667,
+      "flipX": false,
+      "rotation": 0,
+      "art": {
+       "key": "link.idle.anim",
+       "state": "idle",
+       "frameIndex": 7,
+       "scaleX": 1,
+       "scaleY": 1,
+       "crouchClip": false,
+       "facing": 1,
+       "display": {
+        "action": "idle",
+        "tick": 168,
+        "facing": 1
+       }
+      },
+      "textureResident": true,
+      "submitted": true,
+      "submittedAlpha": 1,
+      "visible": true,
+      "layers": [
+       {
+        "key": "char.link.idle",
+        "frame": 7,
+        "x": 665,
+        "y": 809.455000277778,
+        "depth": 0,
+        "tint": 16770772,
+        "recolor": [],
+        "originX": 0.55,
+        "originY": 0.9583333333333334,
+        "scaleX": 0.4666667,
+        "scaleY": 0.4666667,
+        "flipX": false,
+        "rotation": 0
+       }
+      ],
+      "frameWidth": 160,
+      "frameHeight": 216,
+      "displayWidth": 74.666672,
+      "displayHeight": 100.8000072
+     }
+    },
+    {
+     "playerIndex": 1,
+     "characterId": "pikachu",
+     "position": {
+      "x": 842,
+      "y": 905.050000277778
+     },
+     "screen": {
+      "x": 1073.9537196651072,
+      "y": 530.8297978740267
+     },
+     "presentation": {
+      "key": "char.pikachu.idle",
+      "frame": 4,
+      "x": 842,
+      "y": 930.050000277778,
+      "depth": 0,
+      "tint": 16770772,
+      "recolor": [
+       {
+        "key": [
+         0.1384615384615384,
+         0.8125,
+         0.9411764705882353
+        ],
+        "tolerance": [
+         0.04,
+         0.4,
+         0.45
+        ],
+        "hueShift": -0.12533169296087215,
+        "saturationRatio": 0.7982047872340425,
+        "valueRatio": 0.9795918367346939
+       },
+       {
+        "key": [
+         0.03333333333333336,
+         0.7352941176470588,
+         0.4
+        ],
+        "tolerance": [
+         0.04,
+         0.35,
+         0.25
+        ],
+        "hueShift": -0.047981892321515104,
+        "saturationRatio": 1.008076043453402,
+        "valueRatio": 0.8516129032258066
+       }
+      ],
+      "originX": 0.5,
+      "originY": 0.8125,
+      "scaleX": 0.4666666666666667,
+      "scaleY": 0.4666666666666667,
+      "flipX": true,
+      "rotation": 0,
+      "art": {
+       "key": "pikachu.idle.anim",
+       "state": "idle",
+       "frameIndex": 4,
+       "scaleX": 1,
+       "scaleY": 1,
+       "crouchClip": false,
+       "facing": -1,
+       "display": {
+        "action": "idle",
+        "tick": 150,
+        "facing": -1
+       }
+      },
+      "textureResident": true,
+      "submitted": true,
+      "submittedAlpha": 1,
+      "visible": true,
+      "layers": [
+       {
+        "key": "char.pikachu.idle",
+        "frame": 4,
+        "x": 842,
+        "y": 930.050000277778,
+        "depth": 0,
+        "tint": 16770772,
+        "recolor": [
+         {
+          "key": [
+           0.1384615384615384,
+           0.8125,
+           0.9411764705882353
+          ],
+          "tolerance": [
+           0.04,
+           0.4,
+           0.45
+          ],
+          "hueShift": -0.12533169296087215,
+          "saturationRatio": 0.7982047872340425,
+          "valueRatio": 0.9795918367346939
+         },
+         {
+          "key": [
+           0.03333333333333336,
+           0.7352941176470588,
+           0.4
+          ],
+          "tolerance": [
+           0.04,
+           0.35,
+           0.25
+          ],
+          "hueShift": -0.047981892321515104,
+          "saturationRatio": 1.008076043453402,
+          "valueRatio": 0.8516129032258066
+         }
+        ],
+        "originX": 0.5,
+        "originY": 0.8125,
+        "scaleX": 0.4666666666666667,
+        "scaleY": 0.4666666666666667,
+        "flipX": true,
+        "rotation": 0
+       }
+      ],
+      "frameWidth": 512,
+      "frameHeight": 512,
+      "displayWidth": 238.93333333333334,
+      "displayHeight": 238.93333333333334
+     }
+    }
+   ],
+   "packages": {
+    "packages": [],
+    "gpuBytes": 0
+   },
+   "rendererMemory": {
+    "geometries": 108,
+    "textures": 17
+   },
+   "legacyTextureBytes": 593554304,
+   "legacyResident": 495,
+   "crops": {
+    "link": {
+     "x": 686,
+     "y": 141,
+     "width": 320,
+     "height": 320
+    },
+    "pikachu": {
+     "x": 914,
+     "y": 311,
+     "width": 320,
+     "height": 320
+    }
+   },
+   "afterRelease": {
+    "packages": [],
+    "gpuBytes": 0
+   }
+  },
+  "packages-all": {
+   "flag": "all",
+   "readyMs": 5419,
+   "fighters": [
+    {
+     "playerIndex": 0,
+     "characterId": "link",
+     "position": {
+      "x": 665,
+      "y": 773.455000277778
+     },
+     "screen": {
+      "x": 846.0462803348927,
+      "y": 361.38641098894425
+     },
+     "presentation": {
+      "capability": "package-sprite",
+      "characterId": "link",
+      "resident": true,
+      "key": "package.link.idle/7",
+      "x": 665,
+      "y": 809.455000277778,
+      "originX": 0.5555555555555556,
+      "originY": 0.970731707317073,
+      "scaleX": 0.714000051,
+      "scaleY": 0.714000051,
+      "flipX": false,
+      "depth": 0,
+      "tint": 16770772,
+      "revision": "7a5bd7dcf89c8f1288190b1c82ee7fdcfa1c2aa6cb3ce186181b494a03e958fb",
+      "display": {
+       "action": "idle",
+       "tick": 168,
+       "facing": 1
+      },
+      "action": "idle",
+      "drawing": "idle/7",
+      "missingAction": null,
+      "paletteRow": 0,
+      "rect": [
+       208,
+       143,
+       100,
+       134
+      ],
+      "frameWidth": 100,
+      "frameHeight": 134,
+      "displayWidth": 71.4000051,
+      "displayHeight": 95.67600683399999,
+      "layers": 1,
+      "textureResident": true,
+      "submitted": true,
+      "visible": true
+     }
+    },
+    {
+     "playerIndex": 1,
+     "characterId": "pikachu",
+     "position": {
+      "x": 842,
+      "y": 905.050000277778
+     },
+     "screen": {
+      "x": 1073.9537196651072,
+      "y": 530.8297978740267
+     },
+     "presentation": {
+      "capability": "package-sprite",
+      "characterId": "pikachu",
+      "resident": true,
+      "key": "package.pikachu.idle/4",
+      "x": 842,
+      "y": 930.050000277778,
+      "originX": 0.2617449664429531,
+      "originY": 0.9657534246575342,
+      "scaleX": 0.7168384879725086,
+      "scaleY": 0.7168384879725086,
+      "flipX": true,
+      "depth": 1,
+      "tint": 16770772,
+      "revision": "32ffd430468adf08b00175402964faac031f77d064218b4d55fc883bfab5de8c",
+      "display": {
+       "action": "idle",
+       "tick": 150,
+       "facing": -1
+      },
+      "action": "idle",
+      "drawing": "idle/4",
+      "missingAction": null,
+      "paletteRow": 1,
+      "rect": [
+       103,
+       2,
+       97,
+       95
+      ],
+      "frameWidth": 97,
+      "frameHeight": 95,
+      "displayWidth": 69.53333333333333,
+      "displayHeight": 68.09965635738831,
+      "layers": 1,
+      "textureResident": true,
+      "submitted": true,
+      "visible": true
+     }
+    }
+   ],
+   "packages": {
+    "packages": [
+     {
+      "id": "link",
+      "refs": 2,
+      "loading": false,
+      "unloading": false,
+      "progress": {
+       "done": 229,
+       "total": 229
+      },
+      "revision": "7a5bd7dcf89c8f1288190b1c82ee7fdcfa1c2aa6cb3ce186181b494a03e958fb",
+      "pages": 229,
+      "costumes": 8,
+      "gpuBytes": 32414128,
+      "estimatedGpuBytes": 32405936
+     },
+     {
+      "id": "pikachu",
+      "refs": 2,
+      "loading": false,
+      "unloading": false,
+      "progress": {
+       "done": 205,
+       "total": 205
+      },
+      "revision": "32ffd430468adf08b00175402964faac031f77d064218b4d55fc883bfab5de8c",
+      "pages": 205,
+      "costumes": 8,
+      "gpuBytes": 19709280,
+      "estimatedGpuBytes": 19701088
+     }
+    ],
+    "gpuBytes": 52123408
+   },
+   "rendererMemory": {
+    "geometries": 108,
+    "textures": 444
+   },
+   "legacyTextureBytes": 2477056,
+   "legacyResident": 56,
+   "crops": {
+    "link": {
+     "x": 686,
+     "y": 141,
+     "width": 320,
+     "height": 320
+    },
+    "pikachu": {
+     "x": 914,
+     "y": 311,
+     "width": 320,
+     "height": 320
+    }
+   },
+   "afterRelease": {
+    "packages": [],
+    "gpuBytes": 0
+   }
+  },
+  "mixed-link": {
+   "flag": "link",
+   "readyMs": 6256,
+   "fighters": [
+    {
+     "playerIndex": 0,
+     "characterId": "link",
+     "position": {
+      "x": 665,
+      "y": 773.455000277778
+     },
+     "screen": {
+      "x": 846.0462803348927,
+      "y": 361.38641098894425
+     },
+     "presentation": {
+      "capability": "package-sprite",
+      "characterId": "link",
+      "resident": true,
+      "key": "package.link.idle/7",
+      "x": 665,
+      "y": 809.455000277778,
+      "originX": 0.5555555555555556,
+      "originY": 0.970731707317073,
+      "scaleX": 0.714000051,
+      "scaleY": 0.714000051,
+      "flipX": false,
+      "depth": 0,
+      "tint": 16770772,
+      "revision": "7a5bd7dcf89c8f1288190b1c82ee7fdcfa1c2aa6cb3ce186181b494a03e958fb",
+      "display": {
+       "action": "idle",
+       "tick": 168,
+       "facing": 1
+      },
+      "action": "idle",
+      "drawing": "idle/7",
+      "missingAction": null,
+      "paletteRow": 0,
+      "rect": [
+       208,
+       143,
+       100,
+       134
+      ],
+      "frameWidth": 100,
+      "frameHeight": 134,
+      "displayWidth": 71.4000051,
+      "displayHeight": 95.67600683399999,
+      "layers": 1,
+      "textureResident": true,
+      "submitted": true,
+      "visible": true
+     }
+    },
+    {
+     "playerIndex": 1,
+     "characterId": "pikachu",
+     "position": {
+      "x": 842,
+      "y": 905.050000277778
+     },
+     "screen": {
+      "x": 1073.9537196651072,
+      "y": 530.8297978740267
+     },
+     "presentation": {
+      "key": "char.pikachu.idle",
+      "frame": 4,
+      "x": 842,
+      "y": 930.050000277778,
+      "depth": 0,
+      "tint": 16770772,
+      "recolor": [
+       {
+        "key": [
+         0.1384615384615384,
+         0.8125,
+         0.9411764705882353
+        ],
+        "tolerance": [
+         0.04,
+         0.4,
+         0.45
+        ],
+        "hueShift": -0.12533169296087215,
+        "saturationRatio": 0.7982047872340425,
+        "valueRatio": 0.9795918367346939
+       },
+       {
+        "key": [
+         0.03333333333333336,
+         0.7352941176470588,
+         0.4
+        ],
+        "tolerance": [
+         0.04,
+         0.35,
+         0.25
+        ],
+        "hueShift": -0.047981892321515104,
+        "saturationRatio": 1.008076043453402,
+        "valueRatio": 0.8516129032258066
+       }
+      ],
+      "originX": 0.5,
+      "originY": 0.8125,
+      "scaleX": 0.4666666666666667,
+      "scaleY": 0.4666666666666667,
+      "flipX": true,
+      "rotation": 0,
+      "art": {
+       "key": "pikachu.idle.anim",
+       "state": "idle",
+       "frameIndex": 4,
+       "scaleX": 1,
+       "scaleY": 1,
+       "crouchClip": false,
+       "facing": -1,
+       "display": {
+        "action": "idle",
+        "tick": 150,
+        "facing": -1
+       }
+      },
+      "textureResident": true,
+      "submitted": true,
+      "submittedAlpha": 1,
+      "visible": true,
+      "layers": [
+       {
+        "key": "char.pikachu.idle",
+        "frame": 4,
+        "x": 842,
+        "y": 930.050000277778,
+        "depth": 0,
+        "tint": 16770772,
+        "recolor": [
+         {
+          "key": [
+           0.1384615384615384,
+           0.8125,
+           0.9411764705882353
+          ],
+          "tolerance": [
+           0.04,
+           0.4,
+           0.45
+          ],
+          "hueShift": -0.12533169296087215,
+          "saturationRatio": 0.7982047872340425,
+          "valueRatio": 0.9795918367346939
+         },
+         {
+          "key": [
+           0.03333333333333336,
+           0.7352941176470588,
+           0.4
+          ],
+          "tolerance": [
+           0.04,
+           0.35,
+           0.25
+          ],
+          "hueShift": -0.047981892321515104,
+          "saturationRatio": 1.008076043453402,
+          "valueRatio": 0.8516129032258066
+         }
+        ],
+        "originX": 0.5,
+        "originY": 0.8125,
+        "scaleX": 0.4666666666666667,
+        "scaleY": 0.4666666666666667,
+        "flipX": true,
+        "rotation": 0
+       }
+      ],
+      "frameWidth": 512,
+      "frameHeight": 512,
+      "displayWidth": 238.93333333333334,
+      "displayHeight": 238.93333333333334
+     }
+    }
+   ],
+   "packages": {
+    "packages": [
+     {
+      "id": "link",
+      "refs": 2,
+      "loading": false,
+      "unloading": false,
+      "progress": {
+       "done": 229,
+       "total": 229
+      },
+      "revision": "7a5bd7dcf89c8f1288190b1c82ee7fdcfa1c2aa6cb3ce186181b494a03e958fb",
+      "pages": 229,
+      "costumes": 8,
+      "gpuBytes": 32414128,
+      "estimatedGpuBytes": 32405936
+     }
+    ],
+    "gpuBytes": 32414128
+   },
+   "rendererMemory": {
+    "geometries": 108,
+    "textures": 244
+   },
+   "legacyTextureBytes": 298730112,
+   "legacyResident": 264,
+   "crops": {
+    "link": {
+     "x": 686,
+     "y": 141,
+     "width": 320,
+     "height": 320
+    },
+    "pikachu": {
+     "x": 914,
+     "y": 311,
+     "width": 320,
+     "height": 320
+    }
+   },
+   "afterRelease": {
+    "packages": [],
+    "gpuBytes": 0
+   }
+  },
+  "dk-costume-2": {
+   "flag": "all",
+   "readyMs": 6549,
+   "fighters": [
+    {
+     "playerIndex": 0,
+     "characterId": "donkeykong",
+     "position": {
+      "x": 665,
+      "y": 767.4550003505956
+     },
+     "screen": {
+      "x": 847.014557995002,
+      "y": 358.24971875796336
+     },
+     "presentation": {
+      "capability": "package-sprite",
+      "characterId": "donkeykong",
+      "resident": true,
+      "key": "package.donkeykong.idle/2",
+      "x": 665,
+      "y": 809.4550003505956,
+      "originX": 0.43119266055045874,
+      "originY": 0.9868421052631579,
+      "scaleX": 0.716431976056338,
+      "scaleY": 0.716431976056338,
+      "flipX": false,
+      "depth": 0,
+      "tint": 16770772,
+      "revision": "aef1887a68b4143d60255f115ed14d7a74d0c221124985c5a75d4d62a2004c21",
+      "display": {
+       "action": "idle",
+       "tick": 166,
+       "facing": 1
+      },
+      "action": "idle",
+      "drawing": "idle/2",
+      "missingAction": null,
+      "paletteRow": 2,
+      "rect": [
+       145,
+       324,
+       142,
+       149
+      ],
+      "frameWidth": 142,
+      "frameHeight": 149,
+      "displayWidth": 101.73334059999999,
+      "displayHeight": 106.74836443239437,
+      "layers": 1,
+      "textureResident": true,
+      "submitted": true,
+      "visible": true
+     }
+    },
+    {
+     "playerIndex": 1,
+     "characterId": "pikachu",
+     "position": {
+      "x": 842,
+      "y": 905.050000277778
+     },
+     "screen": {
+      "x": 1072.985442004998,
+      "y": 533.9133558703971
+     },
+     "presentation": {
+      "capability": "package-sprite",
+      "characterId": "pikachu",
+      "resident": true,
+      "key": "package.pikachu.idle/4",
+      "x": 842,
+      "y": 930.050000277778,
+      "originX": 0.2617449664429531,
+      "originY": 0.9657534246575342,
+      "scaleX": 0.7168384879725086,
+      "scaleY": 0.7168384879725086,
+      "flipX": true,
+      "depth": 1,
+      "tint": 16770772,
+      "revision": "32ffd430468adf08b00175402964faac031f77d064218b4d55fc883bfab5de8c",
+      "display": {
+       "action": "idle",
+       "tick": 150,
+       "facing": -1
+      },
+      "action": "idle",
+      "drawing": "idle/4",
+      "missingAction": null,
+      "paletteRow": 1,
+      "rect": [
+       103,
+       2,
+       97,
+       95
+      ],
+      "frameWidth": 97,
+      "frameHeight": 95,
+      "displayWidth": 69.53333333333333,
+      "displayHeight": 68.09965635738831,
+      "layers": 1,
+      "textureResident": true,
+      "submitted": true,
+      "visible": true
+     }
+    }
+   ],
+   "packages": {
+    "packages": [
+     {
+      "id": "donkeykong",
+      "refs": 2,
+      "loading": false,
+      "unloading": false,
+      "progress": {
+       "done": 208,
+       "total": 208
+      },
+      "revision": "aef1887a68b4143d60255f115ed14d7a74d0c221124985c5a75d4d62a2004c21",
+      "pages": 208,
+      "costumes": 8,
+      "gpuBytes": 86510400,
+      "estimatedGpuBytes": 86502208
+     },
+     {
+      "id": "pikachu",
+      "refs": 2,
+      "loading": false,
+      "unloading": false,
+      "progress": {
+       "done": 205,
+       "total": 205
+      },
+      "revision": "32ffd430468adf08b00175402964faac031f77d064218b4d55fc883bfab5de8c",
+      "pages": 205,
+      "costumes": 8,
+      "gpuBytes": 19709280,
+      "estimatedGpuBytes": 19701088
+     }
+    ],
+    "gpuBytes": 106219680
+   },
+   "rendererMemory": {
+    "geometries": 108,
+    "textures": 423
+   },
+   "legacyTextureBytes": 3040768,
+   "legacyResident": 56,
+   "crops": {
+    "donkeykong": {
+     "x": 687,
+     "y": 138,
+     "width": 320,
+     "height": 320
+    },
+    "pikachu": {
+     "x": 913,
+     "y": 314,
+     "width": 320,
+     "height": 320
+    }
+   },
+   "afterRelease": {
+    "packages": [],
+    "gpuBytes": 0
+   }
+  }
+ },
+ "comparisons": {
+  "link": {
+   "meanDiff": 0.76,
+   "differingShare": 0.0078
+  },
+  "pikachu": {
+   "meanDiff": 0.4,
+   "differingShare": 0.0022
+  }
+ },
+ "errors": []
+}

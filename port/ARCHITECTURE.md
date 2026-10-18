@@ -60,7 +60,10 @@ require textures or sprites.
 - `ui/model/`: small view helpers (fighter names).
 - `scripts/golden/`: the golden-replay harness (step 5.1) driving the game build; see `docs/review/2026-10-13/threejs-port/step5/README.md`.
 - `fighters/`: `appearance.ts` (shared instances and profile selection),
-  `backends/` (legacy sprite/resource implementations), `resources.ts` (preparation
+  `backends/` (legacy sprite/resource implementations; `packageSprite.ts` draws a fighter
+  from its character package, opt-in with `?packages=<id>`), `packageLibrary.ts` (shared,
+  reference-counted package leases: indexed pages as R8 textures plus a costume palette),
+  `packageIndex.ts` (the shipped packages' revisions), `resources.ts` (preparation
   leases), `lineup.ts`, `gazeDemo.ts`. Only the legacy backend calls `poses.ts`.
   `engine/presentation/` supplies managed geometry, shader preparation and
   composite snapshots. Single legacy menu images keep the original snapshot path.

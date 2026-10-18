@@ -1,0 +1,180 @@
+{
+ "frames": 3600,
+ "config": {
+  "mode": "stocks",
+  "stockCount": 3,
+  "stageId": "flat",
+  "rngSeed": 20261019,
+  "itemFrequency": "off",
+  "linkIntroPolicy": "none",
+  "players": [
+   {
+    "index": 1,
+    "characterId": "donkeykong",
+    "paletteIndex": 0,
+    "inputType": "ai",
+    "aiDifficulty": "hard"
+   },
+   {
+    "index": 2,
+    "characterId": "link",
+    "paletteIndex": 0,
+    "inputType": "ai",
+    "aiDifficulty": "hard"
+   },
+   {
+    "index": 3,
+    "characterId": "pikachu",
+    "paletteIndex": 0,
+    "inputType": "ai",
+    "aiDifficulty": "hard"
+   },
+   {
+    "index": 4,
+    "characterId": "donkeykong",
+    "paletteIndex": 2,
+    "inputType": "ai",
+    "aiDifficulty": "hard"
+   }
+  ]
+ },
+ "variants": {
+  "legacy": {
+   "readyMs": 4865,
+   "frames": 3600,
+   "fighterFrames": 0,
+   "missing": {},
+   "invisible": 0,
+   "actions": 0,
+   "shots": [
+    "docs/review/2026-10-19/phase6/match/legacy-00600.png",
+    "docs/review/2026-10-19/phase6/match/legacy-01200.png",
+    "docs/review/2026-10-19/phase6/match/legacy-01800.png",
+    "docs/review/2026-10-19/phase6/match/legacy-02400.png",
+    "docs/review/2026-10-19/phase6/match/legacy-03000.png",
+    "docs/review/2026-10-19/phase6/match/legacy-03600.png"
+   ],
+   "memory": {
+    "packages": {
+     "packages": [],
+     "gpuBytes": 0
+    },
+    "renderer": {
+     "geometries": 112,
+     "textures": 131
+    }
+   }
+  },
+  "packages": {
+   "readyMs": 3118,
+   "frames": 3600,
+   "fighterFrames": 14400,
+   "missing": {
+    "link:link.missing-sheet:up_special": 410
+   },
+   "invisible": 0,
+   "actions": 110,
+   "shots": [
+    "docs/review/2026-10-19/phase6/match/packages-00600.png",
+    "docs/review/2026-10-19/phase6/match/packages-01200.png",
+    "docs/review/2026-10-19/phase6/match/packages-01800.png",
+    "docs/review/2026-10-19/phase6/match/packages-02400.png",
+    "docs/review/2026-10-19/phase6/match/packages-03000.png",
+    "docs/review/2026-10-19/phase6/match/packages-03600.png"
+   ],
+   "memory": {
+    "packages": {
+     "packages": [
+      {
+       "id": "donkeykong",
+       "refs": 3,
+       "loading": false,
+       "unloading": false,
+       "progress": {
+        "done": 208,
+        "total": 208
+       },
+       "revision": "aef1887a68b4143d60255f115ed14d7a74d0c221124985c5a75d4d62a2004c21",
+       "pages": 208,
+       "costumes": 8,
+       "gpuBytes": 86510400,
+       "estimatedGpuBytes": 86502208
+      },
+      {
+       "id": "link",
+       "refs": 2,
+       "loading": false,
+       "unloading": false,
+       "progress": {
+        "done": 229,
+        "total": 229
+       },
+       "revision": "7a5bd7dcf89c8f1288190b1c82ee7fdcfa1c2aa6cb3ce186181b494a03e958fb",
+       "pages": 229,
+       "costumes": 8,
+       "gpuBytes": 32414128,
+       "estimatedGpuBytes": 32405936
+      },
+      {
+       "id": "pikachu",
+       "refs": 2,
+       "loading": false,
+       "unloading": false,
+       "progress": {
+        "done": 205,
+        "total": 205
+       },
+       "revision": "183d3ab7b0f34f0829cc23bbc119612c68db817411cbbc45639b8e2273d5735a",
+       "pages": 205,
+       "costumes": 8,
+       "gpuBytes": 19719392,
+       "estimatedGpuBytes": 19711200
+      }
+     ],
+     "gpuBytes": 138643920
+    },
+    "renderer": {
+     "geometries": 112,
+     "textures": 654
+    }
+   }
+  }
+ },
+ "comparisons": [
+  {
+   "shot": 0,
+   "meanDiff": 2.114,
+   "differingShare": 0.0125
+  },
+  {
+   "shot": 1,
+   "meanDiff": 1.347,
+   "differingShare": 0.00545
+  },
+  {
+   "shot": 2,
+   "meanDiff": 1.529,
+   "differingShare": 0.00768
+  },
+  {
+   "shot": 3,
+   "meanDiff": 1.136,
+   "differingShare": 0.00704
+  },
+  {
+   "shot": 4,
+   "meanDiff": 1.12,
+   "differingShare": 0.00763
+  },
+  {
+   "shot": 5,
+   "meanDiff": 1.008,
+   "differingShare": 0.00505
+  }
+ ],
+ "errors": [
+  "legacy: Failed to load resource: the server responded with a status of 404 (Not Found)",
+  "legacy: Failed to load resource: the server responded with a status of 404 (Not Found)",
+  "packages: Failed to load resource: the server responded with a status of 404 (Not Found)"
+ ]
+}

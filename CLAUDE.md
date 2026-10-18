@@ -37,6 +37,7 @@ npm run character:export    # today's fighters → .tmp/character-packages (char
 npm run lab                 # standalone character lab, http://localhost:5180 (lab:build → dist-lab/)
 npm run character:holds -- donkeykong --max-diff 0.12   # Phase 3 hold candidates beside the export (<id>~repack, <id>~holds-<limit>)
 npm run character:shrink -- donkeykong~holds-0.12      # decided display: match-size drawings + 256-colour palette (<id>~small, ~small-c256)
+npm run character:package   # rebuild the shipped packages in assets/characters/<id>/package/ (export → holds → shrink)
 ```
 
 Verification ritual before calling gameplay work done:
@@ -73,6 +74,10 @@ the game's sprite layer) and the standalone lab (`lab/`). They never import
 `src/` or `port/` (`character/boundaries.test.ts`); the game may import them. `scripts/character-package/`
 exports today's fighters by sampling the game's own drawing selection; it is
 temporary migration code. Plan: `docs/CHARACTER-LAB-PLAN.md`.
+Phase 6 (`docs/review/2026-10-19/phase6/PLAN.md`): the game can draw fighters from the
+shipped packages (`port/src/fighters/packageLibrary.ts`, backend `backends/packageSprite.ts`,
+palette shader in `spriteLayer.ts`); opt in with `?packages=all` or `?packages=<id>`. The
+legacy sprite path stays the default until the user accepts the package path in matches.
 
 ### Determinism
 

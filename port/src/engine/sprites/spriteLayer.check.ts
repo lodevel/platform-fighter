@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { describe, expect, it } from 'vitest';
 import { STAGE_DESIGN_HEIGHT, STAGE_DESIGN_WIDTH } from '../../../../src/stages/stageDefinitions';
 import { PX_PER_UNIT } from '../space';
-import { SpriteLayer, type SpriteDraw } from './spriteLayer';
+import { facingOriginX, SpriteLayer, type SpriteDraw } from './spriteLayer';
 import type { SheetTexture, TextureStore } from './textureStore';
 
 const W = 40, H = 30, COLS = 3, FRAMES = 6;
@@ -92,5 +92,34 @@ describe('SpriteLayer with packed sheets', () => {
     const croppedTop = point(crop.mesh, 0), originalTop = point(full.mesh, 0);
     expect(croppedTop.y).toBeCloseTo(originalTop.y - 5 / PX_PER_UNIT);
     expect(point(crop.mesh, 1).y).toBeCloseTo(croppedTop.y - 8 / PX_PER_UNIT);
+  });
+});
+
+describe('SpriteLayer with indexed pages', () => {
+  const page = { texture: new THREE.Texture(), width: 64, height: 32 }, palette = new THREE.Texture();
+  const indexed = { page, rect: [4, 2, 20, 10] as const, palette, paletteRow: 3 };
+  /** The same drawing as a one-drawing sheet whose frame is exactly the rect. */
+  const sheet: SheetTexture = { ...grid, columns: 1, frameCount: 1, frameWidth: 20, frameHeight: 10, atlas: [64, 32], width: 64, height: 32, trims: [[4, 2, 20, 10, 0, 0]] };
+
+  it('places the rect as its own frame, exactly like a sheet drawing, for every origin, flip and rotation', () => {
+    for (const originX of [0, 0.3, 1]) for (const flipX of [false, true]) for (const rotation of [0, 0.7]) {
+      const draw = { originX, originY: 0.8, flipX, rotation, scaleX: 1.7, scaleY: 1.7 };
+      const a = placed(sheet, draw), b = placed(sheet, { ...draw, indexed });
+      expect(b.matrix).toEqual(a.matrix);
+      expect(b.uv).toEqual(a.uv);
+      expect(b.mesh.material.uniforms.map!.value).toBe(page.texture);
+    }
+  });
+
+  it('selects the palette path and the costume row, and never recolours', () => {
+    const { mesh } = placed(sheet, { indexed, recolor: [{ key: [0, 1, 1], hueShift: 0.5, saturationRatio: 1, valueRatio: 1, tolerance: [0.1, 0.1, 0.1] }] });
+    const uniforms = mesh.material.uniforms;
+    expect([uniforms.indexed!.value, uniforms.palette!.value, uniforms.paletteRow!.value, uniforms.recolorCount!.value]).toEqual([true, palette, 3, 0]);
+    expect(placed(sheet, {}).mesh.material.uniforms.indexed!.value).toBe(false);
+  });
+
+  it('mirrors a root-anchored drawing about its anchor', () => {
+    expect(facingOriginX(0.3, 1)).toBe(0.3);
+    expect(facingOriginX(0.3, -1)).toBeCloseTo(0.7);
   });
 });

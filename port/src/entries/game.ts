@@ -14,6 +14,7 @@ import { createFrameRateMeter } from '../ui/components/frameRateMeter';
 import { createAppVersionBadge } from '../ui/components/appVersion';
 import { SIMULATION_BUILD_ID } from '../../../src/engine/buildIdentity';
 import { version } from '../../../package.json';
+import { packageLibrary } from '../fighters/packageLibrary';
 
 /**
  * The port's game shell: HTML/CSS menus over a live 3D arena. Replaces the
@@ -135,8 +136,11 @@ export function startMatch(config: MatchConfig): void { app.go('match', { pendin
 Object.assign(window, { __menu: { go: app.go, startMatch: (config: MatchConfig) => app.go('match', { pending: config }),
   faults,
   get screen() { return currentName; },
-  presentation: () => presenter.sprites.submittedDraws().map(draw => {
+  presentation: () => presenter.sprites.submittedDraws().map(({ indexed, ...draw }) => {
+    if (indexed) return { ...draw, indexed: { rect: indexed.rect, paletteRow: indexed.paletteRow }, loaded: true, frameWidth: indexed.rect[2], frameHeight: indexed.rect[3] };
     const sheet = presenter.sprites.textures.get(draw.key);
     return { ...draw, loaded: Boolean(sheet), frameWidth: sheet?.frameWidth, frameHeight: sheet?.frameHeight };
   }),
+  /** Character packages resident on the GPU (`?packages=` opt-in). */
+  packages: () => packageLibrary.diagnostics(),
 } });

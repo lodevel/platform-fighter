@@ -5,7 +5,7 @@ import { SpriteLayer, type SpriteDraw } from './spriteLayer';
 import { TextureStore } from './textureStore';
 
 /**
- * Draws one sprite, recolour included, to a canvas for HTML (menu art), so
+ * Draws one sprite, recolour included (sheet or indexed page), to a canvas for HTML (menu art), so
  * menus show exactly what the game draws. One small offscreen renderer;
  * each sprite is drawn at its frame's native resolution, centred.
  */
@@ -24,9 +24,9 @@ export class SpriteSnapshotter {
   }
 
   private async render(draw: SpriteDraw): Promise<HTMLCanvasElement> {
-    const sheet = await this.textures.load(draw.key);
+    const { frameWidth: w, frameHeight: h } = draw.indexed
+      ? { frameWidth: draw.indexed.rect[2], frameHeight: draw.indexed.rect[3] } : await this.textures.load(draw.key);
     const scale = Math.abs(draw.scaleX ?? 1);
-    const w = sheet.frameWidth, h = sheet.frameHeight;
     const renderer = this.renderer ??= this.createRenderer();
     renderer.setSize(w, h, false);
     // Centre of the design space is the world origin; frame the sprite's box there.

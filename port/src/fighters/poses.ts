@@ -4,7 +4,7 @@ import type { CharacterId, StageLayout } from '../../../src/types';
 import { PIKACHU_QUICK_ROT_PIVOT, PIKACHU_SPECIAL_ROT_PIVOT } from '../../../src/characters/pikachuSpecialTransforms';
 import type { SimulationAnimationSnapshot, SimulationSpritePose } from '../../../src/characters/simulationSpriteAnimation';
 import { finalBodyPose } from '../../../src/finalSmash/finalBodyPose';
-import type { SpriteDraw } from '../engine/sprites/spriteLayer';
+import { facingOriginX, type SpriteDraw } from '../engine/sprites/spriteLayer';
 import { artTextureKey } from '../../../src/characters/artFrameSelector';
 import { costumeRecolor } from './palette';
 import { pikachuFinalVisualPose } from './finalVisual';
@@ -82,7 +82,7 @@ export function fighterDraw(f: IdleFighter, sheet: string, age: number, tint: nu
   return {
     key: p.key, frame: p.frame, x: f.x, y: f.y, depth: f.depth ?? 0, tint,
     recolor: costumeRecolor(f.characterId as CharacterId, f.paletteIndex ?? 0),
-    originX: f.facing === -1 ? 1 - p.originX : p.originX, originY: p.originY,
+    originX: facingOriginX(p.originX, f.facing), originY: p.originY,
     scaleX: scale, scaleY: scale, flipX: f.facing === -1,
   };
 }
@@ -121,7 +121,7 @@ export function fighterDrawFromArt(
   const draw: SpriteDraw = {
     key: textureKey, frame: visual?.frame ?? art.frameIndex, x: f.position.x, y: f.position.y - m.bodyCentreFromRootY, depth: f.depth ?? 0, tint,
     recolor: costumeRecolor(f.characterId as CharacterId, f.paletteIndex ?? 0),
-    originX: flip ? 1 - m.originX : m.originX, originY: m.originY, scaleX: m.scale * art.scaleX, scaleY: m.scale * art.scaleY, flipX: flip,
+    originX: facingOriginX(m.originX, art.facing), originY: m.originY, scaleX: m.scale * art.scaleX, scaleY: m.scale * art.scaleY, flipX: flip,
     rotation: finalMetrics && !animation?.finalVictimSelection ? (final?.rotationDegrees ?? 0) * Math.PI / 180 : 0,
   };
   const turn = pikachuSpecial && (pikachuSpecial.kind === 'skullBash' || pikachuSpecial.kind === 'quickAttack') ? pikachuSpecial : null;
@@ -132,7 +132,7 @@ export function fighterDrawFromArt(
   const rootFromPivot = -m.bodyCentreFromRootY - pivot.y;
   const originX = m.originX + pivot.x / (m.frameWidth * m.scale);
   return {
-    ...draw, originX: f.facing === 1 ? originX : 1 - originX, originY: m.originY - rootFromPivot / (m.frameHeight * m.scale),
+    ...draw, originX: facingOriginX(originX, f.facing), originY: m.originY - rootFromPivot / (m.frameHeight * m.scale),
     x: f.position.x + pivot.x * f.facing, y: f.position.y + pivot.y, rotation: turn.bodyRotation,
   };
 }

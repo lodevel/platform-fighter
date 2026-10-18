@@ -27,8 +27,14 @@ export interface ActionReport {
   readonly action: string; readonly clock: string; readonly after: Schedule<Window>['after'];
   readonly ticks: number; readonly windows: number; readonly drawings: number; readonly sockets: readonly string[];
 }
+/** Identity of a placed drawing: the same sheet frame placed differently is a different drawing (`<sheet>/<frame>@<n>`). */
+export const placementKey = (s: Pick<ClipSample, 'sheet' | 'frame' | 'originX' | 'originY' | 'scale'>): string =>
+  JSON.stringify([s.sheet, s.frame, s.originX, s.originY, s.scale]);
+
 export interface ExportResult {
   readonly pkg: CharacterPackage;
+  /** Placement key → drawing id. */
+  readonly placements: ReadonlyMap<string, string>;
   /** Package page file → source PNG (absolute). */
   readonly pageSources: ReadonlyMap<string, string>;
   readonly report: {
@@ -45,7 +51,7 @@ export function exportFighter(fighter: ExportedFighter): ExportResult {
   const actions: Record<string, Action> = {}, reports: ActionReport[] = [];
 
   const drawingFor = (s: ClipSample): string => {
-    const placement = JSON.stringify([s.sheet, s.frame, s.originX, s.originY, s.scale]);
+    const placement = placementKey(s);
     const known = drawingByPlacement.get(placement);
     if (known) return known;
     const layout = sheets.get(s.sheet);
@@ -92,7 +98,7 @@ export function exportFighter(fighter: ExportedFighter): ExportResult {
     provenance: { importer: EXPORTER, sources: sourceHashes(fighter) },
   };
   const verifiedTicks = verify(pkg, clips.filter(c => actions[c.action]), drawingByPlacement, fighter, problems);
-  return { pkg, pageSources, report: { fighter, actions: reports, skipped, problems, verifiedTicks, validation: validatePackage(pkg) } };
+  return { pkg, placements: drawingByPlacement, pageSources, report: { fighter, actions: reports, skipped, problems, verifiedTicks, validation: validatePackage(pkg) } };
 }
 
 function sampleAll(clip: ExportClip): (ClipSample | null)[] {
@@ -127,7 +133,7 @@ function verify(pkg: CharacterPackage, clips: readonly ExportClip[], ids: Readon
     const action = pkg.actions[clip.action]!;
     for (let age = 0; age < 2 * HORIZON; age++) {
       const expected = clip.sample(age), got = evaluate(pkg, { action: clip.action, tick: age, facing: 1 });
-      const id = expected && ids.get(JSON.stringify([expected.sheet, expected.frame, expected.originX, expected.originY, expected.scale]));
+      const id = expected && ids.get(placementKey(expected));
       checked++;
       if ((id ?? null) !== got.drawing || (expected?.sample ?? undefined) !== got.sample) {
         problems.push(`${clip.action}: tick ${age} shows ${got.drawing ?? 'nothing'}, the game shows ${id ?? (expected ? 'an unexported drawing' : 'nothing')}`);

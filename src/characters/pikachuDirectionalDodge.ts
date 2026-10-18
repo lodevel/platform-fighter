@@ -14,6 +14,9 @@ export const directionalDodgeSourcePhaseFrames = {
   enableControlAndBothSideLedgeChecks: 24,
 } as const;
 
+/** The package action of the directional dodge: neutral `air_dodge` drawings on this sample table. */
+export const DIRECTIONAL_AIR_DODGE_ACTION = 'air_dodge_directional';
+
 export function directionalDodgeDrawing(age: number, totalFrames: number) {
   if (!Number.isInteger(age) || age < 0 || !Number.isInteger(totalFrames) || age >= totalFrames) return null;
   let artFrameIndex = directionalDodgeNativeSamples.length - 1;

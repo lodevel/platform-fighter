@@ -8,6 +8,8 @@ import type { SpriteLayer } from '../engine/sprites/spriteLayer';
 import type { AppearanceBackend, AppearanceBackendFactory } from './backends/types';
 import { legacySpriteBackend } from './backends/legacySprite';
 import { registerLegacyAppearanceResources } from './backends/legacyResources';
+import { PACKAGE_SPRITE_CAPABILITY, packagePresentationProfile, packageSpriteBackend, registerPackageAppearanceResources } from './backends/packageSprite';
+import { SHIPPED_PACKAGES } from './packageIndex';
 
 export type { AppearanceSubmission } from '../engine/presentation/submission';
 export type { AppearanceBackend, AppearanceBackendFactory, BackendPreparation } from './backends/types';
@@ -159,6 +161,27 @@ export class CharacterAppearance implements AppearanceSubmission {
 export const characterAppearances = new AppearanceSystem(createLegacyPresentationRegistry());
 characterAppearances.registerBackend(legacySpriteBackend);
 registerLegacyAppearanceResources();
+// Package profiles are registered beside the legacy ones; legacy stays the default.
+characterAppearances.registry.registerCapability({ id: PACKAGE_SPRITE_CAPABILITY });
+for (const id of Object.keys(SHIPPED_PACKAGES.packages)) characterAppearances.registry.registerProfile(packagePresentationProfile(id)!);
+characterAppearances.registerBackend(packageSpriteBackend);
+registerPackageAppearanceResources();
+
+/** Fighters named by the dev opt-in `?packages=link,pikachu` (or `all`) that ship a package. */
+export function packageOptIn(search: string): Set<string> {
+  const named = (new URLSearchParams(search).get('packages') ?? '').split(',').map(id => id.trim()).filter(Boolean);
+  const shipped = Object.keys(SHIPPED_PACKAGES.packages);
+  return new Set(named.includes('all') ? shipped : named.filter(id => shipped.includes(id)));
+}
+
+/** Show each of `characterIds` from its package when opted in, else return it from a package to legacy. */
+export function selectPackageProfiles(characterIds: readonly string[], optIn: ReadonlySet<string>, system = characterAppearances): void {
+  for (const id of new Set(characterIds)) {
+    const selected = system.profileFor(id), packaged = packagePresentationProfile(id);
+    if (optIn.has(id) && packaged) system.selectProfile(packaged);
+    else if (packaged && selected.id === packaged.id) system.selectProfile(legacyPresentationProfile(id));
+  }
+}
 
 export interface AppearancePose {
   readonly characterId: string;

@@ -17,7 +17,8 @@
     "lab:build": "vite build --config vite.character-lab.config.ts",
     "character:export": "tsx scripts/export-character-packages.ts",
     "character:holds": "tsx character/candidates/holdsCandidate.ts",
-    "character:shrink": "tsx character/candidates/shrinkCandidate.ts"
+    "character:shrink": "tsx character/candidates/shrinkCandidate.ts",
+    "character:package": "tsx scripts/build-shipping-packages.ts"
   },
   "keywords": [
     "three",

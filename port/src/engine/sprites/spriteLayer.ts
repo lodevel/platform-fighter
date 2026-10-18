@@ -36,7 +36,32 @@ export interface SpriteDraw {
   readonly depth?: number;
   /** Visible rows in the logical frame (before origin/flip), for native shooting body layers. */
   readonly clipRows?: { readonly top?: number; readonly bottom?: number };
+  /**
+   * Draw this rectangle of a character package's indexed page instead of the sheet named by
+   * `key` (which then only labels the draw). The rectangle is the logical frame; `recolor`
+   * does not apply, since a costume is a palette row.
+   */
+  readonly indexed?: IndexedDrawing;
 }
+
+/** An indexed page: one palette entry per pixel, an R8 texture, rows top to bottom. */
+export interface IndexedPage {
+  readonly texture: THREE.Texture;
+  readonly width: number;
+  readonly height: number;
+}
+
+export interface IndexedDrawing {
+  readonly page: IndexedPage;
+  /** [x, y, width, height] in page pixels. */
+  readonly rect: readonly [number, number, number, number];
+  /** Straight RGBA, 256 entries wide, one row per costume. */
+  readonly palette: THREE.Texture;
+  readonly paletteRow: number;
+}
+
+/** The origin a root-anchored drawing needs when mirrored for `facing`: a flip mirrors the frame inside its box (Phaser). */
+export const facingOriginX = (originX: number, facing: 1 | -1): number => facing === -1 ? 1 - originX : originX;
 
 const VERT = `
   uniform vec4 uvRect;
@@ -47,14 +72,34 @@ const VERT = `
   }`;
 // Phaser's multi pipeline: premultiplied texel * (tint * alpha, alpha).
 // With no recolour regions the texel is untouched, so parity with Phaser holds.
+// An indexed page (`map` is then R8, nearest) reads the four texels a bilinear
+// sample covers, looks each up in the costume's palette row, and blends them in
+// premultiplied space: the same look as a linearly filtered RGBA sheet.
 const FRAG = `
   ${RECOLOR_GLSL}
   uniform sampler2D map;
+  uniform bool indexed;
+  uniform sampler2D palette;
+  uniform int paletteRow;
   uniform vec3 tint;
   uniform float alpha;
   varying vec2 vUv;
+  vec4 entry(ivec2 at, ivec2 size) {
+    int index = int(texelFetch(map, clamp(at, ivec2(0), size - 1), 0).r * 255.0 + 0.5);
+    vec4 c = texelFetch(palette, ivec2(index, paletteRow), 0);
+    return vec4(c.rgb * c.a, c.a);
+  }
+  vec4 indexedTexel() {
+    ivec2 size = textureSize(map, 0);
+    // vUv runs bottom-up like a flipped sheet; the page's rows run top-down.
+    vec2 p = vec2(vUv.x, 1.0 - vUv.y) * vec2(size) - 0.5, f = fract(p);
+    ivec2 i = ivec2(floor(p));
+    return mix(mix(entry(i, size), entry(i + ivec2(1, 0), size), f.x),
+      mix(entry(i + ivec2(0, 1), size), entry(i + ivec2(1, 1), size), f.x), f.y);
+  }
   void main() {
-    gl_FragColor = recolor(texture2D(map, vUv)) * vec4(tint * alpha, alpha);
+    vec4 texel = indexed ? indexedTexel() : recolor(texture2D(map, vUv));
+    gl_FragColor = texel * vec4(tint * alpha, alpha);
   }`;
 
 /** Unit quad: x right, y down from the frame's top-left, like a Phaser frame box. */
@@ -74,7 +119,8 @@ interface Slot {
 
 function slotUniforms(recolor: RecolorUniforms) {
   return {
-    map: { value: null as THREE.Texture | null }, uvRect: { value: new THREE.Vector4() }, tint: { value: new THREE.Color() }, alpha: { value: 1 },
+    map: { value: null as THREE.Texture | null }, indexed: { value: false }, palette: { value: null as THREE.Texture | null }, paletteRow: { value: 0 },
+    uvRect: { value: new THREE.Vector4() }, tint: { value: new THREE.Color() }, alpha: { value: 1 },
     recolorCount: { value: 0 }, recolorKey: { value: recolor.key }, recolorShift: { value: recolor.shift }, recolorTolerance: { value: recolor.tolerance },
   };
 }
@@ -174,12 +220,23 @@ export class SpriteLayer {
     return slot;
   }
 
-  private place(s: SpriteDraw): void {
+  /** The image a draw reads, its layout size, its logical frame and the drawing's rect and offset inside that frame. */
+  private source(s: SpriteDraw) {
+    if (s.indexed) {
+      const { page, rect: [x, y, w, h] } = s.indexed;
+      return { texture: page.texture, width: page.width, height: page.height, frameWidth: w, frameHeight: h, rect: { x, y, w, h, dx: 0, dy: 0 } };
+    }
     const sheet = this.textures.get(s.key);
-    if (!sheet) return;
+    if (!sheet) return null;
     const frame = Math.max(0, Math.min(sheet.frameCount - 1, Math.floor(s.frame ?? 0)));
     // The drawing's rect in the image, and its offset inside the logical cell (0,0 and the whole cell for a grid).
-    const source = frameRect(sheet, frame);
+    return { ...sheet, rect: frameRect(sheet, frame) };
+  }
+
+  private place(s: SpriteDraw): void {
+    const sheet = this.source(s);
+    if (!sheet) return;
+    const source = sheet.rect;
     const top = Math.max(source.dy, s.clipRows?.top ?? source.dy);
     const bottom = Math.min(source.dy + source.h, s.clipRows?.bottom ?? source.dy + source.h);
     if (bottom <= top) return;
@@ -191,11 +248,14 @@ export class SpriteLayer {
     slot.mesh.renderOrder = this.renderOrderBase + ++this.order;
     slot.mesh.material.blendDst = s.blend === 'add' ? THREE.OneFactor : THREE.OneMinusSrcAlphaFactor;
     slot.uniforms.map.value = sheet.texture;
+    slot.uniforms.indexed.value = Boolean(s.indexed);
+    slot.uniforms.palette.value = s.indexed?.palette ?? null;
+    slot.uniforms.paletteRow.value = s.indexed?.paletteRow ?? 0;
     // Texture rows run bottom-up after the flipY upload.
     slot.uniforms.uvRect.value.set(rect.x / sheet.width, 1 - (rect.y + rect.h) / sheet.height, rect.w / sheet.width, rect.h / sheet.height);
     slot.uniforms.tint.value.setHex(s.tint ?? 0xffffff);
     slot.uniforms.alpha.value = s.alpha ?? 1;
-    packRecolor(s.recolor ?? [], slot.recolor);
+    packRecolor(s.indexed ? [] : s.recolor ?? [], slot.recolor);
     slot.uniforms.recolorCount.value = slot.recolor.count;
 
     // Phaser's batchSprite: the quad starts at -displayOrigin plus the trim offset; a flip

@@ -1,0 +1,26 @@
+{
+ "schema": "character-package-index/1",
+ "packages": {
+  "donkeykong": {
+   "revision": "aef1887a68b4143d60255f115ed14d7a74d0c221124985c5a75d4d62a2004c21",
+   "pages": 208,
+   "drawings": 1511,
+   "gpuBytes": 86502208,
+   "diskBytes": 19651808
+  },
+  "link": {
+   "revision": "7a5bd7dcf89c8f1288190b1c82ee7fdcfa1c2aa6cb3ce186181b494a03e958fb",
+   "pages": 229,
+   "drawings": 1653,
+   "gpuBytes": 32405936,
+   "diskBytes": 10242453
+  },
+  "pikachu": {
+   "revision": "183d3ab7b0f34f0829cc23bbc119612c68db817411cbbc45639b8e2273d5735a",
+   "pages": 205,
+   "drawings": 1157,
+   "gpuBytes": 19711200,
+   "diskBytes": 5117451
+  }
+ }
+}

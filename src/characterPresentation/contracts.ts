@@ -94,3 +94,35 @@ export interface AppearanceLifecycle<Submission, Diagnostics> {
   /** Idempotent; release instance resources without destroying shared assets. */
   dispose(): void;
 }
+
+/**
+ * What a character package shows for an actor at one simulation tick: one of its actions
+ * at a tick, drawn at the body centre (root = body centre - the action's body-centre offset).
+ * Plain data decided by the game; the package evaluator turns it into a drawing.
+ */
+export interface ActionDisplay {
+  readonly action: string;
+  /** Ticks since the action started, on the action's own clock. */
+  readonly tick: number;
+  readonly facing: PresentationFacing;
+  /** Radians clockwise as drawn (facing already applied), about `pivot`, or about the root without one. */
+  readonly rotation?: number;
+  /** Rotation centre in design pixels from the body centre, facing right (x mirrors with facing). */
+  readonly pivot?: PresentationPoint;
+  /** Squash about the root, on top of the drawing's own scale. */
+  readonly scale?: PresentationPoint;
+  /** An upper-body layer drawn over this one (a shooting item fired while walking, squatting or landing). */
+  readonly overlay?: ActionDisplayOverlay;
+}
+
+export interface ActionDisplayOverlay {
+  readonly action: string;
+  readonly tick: number;
+  /** The overlay's body centre from the base's, design pixels, facing right. */
+  readonly offset: PresentationPoint;
+  /**
+   * The waist line of each layer in design pixels below its own root (negative: above it).
+   * The base shows only below `base`, the overlay only above `overlay`.
+   */
+  readonly clip: { readonly base: number; readonly overlay: number };
+}

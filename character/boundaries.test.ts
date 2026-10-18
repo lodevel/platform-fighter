@@ -15,7 +15,7 @@ const RULES: Record<string, { folders: string[]; packages: string[] }> = {
   testing: { folders: ['testing', 'package'], packages: [] },
   lab: { folders: ['lab', 'package', 'evaluator', 'render'], packages: ['three'] },
 };
-const TEST_PACKAGES = ['vitest', 'node:', 'typescript'];
+const TEST_PACKAGES = ['vitest', 'node:', 'typescript', 'pngjs'];
 
 it('character folders import only what their boundary allows', () => {
   const root = path.dirname(fileURLToPath(import.meta.url)), violations: string[] = [];

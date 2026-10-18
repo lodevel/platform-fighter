@@ -6,6 +6,7 @@ import {
   characterAnimationSheets, getMoveAnimKey, getSpriteAnimationKey, type CharacterAnimationSheet,
 } from './spriteAnimationDriver';
 import { findAssetEntry } from '../assets/manifest';
+import { describeActionDisplay } from './actionDisplay';
 import type { CharacterId } from '../types';
 
 /**
@@ -78,15 +79,21 @@ export function createArtFrameSelector(catalog: ArtCatalog) {
         if (!key) return null;
         const count = catalog.frameCount(key);
         const sheet = key.split('.')[1] ?? 'idle';
-        return { key, count, sheet, frameIndex: selectActionArtFrame(pose, count, sheet, stateElapsed)! };
+        // The drawn texture is `char.<id>.<sheet>`; its clip names the package action.
+        const texture = artTextureKey(key)?.slice(`char.${namespace}.`.length) ?? sheet;
+        return { key, count, sheet, texture, frameIndex: selectActionArtFrame(pose, count, sheet, stateElapsed)! };
       };
       const main = resolve(action);
       if (!main) return last;
-      const upper = action.overlay ? resolve(action.overlay) : null;
+      const resolved = action.overlay ? resolve(action.overlay) : null;
+      const upper = resolved && { ...resolved, frameIndex: Math.max(0, Math.min(resolved.count - 1, resolved.frameIndex)) };
+      const display = describeActionDisplay(snapshot, action, { sheet: main.texture, frameIndex: main.frameIndex },
+        upper && { sheet: upper.texture, frameIndex: upper.frameIndex }, stateElapsed);
       last = {
         key: main.key, state: action.state, frameIndex: main.frameIndex, scaleX: action.scaleX ?? 1, scaleY: action.scaleY ?? 1,
         crouchClip: main.sheet === 'crouch', facing: action.facing ?? snapshot.facing,
-        ...(upper ? { overlay: { key: upper.key, frameIndex: Math.max(0, Math.min(upper.count - 1, upper.frameIndex)) } } : {}),
+        ...(upper ? { overlay: { key: upper.key, frameIndex: upper.frameIndex } } : {}),
+        ...(display ? { display } : {}),
       };
       return last;
     },

@@ -56,15 +56,19 @@ export function prepareRegisteredAppearanceResources(plan: readonly AppearanceRe
     return [{ provider, resources: [...resources] }];
   });
   return prepareAppearanceResources(plan, { prepare: async (signal, report) => {
-    const counts = jobs.map(() => ({ done: 0, total: 0 }));
+    const part = combinedProgress(jobs.length, report);
     if (!jobs.length) report(0, 0);
-    await Promise.all(jobs.map((job, index) => job.provider.prepare(job.resources, host, { signal,
-      progress: (done, total) => {
-        counts[index] = { done, total };
-        report(counts.reduce((sum, count) => sum + count.done, 0), counts.reduce((sum, count) => sum + count.total, 0));
-      },
-    })));
+    await Promise.all(jobs.map((job, index) => job.provider.prepare(job.resources, host, { signal, progress: part(index) })));
   } }, shaders, progress);
+}
+
+/** Progress callbacks for `parts` concurrent jobs that report their sum to `report`. */
+export function combinedProgress(parts: number, report: (done: number, total: number) => void) {
+  const counts = Array.from({ length: parts }, () => ({ done: 0, total: 0 }));
+  return (index: number) => (done: number, total: number) => {
+    counts[index] = { done, total };
+    report(counts.reduce((sum, count) => sum + count.done, 0), counts.reduce((sum, count) => sum + count.total, 0));
+  };
 }
 
 export interface AppearanceResourceLease {

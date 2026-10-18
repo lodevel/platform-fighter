@@ -23,7 +23,7 @@ import pikachuAxes from '../../../assets/characters/pikachu/item-axes.json';
 import linkAxes from '../../../assets/characters/link/item-axes.json';
 import type { CharacterId } from '../../types';
 import { resolveSimulationAction, selectActionArtFrame, type ActionPose, type SimulationAnimationSnapshot } from '../../characters/simulationSpriteAnimation';
-import { installedPackedSheet } from '../../characters/packedBodyPresentation';
+import { clipOfSheet } from '../../characters/actionDisplay';
 import { shootingLayerLayout, type ShootingLayerLayout } from '../../characters/upperBodyLayer';
 
 export interface ItemAttachmentPose {
@@ -50,10 +50,6 @@ const AXES: Readonly<Partial<Record<CharacterId, Readonly<Record<string, AxisCli
   link: linkAxes.clips as unknown as Record<string, AxisClip>,
 };
 
-/** frames.json clip for an action sheet name: a packed fighter's alias, and Pikachu's forward tilt strip is keyed `ftilt`. */
-function clipName(id: CharacterId, sheet: string): string {
-  return id === 'pikachu' && sheet === 'tilt' ? 'ftilt' : installedPackedSheet(id, sheet);
-}
 
 /** The axis at the action's native frame when the clip has a per-frame table, else at the drawing. */
 function selectAxis(clip: AxisClip | undefined, art: number, age: number | undefined): AxisEntry | null {
@@ -108,7 +104,7 @@ export function sampleHeldItemSocket(s: SimulationAnimationSnapshot, axis: ItemS
   // The upper-body layer holds the item when one is composed over the legs.
   const pose: ActionPose = action.overlay ?? action;
   for (const sheet of pose.sheets) {
-    const name = clipName(s.characterId, sheet);
+    const name = clipOfSheet(s.characterId, sheet);
     const clip = clips[name];
     if (!clip) continue;
     const art = selectActionArtFrame(pose, clip.frameCount, sheet, null);
