@@ -231,6 +231,9 @@ to the actual exported sprites, using accepted roster art such as Pikachu as
 the quality comparison at the same in-game scale. A large reference or render
 does not qualify a visibly blurry or pixelated packed character. Preserve an
 explicitly requested different art direction.
+The shipping form is decided: full drawings at match-size density, held drawings and
+one 256-colour palette per character, derived from the accepted full-resolution art
+([display target](references/animation-art.md#display-target-and-memory-decided-2026-10-18)).
 Exercise a weapon arc and distinct multiple strikes if the kit contains them;
 idle alone cannot qualify combat alignment. Once accepted, process the entire
 inventory in reviewable batches. The agent owns pose guides, corrections,

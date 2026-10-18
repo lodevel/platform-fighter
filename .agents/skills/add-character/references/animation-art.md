@@ -414,6 +414,40 @@ collision and sockets unchanged during a resolution-only correction: adjust
 pixel metrics and pixels-to-world scale together, then remeasure fit against
 the new packed pixels. Do not normalize individual poses to their alpha bounds.
 
+#### Display target and memory (decided 2026-10-18)
+
+The shipping form of every fighter is fixed by [Phase 3](../../../../docs/review/2026-10-18/phase3/README.md):
+full drawings, stored at the size a match shows them, held where motion allows, and
+reduced to one palette per character. Generate and accept art at full resolution as
+above, then derive the shipping package; never ship the generation resolution.
+
+- **Density:** one stored pixel per screen pixel on a 1080p screen at the match
+  camera's closest zoom (1.4); drawings shown only by Final Smashes at their close-up
+  zoom (2.8). Keep the accepted full-resolution originals so a later density change
+  re-exports instead of regenerating.
+- **Holds:** allocate drawings where silhouette or contact changes (section 2). For
+  Final Smashes and other dense sequences, the holds pass at limit 0.12 drops
+  near-identical neighbours, never holding a drawing past 8 ticks or the action's
+  longest window. Check that idles and loops still move.
+- **Palette:** one palette per character, 256 entries including transparent; each
+  costume is another palette. Keep fills clean and outlines deliberate so the
+  palette does not band; avoid noisy gradients and texture that needs thousands of
+  colours.
+- **Commands:** `npm run character:export`, then
+  `npm run character:holds -- <id> --max-diff 0.12`, then
+  `npm run character:shrink -- <id>~holds-0.12`. Review `<id>~holds-0.12~small-c256`
+  in the character lab (`npm run lab`) beside today's art and the Ultimate recording,
+  and record the GPU memory from its `candidate-report.json` (reference: DK 82.5,
+  Link 30.9, Pikachu 18.8 MiB at one byte per pixel).
+- **Loading:** a fighter's art loads when a player selects it and unloads when no
+  player has it; keep a fighter within the roster budget (8 fighters under 1 GB)
+  instead of trimming drawings to fit.
+
+Until the game reads character packages (roadmap Phase 6), the game still displays the
+packed sheets described below; the package path is what the lab shows and what the
+game will display. Shrinking to this density is the accepted target, not the "quiet
+lowering" forbidden below.
+
 Resolve texture limits with multirow or multipage packing and, for large banks,
 bounded texture residency. Keep logical drawing/native sample identity separate
 from page-local texture coordinates. Do not quietly lower accepted resolution,

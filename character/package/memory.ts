@@ -10,6 +10,8 @@ export interface MemoryEstimate {
   readonly rgbaBytes: number;
   /** The same pages as BC7 (16 bytes per 4×4 block). */
   readonly bc7Bytes: number;
+  /** Pixels of every page counted, for formats priced per pixel (such as palette indices). */
+  readonly pagePixels: number;
 }
 
 const pageBytes = (width: number, height: number) => ({
@@ -43,12 +45,12 @@ function estimate(pkg: CharacterPackage, ids: ReadonlySet<string>): MemoryEstima
     pages.add(drawing.page);
     drawnPixels += drawing.rect[2] * drawing.rect[3];
   }
-  let rgbaBytes = 0, bc7Bytes = 0;
+  let rgbaBytes = 0, bc7Bytes = 0, pagePixels = 0;
   for (const id of pages) {
     const page = pkg.pages[id];
     if (!page) continue;
     const bytes = pageBytes(page.width, page.height);
-    rgbaBytes += bytes.rgba; bc7Bytes += bytes.bc7;
+    rgbaBytes += bytes.rgba; bc7Bytes += bytes.bc7; pagePixels += page.width * page.height;
   }
-  return { drawings: ids.size, pages: pages.size, drawnPixels, rgbaBytes, bc7Bytes };
+  return { drawings: ids.size, pages: pages.size, drawnPixels, rgbaBytes, bc7Bytes, pagePixels };
 }

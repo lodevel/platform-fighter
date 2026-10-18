@@ -205,8 +205,49 @@ evaluator and the lab gained a rig with swappable parts that plays DK's jab (fit
 Ultimate) and idle. The user found the motion less natural than today's drawings. The
 code lives on the branch `explore/skeleton-rig`, not on this one.
 
+## Step 5: decision: smaller drawings, held, one palette per character
+
+The user compared today's drawings with the same drawings stored at match size on a
+phone page drawn the way the game's GPU draws them (bilinear, no mipmaps), and found
+the result satisfying. Decision (user, 2026-10-18):
+- **Full drawings stay.** The skeleton experiment is parked (step 4).
+- **Stored at the size a 1080p match shows them:** match camera zoom 1.4, and 2.8 for
+  drawings only Final Smashes show. This reverses the 2026-10-16 decision not to
+  downscale ([probe](../../2026-10-16/texture-compression-probe/README.md)); the numbers
+  agree, the judgement changed after seeing the result. On 1440p and 4K screens the
+  art is enlarged and slightly softer than today.
+- **Held drawings** at limit 0.12, at most 8 ticks (step 2).
+- **One palette per character, 256 entries** (transparent included) to start; the
+  number may change later. Costumes become palette swaps. 16 colours was ruled out.
+- **Loading:** a fighter's art loads in the background when a player selects it and
+  unloads when no player has it; players on the same fighter share it. Budget: up to
+  8 players under 1 GB, which needs one byte per pixel on the GPU (palette or BC7),
+  not today's default RGBA PNG upload.
+
+**Candidate.** `npm run character:shrink -- <id>~holds-0.12 [--zoom 1.4] [--final-zoom 2.8] [--colors 256]`
+(`character/candidates/shrinkCandidate.ts`) shrinks every drawing by area averaging in
+premultiplied space (`resample.ts`), keeps root, anchor and on-screen size, fits one
+k-means palette per character in premultiplied RGBA (`palette.ts`), and packs the
+result with the shared packer. It writes `<id>~small` (priced as BC7) and
+`<id>~small-c<n>` (priced at ceil(log2 n) bits per page pixel; pages stay RGBA so the
+lab shows the palette colours exactly). The holds candidate now shares the same
+report writer (`output.ts`).
+
+| GPU memory ([reports](shrink-reports/)) | DK | Link | Pikachu |
+| --- | ---: | ---: | ---: |
+| Today (repacked) | 158.1 MiB | 70.9 | 63.9 |
+| Held drawings, 0.12 | 140.9 | 66.8 | 43.0 |
+| **+ smaller, 256 colours (1 byte/px)** | **82.5** | **30.9** | **18.8** |
+| + smaller, 32 colours (5 bits/px) | 51.6 | 19.3 | 11.7 |
+| + smaller, 16 colours (4 bits/px) | 41.2 | 15.5 | 9.4 |
+
+The 256-colour palette against the unquantised smaller drawings: mean difference
+0.0022 (DK), 0.0053 (Link), 0.0031 (Pikachu) on the premultiplied 0–1 scale, with
+0.20%, 0.38% and 0.33% of visible pixels off by more than 8/255, comparable to the
+BC7 figures the user accepted on 2026-10-16.
+
 ## Next
 
-Store drawings at the size they are shown, reduced to the character's palette, on
-top of the held drawings: a candidate for all three fighters in 16 and 32 colours,
-judged by eye against today's art.
+Phase 6, planned before any game code changes: the game displays every fighter from
+character packages built with these settings (palette shader, load on select), checked
+in real matches against today's look and with measured GPU memory.

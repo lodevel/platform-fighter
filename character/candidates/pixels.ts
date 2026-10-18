@@ -61,25 +61,45 @@ export function signatureDiff(a: Signature, b: Signature): number {
  * in near-square pages, and returns the package pointing at them. Drawing ids stay.
  */
 export function repack(pkg: CharacterPackage, sourceDir: string, outDir: string): CharacterPackage {
+  let cached: [PageId, PNG] | undefined;
+  return packDrawings(pkg, outDir, (_id, drawing) => {
+    if (cached?.[0] !== drawing.page) cached = [drawing.page, readPage(sourceDir, pkg.pages[drawing.page]!)];
+    return crop(cached[1], drawing.rect);
+  });
+}
+
+/**
+ * Packs one image per drawing of `pkg` (given by `image`, asked page by page) onto
+ * fresh pages grouped like the source pages, and returns the package pointing at them.
+ * Each drawing keeps its fields except `rect`, which becomes the image's place.
+ */
+export function packDrawings(pkg: CharacterPackage, outDir: string, image: (id: DrawingId, drawing: Drawing) => PNG): CharacterPackage {
   const byPage = new Map<PageId, DrawingId[]>();
   for (const [id, drawing] of Object.entries(pkg.drawings)) byPage.set(drawing.page, [...(byPage.get(drawing.page) ?? []), id]);
   const pages: Record<PageId, Page> = {}, drawings: Record<DrawingId, Drawing> = {};
   for (const [pageId, ids] of [...byPage].sort(([a], [b]) => a.localeCompare(b))) {
-    const source = readPage(sourceDir, pkg.pages[pageId]!);
-    const sized = ids.map(id => ({ id, w: pkg.drawings[id]!.rect[2] + PADDING * 2, h: pkg.drawings[id]!.rect[3] + PADDING * 2 }))
+    const images = new Map(ids.map(id => [id, image(id, pkg.drawings[id]!)]));
+    const sized = ids.map(id => ({ id, w: images.get(id)!.width + PADDING * 2, h: images.get(id)!.height + PADDING * 2 }))
       .sort((a, b) => b.h - a.h || a.id.localeCompare(b.id));
     const placed = smallestShelfPacking(sized), width = align(Math.max(...placed.map(d => d.x + d.w)));
     const out = new PNG({ width, height: align(Math.max(...placed.map(d => d.y + d.h))) });
     for (const d of placed) {
-      const drawing = pkg.drawings[d.id]!, [sx, sy, w, h] = drawing.rect;
-      PNG.bitblt(source, out, sx, sy, w, h, d.x + PADDING, d.y + PADDING);
-      drawings[d.id] = { ...drawing, rect: [d.x + PADDING, d.y + PADDING, w, h] };
+      const png = images.get(d.id)!;
+      PNG.bitblt(png, out, 0, 0, png.width, png.height, d.x + PADDING, d.y + PADDING);
+      drawings[d.id] = { ...pkg.drawings[d.id]!, rect: [d.x + PADDING, d.y + PADDING, png.width, png.height] };
     }
     const file = `pages/${pageId}.png`, bytes = PNG.sync.write(out);
     writeFileSync(path.join(outDir, file), bytes);
     pages[pageId] = { file, width: out.width, height: out.height, sha256: createHash('sha256').update(bytes).digest('hex') };
   }
   return { ...pkg, pages, drawings };
+}
+
+/** A drawing's rectangle cut out of its page. */
+export function crop(page: PNG, [x, y, w, h]: readonly [number, number, number, number]): PNG {
+  const out = new PNG({ width: w, height: h });
+  PNG.bitblt(page, out, x, y, w, h, 0, 0);
+  return out;
 }
 
 /**
