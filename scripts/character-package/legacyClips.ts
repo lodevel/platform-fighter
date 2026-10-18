@@ -2,11 +2,13 @@
  * Which game function decides the drawing of each installed clip, for the temporary
  * character package export (deleted with the legacy `frames.json` readers in Phase 6).
  * Every sampler calls the game's own selection code; nothing here re-implements a rule.
+ * Clip timing comes from gameplay.json, sheet layout from the legacy sheets.
  */
-import donkeykongFrames from '../../assets/characters/donkeykong/frames.json';
-import linkFrames from '../../assets/characters/link/frames.json';
-import pikachuFrames from '../../assets/characters/pikachu/frames.json';
+import donkeykongGameplay from '../../assets/characters/donkeykong/gameplay.json';
+import linkGameplay from '../../assets/characters/link/gameplay.json';
+import pikachuGameplay from '../../assets/characters/pikachu/gameplay.json';
 import pikachuFinalVisual from '../../assets/characters/pikachu/final-visual-frames.json';
+import { legacySheet, legacySheets, type LegacySheet } from '../../src/assets/legacyFighterSheets';
 import type { CharacterId } from '../../src/types';
 import { getPackedBodyRenderMetrics, selectPackedDrawing } from '../../src/characters/packedBodyPresentation';
 import { getPikachuSheetRenderMetrics } from '../../src/characters/pikachuPresentation';
@@ -38,7 +40,7 @@ export interface ClipSample {
 export interface ExportClip {
   /** Package action id. */
   readonly action: string;
-  /** frames.json clip whose held-item rows apply, when the action shows that clip. */
+  /** Clip whose held-item rows apply, when the action shows that clip. */
   readonly socketClip?: string;
   /** Which game function decides the drawing (reported). */
   readonly clock: string;
@@ -48,32 +50,30 @@ export interface ExportClip {
 
 export interface SkippedClip { readonly clip: string; readonly reason: string }
 
-interface FramesClip {
-  readonly strip: string; readonly frameWidth: number; readonly frameHeight: number; readonly frameCount: number;
-  readonly atlas?: readonly number[]; readonly trims?: readonly (readonly number[])[]; readonly columns?: number;
+interface GameplayClip {
   readonly frameWindows?: readonly { readonly startFrame: number }[]; readonly nativeSampleIndices?: readonly number[];
   readonly loopDuration?: number | null; readonly coordinateOrigin?: string;
 }
-interface FramesFile {
-  readonly animations: Readonly<Record<string, FramesClip>>;
+interface GameplayFile {
+  readonly animations: Readonly<Record<string, GameplayClip>>;
   readonly runtimeFinalVictimProfiles?: { readonly profiles: Readonly<Record<string, unknown>> };
 }
 interface VisualFile {
-  readonly pages: Readonly<Record<string, FramesClip>>;
+  readonly pages: Readonly<Record<string, LegacySheet>>;
   readonly clips: Readonly<Record<string, { readonly loopDuration: number | null }>>;
 }
 
-export const FRAMES: Readonly<Record<ExportedFighter, FramesFile>> = {
-  donkeykong: donkeykongFrames as unknown as FramesFile,
-  link: linkFrames as unknown as FramesFile,
-  pikachu: pikachuFrames as unknown as FramesFile,
+const GAMEPLAY: Readonly<Record<ExportedFighter, GameplayFile>> = {
+  donkeykong: donkeykongGameplay as unknown as GameplayFile,
+  link: linkGameplay as unknown as GameplayFile,
+  pikachu: pikachuGameplay as unknown as GameplayFile,
 };
 export const PIKACHU_FINAL_VISUAL = pikachuFinalVisual as unknown as VisualFile;
 
 /** The sheet layout and file of every sheet a fighter's actions can show. */
-export function sheetsOf(fighter: ExportedFighter): ReadonlyMap<string, FramesClip> {
-  const sheets = new Map<string, FramesClip>();
-  for (const [name, clip] of Object.entries(FRAMES[fighter].animations))
+export function sheetsOf(fighter: ExportedFighter): ReadonlyMap<string, LegacySheet> {
+  const sheets = new Map<string, LegacySheet>();
+  for (const [name, clip] of Object.entries(legacySheets(fighter)))
     sheets.set(name, fighter === 'pikachu' ? { ...clip, strip: `animations/${name}.png` } : clip);
   if (fighter === 'pikachu') for (const [name, page] of Object.entries(PIKACHU_FINAL_VISUAL.pages)) sheets.set(name, page);
   return sheets;
@@ -81,9 +81,9 @@ export function sheetsOf(fighter: ExportedFighter): ReadonlyMap<string, FramesCl
 
 /** Every displayable action of a fighter with its sampler, and the clips that have no data-driven timing. */
 export function exportClips(fighter: ExportedFighter): { clips: ExportClip[]; skipped: SkippedClip[] } {
-  const frames = FRAMES[fighter], clips: ExportClip[] = [], skipped: SkippedClip[] = [];
-  const victims = new Set(Object.keys(frames.runtimeFinalVictimProfiles?.profiles ?? {}));
-  for (const [name, clip] of Object.entries(frames.animations)) {
+  const gameplay = GAMEPLAY[fighter], clips: ExportClip[] = [], skipped: SkippedClip[] = [];
+  const victims = new Set(Object.keys(gameplay.runtimeFinalVictimProfiles?.profiles ?? {}));
+  for (const [name, clip] of Object.entries(gameplay.animations)) {
     if (name.startsWith('fx__')) {
       const effect = effectClip(fighter, name);
       if (typeof effect === 'string') skipped.push({ clip: name, reason: effect }); else clips.push(effect);
@@ -98,7 +98,7 @@ export function exportClips(fighter: ExportedFighter): { clips: ExportClip[]; sk
   return { clips, skipped };
 }
 
-function packedClip(fighter: 'donkeykong' | 'link', name: string, clip: FramesClip): ExportClip | string {
+function packedClip(fighter: 'donkeykong' | 'link', name: string, clip: GameplayClip): ExportClip | string {
   if (name.startsWith('final') && clip.coordinateOrigin === 'actorSourceRoot') return {
     action: name, socketClip: name, clock: 'sampleFinalBodyPose', loop: clip.loopDuration ?? null,
     sample: age => {
@@ -146,7 +146,7 @@ function effectClip(fighter: ExportedFighter, sheet: string): ExportClip | strin
       return shown[0]!;
     },
   };
-  const metrics = fighter === 'link' ? getPackedBodyRenderMetrics(fighter, sheet) : null, count = FRAMES[fighter].animations[sheet]!.frameCount;
+  const metrics = fighter === 'link' ? getPackedBodyRenderMetrics(fighter, sheet) : null, count = legacySheet(fighter, sheet)!.frameCount;
   if (!metrics) return 'effect strip with no Final effect profile or article metrics';
   return {
     action, clock: 'linkArticleDrawing (drawing step)', loop: count,
@@ -154,7 +154,7 @@ function effectClip(fighter: ExportedFighter, sheet: string): ExportClip | strin
   };
 }
 
-function pikachuClip(name: string, clip: FramesClip): ExportClip | string {
+function pikachuClip(name: string, clip: GameplayClip): ExportClip | string {
   const visual = PIKACHU_FINAL_VISUAL.clips[name];
   if (visual) return {
     action: name, clock: 'pikachuFinalVisualPose', loop: visual.loopDuration,

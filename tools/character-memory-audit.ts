@@ -4,11 +4,12 @@
  * Run: npx tsx tools/character-memory-audit.ts --fighters donkeykong,pikachu,link --out report.json
  * This measures asset allocations; it neither changes assets nor enforces a budget.
  */
-import { closeSync, mkdirSync, openSync, readFileSync, readSync, statSync, writeFileSync } from 'node:fs';
+import { closeSync, mkdirSync, openSync, readSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { getAllAssetEntries, type SpritesheetAssetEntry } from '../src/assets/manifest';
 import { frameRect, gridCells, type SheetLayout } from '../src/assets/packedFrames';
+import { legacySheets, type LegacySheetFighter } from '../src/assets/legacyFighterSheets';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const compare = (a: string, b: string): number => a < b ? -1 : a > b ? 1 : 0;
@@ -45,9 +46,7 @@ function sheetPath(url: string, fighter: string): string {
 
 function auditFighter(fighter: string) {
   const characterRoot = resolve(root, 'assets/characters', fighter);
-  const metadata = JSON.parse(readFileSync(resolve(characterRoot, 'frames.json'), 'utf8')) as {
-    animations: Record<string, Clip>;
-  };
+  const metadata = { animations: legacySheets(fighter as LegacySheetFighter) as Readonly<Record<string, Clip>> };
   const manifestEntries = getAllAssetEntries().filter(entry => entry.key.startsWith(`char.${fighter}.`));
   if (!manifestEntries.length) throw new Error(`No runtime manifest entries for ${fighter}`);
   const entriesBySheet = new Map<string, SpritesheetAssetEntry[]>();

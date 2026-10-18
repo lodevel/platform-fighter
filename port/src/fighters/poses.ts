@@ -1,4 +1,5 @@
-import { getPackedBodyRenderMetrics, installedPackedSheet, packedBodyProfile, selectPackedDrawing } from '../../../src/characters/packedBodyPresentation';
+import { getPackedBodyRenderMetrics, installedPackedSheet, selectPackedDrawing } from '../../../src/characters/packedBodyPresentation';
+import { legacySheet } from '../../../src/assets/legacyFighterSheets';
 import { getPikachuReviewedStateClock, getPikachuSheetRenderMetrics } from '../../../src/characters/pikachuPresentation';
 import type { CharacterId, StageLayout } from '../../../src/types';
 import { PIKACHU_QUICK_ROT_PIVOT, PIKACHU_SPECIAL_ROT_PIVOT } from '../../../src/characters/pikachuSpecialTransforms';
@@ -23,10 +24,10 @@ interface Pose extends Metrics { key: string; frame: number }
 
 /** A packed fighter's (DK, Link) sheet metrics, through its sheet aliases. */
 function packedMetrics(id: CharacterId, sheet: string): Metrics | null {
-  const installed = installedPackedSheet(id, sheet), clip = packedBodyProfile(id)?.clips[installed];
+  const installed = installedPackedSheet(id, sheet), image = legacySheet(id, installed);
   const m = getPackedBodyRenderMetrics(id, installed);
   return m && { originX: m.originX, originY: m.originY, scale: m.scaleToWorld, bodyCentreFromRootY: m.bodyCentreFromRootY,
-    frameWidth: clip?.frameWidth, frameHeight: clip?.frameHeight };
+    frameWidth: image?.frameWidth, frameHeight: image?.frameHeight };
 }
 /** A packed fighter's drawing of a sheet at an age, on the clip's own clock. */
 function packedPose(id: CharacterId, sheet: string, age: number): Pose | null {

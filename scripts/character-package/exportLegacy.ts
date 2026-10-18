@@ -155,7 +155,7 @@ function verify(pkg: CharacterPackage, clips: readonly ExportClip[], ids: Readon
 }
 
 function sourceHashes(fighter: ExportedFighter): Record<string, string> {
-  const files = [`assets/characters/${fighter}/frames.json`, `assets/characters/${fighter}/item-axes.json`,
+  const files = [`assets/characters/${fighter}/frames.json`, `assets/characters/${fighter}/gameplay.json`, `assets/characters/${fighter}/item-axes.json`,
     ...(fighter === 'pikachu' ? ['assets/characters/pikachu/final-visual-frames.json'] : []),
     'src/characters/palettes.ts', 'src/characters/paletteArtKeys.ts'];
   return Object.fromEntries(files.map(file => [file, createHash('sha256').update(readFileSync(path.join(ROOT, file))).digest('hex')]));

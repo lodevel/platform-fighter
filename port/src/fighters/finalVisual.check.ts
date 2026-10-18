@@ -1,7 +1,8 @@
 import { createHash } from 'node:crypto';
 import { describe, expect, it, vi } from 'vitest';
 import metadata from '../../../assets/characters/pikachu/final-visual-frames.json';
-import originals from '../../../assets/characters/pikachu/frames.json';
+import originalSheets from '../../../assets/characters/pikachu/frames.json';
+import originals from '../../../assets/characters/pikachu/gameplay.json';
 import { finalBodyPose } from '../../../src/finalSmash/finalBodyPose';
 import { finalVictimBodyPose } from '../../../src/finalSmash/finalVictimBodyPose';
 import type { SimulationAnimationSnapshot, SimulationSpritePose } from '../../../src/characters/simulationSpriteAnimation';
@@ -28,7 +29,8 @@ describe('Pikachu Final independent dense display bank', () => {
   it('keeps the seven original authoritative clips unchanged without pinning unrelated art', () => {
     const canonical = (value: unknown): unknown => Array.isArray(value) ? value.map(canonical)
       : value && typeof value === 'object' ? Object.fromEntries(Object.entries(value).sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0).map(([key, child]) => [key, canonical(child)])) : value;
-    const clips = Object.fromEntries(sheets.map(sheet => [sheet, originals.animations[sheet]]));
+    // The clip as one record: its sheet (frames.json) and its pose track (gameplay.json).
+    const clips = Object.fromEntries(sheets.map(sheet => [sheet, { ...originalSheets.animations[sheet], ...originals.animations[sheet] }]));
     expect(createHash('sha256').update(JSON.stringify(canonical(clips))).digest('hex'))
       .toBe('f80db2f96a33168d17412f307ecf850159f6a82fb6b07e8c3c80e4330121181f');
     expect(sheets.reduce((sum, sheet) => sum + originals.animations[sheet].frameCount, 0)).toBe(187);
