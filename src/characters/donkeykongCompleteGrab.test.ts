@@ -6,6 +6,8 @@ import {applyDonkeyKongPairedCatchGeometry} from './donkeykongCatchCollisionPose
 import type {AttackCollisionHit} from './attacks';
 
 const catalog=vi.hoisted(()=>({animations:{} as Record<string,unknown>}));
+// The fixture is the whole of DK's data: its pose tracks and (empty) sheets.
+vi.mock('../../assets/characters/donkeykong/gameplay.json',()=>({default:catalog}));
 vi.mock('../../assets/characters/donkeykong/frames.json',()=>({default:catalog}));
 import {packedBodyCandidate,resolvePackedBodyAction,selectPackedBodyReceiving,
   getPackedCatchCollisionPose,getPackedBodyDrawing} from './packedBodyPresentation';
@@ -15,7 +17,7 @@ import {packedBodyCandidate,resolvePackedBodyAction,selectPackedBodyReceiving,
 const ages=[0,3,6,7,8,9,10,23,32,37];
 const capsule=(id:number)=>({start:{x:20+id,y:7},end:{x:60+id,y:7},radius:2+id});
 function full():PackedBodyClip {
-  return {frameWidth:384,frameHeight:256,frameCount:10,root:[128,208],scaleToWorld:5/6.5,bodyCentreFromRootY:-42,
+  return {frameCount:10,bodyCentreFromRootY:-42,
     pairedGrabTimeline:{variant:'standing',startupFrames:7,activeFrames:3,recoveryFrames:28,reviewedInputs:true,bodyReviewKey:'synthetic-review-only'},
     frameWindows:ages.map((age,i)=>({startFrame:age,endFrame:ages[i+1]??38,artFrameIndex:i})),
     hurtboxPoses:ages.map((age,i)=>({artFrameIndex:i,nativeSample:age+1,hurtboxes:[
@@ -25,7 +27,7 @@ function full():PackedBodyClip {
       regions:age>=7&&age<10?[0,1].map(id=>({id,capsule:capsule(id)})):[]}))};
 }
 function pilot():PackedBodyClip {
-  return {frameWidth:384,frameHeight:256,frameCount:1,root:[128,208],scaleToWorld:5/6.5,bodyCentreFromRootY:-42,
+  return {frameCount:1,bodyCentreFromRootY:-42,
     frameWindows:[{startFrame:7,endFrame:8,artFrameIndex:0}],
     hurtboxPoses:[{artFrameIndex:0,nativeSample:8,hurtboxes:[{id:'synthetic.pilot',offsetX:1,offsetY:0,width:4,height:4}]}],
     catchCollisionPoses:[{artFrameIndex:0,nativeSample:8,regions:[0,1].map(id=>({id,capsule:capsule(id)}))}]};

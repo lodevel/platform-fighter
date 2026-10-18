@@ -1,8 +1,8 @@
 /** Authored cinematic recipient banks. These are separate real recipe/sample
  * identities, never captured NUANMB indices or aliases of ordinary flinches. */
-import donkey from '../../assets/characters/donkeykong/frames.json';
-import pikachu from '../../assets/characters/pikachu/frames.json';
-import link from '../../assets/characters/link/frames.json';
+import donkey from '../../assets/characters/donkeykong/gameplay.json';
+import pikachu from '../../assets/characters/pikachu/gameplay.json';
+import link from '../../assets/characters/link/gameplay.json';
 import { parseLinkBodyRenderMetrics, parseLinkDrawingGeometry } from '../characters/linkBodyProfileValidation';
 import type { Hurtbox } from '../characters/moveSchema';
 import type { FinalVictimFighter, FinalVictimProfileKey } from './finalVictimPresentation';

@@ -18,7 +18,7 @@ and `src/scenes/`).
 | Instantiation/selection | `fighterRegistry.ts`, registry ID lists, `roster.ts`, roster ordering and `index.ts` exports |
 | Authoring/save/load | `authorableCharacterRegistry.ts` compiled-kit map and slot export names, `characterSerializer.ts`, `characterFactory.ts`, `src/characterBuilder/characterStorage.ts` and match character snapshots |
 | Animation | `groundedNormalDriver.ts`, `movesetAnimationDriver.ts`, `movesetAnimationCues.ts`, `defensiveAnimationState.ts`, `spriteAnimationDriver.ts` (`MOVE_SHEET_KEYS`, `MOVE_SHEET_SPECS`, `attackMoveToSheets`), `simulationSpriteAnimation.ts`; inspect runtime ID lists and dedicated clip routes |
-| Assets/presentation | `src/assets/manifest.ts`, `visualScale.ts`, `handAnchors.ts`, `palettes.ts`, `assets/characters/<id>/frames.json` and final animation strips |
+| Assets/presentation | `src/assets/manifest.ts`, `visualScale.ts`, `handAnchors.ts`, `palettes.ts`, `assets/characters/<id>/frames.json` (legacy sheets), `gameplay.json` (simulation data), the character package (`npm run character:package`) and final animation strips |
 | Live contact | `attackHitWindows.ts`, `attackCollisionShapes.ts`, `src/match/HitboxDamageHandler.ts` and real Matter contact |
 | Armour / variants | `AttackMove.armorWindows` (super armour, optional `minChargeRatio`) in `attacks.ts` and `Character.applyHit`; `downSpecialKind: 'shockwave'` (`aerialVariant`, mash `repeat`) in `downSpecialSchema.ts`; both parsed by `characterSerializer.ts` |
 | World entities | Character special runtime, relevant `src/items/` adapters, `src/scenes/MatchScene.ts` rendering and cleanup |

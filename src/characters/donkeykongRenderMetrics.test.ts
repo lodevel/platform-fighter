@@ -9,34 +9,40 @@ import { getPikachuSheetRenderMetrics } from './pikachuPresentation';
 import { createSimulationSpriteAnimationDriver, resolveSimulationAction, type SimulationAnimationSnapshot } from './simulationSpriteAnimation';
 import { packedAnimationEnd, packedBodyCandidate, getPackedBodyRenderMetrics, getPackedNativeTimedClip, installedPackedSheet, selectPackedNativeSampleFrame } from './packedBodyPresentation';
 import { getMoveAnimKey } from './spriteAnimationDriver';
-import originalFrames from '../../assets/characters/donkeykong/frames.json';
+import originalGameplay from '../../assets/characters/donkeykong/gameplay.json';
 
-/** Stand-ins for freshly packed rework clips (tools/fighter-pack.py fragments). The real
- * frames.json is merged in, so the 256 px clips (`run`, `jump`, ...) stay the old art. */
-const PENDING_SHEETS = vi.hoisted(() => ['fall_special', 'fall_b', 'fall_aerial', 'fall_aerial_f', 'fall_aerial_b', 'jump_b', 'jump_short_b', 'airjump_b']);
+/** Stand-ins for freshly packed rework clips (tools/fighter-pack.py fragments): each one's sheet (frames.json) and pose
+ * track (gameplay.json). The real files are merged in, so the 256 px clips (`run`, `jump`, ...) stay the old art. */
+const STAND_INS = vi.hoisted(() => {
+  const pending = ['fall_special', 'fall_b', 'fall_aerial', 'fall_aerial_f', 'fall_aerial_b', 'jump_b', 'jump_short_b', 'airjump_b'];
+  const sheet = (name: string) => ({ strip: `animations/${name}.png`, frameWidth: 504, frameHeight: 288, root: [127, 279], scaleToWorld: 0.4666667 });
+  const poses: Record<string, Record<string, unknown>> = {
+    fall_b: { frameCount: 3, nativeSampleIndices: [1, 9, 16], loopDuration: 16 },
+    jump_b: { frameCount: 2, nativeSampleIndices: [1, 30] },
+    // Loop: 141 native frames, last sample 140 -> loopDuration 140.
+    idle: { frameCount: 4, nativeSampleIndices: [1, 18, 70, 140], loopDuration: 140 },
+    walk: { frameCount: 3, nativeSampleIndices: [1, 15, 30], loopDuration: 30 },
+    // One-shot: the last drawing is held after the actionable sample.
+    dash: { frameCount: 4, nativeSampleIndices: [1, 7, 14, 20] },
+    crouch_end: { frameCount: 2, nativeSampleIndices: [1, 7] },
+    // Stand-in for the queued ledge-recovery family clip (native 39 frames, loop 38).
+    fall_special: { frameCount: 6, nativeSampleIndices: [1, 8, 16, 23, 31, 38], loopDuration: 38 },
+    // Root without nativeSampleIndices: scaled, but still on the classifier path.
+    crouch: { frameCount: 1 },
+  };
+  /** The real file's clips without the pending keys (fall_b and jump_b stand in for installed ones), plus the stand-ins. */
+  const merge = (original: { animations: Record<string, unknown> }, part: (name: string) => Record<string, unknown>) => ({ ...original,
+    animations: { ...Object.fromEntries(Object.entries(original.animations).filter(([name]) => !pending.includes(name))),
+      ...Object.fromEntries(Object.keys(poses).map(name => [name, part(name)])) } });
+  return { pending, sheet, poses, merge };
+});
 vi.mock('../../assets/characters/donkeykong/frames.json', async importOriginal => {
   const original = await importOriginal<{ default: { animations: Record<string, unknown> } }>();
-  const packed = {
-    frameWidth: 504, frameHeight: 288, root: [127, 279], scaleToWorld: 0.4666667, bodyCentreFromRootY: -42,
-  };
-  // Pending keys are removed so fallback assertions hold whether or not their art is installed;
-  // fall_b and jump_b stand in for installed ones.
-  const animations = Object.fromEntries(Object.entries(original.default.animations)
-    .filter(([sheet]) => !PENDING_SHEETS.includes(sheet)));
-  return { default: { ...original.default, animations: { ...animations,
-    fall_b: { ...packed, strip: 'animations/fall_b.png', frameCount: 3, nativeSampleIndices: [1, 9, 16], loopDuration: 16 },
-    jump_b: { ...packed, strip: 'animations/jump_b.png', frameCount: 2, nativeSampleIndices: [1, 30] },
-    // Loop: 141 native frames, last sample 140 -> loopDuration 140.
-    idle: { ...packed, strip: 'animations/idle.png', frameCount: 4, nativeSampleIndices: [1, 18, 70, 140], loopDuration: 140 },
-    walk: { ...packed, strip: 'animations/walk.png', frameCount: 3, nativeSampleIndices: [1, 15, 30], loopDuration: 30 },
-    // One-shot: the last drawing is held after the actionable sample.
-    dash: { ...packed, strip: 'animations/dash.png', frameCount: 4, nativeSampleIndices: [1, 7, 14, 20] },
-    crouch_end: { ...packed, strip: 'animations/crouch_end.png', frameCount: 2, nativeSampleIndices: [1, 7] },
-    // Stand-in for the queued ledge-recovery family clip (native 39 frames, loop 38).
-    fall_special: { ...packed, strip: 'animations/fall_special.png', frameCount: 6, nativeSampleIndices: [1, 8, 16, 23, 31, 38], loopDuration: 38 },
-    // Root without nativeSampleIndices: scaled, but still on the classifier path.
-    crouch: { ...packed, strip: 'animations/crouch.png', frameCount: 1 },
-  } } };
+  return { default: STAND_INS.merge(original.default, STAND_INS.sheet) };
+});
+vi.mock('../../assets/characters/donkeykong/gameplay.json', async importOriginal => {
+  const original = await importOriginal<{ default: { animations: Record<string, unknown> } }>();
+  return { default: STAND_INS.merge(original.default, name => ({ ...STAND_INS.poses[name], bodyCentreFromRootY: -42 })) };
 });
 
 const SCALAR_SNAPSHOT: Partial<SimulationAnimationSnapshot> = {
@@ -106,7 +112,7 @@ describe('DK nativeSampleIndices timing', () => {
     expect(() => selectPackedNativeSampleFrame('donkeykong','dash', -1)).toThrow(/Invalid/);
   });
   it('every packed clip has exactly one native sample per drawing', () => {
-    for (const [sheet, clip] of Object.entries(originalFrames.animations as Record<string, { frameCount: number; nativeSampleIndices?: number[]; actionFrameStarts?: number[] }>)) {
+    for (const [sheet, clip] of Object.entries(originalGameplay.animations as Record<string, { frameCount: number; nativeSampleIndices?: number[]; actionFrameStarts?: number[] }>)) {
       if (clip.nativeSampleIndices) expect(clip.nativeSampleIndices.length, sheet).toBe(clip.frameCount);
       if (clip.actionFrameStarts) expect(clip.actionFrameStarts.length, sheet).toBe(clip.frameCount);
     }
@@ -182,8 +188,8 @@ describe('DK air routing: Ultimate-style fall and backward jump variants', () =>
     expect(rising({ kind: 'ledge', moveX: -1 }).sheet).toBe('ledge_jump');
   });
   it('every pending key resolves to an installed clip; installed and unrelated keys are unchanged', () => {
-    for (const sheet of PENDING_SHEETS)
-      expect(originalFrames.animations, sheet).toHaveProperty(installedPackedSheet('donkeykong',sheet));
+    for (const sheet of STAND_INS.pending)
+      expect(originalGameplay.animations, sheet).toHaveProperty(installedPackedSheet('donkeykong',sheet));
     expect(installedPackedSheet('donkeykong','fall_aerial_b')).toBe('fall_b');
     expect(installedPackedSheet('donkeykong','fall_aerial_f')).toBe('air_drift');
     expect(installedPackedSheet('donkeykong','jump_short_b')).toBe('jump_short');

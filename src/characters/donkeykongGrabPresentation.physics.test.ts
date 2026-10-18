@@ -14,7 +14,7 @@ import { GAME_CONFIG } from '../engine/constants';
 import { COLLISION_CATEGORIES } from '../engine/collisionCategories';
 import { PLATFORM_LABELS } from '../stages/stageBodies';
 import { captureSimulationAnimation, createSimulationSpriteAnimationDriver } from './simulationSpriteAnimation';
-import frames from '../../assets/characters/donkeykong/frames.json';
+import frames from '../../assets/characters/donkeykong/gameplay.json';
 
 const require = createRequire(import.meta.url);
 const Engine = require('../physics/matter/source/lib/core/Engine.js');

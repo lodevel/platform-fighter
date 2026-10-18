@@ -4,7 +4,8 @@
  * placement the legacy draw adds (port/src/fighters/poses.ts): Final and special rotation, squash and
  * the shooting overlay's waist line.
  */
-import reviewedFrames from '../../assets/characters/pikachu/frames.json';
+import pikachuGameplay from '../../assets/characters/pikachu/gameplay.json';
+import { legacySheet } from '../assets/legacyFighterSheets';
 import { EFFECT_ACTION_PREFIX } from '../../character/package/types';
 import type { ActionDisplay, ActionDisplayOverlay } from '../characterPresentation/contracts';
 import type { CharacterId } from '../types';
@@ -15,9 +16,9 @@ import { PIKACHU_QUICK_ROT_PIVOT, PIKACHU_SPECIAL_ROT_PIVOT } from './pikachuSpe
 import { shootingLayerLayout, upperBodyCutRow, type LayerMetrics } from './upperBodyLayer';
 import type { ActionPose, SimulationAnimationSnapshot } from './simulationSpriteAnimation';
 
-const reviewedClips = reviewedFrames.animations as Readonly<Record<string, { readonly frameWindows?: readonly unknown[] }>>;
+const reviewedClips = pikachuGameplay.animations as Readonly<Record<string, { readonly frameWindows?: readonly unknown[] }>>;
 
-/** The frames.json clip, and package action, a runtime sheet draws: a packed fighter's alias, and Pikachu's forward tilt texture is the `ftilt` clip. */
+/** The clip, and package action, a runtime sheet draws: a packed fighter's alias, and Pikachu's forward tilt texture is the `ftilt` clip. */
 export function clipOfSheet(id: CharacterId, sheet: string): string {
   return id === 'pikachu' && sheet === 'tilt' ? 'ftilt' : installedPackedSheet(id, sheet);
 }
@@ -82,8 +83,8 @@ function layerMetrics(id: CharacterId, sheet: string): LayerMetrics | null {
     const m = getPikachuSheetRenderMetrics(sheet);
     return { rootY: m.originY * m.frameHeight, scaleToWorld: m.scaleToWorld, bodyCentreFromRootY: m.bodyCentreFromRootY };
   }
-  const m = getPackedBodyRenderMetrics(id, sheet), clip = packedBodyProfile(id)?.clips[sheet];
-  return m && clip ? { rootY: m.originY * clip.frameHeight, scaleToWorld: m.scaleToWorld, bodyCentreFromRootY: m.bodyCentreFromRootY } : null;
+  const m = getPackedBodyRenderMetrics(id, sheet), image = legacySheet(id, sheet);
+  return m && image ? { rootY: m.originY * image.frameHeight, scaleToWorld: m.scaleToWorld, bodyCentreFromRootY: m.bodyCentreFromRootY } : null;
 }
 
 function overlayDisplay(id: CharacterId, pose: ActionPose, base: ShownDrawing, upper: ShownDrawing, stateElapsed: number): ActionDisplayOverlay | null {

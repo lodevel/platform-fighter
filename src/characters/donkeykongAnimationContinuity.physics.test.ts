@@ -1,6 +1,6 @@
 /**
  * Presentation continuity on a real Matter world: Donkey Kong's sprite (sheet + drawing) per
- * fixed step through the same driver MatchScene uses, with a catalog built from frames.json.
+ * fixed step through the same driver MatchScene uses, with a catalog built from gameplay.json drawing counts.
  */
 import { createRequire } from 'node:module';
 import { describe, expect, it } from 'vitest';
@@ -9,7 +9,7 @@ import type { CharacterInput } from './Character';
 import { COLLISION_CATEGORIES } from '../engine/collisionCategories';
 import { PLATFORM_LABELS } from '../stages/stageBodies';
 import { captureSimulationAnimation, createSimulationSpriteAnimationDriver } from './simulationSpriteAnimation';
-import frames from '../../assets/characters/donkeykong/frames.json';
+import frames from '../../assets/characters/donkeykong/gameplay.json';
 
 const require = createRequire(import.meta.url);
 const Engine = require('../physics/matter/source/lib/core/Engine.js');

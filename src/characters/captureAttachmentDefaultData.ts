@@ -14,7 +14,7 @@ export const CAPTURE_ATTACHMENT_DEFAULT_REVIEW_PINS = {
   "pikachuOwnAnchorFloorSha256": "2abea3630a0329a338d3baea645b1b2117477d4f182d1d062924fd9778dd1b9a"
 } as const;
 
-/** DK's captor grips live in frames.json; as a RECIPIENT (carried by / pummelled by a DK captor) DK owns these anchors and
+/** DK's captor grips live in gameplay.json (captureGripPoses); as a RECIPIENT (carried by / pummelled by a DK captor) DK owns these anchors and
  * floor (rework 2026-10-11 remaining gaps, dk-recipient-anchor/derive_dk_recipient_anchors.py).
  * The extras2 rows (cargo_recipient_carried -> cargo-held, cargo_recipient_{f,b,u,d}throw -> cargo-throw) are the drawing's native Hip
  * (install/extras2/derive_recipient_anchors.py); the captured drawings still use their ordinary-held rows while carried. */

@@ -4,8 +4,8 @@
  * `actionFrameStarts`, optional `loopDuration`). One implementation: the observed-state body candidate, the
  * native-timed clip clock, the Smash-style animation tail, render metrics and the paired-clip readers.
  *
- * Fighter-specific data is a `PackedBodyProfile` (its frames.json clips, sheet aliases and the few move-to-sheet
- * rules that differ). Registering a profile in `PACKED_BODY_PROFILES` is what puts a fighter on this path.
+ * Fighter-specific data is a `PackedBodyProfile` (its gameplay.json clips, sheet aliases and the few move-to-sheet
+ * rules that differ). Sheet images and registration are display data (legacyFighterSheets.ts). Registering a profile in `PACKED_BODY_PROFILES` is what puts a fighter on this path.
  */
 import type { CharacterId } from '../types';
 import { itemMotionClip, itemChargeClip } from '../items/itemMotionClips';
@@ -23,12 +23,12 @@ import { ledgeHangPresentationClock } from './ledgeHangState';
 import { readDonkeyKongCatchPose, type DonkeyKongCatchCollisionPoseRow, type DonkeyKongCatchPoseSelection } from './donkeykongCatchCollisionPose';
 import { DONKEYKONG_BODY_PROFILE } from './donkeykongBodyProfile';
 import { LINK_BODY_PROFILE } from './linkPackedBodyProfile';
+import { legacySheet } from '../assets/legacyFighterSheets';
 
 export interface PackedBodyClip {
   readonly pairedGrabTimeline?:DonkeyKongReviewedGrabTimeline;
   readonly captureGripPoses?:readonly CaptureAttachmentGrip[];
-  readonly frameWidth: number; readonly frameHeight: number; readonly frameCount: number;
-  readonly root?: readonly number[]; readonly scaleToWorld?: number; readonly bodyCentreFromRootY?: number;
+  readonly frameCount: number; readonly bodyCentreFromRootY?: number;
   readonly frameWindows?: readonly {startFrame:number;endFrame:number|null;artFrameIndex:number}[];
   readonly loopDuration?:number|null;
   /** 1-based native frames (60 Hz) at which each art frame starts; packed new-art clips only. */
@@ -49,7 +49,7 @@ export interface PackedBodyProfile {
   readonly id: CharacterId;
   /** Fighter name in error messages. */
   readonly label: string;
-  /** The fighter's frames.json `animations`. */
+  /** The fighter's gameplay.json `animations`: pose tracks and the geometry paired with each pose. */
   readonly clips: Readonly<Record<string, PackedBodyClip>>;
   /** Runtime sheet → drawn clip, followed (transitively) only while the runtime sheet has no clip of its own. */
   readonly sheetAliases: Readonly<Record<string, string>>;
@@ -466,8 +466,9 @@ export function getPackedAttackCollisionPose(s:SimulationAnimationSnapshot) {
 }
 /** Where a sheet's drawing is rooted and how big it is; null for a clip without a root (or a fighter without a profile). */
 export function getPackedBodyRenderMetrics(fighter:CharacterId,sheet:string){
-  const p=packedBodyProfile(fighter),clip=p?.clips[sheet];if(!p||!clip?.root||clip.scaleToWorld===undefined)return null;
-  return{originX:clip.root[0]!/clip.frameWidth,originY:clip.root[1]!/clip.frameHeight,scaleToWorld:clip.scaleToWorld,bodyCentreFromRootY:clip.bodyCentreFromRootY??p.bodyCentreFromRootY};
+  const p=packedBodyProfile(fighter),clip=p?.clips[sheet],image=legacySheet(fighter,sheet);
+  if(!p||!clip||!image?.root||image.scaleToWorld===undefined)return null;
+  return{originX:image.root[0]!/image.frameWidth,originY:image.root[1]!/image.frameHeight,scaleToWorld:image.scaleToWorld,bodyCentreFromRootY:clip.bodyCentreFromRootY??p.bodyCentreFromRootY};
 }
 /** CATCH geometry follows the same selected drawing/receiving snapshot.
  * Missing or bad active rows retain parent source capture, explicitly fallback.

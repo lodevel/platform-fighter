@@ -10,7 +10,7 @@ import { createSimulationSpriteAnimationDriver, type SimulationAnimationSnapshot
 import { type ArtCatalog, MANIFEST_ART_CATALOG, createArtFrameSelector } from './artFrameSelector';
 import { finalBodyPose } from '../finalSmash/finalBodyPose';
 import { characterAnimationSheets } from './spriteAnimationDriver';
-import linkFrames from '../../assets/characters/link/frames.json';
+import linkFrames from '../../assets/characters/link/gameplay.json';
 
 type Id = 'donkeykong' | 'pikachu' | 'link';
 

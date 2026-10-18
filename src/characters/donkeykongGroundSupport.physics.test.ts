@@ -8,10 +8,11 @@ import { HOME_RUN_BAT_DEFINITION } from '../items/HomeRunBat';
 import { captureSimulationAnimation } from './simulationSpriteAnimation';
 import { createArtFrameSelector, MANIFEST_ART_CATALOG } from './artFrameSelector';
 import { fighterDrawFromArt } from '../../port/src/fighters/poses';
-import metadata from '../../assets/characters/donkeykong/frames.json';
+import metadata from '../../assets/characters/donkeykong/gameplay.json';
+import { legacySheet } from '../assets/legacyFighterSheets';
 import review from '../../docs/review/2026-10-16/donkeykong-ground-support/support-registration.json';
 
-const clip = metadata.animations.down_wait_face_down;
+const sheet = legacySheet('donkeykong', 'down_wait_face_down')!, clip = { ...sheet, trims: sheet.trims!, root: sheet.root!, scaleToWorld: sheet.scaleToWorld! }, poses = metadata.animations.down_wait_face_down;
 const bytes = readFileSync('assets/characters/donkeykong/' + clip.strip);
 const atlas = PNG.sync.read(bytes);
 const contact = (frame: number) => {
@@ -28,9 +29,9 @@ const contact = (frame: number) => {
 describe('DK face-down anatomical ground support', () => {
   it('registers every reviewed hand contact at the physics root without changing atlas pixels or source clocks', () => {
     expect(createHash('sha256').update(bytes).digest('hex')).toBe(review.atlasSha256);
-    expect(clip.nativeSampleIndices).toEqual(review.originalClip.nativeSampleIndices);
-    expect(clip.loopDuration).toBe(review.originalClip.loopDuration);
-    expect(clip.bodyCentreFromRootY).toBe(-42);
+    expect(poses.nativeSampleIndices).toEqual(review.originalClip.nativeSampleIndices);
+    expect(poses.loopDuration).toBe(review.originalClip.loopDuration);
+    expect(poses.bodyCentreFromRootY).toBe(-42);
     for (let frame = 0; frame < clip.frameCount; frame++) {
       expect(Math.abs((contact(frame).y - clip.root[1]!) * clip.scaleToWorld), `frame ${frame} anatomical support gap`)
         .toBeLessThanOrEqual(review.worldTolerance);

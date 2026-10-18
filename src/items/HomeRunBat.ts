@@ -102,7 +102,7 @@ export const HOME_RUN_BAT_FSMASH: AttackMove = Object.freeze({
 
 /** Pikachu's own BatSwing4 reflector (WuBoytH scripts, pikachu/BatSwing4.txt): shield(REFLECTOR, …,
  * "top", 9, 0, 7, 7, 0, 7, 8, 2, 2.5, 80, …) — radius 9 u around top-bone y 7, z 7→8. Pikachu geometry:
- * 5 px/unit, body centre 25 px above the feet (pikachu frames.json bodyCentreFromRoot). */
+ * 5 px/unit, body centre 25 px above the feet (pikachuPresentation.ts bodyCentreFromRootY). */
 export const HOME_RUN_BAT_FSMASH_PIKACHU: AttackMove = Object.freeze({
   ...HOME_RUN_BAT_FSMASH,
   reflectWindow: Object.freeze({ ...HOME_RUN_BAT_FSMASH.reflectWindow!,

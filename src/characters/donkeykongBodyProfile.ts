@@ -1,9 +1,9 @@
 /** Donkey Kong's packed-body profile: the data packedBodyPresentation.ts needs to draw DK. */
-import metadata from '../../assets/characters/donkeykong/frames.json';
+import metadata from '../../assets/characters/donkeykong/gameplay.json';
 import type { PackedBodyClip, PackedBodyProfile } from './packedBodyPresentation';
 
-/** Runtime keys whose art is queued (rework 2026-10-10). Until a key is installed in
- * frames.json it resolves (transitively) to the installed equivalent, so presentation never
+/** Runtime keys whose art is queued (rework 2026-10-10). Until a key has its own clip
+ * it resolves (transitively) to the installed equivalent, so presentation never
  * requests a missing texture. */
 const DONKEYKONG_SHEET_ALIASES:Readonly<Record<string,string>>={
   fall_b:'fall',fall_aerial:'fall',fall_aerial_f:'air_drift',fall_aerial_b:'fall_b',

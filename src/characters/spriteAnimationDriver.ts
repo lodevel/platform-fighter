@@ -73,9 +73,7 @@
  * apart on a future renaming pass.
  */
 
-import donkeykongFrames from '../../assets/characters/donkeykong/frames.json';
-import pikachuFrames from '../../assets/characters/pikachu/frames.json';
-import linkFrames from '../../assets/characters/link/frames.json';
+import { legacySheet, legacySheets } from '../assets/legacyFighterSheets';
 import { CHARACTER_IDS, type CharacterId } from '../types';
 import { ASSET_KEYS } from '../assets/manifest';
 
@@ -770,9 +768,9 @@ const MOVE_SHEET_KEYS: Partial<Record<CharacterId, Readonly<Record<string, strin
 
 /** Per-move texture key for a fighter+sheet, or null if it has no such per-move sheet. */
 export function getCharacterMoveSheetKey(id: CharacterId, sheet: string): string | null {
-  if (id === 'pikachu' && sheet.startsWith('final') && sheet in pikachuFrames.animations) return `char.pikachu.${sheet}`;
-  if (id === 'donkeykong' && sheet in donkeykongFrames.animations) return `char.donkeykong.${sheet}`;
-  if (id === 'link') return sheet in linkFrames.animations ? `char.link.${sheet}` : null;
+  if (id === 'pikachu' && sheet.startsWith('final') && legacySheet('pikachu', sheet)) return `char.pikachu.${sheet}`;
+  if (id === 'donkeykong' && legacySheet('donkeykong', sheet)) return `char.donkeykong.${sheet}`;
+  if (id === 'link') return legacySheet('link', sheet) ? `char.link.${sheet}` : null;
   return MOVE_SHEET_KEYS[id]?.[sheet] ?? null;
 }
 
@@ -911,11 +909,11 @@ export function characterAnimationSheets(characterId: CharacterId): CharacterAni
   };
   for (const spec of SPRITE_ANIM_SPECS) add(spec.sheet, getCharacterSpritesheetKey(characterId, spec.sheet), spec.frameRate, spec.repeat);
   const moveSheets = characterId === 'donkeykong'
-    ? Object.keys(donkeykongFrames.animations).map((sheet) => ({ sheet, frameRate: 6, repeat: 0 }))
+    ? Object.keys(legacySheets('donkeykong')).map((sheet) => ({ sheet, frameRate: 6, repeat: 0 }))
     : characterId === 'link'
-      ? Object.keys(linkFrames.animations).map((sheet) => ({ sheet, frameRate: 60, repeat: 0 }))
+      ? Object.keys(legacySheets('link')).map((sheet) => ({ sheet, frameRate: 60, repeat: 0 }))
       : characterId === 'pikachu'
-        ? [...MOVE_SHEET_SPECS, ...Object.keys(pikachuFrames.animations).filter(sheet => sheet.startsWith('final')).map(sheet => ({ sheet, frameRate: 60, repeat: 0 }))]
+        ? [...MOVE_SHEET_SPECS, ...Object.keys(legacySheets('pikachu')).filter(sheet => sheet.startsWith('final')).map(sheet => ({ sheet, frameRate: 60, repeat: 0 }))]
         : MOVE_SHEET_SPECS;
   for (const spec of moveSheets) add(spec.sheet, getCharacterMoveSheetKey(characterId, spec.sheet), spec.frameRate, spec.repeat);
   return out;

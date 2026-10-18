@@ -15,8 +15,8 @@ const Composite=require('../physics/matter/source/lib/body/Composite.js');
 const neutral:CharacterInput={moveX:0,moveY:0,jump:false};
 
 import {captureSimulationAnimation,resolveSimulationAction} from './simulationSpriteAnimation';
-import pikachuFrames from '../../assets/characters/pikachu/frames.json';
-/** Reviewed native Have socket row of a drawing (frames.json itemAttachmentPoses). */
+import pikachuFrames from '../../assets/characters/pikachu/gameplay.json';
+/** Reviewed native Have socket row of a drawing (gameplay.json itemAttachmentPoses). */
 const getPikachuItemAttachment=(sheet:string,nativeSample:number)=>((pikachuFrames.animations as unknown as Record<string,{itemAttachmentPoses?:{nativeSample:number;position:{x:number;y:number}}[]}>)[sheet]
   ?.itemAttachmentPoses?.find(row=>row.nativeSample===nativeSample)?.position)??null;
 import {RUN_VELOCITY_DEAD_ZONE} from './spriteAnimationDriver';

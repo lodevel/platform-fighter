@@ -19,7 +19,7 @@
  * Values are proportional to each fighter's body silhouette (Donkey Kong is
  * wider than Pikachu, so his grip sits further out). They are deliberately
  * STATIC per fighter for now — per-animation-frame hand tracking needs
- * hand-bone metadata in `assets/characters/* /frames.json` that the
+ * hand-bone metadata in `assets/characters/* /gameplay.json` that the
  * art pipeline doesn't emit yet; when it does, this module is the seam
  * where the per-frame lookup lands without touching any call site.
  *

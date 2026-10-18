@@ -78,6 +78,10 @@ Phase 6 (`docs/review/2026-10-19/phase6/PLAN.md`): the game can draw fighters fr
 shipped packages (`port/src/fighters/packageLibrary.ts`, backend `backends/packageSprite.ts`,
 palette shader in `spriteLayer.ts`); opt in with `?packages=all` or `?packages=<id>`. The
 legacy sprite path stays the default until the user accepts the package path in matches.
+Gameplay data (hurtboxes, attack/catch shapes, grips, Final rows) lives in
+`assets/characters/<id>/gameplay.json`; `frames.json` holds only the legacy sheets. Art tools
+still write both into `frames.json`: run `python3 tools/split-gameplay-data.py` after them
+(`src/assets/gameplayData.test.ts` fails until you do).
 
 ### Determinism
 
@@ -169,7 +173,7 @@ coordinate contract before transforming article, socket or camera positions.
   `item-spawn` stream for timing and `item-type` for the Item Switch pick
   (`itemCatalog.ts`, `MatchConfig.itemSwitch`); hit drops roll on `item-drop`.
   A held item is drawn at the drawn hand's native socket (`itemAttachmentPoses`
-  in frames.json) along its native axis per frame (`item-axes.json`), both read by
+  in gameplay.json) along its native axis per frame (`item-axes.json`), both read by
   `characters/heldItemSocket.ts`. Item and trap visuals
   are drawn by MatchView from SimView.
 - Spawned world objects (projectiles, traps, summons) must obey physics by

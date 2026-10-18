@@ -40,10 +40,8 @@ export function getCompleteDonkeyKongStandingGrabTimeline(clip:unknown):DonkeyKo
   const t=clip.pairedGrabTimeline;
   if(t.variant!=='standing'||t.startupFrames!==7||t.activeFrames!==3||t.recoveryFrames!==28||
     t.reviewedInputs!==true||typeof t.bodyReviewKey!=='string'||!t.bodyReviewKey.trim())return null;
-  if(!integer(clip.frameWidth,1)||!integer(clip.frameHeight,1)||clip.frameCount!==10||
-    !Array.isArray(clip.root)||clip.root.length!==2||!finite(clip.root[0])||!finite(clip.root[1])||
-    clip.root[0]<0||clip.root[0]>clip.frameWidth||clip.root[1]<0||clip.root[1]>clip.frameHeight||
-    !finite(clip.scaleToWorld)||clip.scaleToWorld<=0||!finite(clip.bodyCentreFromRootY)||
+  // Pose track only (gameplay.json); the sheet image and its registration are display data.
+  if(clip.frameCount!==10||!finite(clip.bodyCentreFromRootY)||
     (clip.loopDuration!==undefined&&clip.loopDuration!==null))return null;
   const windows=clip.frameWindows,poses=clip.hurtboxPoses,catches=clip.catchCollisionPoses;
   if(!Array.isArray(windows)||windows.length!==10||!Array.isArray(poses)||poses.length!==10||

@@ -1,4 +1,5 @@
-import reviewedFrames from '../../assets/characters/pikachu/frames.json';
+import pikachuGameplay from '../../assets/characters/pikachu/gameplay.json';
+import { legacySheet } from '../assets/legacyFighterSheets';
 
 /** Reviewed strips keep source canvas registration; never fit each pose to its
  * opaque bounding box. A square padded special is taller than ordinary normals.
@@ -14,9 +15,7 @@ export interface PikachuSheetRenderMetrics {
   readonly bodyCentreFromRootY: number;
 }
 export function getPikachuSheetRenderMetrics(sheet: string): PikachuSheetRenderMetrics {
-  const animation = (reviewedFrames.animations as Record<string, {
-    frameWidth: number; frameHeight: number; root?: number[]; scaleToWorld?: number;
-  }>)[sheet === 'tilt' ? 'ftilt' : sheet];
+  const animation = legacySheet('pikachu', sheet === 'tilt' ? 'ftilt' : sheet);
   // Effect strips (e.g. the Final Smash electricity) carry no root/scale: they use the padded fallback below.
   if (animation?.root && animation.scaleToWorld !== undefined) return { frameWidth: animation.frameWidth, frameHeight: animation.frameHeight,
     rootX: animation.root[0]!, rootY: animation.root[1]!, originX: animation.root[0]! / animation.frameWidth,
@@ -37,7 +36,7 @@ export function getPikachuSheetRenderMetrics(sheet: string): PikachuSheetRenderM
 export function getPikachuReviewedStateClock(sheet: string, elapsed: number): {
   readonly localFrame: number; readonly artFrameIndex: number; readonly frameCount: number;
 } | null {
-  const clip = (reviewedFrames.animations as Record<string, {
+  const clip = (pikachuGameplay.animations as Record<string, {
     frameCount: number; loopDuration?: number | null;
     frameWindows?: Array<{ startFrame: number; endFrame: number | null; artFrameIndex: number }>;
   }>)[sheet];

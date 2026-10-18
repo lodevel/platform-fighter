@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import metadata from '../../assets/characters/donkeykong/frames.json';
+import metadata from '../../assets/characters/donkeykong/gameplay.json';
 import { parseCaptureAttachmentCalibration } from './captureAttachmentCalibration';
 
 /** Carried opponent through a cargo throw until its release: grip = the native `Throw` bone (the node Ultimate attaches a

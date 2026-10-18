@@ -3,6 +3,8 @@ import {resolveSimulationAction,createSimulationSpriteAnimationDriver,type Simul
 import type {PackedBodyClip} from './packedBodyPresentation';
 
 const catalog=vi.hoisted(()=>({animations:{} as Record<string,unknown>}));
+// The fixture is the whole of DK's data: its pose tracks and (empty) sheets.
+vi.mock('../../assets/characters/donkeykong/gameplay.json',()=>({default:catalog}));
 vi.mock('../../assets/characters/donkeykong/frames.json',()=>({default:catalog}));
 import {packedBodyCandidate,resolvePackedBodyAction} from './packedBodyPresentation';
 
@@ -11,7 +13,7 @@ import {packedBodyCandidate,resolvePackedBodyAction} from './packedBodyPresentat
 const ages=[0,3,6,7,8,9,10,23,32,37];
 const capsule=(id:number)=>({start:{x:20+id,y:7},end:{x:60+id,y:7},radius:2+id});
 function full():PackedBodyClip {
-  return {frameWidth:384,frameHeight:256,frameCount:10,root:[128,208],scaleToWorld:5/6.5,bodyCentreFromRootY:-42,
+  return {frameCount:10,bodyCentreFromRootY:-42,
     pairedGrabTimeline:{variant:'standing',startupFrames:7,activeFrames:3,recoveryFrames:28,reviewedInputs:true,bodyReviewKey:'synthetic-review-only'},
     frameWindows:ages.map((age,i)=>({startFrame:age,endFrame:ages[i+1]??38,artFrameIndex:i})),
     hurtboxPoses:ages.map((age,i)=>({artFrameIndex:i,nativeSample:age+1,hurtboxes:[
@@ -21,7 +23,7 @@ function full():PackedBodyClip {
       regions:age>=7&&age<10?[0,1].map(id=>({id,capsule:capsule(id)})):[]}))};
 }
 function pilot():PackedBodyClip {
-  return {frameWidth:384,frameHeight:256,frameCount:1,root:[128,208],scaleToWorld:5/6.5,bodyCentreFromRootY:-42,
+  return {frameCount:1,bodyCentreFromRootY:-42,
     frameWindows:[{startFrame:7,endFrame:8,artFrameIndex:0}],
     hurtboxPoses:[{artFrameIndex:0,nativeSample:8,hurtboxes:[{id:'synthetic.pilot',offsetX:1,offsetY:0,width:4,height:4}]}],
     catchCollisionPoses:[{artFrameIndex:0,nativeSample:8,regions:[0,1].map(id=>({id,capsule:capsule(id)}))}]};
@@ -44,7 +46,7 @@ describe('complete standing canonical must not become dash/pivot generic fallbac
   const base=snapshot('whiffActive',1,1,{startupFrames:10,activeFrames:3,whiffRecoveryFrames:28});
   const dk={...base,grabPresentation:{...base.grabPresentation!,variant:'dash' as const}};
   const pk={...dk,characterId:'pikachu' as const};
-  catalog.animations.grab={frameWidth:384,frameHeight:256,frameCount:7};
+  catalog.animations.grab={frameCount:7};
   expect(resolveSimulationAction(dk).sheets).toContain('grab');
   const pkBefore=resolveSimulationAction(pk);
   catalog.animations.grab=full();

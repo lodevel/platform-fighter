@@ -4,7 +4,7 @@
  */
 import type { AttackMoveWithAnimation, Hurtbox } from './moveSchema';
 import { pikachuSourceHits } from './pikachuSourceMoves';
-import reviewedFrames from '../../assets/characters/pikachu/frames.json';
+import pikachuGameplay from '../../assets/characters/pikachu/gameplay.json';
 import { PIKACHU_STATE_AUTHORED_HURTBOX_POSES } from './pikachuStateHurtboxes';
 import { PIKACHU_LEDGE_ATTACK_ROOT_MOTION } from './pikachuLedgeRootMotion';
 
@@ -33,7 +33,7 @@ function recovery(motion: 'pikachu/DownAttackU' | 'pikachu/DownAttackD' | 'pikac
   const last = windows.at(-1)!.endFrame;
   const sheet = suffix === 'ledgeAttack' ? 'ledge_attack' : suffix === 'tripAttack' ? 'trip_attack'
     : suffix === 'getupAttackFaceDown' ? 'getup_attack_face_down' : 'getup_attack';
-  const clip = reviewedFrames.animations[sheet];
+  const clip = pikachuGameplay.animations[sheet];
   const poses = (PIKACHU_STATE_AUTHORED_HURTBOX_POSES as readonly RecoveryPose[]).filter(p => p.sheet === sheet);
   if (!poses.length || poses[0]!.startElapsed !== 0 || poses.at(-1)!.endElapsed !== total)
     throw new Error(`Pikachu ${sheet} lacks accepted receiving covering its action`);

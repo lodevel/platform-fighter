@@ -39,10 +39,8 @@
 
 import {FOOD_VARIANTS} from '../items/Food';
 import {packedLayoutOf,type FrameTrim} from './packedFrames';
-import pikachuReviewedFrameMetadata from '../../assets/characters/pikachu/frames.json';
 import pikachuFinalVisualMetadata from '../../assets/characters/pikachu/final-visual-frames.json';
-import donkeykongFrameMetadata from '../../assets/characters/donkeykong/frames.json';
-import linkFrameMetadata from '../../assets/characters/link/frames.json';
+import {legacySheets} from './legacyFighterSheets';
 
 // ---------------------------------------------------------------------
 // Types
@@ -728,14 +726,10 @@ const ITEM_SPRITES_ROOT = `${BASE}sprites/items`;
 // Character spritesheet entries
 // ---------------------------------------------------------------------
 //
-// Frame counts and cell sizes mirror the canonical metadata in each
-// character's `frames.json`. Keeping them duplicated here is
-// deliberate: the manifest is the contract Phaser sees, and the
-// runtime would crash earlier if these drifted from `frames.json`
-// than if the JSON were the loader's input. The unit test in
-// `manifest.test.ts` cross-checks both.
+// One entry per legacy sheet (legacyFighterSheets.ts: the layout in each
+// fighter's `frames.json`, the drawing count in its `gameplay.json`).
 
-/** One `char.<fighter>.<clip>` sheet per clip of a fighter's frames.json (grid or tight-packed strips). */
+/** One `char.<fighter>.<clip>` sheet per legacy sheet of a fighter (grid or tight-packed strips). */
 function packedFighterSpritesheets(fighter: string, animations: Readonly<Record<string, {
   readonly strip: string; readonly frameWidth: number; readonly frameHeight: number; readonly frameCount: number }>>,
 ): readonly SpritesheetAssetEntry[] {
@@ -745,7 +739,7 @@ function packedFighterSpritesheets(fighter: string, animations: Readonly<Record<
 }
 
 // Link — fresh native-model renders packed by tools/fighter-pack.py (tight layout).
-const linkSpritesheets = packedFighterSpritesheets('link', linkFrameMetadata.animations);
+const linkSpritesheets = packedFighterSpritesheets('link', legacySheets('link'));
 // A display-only bank: the original Final frames remain the authoritative pose tracks.
 const pikachuFinalVisualSpritesheets = packedFighterSpritesheets('pikachu', pikachuFinalVisualMetadata.pages);
 
@@ -754,7 +748,7 @@ const pikachuFinalVisualSpritesheets = packedFighterSpritesheets('pikachu', pika
  * never causes a pending/fallback sheet to load. Dimensions/counts follow the
  * reviewed cell contract, including safe multirow atlases and loop closures.
  */
-const pikachuSpritesheets: readonly SpritesheetAssetEntry[] = Object.entries(pikachuReviewedFrameMetadata.animations)
+const pikachuSpritesheets: readonly SpritesheetAssetEntry[] = Object.entries(legacySheets('pikachu'))
   .map(([sheet, clip]) => {
     const route = sheet === 'ftilt' ? 'tilt' : sheet;
     const key = Object.values(ASSET_KEYS).find(candidate => candidate === `char.pikachu.${route}`);
@@ -763,8 +757,8 @@ const pikachuSpritesheets: readonly SpritesheetAssetEntry[] = Object.entries(pik
       frameWidth: clip.frameWidth, frameHeight: clip.frameHeight, frameCount: clip.frameCount, ...packedLayoutOf(clip) };
   });
 
-// Donkey Kong — full AI sprite set. Counts mirror assets/characters/donkeykong/frames.json.
-const donkeykongSpritesheets = packedFighterSpritesheets('donkeykong', donkeykongFrameMetadata.animations);
+// Donkey Kong — full AI sprite set.
+const donkeykongSpritesheets = packedFighterSpritesheets('donkeykong', legacySheets('donkeykong'));
 
 // ---------------------------------------------------------------------
 // Stage tile spritesheet entries

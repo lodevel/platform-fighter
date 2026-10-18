@@ -1,14 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { frameRect, gridCells, packedLayoutOf, phaserAtlasJson, type SheetLayout } from './packedFrames';
+import { legacySheets } from './legacyFighterSheets';
 
-type LinkClip = SheetLayout & { readonly frameCount: number; readonly root: readonly [number, number]; readonly scaleToWorld: number;
-  readonly nativeSampleIndices?: readonly (number | null)[]; readonly actionFrameStarts?: readonly number[] };
+type LinkSheet = SheetLayout & { readonly root: readonly [number, number]; readonly scaleToWorld: number };
+type LinkPoses = { readonly frameCount: number; readonly nativeSampleIndices?: readonly (number | null)[]; readonly actionFrameStarts?: readonly number[] };
 type AuthoredProfile = { sheet: string; frameWidth: number; frameHeight: number; scaleToWorld: number; sourceSampleBasis: string; authoredSourceIdentity: { kind: string; sha256: string }; drawings: readonly { nativeSample: null; frameIndex: number }[] };
-const LINK: { animations: Record<string, LinkClip>; runtimeFinalVictimProfiles?: { profiles: Record<string, AuthoredProfile> } } =
-  JSON.parse(readFileSync(new URL('../../assets/characters/link/frames.json', import.meta.url), 'utf8'));
+const LINK = { animations: legacySheets('link') as unknown as Readonly<Record<string, LinkSheet>> };
+const LINK_POSES: { animations: Record<string, LinkPoses>; runtimeFinalVictimProfiles?: { profiles: Record<string, AuthoredProfile> } } =
+  JSON.parse(readFileSync(new URL('../../assets/characters/link/gameplay.json', import.meta.url), 'utf8'));
 
-const AUTHORED_RECIPIENTS = new Map(Object.values(LINK.runtimeFinalVictimProfiles?.profiles ?? {}).map(profile => [profile.sheet, profile]));
+const AUTHORED_RECIPIENTS = new Map(Object.values(LINK_POSES.runtimeFinalVictimProfiles?.profiles ?? {}).map(profile => [profile.sheet, profile]));
 
 const PACKED: SheetLayout = {
   frameWidth: 100, frameHeight: 80, frameCount: 3, atlas: [64, 48],
@@ -92,24 +94,24 @@ describe('phaserAtlasJson', () => {
   });
 });
 
-describe('installed Link frames.json', () => {
+describe('installed Link frames.json and gameplay.json', () => {
   it('preserves native sample/scale identity and authored recipient recipe identity with every ROOT inside its cell', () => {
     for (const [name, clip] of Object.entries(LINK.animations)) {
-      const authored = AUTHORED_RECIPIENTS.get(name);
+      const authored = AUTHORED_RECIPIENTS.get(name), poses = LINK_POSES.animations[name]!;
       if (authored) {
-        expect(clip.nativeSampleIndices, name).toBeUndefined();
+        expect(poses.nativeSampleIndices, name).toBeUndefined();
         expect(authored.sourceSampleBasis).toBe('authored-final-victim-recipe-index');
         expect(authored.authoredSourceIdentity.kind).toBe('AUTHORED_FINAL_CINEMATIC_RECIPIENT');
         expect(authored.authoredSourceIdentity.sha256).toMatch(/^[a-f0-9]{64}$/);
-        expect(authored.drawings).toHaveLength(clip.frameCount);
+        expect(authored.drawings).toHaveLength(poses.frameCount);
         expect(authored.drawings.every((d, i) => d.nativeSample === null && d.frameIndex === i)).toBe(true);
         expect(clip.scaleToWorld).toBe(authored.scaleToWorld);
         expect(clip.frameWidth).toBe(authored.frameWidth); expect(clip.frameHeight).toBe(authored.frameHeight);
       } else {
-        expect(clip.nativeSampleIndices, name).toHaveLength(clip.frameCount);
+        expect(poses.nativeSampleIndices, name).toHaveLength(poses.frameCount);
         expect(clip.scaleToWorld, name).toBe(0.4666667);
       }
-      if (clip.actionFrameStarts) expect(clip.actionFrameStarts, name).toHaveLength(clip.frameCount);
+      if (poses.actionFrameStarts) expect(poses.actionFrameStarts, name).toHaveLength(poses.frameCount);
       const [x, y] = clip.root;
       expect(x, name).toBeGreaterThanOrEqual(0); expect(x, name).toBeLessThanOrEqual(clip.frameWidth);
       expect(y, name).toBeGreaterThanOrEqual(0); expect(y, name).toBeLessThanOrEqual(clip.frameHeight);

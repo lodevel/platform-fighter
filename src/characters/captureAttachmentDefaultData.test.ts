@@ -22,7 +22,7 @@ const primary=(name:string,dir=reviewDir):any=>JSON.parse(readFileSync(resolve(d
 // The parser stamps each row with the file's sample basis (one-based native frame when the file omits it).
 const withRowBasis=(raw:any)=>({...raw,anchors:raw.anchors.map((row:any)=>({...row,sourceSampleBasis:raw.sourceSampleBasis??'one-based-native-frame'}))});
 const expected=(id:string)=>{
-  // DK's captor grips stay in frames.json (no default grips); the default carries DK's own recipient anchors and floor.
+  // DK's captor grips stay in gameplay.json (no default grips); the default carries DK's own recipient anchors and floor.
   if(id==='donkeykong')return withRowBasis(primary('dk-recipient-target-calibration-with-floor-candidate-02.json',dkCargoRecipientDir));
   return id==='pikachu'?withRowBasis(primary('pikachu-ordinary-target-calibration-with-floor-candidate-03.json',capturedHitDir)):null;
 };

@@ -369,8 +369,8 @@ describe('Donkey Kong — constructor wiring (MockScene smoke)', () => {
     // frame count; otherwise it silently falls back to an even spread and the
     // contact frame shows the wrong drawing (caught in-game on the forward
     // smash, 2026-09-25: the clap hit displayed the wind-up).
-    const framesJson = JSON.parse(
-      readFileSync(new URL('../../assets/characters/donkeykong/frames.json', import.meta.url), 'utf8'),
+    const gameplayJson = JSON.parse(
+      readFileSync(new URL('../../assets/characters/donkeykong/gameplay.json', import.meta.url), 'utf8'),
     ) as { animations: Record<string, { frameCount: number }> };
     const clips: Array<[string, { animation?: { startupFrames: number; activeFrames: number; recoveryFrames: number } }]> = [
       ['jab', DONKEYKONG_JAB], ['jab2', DONKEYKONG_JAB2], ['tilt', DONKEYKONG_TILT], ['utilt', DONKEYKONG_UTILT],
@@ -383,7 +383,7 @@ describe('Donkey Kong — constructor wiring (MockScene smoke)', () => {
       ['down_special', DONKEYKONG_DOWN_SPECIAL], ['down_special_air', DONKEYKONG_DOWN_SPECIAL.shockwave.aerialVariant!],
     ];
     for (const [clip, move] of clips) {
-      const cells = framesJson.animations[clip]?.frameCount;
+      const cells = gameplayJson.animations[clip]?.frameCount;
       expect(cells, `${clip} strip is packed`).toBeGreaterThan(0);
       const a = move.animation;
       expect(a, `${clip} has authored animation counts`).toBeDefined();

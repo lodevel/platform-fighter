@@ -7,7 +7,7 @@ import {coordinateCaptureAttachments} from './captureAttachmentCoordinator';
 import {applyCharacterMoveOverrides} from './characterFactory';
 import {getAuthorableCharacterSpec} from './authorableCharacterRegistry';
 import {parseCharacterDataFile,serializeCharacterDataSpec} from './characterSerializer';
-import dkMetadata from '../../assets/characters/donkeykong/frames.json';
+import dkMetadata from '../../assets/characters/donkeykong/gameplay.json';
 import type {CaptureAttachmentCalibration} from './captureAttachmentCalibration';
 // The stock DK calibration now also carries DK's own recipient anchors/floor (rework remaining gaps, dk-recipient-anchor).
 import {getDefaultCaptureAttachmentCalibration} from './captureAttachmentDefaultData';

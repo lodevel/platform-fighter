@@ -1,5 +1,5 @@
 /**
- * Link's packed-body profile. The fresh Link art (assets/characters/link/frames.json, DK format, packed by
+ * Link's packed-body profile. The fresh Link art (assets/characters/link/frames.json + gameplay.json, DK format, packed by
  * tools/fighter-pack.py and assembled by tools/link-build-final.py) has its clips keyed by the engine sheet name
  * where the clip plan chose one (idle, walk, jab, fair, fall_aerial...) and by the native motion file otherwise
  * (b00guard, e00catch...).
@@ -8,7 +8,7 @@
  * (Ultimate motion list, the same engine-sheet → motion mapping DK uses: tools/dk-runtime-action-map.py). A sheet
  * with no clip and no alias draws nothing (user decision 2026-10-14: missing pose = invisible, no fallback pose).
  */
-import metadata from '../../assets/characters/link/frames.json';
+import metadata from '../../assets/characters/link/gameplay.json';
 import type { PackedBodyClip, PackedBodyProfile } from './packedBodyPresentation';
 
 /** Engine sheet → drawn clip. Resolved only while the engine sheet has no clip of its own. */

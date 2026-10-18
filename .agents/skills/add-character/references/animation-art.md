@@ -498,7 +498,9 @@ from the pose schedule — which source frame each drawing came from, against
 the move's hit windows — so they sum to the strip's cell count; the frame
 selector only honours the schedule when they match, otherwise it spreads the
 drawings evenly and the contact frame shows the wrong pose (DK forward smash,
-2026-09-25). Guard it with a test against `frames.json`. A global repack requires
+2026-09-25). Guard it with a test against `frames.json`. Packing tools write gameplay rows
+(hurtboxes, grips, Final rows) into `frames.json`; run `python3 tools/split-gameplay-data.py`
+afterwards so they land in `gameplay.json`, which the simulation reads. A global repack requires
 verifying every affected strip; prefer isolated clip packing for a targeted
 change.
 

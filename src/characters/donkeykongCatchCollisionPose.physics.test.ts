@@ -4,13 +4,13 @@ import {STALE_FRESH_MULTIPLIER} from './combat';
 import type {PackedBodyClip} from './packedBodyPresentation';
 const control=vi.hoisted(()=>({mode:'valid' as 'valid'|'unopted'|'missing'|'empty'|'invalid'|'wide-window'|'drawing-mismatch'}));
 // Test-only paired art metadata. No shipping metadata or source timing is edited.
-vi.mock('../../assets/characters/donkeykong/frames.json',async importOriginal=>{
+vi.mock('../../assets/characters/donkeykong/gameplay.json',async importOriginal=>{
  const original=await importOriginal<{default:{animations:Record<string,PackedBodyClip>}}>();
  const animations={...original.default.animations};
  // This suite specifically proves one-age pilot fallback, independent of full-grab installation.
  animations.grab={...original.default.animations.review_legacy_grab!};
  for(const [sheet,sample,sign,age] of [['review_pilot_standing_grab_contact',8,1,7],['review_pilot_dash_grab_contact',11,1,10],['review_pilot_pivot_grab_contact',12,-1,11]] as const){
-  animations[sheet]={frameWidth:384,frameHeight:256,frameCount:1,get frameWindows(){return [{startFrame:age,endFrame:age+(control.mode==='wide-window'?2:1),artFrameIndex:0}];},
+  animations[sheet]={frameCount:1,get frameWindows(){return [{startFrame:age,endFrame:age+(control.mode==='wide-window'?2:1),artFrameIndex:0}];},
    get hurtboxPoses(){return [{artFrameIndex:0,nativeSample:sample+(control.mode==='drawing-mismatch'?1:0),hurtboxes:[{id:'fixture-bust',region:'bust',offsetX:0,offsetY:0,width:50,height:80,capsule:{start:{x:0,y:-15},end:{x:0,y:15},radius:25}}]}];},
    get catchCollisionPoses(){
     if(control.mode==='unopted')return undefined;

@@ -1,8 +1,11 @@
 /** Paired Final drawing/receiving/outgoing selection. Missing new artwork
- * remains an explicit missing profile, never a source-qualified alias. */
-import donkey from '../../../assets/characters/donkeykong/frames.json';
-import pikachu from '../../../assets/characters/pikachu/frames.json';
-import link from '../../../assets/characters/link/frames.json';
+ * remains an explicit missing profile, never a source-qualified alias.
+ * Pose tracks and geometry come from gameplay.json; the sheet image fields
+ * (registration, render pages, FX anchors) from the legacy sheet (display). */
+import donkey from '../../../assets/characters/donkeykong/gameplay.json';
+import pikachu from '../../../assets/characters/pikachu/gameplay.json';
+import link from '../../../assets/characters/link/gameplay.json';
+import { legacySheet, type LegacySheet } from '../../assets/legacyFighterSheets';
 import type {LinkAttachment,LinkHeadContact} from '../../characters/linkBodyProfileValidation';
 import type { Hurtbox } from '../../characters/moveSchema';
 import type { AttackCollisionHit } from '../../characters/attacks';
@@ -14,8 +17,7 @@ interface FinalClip {
   /** Raw0-based native index vs1-based source frame label, never inferred
    * from fighter identity. Drawing ages always remain zero-based elapsed. */
   readonly sourceSampleBasis?: 'zero-based-native-index' | 'one-based-native-frame';
-  readonly frameCount: number; readonly sourceDrawingCount?:number; readonly frameWidth: number; readonly frameHeight: number;
-  readonly root?: readonly number[]; readonly scaleToWorld?: number; readonly bodyCentreFromRootY?: number;
+  readonly frameCount: number; readonly sourceDrawingCount?:number; readonly bodyCentreFromRootY?: number;
   readonly nativeSampleIndices?: readonly number[]; readonly loopDuration?: number | null;
   readonly frameWindows?: readonly { startFrame: number; endFrame: number | null; artFrameIndex: number }[];
   readonly hurtboxPoses?: readonly { artFrameIndex: number; nativeSample: number; hurtboxes: readonly Hurtbox[];
@@ -27,23 +29,26 @@ interface FinalClip {
    * geometry is selected by source role, never by an assumed common radius. */
   readonly attackCollisionPosesByRole?: Readonly<Record<string, readonly { artFrameIndex: number;
     nativeSample: number; collisionHits: readonly Pick<AttackCollisionHit, 'id' | 'capsule'>[] }[]>>;
-  readonly sourceRenderPoses?:readonly {artFrameIndex:number;nativeSample:number;originX:number;originY:number;render?:{sheet:string;frameIndex:number}}[];
   readonly sourceAttachmentPoses?:readonly {artFrameIndex:number;nativeSample:number;attachments:readonly LinkAttachment[]}[];
-  readonly sourceEffectPointPoses?:readonly {artFrameIndex:number;nativeSample:number;points:readonly FinalFxPoint[]}[];
   readonly sourceRootDelta?: readonly { x: number; y: number }[];
+}
+/** The Final sheet's display fields: registration, optional per-drawing render pages and FX anchors. */
+interface FinalImage extends Omit<LegacySheet, 'sourceEffectPointPoses'> {
+  readonly sourceRenderPoses?:readonly {artFrameIndex:number;nativeSample:number;originX:number;originY:number;render?:{sheet:string;frameIndex:number}}[];
+  readonly sourceEffectPointPoses?:readonly {artFrameIndex:number;nativeSample:number;points:readonly FinalFxPoint[]}[];
 }
 const clips = { donkeykong: donkey.animations, pikachu: pikachu.animations, link: link.animations } as unknown as
   Readonly<Record<string, Readonly<Record<string, FinalClip>>>>;
 const validated = new WeakSet<object>();
-function validateNewFinalClip(clip: FinalClip, path: string,fighter:string): void {
+function validateNewFinalClip(clip: FinalClip, image: FinalImage | undefined, path: string,fighter:string): asserts image is FinalImage {
   if (validated.has(clip)) return;
   const finite=(value:unknown)=>typeof value==='number'&&Number.isFinite(value);
   const fail=(field:string):never=>{throw new Error(`Malformed new Final profile ${path}.${field}`);};
   if (!Number.isSafeInteger(clip.frameCount)||clip.frameCount<1) fail('frameCount');
   const drawingCount=clip.sourceDrawingCount??clip.frameCount;
   if(!Number.isSafeInteger(drawingCount)||drawingCount<1)fail('sourceDrawingCount');
-  if (![clip.frameWidth,clip.frameHeight,clip.scaleToWorld].every(v=>finite(v)&&Number(v)>0)) fail('dimensions/scale');
-  if (!Array.isArray(clip.root)||clip.root.length!==2||!clip.root.every(finite)||!finite(clip.bodyCentreFromRootY)) fail('root/bodyCentre');
+  if (!image||![image.frameWidth,image.frameHeight,image.scaleToWorld].every(v=>finite(v)&&Number(v)>0)) fail('dimensions/scale');
+  if (!Array.isArray(image!.root)||image!.root.length!==2||!image!.root.every(finite)||!finite(clip.bodyCentreFromRootY)) fail('root/bodyCentre');
   if(clip.sourceSampleBasis!=='zero-based-native-index'&&clip.sourceSampleBasis!=='one-based-native-frame')fail('sourceSampleBasis');
   const minimumSample=clip.sourceSampleBasis==='zero-based-native-index'?0:1;
   const samples=clip.nativeSampleIndices;
@@ -89,27 +94,28 @@ function validateNewFinalClip(clip: FinalClip, path: string,fighter:string): voi
     }
   }
   if(new Set((clip.sourceAttachmentPoses??[]).map(r=>r.artFrameIndex)).size!==(clip.sourceAttachmentPoses?.length??0))fail('duplicate attachment drawing');
-  if(clip.sourceEffectPointPoses!==undefined){
-    if(!Array.isArray(clip.sourceEffectPointPoses)||new Set(clip.sourceEffectPointPoses.map(row=>row.artFrameIndex)).size!==clip.sourceEffectPointPoses.length)fail('effect point rows');
-    for(const row of clip.sourceEffectPointPoses){const receiving=clip.hurtboxPoses!.find(r=>r.artFrameIndex===row.artFrameIndex);
+  const effectRows=image!.sourceEffectPointPoses,renderRows=image!.sourceRenderPoses;
+  if(effectRows!==undefined){
+    if(!Array.isArray(effectRows)||new Set(effectRows.map(row=>row.artFrameIndex)).size!==effectRows.length)fail('effect point rows');
+    for(const row of effectRows){const receiving=clip.hurtboxPoses!.find(r=>r.artFrameIndex===row.artFrameIndex);
       if(!row||typeof row!=='object'||Array.isArray(row)||Object.keys(row).length!==3||
         !['artFrameIndex','nativeSample','points'].every(key=>Object.hasOwn(row,key))||!receiving||row.nativeSample!==receiving.nativeSample)fail('paired effect point drawing');
       parseFinalFxPoints(row.points,`${path}.sourceEffectPointPoses[${row.artFrameIndex}]`);
     }
   }
-  if(clip.sourceRenderPoses!==undefined){
-    if(!Array.isArray(clip.sourceRenderPoses))fail('render origins array');
-    if(clip.sourceRenderPoses.length!==drawingCount||new Set(clip.sourceRenderPoses.map(r=>r.artFrameIndex)).size!==drawingCount)fail('render origins coverage');
-    for(const row of clip.sourceRenderPoses){const receiving=clip.hurtboxPoses!.find(r=>r.artFrameIndex===row.artFrameIndex);
+  if(renderRows!==undefined){
+    if(!Array.isArray(renderRows))fail('render origins array');
+    if(renderRows.length!==drawingCount||new Set(renderRows.map(r=>r.artFrameIndex)).size!==drawingCount)fail('render origins coverage');
+    for(const row of renderRows){const receiving=clip.hurtboxPoses!.find(r=>r.artFrameIndex===row.artFrameIndex);
       if(!Number.isSafeInteger(row.artFrameIndex)||!receiving||receiving.nativeSample!==row.nativeSample||![row.originX,row.originY].every(finite))fail('paired render origin');
       if(row.render!==undefined){const r=row.render;
         if(!r||typeof r!=='object'||Array.isArray(r)||Object.keys(r).length!==2||typeof r.sheet!=='string'||!r.sheet||!Number.isSafeInteger(r.frameIndex)||r.frameIndex<0)fail('render page address');
-        const page=clips[fighter]?.[r.sheet];if(!page||!Number.isSafeInteger(page.frameCount)||page.frameCount<1||r.frameIndex>=page.frameCount||
-          page.frameWidth!==clip.frameWidth||page.frameHeight!==clip.frameHeight)fail('render page metrics/frame');
+        const page=legacySheet(fighter,r.sheet);if(!page||!Number.isSafeInteger(page.frameCount)||page.frameCount<1||r.frameIndex>=page.frameCount||
+          page.frameWidth!==image!.frameWidth||page.frameHeight!==image!.frameHeight)fail('render page metrics/frame');
       }else if(row.artFrameIndex>=clip.frameCount)fail('missing render page address');
     }
   }
-  if(drawingCount>clip.frameCount&&!clip.sourceRenderPoses)fail('paged drawing render addresses');
+  if(drawingCount>clip.frameCount&&!renderRows)fail('paged drawing render addresses');
   if(!clip.sourceRootDelta?.length||clip.sourceRootDelta.some(p=>!finite(p.x)||!finite(p.y)))fail('sourceRootDelta');
   const requiredAges=Math.max(0,...(clip.frameWindows??[]).map(w=>w.endFrame??w.startFrame+1),
     ...(samples??[]).map(n=>n+(clip.sourceSampleBasis==='one-based-native-frame'?0:1)));
@@ -121,7 +127,8 @@ function validateNewFinalClip(clip: FinalClip, path: string,fighter:string): voi
 export function sampleFinalBodyPose(fighter: string, sheet: string, age: number, packetRole?: string) {
   const clip = clips[fighter]?.[sheet];
   if (!clip || !sheet.startsWith('final') || clip.coordinateOrigin !== 'actorSourceRoot') return null;
-  validateNewFinalClip(clip,`${fighter}/${sheet}`,fighter);
+  const image = legacySheet(fighter, sheet) as FinalImage | undefined;
+  validateNewFinalClip(clip,image,`${fighter}/${sheet}`,fighter);
   let index = 0, sample = 1;
   if (packedBodyProfile(fighter as CharacterId) && clip.sourceSampleBasis === 'one-based-native-frame' && !clip.frameWindows?.length) {
     const drawing = selectPackedDrawing(fighter as CharacterId, sheet, age); if (!drawing) return null;
@@ -148,9 +155,9 @@ export function sampleFinalBodyPose(fighter: string, sheet: string, age: number,
   if (!rootDelta) return null; // no invented zero displacement for a source-owned pose
   const attached=clip.sourceAttachmentPoses?.find(row=>row.artFrameIndex===index);
   if(attached&&attached.nativeSample!==sample)throw new Error(`Final ${fighter}/${sheet} attachment drawing mismatch`);
-  const render=clip.sourceRenderPoses?.find(row=>row.artFrameIndex===index);
-  const effectPoints=clip.sourceEffectPointPoses?.find(row=>row.artFrameIndex===index)?.points??[];
+  const render=image.sourceRenderPoses?.find(row=>row.artFrameIndex===index);
+  const effectPoints=image.sourceEffectPointPoses?.find(row=>row.artFrameIndex===index)?.points??[];
   return { attachments:attached?.attachments??[],headContact:receiving.headContact,effectPoints,sheet:render?.render?.sheet??sheet,index:render?.render?.frameIndex??index,sourceDrawingIndex:index,sample, receiving: receiving.hurtboxes, outgoing: outgoing?.collisionHits ?? [], rootDelta,
-    originX: render?.originX??clip.root![0]! / clip.frameWidth, originY: render?.originY??clip.root![1]! / clip.frameHeight,
-    scaleToWorld: clip.scaleToWorld!, bodyCentreFromRootY: clip.bodyCentreFromRootY! };
+    originX: render?.originX??image.root![0]! / image.frameWidth, originY: render?.originY??image.root![1]! / image.frameHeight,
+    scaleToWorld: image.scaleToWorld!, bodyCentreFromRootY: clip.bodyCentreFromRootY! };
 }

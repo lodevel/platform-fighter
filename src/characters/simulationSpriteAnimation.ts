@@ -2,7 +2,7 @@
 import { sampleFinalBodyPose as finalBodyPose } from '../characterPresentation/legacy/finalPoseData';
 import { itemChargeClip, itemMotionClip } from '../items/itemMotionClips';
 import pikachuChargePoses from '../../assets/characters/pikachu/pose-batches/smash-charges.json';
-import pikachuReviewedFrames from '../../assets/characters/pikachu/frames.json';
+import pikachuGameplay from '../../assets/characters/pikachu/gameplay.json';
 import pikachuFinalVisual from '../../assets/characters/pikachu/final-visual-frames.json';
 import type { Character } from './Character';
 import type { CharacterId } from '../types';
@@ -127,7 +127,7 @@ interface ReviewedPikachuStateClip {
   readonly frameWindows?: ReadonlyArray<{ startFrame: number; endFrame: number | null; artFrameIndex: number }>;
   readonly loopDuration?: number | null;
 }
-const reviewedPikachuClips = pikachuReviewedFrames.animations as Record<string, ReviewedPikachuStateClip>;
+const reviewedPikachuClips = pikachuGameplay.animations as Record<string, ReviewedPikachuStateClip>;
 
 /** Unavailable state art never becomes an accepted alias. Its existing fallback
  * remains visible until the independently reviewed strip and receiving arrive. */
@@ -335,7 +335,7 @@ export function resolveSimulationAction(s: SimulationAnimationSnapshot): ActionP
       // Skull's held action age can reach80; its native body loops every6.
       // Keep the renderer on the same accepted native clock as receiving.
       const local = clock.phase === 'hold' ? clock.nativeFrame : clock.localFrame;
-      const clip = (pikachuReviewedFrames.animations as Record<string, {
+      const clip = (pikachuGameplay.animations as Record<string, {
         frameCount: number; frameWindows?: Array<{ startFrame: number; endFrame: number | null; artFrameIndex: number }>;
       }>)[sheet];
       if (clip) {

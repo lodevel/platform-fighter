@@ -52,6 +52,7 @@ Each step: `npm run typecheck && npx vitest run && npm run build`, then a browse
 | — | Done (`d274dc0`): Link no longer disappears after an aerial Spin Attack or while carrying heavy items (8,090 → 0 frames in 36 matches) | [invisible-fighters.md](invisible-fighters.md) |
 | — | In progress: held items drawn at the package's grip | |
 | 4 | Done (`88ccb4b`): the 12 effect strips are `effect.*` package actions; a packaged fighter's effects come from its package; 0 mismatches over 7,808 effect sprite-frames; Edge check | [effects.md](effects.md) |
+| 5 prep | Done (uncommitted): the simulation's data moved to `gameplay.json`; `frames.json` is display only; values byte-identical, reader outputs identical, full suite green | [gameplay-data.md](gameplay-data.md) |
 | 5 | Waits for the user's acceptance | |
 
 ## Known risks

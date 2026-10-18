@@ -2,7 +2,7 @@
  * Held-item socket: where the drawn hand (Pikachu: mouth) holds an item in the drawing a fighter shows
  * right now, and the item's direction there. One reader for every fighter with item art.
  *
- * Position rows are `itemAttachmentPoses` in the fighter's frames.json, one per drawing, derived from the native
+ * Position rows are `itemAttachmentPoses` in the fighter's gameplay.json, one per drawing, derived from the native
  * item socket bone (DK and Link `HaveR`, Pikachu `Have`) at the drawing's native sample
  * (docs/review/2026-10-11/ultimate-items/phase-2/sockets/derive_item_sockets.py): world px from the body centre,
  * facing right. The item stays in the drawn hand.
@@ -15,9 +15,9 @@
  * The drawing is the one the renderer selects (resolveSimulationAction + selectActionArtFrame); an upper-body overlay
  * (shooting while walking) holds the item, so its drawing wins. No row = no socket (hand anchor fallback).
  */
-import donkeykongFrames from '../../../assets/characters/donkeykong/frames.json';
-import pikachuFrames from '../../../assets/characters/pikachu/frames.json';
-import linkFrames from '../../../assets/characters/link/frames.json';
+import donkeykongGameplay from '../../../assets/characters/donkeykong/gameplay.json';
+import pikachuGameplay from '../../../assets/characters/pikachu/gameplay.json';
+import linkGameplay from '../../../assets/characters/link/gameplay.json';
 import donkeykongAxes from '../../../assets/characters/donkeykong/item-axes.json';
 import pikachuAxes from '../../../assets/characters/pikachu/item-axes.json';
 import linkAxes from '../../../assets/characters/link/item-axes.json';
@@ -40,9 +40,9 @@ interface AxisClip { readonly drawings: readonly (AxisEntry | null)[]; readonly 
 interface SocketClip { readonly frameCount: number; readonly itemAttachmentPoses?: readonly ItemAttachmentPose[] }
 
 const CLIPS: Readonly<Partial<Record<CharacterId, Readonly<Record<string, SocketClip>>>>> = {
-  donkeykong: donkeykongFrames.animations as unknown as Record<string, SocketClip>,
-  pikachu: pikachuFrames.animations as unknown as Record<string, SocketClip>,
-  link: linkFrames.animations as unknown as Record<string, SocketClip>,
+  donkeykong: donkeykongGameplay.animations as unknown as Record<string, SocketClip>,
+  pikachu: pikachuGameplay.animations as unknown as Record<string, SocketClip>,
+  link: linkGameplay.animations as unknown as Record<string, SocketClip>,
 };
 const AXES: Readonly<Partial<Record<CharacterId, Readonly<Record<string, AxisClip>>>>> = {
   donkeykong: donkeykongAxes.clips as unknown as Record<string, AxisClip>,

@@ -1,4 +1,4 @@
-import metadata from '../../assets/characters/donkeykong/frames.json';
+import metadata from '../../assets/characters/donkeykong/gameplay.json';
 import type { AttackMove } from './attacks';
 import type { Hurtbox } from './moveSchema';
 import { attackMoveToSheets } from './spriteAnimationDriver';
