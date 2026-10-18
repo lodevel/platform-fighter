@@ -5,6 +5,7 @@
  * the shooting overlay's waist line.
  */
 import reviewedFrames from '../../assets/characters/pikachu/frames.json';
+import { EFFECT_ACTION_PREFIX } from '../../character/package/types';
 import type { ActionDisplay, ActionDisplayOverlay } from '../characterPresentation/contracts';
 import type { CharacterId } from '../types';
 import { getPackedBodyRenderMetrics, installedPackedSheet, packedBodyProfile, selectPackedDrawing } from './packedBodyPresentation';
@@ -19,6 +20,11 @@ const reviewedClips = reviewedFrames.animations as Readonly<Record<string, { rea
 /** The frames.json clip, and package action, a runtime sheet draws: a packed fighter's alias, and Pikachu's forward tilt texture is the `ftilt` clip. */
 export function clipOfSheet(id: CharacterId, sheet: string): string {
   return id === 'pikachu' && sheet === 'tilt' ? 'ftilt' : installedPackedSheet(id, sheet);
+}
+
+/** The package action of an effect strip (`fx__<name>` → `effect.<name>`), placed and timed by the game's effect code. */
+export function effectAction(sheet: string): string {
+  return EFFECT_ACTION_PREFIX + sheet.replace(/^fx__/, '');
 }
 
 /** Which clock decides an ordinary Pikachu clip's drawings: its auxiliary source table when it has one, else its reviewed windows. */

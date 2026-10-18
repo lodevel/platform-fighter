@@ -7,9 +7,10 @@
  *                         that would replace it by at most <limit> (signatureDiff) is dropped
  *                         and the previous one held over its ticks, sockets following. No drawing
  *                         is held longer than <max-hold> ticks or the action's longest window.
+ *                         Effect actions (`effect.*`) keep every drawing.
  * Each gets character.json and candidate-report.json. Node only; no game code.
  */
-import type { CharacterPackage, DrawingId } from '../package/types';
+import { isEffectAction, type CharacterPackage, type DrawingId } from '../package/types';
 import { readCandidateSource, writeCandidate } from './output';
 import { readPage, repack, signature, signatureDiff, type Signature } from './pixels';
 import { holdMap, retimeAction } from './retime';
@@ -37,13 +38,14 @@ function withoutUnused(pkg: CharacterPackage): CharacterPackage {
   return { ...pkg, drawings: Object.fromEntries(Object.entries(pkg.drawings).filter(([drawing]) => shown.has(drawing))) };
 }
 
-const IMPORTER = { name: 'holds candidate', version: '2' };
+const IMPORTER = { name: 'holds candidate', version: '3' };
 const write = (name: string, candidate: CharacterPackage, limit: number | null) => writeCandidate(input, name, IMPORTER,
   { maxDiff: limit, maxHold: limit === null ? null : maxHold }, dir => repack(candidate, sourceDir, dir));
 
 await write('repack', source, null);
 for (const limit of limits) {
+  // Effects keep every drawing: each shows for one tick of a short burst or one step of a spin.
   const actions = Object.fromEntries(Object.entries(source.actions).map(([name, action]) =>
-    [name, retimeAction(action, holdMap(action.drawings.windows, diff, limit, maxHold))]));
+    [name, isEffectAction(name) ? action : retimeAction(action, holdMap(action.drawings.windows, diff, limit, maxHold))]));
   await write(`holds-${limit}`, withoutUnused({ ...source, actions }), limit);
 }

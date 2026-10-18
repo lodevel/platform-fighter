@@ -112,6 +112,15 @@ export function parseFinalFxProfiles(value:unknown,fighter:string,animations:Rea
   return profiles;
 }
 
+/** The drawing an effect profile shows `age` ticks into one occurrence (looped, held on its last
+ * drawing, or none past its end). Also the tick rule of the effect's package action (legacyClips.ts). */
+export function finalFxDrawingAt(profile:FinalFxProfile,age:number):{readonly sheet:string;readonly frameIndex:number}|null{
+  const artAge=profile.loopFrames===null?age:age%profile.loopFrames,
+    selectedAge=profile.terminalHold?Math.min(artAge,profile.endAgeExclusive-1):artAge,
+    drawing=profile.drawings.find(row=>row.startAge<=selectedAge&&selectedAge<row.endAgeExclusive);
+  return drawing?{sheet:drawing.render?.sheet??profile.sheet,frameIndex:drawing.render?.frameIndex??drawing.frameIndex}:null;
+}
+
 export function selectFinalFxPresentation(facts:readonly FinalFxCueFact[],profiles:FinalFxProfiles,input:{fighter:string;ownerIndex:number;generation:number;
   control:FinalSmashActorControl;sourceRoot:FxPoint;points:readonly FinalFxPoint[];bodyAvailable:boolean;
   flightClock:{readonly elapsed:number;readonly armedKeys:readonly string[]}|null}){
@@ -134,14 +143,12 @@ export function selectFinalFxPresentation(facts:readonly FinalFxCueFact[],profil
     if(!input.bodyAvailable||!anchor){dependencies.push(`Missing paired ${cue.source.bone} registration for Final FX ${cue.key}`);continue;}
     for(let occurrence=first;occurrence<=last;occurrence++){
       const age=elapsed-(period??0)*occurrence;if(cue.selection.lifetimeFrames!==null&&age>=cue.selection.lifetimeFrames)continue;
-      const artAge=profile.loopFrames===null?age:age%profile.loopFrames,
-        selectedAge=profile.terminalHold?Math.min(artAge,profile.endAgeExclusive-1):artAge,
-        drawing=profile.drawings.find(row=>row.startAge<=selectedAge&&selectedAge<row.endAgeExclusive);
+      const drawing=finalFxDrawingAt(profile,age);
       if(!drawing){dependencies.push(`Missing authored Final FX drawing ${cue.key}/${age}`);continue;}
       const operator={facing:control.facing,rotationDegrees:control.rotationDegrees??0},
         offset=transformPikachuFinalOrientationPoint({x:anchor.point.x+cue.selection.localOffset.x,y:anchor.point.y+cue.selection.localOffset.y},operator);
       poses.push({key:JSON.stringify([control.runId,input.ownerIndex,input.generation,cue.clockDomain==='run-flight'?'run-flight':control.phase,cue.key,occurrence]),cue,profile,
-        sheet:drawing.render?.sheet??profile.sheet,frameIndex:drawing.render?.frameIndex??drawing.frameIndex,age,
+        sheet:drawing.sheet,frameIndex:drawing.frameIndex,age,
         point:{x:input.sourceRoot.x+offset.x,y:input.sourceRoot.y+offset.y},rotationDegrees:(control.rotationDegrees??0)+cue.selection.angleDegrees*control.facing,
         facing:control.facing,runId:control.runId,ownerIndex:input.ownerIndex,generation:input.generation,occurrence});
     }

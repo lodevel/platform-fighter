@@ -41,6 +41,18 @@ matches what the legacy path draws, frame by frame, in real simulations.
 
 Each step: `npm run typecheck && npx vitest run && npm run build`, then a browser check.
 
+## Status
+
+| Step | State | Record |
+| --- | --- | --- |
+| 0 | Done (`d1538c8`): zero mismatches over 245,469 fighter-frames | [step0.md](step0.md) |
+| R | Done (`d1538c8`): GPU upload equals the estimate (+8 KiB palette) | [renderer.md](renderer.md) |
+| 1 | Done (`d1538c8`) for all three fighters behind `?packages=`: four-CPU Edge match, 3,600 frames, ~1% of pixels differ from legacy | [match/report.json](match/report.json) |
+| 2 | In progress: load on select, display setting, menus from packages | |
+| — | In progress: Link drawn as nothing for 410 of 3,600 frames in today's game (`link.missing-sheet:up_special`) | |
+| 4 | Done (not committed): the 12 effect strips are `effect.*` package actions; a packaged fighter's effects come from its package; 0 mismatches over 7,808 effect sprite-frames; Edge check | [effects.md](effects.md) |
+| 5 | Waits for the user's acceptance | |
+
 ## Known risks
 
 - **Held drawings vs held items.** Gameplay keeps the per-tick grip for item hit areas; the

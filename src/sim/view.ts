@@ -81,6 +81,18 @@ export interface ProjectileView {
   readonly angle?: number;
   readonly artFrame?: number;
   readonly artPosition?: { readonly x: number; readonly y: number };
+  /** The same drawing as a character package effect action, placed at `artPosition`. */
+  readonly art?: EffectArtView;
+}
+
+/**
+ * An effect drawn from a character package: what `evaluate(pkg, { action, tick, facing })` shows,
+ * with the drawing's root at the sprite's position and its own scale times `scaleX`/`scaleY`
+ * (the cue's enlargement; the Ancient Arrow's draw-back stretch). The game keeps deciding where and when.
+ */
+export interface EffectArtView {
+  readonly characterId: string; readonly action: string; readonly tick: number; readonly facing: 1 | -1;
+  readonly scaleX?: number; readonly scaleY?: number;
 }
 
 /** Fully selected authored art, free of a renderer's texture or object types. */
@@ -89,6 +101,8 @@ export interface PresentationSpriteView {
   readonly originX?: number; readonly originY?: number; readonly scaleX?: number; readonly scaleY?: number;
   readonly rotation?: number; readonly alpha?: number; readonly depth?: number; readonly flipX?: boolean;
   readonly space?: 'world' | 'screen';
+  /** The same art from the fighter's character package. */
+  readonly art?: EffectArtView;
 }
 export interface TrapView {
   readonly x: number; readonly y: number; readonly armDelay: number;

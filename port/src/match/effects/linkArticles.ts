@@ -3,7 +3,7 @@ import { LINK_ARTICLE_SHEETS } from '../../../../src/match/linkArticles';
 import { getPackedBodyRenderMetrics } from '../../../../src/characters/packedBodyPresentation';
 import type { ItemView, ProjectileView } from '../../../../src/sim/view';
 import type { ShapeLayer } from '../../engine/shapes/shapeLayer';
-import type { SpriteDraw } from '../../engine/sprites/spriteLayer';
+import type { EffectSprite } from './packageEffects';
 
 function drawShapes(layer: ShapeLayer, shapes: readonly LinkArticleShape[], x: number, y: number, angle = 0): void {
   const at = (px: number, py: number) => ({ x: x + px * Math.cos(angle) - py * Math.sin(angle), y: y + px * Math.sin(angle) + py * Math.cos(angle) });
@@ -48,7 +48,7 @@ export function drawProjectile(layer: ShapeLayer, projectile: ProjectileView, fr
   layer.line({ x1: p.x - p.w * .35, y1: p.y, x2: p.x + p.w * .35, y2: p.y, width: p.h * .36, color: 0xf5ffff });
 }
 
-export function projectileSprite(p: ProjectileView): SpriteDraw | null {
+export function projectileSprite(p: ProjectileView): EffectSprite | null {
   const kind = p.visualRecipe?.kind;
   if (kind !== 'link-arrow' && kind !== 'link-boomerang') return null;
   const sheet = LINK_ARTICLE_SHEETS[kind], metrics = getPackedBodyRenderMetrics('link', sheet);
@@ -57,5 +57,6 @@ export function projectileSprite(p: ProjectileView): SpriteDraw | null {
   const position = p.artPosition ?? p;
   return { key: `char.link.${sheet}`, frame: p.artFrame ?? 0, x: position.x, y: position.y,
     originX: facing === -1 ? 1 - metrics.originX : metrics.originX, originY: metrics.originY,
-    scaleX: metrics.scaleToWorld, scaleY: metrics.scaleToWorld, flipX: facing === -1, rotation: p.angle ?? 0, depth: 10 };
+    scaleX: metrics.scaleToWorld, scaleY: metrics.scaleToWorld, flipX: facing === -1, rotation: p.angle ?? 0, depth: 10,
+    ...(p.art ? { art: p.art } : {}) };
 }

@@ -61,6 +61,15 @@ export interface Drawing {
 }
 
 /**
+ * Actions named `effect.<name>` are effects (Final Smash bursts, articles such as arrows): the game
+ * places the root at the effect's own origin and picks the tick (the effect's age, or a drawing step
+ * such as a spin), so their `bodyCentreFromRootY` is 0. Tools keep their drawings as drawn: they are
+ * neither held longer nor shrunk.
+ */
+export const EFFECT_ACTION_PREFIX = 'effect.';
+export const isEffectAction = (action: ActionId): boolean => action.startsWith(EFFECT_ACTION_PREFIX);
+
+/**
  * What one action shows over time. `bodyCentreFromRootY` places the drawing
  * relative to the game's body centre: root = bodyCentre - (0, bodyCentreFromRootY).
  */

@@ -11,7 +11,9 @@ import type { CharacterId } from '../../src/types';
 import { getPackedBodyRenderMetrics, selectPackedDrawing } from '../../src/characters/packedBodyPresentation';
 import { getPikachuSheetRenderMetrics } from '../../src/characters/pikachuPresentation';
 import { pikachuAuxiliaryBodyLoopFrames } from '../../src/characters/pikachuAuxiliaryBody';
-import { clipDrawingAt, pikachuClipClock } from '../../src/characters/actionDisplay';
+import { clipDrawingAt, effectAction, pikachuClipClock } from '../../src/characters/actionDisplay';
+import { finalFxDrawingAt } from '../../src/finalSmash/finalFxProfiles';
+import { registeredFinalFxProfiles } from '../../src/finalSmash/registeredFinalFx';
 import { DIRECTIONAL_AIR_DODGE_ACTION, directionalDodgeDrawing } from '../../src/characters/pikachuDirectionalDodge';
 import { sampleFinalBodyPose } from '../../src/characterPresentation/legacy/finalPoseData';
 import { finalVictimBodyPose } from '../../src/finalSmash/finalVictimBodyPose';
@@ -82,7 +84,11 @@ export function exportClips(fighter: ExportedFighter): { clips: ExportClip[]; sk
   const frames = FRAMES[fighter], clips: ExportClip[] = [], skipped: SkippedClip[] = [];
   const victims = new Set(Object.keys(frames.runtimeFinalVictimProfiles?.profiles ?? {}));
   for (const [name, clip] of Object.entries(frames.animations)) {
-    if (name.startsWith('fx__')) { skipped.push({ clip: name, reason: 'Final Smash or article effect: placed by effect cues, exported with effects later' }); continue; }
+    if (name.startsWith('fx__')) {
+      const effect = effectClip(fighter, name);
+      if (typeof effect === 'string') skipped.push({ clip: name, reason: effect }); else clips.push(effect);
+      continue;
+    }
     if (victims.has(name)) { clips.push(victimClip(fighter, name)); continue; }
     if (name.startsWith('final_victim_')) { skipped.push({ clip: name, reason: 'victim strip with no victim profile in this file' }); continue; }
     const chosen = fighter === 'pikachu' ? pikachuClip(name, clip) : packedClip(fighter, name, clip);
@@ -117,6 +123,34 @@ function packedClip(fighter: 'donkeykong' | 'link', name: string, clip: FramesCl
     action: name, socketClip: name, clock: clip.frameWindows?.length ? 'selectPackedDrawing (windows)' : 'selectPackedDrawing (native samples)',
     loop: clip.loopDuration ?? null,
     sample: age => { const drawing = selectPackedDrawing(fighter, name, age); return drawing && placed(drawing); },
+  };
+}
+
+/**
+ * An effect strip as an `effect.<name>` action whose root is the effect's own origin. Final effects
+ * take their tick from the cue's age (finalFxDrawingAt, the same for every cue of the strip); Link's
+ * articles take a drawing step (linkArticleDrawing: the boomerang's spin, 0 for an arrow).
+ */
+function effectClip(fighter: ExportedFighter, sheet: string): ExportClip | string {
+  const action = effectAction(sheet);
+  const profiles = [...registeredFinalFxProfiles(fighter).values()].filter(profile => profile.sheet === sheet);
+  if (profiles.length) return {
+    action, clock: 'finalFxDrawingAt', loop: profiles[0]!.loopFrames,
+    sample: age => {
+      const shown = profiles.map(profile => {
+        const drawing = finalFxDrawingAt(profile, age);
+        return drawing && { sheet: drawing.sheet, frame: drawing.frameIndex, originX: profile.originX, originY: profile.originY,
+          scale: profile.scaleToWorld, bodyCentreFromRootY: 0 };
+      });
+      if (shown.some(s => JSON.stringify(s) !== JSON.stringify(shown[0]))) throw new Error(`the Final effect profiles of ${sheet} differ at age ${age}`);
+      return shown[0]!;
+    },
+  };
+  const metrics = fighter === 'link' ? getPackedBodyRenderMetrics(fighter, sheet) : null, count = FRAMES[fighter].animations[sheet]!.frameCount;
+  if (!metrics) return 'effect strip with no Final effect profile or article metrics';
+  return {
+    action, clock: 'linkArticleDrawing (drawing step)', loop: count,
+    sample: step => ({ sheet, frame: step % count, originX: metrics.originX, originY: metrics.originY, scale: metrics.scaleToWorld, bodyCentreFromRootY: 0 }),
   };
 }
 

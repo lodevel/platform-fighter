@@ -2,13 +2,17 @@
  * Phase 6 step 0: the selector's package display shows what the legacy sprite path draws. Real headless
  * matches (CPU play on every stage, every Final against every victim) are drawn by the legacy path
  * (selector + port poses.ts, as the legacy sprite backend does) and the display is evaluated against the
- * exported packages, built in memory; every fighter is compared at every simulation tick.
+ * exported packages, built in memory; every fighter is compared at every simulation tick. Every effect
+ * sprite (Final effects, Link's articles, the screen KO body) is compared with its package art the same way.
  */
 import { describe, expect, it } from 'vitest';
 import { evaluate, type DisplayPose } from '../../character/evaluator/evaluate';
 import type { CharacterPackage } from '../../character/package/types';
 import { fighterDraw, fighterDrawsFromArt, knockoutFlightDraw } from '../../port/src/fighters/poses';
 import type { SpriteDraw } from '../../port/src/engine/sprites/spriteLayer';
+import { projectileSprite } from '../../port/src/match/effects/linkArticles';
+import { linkFinalCharge } from '../../port/src/match/effects/linkFinal';
+import type { EffectSprite } from '../../port/src/match/effects/packageEffects';
 import type { ActionDisplay } from '../../src/characterPresentation/contracts';
 import { createLegacyAppearanceBridge } from '../../src/characterPresentation/legacy/bridge';
 import { createLegacyArtSelector } from '../../src/characterPresentation/legacy/selector';
@@ -79,6 +83,21 @@ function differences(id: string, display: ActionDisplay, draws: readonly SpriteD
   return out;
 }
 
+/** Every way an effect's package art disagrees with its legacy draw (drawing, facing, origin, scale), empty when they agree. */
+function effectDifferences(draw: EffectSprite): string[] {
+  const art = draw.art;
+  if (!art) return [`${draw.key}: no package art`];
+  const { pkg, placement } = packageOf(art.characterId);
+  if (!pkg.actions[art.action]) return [`${art.action}: not exported`];
+  const pose = evaluate(pkg, art), want = `${sheetOf(art.characterId, draw)}/${draw.frame ?? 0}`;
+  if (pose.drawing?.replace(/@\d+$/, '') !== want) return [`${art.action} tick ${art.tick} shows ${pose.drawing ?? 'nothing'}, legacy draws ${want}`];
+  const [originX, originY, scale] = placement.get(pose.drawing!)!, out: string[] = [];
+  if (Boolean(draw.flipX) !== (art.facing === -1)) out.push(`${art.action}: facing differs`);
+  if (!close(draw.originX ?? .5, art.facing === 1 ? originX! : 1 - originX!) || !close(draw.originY ?? .5, originY!)) out.push(`${art.action}: origin differs`);
+  if (!close(scale! * (art.scaleX ?? 1), draw.scaleX ?? 1) || !close(scale! * (art.scaleY ?? 1), draw.scaleY ?? 1)) out.push(`${art.action}: scale differs`);
+  return out;
+}
+
 /** How the legacy selector chose the drawing: on the clip's own clock, or a generic fallback. */
 function route(pose: ActionPose, s: SimulationAnimationSnapshot): string {
   if (pose.display) return `explicit display: ${s.finalVictimSelection ? 'Final victim' : s.finalSmash?.sheet ? 'Final owner'
@@ -94,8 +113,9 @@ function route(pose: ActionPose, s: SimulationAnimationSnapshot): string {
 }
 
 interface Tally { frames: number; nothing: number; mismatches: Map<string, number>; routes: Map<string, number>; fallbacks: Map<string, number>;
-  features: Map<string, number>; unexported: Map<string, number>; actions: Map<string, number> }
-const tally: Tally = { frames: 0, nothing: 0, mismatches: new Map(), routes: new Map(), fallbacks: new Map(), features: new Map(), unexported: new Map(), actions: new Map() };
+  features: Map<string, number>; unexported: Map<string, number>; actions: Map<string, number>; effects: Map<string, number> }
+const tally: Tally = { frames: 0, nothing: 0, mismatches: new Map(), routes: new Map(), fallbacks: new Map(), features: new Map(), unexported: new Map(), actions: new Map(),
+  effects: new Map() };
 const count = (map: Map<string, number>, key: string) => map.set(key, (map.get(key) ?? 0) + 1);
 
 /** Steps a match, drawing every fighter (and knockout flight) through the legacy path and its display. */
@@ -125,6 +145,13 @@ function run(sim: MatchSim, steps: number, input: (step: number) => Parameters<M
         for (const feature of ['rotation', 'pivot', 'scale', 'overlay'] as const) if (art.display[feature] !== undefined) count(tally.features, `${fighter.characterId} ${feature}`);
         for (const problem of differences(fighter.characterId, art.display, draws, fighter.position))
           count(tally.mismatches, `${kind}: ${pose.state}: ${problem}`);
+      }
+      // Effects (Final bursts, Link's articles and screen KO): the package art equals the legacy effect draw.
+      const effects: EffectSprite[] = [...(view.presentationSprites ?? []), ...view.projectiles.flatMap(p => projectileSprite(p) ?? []),
+        ...view.fighters.flatMap(f => linkFinalCharge(f)?.sprite ?? [])];
+      for (const effect of effects) {
+        count(tally.effects, `${effect.art?.characterId} ${effect.art?.action}`);
+        for (const problem of effectDifferences(effect)) count(tally.mismatches, `effect: ${problem}`);
       }
       for (const flight of view.knockoutFlights ?? []) {
         const draw = knockoutFlightDraw(flight, 0xffffff);
@@ -212,8 +239,10 @@ describe('package display equals the legacy drawing in real matches', () => {
     const seen = ROSTER.map(id => `${id} ${[...tally.actions.keys()].filter(key => key.startsWith(`${id} `)).length}/${Object.keys(packageOf(id).pkg.actions).length}`);
     console.log(`frames checked: ${tally.frames} (nothing drawn: ${tally.nothing})\nactions shown / exported: ${seen.join(', ')}\n\nroutes:\n${table(tally.routes)}\n\n` +
       `generic fallbacks:\n${table(tally.fallbacks)}\n\ndisplay extras:\n${table(tally.features)}\n\n` +
-      `drawn without a package action:\n${table(tally.unexported)}\n\nmismatches:\n${table(tally.mismatches)}`);
+      `drawn without a package action:\n${table(tally.unexported)}\n\neffects drawn (sprite-frames):\n${table(tally.effects)}\n\nmismatches:\n${table(tally.mismatches)}`);
     expect([...tally.mismatches.keys()]).toEqual([]);
+    // All twelve effect strips were drawn and compared.
+    expect([...tally.effects.keys()].filter(key => key.includes(' effect.'))).toHaveLength(12);
     // No fighter vanishes: every live fighter-frame is drawn (invisible-fighters.md).
     expect(tally.nothing).toBe(0);
     // Every drawing shown in these matches belongs to an exported action.

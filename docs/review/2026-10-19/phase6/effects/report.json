@@ -1,0 +1,315 @@
+{
+ "scenarios": {
+  "dk-final": {
+   "variants": {
+    "legacy": {
+     "effectFrames": 136,
+     "perAction": {
+      "effect.donkey_giantpunch": 4,
+      "effect.donkey_final_rashhit": 44,
+      "effect.donkey_final_rash": 124,
+      "effect.donkey_final_arc": 9,
+      "effect.donkey_final_lasthit": 9
+     },
+     "notSubmitted": 0,
+     "fromPackage": 0,
+     "legacy": 190
+    },
+    "packages": {
+     "effectFrames": 136,
+     "perAction": {
+      "effect.donkey_giantpunch": 4,
+      "effect.donkey_final_rashhit": 44,
+      "effect.donkey_final_rash": 124,
+      "effect.donkey_final_arc": 9,
+      "effect.donkey_final_lasthit": 9
+     },
+     "notSubmitted": 0,
+     "fromPackage": 190,
+     "legacy": 0
+    }
+   },
+   "shots": [
+    {
+     "step": 29,
+     "effects": [
+      "effect.donkey_giantpunch@2"
+     ],
+     "packageEffects": [
+      "effect.donkey_giantpunch@2"
+     ],
+     "box": [
+      963,
+      388,
+      1051,
+      476
+     ],
+     "pixels": 7744,
+     "meanDiff": 2.332,
+     "differingShare": 0.01524
+    },
+    {
+     "step": 44,
+     "effects": [
+      "effect.donkey_final_rashhit@2",
+      "effect.donkey_final_rash@2"
+     ],
+     "packageEffects": [
+      "effect.donkey_final_rashhit@2",
+      "effect.donkey_final_rash@2"
+     ],
+     "box": [
+      1062,
+      375,
+      1239,
+      552
+     ],
+     "pixels": 31329,
+     "meanDiff": 1.831,
+     "differingShare": 0.006
+    },
+    {
+     "step": 176,
+     "effects": [
+      "effect.donkey_final_arc@2",
+      "effect.donkey_final_lasthit@2"
+     ],
+     "packageEffects": [
+      "effect.donkey_final_arc@2",
+      "effect.donkey_final_lasthit@2"
+     ],
+     "box": [
+      957,
+      382,
+      1247,
+      493
+     ],
+     "pixels": 16110,
+     "meanDiff": 2.133,
+     "differingShare": 0.02042
+    }
+   ]
+  },
+  "pikachu-final": {
+   "variants": {
+    "legacy": {
+     "effectFrames": 284,
+     "perAction": {
+      "effect.pikachu_final_hold": 70,
+      "effect.pikachu_final_sphere_start": 185,
+      "effect.pikachu_final_elec": 54,
+      "effect.pikachu_final_explosion": 4
+     },
+     "notSubmitted": 0,
+     "fromPackage": 0,
+     "legacy": 313
+    },
+    "packages": {
+     "effectFrames": 284,
+     "perAction": {
+      "effect.pikachu_final_hold": 70,
+      "effect.pikachu_final_sphere_start": 185,
+      "effect.pikachu_final_elec": 54,
+      "effect.pikachu_final_explosion": 4
+     },
+     "notSubmitted": 0,
+     "fromPackage": 313,
+     "legacy": 0
+    }
+   },
+   "shots": [
+    {
+     "step": 12,
+     "effects": [
+      "effect.pikachu_final_hold@2"
+     ],
+     "packageEffects": [
+      "effect.pikachu_final_hold@2"
+     ],
+     "box": [
+      833,
+      527,
+      938,
+      632
+     ],
+     "pixels": 11025,
+     "meanDiff": 11.599,
+     "differingShare": 0.14095
+    },
+    {
+     "step": 52,
+     "effects": [
+      "effect.pikachu_final_sphere_start@2"
+     ],
+     "packageEffects": [
+      "effect.pikachu_final_sphere_start@2"
+     ],
+     "box": [
+      822,
+      430,
+      929,
+      537
+     ],
+     "pixels": 11449,
+     "meanDiff": 4.167,
+     "differingShare": 0.04813
+    },
+    {
+     "step": 242,
+     "effects": [
+      "effect.pikachu_final_hold@7",
+      "effect.pikachu_final_elec@2"
+     ],
+     "packageEffects": [
+      "effect.pikachu_final_hold@7",
+      "effect.pikachu_final_elec@2"
+     ],
+     "box": [
+      901,
+      272,
+      1031,
+      472
+     ],
+     "pixels": 22990,
+     "meanDiff": 8.974,
+     "differingShare": 0.10835
+    },
+    {
+     "step": 267,
+     "effects": [
+      "effect.pikachu_final_elec@7",
+      "effect.pikachu_final_explosion@2"
+     ],
+     "packageEffects": [
+      "effect.pikachu_final_elec@7",
+      "effect.pikachu_final_explosion@2"
+     ],
+     "box": [
+      911,
+      214,
+      1009,
+      403
+     ],
+     "pixels": 17173,
+     "meanDiff": 2.881,
+     "differingShare": 0.02481
+    }
+   ]
+  },
+  "link-final": {
+   "variants": {
+    "legacy": {
+     "effectFrames": 61,
+     "perAction": {
+      "effect.link_ancientbowarrow": 61
+     },
+     "notSubmitted": 0,
+     "fromPackage": 0,
+     "legacy": 61
+    },
+    "packages": {
+     "effectFrames": 61,
+     "perAction": {
+      "effect.link_ancientbowarrow": 61
+     },
+     "notSubmitted": 0,
+     "fromPackage": 61,
+     "legacy": 0
+    }
+   },
+   "shots": [
+    {
+     "step": 2,
+     "effects": [
+      "effect.link_ancientbowarrow@0"
+     ],
+     "packageEffects": [
+      "effect.link_ancientbowarrow@0"
+     ],
+     "box": [
+      875,
+      497,
+      1001,
+      623
+     ],
+     "pixels": 15876,
+     "meanDiff": 14.911,
+     "differingShare": 0.18833
+    }
+   ]
+  },
+  "link-articles": {
+   "variants": {
+    "legacy": {
+     "effectFrames": 108,
+     "perAction": {
+      "effect.link_bowarrow": 57,
+      "effect.link_boomerang": 51
+     },
+     "notSubmitted": 0,
+     "fromPackage": 0,
+     "legacy": 108
+    },
+    "packages": {
+     "effectFrames": 108,
+     "perAction": {
+      "effect.link_bowarrow": 57,
+      "effect.link_boomerang": 51
+     },
+     "notSubmitted": 0,
+     "fromPackage": 108,
+     "legacy": 0
+    }
+   },
+   "shots": [
+    {
+     "step": 17,
+     "effects": [
+      "effect.link_bowarrow@0"
+     ],
+     "packageEffects": [
+      "effect.link_bowarrow@0"
+     ],
+     "box": [
+      809,
+      488,
+      912,
+      591
+     ],
+     "pixels": 10609,
+     "meanDiff": 6.144,
+     "differingShare": 0.05392
+    },
+    {
+     "step": 109,
+     "effects": [
+      "effect.link_boomerang@3"
+     ],
+     "packageEffects": [
+      "effect.link_boomerang@3"
+     ],
+     "box": [
+      749,
+      395,
+      839,
+      485
+     ],
+     "pixels": 8100,
+     "meanDiff": 3.882,
+     "differingShare": 0.03049
+    }
+   ]
+  }
+ },
+ "errors": [
+  "dk-final/legacy: Failed to load resource: the server responded with a status of 404 (Not Found)",
+  "dk-final/legacy: Failed to load resource: the server responded with a status of 404 (Not Found)",
+  "dk-final/packages: Failed to load resource: the server responded with a status of 404 (Not Found)",
+  "pikachu-final/legacy: Failed to load resource: the server responded with a status of 404 (Not Found)",
+  "pikachu-final/packages: Failed to load resource: the server responded with a status of 404 (Not Found)",
+  "link-final/legacy: Failed to load resource: the server responded with a status of 404 (Not Found)",
+  "link-final/packages: Failed to load resource: the server responded with a status of 404 (Not Found)",
+  "link-articles/legacy: Failed to load resource: the server responded with a status of 404 (Not Found)",
+  "link-articles/packages: Failed to load resource: the server responded with a status of 404 (Not Found)"
+ ]
+}

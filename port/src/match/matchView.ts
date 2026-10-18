@@ -15,9 +15,15 @@ import { SpriteLayer } from '../engine/sprites/spriteLayer';
 import { ASSET_KEYS } from '../../../src/assets/manifest';
 import type { AudioManager } from '../../../src/audio/AudioManager';
 import { drawProjectile, drawRemoteBomb, projectileSprite } from './effects/linkArticles';
+import { effectDraw, type EffectPackages, type EffectSprite } from './effects/packageEffects';
+import { packagePresentationProfile } from '../fighters/backends/packageSprite';
+import { packageLibrary } from '../fighters/packageLibrary';
 import { drawSpecialEffects } from './effects/specialEffects';
 import { prepareSceneShaders } from '../engine/prepareShaders';
 import { geometryPreparationHost } from '../engine/presentation/submission';
+import { STAGE_DESIGN_HEIGHT, STAGE_DESIGN_WIDTH } from '../../../src/stages/stageDefinitions';
+
+const onScreen = (sprite: EffectSprite): boolean => 'space' in sprite && sprite.space === 'screen';
 
 /**
  * Draws a SimView on a stage presenter: the match camera, fighters (from
@@ -48,7 +54,12 @@ export class MatchView {
   private readonly shaderPreparationAbort = new AbortController();
   private disposed = false;
   private readonly spriteSource = () => (this.view ? this.sprites(this.view) : []);
-  private readonly screenSpriteSource = () => this.view?.presentationSprites?.filter((sprite) => sprite.space === 'screen') ?? [];
+  private readonly screenSpriteSource = () => this.effects(this.effectSprites().filter(onScreen));
+  /** A fighter drawn from its character package shows its effects from that package too. */
+  private readonly effectPackages: EffectPackages = (characterId) => {
+    const packaged = packagePresentationProfile(characterId);
+    return packaged && this.appearances.system.profileFor(characterId).id === packaged.id ? packageLibrary.resident(characterId) ?? null : undefined;
+  };
   debug = false;
 
   /** `sound` voices the frame's sfx events (the game's AudioManager). */
@@ -189,15 +200,19 @@ export class MatchView {
 
   /** Selected presentation effects versus quads submitted by the last draw. */
   presentationSprites() {
-    return [...(this.view?.presentationSprites ?? []), ...this.linkFinal.sprites].map(sprite => {
-      const layer = 'space' in sprite && sprite.space === 'screen' ? this.presenter.screenSprites : this.presenter.sprites;
-      const submitted = layer.submittedDraws().find(draw => draw.key === sprite.key && draw.frame === sprite.frame && draw.x === sprite.x && draw.y === sprite.y);
-      const sheet = layer.textures.resident(sprite.key);
+    return this.effectSprites().map(sprite => {
+      const layer = onScreen(sprite) ? this.presenter.screenSprites : this.presenter.sprites;
+      const drawn = effectDraw(sprite, this.effectPackages), indexed = drawn?.indexed;
+      const submitted = drawn && layer.submittedDraws().find(draw => draw.key === drawn.key && draw.frame === drawn.frame && draw.x === drawn.x && draw.y === drawn.y);
+      const sheet = indexed ? undefined : layer.textures.resident(sprite.key);
       const image = sheet?.texture.image as { width?: number; height?: number } | undefined;
-      return { ...sprite, textureResident: Boolean(sheet), submitted: Boolean(submitted),
+      // Where the sprite's origin is on the canvas, and one design px, as shares of the canvas width and height.
+      const rect = (onScreen(sprite) ? null : this.presenter.viewRect) ?? { x: 0, y: 0, width: STAGE_DESIGN_WIDTH, height: STAGE_DESIGN_HEIGHT };
+      const onCanvas = { u: (sprite.x - rect.x) / rect.width, v: (sprite.y - rect.y) / rect.height, designU: 1 / rect.width, designV: 1 / rect.height };
+      return { ...sprite, onCanvas, drawnKey: drawn?.key ?? null, fromPackage: Boolean(indexed), textureResident: Boolean(indexed ?? sheet), submitted: Boolean(submitted),
         visible: Boolean(submitted && (submitted.alpha ?? 1) > 0),
-        frameWidth: sheet?.frameWidth, frameHeight: sheet?.frameHeight,
-        textureWidth: image?.width, textureHeight: image?.height };
+        frameWidth: indexed ? indexed.rect[2] : sheet?.frameWidth, frameHeight: indexed ? indexed.rect[3] : sheet?.frameHeight,
+        textureWidth: indexed ? indexed.page.width : image?.width, textureHeight: indexed ? indexed.page.height : image?.height };
     });
   }
 
@@ -209,7 +224,18 @@ export class MatchView {
       originX: it.originX, originY: it.originY, flipX: it.flipX ?? (it.scaleX ?? 1) < 0, alpha: it.alpha,
       rotation: it.angle, depth: 10, tint,
     }));
+    return [...items, ...this.effects(this.effectSprites().filter((sprite) => !onScreen(sprite)))];
+  }
+
+  /** The view's effect sprites as the game selects them: Link's articles, the Ancient Arrow draw, Final effects, screen KO. */
+  private effectSprites(): EffectSprite[] {
+    const view = this.view;
+    if (!view) return [];
     const projectiles = view.projectiles.flatMap((p) => { const sprite = projectileSprite(p); return sprite ? [sprite] : []; });
-    return [...items, ...projectiles, ...this.linkFinal.sprites, ...(view.presentationSprites?.filter((sprite) => sprite.space !== 'screen') ?? [])];
+    return [...projectiles, ...this.linkFinal.sprites, ...(view.presentationSprites ?? [])];
+  }
+
+  private effects(sprites: readonly EffectSprite[]): SpriteDraw[] {
+    return sprites.flatMap((sprite) => { const draw = effectDraw(sprite, this.effectPackages); return draw ? [draw] : []; });
   }
 }

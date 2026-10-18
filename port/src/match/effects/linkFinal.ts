@@ -1,7 +1,8 @@
 import anchors from './linkFinalAnchors.json';
 import type { FighterView, SimView, ExplosionView } from '../../../../src/sim/view';
 import { getPackedBodyRenderMetrics } from '../../../../src/characters/packedBodyPresentation';
-import type { SpriteDraw } from '../../engine/sprites/spriteLayer';
+import { effectAction } from '../../../../src/characters/actionDisplay';
+import type { EffectSprite } from './packageEffects';
 import type { ShapeLayer } from '../../engine/shapes/shapeLayer';
 
 type Point = { readonly x: number; readonly y: number };
@@ -9,7 +10,7 @@ export interface LinkFinalCharge {
   readonly actor: number; readonly runId: number; readonly age: number;
   readonly nock: Point; readonly bow: Point; readonly tip: Point;
   readonly strength: number; readonly release: boolean;
-  readonly sprite: SpriteDraw | null;
+  readonly sprite: EffectSprite | null;
 }
 export interface LinkFinalTrail { readonly id: number; readonly from: Point; readonly to: Point; }
 
@@ -38,11 +39,12 @@ export function linkFinalCharge(fighter: FighterView): LinkFinalCharge | null {
   const root = { x: nock.x + ux * rootDistance, y: nock.y + uy * rootDistance };
   const tip = { x: nock.x + ux * 196 * scale * extension, y: nock.y + uy * 196 * scale * extension };
   const release = control.age >= 60;
-  const sprite: SpriteDraw | null = !release && metrics ? {
+  const sprite: EffectSprite | null = !release && metrics ? {
     key: 'char.link.fx__link_ancientbowarrow', frame: 0, ...root,
     originX: facing < 0 ? 1 - metrics.originX : metrics.originX, originY: metrics.originY,
     scaleX: scale * extension, scaleY: scale, flipX: facing < 0,
     rotation: Math.atan2(dy * facing, dx * facing), depth: 11,
+    art: { characterId: 'link', action: effectAction('fx__link_ancientbowarrow'), tick: 0, facing, scaleX: extension },
   } : null;
   return { actor: fighter.playerIndex, runId: control.runId, age: control.age,
     nock, bow, tip, release, strength: release ? (63 - control.age) / 3 : control.age < 35 ? .35 + control.age / 100 : 1,
@@ -58,7 +60,7 @@ export class LinkFinalPresentation {
   private previous = new Map<number, ExplosionView>();
   private trails: LinkFinalTrail[] = [];
   charges: readonly LinkFinalCharge[] = [];
-  sprites: readonly SpriteDraw[] = [];
+  sprites: readonly EffectSprite[] = [];
 
   update(view: SimView): readonly LinkFinalTrail[] {
     const owner = view.fighters.filter(f => f.characterId === 'link' && f.animation.finalSmash?.role === 'owner')

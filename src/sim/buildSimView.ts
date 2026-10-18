@@ -1,6 +1,6 @@
 import type { MatchSim } from './MatchSim';
 import {gazeKnockoutFlight} from './knockoutFlight';
-import type { ItemView, PresentationSpriteView, SimView } from './view';
+import type { EffectArtView, ItemView, PresentationSpriteView, SimView } from './view';
 import { captureSimulationAnimation } from '../characters/simulationSpriteAnimation';
 import { finalHudModel } from '../finalSmash/finalSmashPresentation';
 import { formatBindingList } from '../ui/rebindingScreenFormat';
@@ -16,6 +16,7 @@ import { isFinalFxFighter, selectFinalFxPresentation } from '../finalSmash/final
 import { selectLinkScreenKoPresentation } from '../characters/linkContextualPresentation';
 import { LINK_ARTICLE_SHEETS, linkArticleDrawing, linkAncientArrowDamageArea, linkProjectileAngle } from '../match/linkArticles';
 import { ANCIENT_ARROW_FLIGHT } from '../finalSmash/linkAncientBow';
+import { effectAction, sheetDisplay } from '../characters/actionDisplay';
 import { analyticAttackDebugBoxes, attackSensorDebugBoxes, computeFighterDebugBoxes } from '../fx/hitboxDebugFormat';
 
 function itemView(sim:MatchSim,entity:ItemEntity,frame:number):ItemView {
@@ -51,6 +52,9 @@ function itemView(sim:MatchSim,entity:ItemEntity,frame:number):ItemView {
     ...(bob&&definition.bobOmb&&bobOmbFlashing(definition.bobOmb,bob)&&Math.floor(frame/4)%2===0?{alpha:.8}:{})};
 }
 
+/** One of Link's article strips as a package effect action at a drawing step. */
+const linkEffect=(sheet:string,step:number,facing:1|-1):EffectArtView=>({characterId:'link',action:effectAction(sheet),tick:step,facing});
+
 function presentationSprites(sim:MatchSim):PresentationSpriteView[] {
   const result:PresentationSpriteView[]=[];
   for(const slot of sim.playerSlots){
@@ -64,7 +68,8 @@ function presentationSprites(sim:MatchSim):PresentationSpriteView[] {
     for(const row of selected.poses)result.push({key:`char.${actor.id}.${row.sheet}`,frame:row.frameIndex,x:row.point.x,y:row.point.y,
       originX:row.facing===-1?1-row.profile.originX:row.profile.originX,originY:row.profile.originY,
       scaleX:row.profile.scaleToWorld*row.cue.selection.scale,scaleY:row.profile.scaleToWorld*row.cue.selection.scale,
-      flipX:row.facing===-1,rotation:row.rotationDegrees*Math.PI/180,depth:row.cue.selection.layer==='behind-body'?-.1:5});
+      flipX:row.facing===-1,rotation:row.rotationDegrees*Math.PI/180,depth:row.cue.selection.layer==='behind-body'?-.1:5,
+      art:{characterId:actor.id,action:effectAction(row.profile.sheet),tick:row.age,facing:row.facing,scaleX:row.cue.selection.scale,scaleY:row.cue.selection.scale}});
   }
   for(const state of sim.sourceScreenKo.values()){
     const route=selectLinkScreenKoPresentation(state),sheet=installedPackedSheet('link',route.motion),metrics=getPackedBodyRenderMetrics('link',sheet);
@@ -73,20 +78,23 @@ function presentationSprites(sim:MatchSim):PresentationSpriteView[] {
     // camera layer is selected by the host rather than changing simulation.
     result.push({key:`char.link.${sheet}`,frame:selectPackedNativeSampleFrame('link',sheet,route.rawAge),x:sim.viewport.width/2,y:sim.viewport.height/2,
       originX:route.facing===-1?1-metrics.originX:metrics.originX,originY:metrics.originY,
-      scaleX:metrics.scaleToWorld,scaleY:metrics.scaleToWorld,flipX:route.facing===-1,depth:9000,space:'screen'});
+      scaleX:metrics.scaleToWorld,scaleY:metrics.scaleToWorld,flipX:route.facing===-1,depth:9000,space:'screen',
+      art:{characterId:'link',...sheetDisplay('link',sheet,route.rawAge,route.facing)}});
   }
   for(const arrow of sim.linkArticles.ancientArrows()){
     const state=arrow.state,metrics=getPackedBodyRenderMetrics('link','fx__link_ancientbowarrow');
     if(state.phase!=='fly'||!metrics)continue;
     result.push({key:'char.link.fx__link_ancientbowarrow',frame:0,x:state.x,y:state.y,originX:state.facing===-1?1-metrics.originX:metrics.originX,
-      originY:metrics.originY,scaleX:metrics.scaleToWorld,scaleY:metrics.scaleToWorld,flipX:state.facing===-1,depth:3});
+      originY:metrics.originY,scaleX:metrics.scaleToWorld,scaleY:metrics.scaleToWorld,flipX:state.facing===-1,depth:3,
+      art:linkEffect('fx__link_ancientbowarrow',0,state.facing)});
   }
   for(const entity of sim.itemRegistry.getActive()){
     if(entity.definition.generated?.kind!=='link-arrow')continue;
     const item=itemView(sim,entity,sim.physicsEngine.getFrame()),metrics=getPackedBodyRenderMetrics('link',LINK_ARTICLE_SHEETS['link-arrow']);
     if(metrics&&item.visible)result.push({key:`char.link.${LINK_ARTICLE_SHEETS['link-arrow']}`,frame:0,x:item.rootPosition!.x,
       y:item.rootPosition!.y-entity.definition.throwProfile.mapBottom*entity.definition.throwProfile.pixelsPerUnit,
-      originX:metrics.originX,originY:metrics.originY,scaleX:metrics.scaleToWorld,scaleY:metrics.scaleToWorld,rotation:item.angle,depth:3});
+      originX:metrics.originX,originY:metrics.originY,scaleX:metrics.scaleToWorld,scaleY:metrics.scaleToWorld,rotation:item.angle,depth:3,
+      art:linkEffect(LINK_ARTICLE_SHEETS['link-arrow'],0,1)});
   }
   return result;
 }
@@ -124,9 +132,10 @@ export function buildSimView(sim:MatchSim):SimView {
     items:sim.itemRegistry.getActive().map(entity=>itemView(sim,entity,frame)),
     projectiles:sim.projectiles.filter(p=>p.display.visible).map(p=>{
       const sheet=p.visualRecipe.kind==='link-arrow'||p.visualRecipe.kind==='link-boomerang'?LINK_ARTICLE_SHEETS[p.visualRecipe.kind]:null;
-      const count=sheet?packedBodyProfile('link')?.clips[sheet]?.frameCount??0:0;
+      const count=sheet?packedBodyProfile('link')?.clips[sheet]?.frameCount??0:0,artFrame=linkArticleDrawing(p,count);
       return {id:p.id,moveId:p.moveId,x:p.x,y:p.y,w:p.width,h:p.height,facing:p.facing,visualFacing:p.visualFacing,visualRecipe:p.visualRecipe,
-        angle:(p.link?linkProjectileAngle(p):p.display.angle)*Math.PI/180,artFrame:linkArticleDrawing(p,count),artPosition:{x:p.x,y:p.y}};
+        angle:(p.link?linkProjectileAngle(p):p.display.angle)*Math.PI/180,artFrame,artPosition:{x:p.x,y:p.y},
+        ...(sheet?{art:linkEffect(sheet,artFrame,p.visualFacing??p.facing)}:{})};
     }),
     explosions:[...sim.itemExplosions.map((e,id)=>({id,x:e.x,y:e.y,radius:e.spec.radius,progress:1-e.framesLeft/e.spec.activeFrames})),
       ...sim.linkArticles.ancientArrows().map(arrow=>{const state=arrow.state,area=linkAncientArrowDamageArea(state);
