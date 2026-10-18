@@ -61,7 +61,7 @@ import {DONKEYKONG_JUMP_TAKEOFF_PARAMETERS,stepDonkeyKongAirVelocity} from './do
 import {groundJumpTakeoffVelocityX} from './jumpTakeoffVelocity';
 import {donkeyKongFullHopCarriedVelocityY,donkeyKongVerticalPrePhysicsVelocity,DONKEYKONG_FOOTSTOOL_BETA_JUMP_BASIS,DONKEYKONG_VERTICAL_PARAMETERS} from './donkeykongVerticalMovement';
 import {tickDonkeyKongTurnBrake,donkeyKongTurnBrakeFacing,donkeyKongTurnBrakeVelocity,donkeyKongTurnBrakeNativeMarkers,type DonkeyKongTurnBrakeState} from './donkeykongTurnBrake';
-import {beginDonkeyKongHeavyItemAction as createDonkeyKongHeavyItemAction,fighterHeavyItemProfile,stepGroundOnlyHeavyCarry,tickDonkeyKongHeavyItemAction,getDonkeyKongHeavyCarryMotion,selectDonkeyKongHeavyWalkGait,type DonkeyKongHeavyItemAction,type DonkeyKongHeavyItemState,type DonkeyKongHeavyItemEvent,type DonkeyKongHeavyItemPlan} from './donkeykongHeavyItems';
+import {beginDonkeyKongHeavyItemAction as createDonkeyKongHeavyItemAction,fighterHeavyItemProfile,stepGroundOnlyHeavyCarry,tickDonkeyKongHeavyItemAction,getDonkeyKongHeavyCarryMotion,groundOnlyHeavyCarryMotion,selectDonkeyKongHeavyWalkGait,type DonkeyKongHeavyItemAction,type DonkeyKongHeavyItemState,type DonkeyKongHeavyItemEvent,type DonkeyKongHeavyItemPlan} from './donkeykongHeavyItems';
 import {classifyDonkeyKongReferenceCarryDamage} from './donkeykongHeavyArmor';
 import {beginDonkeyKongHeavyCarry,tickDonkeyKongHeavyCarry,type DonkeyKongHeavyCarryState} from './donkeykongHeavyCarry';
 import { SURFACE_TECH_PROFILES } from './surfaceTechProfiles';
@@ -1440,8 +1440,10 @@ export class Character {
     // Native common gait consumer is unavailable. Retained native .5/.75
     // parameter ratios support this adapter, not native gait/rate parity.
     const heavyPhase=carry?.phase==='walk'?selectDonkeyKongHeavyWalkGait(this.body.velocity.x,this.resolvedLocomotionTuning.walkMaxSpeed*(this.grabSpec?.cargo?.walkMultiplier??1)):carry?.phase==='pass'?'fall':carry?.phase;
+    const carryBody=!carry?null:fighterHeavyItemProfile(this.id).carry.groundOnly?groundOnlyHeavyCarryMotion(carry):
+      heavyPhase?{motion:getDonkeyKongHeavyCarryMotion(heavyPhase).motion,age:carry.age}:null;
     const heavyItem=this.donkeykongHeavyItemAction?{sheet:this.donkeykongHeavyItemAction.plan.motion,age:this.donkeykongHeavyItemAction.framesElapsed,facing:this.donkeykongHeavyItemAction.facing}:
-      carry&&heavyPhase?{sheet:getDonkeyKongHeavyCarryMotion(heavyPhase).motion,age:carry.age,facing:carry.facing}:null;
+      carry&&carryBody?{sheet:carryBody.motion,age:carryBody.age,facing:carry.facing,carry:true as const}:null;
     return {pummel:this.sourceGrabPummel&&this.sourceGrabLinkValid(this.sourceGrabPummel.target,this.sourceGrabPummel.captureId,this.sourceGrabPummel.targetGeneration)?{framesElapsed:this.sourceGrabPummel.framesElapsed,facing:this.sourceGrabPummel.facing}:null,
       heldAfterPummel:this.sourceGrabHeld&&this.sourceGrabLinkValid(this.sourceGrabHeld.target,this.sourceGrabHeld.captureId,this.sourceGrabHeld.targetGeneration)?{facing:this.sourceGrabHeld.facing}:null,
       cargoRecipient:this.getCargoRecipientState(),cargoEntry:this.sourceCargoEntry&&this.sourceGrabLinkValid(this.sourceCargoEntry.target,this.sourceCargoEntry.captureId,this.sourceCargoEntry.targetGeneration)?{framesElapsed:this.sourceCargoEntry.framesElapsed,facing:this.sourceCargoEntry.facing}:null,heavyItem,clock:this.packedBodyClock,tail:this.packedBodyTail,committed:this.groundRecovery,footstoolPerformer:this.donkeykongFootstoolPerformer,surfaceTech:this.surfaceTech?{...this.surfaceTech,protected:surfaceTechProtected(this.surfaceTech)}:null,punch:punch?{phase:punch.state.phase,age:punch.state.phase==='cancel'?punch.state.phaseAge-1:punch.state.phaseAge,grounded:punch.sourceGrounded,facing:punch.facing,jumpCancel:punch.state.cancelIntent==='air-jump'}:null,

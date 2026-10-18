@@ -214,6 +214,8 @@ describe('package display equals the legacy drawing in real matches', () => {
       `generic fallbacks:\n${table(tally.fallbacks)}\n\ndisplay extras:\n${table(tally.features)}\n\n` +
       `drawn without a package action:\n${table(tally.unexported)}\n\nmismatches:\n${table(tally.mismatches)}`);
     expect([...tally.mismatches.keys()]).toEqual([]);
+    // No fighter vanishes: every live fighter-frame is drawn (invisible-fighters.md).
+    expect(tally.nothing).toBe(0);
     // Every drawing shown in these matches belongs to an exported action.
     expect(new Set([...tally.unexported.keys()].map(key => key.split(' ').slice(0, 2).join(' ')))).toEqual(new Set());
   });

@@ -7,6 +7,7 @@
 import type { Character } from './Character';
 import { linkRecoveryAttackSource, linkRecoveryAttackNativeFrame } from './linkFreshRecoveryAttacks';
 import { linkSourceRecoveryId } from './linkSourceMoveIdentity';
+import { groundOnlyHeavyCarryMotion } from './donkeykongHeavyItems';
 
 export interface LinkCommonBodyRoute {
   readonly motion: string;
@@ -164,9 +165,10 @@ export function linkCommonBodyRoute(actor: Character): LinkCommonBodyRoute {
       nativeHold && charge.chargeHeldFrames > 0 ? charge.chargeHeldFrames : charge.chargeStartupElapsed ?? 0, facing, true);
   }
   const carry = actor.getDonkeyKongHeavyCarryState();
-  if (actor.getEquippedItem()?.definition.heavy && carry) return carry.phase === 'walk'
-    ? route('item_heavy_walk', carry.age, carry.facing)
-    : route('item_heavy_get', 24, carry.facing, true); // Link pickup terminal; no captured heavy_wait.
+  if (actor.getEquippedItem()?.definition.heavy && carry) {
+    const body = groundOnlyHeavyCarryMotion(carry);
+    return route(body.motion, body.age, carry.facing, carry.phase !== 'walk');
+  }
 
   const passiveGuard = actor.getLinkPassiveShieldPresentationState();
   if (passiveGuard) {

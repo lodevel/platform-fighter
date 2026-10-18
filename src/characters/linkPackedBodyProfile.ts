@@ -89,7 +89,7 @@ export const LINK_SHEET_ALIASES: Readonly<Record<string, string>> = {
     // Strong (smash) throws play the same light / heavy throw motion.
     [`item_throw_${d}4`, `item_throw_${d}`], [`item_throw_air_${d}4`, `item_throw_air_${d}`],
     [`item_heavy_throw_${d}4`, `item_heavy_throw_${d}`]])),
-  item_heavy_get: 'h03heavyget',
+  item_heavy_get: 'h03heavyget', item_heavy_walk: 'h03heavywalk',
   item_bat_swing_1: 'h04swing1', item_bat_swing_3: 'h04swing3', item_bat_swing_4: 'h06swing4bat',
   item_bat_swing_dash: 'h04swingdash', item_sword_swing_4: 'h04swing4', item_sword_swing_4_hold: 'h04swing4charge',
   item_hammer_wait: 'h05itemhammerwait', item_hammer_move: 'h05itemhammermove', item_hammer_jump: 'h05itemhammerair',

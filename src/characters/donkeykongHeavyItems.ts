@@ -118,6 +118,11 @@ export function stepGroundOnlyHeavyCarry(state: DonkeyKongHeavyCarryState, moveX
   return { ...state, phase, age: phase === state.phase ? state.age + 1 : 0, facing,
     targetFacing: facing, turnCompleted: true, reserveMiniJump: false };
 }
+/** A ground-only carry's body motion: the native heavy walk on the carry clock; otherwise the lift's last drawing
+ * held (native item_heavy_get; no heavy wait motion was captured). */
+export function groundOnlyHeavyCarryMotion(carry: Pick<DonkeyKongHeavyCarryState, 'phase' | 'age'>): { motion: string; age: number } {
+  return carry.phase === 'walk' ? { motion: 'item_heavy_walk', age: carry.age } : { motion: 'item_heavy_get', age: 24 };
+}
 /** Heavy neutral input throws forward; no dash-throw or Z-drop exists.
  * Caller supplies the desired direction's actual qualified flick age. */
 export function selectDonkeyKongHeavyThrow(input: {

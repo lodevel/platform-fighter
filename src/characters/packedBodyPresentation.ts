@@ -85,7 +85,8 @@ export interface PackedBodyState {
   readonly cargoEntry?:{framesElapsed:number;facing:1|-1}|null;
   /** A recipient of a Cargo Throw: carried (throw null) or through a throw on the captor's throw age. */
   readonly cargoRecipient?:{throw:{direction:'forward'|'back'|'up'|'down';age:number}|null;age:number}|null;
-  readonly heavyItem?:{sheet:string;age:number;facing:1|-1}|null;
+  /** A heavy pickup / throw (an action), or the carry (`carry`: a rest). */
+  readonly heavyItem?:{sheet:string;age:number;facing:1|-1;carry?:true}|null;
   readonly surfaceTech?:{kind:'wall'|'wall-jump'|'ceiling';framesElapsed:number;facing:1|-1;protected:boolean}|null;
   readonly footstoolPerformer?:{framesElapsed:number;facing:1|-1;mini:boolean}|null;
   /** A fighter-owned footstool source route, including recipient side/phase. */
@@ -258,7 +259,7 @@ function baseBodyCandidate(P:PackedBodyProfile,s:SimulationAnimationSnapshot):Pa
   if(s.tauntPresentation){const p=s.tauntPresentation;return act(`taunt_${p.kind}_${p.facing===1?'r':'l'}`,p.framesElapsed,p.facing);}
   // Heavy / light pickups, throws and drops are actions (their clips outlast the action); the carries are rests.
   if(body.heavyItem){const p=body.heavyItem;
-    return p.sheet.startsWith('item_heavy_')?act(p.sheet,p.age,p.facing):rest('heavy',p.sheet,p.age,p.facing);}
+    return p.carry?rest('heavy',p.sheet,p.age,p.facing):act(p.sheet,p.age,p.facing);}
   if(body.itemCue){const p=body.itemCue;
     return p.sheet==='item_carry'?rest('item',p.sheet,p.age,p.facing):act(p.sheet,p.age,p.facing);}
   if(s.ledgeHang.active&&s.ledgeHang.name==='hanging'){const p=s.ledgeHang.active,clock=ledgeHangPresentationClock(p.framesElapsed,s.ledgeHang.ledgeGrabsSinceGround,s.ledgeCatchFrames,s.ledgeCatchMotionRates);return pick(clock.sheet,clock.age,p.facing);}
@@ -274,7 +275,9 @@ function baseBodyCandidate(P:PackedBodyProfile,s:SimulationAnimationSnapshot):Pa
   if(s.itemShooting){const p=s.itemShooting;
     return p.upper?{...pick(p.sheet,p.age,p.facing),overlay:{sheet:installedSheet(P,p.upper.sheet),age:p.upper.age}}:act(p.sheet,p.age,p.facing);}
   if(body.intrinsic){const p=body.intrinsic;return act(p.sheet,p.age,p.facing);}
-  if(s.activeAttack){const a=s.activeAttack,attack=attackBody(P,a);
+  // A helpless body is in special fall, never an attack (SmashWiki: the air Spin Attack leaves Link helpless; Link's
+  // spin record lasts until it lands). Its fall and touchdown are drawn below.
+  if(s.activeAttack&&!s.helpless){const a=s.activeAttack,attack=attackBody(P,a);
     return attack&&act(attack.sheet,attack.age,a.facing);}
   if(body.punch){const p=body.punch;return pick(`neutral_special${p.grounded?'':'_air'}_${p.phase==='loop'?'charge':p.phase==='cancel'&&p.jumpCancel?'jump_cancel':p.phase}`,p.age,p.facing);}
   if(s.chargingMove){const p=s.chargingMove,startup=p.type==='smash'&&s.chargeStartupElapsed!==undefined&&s.chargeStartupElapsed<((p as {chargeStartFrame?:number}).chargeStartFrame??0);
