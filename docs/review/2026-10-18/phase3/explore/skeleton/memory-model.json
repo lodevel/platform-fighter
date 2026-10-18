@@ -1,0 +1,150 @@
+{
+ "prototype": {
+  "parts": 7,
+  "nonempty_px": 81271,
+  "rect_px_with_padding": 131806,
+  "fill": 0.62,
+  "bc7_KiB": 128.7,
+  "jab_today_bc7_KiB": null
+ },
+ "fighters": {
+  "donkeykong": {
+   "baseline_bc7_MiB": 158.1,
+   "median_body_px": 39130,
+   "library_MiB": 0.61,
+   "library_final_res_MiB": 2.43,
+   "scenarios": {
+    "5% kept / match-res": {
+     "total_MiB": 8.5,
+     "factor": 18.6
+    },
+    "5% kept / final-res": {
+     "total_MiB": 10.3,
+     "factor": 15.3
+    },
+    "10% kept / match-res": {
+     "total_MiB": 16.4,
+     "factor": 9.6
+    },
+    "10% kept / final-res": {
+     "total_MiB": 18.2,
+     "factor": 8.7
+    },
+    "20% kept / match-res": {
+     "total_MiB": 32.2,
+     "factor": 4.9
+    },
+    "20% kept / final-res": {
+     "total_MiB": 34.0,
+     "factor": 4.6
+    },
+    "30% kept / match-res": {
+     "total_MiB": 48.0,
+     "factor": 3.3
+    },
+    "30% kept / final-res": {
+     "total_MiB": 49.9,
+     "factor": 3.2
+    },
+    "Finals kept as drawings + 10% elsewhere / match-res": {
+     "total_MiB": 71.9,
+     "factor": 2.2
+    }
+   },
+   "pose_data_KiB_every_tick": 1972,
+   "pose_data_KiB_keys_at_today_windows": 381
+  },
+  "link": {
+   "baseline_bc7_MiB": 70.9,
+   "median_body_px": 13919,
+   "library_MiB": 0.22,
+   "library_final_res_MiB": 0.86,
+   "scenarios": {
+    "5% kept / match-res": {
+     "total_MiB": 3.8,
+     "factor": 18.9
+    },
+    "5% kept / final-res": {
+     "total_MiB": 4.4,
+     "factor": 16.1
+    },
+    "10% kept / match-res": {
+     "total_MiB": 7.3,
+     "factor": 9.7
+    },
+    "10% kept / final-res": {
+     "total_MiB": 8.0,
+     "factor": 8.9
+    },
+    "20% kept / match-res": {
+     "total_MiB": 14.4,
+     "factor": 4.9
+    },
+    "20% kept / final-res": {
+     "total_MiB": 15.0,
+     "factor": 4.7
+    },
+    "30% kept / match-res": {
+     "total_MiB": 21.5,
+     "factor": 3.3
+    },
+    "30% kept / final-res": {
+     "total_MiB": 22.1,
+     "factor": 3.2
+    },
+    "Finals kept as drawings + 10% elsewhere / match-res": {
+     "total_MiB": 12.4,
+     "factor": 5.7
+    }
+   },
+   "pose_data_KiB_every_tick": 2324,
+   "pose_data_KiB_keys_at_today_windows": 411
+  },
+  "pikachu": {
+   "baseline_bc7_MiB": 63.9,
+   "median_body_px": 10727,
+   "library_MiB": 0.17,
+   "library_final_res_MiB": 0.66,
+   "scenarios": {
+    "5% kept / match-res": {
+     "total_MiB": 3.4,
+     "factor": 19.0
+    },
+    "5% kept / final-res": {
+     "total_MiB": 3.9,
+     "factor": 16.6
+    },
+    "10% kept / match-res": {
+     "total_MiB": 6.6,
+     "factor": 9.7
+    },
+    "10% kept / final-res": {
+     "total_MiB": 7.1,
+     "factor": 9.1
+    },
+    "20% kept / match-res": {
+     "total_MiB": 12.9,
+     "factor": 4.9
+    },
+    "20% kept / final-res": {
+     "total_MiB": 13.4,
+     "factor": 4.8
+    },
+    "30% kept / match-res": {
+     "total_MiB": 19.3,
+     "factor": 3.3
+    },
+    "30% kept / final-res": {
+     "total_MiB": 19.8,
+     "factor": 3.2
+    },
+    "Finals kept as drawings + 10% elsewhere / match-res": {
+     "total_MiB": 41.6,
+     "factor": 1.5
+    }
+   },
+   "pose_data_KiB_every_tick": 1410,
+   "pose_data_KiB_keys_at_today_windows": 333
+  }
+ }
+}

@@ -1,0 +1,167 @@
+[
+ {
+  "id": "donkeykong",
+  "cand": "current",
+  "drawings": 1627,
+  "pages": 208,
+  "drawnPixels": 148986552,
+  "rgbaMiB": 632.3068237304688,
+  "bc7MiB": 158.0767059326172,
+  "finalActionsBc7MiB": 60.5443115234375,
+  "problems": 0
+ },
+ {
+  "id": "link",
+  "cand": "current",
+  "drawings": 1753,
+  "pages": 229,
+  "drawnPixels": 65203752,
+  "rgbaMiB": 283.5888671875,
+  "bc7MiB": 70.897216796875,
+  "finalActionsBc7MiB": 5.96630859375,
+  "problems": 0
+ },
+ {
+  "id": "pikachu",
+  "cand": "current",
+  "drawings": 1422,
+  "pages": 205,
+  "drawnPixels": 58526105,
+  "rgbaMiB": 255.54132080078125,
+  "bc7MiB": 63.88533020019531,
+  "finalActionsBc7MiB": 38.221527099609375,
+  "problems": 0
+ },
+ {
+  "id": "donkeykong",
+  "cand": "A-1080-all",
+  "drawings": 1627,
+  "pages": 208,
+  "drawnPixels": 51578989,
+  "rgbaMiB": 224.26611328125,
+  "bc7MiB": 56.0665283203125,
+  "finalActionsBc7MiB": 14.096664428710938,
+  "problems": 0
+ },
+ {
+  "id": "donkeykong",
+  "cand": "B-1080-final2.8",
+  "drawings": 1627,
+  "pages": 208,
+  "drawnPixels": 91439869,
+  "rgbaMiB": 388.83526611328125,
+  "bc7MiB": 97.20881652832031,
+  "finalActionsBc7MiB": 55.23895263671875,
+  "problems": 0
+ },
+ {
+  "id": "donkeykong",
+  "cand": "C-1440-final2.8",
+  "drawings": 1627,
+  "pages": 208,
+  "drawnPixels": 121455834,
+  "rgbaMiB": 516.859619140625,
+  "bc7MiB": 129.21490478515625,
+  "finalActionsBc7MiB": 55.23895263671875,
+  "problems": 0
+ },
+ {
+  "id": "donkeykong",
+  "cand": "D-1440-all",
+  "drawings": 1627,
+  "pages": 208,
+  "drawnPixels": 92012619,
+  "rgbaMiB": 395.566162109375,
+  "bc7MiB": 98.89154052734375,
+  "finalActionsBc7MiB": 24.91558837890625,
+  "problems": 0
+ },
+ {
+  "id": "link",
+  "cand": "A-1080-all",
+  "drawings": 1753,
+  "pages": 229,
+  "drawnPixels": 27844545,
+  "rgbaMiB": 124.1324462890625,
+  "bc7MiB": 31.033111572265625,
+  "finalActionsBc7MiB": 2.600830078125,
+  "problems": 0
+ },
+ {
+  "id": "link",
+  "cand": "B-1080-final2.8",
+  "drawings": 1753,
+  "pages": 229,
+  "drawnPixels": 31023550,
+  "rgbaMiB": 137.5943603515625,
+  "bc7MiB": 34.398590087890625,
+  "finalActionsBc7MiB": 5.96630859375,
+  "problems": 0
+ },
+ {
+  "id": "link",
+  "cand": "C-1440-final2.8",
+  "drawings": 1753,
+  "pages": 229,
+  "drawnPixels": 50984371,
+  "rgbaMiB": 223.07904052734375,
+  "bc7MiB": 55.76976013183594,
+  "finalActionsBc7MiB": 5.96630859375,
+  "problems": 0
+ },
+ {
+  "id": "link",
+  "cand": "D-1440-all",
+  "drawings": 1753,
+  "pages": 229,
+  "drawnPixels": 49660951,
+  "rgbaMiB": 217.4888916015625,
+  "bc7MiB": 54.372222900390625,
+  "finalActionsBc7MiB": 4.5687713623046875,
+  "problems": 0
+ },
+ {
+  "id": "pikachu",
+  "cand": "A-1080-all",
+  "drawings": 1422,
+  "pages": 205,
+  "drawnPixels": 13523533,
+  "rgbaMiB": 62.38165283203125,
+  "bc7MiB": 15.595413208007812,
+  "finalActionsBc7MiB": 4.3111419677734375,
+  "problems": 0
+ },
+ {
+  "id": "pikachu",
+  "cand": "B-1080-final2.8",
+  "drawings": 1422,
+  "pages": 205,
+  "drawnPixels": 24978775,
+  "rgbaMiB": 111.28948974609375,
+  "bc7MiB": 27.822372436523438,
+  "finalActionsBc7MiB": 16.538101196289062,
+  "problems": 0
+ },
+ {
+  "id": "pikachu",
+  "cand": "C-1440-final2.8",
+  "drawings": 1422,
+  "pages": 205,
+  "drawnPixels": 32590513,
+  "rgbaMiB": 144.986083984375,
+  "bc7MiB": 36.24652099609375,
+  "finalActionsBc7MiB": 16.538101196289062,
+  "problems": 0
+ },
+ {
+  "id": "pikachu",
+  "cand": "D-1440-all",
+  "drawings": 1422,
+  "pages": 205,
+  "drawnPixels": 24129491,
+  "rgbaMiB": 108.96978759765625,
+  "bc7MiB": 27.242446899414062,
+  "finalActionsBc7MiB": 7.534027099609375,
+  "problems": 0
+ }
+]

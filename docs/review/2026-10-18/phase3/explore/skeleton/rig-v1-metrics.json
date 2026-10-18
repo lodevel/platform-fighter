@@ -1,0 +1,37 @@
+{
+ "jab/0": {
+  "sigdiff": 0.102,
+  "iou": 0.888,
+  "rest_sigdiff": 0.222
+ },
+ "jab/1": {
+  "sigdiff": 0.081,
+  "iou": 0.912,
+  "rest_sigdiff": 0.167
+ },
+ "jab/2": {
+  "sigdiff": 0.078,
+  "iou": 0.888,
+  "rest_sigdiff": 0.176
+ },
+ "jab/3": {
+  "sigdiff": 0.078,
+  "iou": 0.888,
+  "rest_sigdiff": 0.176
+ },
+ "jab/4": {
+  "sigdiff": 0.002,
+  "iou": 0.998,
+  "rest_sigdiff": 0.0
+ },
+ "jab/5": {
+  "sigdiff": 0.061,
+  "iou": 0.939,
+  "rest_sigdiff": 0.119
+ },
+ "jab/6": {
+  "sigdiff": 0.102,
+  "iou": 0.926,
+  "rest_sigdiff": 0.168
+ }
+}

@@ -169,7 +169,44 @@ Shared code was moved rather than copied:
 The three console errors in the probe report are reconnect attempts after the
 probe stops the dev server.
 
+## Step 3 measurement: non-empty tiles are a small lever
+
+Cutting each drawing into square tiles and storing only tiles with any pixel, each
+with a 1 px border so filtering cannot show seams, stores this share of today's
+rectangle area (2 px padding included):
+
+| Tile size | DK | Link | Pikachu | Same, identical tiles stored once |
+| --- | ---: | ---: | ---: | --- |
+| 8 px | 95% | 76% | 87% | 67% / 65% / 46% |
+| 16 px | 85% | 74% | 81% | 72% / 68% / 64% |
+| 32 px | 88% | 85% | 90% | 80% / 80% / 82% |
+
+The empty space is mostly a thin band around the outline, so tiles recover little
+of it. A 16 px tile saves 15–26% and costs about 70–200 quads per drawing plus a
+format and renderer change. Not built; held until the options below are compared.
+
+## Step 4: six options compared
+
+Agents explored the options in parallel, each with its own record under
+[explore/](explore/). The user followed them on a phone page.
+
+| Option | Memory vs today | Look | Record | Decision |
+| --- | --- | --- | --- | --- |
+| Store drawings at the size shown (1080p, Finals kept sharp) | DK 97, Link 34, Pikachu 28 MiB | Same on 1080p, softer on 1440p/4K | [resolution](explore/resolution/README.md) | **Pursue** |
+| Palette: 16 or 32 colours per character | ½ (16) or ≈ 0.63 (32, 5-bit packed) | Near lossless | [vector](explore/vector/README.md), §indexed | **Pursue, 32 colours favoured by the user** |
+| Reuse squares of similar drawings, or warp them | −10 to −25% | Small errors; warps blur and smear | [delta](explore/delta/README.md) | Rejected: not worth the complexity |
+| Shapes (vector) instead of images | More memory (Link 4.8×) | Worse in 99% of drawings | [vector](explore/vector/README.md) | Rejected |
+| Load Finals only when used | Lower average, same worst case | — | [resolution](explore/resolution/README.md) | Rejected: four Finals at once need the total |
+| Body parts on a skeleton | Parts 0.2 MiB per view | Moves, but less natural | [skeleton](explore/skeleton/README.md), [parts generation](explore/parts-generation/README.md), [rig](explore/rig/README.md) | Parked on branch `explore/skeleton-rig` |
+
+The skeleton option went furthest: the local generator produced a consistent 19-part
+DK set (closed outlines, joint caps, no hand edits), and the package format, the
+evaluator and the lab gained a rig with swappable parts that plays DK's jab (fitted to
+Ultimate) and idle. The user found the motion less natural than today's drawings. The
+code lives on the branch `explore/skeleton-rig`, not on this one.
+
 ## Next
 
-1. Tile storage: non-empty tiles only, measured the same way.
-2. Reusable parts, where today's drawings allow.
+Store drawings at the size they are shown, reduced to the character's palette, on
+top of the held drawings: a candidate for all three fighters in 16 and 32 colours,
+judged by eye against today's art.

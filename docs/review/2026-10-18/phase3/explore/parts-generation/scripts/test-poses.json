@@ -1,0 +1,131 @@
+{
+ "guard": {
+  "source": "rest = c00attack11:18",
+  "root": [
+   0.0,
+   0.0
+  ],
+  "angles": {
+   "torso": 0.0,
+   "head": 0.0,
+   "head_shout": 0.0,
+   "head_grit": 0.0,
+   "tie": 0.0,
+   "upper_arm_near": 0.0,
+   "forearm_near": 0.0,
+   "fist_near": 0.0,
+   "open_hand_near": 0.0,
+   "thigh_near": 0.0,
+   "shin_near": 0.0,
+   "foot_near": 0.0,
+   "upper_arm_far": 0.0,
+   "forearm_far": 0.0,
+   "fist_far": 0.0,
+   "open_hand_far": 0.0,
+   "thigh_far": 0.0,
+   "shin_far": 0.0,
+   "foot_far": 0.0
+  },
+  "swap": {}
+ },
+ "punch": {
+  "source": "native c00attack11:5",
+  "root": [
+   0.64,
+   -3.59
+  ],
+  "angles": {
+   "torso": -8.96,
+   "head": 21.88,
+   "head_shout": 21.88,
+   "head_grit": 21.88,
+   "tie": -7.25,
+   "upper_arm_near": -2.48,
+   "forearm_near": 115.93,
+   "fist_near": -101.93,
+   "open_hand_near": -101.93,
+   "thigh_near": 3.0,
+   "shin_near": 3.8,
+   "foot_near": 2.17,
+   "upper_arm_far": -81.71,
+   "forearm_far": 125.55,
+   "fist_far": -103.62,
+   "open_hand_far": -103.62,
+   "thigh_far": 16.87,
+   "shin_far": -1.46,
+   "foot_far": 2.62
+  },
+  "swap": {
+   "head": "head_shout"
+  }
+ },
+ "punch_straight": {
+  "source": "hand-authored",
+  "root": [
+   4,
+   -2
+  ],
+  "angles": {
+   "torso": -8,
+   "upper_arm_far": -65,
+   "forearm_far": 72,
+   "fist_far": 0,
+   "head": 12,
+   "upper_arm_near": 10
+  },
+  "swap": {
+   "head": "head_shout"
+  }
+ },
+ "crouch": {
+  "source": "hand-authored + feet-planting IK",
+  "root": [
+   -4,
+   26
+  ],
+  "angles": {
+   "torso": 14.0,
+   "head": -18.0,
+   "upper_arm_near": -25.0,
+   "forearm_near": 20.0,
+   "upper_arm_far": 25.0,
+   "forearm_far": -10.0,
+   "fist_far": 10.0,
+   "thigh_near": 51.0,
+   "shin_near": -57.0,
+   "foot_near": -8.0,
+   "thigh_far": -69.0,
+   "shin_far": 30.0,
+   "foot_far": 25.0
+  }
+ },
+ "idle": {
+  "source": "native a00wait1:1 (front view)",
+  "root": [
+   -30.11,
+   -20.84
+  ],
+  "angles": {
+   "torso": 20.36,
+   "head": -37.93,
+   "head_shout": -37.93,
+   "head_grit": -37.93,
+   "tie": -32.15,
+   "upper_arm_near": -72.89,
+   "forearm_near": 42.03,
+   "fist_near": 133.61,
+   "open_hand_near": 133.61,
+   "thigh_near": -125.99,
+   "shin_near": 106.49,
+   "foot_near": -0.41,
+   "upper_arm_far": -54.9,
+   "forearm_far": 91.02,
+   "fist_far": -75.25,
+   "open_hand_far": -75.25,
+   "thigh_far": -27.67,
+   "shin_far": -41.07,
+   "foot_far": 11.09
+  },
+  "swap": {}
+ }
+}

@@ -1,0 +1,3 @@
+{"donkeykong": {"drawings": 1627, "median_nonempty": 41424, "median_rect": 74620, "nonempty_total": 82475519, "rect_total": 148986552, "median_nonempty_nonfinal": 39130, "final_drawings": 370},
+ "link": {"drawings": 1753, "median_nonempty": 13935, "median_rect": 31600, "nonempty_total": 24684795, "rect_total": 65203752, "median_nonempty_nonfinal": 13919, "final_drawings": 24},
+ "pikachu": {"drawings": 1422, "median_nonempty": 11523, "median_rect": 25134, "nonempty_total": 27866385, "rect_total": 58526105, "median_nonempty_nonfinal": 10727, "final_drawings": 441}}

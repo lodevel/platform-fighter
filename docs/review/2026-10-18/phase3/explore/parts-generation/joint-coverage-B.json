@@ -1,0 +1,72 @@
+{
+ "foot_far": {
+  "r60": 1.0,
+  "r80": 1.0,
+  "radius_px": 19.1
+ },
+ "foot_near": {
+  "r60": 1.0,
+  "r80": 1.0,
+  "radius_px": 16.7
+ },
+ "shin_far": {
+  "r60": 1.0,
+  "r80": 1.0,
+  "radius_px": 19.7
+ },
+ "thigh_far": {
+  "r60": 1.0,
+  "r80": 1.0,
+  "radius_px": 26.5
+ },
+ "upper_arm_near": {
+  "r60": 1.0,
+  "r80": 1.0,
+  "radius_px": 32.5
+ },
+ "upper_arm_far": {
+  "r60": 1.0,
+  "r80": 1.0,
+  "radius_px": 28.9
+ },
+ "forearm_far": {
+  "r60": 1.0,
+  "r80": 0.999,
+  "radius_px": 31.8
+ },
+ "fist_far": {
+  "r60": 1.0,
+  "r80": 1.0,
+  "radius_px": 25.8
+ },
+ "open_hand_far": {
+  "r60": 1.0,
+  "r80": 1.0,
+  "radius_px": 25.8
+ },
+ "forearm_near": {
+  "r60": 1.0,
+  "r80": 1.0,
+  "radius_px": 26.3
+ },
+ "thigh_near": {
+  "r60": 1.0,
+  "r80": 1.0,
+  "radius_px": 26.0
+ },
+ "fist_near": {
+  "r60": 1.0,
+  "r80": 1.0,
+  "radius_px": 26.3
+ },
+ "open_hand_near": {
+  "r60": 1.0,
+  "r80": 1.0,
+  "radius_px": 26.3
+ },
+ "shin_near": {
+  "r60": 1.0,
+  "r80": 1.0,
+  "radius_px": 25.4
+ }
+}

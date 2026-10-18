@@ -1,0 +1,2175 @@
+{
+ "actions": {
+  "jab": {
+   "after": "stop",
+   "length": 24,
+   "keys": [
+    {
+     "tick": 0,
+     "bones": {
+      "torso": {
+       "angle": 70.28,
+       "x": 8.02,
+       "y": -28.49,
+       "sx": 0.99,
+       "sy": 1.074
+      },
+      "head": {
+       "angle": -26.88,
+       "sx": 0.995,
+       "sy": 0.888
+      },
+      "thigh_far": {
+       "angle": -17.87,
+       "sx": 0.977,
+       "sy": 1.043
+      },
+      "thigh_near": {
+       "angle": 109.75,
+       "sx": 0.819,
+       "sy": 0.819
+      },
+      "tie": {
+       "angle": -15.42,
+       "sx": 0.999,
+       "sy": 0.958
+      },
+      "upper_arm_far": {
+       "angle": 16.44,
+       "sx": 0.905,
+       "sy": 0.961
+      },
+      "upper_arm_near": {
+       "angle": -42.84,
+       "sx": 1.221,
+       "sy": 1.221
+      },
+      "forearm_far": {
+       "angle": -7.85,
+       "sx": 0.893,
+       "sy": 1.029
+      },
+      "forearm_near": {
+       "angle": 34.55,
+       "sx": 0.819,
+       "sy": 0.819
+      },
+      "shin_far": {
+       "angle": -97.66,
+       "sx": 0.968,
+       "sy": 0.958
+      },
+      "shin_near": {
+       "angle": -8.89,
+       "sx": 1.073,
+       "sy": 1.053
+      },
+      "fist_far": {
+       "angle": -6.5,
+       "sx": 0.94,
+       "sy": 1.052
+      },
+      "fist_near": {
+       "angle": 27.11,
+       "sx": 0.819,
+       "sy": 0.819
+      },
+      "foot_far": {
+       "angle": 38.1,
+       "sx": 0.819,
+       "sy": 1.031
+      },
+      "foot_near": {
+       "angle": -27.77,
+       "sx": 1.003,
+       "sy": 1.005
+      }
+     },
+     "show": {
+      "head": "rig/head_shout"
+     }
+    },
+    {
+     "tick": 1,
+     "bones": {
+      "shin_far": {
+       "angle": -70.248,
+       "sx": 0.953,
+       "sy": 1.014
+      },
+      "fist_near": {
+       "angle": 5.907,
+       "sx": 0.923,
+       "sy": 0.819
+      },
+      "shin_near": {
+       "angle": 5.02,
+       "sx": 1.027,
+       "sy": 1.011
+      },
+      "foot_near": {
+       "angle": 10.428,
+       "sx": 0.996,
+       "sy": 1.089
+      },
+      "foot_far": {
+       "angle": 44.562,
+       "sx": 1.014,
+       "sy": 0.979
+      },
+      "upper_arm_near": {
+       "angle": -44.51,
+       "sx": 0.955,
+       "sy": 1.011
+      },
+      "upper_arm_far": {
+       "angle": 18.318,
+       "sx": 0.872,
+       "sy": 0.991
+      },
+      "thigh_near": {
+       "angle": 26.898,
+       "sx": 0.925,
+       "sy": 0.907
+      },
+      "forearm_far": {
+       "angle": 4.645,
+       "sx": 0.875,
+       "sy": 0.912
+      },
+      "torso": {
+       "angle": 3.935,
+       "x": 16.767,
+       "y": -13.895,
+       "sx": 1.163,
+       "sy": 0.984
+      },
+      "forearm_near": {
+       "angle": 45.25,
+       "sx": 0.903,
+       "sy": 0.819
+      },
+      "fist_far": {
+       "angle": -36.117,
+       "sx": 0.962,
+       "sy": 1.042
+      },
+      "tie": {
+       "angle": 5.422,
+       "sx": 0.999,
+       "sy": 1.049
+      },
+      "thigh_far": {
+       "angle": 18.157,
+       "sx": 0.952,
+       "sy": 0.968
+      },
+      "head": {
+       "angle": 17.715,
+       "sx": 1.02,
+       "sy": 1.083
+      }
+     },
+     "show": {
+      "head": "rig/head_shout"
+     }
+    },
+    {
+     "tick": 2,
+     "bones": {
+      "shin_far": {
+       "angle": -5.875,
+       "sx": 0.994,
+       "sy": 1.039
+      },
+      "fist_near": {
+       "angle": 2.77,
+       "sx": 0.917,
+       "sy": 0.892
+      },
+      "shin_near": {
+       "angle": 8.953,
+       "sx": 1.026,
+       "sy": 0.96
+      },
+      "foot_near": {
+       "angle": 22.43,
+       "sx": 1.021,
+       "sy": 1.119
+      },
+      "foot_far": {
+       "angle": 12.655,
+       "sx": 1.096,
+       "sy": 0.991
+      },
+      "upper_arm_near": {
+       "angle": -21.285,
+       "sx": 0.944,
+       "sy": 0.921
+      },
+      "upper_arm_far": {
+       "angle": 25.045,
+       "sx": 0.895,
+       "sy": 1.075
+      },
+      "thigh_near": {
+       "angle": -12.373,
+       "sx": 0.983,
+       "sy": 0.934
+      },
+      "forearm_far": {
+       "angle": 8.825,
+       "sx": 0.847,
+       "sy": 0.931
+      },
+      "torso": {
+       "angle": -11.023,
+       "x": 18.885,
+       "y": -5.79,
+       "sx": 1.155,
+       "sy": 1.014
+      },
+      "forearm_near": {
+       "angle": 31.938,
+       "sx": 0.986,
+       "sy": 0.901
+      },
+      "fist_far": {
+       "angle": -42.65,
+       "sx": 0.929,
+       "sy": 1.039
+      },
+      "tie": {
+       "angle": 18.383,
+       "sx": 0.978,
+       "sy": 1.044
+      },
+      "thigh_far": {
+       "angle": 13.645,
+       "sx": 0.993,
+       "sy": 0.984
+      },
+      "head": {
+       "angle": 23.973,
+       "sx": 0.976,
+       "sy": 1.194
+      }
+     },
+     "show": {
+      "head": "rig/head_shout"
+     }
+    },
+    {
+     "tick": 3,
+     "bones": {
+      "shin_far": {
+       "angle": 3.218,
+       "sx": 0.995,
+       "sy": 1.051
+      },
+      "fist_near": {
+       "angle": -12.418,
+       "sx": 0.965,
+       "sy": 1.017
+      },
+      "shin_near": {
+       "angle": 10.438,
+       "sx": 1.026,
+       "sy": 0.995
+      },
+      "foot_near": {
+       "angle": 8.985,
+       "sx": 1.004,
+       "sy": 1.133
+      },
+      "foot_far": {
+       "angle": 17.793,
+       "sx": 1.109,
+       "sy": 0.98
+      },
+      "upper_arm_near": {
+       "angle": -7.81,
+       "sx": 0.916,
+       "sy": 0.929
+      },
+      "upper_arm_far": {
+       "angle": 20.0,
+       "sx": 0.969,
+       "sy": 0.997
+      },
+      "thigh_near": {
+       "angle": -8.557,
+       "sx": 1.009,
+       "sy": 0.974
+      },
+      "forearm_far": {
+       "angle": -16.023,
+       "sx": 0.893,
+       "sy": 0.978
+      },
+      "torso": {
+       "angle": -5.03,
+       "x": 19.92,
+       "y": -3.787,
+       "sx": 1.039,
+       "sy": 0.996
+      },
+      "forearm_near": {
+       "angle": 24.227,
+       "sx": 0.989,
+       "sy": 0.955
+      },
+      "fist_far": {
+       "angle": -17.34,
+       "sx": 1.052,
+       "sy": 1.043
+      },
+      "tie": {
+       "angle": 25.8,
+       "sx": 0.982,
+       "sy": 1.029
+      },
+      "thigh_far": {
+       "angle": 8.445,
+       "sx": 1.152,
+       "sy": 0.965
+      },
+      "head": {
+       "angle": 9.565,
+       "sx": 1.109,
+       "sy": 1.181
+      }
+     },
+     "show": {
+      "head": "rig/head_shout"
+     }
+    },
+    {
+     "tick": 4,
+     "bones": {
+      "torso": {
+       "angle": 0.72,
+       "x": 18.83,
+       "y": -2.04,
+       "sx": 0.978,
+       "sy": 1.034
+      },
+      "head": {
+       "angle": -12.54,
+       "sx": 1.221,
+       "sy": 1.063
+      },
+      "thigh_far": {
+       "angle": -0.9,
+       "sx": 1.221,
+       "sy": 0.981
+      },
+      "thigh_near": {
+       "angle": -11.17,
+       "sx": 1.026,
+       "sy": 0.957
+      },
+      "tie": {
+       "angle": 30.65,
+       "sx": 0.976,
+       "sy": 1.006
+      },
+      "upper_arm_far": {
+       "angle": 8.15,
+       "sx": 1.188,
+       "sy": 0.987
+      },
+      "upper_arm_near": {
+       "angle": 23.2,
+       "sx": 0.948,
+       "sy": 1.021
+      },
+      "forearm_far": {
+       "angle": -24.3,
+       "sx": 1.116,
+       "sy": 1.04
+      },
+      "forearm_near": {
+       "angle": 9.88,
+       "sx": 0.973
+      },
+      "shin_far": {
+       "angle": 24.66,
+       "sx": 1.024,
+       "sy": 0.992
+      },
+      "shin_near": {
+       "angle": 9.2,
+       "sx": 1.035,
+       "sy": 0.994
+      },
+      "fist_far": {
+       "angle": 26.05,
+       "sx": 1.118,
+       "sy": 1.045
+      },
+      "fist_near": {
+       "angle": -38.75,
+       "sx": 0.941,
+       "sy": 1.114
+      },
+      "foot_far": {
+       "angle": -0.84,
+       "sx": 1.111,
+       "sy": 0.998
+      },
+      "foot_near": {
+       "angle": 4.26,
+       "sx": 1.013,
+       "sy": 1.145
+      }
+     },
+     "show": {
+      "head": "rig/head_shout"
+     }
+    },
+    {
+     "tick": 5,
+     "bones": {
+      "torso": {
+       "angle": -3.01,
+       "x": 18.6,
+       "y": -4.52,
+       "sx": 0.984,
+       "sy": 1.037
+      },
+      "head": {
+       "angle": 9.56,
+       "sx": 0.932,
+       "sy": 0.951
+      },
+      "thigh_far": {
+       "angle": -27.08,
+       "sx": 0.993,
+       "sy": 0.976
+      },
+      "thigh_near": {
+       "angle": -4.42,
+       "sx": 1.054,
+       "sy": 0.995
+      },
+      "tie": {
+       "angle": -20.24,
+       "sx": 0.959
+      },
+      "upper_arm_far": {
+       "angle": -25.31,
+       "sx": 1.081,
+       "sy": 1.104
+      },
+      "upper_arm_near": {
+       "angle": 17.55,
+       "sx": 0.888,
+       "sy": 0.972
+      },
+      "forearm_far": {
+       "angle": 14.97,
+       "sx": 1.093,
+       "sy": 1.073
+      },
+      "forearm_near": {
+       "angle": -13.8,
+       "sx": 0.848,
+       "sy": 1.038
+      },
+      "shin_far": {
+       "angle": -5.38,
+       "sx": 1.05,
+       "sy": 0.963
+      },
+      "shin_near": {
+       "angle": 2.5,
+       "sx": 1.024,
+       "sy": 0.97
+      },
+      "fist_far": {
+       "angle": -32.91,
+       "sx": 1.017,
+       "sy": 1.141
+      },
+      "fist_near": {
+       "angle": -36.71,
+       "sx": 0.861,
+       "sy": 1.082
+      },
+      "foot_far": {
+       "angle": 46.01,
+       "sx": 0.976
+      },
+      "foot_near": {
+       "angle": 10.72,
+       "sx": 0.989,
+       "sy": 1.221
+      }
+     }
+    },
+    {
+     "tick": 6,
+     "bones": {
+      "torso": {
+       "angle": 7.65,
+       "x": 15.71,
+       "y": -4.13,
+       "sx": 0.929,
+       "sy": 1.033
+      },
+      "head": {
+       "angle": -5.52,
+       "sx": 0.843,
+       "sy": 0.925
+      },
+      "thigh_far": {
+       "angle": -21.85,
+       "sx": 0.992,
+       "sy": 1.007
+      },
+      "thigh_near": {
+       "angle": -17.15,
+       "sx": 1.007,
+       "sy": 0.992
+      },
+      "tie": {
+       "angle": -6.47,
+       "sx": 0.981,
+       "sy": 0.889
+      },
+      "upper_arm_far": {
+       "angle": 20.95,
+       "sx": 1.221,
+       "sy": 1.053
+      },
+      "upper_arm_near": {
+       "angle": 17.05,
+       "sx": 0.984,
+       "sy": 1.08
+      },
+      "forearm_far": {
+       "angle": 43.8,
+       "sx": 0.973,
+       "sy": 1.221
+      },
+      "forearm_near": {
+       "angle": 25.67,
+       "sx": 0.988,
+       "sy": 0.929
+      },
+      "shin_far": {
+       "angle": 27.46,
+       "sx": 0.983,
+       "sy": 0.997
+      },
+      "shin_near": {
+       "angle": 2.1,
+       "sx": 1.067,
+       "sy": 1.013
+      },
+      "fist_far": {
+       "angle": -29.55,
+       "sx": 0.978,
+       "sy": 1.116
+      },
+      "fist_near": {
+       "angle": -61.28,
+       "sx": 0.819,
+       "sy": 1.102
+      },
+      "foot_far": {
+       "angle": -15.29,
+       "sx": 0.989,
+       "sy": 1.003
+      },
+      "foot_near": {
+       "angle": 10.19,
+       "sx": 1.05,
+       "sy": 1.143
+      }
+     },
+     "show": {
+      "head": "rig/head_shout"
+     }
+    },
+    {
+     "tick": 7,
+     "bones": {
+      "shin_far": {
+       "angle": 37.832,
+       "sx": 1.001,
+       "sy": 1.007
+      },
+      "fist_near": {
+       "angle": -82.142,
+       "sx": 0.819,
+       "sy": 1.087
+      },
+      "shin_near": {
+       "angle": 7.873,
+       "sx": 1.068,
+       "sy": 1.025
+      },
+      "foot_near": {
+       "angle": 10.655,
+       "sx": 1.05,
+       "sy": 1.146
+      },
+      "foot_far": {
+       "angle": 10.032,
+       "sx": 0.996,
+       "sy": 1.012
+      },
+      "upper_arm_near": {
+       "angle": 13.667,
+       "sx": 0.999,
+       "sy": 1.063
+      },
+      "upper_arm_far": {
+       "angle": 7.28,
+       "sx": 1.221,
+       "sy": 1.079
+      },
+      "thigh_near": {
+       "angle": -25.642,
+       "sx": 1.025,
+       "sy": 1.008
+      },
+      "forearm_far": {
+       "angle": 58.645,
+       "sx": 0.947,
+       "sy": 1.221
+      },
+      "torso": {
+       "angle": 9.488,
+       "x": 15.072,
+       "y": -5.66,
+       "sx": 0.916,
+       "sy": 1.01
+      },
+      "forearm_near": {
+       "angle": 49.853,
+       "sx": 1.029,
+       "sy": 0.933
+      },
+      "fist_far": {
+       "angle": -35.55,
+       "sx": 0.94,
+       "sy": 1.079
+      },
+      "tie": {
+       "angle": -7.162,
+       "sx": 0.985,
+       "sy": 0.864
+      },
+      "thigh_far": {
+       "angle": -22.58,
+       "sx": 1.001,
+       "sy": 0.999
+      },
+      "head": {
+       "angle": -6.047,
+       "sx": 0.902,
+       "sy": 0.926
+      }
+     },
+     "show": {
+      "head": "rig/head_shout"
+     }
+    },
+    {
+     "tick": 8,
+     "bones": {
+      "shin_far": {
+       "angle": 40.545,
+       "sx": 1.018,
+       "sy": 1.01
+      },
+      "fist_near": {
+       "angle": -91.802,
+       "sx": 0.819,
+       "sy": 1.083
+      },
+      "shin_near": {
+       "angle": 15.16,
+       "sx": 1.056,
+       "sy": 1.044
+      },
+      "foot_near": {
+       "angle": 11.44,
+       "sx": 1.042,
+       "sy": 1.154
+      },
+      "foot_far": {
+       "angle": 21.283,
+       "sx": 1.007,
+       "sy": 1.016
+      },
+      "upper_arm_near": {
+       "angle": 12.122,
+       "sx": 1.01,
+       "sy": 1.043
+      },
+      "upper_arm_far": {
+       "angle": -11.237,
+       "sx": 1.221,
+       "sy": 1.086
+      },
+      "thigh_near": {
+       "angle": -33.515,
+       "sx": 1.05,
+       "sy": 1.012
+      },
+      "forearm_far": {
+       "angle": 81.037,
+       "sx": 0.946,
+       "sy": 1.221
+      },
+      "torso": {
+       "angle": 10.19,
+       "x": 15.258,
+       "y": -6.388,
+       "sx": 0.922,
+       "sy": 0.987
+      },
+      "forearm_near": {
+       "angle": 63.26,
+       "sx": 1.065,
+       "sy": 0.939
+      },
+      "fist_far": {
+       "angle": -46.185,
+       "sx": 0.996,
+       "sy": 1.029
+      },
+      "tie": {
+       "angle": -6.293,
+       "sy": 0.865
+      },
+      "thigh_far": {
+       "angle": -19.05,
+       "sx": 1.014,
+       "sy": 0.999
+      },
+      "head": {
+       "angle": -7.49,
+       "sx": 0.895,
+       "sy": 0.946
+      }
+     },
+     "show": {
+      "head": "rig/head_shout"
+     }
+    },
+    {
+     "tick": 9,
+     "bones": {
+      "shin_far": {
+       "angle": 31.697,
+       "sx": 1.003,
+       "sy": 1.017
+      },
+      "fist_near": {
+       "angle": -81.39,
+       "sx": 0.83,
+       "sy": 1.099
+      },
+      "shin_near": {
+       "angle": 11.348,
+       "sx": 1.021,
+       "sy": 1.039
+      },
+      "foot_near": {
+       "angle": 9.348,
+       "sx": 1.026,
+       "sy": 1.15
+      },
+      "foot_far": {
+       "angle": 17.11,
+       "sx": 1.028,
+       "sy": 1.002
+      },
+      "upper_arm_near": {
+       "angle": 14.385,
+       "sx": 0.948,
+       "sy": 1.026
+      },
+      "upper_arm_far": {
+       "angle": -5.83,
+       "sx": 1.179,
+       "sy": 1.091
+      },
+      "thigh_near": {
+       "angle": -25.115,
+       "sx": 1.038,
+       "sy": 1.027
+      },
+      "forearm_far": {
+       "angle": 68.097,
+       "sx": 0.99,
+       "sy": 1.171
+      },
+      "torso": {
+       "angle": 7.185,
+       "x": 16.273,
+       "y": -5.94,
+       "sx": 0.957,
+       "sy": 0.993
+      },
+      "forearm_near": {
+       "angle": 46.768,
+       "sx": 1.018,
+       "sy": 0.971
+      },
+      "fist_far": {
+       "angle": -26.67,
+       "sx": 1.147,
+       "sy": 0.966
+      },
+      "tie": {
+       "angle": 0.303,
+       "sx": 1.01,
+       "sy": 0.92
+      },
+      "thigh_far": {
+       "angle": -17.125,
+       "sx": 0.997,
+       "sy": 1.03
+      },
+      "head": {
+       "angle": 1.147,
+       "sx": 0.882,
+       "sy": 0.994
+      }
+     },
+     "show": {
+      "head": "rig/head_shout"
+     }
+    },
+    {
+     "tick": 10,
+     "bones": {
+      "shin_far": {
+       "angle": 17.54,
+       "sx": 1.012,
+       "sy": 1.024
+      },
+      "fist_near": {
+       "angle": -57.087,
+       "sx": 0.845,
+       "sy": 1.124
+      },
+      "shin_near": {
+       "angle": 4.65,
+       "sx": 1.005,
+       "sy": 1.047
+      },
+      "foot_near": {
+       "angle": 7.877,
+       "sx": 1.019,
+       "sy": 1.167
+      },
+      "foot_far": {
+       "angle": 6.418,
+       "sx": 1.071,
+       "sy": 0.99
+      },
+      "upper_arm_near": {
+       "angle": 15.922,
+       "sx": 0.938,
+       "sy": 1.018
+      },
+      "upper_arm_far": {
+       "angle": -18.143,
+       "sx": 1.091,
+       "sy": 1.103
+      },
+      "thigh_near": {
+       "angle": -10.613,
+       "sx": 1.039,
+       "sy": 1.041
+      },
+      "forearm_far": {
+       "angle": 51.67,
+       "sx": 1.054,
+       "sy": 1.041
+      },
+      "torso": {
+       "angle": 1.855,
+       "x": 17.672,
+       "y": -4.987,
+       "sx": 0.99,
+       "sy": 0.971
+      },
+      "forearm_near": {
+       "angle": 17.738,
+       "sx": 0.948,
+       "sy": 1.009
+      },
+      "fist_far": {
+       "angle": -40.425,
+       "sx": 1.152,
+       "sy": 0.962
+      },
+      "tie": {
+       "angle": 15.877,
+       "sx": 1.018,
+       "sy": 1.014
+      },
+      "thigh_far": {
+       "angle": -7.485,
+       "sx": 0.974,
+       "sy": 1.062
+      },
+      "head": {
+       "angle": 11.745,
+       "sx": 0.851,
+       "sy": 1.023
+      }
+     },
+     "show": {
+      "head": "rig/head_shout"
+     }
+    },
+    {
+     "tick": 11,
+     "bones": {
+      "shin_far": {
+       "angle": 10.423,
+       "sx": 0.99,
+       "sy": 1.026
+      },
+      "fist_near": {
+       "angle": -53.433,
+       "sx": 0.867,
+       "sy": 1.146
+      },
+      "shin_near": {
+       "angle": -2.19,
+       "sx": 1.009,
+       "sy": 1.046
+      },
+      "foot_near": {
+       "angle": 4.175,
+       "sx": 1.019,
+       "sy": 1.133
+      },
+      "foot_far": {
+       "angle": -1.285,
+       "sx": 1.103,
+       "sy": 0.986
+      },
+      "upper_arm_near": {
+       "angle": 16.877,
+       "sx": 0.913,
+       "sy": 1.02
+      },
+      "upper_arm_far": {
+       "angle": -10.56,
+       "sx": 1.042,
+       "sy": 1.133
+      },
+      "thigh_near": {
+       "angle": 2.928,
+       "sx": 1.027,
+       "sy": 1.072
+      },
+      "forearm_far": {
+       "angle": 31.25,
+       "sx": 1.057,
+       "sy": 1.024
+      },
+      "torso": {
+       "angle": -1.717,
+       "x": 18.553,
+       "y": -4.178,
+       "sx": 0.982,
+       "sy": 0.984
+      },
+      "forearm_near": {
+       "angle": 6.452,
+       "sx": 0.915,
+       "sy": 1.023
+      },
+      "fist_far": {
+       "angle": -5.955,
+       "sx": 1.009,
+       "sy": 0.91
+      },
+      "tie": {
+       "angle": 24.183,
+       "sx": 1.024,
+       "sy": 1.072
+      },
+      "thigh_far": {
+       "angle": -0.985,
+       "sx": 0.956,
+       "sy": 1.071
+      },
+      "head": {
+       "angle": 21.682,
+       "sx": 0.874,
+       "sy": 1.036
+      }
+     },
+     "show": {
+      "head": "rig/head_shout"
+     }
+    },
+    {
+     "tick": 12,
+     "bones": {
+      "shin_far": {
+       "angle": 10.723,
+       "sx": 1.001,
+       "sy": 1.008
+      },
+      "fist_near": {
+       "angle": -59.773,
+       "sx": 0.875,
+       "sy": 1.139
+      },
+      "shin_near": {
+       "angle": -4.438,
+       "sx": 1.016,
+       "sy": 1.049
+      },
+      "foot_near": {
+       "angle": 4.032,
+       "sx": 1.022,
+       "sy": 1.136
+      },
+      "foot_far": {
+       "angle": -5.255,
+       "sx": 1.122,
+       "sy": 1.014
+      },
+      "upper_arm_near": {
+       "angle": 14.395,
+       "sx": 0.922,
+       "sy": 1.019
+      },
+      "upper_arm_far": {
+       "angle": -20.98,
+       "sx": 1.044,
+       "sy": 1.152
+      },
+      "thigh_near": {
+       "angle": 5.43,
+       "sx": 1.011,
+       "sy": 1.069
+      },
+      "forearm_far": {
+       "angle": 30.157,
+       "sx": 1.025,
+       "sy": 0.951
+      },
+      "torso": {
+       "angle": -1.433,
+       "x": 18.383,
+       "y": -3.77,
+       "sx": 0.987,
+       "sy": 0.982
+      },
+      "forearm_near": {
+       "angle": 32.193,
+       "sx": 0.979,
+       "sy": 0.991
+      },
+      "fist_far": {
+       "angle": -17.48,
+       "sx": 0.924,
+       "sy": 0.919
+      },
+      "tie": {
+       "angle": 25.65,
+       "sx": 1.036,
+       "sy": 1.087
+      },
+      "thigh_far": {
+       "angle": 2.852,
+       "sx": 0.957,
+       "sy": 1.056
+      },
+      "head": {
+       "angle": 18.562,
+       "sx": 0.903,
+       "sy": 1.03
+      }
+     },
+     "show": {
+      "head": "rig/head_shout"
+     }
+    },
+    {
+     "tick": 13,
+     "bones": {
+      "shin_far": {
+       "angle": 8.643,
+       "sx": 1.002,
+       "sy": 0.994
+      },
+      "fist_near": {
+       "angle": -81.838,
+       "sx": 0.874,
+       "sy": 1.09
+      },
+      "shin_near": {
+       "angle": -7.747,
+       "sx": 1.015,
+       "sy": 1.057
+      },
+      "foot_near": {
+       "angle": 2.578,
+       "sx": 1.018,
+       "sy": 1.123
+      },
+      "foot_far": {
+       "angle": -7.498,
+       "sx": 1.12,
+       "sy": 1.02
+      },
+      "upper_arm_near": {
+       "angle": 9.445,
+       "sx": 0.919,
+       "sy": 1.022
+      },
+      "upper_arm_far": {
+       "angle": -22.222,
+       "sx": 1.028,
+       "sy": 1.152
+      },
+      "thigh_near": {
+       "angle": 9.137,
+       "sx": 1.018,
+       "sy": 1.073
+      },
+      "forearm_far": {
+       "angle": 24.34,
+       "sx": 1.011,
+       "sy": 0.979
+      },
+      "torso": {
+       "angle": -2.107,
+       "x": 18.98,
+       "y": -3.353,
+       "sx": 0.987,
+       "sy": 0.988
+      },
+      "forearm_near": {
+       "angle": 58.768,
+       "sx": 1.045,
+       "sy": 0.969
+      },
+      "fist_far": {
+       "angle": -8.408,
+       "sx": 0.907,
+       "sy": 0.899
+      },
+      "tie": {
+       "angle": 26.613,
+       "sx": 1.054,
+       "sy": 1.102
+      },
+      "thigh_far": {
+       "angle": 5.488,
+       "sx": 0.965,
+       "sy": 1.031
+      },
+      "head": {
+       "angle": 17.635,
+       "sx": 0.95,
+       "sy": 1.033
+      }
+     },
+     "show": {
+      "head": "rig/head_shout"
+     }
+    },
+    {
+     "tick": 14,
+     "bones": {
+      "shin_far": {
+       "angle": 9.567,
+       "sx": 1.006,
+       "sy": 0.992
+      },
+      "fist_near": {
+       "angle": -84.963,
+       "sx": 0.873,
+       "sy": 1.074
+      },
+      "shin_near": {
+       "angle": -10.427,
+       "sx": 1.02,
+       "sy": 1.055
+      },
+      "foot_near": {
+       "angle": 2.55,
+       "sx": 1.018,
+       "sy": 1.129
+      },
+      "foot_far": {
+       "angle": -9.295,
+       "sx": 1.12,
+       "sy": 1.02
+      },
+      "upper_arm_near": {
+       "angle": 4.868,
+       "sx": 0.942,
+       "sy": 1.014
+      },
+      "upper_arm_far": {
+       "angle": -20.445,
+       "sx": 1.011,
+       "sy": 1.125
+      },
+      "thigh_near": {
+       "angle": 11.812,
+       "sx": 1.014,
+       "sy": 1.069
+      },
+      "forearm_far": {
+       "angle": 18.273,
+       "sx": 1.014,
+       "sy": 0.948
+      },
+      "torso": {
+       "angle": -1.478,
+       "x": 18.933,
+       "y": -2.855,
+       "sx": 0.988,
+       "sy": 0.995
+      },
+      "forearm_near": {
+       "angle": 64.83,
+       "sx": 1.057,
+       "sy": 0.964
+      },
+      "fist_far": {
+       "angle": -4.68,
+       "sx": 0.905,
+       "sy": 0.917
+      },
+      "tie": {
+       "angle": 27.945,
+       "sx": 1.058,
+       "sy": 1.104
+      },
+      "thigh_far": {
+       "angle": 5.673,
+       "sx": 0.967,
+       "sy": 1.006
+      },
+      "head": {
+       "angle": 15.223,
+       "sx": 0.981,
+       "sy": 1.037
+      }
+     },
+     "show": {
+      "head": "rig/head_shout"
+     }
+    },
+    {
+     "tick": 15,
+     "bones": {
+      "shin_far": {
+       "angle": 4.918,
+       "sx": 1.004,
+       "sy": 0.985
+      },
+      "fist_near": {
+       "angle": -77.285,
+       "sx": 0.87,
+       "sy": 1.075
+      },
+      "shin_near": {
+       "angle": -11.68,
+       "sx": 1.013,
+       "sy": 1.052
+      },
+      "foot_near": {
+       "angle": 1.355,
+       "sx": 1.018,
+       "sy": 1.127
+      },
+      "foot_far": {
+       "angle": -7.045,
+       "sx": 1.083,
+       "sy": 1.007
+      },
+      "upper_arm_near": {
+       "angle": 3.92,
+       "sx": 0.944,
+       "sy": 1.002
+      },
+      "upper_arm_far": {
+       "angle": -17.935,
+       "sx": 0.975,
+       "sy": 1.093
+      },
+      "thigh_near": {
+       "angle": 14.338,
+       "sx": 1.012,
+       "sy": 1.073
+      },
+      "forearm_far": {
+       "angle": 15.797,
+       "sx": 1.019,
+       "sy": 0.935
+      },
+      "torso": {
+       "angle": -2.152,
+       "x": 19.47,
+       "y": -2.31,
+       "sx": 0.992,
+       "sy": 1.003
+      },
+      "forearm_near": {
+       "angle": 60.103,
+       "sx": 1.051,
+       "sy": 0.965
+      },
+      "fist_far": {
+       "angle": -5.355,
+       "sx": 0.919,
+       "sy": 0.937
+      },
+      "tie": {
+       "angle": 30.865,
+       "sx": 1.051,
+       "sy": 1.095
+      },
+      "thigh_far": {
+       "angle": 6.11,
+       "sx": 0.966,
+       "sy": 0.979
+      },
+      "head": {
+       "angle": 12.545,
+       "sx": 1.008,
+       "sy": 1.025
+      }
+     },
+     "show": {
+      "head": "rig/head_shout"
+     }
+    },
+    {
+     "tick": 17,
+     "bones": {
+      "shin_far": {
+       "angle": 2.885,
+       "sx": 1.02,
+       "sy": 0.996
+      },
+      "fist_near": {
+       "angle": -27.805,
+       "sx": 0.896,
+       "sy": 1.091
+      },
+      "shin_near": {
+       "angle": -6.745,
+       "sx": 1.015,
+       "sy": 1.069
+      },
+      "foot_near": {
+       "angle": -0.473,
+       "sx": 1.024,
+       "sy": 1.119
+      },
+      "foot_far": {
+       "angle": -3.58,
+       "sx": 1.019
+      },
+      "upper_arm_near": {
+       "angle": 1.92,
+       "sx": 0.975,
+       "sy": 0.99
+      },
+      "upper_arm_far": {
+       "angle": -13.14,
+       "sx": 0.947,
+       "sy": 1.084
+      },
+      "thigh_near": {
+       "angle": 12.217,
+       "sx": 0.987,
+       "sy": 1.072
+      },
+      "forearm_far": {
+       "angle": 11.832,
+       "sx": 1.006,
+       "sy": 0.943
+      },
+      "torso": {
+       "angle": -1.98,
+       "x": 20.33,
+       "y": -2.63,
+       "sx": 0.998,
+       "sy": 0.999
+      },
+      "forearm_near": {
+       "angle": 18.86,
+       "sx": 1.003,
+       "sy": 1.023
+      },
+      "fist_far": {
+       "angle": -5.188,
+       "sx": 0.94,
+       "sy": 0.943
+      },
+      "tie": {
+       "angle": 33.745,
+       "sx": 1.002,
+       "sy": 1.039
+      },
+      "thigh_far": {
+       "angle": 3.923,
+       "sx": 0.953,
+       "sy": 0.962
+      },
+      "head": {
+       "angle": 9.773,
+       "sx": 1.036,
+       "sy": 1.067
+      }
+     },
+     "show": {
+      "head": "rig/head_shout"
+     }
+    },
+    {
+     "tick": 18,
+     "bones": {
+      "shin_far": {
+       "angle": 1.827,
+       "sx": 1.033,
+       "sy": 1.007
+      },
+      "fist_near": {
+       "angle": 7.68,
+       "sx": 0.888,
+       "sy": 1.071
+      },
+      "shin_near": {
+       "angle": 0.54,
+       "sx": 1.012,
+       "sy": 1.091
+      },
+      "foot_near": {
+       "angle": -1.045,
+       "sx": 1.04,
+       "sy": 1.117
+      },
+      "foot_far": {
+       "angle": -0.765,
+       "sx": 1.017,
+       "sy": 1.031
+      },
+      "upper_arm_near": {
+       "angle": -1.192,
+       "sx": 1.018,
+       "sy": 0.991
+      },
+      "upper_arm_far": {
+       "angle": -10.09,
+       "sx": 0.954,
+       "sy": 1.096
+      },
+      "thigh_near": {
+       "angle": 6.022,
+       "sx": 0.985,
+       "sy": 1.055
+      },
+      "forearm_far": {
+       "angle": 8.758,
+       "sx": 1.004,
+       "sy": 0.948
+      },
+      "torso": {
+       "angle": -1.573,
+       "x": 20.672,
+       "y": -3.048,
+       "sx": 0.997,
+       "sy": 0.993
+      },
+      "forearm_near": {
+       "angle": -8.062,
+       "sx": 1.019,
+       "sy": 1.076
+      },
+      "fist_far": {
+       "angle": -4.945,
+       "sx": 0.941,
+       "sy": 0.937
+      },
+      "tie": {
+       "angle": 33.185,
+       "sx": 0.987,
+       "sy": 1.034
+      },
+      "thigh_far": {
+       "angle": 2.852,
+       "sx": 0.933,
+       "sy": 0.958
+      },
+      "head": {
+       "angle": 8.63,
+       "sx": 1.027,
+       "sy": 1.084
+      }
+     },
+     "show": {
+      "head": "rig/head_shout"
+     }
+    },
+    {
+     "tick": 19,
+     "bones": {
+      "shin_far": {
+       "angle": -2.55,
+       "sx": 1.039,
+       "sy": 1.001
+      },
+      "fist_near": {
+       "angle": 41.517,
+       "sx": 0.893,
+       "sy": 1.046
+      },
+      "shin_near": {
+       "angle": 11.805,
+       "sx": 0.995,
+       "sy": 1.082
+      },
+      "foot_near": {
+       "angle": -1.402,
+       "sx": 1.023,
+       "sy": 1.115
+      },
+      "foot_far": {
+       "angle": -1.927,
+       "sx": 1.001,
+       "sy": 1.056
+      },
+      "upper_arm_near": {
+       "angle": -7.577,
+       "sx": 1.044,
+       "sy": 0.978
+      },
+      "upper_arm_far": {
+       "angle": -8.205,
+       "sx": 0.948,
+       "sy": 1.116
+      },
+      "thigh_near": {
+       "angle": -5.105,
+       "sx": 1.012,
+       "sy": 1.025
+      },
+      "forearm_far": {
+       "angle": 6.842,
+       "sx": 1.006,
+       "sy": 0.949
+      },
+      "torso": {
+       "angle": -1.498,
+       "x": 20.708,
+       "y": -3.665,
+       "sx": 0.998,
+       "sy": 0.994
+      },
+      "forearm_near": {
+       "angle": -27.015,
+       "sx": 1.055,
+       "sy": 1.072
+      },
+      "fist_far": {
+       "angle": -5.99,
+       "sx": 0.939,
+       "sy": 0.928
+      },
+      "tie": {
+       "angle": 32.457,
+       "sx": 0.978,
+       "sy": 1.034
+      },
+      "thigh_far": {
+       "angle": 4.335,
+       "sx": 0.901,
+       "sy": 0.936
+      },
+      "head": {
+       "angle": 7.955,
+       "sx": 1.021,
+       "sy": 1.087
+      }
+     },
+     "show": {
+      "head": "rig/head_shout"
+     }
+    },
+    {
+     "tick": 20,
+     "bones": {
+      "shin_far": {
+       "angle": -17.788,
+       "sx": 1.02,
+       "sy": 1.012
+      },
+      "fist_near": {
+       "angle": 61.76,
+       "sx": 0.871,
+       "sy": 1.045
+      },
+      "shin_near": {
+       "angle": 28.612,
+       "sx": 0.99,
+       "sy": 1.081
+      },
+      "foot_near": {
+       "angle": -0.312,
+       "sx": 1.015,
+       "sy": 1.128
+      },
+      "foot_far": {
+       "angle": -4.34,
+       "sx": 0.989,
+       "sy": 1.097
+      },
+      "upper_arm_near": {
+       "angle": -18.718,
+       "sx": 1.059,
+       "sy": 0.967
+      },
+      "upper_arm_far": {
+       "angle": -5.777,
+       "sx": 0.948,
+       "sy": 1.147
+      },
+      "thigh_near": {
+       "angle": -22.413,
+       "sx": 1.053,
+       "sy": 1.013
+      },
+      "forearm_far": {
+       "angle": 9.51,
+       "sx": 1.017,
+       "sy": 0.965
+      },
+      "torso": {
+       "angle": -2.692,
+       "x": 20.488,
+       "y": -5.565,
+       "sx": 1.006,
+       "sy": 0.97
+      },
+      "forearm_near": {
+       "angle": -29.775,
+       "sx": 1.085,
+       "sy": 1.05
+      },
+      "fist_far": {
+       "angle": -10.258,
+       "sx": 0.931,
+       "sy": 0.908
+      },
+      "tie": {
+       "angle": 30.148,
+       "sx": 0.979,
+       "sy": 1.016
+      },
+      "thigh_far": {
+       "angle": 11.788,
+       "sx": 0.913,
+       "sy": 0.944
+      },
+      "head": {
+       "angle": 9.197,
+       "sx": 1.018,
+       "sy": 1.052
+      }
+     },
+     "show": {
+      "head": "rig/head_shout"
+     }
+    },
+    {
+     "tick": 21,
+     "bones": {
+      "shin_far": {
+       "angle": -37.438,
+       "sx": 1.039,
+       "sy": 1.011
+      },
+      "fist_near": {
+       "angle": 69.635,
+       "sx": 0.86,
+       "sy": 0.993
+      },
+      "shin_near": {
+       "angle": 47.665,
+       "sx": 1.001,
+       "sy": 1.072
+      },
+      "foot_near": {
+       "angle": 2.013,
+       "sx": 0.992,
+       "sy": 1.133
+      },
+      "foot_far": {
+       "angle": -8.75,
+       "sx": 0.994,
+       "sy": 1.116
+      },
+      "upper_arm_near": {
+       "angle": -31.922,
+       "sx": 1.082,
+       "sy": 0.941
+      },
+      "upper_arm_far": {
+       "angle": -0.318,
+       "sx": 0.951,
+       "sy": 1.19
+      },
+      "thigh_near": {
+       "angle": -40.038,
+       "sx": 1.095,
+       "sy": 1.007
+      },
+      "forearm_far": {
+       "angle": 15.51,
+       "sx": 1.05,
+       "sy": 1.003
+      },
+      "torso": {
+       "angle": -5.188,
+       "x": 20.023,
+       "y": -8.727,
+       "sx": 1.031,
+       "sy": 0.926
+      },
+      "forearm_near": {
+       "angle": -18.695,
+       "sx": 1.077,
+       "sy": 0.934
+      },
+      "fist_far": {
+       "angle": -17.17,
+       "sx": 0.933,
+       "sy": 0.891
+      },
+      "tie": {
+       "angle": 27.817,
+       "sx": 0.973,
+       "sy": 1.012
+      },
+      "thigh_far": {
+       "angle": 27.343,
+       "sx": 0.965,
+       "sy": 0.943
+      },
+      "head": {
+       "angle": 7.5,
+       "sx": 1.033,
+       "sy": 0.98
+      }
+     },
+     "show": {
+      "head": "rig/head_shout"
+     }
+    },
+    {
+     "tick": 22,
+     "bones": {
+      "shin_far": {
+       "angle": -48.833,
+       "sx": 1.036,
+       "sy": 1.028
+      },
+      "fist_near": {
+       "angle": 64.983,
+       "sx": 0.884,
+       "sy": 0.934
+      },
+      "shin_near": {
+       "angle": 61.593,
+       "sx": 1.002,
+       "sy": 1.092
+      },
+      "foot_near": {
+       "angle": 3.527,
+       "sx": 0.981,
+       "sy": 1.14
+      },
+      "foot_far": {
+       "angle": -13.33,
+       "sx": 0.995,
+       "sy": 1.129
+      },
+      "upper_arm_near": {
+       "angle": -39.452,
+       "sx": 1.114,
+       "sy": 0.938
+      },
+      "upper_arm_far": {
+       "angle": 5.94,
+       "sx": 0.935,
+       "sy": 1.216
+      },
+      "thigh_near": {
+       "angle": -51.44,
+       "sx": 1.121,
+       "sy": 1.014
+      },
+      "forearm_far": {
+       "angle": 21.355,
+       "sx": 1.085,
+       "sy": 1.009
+      },
+      "torso": {
+       "angle": -7.757,
+       "x": 19.975,
+       "y": -11.057,
+       "sx": 1.055,
+       "sy": 0.888
+      },
+      "forearm_near": {
+       "angle": -0.84,
+       "sx": 0.985,
+       "sy": 0.906
+      },
+      "fist_far": {
+       "angle": -22.01,
+       "sx": 0.934,
+       "sy": 0.89
+      },
+      "tie": {
+       "angle": 34.16,
+       "sx": 1.03,
+       "sy": 0.937
+      },
+      "thigh_far": {
+       "angle": 36.03,
+       "sx": 1.024,
+       "sy": 0.97
+      },
+      "head": {
+       "angle": 10.105,
+       "sx": 1.073,
+       "sy": 0.924
+      }
+     },
+     "show": {
+      "head": "rig/head_shout"
+     }
+    },
+    {
+     "tick": 23,
+     "bones": {
+      "torso": {
+       "angle": -8.54,
+       "x": 19.9,
+       "y": -11.96,
+       "sx": 1.068,
+       "sy": 0.874
+      },
+      "head": {
+       "angle": 8.7,
+       "sx": 1.113,
+       "sy": 0.906
+      },
+      "thigh_far": {
+       "angle": 39.2,
+       "sx": 1.073,
+       "sy": 0.978
+      },
+      "thigh_near": {
+       "angle": -56.26,
+       "sx": 1.135,
+       "sy": 1.028
+      },
+      "tie": {
+       "angle": 55.95,
+       "sx": 1.148,
+       "sy": 0.819
+      },
+      "upper_arm_far": {
+       "angle": 10.52,
+       "sx": 0.935,
+       "sy": 1.221
+      },
+      "upper_arm_near": {
+       "angle": -41.23,
+       "sx": 1.127,
+       "sy": 0.937
+      },
+      "forearm_far": {
+       "angle": 23.37,
+       "sx": 1.099,
+       "sy": 0.995
+      },
+      "forearm_near": {
+       "angle": 27.6,
+       "sx": 0.941,
+       "sy": 0.911
+      },
+      "shin_far": {
+       "angle": -52.78,
+       "sx": 1.067,
+       "sy": 1.032
+      },
+      "shin_near": {
+       "angle": 68.21,
+       "sx": 0.998,
+       "sy": 1.104
+      },
+      "fist_far": {
+       "angle": -26.71,
+       "sx": 0.953,
+       "sy": 0.914
+      },
+      "fist_near": {
+       "angle": 44.84,
+       "sx": 0.949,
+       "sy": 0.872
+      },
+      "foot_far": {
+       "angle": -12.92,
+       "sx": 1.023,
+       "sy": 1.113
+      },
+      "foot_near": {
+       "angle": 4.0,
+       "sx": 0.98,
+       "sy": 1.129
+      }
+     },
+     "show": {
+      "head": "rig/head_shout"
+     }
+    }
+   ]
+  },
+  "idle": {
+   "after": "loop",
+   "length": 140,
+   "keys": [
+    {
+     "tick": 0,
+     "ease": "smooth",
+     "bones": {
+      "torso": {
+       "angle": 20.36,
+       "x": -14.05,
+       "y": -9.73
+      },
+      "head": {
+       "angle": -37.93
+      },
+      "tie": {
+       "angle": -32.15
+      },
+      "upper_arm_near": {
+       "angle": -72.89
+      },
+      "forearm_near": {
+       "angle": 42.03
+      },
+      "fist_near": {
+       "angle": 133.61
+      },
+      "thigh_near": {
+       "angle": -125.99
+      },
+      "shin_near": {
+       "angle": 106.49
+      },
+      "foot_near": {
+       "angle": -0.41
+      },
+      "upper_arm_far": {
+       "angle": -54.9
+      },
+      "forearm_far": {
+       "angle": 91.02
+      },
+      "fist_far": {
+       "angle": -75.25
+      },
+      "thigh_far": {
+       "angle": -27.67
+      },
+      "shin_far": {
+       "angle": -41.07
+      },
+      "foot_far": {
+       "angle": 11.09
+      }
+     }
+    },
+    {
+     "tick": 35,
+     "ease": "smooth",
+     "bones": {
+      "torso": {
+       "angle": 21.86,
+       "x": -14.05,
+       "y": -8.73
+      },
+      "head": {
+       "angle": -34.93
+      },
+      "tie": {
+       "angle": -28.15
+      },
+      "upper_arm_near": {
+       "angle": -69.89
+      },
+      "forearm_near": {
+       "angle": 42.03
+      },
+      "fist_near": {
+       "angle": 133.61
+      },
+      "thigh_near": {
+       "angle": -127.49
+      },
+      "shin_near": {
+       "angle": 106.49
+      },
+      "foot_near": {
+       "angle": -0.41
+      },
+      "upper_arm_far": {
+       "angle": -57.9
+      },
+      "forearm_far": {
+       "angle": 91.02
+      },
+      "fist_far": {
+       "angle": -75.25
+      },
+      "thigh_far": {
+       "angle": -29.17
+      },
+      "shin_far": {
+       "angle": -41.07
+      },
+      "foot_far": {
+       "angle": 11.09
+      }
+     }
+    },
+    {
+     "tick": 70,
+     "ease": "smooth",
+     "bones": {
+      "torso": {
+       "angle": 20.36,
+       "x": -14.05,
+       "y": -9.73
+      },
+      "head": {
+       "angle": -37.93
+      },
+      "tie": {
+       "angle": -32.15
+      },
+      "upper_arm_near": {
+       "angle": -72.89
+      },
+      "forearm_near": {
+       "angle": 42.03
+      },
+      "fist_near": {
+       "angle": 133.61
+      },
+      "thigh_near": {
+       "angle": -125.99
+      },
+      "shin_near": {
+       "angle": 106.49
+      },
+      "foot_near": {
+       "angle": -0.41
+      },
+      "upper_arm_far": {
+       "angle": -54.9
+      },
+      "forearm_far": {
+       "angle": 91.02
+      },
+      "fist_far": {
+       "angle": -75.25
+      },
+      "thigh_far": {
+       "angle": -27.67
+      },
+      "shin_far": {
+       "angle": -41.07
+      },
+      "foot_far": {
+       "angle": 11.09
+      }
+     }
+    },
+    {
+     "tick": 105,
+     "ease": "smooth",
+     "bones": {
+      "torso": {
+       "angle": 19.36,
+       "x": -14.05,
+       "y": -9.23
+      },
+      "head": {
+       "angle": -39.93
+      },
+      "tie": {
+       "angle": -35.15
+      },
+      "upper_arm_near": {
+       "angle": -74.89
+      },
+      "forearm_near": {
+       "angle": 42.03
+      },
+      "fist_near": {
+       "angle": 133.61
+      },
+      "thigh_near": {
+       "angle": -124.99
+      },
+      "shin_near": {
+       "angle": 106.49
+      },
+      "foot_near": {
+       "angle": -0.41
+      },
+      "upper_arm_far": {
+       "angle": -52.9
+      },
+      "forearm_far": {
+       "angle": 91.02
+      },
+      "fist_far": {
+       "angle": -75.25
+      },
+      "thigh_far": {
+       "angle": -26.67
+      },
+      "shin_far": {
+       "angle": -41.07
+      },
+      "foot_far": {
+       "angle": 11.09
+      }
+     }
+    }
+   ]
+  }
+ }
+}

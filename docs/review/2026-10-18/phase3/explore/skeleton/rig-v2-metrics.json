@@ -1,0 +1,88 @@
+{
+ "today_fit": {
+  "jab/0": {
+   "sigdiff": 0.104,
+   "iou": 0.877,
+   "arm": "arm_guard",
+   "head": "head_closed"
+  },
+  "jab/1": {
+   "sigdiff": 0.055,
+   "iou": 0.915,
+   "arm": "arm_ext",
+   "head": "head_open"
+  },
+  "jab/2": {
+   "sigdiff": 0.056,
+   "iou": 0.922,
+   "arm": "arm_cross",
+   "head": "head_open"
+  },
+  "jab/3": {
+   "sigdiff": 0.056,
+   "iou": 0.922,
+   "arm": "arm_cross",
+   "head": "head_open"
+  },
+  "jab/4": {
+   "sigdiff": 0.009,
+   "iou": 0.979,
+   "arm": "arm_guard",
+   "head": "head_closed"
+  },
+  "jab/5": {
+   "sigdiff": 0.065,
+   "iou": 0.929,
+   "arm": "arm_guard",
+   "head": "head_closed"
+  },
+  "jab/6": {
+   "sigdiff": 0.106,
+   "iou": 0.918,
+   "arm": "arm_guard",
+   "head": "head_closed"
+  }
+ },
+ "ultimate": {
+  "0": {
+   "today_iou": 0.461,
+   "rig_iou": 0.851
+  },
+  "2": {
+   "today_iou": 0.456,
+   "rig_iou": 0.819
+  },
+  "4": {
+   "today_iou": 0.477,
+   "rig_iou": 0.826
+  },
+  "5": {
+   "today_iou": 0.403,
+   "rig_iou": 0.776
+  },
+  "7": {
+   "today_iou": 0.641,
+   "rig_iou": 0.903
+  },
+  "9": {
+   "today_iou": 0.57,
+   "rig_iou": 0.895
+  },
+  "12": {
+   "today_iou": 0.506,
+   "rig_iou": 0.905
+  },
+  "16": {
+   "today_iou": 0.507,
+   "rig_iou": 0.901
+  },
+  "20": {
+   "today_iou": 0.556,
+   "rig_iou": 0.882
+  },
+  "23": {
+   "today_iou": 0.551,
+   "rig_iou": 0.887
+  }
+ }
+}

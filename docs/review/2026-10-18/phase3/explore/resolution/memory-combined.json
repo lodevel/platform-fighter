@@ -1,0 +1,56 @@
+[
+ {
+  "id": "donkeykong",
+  "cand": "A-1080-all+holds0.12",
+  "drawings": 1511,
+  "bc7MiB": 51.68531799316406
+ },
+ {
+  "id": "donkeykong",
+  "cand": "B-1080-final2.8+holds0.12",
+  "drawings": 1511,
+  "bc7MiB": 82.49493408203125
+ },
+ {
+  "id": "donkeykong",
+  "cand": "C-1440-final2.8+holds0.12",
+  "drawings": 1511,
+  "bc7MiB": 113.83798217773438
+ },
+ {
+  "id": "link",
+  "cand": "A-1080-all+holds0.12",
+  "drawings": 1653,
+  "bc7MiB": 29.241683959960938
+ },
+ {
+  "id": "link",
+  "cand": "B-1080-final2.8+holds0.12",
+  "drawings": 1653,
+  "bc7MiB": 30.904708862304688
+ },
+ {
+  "id": "link",
+  "cand": "C-1440-final2.8+holds0.12",
+  "drawings": 1653,
+  "bc7MiB": 51.90937805175781
+ },
+ {
+  "id": "pikachu",
+  "cand": "A-1080-all+holds0.12",
+  "drawings": 1156,
+  "bc7MiB": 12.930465698242188
+ },
+ {
+  "id": "pikachu",
+  "cand": "B-1080-final2.8+holds0.12",
+  "drawings": 1156,
+  "bc7MiB": 18.788421630859375
+ },
+ {
+  "id": "pikachu",
+  "cand": "C-1440-final2.8+holds0.12",
+  "drawings": 1156,
+  "bc7MiB": 26.898269653320312
+ }
+]

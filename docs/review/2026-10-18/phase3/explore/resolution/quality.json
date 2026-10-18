@@ -1,0 +1,482 @@
+[
+ {
+  "ref": "DK jab",
+  "drawing": "jab/1",
+  "scenario": "1080p zoom 1.4",
+  "screenPxPerDesign": 1.4,
+  "results": {
+   "today": {
+    "texelsPerDesign": 2.143,
+    "minification": 1.531,
+    "meanAbsErrVsIdeal": 0.00581,
+    "pctPixelsOver32": 0.589
+   },
+   "A 1080p/1.4": {
+    "texelsPerDesign": 1.398,
+    "minification": 0.999,
+    "meanAbsErrVsIdeal": 0.00602,
+    "pctPixelsOver32": 0.092
+   },
+   "B 1080p+Final 2.8": {
+    "texelsPerDesign": 1.398,
+    "minification": 0.999,
+    "meanAbsErrVsIdeal": 0.00602,
+    "pctPixelsOver32": 0.092
+   },
+   "C 1440p/1.87": {
+    "texelsPerDesign": 1.872,
+    "minification": 1.337,
+    "meanAbsErrVsIdeal": 0.00496,
+    "pctPixelsOver32": 0.1
+   }
+  }
+ },
+ {
+  "ref": "DK jab",
+  "drawing": "jab/1",
+  "scenario": "1080p zoom 1.0",
+  "screenPxPerDesign": 1.0,
+  "results": {
+   "today": {
+    "texelsPerDesign": 2.143,
+    "minification": 2.143,
+    "meanAbsErrVsIdeal": 0.00982,
+    "pctPixelsOver32": 2.613
+   },
+   "A 1080p/1.4": {
+    "texelsPerDesign": 1.398,
+    "minification": 1.398,
+    "meanAbsErrVsIdeal": 0.00498,
+    "pctPixelsOver32": 0.031
+   },
+   "B 1080p+Final 2.8": {
+    "texelsPerDesign": 1.398,
+    "minification": 1.398,
+    "meanAbsErrVsIdeal": 0.00498,
+    "pctPixelsOver32": 0.031
+   },
+   "C 1440p/1.87": {
+    "texelsPerDesign": 1.872,
+    "minification": 1.872,
+    "meanAbsErrVsIdeal": 0.00769,
+    "pctPixelsOver32": 0.701
+   }
+  }
+ },
+ {
+  "ref": "DK jab",
+  "drawing": "jab/1",
+  "scenario": "1440p zoom 1.4",
+  "screenPxPerDesign": 1.87,
+  "results": {
+   "today": {
+    "texelsPerDesign": 2.143,
+    "minification": 1.146,
+    "meanAbsErrVsIdeal": 0.00347,
+    "pctPixelsOver32": 0.057
+   },
+   "A 1080p/1.4": {
+    "texelsPerDesign": 1.398,
+    "minification": 0.748,
+    "meanAbsErrVsIdeal": 0.00727,
+    "pctPixelsOver32": 0.591
+   },
+   "B 1080p+Final 2.8": {
+    "texelsPerDesign": 1.398,
+    "minification": 0.748,
+    "meanAbsErrVsIdeal": 0.00727,
+    "pctPixelsOver32": 0.591
+   },
+   "C 1440p/1.87": {
+    "texelsPerDesign": 1.872,
+    "minification": 1.001,
+    "meanAbsErrVsIdeal": 0.00478,
+    "pctPixelsOver32": 0.031
+   }
+  }
+ },
+ {
+  "ref": "DK jab",
+  "drawing": "jab/1",
+  "scenario": "4K zoom 1.4",
+  "screenPxPerDesign": 2.8,
+  "results": {
+   "today": {
+    "texelsPerDesign": 2.143,
+    "minification": 0.765,
+    "meanAbsErrVsIdeal": 0.0016,
+    "pctPixelsOver32": 0.002
+   },
+   "A 1080p/1.4": {
+    "texelsPerDesign": 1.398,
+    "minification": 0.499,
+    "meanAbsErrVsIdeal": 0.00876,
+    "pctPixelsOver32": 1.528
+   },
+   "B 1080p+Final 2.8": {
+    "texelsPerDesign": 1.398,
+    "minification": 0.499,
+    "meanAbsErrVsIdeal": 0.00876,
+    "pctPixelsOver32": 1.528
+   },
+   "C 1440p/1.87": {
+    "texelsPerDesign": 1.872,
+    "minification": 0.668,
+    "meanAbsErrVsIdeal": 0.00504,
+    "pctPixelsOver32": 0.206
+   }
+  }
+ },
+ {
+  "ref": "DK jab",
+  "drawing": "jab/1",
+  "scenario": "1080p zoom 0.7",
+  "screenPxPerDesign": 0.7,
+  "results": {
+   "today": {
+    "texelsPerDesign": 2.143,
+    "minification": 3.061,
+    "meanAbsErrVsIdeal": 0.01599,
+    "pctPixelsOver32": 8.359
+   },
+   "A 1080p/1.4": {
+    "texelsPerDesign": 1.398,
+    "minification": 1.998,
+    "meanAbsErrVsIdeal": 0.00917,
+    "pctPixelsOver32": 1.121
+   },
+   "B 1080p+Final 2.8": {
+    "texelsPerDesign": 1.398,
+    "minification": 1.998,
+    "meanAbsErrVsIdeal": 0.00917,
+    "pctPixelsOver32": 1.121
+   },
+   "C 1440p/1.87": {
+    "texelsPerDesign": 1.872,
+    "minification": 2.674,
+    "meanAbsErrVsIdeal": 0.01397,
+    "pctPixelsOver32": 4.658
+   }
+  }
+ },
+ {
+  "ref": "Link spin attack",
+  "drawing": "d02specialairhi/11",
+  "scenario": "1080p zoom 1.4",
+  "screenPxPerDesign": 1.4,
+  "results": {
+   "today": {
+    "texelsPerDesign": 2.143,
+    "minification": 1.531,
+    "meanAbsErrVsIdeal": 0.01113,
+    "pctPixelsOver32": 1.303
+   },
+   "A 1080p/1.4": {
+    "texelsPerDesign": 1.398,
+    "minification": 0.998,
+    "meanAbsErrVsIdeal": 0.01202,
+    "pctPixelsOver32": 0.912
+   },
+   "B 1080p+Final 2.8": {
+    "texelsPerDesign": 1.398,
+    "minification": 0.998,
+    "meanAbsErrVsIdeal": 0.01202,
+    "pctPixelsOver32": 0.912
+   },
+   "C 1440p/1.87": {
+    "texelsPerDesign": 1.866,
+    "minification": 1.333,
+    "meanAbsErrVsIdeal": 0.01709,
+    "pctPixelsOver32": 5.589
+   }
+  }
+ },
+ {
+  "ref": "Link spin attack",
+  "drawing": "d02specialairhi/11",
+  "scenario": "1080p zoom 1.0",
+  "screenPxPerDesign": 1.0,
+  "results": {
+   "today": {
+    "texelsPerDesign": 2.143,
+    "minification": 2.143,
+    "meanAbsErrVsIdeal": 0.01894,
+    "pctPixelsOver32": 6.064
+   },
+   "A 1080p/1.4": {
+    "texelsPerDesign": 1.398,
+    "minification": 1.398,
+    "meanAbsErrVsIdeal": 0.0109,
+    "pctPixelsOver32": 0.382
+   },
+   "B 1080p+Final 2.8": {
+    "texelsPerDesign": 1.398,
+    "minification": 1.398,
+    "meanAbsErrVsIdeal": 0.0109,
+    "pctPixelsOver32": 0.382
+   },
+   "C 1440p/1.87": {
+    "texelsPerDesign": 1.866,
+    "minification": 1.866,
+    "meanAbsErrVsIdeal": 0.02014,
+    "pctPixelsOver32": 7.405
+   }
+  }
+ },
+ {
+  "ref": "Link spin attack",
+  "drawing": "d02specialairhi/11",
+  "scenario": "1440p zoom 1.4",
+  "screenPxPerDesign": 1.87,
+  "results": {
+   "today": {
+    "texelsPerDesign": 2.143,
+    "minification": 1.146,
+    "meanAbsErrVsIdeal": 0.00672,
+    "pctPixelsOver32": 0.193
+   },
+   "A 1080p/1.4": {
+    "texelsPerDesign": 1.398,
+    "minification": 0.748,
+    "meanAbsErrVsIdeal": 0.01453,
+    "pctPixelsOver32": 2.544
+   },
+   "B 1080p+Final 2.8": {
+    "texelsPerDesign": 1.398,
+    "minification": 0.748,
+    "meanAbsErrVsIdeal": 0.01453,
+    "pctPixelsOver32": 2.544
+   },
+   "C 1440p/1.87": {
+    "texelsPerDesign": 1.866,
+    "minification": 0.998,
+    "meanAbsErrVsIdeal": 0.01682,
+    "pctPixelsOver32": 5.652
+   }
+  }
+ },
+ {
+  "ref": "Link spin attack",
+  "drawing": "d02specialairhi/11",
+  "scenario": "4K zoom 1.4",
+  "screenPxPerDesign": 2.8,
+  "results": {
+   "today": {
+    "texelsPerDesign": 2.143,
+    "minification": 0.765,
+    "meanAbsErrVsIdeal": 0.00313,
+    "pctPixelsOver32": 0.002
+   },
+   "A 1080p/1.4": {
+    "texelsPerDesign": 1.398,
+    "minification": 0.499,
+    "meanAbsErrVsIdeal": 0.01718,
+    "pctPixelsOver32": 4.845
+   },
+   "B 1080p+Final 2.8": {
+    "texelsPerDesign": 1.398,
+    "minification": 0.499,
+    "meanAbsErrVsIdeal": 0.01718,
+    "pctPixelsOver32": 4.845
+   },
+   "C 1440p/1.87": {
+    "texelsPerDesign": 1.866,
+    "minification": 0.667,
+    "meanAbsErrVsIdeal": 0.01781,
+    "pctPixelsOver32": 6.918
+   }
+  }
+ },
+ {
+  "ref": "Link spin attack",
+  "drawing": "d02specialairhi/11",
+  "scenario": "1080p zoom 0.7",
+  "screenPxPerDesign": 0.7,
+  "results": {
+   "today": {
+    "texelsPerDesign": 2.143,
+    "minification": 3.061,
+    "meanAbsErrVsIdeal": 0.031,
+    "pctPixelsOver32": 18.393
+   },
+   "A 1080p/1.4": {
+    "texelsPerDesign": 1.398,
+    "minification": 1.997,
+    "meanAbsErrVsIdeal": 0.0186,
+    "pctPixelsOver32": 3.747
+   },
+   "B 1080p+Final 2.8": {
+    "texelsPerDesign": 1.398,
+    "minification": 1.997,
+    "meanAbsErrVsIdeal": 0.0186,
+    "pctPixelsOver32": 3.747
+   },
+   "C 1440p/1.87": {
+    "texelsPerDesign": 1.866,
+    "minification": 2.666,
+    "meanAbsErrVsIdeal": 0.02857,
+    "pctPixelsOver32": 14.674
+   }
+  }
+ },
+ {
+  "ref": "Pikachu Final",
+  "drawing": "visual_final_09/2",
+  "scenario": "1080p zoom 1.4",
+  "screenPxPerDesign": 1.4,
+  "results": {
+   "today": {
+    "texelsPerDesign": 4.286,
+    "minification": 3.061,
+    "meanAbsErrVsIdeal": 0.01189,
+    "pctPixelsOver32": 8.655
+   },
+   "A 1080p/1.4": {
+    "texelsPerDesign": 1.4,
+    "minification": 1.0,
+    "meanAbsErrVsIdeal": 0.01255,
+    "pctPixelsOver32": 6.827
+   },
+   "B 1080p+Final 2.8": {
+    "texelsPerDesign": 2.801,
+    "minification": 2.001,
+    "meanAbsErrVsIdeal": 0.00722,
+    "pctPixelsOver32": 2.846
+   },
+   "C 1440p/1.87": {
+    "texelsPerDesign": 2.801,
+    "minification": 2.001,
+    "meanAbsErrVsIdeal": 0.00722,
+    "pctPixelsOver32": 2.846
+   }
+  }
+ },
+ {
+  "ref": "Pikachu Final",
+  "drawing": "visual_final_09/2",
+  "scenario": "1080p zoom 1.0",
+  "screenPxPerDesign": 1.0,
+  "results": {
+   "today": {
+    "texelsPerDesign": 4.286,
+    "minification": 4.286,
+    "meanAbsErrVsIdeal": 0.01702,
+    "pctPixelsOver32": 12.677
+   },
+   "A 1080p/1.4": {
+    "texelsPerDesign": 1.4,
+    "minification": 1.4,
+    "meanAbsErrVsIdeal": 0.01015,
+    "pctPixelsOver32": 3.719
+   },
+   "B 1080p+Final 2.8": {
+    "texelsPerDesign": 2.801,
+    "minification": 2.801,
+    "meanAbsErrVsIdeal": 0.01131,
+    "pctPixelsOver32": 6.562
+   },
+   "C 1440p/1.87": {
+    "texelsPerDesign": 2.801,
+    "minification": 2.801,
+    "meanAbsErrVsIdeal": 0.01131,
+    "pctPixelsOver32": 6.562
+   }
+  }
+ },
+ {
+  "ref": "Pikachu Final",
+  "drawing": "visual_final_09/2",
+  "scenario": "1440p zoom 1.4",
+  "screenPxPerDesign": 1.87,
+  "results": {
+   "today": {
+    "texelsPerDesign": 4.286,
+    "minification": 2.292,
+    "meanAbsErrVsIdeal": 0.00837,
+    "pctPixelsOver32": 5.372
+   },
+   "A 1080p/1.4": {
+    "texelsPerDesign": 1.4,
+    "minification": 0.749,
+    "meanAbsErrVsIdeal": 0.01485,
+    "pctPixelsOver32": 9.739
+   },
+   "B 1080p+Final 2.8": {
+    "texelsPerDesign": 2.801,
+    "minification": 1.498,
+    "meanAbsErrVsIdeal": 0.00527,
+    "pctPixelsOver32": 1.238
+   },
+   "C 1440p/1.87": {
+    "texelsPerDesign": 2.801,
+    "minification": 1.498,
+    "meanAbsErrVsIdeal": 0.00527,
+    "pctPixelsOver32": 1.238
+   }
+  }
+ },
+ {
+  "ref": "Pikachu Final",
+  "drawing": "visual_final_09/2",
+  "scenario": "4K zoom 1.4",
+  "screenPxPerDesign": 2.8,
+  "results": {
+   "today": {
+    "texelsPerDesign": 4.286,
+    "minification": 1.531,
+    "meanAbsErrVsIdeal": 0.00469,
+    "pctPixelsOver32": 2.121
+   },
+   "A 1080p/1.4": {
+    "texelsPerDesign": 1.4,
+    "minification": 0.5,
+    "meanAbsErrVsIdeal": 0.01755,
+    "pctPixelsOver32": 12.175
+   },
+   "B 1080p+Final 2.8": {
+    "texelsPerDesign": 2.801,
+    "minification": 1.0,
+    "meanAbsErrVsIdeal": 0.00588,
+    "pctPixelsOver32": 2.153
+   },
+   "C 1440p/1.87": {
+    "texelsPerDesign": 2.801,
+    "minification": 1.0,
+    "meanAbsErrVsIdeal": 0.00588,
+    "pctPixelsOver32": 2.153
+   }
+  }
+ },
+ {
+  "ref": "Pikachu Final",
+  "drawing": "visual_final_09/2",
+  "scenario": "1080p zoom 0.7",
+  "screenPxPerDesign": 0.7,
+  "results": {
+   "today": {
+    "texelsPerDesign": 4.286,
+    "minification": 6.122,
+    "meanAbsErrVsIdeal": 0.02442,
+    "pctPixelsOver32": 16.397
+   },
+   "A 1080p/1.4": {
+    "texelsPerDesign": 1.4,
+    "minification": 2.001,
+    "meanAbsErrVsIdeal": 0.01206,
+    "pctPixelsOver32": 5.083
+   },
+   "B 1080p+Final 2.8": {
+    "texelsPerDesign": 2.801,
+    "minification": 4.001,
+    "meanAbsErrVsIdeal": 0.01785,
+    "pctPixelsOver32": 12.531
+   },
+   "C 1440p/1.87": {
+    "texelsPerDesign": 2.801,
+    "minification": 4.001,
+    "meanAbsErrVsIdeal": 0.01785,
+    "pctPixelsOver32": 12.531
+   }
+  }
+ }
+]

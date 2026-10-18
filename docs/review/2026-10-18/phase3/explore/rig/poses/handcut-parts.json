@@ -1,0 +1,108 @@
+{
+ "schema": "rig-parts/1",
+ "scale": 0.4666667,
+ "root": "body",
+ "rootAt": [
+  200,
+  290
+ ],
+ "parts": {
+  "body": {
+   "file": "body.png",
+   "pivot": [
+    200,
+    290
+   ],
+   "z": 0
+  },
+  "body_idle": {
+   "file": "body_idle.png",
+   "pivot": [
+    200,
+    290
+   ],
+   "variantOf": "body"
+  },
+  "fist_far": {
+   "file": "fist_far.png",
+   "pivot": [
+    154,
+    143
+   ],
+   "parent": "body",
+   "joint": [
+    154,
+    143
+   ],
+   "z": 1
+  },
+  "head": {
+   "file": "head.png",
+   "pivot": [
+    226,
+    176
+   ],
+   "parent": "body",
+   "joint": [
+    226,
+    176
+   ],
+   "z": 3
+  },
+  "head_open": {
+   "file": "head_open.png",
+   "pivot": [
+    226,
+    176
+   ],
+   "variantOf": "head"
+  },
+  "head_idle": {
+   "file": "head_idle.png",
+   "pivot": [
+    226,
+    176
+   ],
+   "variantOf": "head"
+  },
+  "arm": {
+   "file": "arm.png",
+   "pivot": [
+    278,
+    150
+   ],
+   "parent": "body",
+   "joint": [
+    278,
+    150
+   ],
+   "z": 4
+  },
+  "arm_ext": {
+   "file": "arm_ext.png",
+   "pivot": [
+    278,
+    150
+   ],
+   "variantOf": "arm"
+  },
+  "arm_cross": {
+   "file": "arm_cross.png",
+   "pivot": [
+    278,
+    150
+   ],
+   "variantOf": "arm"
+  }
+ },
+ "sockets": {
+  "item": {
+   "part": "arm",
+   "at": [
+    330,
+    190
+   ],
+   "angle": 90
+  }
+ }
+}
