@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Character Lab</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./lab.css">
+</head>
+<body>
+  <header class="bar">
+    <h1>Character Lab</h1>
+    <label class="field">Package <select id="package"></select></label>
+    <label class="button" for="folder">Open folder…</label>
+    <input id="folder" type="file" webkitdirectory hidden>
+    <span id="status" class="status" role="status"></span>
+  </header>
+  <main class="layout">
+    <nav class="actions">
+      <input id="filter" type="search" placeholder="Filter actions" aria-label="Filter actions">
+      <ul id="action-list"></ul>
+    </nav>
+    <section class="view">
+      <div class="stages">
+        <figure class="stage-box" id="reference-box">
+          <figcaption>Ultimate original</figcaption>
+          <canvas id="reference" aria-label="Ultimate reference recording"></canvas>
+          <p id="reference-note" class="note"></p>
+        </figure>
+        <figure class="stage-box">
+          <figcaption id="stage-caption">Package</figcaption>
+          <canvas id="stage" aria-label="Character preview"></canvas>
+        </figure>
+      </div>
+      <div class="timeline">
+        <div class="transport">
+          <button id="play" type="button" title="Play or pause (Space)">Play</button>
+          <button id="back" type="button" title="Previous tick (←)">◀ tick</button>
+          <button id="next" type="button" title="Next tick (→)">tick ▶</button>
+          <span id="tick" class="readout"></span>
+        </div>
+        <canvas id="windows" aria-label="Drawing windows"></canvas>
+        <input id="seek" type="range" min="0" value="0" aria-label="Seek">
+      </div>
+      <div class="options">
+        <fieldset><legend>Speed</legend>
+          <label><input type="radio" name="speed" value="1" checked> 1×</label>
+          <label><input type="radio" name="speed" value="0.25"> ¼×</label></fieldset>
+        <fieldset><legend>Zoom</legend>
+          <label><input type="radio" name="zoom" value="1.4" checked> 1.4 match</label>
+          <label><input type="radio" name="zoom" value="2.8"> 2.8 Final</label></fieldset>
+        <fieldset><legend>Facing</legend>
+          <label><input type="radio" name="facing" value="1" checked> Right</label>
+          <label><input type="radio" name="facing" value="-1"> Left</label></fieldset>
+        <fieldset><legend>Stage</legend>
+          <label><input type="radio" name="stage" value="dark" checked> Dark</label>
+          <label><input type="radio" name="stage" value="light"> Light</label></fieldset>
+        <fieldset><legend>Overlays</legend>
+          <label><input type="checkbox" id="ov-root" checked> Root</label>
+          <label><input type="checkbox" id="ov-sockets" checked> Sockets</label>
+          <label><input type="checkbox" id="ov-bounds"> Drawing bounds</label></fieldset>
+      </div>
+    </section>
+    <aside class="details">
+      <h2>Action</h2>
+      <dl id="action-facts"></dl>
+      <h2>Memory</h2>
+      <p class="note">Estimated from package data: uncompressed RGBA8 and BC7 pages.</p>
+      <dl id="memory"></dl>
+      <h2>Problems</h2>
+      <ul id="problems" class="problems"></ul>
+    </aside>
+  </main>
+  <script type="module" src="./main.ts"></script>
+</body>
+</html>

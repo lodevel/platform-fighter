@@ -33,6 +33,8 @@ npm run build               # tsc + vite build
 npm run preview             # dist/ on :4173 under /platform-fighter/ (the --base flag matters: the
                             # built asset URLs are absolute, a plain `vite preview` serves fallback HTML)
 npx tsc --noEmit -p tools/tsconfig.json   # tools/ is outside the root tsconfig
+npm run character:export    # today's fighters → .tmp/character-packages (character-package/1)
+npm run lab                 # standalone character lab, http://localhost:5180 (lab:build → dist-lab/)
 ```
 
 Verification ritual before calling gameplay work done:
@@ -60,6 +62,14 @@ The live host feeds DOM keyboard/gamepad state through the original
 `InputResolver` and match-local bindings projected from saved profiles.
 Pause controls update that same store. `MatchSim.advance` polls the input
 supplier once per fixed step, preserving the canonical accumulator in history.
+
+### Character packages and lab
+
+`character/` holds the display-only character format (`package/`), its pure
+evaluator (`evaluator/`) and the standalone lab (`lab/`). They never import
+`src/` or `port/` (`character/boundaries.test.ts`). `scripts/character-package/`
+exports today's fighters by sampling the game's own drawing selection; it is
+temporary migration code. Plan: `docs/CHARACTER-LAB-PLAN.md`.
 
 ### Determinism
 

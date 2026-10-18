@@ -1,0 +1,104 @@
+/**
+ * Character package format `character-package/1`: how one character is displayed.
+ *
+ * Display only. Hitboxes, hurtboxes, damage, physics and a fighter's special
+ * clocks belong to the game, which turns them into a plain request (action and
+ * tick, facing). This module imports nothing outside `character/package/`.
+ *
+ * Conventions: lengths in design pixels, +X right, +Y down, every pose authored
+ * facing right (the display mirrors X for left), time in ticks at 60 Hz counted
+ * from 0 at the start of the action.
+ */
+
+export const PACKAGE_SCHEMA = 'character-package/1';
+
+export type PageId = string;
+export type DrawingId = string;
+export type ActionId = string;
+
+export interface CharacterPackage {
+  readonly schema: typeof PACKAGE_SCHEMA;
+  readonly id: string;
+  /** Content hash of the canonical package, set by the serializer. */
+  readonly revision: string;
+  readonly pages: Readonly<Record<PageId, Page>>;
+  readonly drawings: Readonly<Record<DrawingId, Drawing>>;
+  readonly actions: Readonly<Record<ActionId, Action>>;
+  readonly provenance: Provenance;
+  /** Data only one host understands, keyed by a versioned host name. Never read by the core. */
+  readonly extensions?: Readonly<Record<string, unknown>>;
+}
+
+/** An image file holding drawings, relative to the package directory. */
+export interface Page {
+  readonly file: string;
+  readonly width: number;
+  readonly height: number;
+  readonly sha256: string;
+}
+
+/** One stored drawing: a rectangle of a page, placed by its root anchor. */
+export interface Drawing {
+  readonly page: PageId;
+  /** [x, y, width, height] in page pixels. */
+  readonly rect: readonly [number, number, number, number];
+  /** Where the character's root sits, in page pixels from the rectangle's top-left corner. */
+  readonly anchor: readonly [number, number];
+  /** Design pixels per page pixel. */
+  readonly scale: number;
+}
+
+/**
+ * What one action shows over time. `bodyCentreFromRootY` places the drawing
+ * relative to the game's body centre: root = bodyCentre - (0, bodyCentreFromRootY).
+ */
+export interface Action {
+  readonly bodyCentreFromRootY: number;
+  readonly drawings: Schedule<DrawingWindow>;
+  /** Named attachment points, such as the hand that holds an item. */
+  readonly sockets?: Readonly<Record<string, SocketTrack>>;
+  /** The original move this action follows (the 20/20 reference), when known. */
+  readonly source?: { readonly game: string; readonly move: string };
+}
+
+/**
+ * Contiguous windows [start, end) from tick 0. After the last window the schedule
+ * either repeats (`loop`, period = last end), keeps the last window (`hold`), or
+ * shows nothing (`stop`).
+ */
+export interface Schedule<W extends Window> {
+  readonly after: 'loop' | 'hold' | 'stop';
+  readonly windows: readonly W[];
+}
+
+export interface Window {
+  readonly start: number;
+  readonly end: number;
+}
+
+export interface DrawingWindow extends Window {
+  readonly drawing: DrawingId;
+  /** Frame of the source move this drawing depicts, for review and reference alignment. */
+  readonly sample?: number;
+}
+
+export interface SocketTrack {
+  /** `body-centre` or `root` origin, facing right. */
+  readonly space: 'body-centre' | 'root';
+  readonly schedule: Schedule<SocketWindow>;
+}
+
+export interface SocketWindow extends Window {
+  readonly x: number;
+  readonly y: number;
+  /** Direction of the held item in degrees clockwise from up (0 = up, 90 = forward), facing right. */
+  readonly angle?: number;
+  /** In-plane share of the item's length, 0..1, for items turned toward or away from the viewer. */
+  readonly length?: number;
+}
+
+export interface Provenance {
+  readonly importer?: { readonly name: string; readonly version: string };
+  /** Source files and their SHA-256, keyed by path. */
+  readonly sources: Readonly<Record<string, string>>;
+}

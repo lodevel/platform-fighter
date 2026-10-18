@@ -1,0 +1,119 @@
+{
+ "schema": "character-lab-probe/1",
+ "dev": [
+  {
+   "package": "donkeykong",
+   "action": "jab",
+   "tick": "tick 6 / 54  ·  drawing jab/3  ·  source frame 7",
+   "shot": "dk-jab-right",
+   "reference": "Ultimate Frame Data recording, 24 ticks, played on the same clock.",
+   "problems": [
+    "None"
+   ],
+   "drawnPixels": 16586
+  },
+  {
+   "package": "donkeykong",
+   "action": "smash",
+   "tick": "tick 16 / 90  ·  drawing smash/3  ·  source frame 17",
+   "facing": "-1",
+   "shot": "dk-smash-left",
+   "reference": "Ultimate Frame Data recording, 54 ticks, played on the same clock.",
+   "problems": [
+    "None"
+   ],
+   "drawnPixels": 20994
+  },
+  {
+   "package": "donkeykong",
+   "action": "up_special_air",
+   "tick": "tick 30 / 101  ·  drawing up_special_air/5  ·  source frame 36",
+   "stage": "light",
+   "shot": "dk-spinning-kong-light",
+   "reference": "Ultimate Frame Data recording, 70 ticks, played on the same clock.",
+   "problems": [
+    "None"
+   ],
+   "drawnPixels": 22325
+  },
+  {
+   "package": "donkeykong",
+   "action": "final_attack",
+   "tick": "tick 40 / 164  ·  drawing final_attack/26  ·  source frame 39",
+   "zoom": "2.8",
+   "shot": "dk-final-zoom-2.8",
+   "reference": "No Ultimate recording for this action yet.",
+   "problems": [
+    "None"
+   ],
+   "drawnPixels": 83388
+  },
+  {
+   "package": "donkeykong",
+   "action": "item_bat_swing_4",
+   "tick": "tick 21 / 111  ·  drawing item_bat_swing_4/4  ·  source frame 21",
+   "bounds": true,
+   "shot": "dk-bat-socket",
+   "reference": "No Ultimate recording for this action yet.",
+   "problems": [
+    "None"
+   ],
+   "drawnPixels": 19955
+  },
+  {
+   "package": "link",
+   "action": "jab",
+   "tick": "tick 8 / 53  ·  drawing jab/2  ·  source frame 8",
+   "shot": "link-jab-right",
+   "reference": "Ultimate Frame Data recording, 23 ticks, played on the same clock.",
+   "problems": [
+    "None"
+   ],
+   "drawnPixels": 7543
+  },
+  {
+   "package": "link",
+   "action": "d02specialairhi",
+   "tick": "tick 20 / 122  ·  drawing d02specialairhi/4  ·  source frame 19",
+   "facing": "-1",
+   "shot": "link-spin-attack-left",
+   "reference": "Ultimate Frame Data recording, 92 ticks, played on the same clock.",
+   "problems": [
+    "None"
+   ],
+   "drawnPixels": 6565
+  },
+  {
+   "package": "link",
+   "action": "h04swing4",
+   "tick": "tick 18 / 88  ·  drawing h04swing4/3  ·  source frame 18",
+   "stage": "light",
+   "shot": "link-bat-light",
+   "reference": "No Ultimate recording for this action yet.",
+   "problems": [
+    "None"
+   ],
+   "drawnPixels": 6480
+  },
+  {
+   "package": "pikachu",
+   "action": "final",
+   "tick": "tick 30 / 94  ·  drawing visual_final_00/36  ·  source frame 30",
+   "shot": "pikachu-final-display",
+   "reference": "No Ultimate recording for this action yet.",
+   "problems": [
+    "None"
+   ],
+   "drawnPixels": 5917
+  }
+ ],
+ "static": {
+  "url": "http://127.0.0.1:5181/",
+  "picker": "Folder: revision none"
+ },
+ "errors": [
+  "console: Failed to load resource: net::ERR_EMPTY_RESPONSE",
+  "console: Failed to load resource: net::ERR_CONNECTION_REFUSED",
+  "console: Failed to load resource: net::ERR_CONNECTION_REFUSED"
+ ]
+}

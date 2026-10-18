@@ -1,0 +1,309 @@
+{
+ "schema": "character-reuse-scan/1",
+ "near": "mean |diff| < 0.00588 on 96px premultiplied thumbnails",
+ "packages": [
+  {
+   "package": "donkeykong",
+   "revision": "96d4b5fabf72afb6ac161dc87505df4a75eb82208c700cceec2d18c8d832594f",
+   "drawings": 1627,
+   "drawnPixels": 148986552,
+   "groups": 1561,
+   "groupsWithReuse": 52,
+   "crossActionGroups": 23,
+   "links": {
+    "identical": 33,
+    "near": 33
+   },
+   "pixelsAfterReuse": 140495491,
+   "savedShare": 0.057,
+   "largestGroups": [
+    [
+     "final_attack/17",
+     "final_attack/29",
+     "final_attack/37",
+     "final_attack/8"
+    ],
+    [
+     "final_attack/10",
+     "final_attack/31",
+     "final_attack/64"
+    ],
+    [
+     "final_attack/22",
+     "final_attack/40",
+     "final_attack/56"
+    ],
+    [
+     "final_attack/16",
+     "final_attack/45",
+     "final_attack/53",
+     "final_attack/61",
+     "final_attack/7"
+    ],
+    [
+     "final_attack/30",
+     "final_attack/51",
+     "final_attack/59",
+     "final_attack/67"
+    ],
+    [
+     "final_attack/21",
+     "final_attack/39"
+    ],
+    [
+     "final_attack/42",
+     "final_attack/47",
+     "final_attack/55",
+     "final_attack/63"
+    ],
+    [
+     "final_attack/33",
+     "final_attack/34"
+    ],
+    [
+     "final_attack/27",
+     "final_attack/35"
+    ],
+    [
+     "final_attack/28",
+     "final_attack/43"
+    ],
+    [
+     "final_start/38",
+     "final_start/39",
+     "final_start/40"
+    ],
+    [
+     "final_start/33",
+     "final_start/34",
+     "final_start/35"
+    ]
+   ]
+  },
+  {
+   "package": "link",
+   "revision": "7238f09b9dedf47a9256464bb30d179a93d68de519f8205d276df6cb1bd23985",
+   "drawings": 1753,
+   "drawnPixels": 65203752,
+   "groups": 1610,
+   "groupsWithReuse": 44,
+   "crossActionGroups": 29,
+   "links": {
+    "identical": 8,
+    "near": 135
+   },
+   "pixelsAfterReuse": 59344439,
+   "savedShare": 0.0899,
+   "largestGroups": [
+    [
+     "a01walkbrakel/3",
+     "a01walkbraker/3",
+     "a02runbrakel/4",
+     "a02runbraker/4",
+     "a02turnrunbrake/3",
+     "a04landingfallspecial/5",
+     "a05landingheavy/4",
+     "a05squatrv/1",
+     "a06stepback/12",
+     "b02rebound/5",
+     "d01specials1/10",
+     "d01specials2/6",
+     "d02specialhi/11",
+     "d03speciallwblast/10",
+     "d04final/70",
+     "d04final/71",
+     "e00catchcut/8",
+     "e03capturecut/5",
+     "f00damagehi1/3",
+     "f00damagelw1/3",
+     "f00damagen1/3",
+     "f03downbacku/5",
+     "f03downforwardu/5",
+     "f03downstandu/5",
+     "f04downbackd/5",
+     "f04downforwardd/5",
+     "f04downstandd/4",
+     "f05passive/5",
+     "f05passivestandb/6",
+     "f05passivestandf/6",
+     "g02cliffclimb/5",
+     "g02cliffescape/7",
+     "g03slipescapeb/5",
+     "g03slipescapef/6",
+     "g03slipstand/4",
+     "h00lighteat/3",
+     "h00lightwalkeat/3",
+     "h00lightwalkget/3",
+     "h01lightthrowdash/7",
+     "h01lightthrowdrop/5",
+     "h01lightthrowf/5",
+     "h01lightthrowhi/5",
+     "h01lightthrowlw/5",
+     "h11itemshoot/5",
+     "h12itemscopeend/3",
+     "h12itemscopefire/4",
+     "idle/0",
+     "j00entryr/66",
+     "j01appealhir/10",
+     "j01appeallwr/11",
+     "landing_air_b/9",
+     "landing_air_f/6",
+     "landing_air_hi/5",
+     "landing_air_lw/11"
+    ],
+    [
+     "final_victim_jungle_stagger_a/0",
+     "final_victim_jungle_stagger_a/2",
+     "final_victim_jungle_uppercut_pre/0"
+    ],
+    [
+     "air_dodge/10",
+     "d01specialairs1/10",
+     "d01specialairs2/6",
+     "f01damageair1/2",
+     "f05passiveceil/4",
+     "f05passivewall/4",
+     "f05passivewalljump/5",
+     "fall/0",
+     "h02lightthrowairf/5",
+     "h02lightthrowairhi/6",
+     "h02lightthrowairlw/4",
+     "h11itemshootair/5",
+     "h12itemscopeairend/3",
+     "h12itemscopeairfire/4",
+     "jump/5",
+     "jump_b/5",
+     "uair/11"
+    ],
+    [
+     "final_victim_jungle_entry/1",
+     "final_victim_jungle_stagger_b/1"
+    ],
+    [
+     "final_victim_volt_burst_pre/0",
+     "final_victim_volt_vortex/2"
+    ],
+    [
+     "final_victim_volt_caught/1",
+     "final_victim_volt_vortex/5"
+    ],
+    [
+     "j02win2wait/1",
+     "j02win2wait/2",
+     "j02win2wait/3",
+     "j02win2wait/4",
+     "j02win2wait/5",
+     "j02win2wait/6"
+    ],
+    [
+     "j02win2/10",
+     "j02win2/11",
+     "j02win2/9",
+     "j02win2wait/0",
+     "j02win2wait/7"
+    ],
+    [
+     "j02win3wait/0",
+     "j02win3wait/1",
+     "j02win3wait/3",
+     "j02win3wait/4",
+     "j02win3wait/5",
+     "j02win3wait/6",
+     "j02win3wait/7",
+     "j02win3wait/8"
+    ],
+    [
+     "a01turn/2",
+     "a02turndash/5",
+     "b02escapef/6",
+     "h01lightthrowb/5",
+     "h03heavythrowb/8"
+    ],
+    [
+     "g02cliffattack/11",
+     "h00lightget/1",
+     "h04swing1/6",
+     "h04swing3/8",
+     "h04swing4/10"
+    ],
+    [
+     "h12itemscoperapid/0",
+     "h12itemscoperapid/1",
+     "h12itemscopestart/2",
+     "h12itemscopewait/0"
+    ]
+   ]
+  },
+  {
+   "package": "pikachu",
+   "revision": "9a42bbfab4c8e713083142dbd304e2d120c4f2c0c6d5ef3f23600c029d2ec0ea",
+   "drawings": 1422,
+   "drawnPixels": 58526105,
+   "groups": 1340,
+   "groupsWithReuse": 59,
+   "crossActionGroups": 52,
+   "links": {
+    "identical": 3,
+    "near": 79
+   },
+   "pixelsAfterReuse": 52434581,
+   "savedShare": 0.1041,
+   "largestGroups": [
+    [
+     "visual_final_09/11",
+     "visual_final_09/13",
+     "visual_final_12/11",
+     "visual_final_12/13"
+    ],
+    [
+     "visual_final_09/2",
+     "visual_final_12/2"
+    ],
+    [
+     "visual_final_09/4",
+     "visual_final_12/4"
+    ],
+    [
+     "visual_final_09/6",
+     "visual_final_12/6"
+    ],
+    [
+     "visual_final_09/7",
+     "visual_final_12/7"
+    ],
+    [
+     "visual_final_09/10",
+     "visual_final_12/10"
+    ],
+    [
+     "visual_final_05/15",
+     "visual_final_05/16",
+     "visual_final_05/18",
+     "visual_final_05/19"
+    ],
+    [
+     "visual_final_05/10",
+     "visual_final_05/11",
+     "visual_final_05/12",
+     "visual_final_05/17"
+    ],
+    [
+     "visual_final_09/14",
+     "visual_final_12/14"
+    ],
+    [
+     "visual_final_09/15",
+     "visual_final_12/15"
+    ],
+    [
+     "visual_final_09/17",
+     "visual_final_12/16"
+    ],
+    [
+     "visual_final_09/18",
+     "visual_final_12/18"
+    ]
+   ]
+  }
+ ]
+}

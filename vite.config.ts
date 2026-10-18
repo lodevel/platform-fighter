@@ -14,7 +14,7 @@ export default defineConfig(({ command }) => mergeConfig(portConfig, {
   preview: { host: '0.0.0.0', port: 4173, strictPort: true },
   test: {
     root: __dirname,
-    include: ['src/**/*.test.ts', 'scripts/**/*.test.ts', 'port/src/**/*.check.ts'],
+    include: ['src/**/*.test.ts', 'scripts/**/*.test.ts', 'port/src/**/*.check.ts', 'character/**/*.test.ts'],
     exclude: [...configDefaults.exclude, '.tmp/**', 'docs/**'],
   },
   resolve: {

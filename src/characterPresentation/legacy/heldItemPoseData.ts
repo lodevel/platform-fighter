@@ -75,6 +75,15 @@ export interface HeldItemSocket {
   readonly length: number;
 }
 
+/** The socket a clip's drawing holds at an action age, facing right, before any upper-body layer offset;
+ * null without a socket row. Shared by the live socket below and the character package export. */
+export function heldItemSocketAt(id: CharacterId, clip: string, art: number, age: number | undefined, axis: ItemSocketAxis = 'y'): HeldItemSocket | null {
+  const row = CLIPS[id]?.[clip]?.itemAttachmentPoses?.find(r => r.artFrameIndex === art);
+  if (!row) return null;
+  const direction = selectAxis(AXES[id]?.[clip], art, age)?.[axis];
+  return { x: row.position.x, y: row.position.y, angle: direction?.[0] ?? row.angle, length: direction?.[1] ?? 1 };
+}
+
 /** The same selected source-age drawings drive body joining, held item and shot origin. */
 function selectShootingLayerLayout(s: SimulationAnimationSnapshot): ShootingLayerLayout | null {
   if (s.characterId !== 'pikachu') return null;
@@ -103,14 +112,12 @@ export function sampleHeldItemSocket(s: SimulationAnimationSnapshot, axis: ItemS
     const clip = clips[name];
     if (!clip) continue;
     const art = selectActionArtFrame(pose, clip.frameCount, sheet, null);
-    const row = art === null ? undefined : clip.itemAttachmentPoses?.find(r => r.artFrameIndex === art);
-    if (!row || art === null) return null;
+    const socket = art === null ? null : heldItemSocketAt(s.characterId, name, art, pose.frame, axis);
+    if (!socket) return null;
     const facing = action.facing ?? s.facing;
-    const direction = selectAxis(AXES[s.characterId]?.[name], art, pose.frame)?.[axis];
-    const angle = direction?.[0] ?? row.angle;
     const layout = selectShootingLayerLayout(s);
-    return { x: (row.position.x + (layout?.upperOffsetX ?? 0)) * facing,
-      y: row.position.y + (layout?.upperOffsetY ?? 0), angle: angle * facing, length: direction?.[1] ?? 1 };
+    return { x: (socket.x + (layout?.upperOffsetX ?? 0)) * facing,
+      y: socket.y + (layout?.upperOffsetY ?? 0), angle: socket.angle * facing, length: socket.length };
   }
   return null;
 }

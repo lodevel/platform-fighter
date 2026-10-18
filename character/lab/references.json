@@ -1,0 +1,23 @@
+{
+  "note": "Phase 1 reference set (docs/review/2026-10-18/phase1-reference-set) and local Ultimate Frame Data recordings under assets/gen (git-ignored, never shipped).",
+  "fighters": {
+    "donkeykong": {
+      "referenceSet": ["idle", "run", "run_turn", "jab", "smash", "up_special_air", "bthrow", "captured", "item_bat_swing_4", "final_attack"],
+      "ultimate": {
+        "jab": "dk-ufd/sources/DonkeyKongJab1.gif",
+        "smash": "dk-ufd/sources/DonkeyKongFSmash.gif",
+        "up_special_air": "dk-ufd/sources/DonkeyKongSpinningKongA.gif",
+        "bthrow": "dk-ufd/sources/DonkeyKongBThrow.gif"
+      }
+    },
+    "link": {
+      "referenceSet": ["idle", "a02run", "a02turnrun", "jab", "smash", "d02specialairhi", "e01throwb", "e02capturewaithi", "h04swing4", "d04final"],
+      "ultimate": {
+        "jab": "link-rework-ufd/LinkJab1.gif",
+        "smash": "link-rework-ufd/LinkFSmash1.gif",
+        "d02specialairhi": "link-rework-ufd/LinkSpinAttackA.gif",
+        "e01throwb": "link-rework-ufd/LinkBThrow.gif"
+      }
+    }
+  }
+}

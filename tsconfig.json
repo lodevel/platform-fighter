@@ -77,8 +77,10 @@
     "src/**/*.d.ts",
     "scripts/**/*.ts",
     "port/src/**/*.ts",
+    "character/**/*.ts",
     "port/vite.config.ts",
-    "vite.config.ts"
+    "vite.config.ts",
+    "vite.character-lab.config.ts"
   ],
   "exclude": [
     "node_modules",
