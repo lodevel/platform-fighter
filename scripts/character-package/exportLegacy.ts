@@ -10,6 +10,7 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { frameRect } from '../../src/assets/packedFrames';
 import { heldItemSocketAt } from '../../src/characterPresentation/legacy/heldItemPoseData';
+import { characterCostumes } from '../../port/src/fighters/palette';
 import { evaluate } from '../../character/evaluator/evaluate';
 import { PACKAGE_SCHEMA, type Action, type CharacterPackage, type Drawing, type Page, type Schedule,
   type SocketTrack, type SocketWindow, type Window } from '../../character/package/types';
@@ -83,8 +84,10 @@ export function exportFighter(fighter: ExportedFighter): ExportResult {
     }
   }
 
+  const costumes = characterCostumes(fighter);
   const pkg: CharacterPackage = {
     schema: PACKAGE_SCHEMA, id: fighter, revision: '', pages, drawings, actions,
+    ...(costumes ? { costumes } : {}),
     provenance: { importer: EXPORTER, sources: sourceHashes(fighter) },
   };
   const verifiedTicks = verify(pkg, clips.filter(c => actions[c.action]), drawingByPlacement, fighter, problems);
@@ -180,7 +183,8 @@ function verify(pkg: CharacterPackage, clips: readonly ExportClip[], ids: Readon
 
 function sourceHashes(fighter: ExportedFighter): Record<string, string> {
   const files = [`assets/characters/${fighter}/frames.json`, `assets/characters/${fighter}/item-axes.json`,
-    ...(fighter === 'pikachu' ? ['assets/characters/pikachu/final-visual-frames.json'] : [])];
+    ...(fighter === 'pikachu' ? ['assets/characters/pikachu/final-visual-frames.json'] : []),
+    'src/characters/palettes.ts', 'src/characters/paletteArtKeys.ts'];
   return Object.fromEntries(files.map(file => [file, createHash('sha256').update(readFileSync(path.join(ROOT, file))).digest('hex')]));
 }
 

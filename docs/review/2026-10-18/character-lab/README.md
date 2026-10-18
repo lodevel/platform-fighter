@@ -142,8 +142,8 @@ computed poses, and fewer stored drawings per action with deliberate holds.
 ## Open items
 
 - Effect strips and DK's three untimed clips (above).
-- Recoloured costumes are not in the lab yet. Moving the palette shader into the
-  character module is planned Phase 3 work.
+- Recoloured costumes: done as the first Phase 3 step
+  ([record](../phase3/README.md)); the costume screenshots beside this file come from it.
 - The format has no phases yet. Today's data does not name them; they arrive when
   creation (Phase 4) records them.
 - Ultimate references for idle, run, turn, held item, grabbed and the Final

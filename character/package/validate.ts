@@ -1,4 +1,4 @@
-import { PACKAGE_SCHEMA, type CharacterPackage, type Schedule, type Window } from './types';
+import { MAX_COLOR_REGIONS, PACKAGE_SCHEMA, type CharacterPackage, type Costumes, type Schedule, type Window } from './types';
 
 /** Every problem found, each prefixed with the path of the offending value. Empty means valid. */
 export function validatePackage(value: unknown): string[] {
@@ -7,7 +7,7 @@ export function validatePackage(value: unknown): string[] {
   if (!isObject(value)) return ['package: not an object'];
   const pkg = value as unknown as CharacterPackage;
 
-  allowKeys(value, ['schema', 'id', 'revision', 'pages', 'drawings', 'actions', 'provenance', 'extensions'], 'package', fail);
+  allowKeys(value, ['schema', 'id', 'revision', 'pages', 'drawings', 'actions', 'costumes', 'provenance', 'extensions'], 'package', fail);
   if (pkg.schema !== PACKAGE_SCHEMA) fail('schema', `expected ${PACKAGE_SCHEMA}`);
   if (!isText(pkg.id)) fail('id', 'missing');
   if (typeof pkg.revision !== 'string') fail('revision', 'missing');
@@ -68,7 +68,36 @@ export function validatePackage(value: unknown): string[] {
     }
   }
   for (const [id] of drawings) if (!usedDrawings.has(id)) fail(`drawings.${id}`, 'no action shows this drawing');
+  if (pkg.costumes !== undefined) checkCostumes(pkg.costumes, fail);
   return errors;
+}
+
+function checkCostumes(costumes: Costumes, fail: Fail): void {
+  if (!isObject(costumes)) { fail('costumes', 'not an object'); return; }
+  allowKeys(costumes, ['regions', 'list'], 'costumes', fail);
+  const slots = new Set<string>();
+  if (!Array.isArray(costumes.regions) || costumes.regions.length === 0 || costumes.regions.length > MAX_COLOR_REGIONS) {
+    fail('costumes.regions', `needs 1 to ${MAX_COLOR_REGIONS} regions`); return;
+  }
+  costumes.regions.forEach((region, i) => {
+    const at = `costumes.regions[${i}]`;
+    if (!isObject(region)) { fail(at, 'not an object'); return; }
+    allowKeys(region, ['slot', 'color', 'tolerance'], at, fail);
+    if (!isText(region.slot)) fail(`${at}.slot`, 'missing'); else slots.add(region.slot);
+    if (!isColor(region.color)) fail(`${at}.color`, 'must be #rrggbb');
+    if (!Array.isArray(region.tolerance) || region.tolerance.length !== 3 || !region.tolerance.every(t => Number.isFinite(t) && t > 0))
+      fail(`${at}.tolerance`, 'must be three positive numbers');
+  });
+  if (!Array.isArray(costumes.list) || costumes.list.length === 0) { fail('costumes.list', 'needs at least one costume'); return; }
+  costumes.list.forEach((costume, i) => {
+    const at = `costumes.list[${i}]`;
+    if (!isObject(costume)) { fail(at, 'not an object'); return; }
+    allowKeys(costume, ['name', 'slots'], at, fail);
+    if (!isText(costume.name)) fail(`${at}.name`, 'missing');
+    if (!isObject(costume.slots)) { fail(`${at}.slots`, 'missing'); return; }
+    for (const slot of slots) if (!isColor(costume.slots[slot])) fail(`${at}.slots.${slot}`, 'must be #rrggbb');
+    for (const slot of Object.keys(costume.slots)) if (!slots.has(slot)) fail(`${at}.slots.${slot}`, 'no region uses this slot');
+  });
 }
 
 type Fail = (path: string, message: string) => void;
@@ -105,5 +134,6 @@ function allowKeys(value: object, allowed: readonly string[], path: string, fail
 
 const isObject = (value: unknown): value is Record<string, any> => typeof value === 'object' && value !== null && !Array.isArray(value);
 const isText = (value: unknown): value is string => typeof value === 'string' && value.length > 0;
+const isColor = (value: unknown): value is string => typeof value === 'string' && /^#[0-9a-f]{6}$/.test(value);
 const isIndex = (value: unknown): value is number => Number.isInteger(value) && (value as number) >= 0;
 const isCount = (value: unknown): value is number => Number.isInteger(value) && (value as number) > 0;

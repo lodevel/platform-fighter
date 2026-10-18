@@ -18,5 +18,9 @@ export const SAMPLE: CharacterPackage = {
       source: { game: 'ultimate', move: 'Wait1' },
     },
   },
+  costumes: {
+    regions: [{ slot: 'fur', color: '#704023', tolerance: [0.03, 0.35, 0.3] }],
+    list: [{ name: 'Brown', slots: { fur: '#6b4a2b' } }, { name: 'Blue', slots: { fur: '#2b62d9' } }],
+  },
   provenance: { sources: { 'frames.json': SHA } },
 };

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /** Character lab check in a fresh disposable Windows Edge: the dev lab over exported packages
- * (both reference fighters, facings, zooms, stages, Ultimate recordings side by side), then the
+ * (both reference fighters, facings, zooms, stages, costumes, Ultimate recordings side by side), then the
  * static lab build opening a package folder through its picker.
  * Needs `npm run character:export` first. Run under .tmp/dk-heavy.lock:
  *   node tools/character-lab-probe.mjs [--out docs/review/2026-10-18/character-lab]
@@ -24,6 +24,9 @@ const CASES = [
   { package: 'link', action: 'd02specialairhi', tick: 20, facing: '-1', shot: 'link-spin-attack-left' },
   { package: 'link', action: 'h04swing4', tick: 18, stage: 'light', shot: 'link-bat-light' },
   { package: 'pikachu', action: 'final', tick: 30, shot: 'pikachu-final-display' },
+  { package: 'donkeykong', action: 'jab', tick: 6, costume: '2', shot: 'dk-jab-costume-2' },
+  { package: 'link', action: 'jab', tick: 8, costume: '2', stage: 'light', shot: 'link-jab-costume-2' },
+  { package: 'pikachu', action: 'jab', tick: 4, costume: '1', facing: '-1', shot: 'pikachu-jab-costume-1' },
 ];
 
 function server(args, url) {
@@ -46,14 +49,23 @@ async function check(page, c) {
   await page.fill('#seek', String(c.tick));
   await page.dispatchEvent('#seek', 'input');
   await page.waitForTimeout(400);
-  const facts = await page.evaluate(() => {
+  const pixels = () => page.evaluate(() => { const c = document.getElementById('stage'); return Array.from(c.getContext('2d').getImageData(0, 0, c.width, c.height).data); });
+  // A costume is judged against the same pose as drawn: how many pixels it changed.
+  let asDrawn = null;
+  if (c.costume) { asDrawn = await pixels(); await page.selectOption('#costume', c.costume); await page.waitForTimeout(300); }
+  const facts = await page.evaluate(asDrawn => {
     const canvas = document.getElementById('stage'), ctx = canvas.getContext('2d');
     const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height), bg = data.slice(0, 4);
-    let drawn = 0;
-    for (let i = 0; i < data.length; i += 4) if (Math.abs(data[i] - bg[0]) + Math.abs(data[i + 1] - bg[1]) + Math.abs(data[i + 2] - bg[2]) > 24) drawn++;
+    let drawn = 0, recoloured = 0;
+    for (let i = 0; i < data.length; i += 4) {
+      if (Math.abs(data[i] - bg[0]) + Math.abs(data[i + 1] - bg[1]) + Math.abs(data[i + 2] - bg[2]) > 24) drawn++;
+      if (asDrawn && Math.abs(data[i] - asDrawn[i]) + Math.abs(data[i + 1] - asDrawn[i + 1]) + Math.abs(data[i + 2] - asDrawn[i + 2]) > 24) recoloured++;
+    }
+    const costume = document.getElementById('costume');
     return { tick: document.getElementById('tick').textContent, reference: document.getElementById('reference-note').textContent,
-      problems: [...document.querySelectorAll('#problems li')].map(li => li.textContent), drawnPixels: drawn };
-  });
+      problems: [...document.querySelectorAll('#problems li')].map(li => li.textContent), drawnPixels: drawn,
+      ...(asDrawn ? { costume: costume.selectedOptions[0]?.textContent, recolouredPixels: recoloured, status: document.getElementById('status').textContent } : {}) };
+  }, asDrawn);
   await page.screenshot({ path: resolve(out, `${c.shot}.png`) });
   return { ...c, ...facts };
 }
@@ -84,7 +96,7 @@ try {
   page.on('pageerror', e => report.errors.push(String(e)));
   page.on('console', m => { if (m.type() === 'error') report.errors.push(`console: ${m.text()}`); });
   page.on('response', r => { if (r.status() >= 400) report.errors.push(`HTTP ${r.status()} ${r.url()}`); });
-  for (const c of CASES) { report.dev.push(await check(page, c)); console.log(c.shot, report.dev.at(-1).drawnPixels, 'px'); }
+  for (const c of CASES) { report.dev.push(await check(page, c)); console.log(c.shot, report.dev.at(-1).drawnPixels, 'px', report.dev.at(-1).recolouredPixels ?? ''); }
 
   // The static build alone, opening a package through the folder picker.
   dev.stop();

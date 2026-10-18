@@ -68,8 +68,9 @@ All new code lives under `character/`, outside `src/` and `port/`:
 | --- | --- | --- |
 | `character/package/` | Types for format `character-package/1`, the validator and the canonical serializer | nothing outside the folder |
 | `character/evaluator/` | Pure sampling of an action at a tick: drawing, its source frame, body-centre offset and sockets | `package/` |
+| `character/render/` | Costume recolour: the colour shifts of a costume and the GLSL that applies them; the game's sprite layer uses the same file | `package/` |
 | `scripts/character-package/` | Temporary exporter turning today's fighters into packages (deleted in Phase 6) | The game and `character/package/`; it is game-side code |
-| `character/lab/` | Standalone Vite app with its own HTML entry | `package/`, `evaluator/`, three |
+| `character/lab/` | Standalone Vite app with its own HTML entry | `package/`, `evaluator/`, `render/`, three |
 
 A vitest boundary test, like `src/sim/importGraph.test.ts`, walks each folder's
 import graph and fails on any other edge. In particular `src/`, `port/` and fighter
@@ -102,6 +103,9 @@ One directory per character revision:
 - **Drawings:** stable logical IDs (`<action>/<n>`), each pointing at a page
   rectangle with an offset and pivot. A page position never identifies geometry.
 - **Resources:** each page's file, size, SHA-256 and byte cost.
+- **Costumes:** colour regions of the art (slot, colour as drawn, HSV tolerance; at
+  most four) and the costume list (name, colour per slot). Costume 0 is the art as
+  drawn; costume N moves each region by its slot's colour relative to costume 0.
 - **Host extensions:** display data that only this game's mechanics use, if any
   survives the inventory, under `extensions["platform-fighter/1"]`, validated by the
   host adapter, not the core.
@@ -174,8 +178,9 @@ run without the game bundle:
 - **Memory panel:** per action and total. Counts drawings, page bytes,
   uncompressed and BC7 estimates, and resources shared across actions.
 
-Recoloured costumes stay in the game for Phase 2. Moving the palette shader into
-the character module is Phase 3 work, needed before costume scoring.
+Recoloured costumes were added at the start of Phase 3: the palette shader moved
+into `character/render/` and the lab has a costume picker
+([record](review/2026-10-18/phase3/README.md)).
 
 ## Steps
 

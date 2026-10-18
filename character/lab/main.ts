@@ -1,10 +1,12 @@
 import { evaluate, scheduleLength, type Facing } from '../evaluator/evaluate';
-import type { CharacterPackage } from '../package/types';
+import type { CharacterPackage, Drawing } from '../package/types';
+import { costumeShifts, type HsvShift } from '../render/recolor';
 import references from './references.json';
 import { actionMemory, packageMemory, sharedDrawings, type MemoryEstimate } from './memory';
 import { loadReference, type ReferenceClip } from './reference';
 import { openPickedFolder, openServedPackage, servedPackages, type OpenPackage } from './source';
-import { drawStage, type StageView } from './stage';
+import { RecolorCanvas } from './recolorCanvas';
+import { drawStage, type DrawingPixels, type StageView } from './stage';
 
 interface FighterReferences { readonly referenceSet: readonly string[]; readonly ultimate: Readonly<Record<string, string>> }
 const REFERENCES = references.fighters as Readonly<Record<string, FighterReferences>>;
@@ -13,11 +15,12 @@ const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as 
 const packageSelect = $<HTMLSelectElement>('package'), status = $('status'), filter = $<HTMLInputElement>('filter');
 const actionList = $('action-list'), stage = $<HTMLCanvasElement>('stage'), referenceCanvas = $<HTMLCanvasElement>('reference');
 const referenceNote = $('reference-note'), windowsCanvas = $<HTMLCanvasElement>('windows'), seek = $<HTMLInputElement>('seek');
-const playButton = $<HTMLButtonElement>('play'), tickReadout = $('tick');
+const playButton = $<HTMLButtonElement>('play'), tickReadout = $('tick'), costumeSelect = $<HTMLSelectElement>('costume');
 
 let open: OpenPackage | null = null, action = '', tick = 0, playing = true, carry = 0, viewTicks = 1;
 let reference: ReferenceClip | null = null, referenceToken = 0;
 const images = new Map<string, HTMLImageElement>();
+let shifts: readonly HsvShift[] = [], recolorer: RecolorCanvas | null = null;
 
 const radio = (name: string) => (document.querySelector(`input[name="${name}"]:checked`) as HTMLInputElement).value;
 const checked = (id: string) => $<HTMLInputElement>(id).checked;
@@ -38,8 +41,23 @@ function pageImage(page: string): HTMLImageElement | undefined {
   return image.complete && image.naturalWidth ? image : undefined;
 }
 
+/** The drawing as shown in the chosen costume: its page as is, or a recoloured copy. */
+function drawingPixels(drawing: Drawing): DrawingPixels | undefined {
+  const image = pageImage(drawing.page);
+  if (!image || shifts.length === 0) return image && { image, rect: drawing.rect };
+  recolorer ??= new RecolorCanvas();
+  return { image: recolorer.draw(image, drawing.rect, shifts), rect: [0, 0, drawing.rect[2], drawing.rect[3]] };
+}
+
+function listCostumes(pkg: CharacterPackage): void {
+  const list = pkg.costumes?.list ?? [];
+  costumeSelect.replaceChildren(...list.map((costume, i) => Object.assign(document.createElement('option'), { value: String(i), textContent: `${i} ${costume.name}` })));
+  $('costume-box').hidden = list.length < 2;
+  shifts = [];
+}
+
 async function show(next: OpenPackage, label: string): Promise<void> {
-  open = next; images.clear();
+  open = next; images.clear(); listCostumes(next.pkg);
   status.textContent = `${label}: revision ${next.pkg.revision.slice(0, 12) || 'none'}`;
   const problems = $('problems');
   problems.replaceChildren(...(next.problems.length ? next.problems : ['None']).map(text => Object.assign(document.createElement('li'), { textContent: text })));
@@ -110,7 +128,7 @@ function render(): void {
   if (!open || !action) return;
   const v = view(), pose = evaluate(open.pkg, { action, tick, facing: v.facing });
   const light = radio('stage') === 'light';
-  drawStage(stage, open.pkg, pose, pageImage, v, { stage: css(light ? '--stage-light' : '--stage-dark'), floor: css('--floor'),
+  drawStage(stage, open.pkg, pose, drawingPixels, v, { stage: css(light ? '--stage-light' : '--stage-dark'), floor: css('--floor'),
     root: css('--root'), socket: css('--socket'), bounds: css('--bounds') });
   drawReference(light);
   drawWindows(open.pkg);
@@ -167,6 +185,10 @@ $('next').addEventListener('click', () => { setPlaying(false); setTick(tick + 1)
 seek.addEventListener('input', () => { setPlaying(false); setTick(Number(seek.value)); });
 filter.addEventListener('input', listActions);
 document.querySelectorAll('.options input').forEach(input => input.addEventListener('change', render));
+costumeSelect.addEventListener('change', () => {
+  shifts = costumeShifts(open?.pkg.costumes, Number(costumeSelect.value));
+  try { render(); } catch (error) { status.textContent = (error as Error).message; shifts = []; render(); }
+});
 addEventListener('resize', render);
 addEventListener('keydown', event => {
   if (event.target instanceof HTMLInputElement && event.target.type === 'search') return;

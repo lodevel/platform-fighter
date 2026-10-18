@@ -4,6 +4,7 @@ import { STAGE_DESIGN_HEIGHT, STAGE_DESIGN_WIDTH } from '../../../../src/stages/
 import { frameRect } from '../../../../src/assets/packedFrames';
 import type { TextureStore } from './textureStore';
 import type { ManagedGeometry } from '../presentation/submission';
+import { packRecolor, recolorUniforms, RECOLOR_GLSL, type HsvShift, type RecolorUniforms } from '../../../../character/render/recolor';
 
 /**
  * One sprite to draw this frame, in the terms of a Phaser `Sprite` so the
@@ -37,22 +38,6 @@ export interface SpriteDraw {
   readonly clipRows?: { readonly top?: number; readonly bottom?: number };
 }
 
-/**
- * Shift one colour region of a sprite, keeping its shading: pixels near
- * `key` (HSV, each 0..1) have their hue rotated by `hueShift` and their
- * saturation and value multiplied by the ratios. Nearness is a per-channel
- * distance scaled by `tolerance` (hue, saturation, value), with a soft edge
- * so anti-aliased pixels blend. Each pixel follows its nearest key only.
- */
-export interface HsvShift {
-  readonly key: readonly [number, number, number];
-  readonly hueShift: number;
-  readonly saturationRatio: number;
-  readonly valueRatio: number;
-  readonly tolerance: readonly [number, number, number];
-}
-export const MAX_RECOLOR_REGIONS = 4;
-
 const VERT = `
   uniform vec4 uvRect;
   varying vec2 vUv;
@@ -63,45 +48,11 @@ const VERT = `
 // Phaser's multi pipeline: premultiplied texel * (tint * alpha, alpha).
 // With no recolour regions the texel is untouched, so parity with Phaser holds.
 const FRAG = `
-  #define REGIONS ${MAX_RECOLOR_REGIONS}
+  ${RECOLOR_GLSL}
   uniform sampler2D map;
   uniform vec3 tint;
   uniform float alpha;
-  uniform int recolorCount;
-  uniform vec3 recolorKey[REGIONS];
-  uniform vec3 recolorShift[REGIONS];
-  uniform vec3 recolorTolerance[REGIONS];
   varying vec2 vUv;
-  vec3 rgb2hsv(vec3 c) {
-    vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
-    vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
-    vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
-    float d = q.x - min(q.w, q.y);
-    return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + 1e-10)), d / (q.x + 1e-10), q.x);
-  }
-  vec3 hsv2rgb(vec3 c) {
-    vec3 p = abs(fract(c.xxx + vec3(1.0, 2.0 / 3.0, 1.0 / 3.0)) * 6.0 - 3.0);
-    return c.z * mix(vec3(1.0), clamp(p - 1.0, 0.0, 1.0), c.y);
-  }
-  vec4 recolor(vec4 texel) {
-    if (recolorCount == 0 || texel.a <= 0.0) return texel;
-    vec3 hsv = rgb2hsv(texel.rgb / texel.a);
-    float best = 1e9;
-    int pick = -1;
-    for (int i = 0; i < REGIONS; i++) {
-      if (i >= recolorCount) break;
-      vec3 d = abs(hsv - recolorKey[i]);
-      d.x = min(d.x, 1.0 - d.x);
-      float dist = length(d / recolorTolerance[i]);
-      if (dist < best) { best = dist; pick = i; }
-    }
-    if (pick < 0 || best >= 1.0) return texel;
-    vec3 shift = vec3(0.0);
-    for (int i = 0; i < REGIONS; i++) if (i == pick) shift = recolorShift[i];
-    vec3 moved = vec3(fract(hsv.x + shift.x), clamp(hsv.y * shift.y, 0.0, 1.0), clamp(hsv.z * shift.z, 0.0, 1.0));
-    vec3 rgb = mix(texel.rgb / texel.a, hsv2rgb(moved), 1.0 - smoothstep(0.6, 1.0, best));
-    return vec4(rgb * texel.a, texel.a);
-  }
   void main() {
     gl_FragColor = recolor(texture2D(map, vUv)) * vec4(tint * alpha, alpha);
   }`;
@@ -118,13 +69,13 @@ function frameQuad(): THREE.BufferGeometry {
 interface Slot {
   readonly mesh: THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMaterial>;
   readonly uniforms: ReturnType<typeof slotUniforms>;
+  readonly recolor: RecolorUniforms;
 }
 
-function slotUniforms() {
-  const vecs = () => Array.from({ length: MAX_RECOLOR_REGIONS }, () => new THREE.Vector3());
+function slotUniforms(recolor: RecolorUniforms) {
   return {
     map: { value: null as THREE.Texture | null }, uvRect: { value: new THREE.Vector4() }, tint: { value: new THREE.Color() }, alpha: { value: 1 },
-    recolorCount: { value: 0 }, recolorKey: { value: vecs() }, recolorShift: { value: vecs() }, recolorTolerance: { value: vecs() },
+    recolorCount: { value: 0 }, recolorKey: { value: recolor.key }, recolorShift: { value: recolor.shift }, recolorTolerance: { value: recolor.tolerance },
   };
 }
 
@@ -206,7 +157,7 @@ export class SpriteLayer {
   private slot(): Slot {
     let slot = this.slots[this.used];
     if (!slot) {
-      const uniforms = slotUniforms();
+      const recolor = recolorUniforms(), uniforms = slotUniforms(recolor);
       const mat = new THREE.ShaderMaterial({
         uniforms, vertexShader: VERT, fragmentShader: FRAG, transparent: true, depthTest: false, depthWrite: false,
         blending: THREE.CustomBlending, blendSrc: THREE.OneFactor, blendDst: THREE.OneMinusSrcAlphaFactor,
@@ -216,7 +167,7 @@ export class SpriteLayer {
       mesh.matrixAutoUpdate = false;
       mesh.frustumCulled = false;
       this.scene.add(mesh);
-      slot = { mesh, uniforms };
+      slot = { mesh, uniforms, recolor };
       this.slots.push(slot);
     }
     this.used += 1;
@@ -244,13 +195,8 @@ export class SpriteLayer {
     slot.uniforms.uvRect.value.set(rect.x / sheet.width, 1 - (rect.y + rect.h) / sheet.height, rect.w / sheet.width, rect.h / sheet.height);
     slot.uniforms.tint.value.setHex(s.tint ?? 0xffffff);
     slot.uniforms.alpha.value = s.alpha ?? 1;
-    const regions = (s.recolor ?? []).slice(0, MAX_RECOLOR_REGIONS);
-    slot.uniforms.recolorCount.value = regions.length;
-    regions.forEach((r, i) => {
-      slot.uniforms.recolorKey.value[i]!.set(...r.key);
-      slot.uniforms.recolorShift.value[i]!.set(r.hueShift, r.saturationRatio, r.valueRatio);
-      slot.uniforms.recolorTolerance.value[i]!.set(...r.tolerance);
-    });
+    packRecolor(s.recolor ?? [], slot.recolor);
+    slot.uniforms.recolorCount.value = slot.recolor.count;
 
     // Phaser's batchSprite: the quad starts at -displayOrigin plus the trim offset; a flip
     // keeps the same logical box and mirrors the frame inside it (x = origin*W - W + dx).

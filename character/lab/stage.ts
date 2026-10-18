@@ -1,4 +1,4 @@
-import type { CharacterPackage } from '../package/types';
+import type { CharacterPackage, Drawing } from '../package/types';
 import type { DisplayPose, Facing } from '../evaluator/evaluate';
 
 export interface StageView {
@@ -8,11 +8,14 @@ export interface StageView {
   readonly overlays: { readonly root: boolean; readonly sockets: boolean; readonly bounds: boolean };
 }
 
+/** A drawing's pixels: the `rect` of `image` (its page, or a recoloured copy). */
+export interface DrawingPixels { readonly image: CanvasImageSource; readonly rect: readonly [number, number, number, number] }
+
 export interface StageColors { readonly stage: string; readonly floor: string; readonly root: string; readonly socket: string; readonly bounds: string }
 
 /** Draws one pose at real match size, the root on the floor line at the stage centre. */
 export function drawStage(canvas: HTMLCanvasElement, pkg: CharacterPackage, pose: DisplayPose,
-  image: (page: string) => CanvasImageSource | undefined, view: StageView, colors: StageColors): void {
+  pixels: (drawing: Drawing) => DrawingPixels | undefined, view: StageView, colors: StageColors): void {
   const ratio = devicePixelRatio || 1, width = canvas.clientWidth, height = canvas.clientHeight;
   if (canvas.width !== Math.round(width * ratio) || canvas.height !== Math.round(height * ratio)) {
     canvas.width = Math.round(width * ratio); canvas.height = Math.round(height * ratio);
@@ -27,10 +30,10 @@ export function drawStage(canvas: HTMLCanvasElement, pkg: CharacterPackage, pose
   const drawing = pose.drawing === null ? undefined : pkg.drawings[pose.drawing];
   const scale = drawing ? drawing.scale * view.zoom : 0;
   if (drawing) {
-    const source = image(drawing.page), [rx, ry, rw, rh] = drawing.rect;
+    const source = pixels(drawing), [, , rw, rh] = drawing.rect;
     ctx.save();
     ctx.translate(root.x, root.y); ctx.scale(view.facing, 1);
-    if (source) ctx.drawImage(source, rx, ry, rw, rh, -drawing.anchor[0] * scale, -drawing.anchor[1] * scale, rw * scale, rh * scale);
+    if (source) ctx.drawImage(source.image, ...source.rect, -drawing.anchor[0] * scale, -drawing.anchor[1] * scale, rw * scale, rh * scale);
     if (view.overlays.bounds) {
       ctx.strokeStyle = colors.bounds; ctx.lineWidth = 1;
       ctx.strokeRect(-drawing.anchor[0] * scale, -drawing.anchor[1] * scale, rw * scale, rh * scale);

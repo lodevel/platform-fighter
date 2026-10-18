@@ -13,8 +13,9 @@ computed/mixed geometry passes through the same host. The
 [qualification record](review/2026-10-16/character-rendering-refactor/README.md)
 retains baseline comparisons, lifecycle checks and the unchanged asset/memory
 baseline. Phase 1 is complete ([reference set and envelope](review/2026-10-18/phase1-reference-set/README.md))
-and Phase 2 is built ([record](review/2026-10-18/character-lab/README.md));
-next is Phase 3, comparing cheaper representations in the lab.
+and Phase 2 is complete ([record](review/2026-10-18/character-lab/README.md));
+Phase 3, comparing cheaper representations in the lab, has started
+([record](review/2026-10-18/phase3/README.md)).
 
 Agreed direction: the pipeline plans reusable artwork deliberately, and each
 character can improve independently through versioned packages. One character
@@ -332,11 +333,12 @@ action/pose and attachment contracts apply to every supported representation.
 | Phase 1 texel density and compression | Probe recorded; [evidence](review/2026-10-16/texture-compression-probe/README.md). Art is already at the density the 1.4 match zoom needs on a 1920 buffer, so downscaling and residency changes (on-demand Final, lazy loading) were rejected as the memory answer. UASTC→BC7 cut sheet memory 4× on Iris Xe with ≤0.03% pixels visibly changed in the default costume and up to 0.74% in recoloured costumes; the user accepted this quality and may expose it as a texture-quality option in a future game-options menu, so the PNG path stays selectable. Full-character load, other devices and in-match acceptance remain open. The per-action resolution/zoom policy is an interim measure until the efficient display system exists |
 | Texture quality option | Implemented as an opt-in Options-menu setting (default Full quality); [match evidence](review/2026-10-16/texture-quality-match/README.md). All 664 fighter sheets have compressed banks; in a 3-fighter Edge match fighter textures fall 1,248→313 MiB and Edge private memory 2.8→1.7 GB with equal frame times and identical gameplay. The user chose CI encoding over committing the banks: the Pages deploy builds the pinned encoder and the bank, with caches |
 | Phase 1 reference set and envelope | Complete; [record](review/2026-10-18/phase1-reference-set/README.md). Ten DK and ten Link reference motions. The user ruled that today's art is test material, not a quality ceiling; the 20/20 motion reference is the original Ultimate move (UFD, SmashWiki). No metric goals: the envelope is guidance toward a smarter use of the available tools. UFD covers the set's attacks/throws/recoveries; idle, run, turn, held-item, victim and Final references still need sourcing |
-| Phase 2 package, exporter and lab | Built 2026-10-18, awaiting user review; [record](review/2026-10-18/character-lab/README.md). DK, Link and Pikachu export to `character-package/1` with zero differences from the game over 1.52 million checked ticks; the standalone lab plays them beside the Ultimate recordings. Not one of the 4,802 drawings is shared between actions. Open: 12 effect strips, DK's three untimed clips, costumes in the lab |
-| Phases 3 through 7 | Planned; no candidate representation, pipeline or game migration implemented |
+| Phase 2 package, exporter and lab | Built and committed 2026-10-18; [record](review/2026-10-18/character-lab/README.md). DK, Link and Pikachu export to `character-package/1` with zero differences from the game over 1.52 million checked ticks; the standalone lab plays them beside the Ultimate recordings. Not one of the 4,802 drawings is shared between actions. Open: 12 effect strips (after Phase 3), DK's three untimed clips (Phase 6 cleanup) |
+| Phase 3 representations | Started 2026-10-18; [record](review/2026-10-18/phase3/README.md). Step 1 done: costumes are package data and the lab and the game share one recolour implementation (`character/render/recolor.ts`), with identical colour shifts for all 24 costumes. No candidate representation tried yet |
+| Phases 4 through 7 | Planned; no pipeline or game migration implemented |
 
-The rendering foundation and Phase 1 are complete; Phase 2 is built and awaits
-review ([plan](CHARACTER-LAB-PLAN.md), [record](review/2026-10-18/character-lab/README.md)).
-Next is Phase 3: cheaper representations tried in the lab on the reference set. Each milestone retains its evidence, decision and
+The rendering foundation, Phase 1 and Phase 2 are complete ([plan](CHARACTER-LAB-PLAN.md),
+[record](review/2026-10-18/character-lab/README.md)). Phase 3 is in progress: cheaper
+representations tried in the lab on the reference set. Each milestone retains its evidence, decision and
 remaining work beside this roadmap. Current game maintenance can continue
 independently while the later character experiments progress.

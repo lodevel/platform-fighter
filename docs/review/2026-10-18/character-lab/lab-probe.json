@@ -105,15 +105,55 @@
     "None"
    ],
    "drawnPixels": 5917
+  },
+  {
+   "package": "donkeykong",
+   "action": "jab",
+   "tick": "tick 6 / 54  ·  drawing jab/3  ·  source frame 7",
+   "costume": "2 Cobalt",
+   "shot": "dk-jab-costume-2",
+   "reference": "Ultimate Frame Data recording, 24 ticks, played on the same clock.",
+   "problems": [
+    "None"
+   ],
+   "drawnPixels": 16516,
+   "recolouredPixels": 8882,
+   "status": "donkeykong: revision 81042ab0de3c"
+  },
+  {
+   "package": "link",
+   "action": "jab",
+   "tick": "tick 8 / 53  ·  drawing jab/2  ·  source frame 8",
+   "costume": "2 Goron",
+   "stage": "light",
+   "shot": "link-jab-costume-2",
+   "reference": "Ultimate Frame Data recording, 23 ticks, played on the same clock.",
+   "problems": [
+    "None"
+   ],
+   "drawnPixels": 8238,
+   "recolouredPixels": 1710,
+   "status": "link: revision 9b29320a7862"
+  },
+  {
+   "package": "pikachu",
+   "action": "jab",
+   "tick": "tick 4 / 47  ·  drawing jab/3",
+   "costume": "1 Scarlet",
+   "facing": "-1",
+   "shot": "pikachu-jab-costume-1",
+   "reference": "No Ultimate recording for this action yet.",
+   "problems": [
+    "None"
+   ],
+   "drawnPixels": 5988,
+   "recolouredPixels": 3826,
+   "status": "pikachu: revision 3371fbae1ad1"
   }
  ],
  "static": {
   "url": "http://127.0.0.1:5181/",
   "picker": "Folder: revision none"
  },
- "errors": [
-  "console: Failed to load resource: net::ERR_EMPTY_RESPONSE",
-  "console: Failed to load resource: net::ERR_CONNECTION_REFUSED",
-  "console: Failed to load resource: net::ERR_CONNECTION_REFUSED"
- ]
+ "errors": []
 }

@@ -24,6 +24,8 @@ export interface CharacterPackage {
   readonly pages: Readonly<Record<PageId, Page>>;
   readonly drawings: Readonly<Record<DrawingId, Drawing>>;
   readonly actions: Readonly<Record<ActionId, Action>>;
+  /** Alternate colourings of the same drawings. Absent: the character is shown only as drawn. */
+  readonly costumes?: Costumes;
   readonly provenance: Provenance;
   /** Data only one host understands, keyed by a versioned host name. Never read by the core. */
   readonly extensions?: Readonly<Record<string, unknown>>;
@@ -95,6 +97,34 @@ export interface SocketWindow extends Window {
   readonly angle?: number;
   /** In-plane share of the item's length, 0..1, for items turned toward or away from the viewer. */
   readonly length?: number;
+}
+
+/** Most colour regions a costume may move (the recolour shader's fixed size). */
+export const MAX_COLOR_REGIONS = 4;
+
+/**
+ * Costumes recolour the drawings at display time. Costume 0 is the art as drawn;
+ * costume N moves every region by its slot's colour in N relative to costume 0,
+ * keeping the art's light and shadow.
+ */
+export interface Costumes {
+  /** Where each slot's colour lives in the art; several regions may share a slot. */
+  readonly regions: readonly ColorRegion[];
+  readonly list: readonly Costume[];
+}
+
+export interface ColorRegion {
+  readonly slot: string;
+  /** `#rrggbb` as drawn. */
+  readonly color: string;
+  /** Furthest a pixel may stray from `color` in hue (share of the wheel), saturation and value and still belong to the region. */
+  readonly tolerance: readonly [number, number, number];
+}
+
+export interface Costume {
+  readonly name: string;
+  /** `#rrggbb` per slot named by the regions. */
+  readonly slots: Readonly<Record<string, string>>;
 }
 
 export interface Provenance {

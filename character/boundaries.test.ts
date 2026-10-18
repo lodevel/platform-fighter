@@ -10,8 +10,9 @@ import ts from 'typescript';
 const RULES: Record<string, { folders: string[]; packages: string[] }> = {
   package: { folders: ['package'], packages: [] },
   evaluator: { folders: ['evaluator', 'package'], packages: [] },
+  render: { folders: ['render', 'package'], packages: [] },
   testing: { folders: ['testing', 'package'], packages: [] },
-  lab: { folders: ['lab', 'package', 'evaluator'], packages: ['three'] },
+  lab: { folders: ['lab', 'package', 'evaluator', 'render'], packages: ['three'] },
 };
 const TEST_PACKAGES = ['vitest', 'node:', 'typescript'];
 

@@ -66,8 +66,9 @@ supplier once per fixed step, preserving the canonical accumulator in history.
 ### Character packages and lab
 
 `character/` holds the display-only character format (`package/`), its pure
-evaluator (`evaluator/`) and the standalone lab (`lab/`). They never import
-`src/` or `port/` (`character/boundaries.test.ts`). `scripts/character-package/`
+evaluator (`evaluator/`), the costume recolour (`render/recolor.ts`, also used by
+the game's sprite layer) and the standalone lab (`lab/`). They never import
+`src/` or `port/` (`character/boundaries.test.ts`); the game may import them. `scripts/character-package/`
 exports today's fighters by sampling the game's own drawing selection; it is
 temporary migration code. Plan: `docs/CHARACTER-LAB-PLAN.md`.
 

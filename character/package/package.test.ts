@@ -36,6 +36,14 @@ describe('validatePackage', () => {
     expect(validatePackage(edit(p => { p.actions.idle.sockets.item.schedule.windows[0].length = 2; })))
       .toEqual(['actions.idle.sockets.item.schedule.windows[0].length: must be between 0 and 1']);
   });
+
+  it('checks costumes', () => {
+    expect(validatePackage(edit(p => { p.costumes.list[1].slots.fur = 'blue'; }))).toEqual(['costumes.list[1].slots.fur: must be #rrggbb']);
+    expect(validatePackage(edit(p => { p.costumes.list[1].slots.tie = '#ff0000'; }))).toEqual(['costumes.list[1].slots.tie: no region uses this slot']);
+    expect(validatePackage(edit(p => { delete p.costumes.list[0].slots.fur; }))).toEqual(['costumes.list[0].slots.fur: must be #rrggbb']);
+    expect(validatePackage(edit(p => { p.costumes.regions = Array(5).fill(p.costumes.regions[0]); }))).toEqual(['costumes.regions: needs 1 to 4 regions']);
+    expect(validatePackage(edit(p => { p.costumes.regions[0].tolerance = [0.1, 0, 0.1]; }))).toEqual(['costumes.regions[0].tolerance: must be three positive numbers']);
+  });
 });
 
 describe('canonical form', () => {
