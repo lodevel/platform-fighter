@@ -21,6 +21,7 @@ import type { App, FlowData, Screen } from '../shell/app';
 import { el } from '../shell/dom';
 import { GameplayInput } from '../shell/gameplayInput';
 import type { FrameFault } from '../shell/frameLoop';
+import { frameDeltaMs } from '../../engine/frameDelta';
 
 const FRAME_MS = 1000 / 60;
 
@@ -237,7 +238,7 @@ export function matchScreen(app: App, data: FlowData = {}): Screen {
     onFrame(now) {
       if (fault) return;
       if (controls) controls.poll(now, app.input.pads());
-      const delta = Math.min(100, Math.max(0, now - last));
+      const delta = frameDeltaMs(now, last);
       last = now;
       if (!ready || pause || manual) return;
       sim.advance(delta, (frame) => sim.getSourceIntroSnapshot() ? undefined : input.sample(frame));

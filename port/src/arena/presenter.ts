@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { createRenderer, fitToHost } from '../engine/renderer';
+import { frameDeltaMs } from '../engine/frameDelta';
 import { FULL_DESIGN_RECT, PlaneCamera, toWorldX, toWorldY, type DesignRect } from '../engine/space';
 import { SpriteLayer, type SpriteDraw } from '../engine/sprites/spriteLayer';
 import { TextureStore } from '../engine/sprites/textureStore';
@@ -62,8 +63,8 @@ export class StagePresenter {
   frame(now: number): void {
     if (this.appearanceError) { const error = this.appearanceError; this.appearanceError = null; throw error; }
     this.renderer.info.reset();
-    const dtMs = Math.min(now - this.last, 100);
-    this.last = now;
+    const dtMs = frameDeltaMs(now, this.last);
+    this.last = Math.max(this.last, now);
     this.elapsed += dtMs / 1000;
     if (this.paused) this.acc = 0;
     else {

@@ -334,7 +334,7 @@ export class MatchSim {
    this.gazeKnockouts.clear();
    for(const slot of this.playerSlots??[])slot.character.destroy();
    this.baseStage?.destroy();
-   if(this.physicsWorld){for(const [name,handler] of [['collisionstart',this.collisionStartHandler],['collisionactive',this.hitboxCollisionActiveHandler],['collisionend',this.collisionEndHandler],['beforeupdate',this.passThroughPlatformHandler],['afterupdate',this.fighterSeparationHandler]] as const)if(handler)this.physicsWorld.world.off(name,handler);}
+   if(this.physicsWorld){for(const [name,handler] of [['collisionstart',this.collisionStartHandler],['collisionactive',this.hitboxCollisionActiveHandler],['collisionend',this.collisionEndHandler],['beforeupdate',this.passThroughPlatformHandler],['beforeupdate',this.rehitClockSampler],['afterupdate',this.fighterSeparationHandler]] as const)if(handler)this.physicsWorld.world.off(name,handler);}
    this.simEvents.drain();
  }
  emptyInputHistory():InputResolverHistoryState{
@@ -3098,14 +3098,7 @@ this.hitboxDamageHandler.setAttackClankHooks(
       (sensor, targetBodyId) => clanks.canHit(sensor, targetBodyId));
 this.hitboxDamageHandler.setGroundedLookup(index => this.playerSlots[index]?.character.isGrounded() ?? false);
 this.hitboxDamageHandler.setFacingLookup(index => this.playerSlots[index]?.character.getFacing() ?? 1);
-this.hitboxDamageHandler.setRehitClockLookup((ownerBodyId, sensor) => {
-      if (ownerBodyId === undefined) return null;
-      const owner = this.playerSlots?.find(slot => slot.character.body.id === ownerBodyId);
-      const active = owner?.character.getActiveAttack();
-      if (!active || active.hitboxBody !== sensor || active.move.type !== 'aerial' ||
-          !('rehitClockPolicy' in active.move) || active.move.rehitClockPolicy !== 'authored-attack-elapsed') return null;
-      return active.framesElapsed;
-    });
+this.hitboxDamageHandler.setRehitClockLookup((_ownerBodyId, sensor) => this.rehitClocks.get(sensor) ?? null);
 this.hitboxDamageHandler.registerPlayer(0, this.p1.body);
 this.hitboxDamageHandler.registerPlayer(1, this.p2.body);
 for (let i = 0; i < this.extraFighters.length; i += 1) {
@@ -3178,6 +3171,8 @@ if (this.baseStage.needsCollisionEndChannel()) {
     }
 this.passThroughPlatformHandler = () => this.updatePassThroughPlatformMasks();
 this.physicsWorld.world.on('beforeupdate', this.passThroughPlatformHandler);
+this.rehitClockSampler = () => this.sampleRehitClocks();
+this.physicsWorld.world.on('beforeupdate', this.rehitClockSampler);
 this.fighterSeparationHandler = () => {
       if (!this.coordinatingPhysicsStep) this.updateFighterSeparation();
     };
@@ -3481,6 +3476,21 @@ public collisionEndHandler:
     | null = null;
 
 public passThroughPlatformHandler: (() => void) | null = null;
+
+public rehitClockSampler: (() => void) | null = null;
+/** Each live strike's re-hit clock, read before the world step resolves any contact. A hit in this step can end
+ * its attacker's move, yet that attacker's strike still lands in the same step (a trade) on the clock it had. */
+private readonly rehitClocks = new Map<unknown, number>();
+
+private sampleRehitClocks(): void {
+    this.rehitClocks.clear();
+    for (const slot of this.playerSlots ?? []) {
+      const active = slot.character.getActiveAttack();
+      if (!active?.hitboxBody || active.move.type !== 'aerial' || !('rehitClockPolicy' in active.move) ||
+          active.move.rehitClockPolicy !== 'authored-attack-elapsed') continue;
+      this.rehitClocks.set(active.hitboxBody, active.framesElapsed);
+    }
+  }
 
 public updatePassThroughPlatformMasks(): void {
     const platforms = this.baseStage?.bodies?.platformBodies;

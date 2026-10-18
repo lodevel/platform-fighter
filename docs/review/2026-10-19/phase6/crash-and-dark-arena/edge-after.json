@@ -1,0 +1,56 @@
+[
+ {
+  "fighter": "pikachu",
+  "packages": "none",
+  "seed": 20261024,
+  "frame": 4113,
+  "blockMs": 4448,
+  "rafMinusDrawMs": -4523,
+  "yellowFraction": 0.0007
+ },
+ {
+  "fighter": "pikachu",
+  "packages": "all",
+  "seed": 20261024,
+  "frame": 4113,
+  "blockMs": 3157,
+  "rafMinusDrawMs": -3157,
+  "yellowFraction": 0.0007
+ },
+ {
+  "fighter": "link",
+  "packages": "none",
+  "seed": 20261020,
+  "frame": 8546,
+  "blockMs": 6117,
+  "rafMinusDrawMs": -6158,
+  "yellowFraction": 0.0007
+ },
+ {
+  "fighter": "link",
+  "packages": "all",
+  "seed": 20261020,
+  "frame": 8546,
+  "blockMs": 6010,
+  "rafMinusDrawMs": -6007,
+  "yellowFraction": 0.0007
+ },
+ {
+  "fighter": "donkeykong",
+  "packages": "none",
+  "seed": 20261020,
+  "frame": 10772,
+  "blockMs": 7919,
+  "rafMinusDrawMs": -7961,
+  "yellowFraction": 0.0007
+ },
+ {
+  "fighter": "donkeykong",
+  "packages": "all",
+  "seed": 20261020,
+  "frame": 10772,
+  "blockMs": 8292,
+  "rafMinusDrawMs": -8289,
+  "yellowFraction": 0.0007
+ }
+]

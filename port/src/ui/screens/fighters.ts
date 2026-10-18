@@ -19,6 +19,7 @@ import { CPU_COLOUR, slotColour } from '../shell/players';
 import { restoreSelectionHand, restoreSelectionOwners, type SelectionOwner } from '../model/selectionDevices';
 import { createMatchControlsOverlay, type MatchControlsOverlay } from '../components/matchControlsOverlay';
 import { FighterArtHold } from '../../fighters/artHold';
+import { frameDeltaMs } from '../../engine/frameDelta';
 
 type SlotIndex = 1 | 2 | 3 | 4;
 const SLOTS: readonly SlotIndex[] = [1, 2, 3, 4];
@@ -402,7 +403,7 @@ export function fightersScreen(app: App, data: FlowData = {}): Screen {
       update(hand);
     },
     onFrame(now) {
-      const dt = Math.min(0.05, (now - last) / 1000);
+      const dt = frameDeltaMs(now, last, 50) / 1000;
       last = now;
       if (controls) { controls.poll(now, app.input.pads()); return; }
       let moved = false;

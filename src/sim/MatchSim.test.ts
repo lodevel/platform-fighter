@@ -101,4 +101,21 @@ describe('MatchSim production ownership',()=>{
     sim.step();const ending=sim.view();
     expect(ending.frame).toBe(frozen.frame+1);expect(ending.stageFrame).toBe(stageFrame);expect(ending.platforms).toEqual(frozen.platforms);sim.dispose();
   });
+  it('keeps a repeating strike on its step clock when its attacker is hit earlier in the same contact batch',()=>{
+    // Seed 20261022, frame 1043: P1's up-air hits P2 and ends P2's fair; P2's fair sensor is still in that
+    // step's contact pairs against DK. The fair re-hits per target, so its contact needs the clock it had.
+    const held=['homeRunBat','beamSword','starRod','rayGun','superScope','fireFlower'];
+    const sim=new MatchSim({matchConfig:{mode:'time',timeLimitSeconds:190,stockCount:3,stageId:'flat',rngSeed:20261022,
+      itemFrequency:'high',linkIntroPolicy:'none',itemSwitch:Object.fromEntries([...held,'hammer','bobOmb','crate','bananaPeel',
+        'goldenHammer','food','heartContainer','maximTomato','barrel','capsule','smashBall'].map(type=>[type,held.includes(type)])),
+      players:(['pikachu','pikachu','donkeykong','link'] as const).map((characterId,i)=>
+        ({index:i+1,characterId,paletteIndex:i%2,inputType:'ai',aiDifficulty:'hard'}))} as MatchConfig});
+    try{
+      while(sim.physicsEngine.getFrame()<1043)sim.step();
+      const [p1,p2]=sim.playerSlots.map(slot=>slot.character),damage=p2!.getDamagePercent();
+      expect([p1!.getActiveAttack()?.move.id,p2!.getActiveAttack()?.move.id]).toEqual(['pikachu.up-air','pikachu.forward-air']);
+      sim.step();
+      expect(p2!.getDamagePercent()).toBeGreaterThan(damage);expect(p2!.getActiveAttack()).toBeNull();
+    }finally{sim.dispose();}
+  });
 });

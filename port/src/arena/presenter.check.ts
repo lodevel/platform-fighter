@@ -47,3 +47,19 @@ describe('presenter appearance preparation ownership', () => {
     expect(manager.error()?.message).toBe('Current backend failed');
   });
 });
+
+describe('presenter stage clock', () => {
+  it('never hands the stage a negative step when a frame stamp predates the last draw', () => {
+    // A probe's draw() renders at performance.now(); the animation frame queued behind its long blocking
+    // task then arrives with an older stamp. A negative dt overshot the theme's mood blend to yellow on black.
+    const steps: number[] = [], noop = () => undefined;
+    const view = { scene: new THREE.Scene(), theme: { spriteTint: new THREE.Color() }, update: ({ dt }: { dt: number }) => { steps.push(dt); } };
+    const presenter = Object.assign(Object.create(StagePresenter.prototype) as object, {
+      renderer: { info: { reset: noop }, clear: noop, clearDepth: noop, render: noop }, camera: { frame: noop }, screenCamera: { frame: noop },
+      sprites: { flush: noop, scene: new THREE.Scene() }, screenSprites: { flush: noop, scene: new THREE.Scene() },
+      runtime: { frame: 0, step: noop, view }, paused: true, last: 0, acc: 0, elapsed: 0, appearanceError: null, fitRect: {},
+    }) as unknown as StagePresenter;
+    presenter.frame(16); presenter.frame(60_000); presenter.frame(30_000); presenter.frame(60_016);
+    expect(steps.map(dt => +(dt * 1000).toFixed(3))).toEqual([16, 100, 0, 16]);
+  });
+});
