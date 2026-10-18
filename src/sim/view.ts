@@ -1,6 +1,7 @@
 import type { ShieldState } from '../characters/shieldState';
 import type { SimulationAnimationSnapshot } from '../characters/simulationSpriteAnimation';
 import type { CharacterId } from '../types';
+import type { ItemSocketAxis } from '../characters/heldItemSocket';
 import type { ShieldBubbleParry } from '../ui/shieldBubbleFormat';
 import type { CameraTarget } from '../camera/cameraFraming';
 import type { HudView } from './hudView';
@@ -65,6 +66,12 @@ export interface ItemView {
   readonly generatedKind?: string;
   /** Generated articles are rooted at their model bottom, not their sprite centre. */
   readonly rootPosition?: { readonly x: number; readonly y: number };
+  /**
+   * In a fighter's hand: the holder, the socket axis the sprite points along (`y` blades and bats, `z` gun barrels)
+   * and whether it turns with the hand. The placement above is the gameplay grip; a view drawing the holder from
+   * other art may re-place the sprite at that art's grip (display only).
+   */
+  readonly held?: { readonly playerIndex: number; readonly socketAxis: ItemSocketAxis; readonly turns: boolean };
 }
 
 export interface ProjectileView {

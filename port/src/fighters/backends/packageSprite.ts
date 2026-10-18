@@ -12,7 +12,9 @@ import type { PresentationTarget } from '../../engine/presentation/submission';
 import { SHIPPED_PACKAGES } from '../packageIndex';
 import { costumeRow, packageLibrary, type LoadedPackage, type PackageLease, type PackageLibrary } from '../packageLibrary';
 import { combinedProgress, registerAppearanceResourceProvider } from '../resources';
-import type { AppearanceBackend, AppearanceBackendFactory, BackendPreparation } from './types';
+import type { AppearanceBackend, AppearanceBackendFactory, BackendPreparation, HeldItemGrip } from './types';
+import { packageItemSocket } from './packageItemSocket';
+import type { ItemSocketAxis } from '../../../../src/characters/heldItemSocket';
 
 export const PACKAGE_SPRITE_CAPABILITY = 'package-sprite';
 const RESOURCE_PREFIX = 'package:';
@@ -126,6 +128,13 @@ export class PackageSpriteAppearance implements AppearanceBackend {
   private display(request: AppearanceRequest): ActionDisplay | null {
     return readLegacyAnimation(request) ? this.selector.current()?.display ?? null : requestDisplay(request);
   }
+  /** A match fighter's held-item grip in the drawing shown now (the package holds sockets with drawings), or null. */
+  heldItemGrip(axis: ItemSocketAxis): HeldItemGrip | null {
+    const request = this.request, loaded = request && !this.disposed && readLegacyAnimation(request) ? this.library.resident(request.characterId) : undefined;
+    const display = request && loaded ? this.display(request) : null, socket = display && packageItemSocket(loaded!.pkg, display, axis);
+    // A match request's position is the body centre, where package sockets are measured from.
+    return socket && { ...socket, x: request!.transform.position.x + socket.x, y: request!.transform.position.y + socket.y, facing: display!.facing };
+  }
   private current(tintOverride?: number) {
     const request = this.request, loaded = request && !this.disposed ? this.library.resident(request.characterId) : undefined;
     if (!request || !loaded) return null;
@@ -170,7 +179,7 @@ export const packageSpriteBackend: AppearanceBackendFactory = {
   capability: PACKAGE_SPRITE_CAPABILITY,
   preparation: 'shared',
   create: () => new PackageSpriteAppearance(),
-  /** Menu art: the resident package, or only the page of the one drawing shown. */
+  /** Menu art: only the page of the one drawing shown, decoded for the CPU. */
   async snapshot(request) {
     const display = requestDisplay(request);
     const borrowed = await packageLibrary.borrow(request.characterId, pkg => displayPages(pkg, display));

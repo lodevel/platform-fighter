@@ -122,12 +122,28 @@ export function sampleHeldItemSocket(s: SimulationAnimationSnapshot, axis: ItemS
  * bottom on the socket with its height scaled by max(floor, socket length)). */
 export const HELD_ITEM_MIN_FORESHORTENING = .35;
 
+/** The point `share` of the way along a held item drawn from its grip (0 = grip, 1 = far end): the item's height,
+ * foreshortened by the socket length, along the socket angle (degrees clockwise from up). */
+function alongHeldItem(grip: { readonly x: number; readonly y: number }, angle: number, length: number, height: number, share: number) {
+  const radians = angle * Math.PI / 180, drawn = height * Math.max(HELD_ITEM_MIN_FORESHORTENING, length) * share;
+  return { x: grip.x + Math.sin(radians) * drawn, y: grip.y - Math.cos(radians) * drawn };
+}
+
 /** The drawn far end of a held item (a gun's muzzle, a blade's tip): the socket plus the sprite's drawn length along
  * the socket axis. Same rule the held-item renderer draws with; null when the socket has no axis (hand anchor
  * fallback), so the caller keeps its authored offset. Socket and result are in the same frame (world or body). */
 export function heldItemMuzzle(socket: { readonly x: number; readonly y: number; readonly angle: number | null; readonly length: number },
   visual: { readonly height: number }): { x: number; y: number } | null {
-  if (socket.angle === null) return null;
-  const radians = socket.angle * Math.PI / 180, drawn = visual.height * Math.max(HELD_ITEM_MIN_FORESHORTENING, socket.length);
-  return { x: socket.x + Math.sin(radians) * drawn, y: socket.y - Math.cos(radians) * drawn };
+  return socket.angle === null ? null : alongHeldItem(socket, socket.angle, socket.length, visual.height, 1);
+}
+
+/** How a held item's sprite is drawn: its bottom (`rootPosition`) on the grip and, when it turns with the hand, along
+ * `turn` (angle in degrees with facing applied, in-plane length), mirrored for facing and foreshortened. `position`
+ * is the sprite centre; `angle` is in radians. The one placement rule for every source of grip. */
+export function heldItemPlacement(grip: { readonly x: number; readonly y: number }, height: number,
+  turn: { readonly angle: number; readonly length: number; readonly facing: 1 | -1 } | null) {
+  const rootPosition = { x: grip.x, y: grip.y };
+  if (!turn) return { rootPosition, position: alongHeldItem(grip, 0, 1, height, .5), angle: 0, scaleX: 1, scaleY: 1 };
+  return { rootPosition, position: alongHeldItem(grip, turn.angle, turn.length, height, .5), angle: turn.angle * Math.PI / 180,
+    scaleX: turn.facing, scaleY: Math.max(HELD_ITEM_MIN_FORESHORTENING, turn.length) };
 }

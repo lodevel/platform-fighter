@@ -34,8 +34,9 @@ Package files are fetched at runtime through `manifestAssetUrl`, never bundled:
 - Pages are decoded by `character/render/indexedPng.ts`: 8-bit greyscale PNG → one byte per
   pixel, through `DecompressionStream`. No image decoder or colour management touches the
   indices. It also runs in Node (the checks load all three shipped packages).
-- Each page becomes an R8 `DataTexture` (nearest, no mipmaps, `unpackAlignment` 1). The CPU
-  copy is that same byte array, kept so a lost context can upload again.
+- Each page becomes an R8 `DataTexture` (nearest, no mipmaps, `unpackAlignment` 1). Once it is
+  uploaded its bytes are dropped; a restored context decodes the page again
+  ([load-on-select.md](load-on-select.md#lost-webgl-context)).
 - One palette `DataTexture`: 256 × costumes, straight RGBA, row N = `costumePalette(pkg, N)`.
 - With a renderer attached (the match lease attaches it), pages upload as they decode.
 - Aborting a holder's signal releases its lease. When nobody holds the package, loading stops

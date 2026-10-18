@@ -14,10 +14,11 @@ function installCanvas() {
   vi.stubGlobal('document', { createElement: () => {
     let source: { url: string };
     return { width: 0, height: 0, getContext: () => ({ drawImage: (image: { url: string }) => { source = image; } }),
-      toDataURL: () => source.url };
+      toBlob: (done: (blob: { url: string }) => void) => done({ url: source.url }) };
   } });
+  vi.spyOn(URL, 'createObjectURL').mockImplementation(blob => (blob as unknown as { url: string }).url);
 }
-afterEach(() => { vi.unstubAllGlobals(); preview.snapshot.mockReset(); });
+afterEach(() => { vi.unstubAllGlobals(); vi.restoreAllMocks(); preview.snapshot.mockReset(); });
 
 describe('character card previews', () => {
   it('shares previews only within the same profile revision, capability and palette', async () => {

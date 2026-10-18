@@ -3,11 +3,14 @@
 // menus with real DOM input (mouse clicks, key presses): Options → Fighter art, Versus, picks, CPU
 // cycling, deselect, stage, match, results. The same flow runs with Classic art for comparison.
 // Frame times come from a requestAnimationFrame log, each pick over the same 2 s window.
+// With Compact art it also drops a pick within the grace period (loading must stop) and loses
+// the WebGL context in a match (WEBGL_lose_context): pages are decoded again and drawn after restore.
 // Usage: node tools/package-load-on-select-probe.mjs --out <dir>
 //   builds nothing: run `npm run build` first. Serves dist/ itself (vite preview, all interfaces).
 import { spawn } from 'node:child_process';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { chromium } from 'playwright';
+import { PNG } from 'pngjs';
 import { launchWindowsEdgeCdp } from './windows-edge-cdp.mjs';
 
 const arg = (name, fallback) => { const i = process.argv.indexOf(`--${name}`); return i < 0 ? fallback : process.argv[i + 1]; };
@@ -104,7 +107,17 @@ async function framesBetween(page, t0, t1) {
 
 const loaded = id => d => d.packages.some(p => p.id === id && !p.loading);
 const gone = id => d => !d.packages.some(p => p.id === id);
-const memory = d => ({ resident: d.packages.map(p => p.id), gpuBytes: d.gpuBytes, cpuBytes: d.cpuBytes, rendererTextures: d.rendererTextures, loads: d.loads });
+const memory = d => ({ resident: d.packages.map(p => p.id), gpuBytes: d.gpuBytes, cpuBytes: d.cpuBytes, rendererTextures: d.rendererTextures, loads: d.loads,
+  ...(d.restoredPages ? { restoredPages: d.restoredPages } : {}) });
+const progressOf = (d, id) => { const p = d.packages.find(row => row.id === id); return p && { ...p.progress, paused: p.paused, refs: p.refs }; };
+
+/** Share of pixels whose channels differ by more than 24 between two screenshots of the same size. */
+async function pixelDiff(a, b) {
+  const [x, y] = await Promise.all([a, b].map(async file => PNG.sync.read(await readFile(file))));
+  let differ = 0;
+  for (let i = 0; i < x.data.length; i += 4) if ([0, 1, 2].some(c => Math.abs(x.data[i + c] - y.data[i + c]) > 24)) differ++;
+  return +(differ / (x.width * x.height)).toFixed(4);
+}
 const heap = page => page.evaluate(() => performance.memory?.usedJSHeapSize ?? null);
 
 /** The real menus, picks and match, with the Fighter art option set to `display` in the Options menu. */
@@ -161,6 +174,20 @@ async function flow(browser, display) {
   await pick('CPU P2 joins on Pikachu (C key)', 'pikachu', () => page.keyboard.press('KeyC'));
   const linkAt = await pick('CPU P2 changes to Link (click ›)', 'link', () => click(page, '[data-target="next:2"]'));
   await unload('Pikachu no longer picked: unloaded', 'pikachu', linkAt);
+  if (packaged) {
+    // A pick dropped within the grace period stops loading pages, then unloads.
+    const pickedAt = await now(page);
+    await click(page, '[data-target="prev:2"]');
+    await pause(250);
+    const cardsWhilePicked = await cards(page);
+    await click(page, '[data-target="next:2"]');
+    const droppedAt = await now(page), atDrop = progressOf(await diag(page), 'pikachu');
+    await pause(1500);
+    const later = progressOf(await diag(page), 'pikachu');
+    const done = await until(page, gone('pikachu'), GRACE_MS + 10000);
+    log({ step: 'CPU P2 on Pikachu for 250 ms, back to Link: loading stops, then unloads', cardsWhilePicked, atDrop, after1500ms: later,
+      unloadAfterMs: Math.round(done.at - droppedAt), frames: await framesBetween(page, pickedAt, droppedAt + 1500), after: memory(done.diagnostics) });
+  }
   const before = await diag(page);
   await page.keyboard.press('KeyC');
   await pause(500);
@@ -198,6 +225,7 @@ async function flow(browser, display) {
     return { characterId: f.characterId, capability: p?.capability, action: p?.action, drawing: p?.drawing, visible: p?.visible };
   }));
   run.matchRenderer = await page.evaluate(() => window.__sim.renderDiagnostics().renderer.memory);
+  if (packaged) run.contextLoss = await contextLoss(page, shot);
   // Play the match out fast (probe stepping), then let the screen move to results itself.
   await page.evaluate(() => {
     window.__sim.manual(true);
@@ -226,6 +254,49 @@ async function flow(browser, display) {
   await pause(8000);
   await page.screenshot({ path: shot('costumes') });
   await context.close();
+}
+
+/** The same match frame drawn from a fresh start, then after a lost and restored WebGL context. */
+async function contextLoss(page, shot) {
+  const frameAt = async (name, frame = 90) => {
+    await page.evaluate(() => window.__sim.ready);
+    await page.evaluate(f => { window.__sim.manual(true); while (window.__sim.frame < f) window.__sim.step(); window.__sim.draw(); }, frame);
+    await pause(300);
+    await page.screenshot({ path: shot(name) });
+    return page.evaluate(() => window.__sim.view().fighters.map(f => {
+      const p = window.__sim.presentation(f.playerIndex);
+      return { characterId: f.characterId, capability: p?.capability, drawing: p?.drawing, visible: p?.visible };
+    }));
+  };
+  await page.evaluate(() => window.__sim.startMatch(window.__sim.config));
+  await page.waitForFunction(() => window.__menu.screen === 'match' && window.__sim?.ready);
+  const before = { presentation: await frameAt('context-before'), ...memory(await diag(page)) };
+  const lost = await page.evaluate(() => {
+    const canvas = document.querySelector('canvas'), extension = canvas.getContext('webgl2')?.getExtension('WEBGL_lose_context');
+    if (!extension) return false;
+    window.__loseContext = extension;
+    window.__restoredAt = null;
+    canvas.addEventListener('webglcontextrestored', () => { window.__restoredAt = performance.now(); }, { once: true });
+    extension.loseContext();
+    return true;
+  });
+  if (!lost) return { skipped: 'WEBGL_lose_context unavailable' };
+  await page.waitForFunction(() => window.__sim.fault?.phase === 'renderer');
+  const whileLost = memory(await diag(page));
+  await pause(300);
+  await page.evaluate(() => window.__loseContext.restoreContext());
+  await page.waitForFunction(() => window.__restoredAt !== null);
+  const pages = before.resident.length && (await diag(page)).packages.reduce((sum, p) => sum + (p.pages ?? 0), 0);
+  const restored = await until(page, d => d.restoredPages >= pages && d.pendingUploads === 0, 30000);
+  const restoredAt = await page.evaluate(() => window.__restoredAt);
+  await page.getByRole('button', { name: 'Restart match', exact: true }).click();
+  await page.waitForFunction(() => window.__menu.screen === 'match' && window.__sim?.ready && !window.__sim.fault);
+  const after = { presentation: await frameAt('context-restored'), ...memory(await diag(page)) };
+  await page.evaluate(() => window.__sim.manual(false));
+  const result = { pages, before, whileLost, restoredMs: Math.round(restored.at - restoredAt), restored: memory(restored.diagnostics), after,
+    pixelsDiffering: await pixelDiff(shot('context-before'), shot('context-restored')) };
+  console.log('packages', JSON.stringify({ contextLoss: result }));
+  return result;
 }
 
 try {

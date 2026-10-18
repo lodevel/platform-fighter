@@ -7,7 +7,8 @@ import { packageMemory } from '../../../character/package/memory';
 import type { CharacterPackage } from '../../../character/package/types';
 import { SAMPLE } from '../../../character/testing/samplePackage';
 import { packageAssetPath, SHIPPED_PACKAGES } from './packageIndex';
-import { costumeRow, PackageLibrary, PALETTE_WIDTH, type PackageLibraryOptions } from './packageLibrary';
+import { PALETTE_WIDTH } from './packageDescription';
+import { costumeRow, PackageLibrary, type PackageLibraryOptions } from './packageLibrary';
 
 const PKG: CharacterPackage = { ...SAMPLE, revision: 'r1', palette: ['#00000000', '#704023ff', '#ffffffff'],
   pages: { p0: { ...SAMPLE.pages.p0!, format: 'indexed' } } };
@@ -27,6 +28,13 @@ function server(pkg: CharacterPackage = PKG) {
     return new Response(new Uint8Array(PAGE));
   };
   return { fetch, calls, signals, open };
+}
+
+/** A renderer stand-in that uploads like three.js (`onUpdate` after each upload) on a canvas that can be restored. */
+function renderer() {
+  const uploaded: THREE.Texture[] = [];
+  const gl = { domElement: new EventTarget(), initTexture: (texture: THREE.Texture) => { uploaded.push(texture); texture.onUpdate?.(); } };
+  return { gl: gl as unknown as THREE.WebGLRenderer & { domElement: EventTarget }, uploaded };
 }
 
 const library = (options: PackageLibraryOptions) => new PackageLibrary({ url: (id, file) => `${id}/${file}`, graceMs: 0, ...options });
@@ -106,7 +114,7 @@ describe('PackageLibrary', () => {
     await expect(packages.acquire('sample').ready).resolves.toMatchObject({ costumes: 2 });
   });
 
-  it('lends a resident package for one drawing, or loads only the pages asked for and disposes them', async () => {
+  it('lends one drawing only the pages asked for, with their bytes, sharing a held package\'s description', async () => {
     const { fetch, calls, open } = server({ ...PKG, pages: { ...PKG.pages, p1: { ...PKG.pages.p0!, file: 'pages/p1.png' } },
       drawings: { ...PKG.drawings, 'idle/1': { ...PKG.drawings['idle/1']!, page: 'p1' } } });
     open();
@@ -120,14 +128,18 @@ describe('PackageLibrary', () => {
     partial.release(); partial.release();
     expect(disposed).toHaveBeenCalledOnce();
 
+    // A held package's pages may be on the GPU only: the borrow decodes its own.
     const lease = packages.acquire('sample'), loaded = await lease.ready;
+    packages.attachRenderer(renderer().gl);
+    packages.flushUploads();
     const lent = await packages.borrow('sample', () => ['p1']);
-    expect(lent.loaded).toBe(loaded);
-    lease.release();
-    // The borrow holds the package until it is returned.
-    expect(packages.resident('sample')).toBe(loaded);
+    expect(lent.loaded.pkg).toBe(loaded.pkg);
+    expect(lent.loaded.pages.get('p1')!.texture).not.toBe(loaded.pages.get('p1')!.texture);
+    expect((lent.loaded.pages.get('p1')!.texture.image as { data: Uint8Array }).data).toHaveLength(64 * 32);
+    expect(calls.filter(url => url.endsWith('character.json'))).toHaveLength(2);
     lent.release();
-    expect(packages.resident('sample')).toBeUndefined();
+    expect(packages.resident('sample')).toBe(loaded);
+    lease.release();
   });
 
   it('borrows from a package that is still loading without fetching its description again', async () => {
@@ -141,33 +153,75 @@ describe('PackageLibrary', () => {
     lease.release();
   });
 
-  it('spreads uploads to the attached renderer over frames, all at once on request', async () => {
+  it('spreads uploads to the attached renderer over frames, all at once on request, and drops uploaded page bytes', async () => {
     vi.useFakeTimers();
     const { fetch, open } = server();
     open();
-    const uploaded: THREE.Texture[] = [], packages = library({ fetch });
-    packages.attachRenderer({ initTexture: (texture: THREE.Texture) => uploaded.push(texture) } as unknown as THREE.WebGLRenderer);
+    const { gl, uploaded } = renderer(), packages = library({ fetch });
+    packages.attachRenderer(gl);
     const lease = packages.acquire('sample'), loaded = await lease.ready;
+    const page = loaded.pages.get('p0')!.texture;
     expect(uploaded).toEqual([]);
+    expect(packages.diagnostics().cpuBytes).toBe(64 * 32 + PALETTE_WIDTH * 2 * 4);
     packages.flushUploads(1);
-    expect(uploaded).toEqual([loaded.pages.get('p0')!.texture]);
+    expect(uploaded).toEqual([page]);
     packages.flushUploads();
-    expect(uploaded).toEqual([loaded.pages.get('p0')!.texture, loaded.palette]);
+    expect(uploaded).toEqual([page, loaded.palette]);
     vi.runAllTimers();
     expect(uploaded).toHaveLength(2);
+    // The GPU holds the page's only copy; the palette (menu art) keeps its bytes.
+    expect([(page.image as { data: unknown }).data, page.source.dataReady, page.image.width]).toEqual([null, false, 64]);
+    expect(packages.diagnostics()).toMatchObject({ gpuBytes: loaded.gpuBytes, cpuBytes: PALETTE_WIDTH * 2 * 4 });
     lease.release();
   });
 
-  it('reports how long a load took and the resident bytes', async () => {
-    const { fetch, open } = server();
+  it('decodes dropped pages again when the context is restored; leases taken meanwhile wait for them', async () => {
+    const { fetch, calls, open } = server();
     open();
-    const packages = library({ fetch, graceMs: 1000 });
-    const lease = packages.acquire('sample'), loaded = await lease.ready;
-    const [row] = packages.diagnostics().packages;
-    expect(row).toMatchObject({ id: 'sample', refs: 1, loading: false, gpuBytes: loaded.gpuBytes });
-    expect(row!.loadMs).toBeGreaterThanOrEqual(0);
-    expect(packages.diagnostics()).toMatchObject({ gpuBytes: loaded.gpuBytes, cpuBytes: loaded.gpuBytes });
+    const { gl, uploaded } = renderer(), packages = library({ fetch, graceMs: 1000 });
+    packages.attachRenderer(gl);
+    const lease = packages.acquire('sample'), loaded = await lease.ready, page = loaded.pages.get('p0')!.texture;
+    packages.flushUploads();
+    const version = page.version;
+    uploaded.length = 0;
+    gl.domElement.dispatchEvent(new Event('webglcontextrestored'));
+    const again = packages.acquire('sample');
+    expect(await again.ready).toBe(loaded);
+    expect(calls.filter(url => url.endsWith('p0.png'))).toHaveLength(2);
+    expect([(page.image as { data: Uint8Array }).data.subarray(0, 3), page.source.dataReady, page.version > version])
+      .toEqual([new Uint8Array([0, 1, 2]), true, true]);
+    expect(packages.diagnostics().restoredPages).toBe(1);
+    await vi.waitFor(() => expect(new Set(uploaded)).toEqual(new Set([page, loaded.palette])));
+    expect((page.image as { data: unknown }).data).toBeNull();
+    lease.release(); again.release();
+  });
+
+  it('stops loading pages while nobody holds the package, resumes when held again, cancels after the grace period', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    const twoPages = () => server({ ...PKG, pages: { ...PKG.pages, p1: { ...PKG.pages.p0!, file: 'pages/p1.png' } },
+      drawings: { ...PKG.drawings, 'idle/1': { ...PKG.drawings['idle/1']!, page: 'p1' } } });
+    const pngs = (calls: string[]) => calls.filter(url => url.endsWith('.png')).length;
+    const resumed = twoPages(), packages = library({ fetch: resumed.fetch, graceMs: 1000, concurrency: 1 });
+    const first = packages.acquire('sample');
+    await vi.waitFor(() => expect(pngs(resumed.calls)).toBe(1));
+    first.release();
+    resumed.open();
+    await vi.waitFor(() => expect(packages.diagnostics().packages[0]).toMatchObject({ paused: true, progress: { done: 1, total: 2 } }));
+    await vi.advanceTimersByTimeAsync(500);
+    expect(pngs(resumed.calls)).toBe(1);
+    const second = packages.acquire('sample');
+    await expect(second.ready).resolves.toMatchObject({ costumes: 2 });
+    expect(pngs(resumed.calls)).toBe(2);
+    second.release();
+
+    const dropped = twoPages(), other = library({ fetch: dropped.fetch, graceMs: 1000, concurrency: 1 });
+    const lease = other.acquire('sample');
+    await vi.waitFor(() => expect(pngs(dropped.calls)).toBe(1));
     lease.release();
+    dropped.open();
+    await vi.advanceTimersByTimeAsync(1000);
+    await expect(lease.ready).rejects.toThrow(/cancelled|aborted/);
+    expect([pngs(dropped.calls), other.diagnostics().packages]).toEqual([1, []]);
   });
 
   it('loads every shipped package at its indexed revision and size', async () => {

@@ -1,0 +1,474 @@
+{
+ "frames": 10800,
+ "seeds": [
+  20261019,
+  20261020,
+  20261021,
+  20261022,
+  20261023,
+  20261024
+ ],
+ "items": [
+  "homeRunBat",
+  "beamSword",
+  "starRod",
+  "rayGun",
+  "superScope",
+  "fireFlower"
+ ],
+ "players": [
+  "donkeykong",
+  "link",
+  "pikachu",
+  "pikachu"
+ ],
+ "summary": {
+  "donkeykong": {
+   "heldFrames": 12677,
+   "packageGripFrames": 2026,
+   "driftingFrames": 16,
+   "driftingItems": {
+    "superScope": 16
+   },
+   "meanDistance": 0.02,
+   "maxDistance": 1.92,
+   "meanAngle": 0,
+   "maxAngle": 0,
+   "meanTip": 0.02,
+   "maxTip": 1.92,
+   "worst": {
+    "seed": 20261020,
+    "frame": 10772,
+    "playerIndex": 0,
+    "item": "superScope",
+    "distance": 1.92,
+    "angle": 0,
+    "tip": 1.92,
+    "state": "item_scope_air_rapid",
+    "legacyRoot": {
+     "x": 615.8253436792777,
+     "y": 758.5300762503034
+    },
+    "packageRoot": {
+     "x": 613.9093436792776,
+     "y": 758.6290762503033
+    },
+    "centre": {
+     "x": 574.2303436792777,
+     "y": 772.2710762503034
+    }
+   }
+  },
+  "link": {
+   "heldFrames": 7327,
+   "packageGripFrames": 6978,
+   "driftingFrames": 162,
+   "driftingItems": {
+    "beamSword": 81,
+    "homeRunBat": 45,
+    "starRod": 36
+   },
+   "meanDistance": 0.18,
+   "maxDistance": 40.94,
+   "meanAngle": 0.08,
+   "maxAngle": 18.51,
+   "meanTip": 0.23,
+   "maxTip": 42.28,
+   "worst": {
+    "seed": 20261020,
+    "frame": 8545,
+    "playerIndex": 1,
+    "item": "beamSword",
+    "distance": 27.57,
+    "angle": 18.51,
+    "tip": 42.28,
+    "state": "final",
+    "legacyRoot": {
+     "x": 1475.6702352937803,
+     "y": 835.8750002777751
+    },
+    "packageRoot": {
+     "x": 1501.8092352937801,
+     "y": 827.1050002777752
+    },
+    "centre": {
+     "x": 1501.0272352937802,
+     "y": 894.0500002777751
+    }
+   }
+  },
+  "pikachu": {
+   "heldFrames": 16143,
+   "packageGripFrames": 6402,
+   "driftingFrames": 238,
+   "driftingItems": {
+    "beamSword": 29,
+    "starRod": 36,
+    "rayGun": 14,
+    "homeRunBat": 50,
+    "fireFlower": 19,
+    "superScope": 90
+   },
+   "meanDistance": 0.07,
+   "maxDistance": 6.69,
+   "meanAngle": 0.14,
+   "maxAngle": 34.74,
+   "meanTip": 0.07,
+   "maxTip": 18.22,
+   "worst": {
+    "seed": 20261022,
+    "frame": 416,
+    "playerIndex": 0,
+    "item": "fireFlower",
+    "distance": 6.69,
+    "angle": 20.06,
+    "tip": 18.22,
+    "state": "pikachu.dash-attack",
+    "legacyRoot": {
+     "x": 1282.8991661871287,
+     "y": 784.5449079643597
+    },
+    "packageRoot": {
+     "x": 1276.7991661871285,
+     "y": 781.8009079643597
+    },
+    "centre": {
+     "x": 1302.7561661871287,
+     "y": 784.4629079643597
+    }
+   }
+  }
+ },
+ "faults": [],
+ "actions": {
+  "donkeykong": {
+   "ticks": 1832,
+   "differing": 14,
+   "actions": 11,
+   "maxDistance": 59.86,
+   "maxAngle": 12.8,
+   "worst": "item_throw_drop@23",
+   "perAction": {
+    "item_light_eat": 1,
+    "item_scope_air_rapid": 4,
+    "item_scope_rapid": 1,
+    "item_scope_rapid_upper": 1,
+    "item_scope_start": 1,
+    "item_scope_start_upper": 1,
+    "item_shoot_legs_landing": 1,
+    "item_throw_air_b": 1,
+    "item_throw_air_lw": 1,
+    "item_throw_drop": 1,
+    "super_lift_jump": 1
+   }
+  },
+  "link": {
+   "ticks": 9884,
+   "differing": 176,
+   "actions": 27,
+   "maxDistance": 40.94,
+   "maxAngle": 63.53,
+   "worst": "d04finalair@102",
+   "perAction": {
+    "a02turndash": 1,
+    "a06stepback": 12,
+    "a06steppose": 2,
+    "airjump_b": 1,
+    "b00guardoff": 1,
+    "b00guardon": 1,
+    "b00justshieldoff": 1,
+    "b01guarddamage": 1,
+    "d00specialairnstart": 1,
+    "d00specialnstart": 1,
+    "d03specialairlwblast": 1,
+    "d03speciallw": 1,
+    "d03speciallwblast": 1,
+    "d04final": 42,
+    "d04finalair": 36,
+    "e00catch": 6,
+    "e00catchcut": 1,
+    "e00catchpull": 1,
+    "e01throwb": 5,
+    "g02cliffattack": 6,
+    "g03slipattack": 4,
+    "j00entryr": 40,
+    "j02lose": 1,
+    "smash2": 1,
+    "smash_charge": 1,
+    "uair": 6,
+    "usmash_charge": 1
+   }
+  },
+  "pikachu": {
+   "ticks": 2350,
+   "differing": 33,
+   "actions": 19,
+   "maxDistance": 6.69,
+   "maxAngle": 34.74,
+   "worst": "dash_attack@11",
+   "perAction": {
+    "crouch": 1,
+    "crouch_start": 1,
+    "dash_attack": 5,
+    "fall_special": 4,
+    "ftilt": 2,
+    "item_fflower_shoot_air_loop": 1,
+    "item_fflower_shoot_loop": 1,
+    "item_fflower_shoot_loop_upper": 1,
+    "item_light_eat": 4,
+    "item_scope_fall": 1,
+    "item_scope_fire": 1,
+    "item_scope_fire_upper": 1,
+    "item_scope_start_upper": 1,
+    "item_scope_wait": 1,
+    "item_scope_wait_upper": 1,
+    "item_shoot_legs_landing": 1,
+    "jab": 1,
+    "smash": 4,
+    "squat_wait_item": 1
+   }
+  }
+ },
+ "shots": {
+  "pikachu": {
+   "seed": 20261024,
+   "frame": 4113,
+   "playerIndex": 3,
+   "item": "beamSword",
+   "distance": 6.69,
+   "angle": 34.74,
+   "tip": 11.19,
+   "state": "pikachu.dash-attack",
+   "legacyRoot": {
+    "x": 1127.005572505502,
+    "y": 905.1399079643595
+   },
+   "packageRoot": {
+    "x": 1120.9055725055018,
+    "y": 902.3959079643595
+   },
+   "centre": {
+    "x": 1146.862572505502,
+    "y": 905.0579079643595
+   },
+   "config": {
+    "mode": "time",
+    "timeLimitSeconds": 190,
+    "stockCount": 3,
+    "stageId": "flat",
+    "rngSeed": 20261024,
+    "itemFrequency": "high",
+    "linkIntroPolicy": "none",
+    "itemSwitch": {
+     "homeRunBat": true,
+     "beamSword": true,
+     "hammer": false,
+     "rayGun": true,
+     "bobOmb": false,
+     "crate": false,
+     "starRod": true,
+     "superScope": true,
+     "fireFlower": true,
+     "bananaPeel": false,
+     "goldenHammer": false,
+     "food": false,
+     "heartContainer": false,
+     "maximTomato": false,
+     "barrel": false,
+     "capsule": false,
+     "smashBall": false
+    },
+    "players": [
+     {
+      "index": 1,
+      "characterId": "donkeykong",
+      "paletteIndex": 0,
+      "inputType": "ai",
+      "aiDifficulty": "hard"
+     },
+     {
+      "index": 2,
+      "characterId": "link",
+      "paletteIndex": 1,
+      "inputType": "ai",
+      "aiDifficulty": "hard"
+     },
+     {
+      "index": 3,
+      "characterId": "pikachu",
+      "paletteIndex": 0,
+      "inputType": "ai",
+      "aiDifficulty": "hard"
+     },
+     {
+      "index": 4,
+      "characterId": "pikachu",
+      "paletteIndex": 1,
+      "inputType": "ai",
+      "aiDifficulty": "hard"
+     }
+    ]
+   }
+  },
+  "link": {
+   "seed": 20261020,
+   "frame": 8546,
+   "playerIndex": 1,
+   "item": "beamSword",
+   "distance": 27.57,
+   "angle": 18.51,
+   "tip": 42.28,
+   "state": "final",
+   "legacyRoot": {
+    "x": 1475.6702352937803,
+    "y": 835.8750002777751
+   },
+   "packageRoot": {
+    "x": 1501.8092352937801,
+    "y": 827.1050002777752
+   },
+   "centre": {
+    "x": 1501.0272352937802,
+    "y": 894.0500002777751
+   },
+   "config": {
+    "mode": "time",
+    "timeLimitSeconds": 190,
+    "stockCount": 3,
+    "stageId": "flat",
+    "rngSeed": 20261020,
+    "itemFrequency": "high",
+    "linkIntroPolicy": "none",
+    "itemSwitch": {
+     "homeRunBat": true,
+     "beamSword": true,
+     "hammer": false,
+     "rayGun": true,
+     "bobOmb": false,
+     "crate": false,
+     "starRod": true,
+     "superScope": true,
+     "fireFlower": true,
+     "bananaPeel": false,
+     "goldenHammer": false,
+     "food": false,
+     "heartContainer": false,
+     "maximTomato": false,
+     "barrel": false,
+     "capsule": false,
+     "smashBall": false
+    },
+    "players": [
+     {
+      "index": 1,
+      "characterId": "donkeykong",
+      "paletteIndex": 0,
+      "inputType": "ai",
+      "aiDifficulty": "hard"
+     },
+     {
+      "index": 2,
+      "characterId": "link",
+      "paletteIndex": 1,
+      "inputType": "ai",
+      "aiDifficulty": "hard"
+     },
+     {
+      "index": 3,
+      "characterId": "pikachu",
+      "paletteIndex": 0,
+      "inputType": "ai",
+      "aiDifficulty": "hard"
+     },
+     {
+      "index": 4,
+      "characterId": "pikachu",
+      "paletteIndex": 1,
+      "inputType": "ai",
+      "aiDifficulty": "hard"
+     }
+    ]
+   }
+  },
+  "donkeykong": {
+   "seed": 20261020,
+   "frame": 10772,
+   "playerIndex": 0,
+   "item": "superScope",
+   "distance": 1.92,
+   "angle": 0,
+   "tip": 1.92,
+   "state": "item_scope_air_rapid",
+   "legacyRoot": {
+    "x": 615.8253436792777,
+    "y": 758.5300762503034
+   },
+   "packageRoot": {
+    "x": 613.9093436792776,
+    "y": 758.6290762503033
+   },
+   "centre": {
+    "x": 574.2303436792777,
+    "y": 772.2710762503034
+   },
+   "config": {
+    "mode": "time",
+    "timeLimitSeconds": 190,
+    "stockCount": 3,
+    "stageId": "flat",
+    "rngSeed": 20261020,
+    "itemFrequency": "high",
+    "linkIntroPolicy": "none",
+    "itemSwitch": {
+     "homeRunBat": true,
+     "beamSword": true,
+     "hammer": false,
+     "rayGun": true,
+     "bobOmb": false,
+     "crate": false,
+     "starRod": true,
+     "superScope": true,
+     "fireFlower": true,
+     "bananaPeel": false,
+     "goldenHammer": false,
+     "food": false,
+     "heartContainer": false,
+     "maximTomato": false,
+     "barrel": false,
+     "capsule": false,
+     "smashBall": false
+    },
+    "players": [
+     {
+      "index": 1,
+      "characterId": "donkeykong",
+      "paletteIndex": 0,
+      "inputType": "ai",
+      "aiDifficulty": "hard"
+     },
+     {
+      "index": 2,
+      "characterId": "link",
+      "paletteIndex": 1,
+      "inputType": "ai",
+      "aiDifficulty": "hard"
+     },
+     {
+      "index": 3,
+      "characterId": "pikachu",
+      "paletteIndex": 0,
+      "inputType": "ai",
+      "aiDifficulty": "hard"
+     },
+     {
+      "index": 4,
+      "characterId": "pikachu",
+      "paletteIndex": 1,
+      "inputType": "ai",
+      "aiDifficulty": "hard"
+     }
+    ]
+   }
+  }
+ }
+}

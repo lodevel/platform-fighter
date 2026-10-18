@@ -1,6 +1,10 @@
 import type { AppearancePreparation, AppearanceRequest, PresentationRoute } from '../../../../src/characterPresentation/contracts';
 import type { AppearancePreparationHost, PresentationTarget } from '../../engine/presentation/submission';
 import type { SpriteLayer } from '../../engine/sprites/spriteLayer';
+import type { HeldItemSocket, ItemSocketAxis } from '../../../../src/characters/heldItemSocket';
+
+/** Where the drawing shown now holds an item: world design px, angle with facing applied, and the facing. */
+export interface HeldItemGrip extends HeldItemSocket { readonly facing: 1 | -1 }
 
 export interface BackendPreparation {
   readonly signal: AbortSignal;
@@ -16,6 +20,8 @@ export interface AppearanceBackend {
   submit(target: PresentationTarget): void;
   reset(restoreGeneration: number): void;
   diagnostics(layer?: SpriteLayer, tint?: number): unknown;
+  /** The grip of the drawing this backend shows now, when its art defines one; absent or null keeps the gameplay grip. */
+  heldItemGrip?(axis: ItemSocketAxis): HeldItemGrip | null;
   dispose(): void;
 }
 

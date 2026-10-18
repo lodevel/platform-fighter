@@ -1,0 +1,192 @@
+{
+ "drift": "docs/review/2026-10-19/phase6/held-items/drift.json",
+ "shots": {
+  "pikachu": {
+   "item": "beamSword",
+   "seed": 20261024,
+   "frame": 4113,
+   "state": "pikachu.dash-attack",
+   "driftPx": 6.69,
+   "driftDeg": 34.74,
+   "variants": {
+    "legacy": {
+     "frame": 4113,
+     "item": "beamSword",
+     "sameState": true,
+     "fighterArt": null,
+     "action": null,
+     "drawing": null,
+     "tick": null,
+     "effects": [],
+     "legacyGripPx": {
+      "x": 1023.8162707781622,
+      "y": 503.0827061500431
+     },
+     "packageGripPx": {
+      "x": 1016.0847609531461,
+      "y": 499.6047941894129
+     },
+     "crop": [
+      889,
+      343,
+      320,
+      320
+     ]
+    },
+    "packages": {
+     "frame": 4113,
+     "item": "beamSword",
+     "sameState": true,
+     "fighterArt": "package-sprite",
+     "action": "dash_attack",
+     "drawing": "dash_attack/2",
+     "tick": 11,
+     "effects": [],
+     "legacyGripPx": {
+      "x": 1023.8162707781622,
+      "y": 503.0827061500431
+     },
+     "packageGripPx": {
+      "x": 1016.0847609531461,
+      "y": 499.6047941894129
+     },
+     "crop": [
+      889,
+      343,
+      320,
+      320
+     ]
+    }
+   }
+  },
+  "link": {
+   "item": "beamSword",
+   "seed": 20261020,
+   "frame": 8546,
+   "state": "final",
+   "driftPx": 27.57,
+   "driftDeg": 18.51,
+   "variants": {
+    "legacy": {
+     "frame": 8546,
+     "item": "beamSword",
+     "sameState": true,
+     "fighterArt": null,
+     "action": null,
+     "drawing": null,
+     "tick": null,
+     "effects": [
+      "effect.link_ancientbowarrow"
+     ],
+     "legacyGripPx": {
+      "x": 1056.490761363015,
+      "y": 459.8822824118897
+     },
+     "packageGripPx": {
+      "x": 1086.09204872258,
+      "y": 449.9506365898083
+     },
+     "crop": [
+      925,
+      366,
+      320,
+      320
+     ]
+    },
+    "packages": {
+     "frame": 8546,
+     "item": "beamSword",
+     "sameState": true,
+     "fighterArt": "package-sprite",
+     "action": "d04final",
+     "drawing": "d04final/7",
+     "tick": 21,
+     "effects": [
+      "effect.link_ancientbowarrow (package)"
+     ],
+     "legacyGripPx": {
+      "x": 1056.490761363015,
+      "y": 459.8822824118897
+     },
+     "packageGripPx": {
+      "x": 1086.09204872258,
+      "y": 449.9506365898083
+     },
+     "crop": [
+      925,
+      366,
+      320,
+      320
+     ]
+    }
+   }
+  },
+  "donkeykong": {
+   "item": "superScope",
+   "seed": 20261020,
+   "frame": 10772,
+   "state": "item_scope_air_rapid",
+   "driftPx": 1.92,
+   "driftDeg": 0,
+   "variants": {
+    "legacy": {
+     "frame": 10772,
+     "item": "superScope",
+     "sameState": true,
+     "fighterArt": null,
+     "action": null,
+     "drawing": null,
+     "tick": null,
+     "effects": [],
+     "legacyGripPx": {
+      "x": 744.8859407608454,
+      "y": 309.28023993996106
+     },
+     "packageGripPx": {
+      "x": 742.4072475787232,
+      "y": 309.40831437891194
+     },
+     "crop": [
+      531,
+      167,
+      320,
+      320
+     ]
+    },
+    "packages": {
+     "frame": 10772,
+     "item": "superScope",
+     "sameState": true,
+     "fighterArt": "package-sprite",
+     "action": "item_scope_air_rapid",
+     "drawing": "item_scope_air_rapid/0",
+     "tick": 4,
+     "effects": [],
+     "legacyGripPx": {
+      "x": 744.8859407608454,
+      "y": 309.28023993996106
+     },
+     "packageGripPx": {
+      "x": 742.4072475787232,
+      "y": 309.40831437891194
+     },
+     "crop": [
+      531,
+      167,
+      320,
+      320
+     ]
+    }
+   }
+  }
+ },
+ "errors": [
+  "pikachu/legacy: Failed to load resource: the server responded with a status of 404 (Not Found)",
+  "pikachu/legacy: Failed to load resource: the server responded with a status of 404 (Not Found)",
+  "pikachu/packages: Failed to load resource: the server responded with a status of 404 (Not Found)",
+  "link/legacy: Failed to load resource: the server responded with a status of 404 (Not Found)",
+  "link/packages: Failed to load resource: the server responded with a status of 404 (Not Found)",
+  "donkeykong/legacy: Failed to load resource: the server responded with a status of 404 (Not Found)",
+  "donkeykong/packages: Failed to load resource: the server responded with a status of 404 (Not Found)"
+ ]
+}

@@ -6,8 +6,9 @@ import { TextureStore } from './textureStore';
 
 /**
  * An indexed drawing at page resolution as straight RGBA: each index through the palette row,
- * mirrored for `flipX`, times tint and alpha. Pages and palettes are DataTextures whose CPU
- * copy this reads, so menu art needs no GPU work and never waits behind queued uploads.
+ * mirrored for `flipX`, times tint and alpha. Reads the CPU bytes of the page and palette
+ * DataTextures (a borrowed, never uploaded page), so menu art needs no GPU work and never
+ * waits behind queued uploads.
  */
 export function indexedPixels(draw: SpriteDraw): Uint8ClampedArray<ArrayBuffer> {
   const { page, rect: [x0, y0, w, h], palette, paletteRow } = draw.indexed!;
@@ -22,6 +23,13 @@ export function indexedPixels(draw: SpriteDraw): Uint8ClampedArray<ArrayBuffer> 
     for (let c = 0; c < 4; c++) out[at + c] = colours.data[entry + c]! * scale[c]!;
   }
   return out;
+}
+
+/** A CPU-backed canvas: menus read its pixels back (trimming), which then never waits for the GPU. */
+function readableCanvas(width: number, height: number): HTMLCanvasElement {
+  const canvas = Object.assign(document.createElement('canvas'), { width, height });
+  canvas.getContext('2d', { willReadFrequently: true });
+  return canvas;
 }
 
 /**
@@ -45,7 +53,7 @@ export class SpriteSnapshotter {
 
   private async render(draw: SpriteDraw): Promise<HTMLCanvasElement> {
     if (draw.indexed) {
-      const [, , width, height] = draw.indexed.rect, out = Object.assign(document.createElement('canvas'), { width, height });
+      const [, , width, height] = draw.indexed.rect, out = readableCanvas(width, height);
       out.getContext('2d')!.putImageData(new ImageData(indexedPixels(draw), width, height), 0, 0);
       return out;
     }
@@ -62,9 +70,7 @@ export class SpriteSnapshotter {
     this.layer.flush();
     renderer.clear();
     renderer.render(this.layer.scene, this.camera);
-    const out = document.createElement('canvas');
-    out.width = w;
-    out.height = h;
+    const out = readableCanvas(w, h);
     out.getContext('2d')!.drawImage(renderer.domElement, 0, 0);
     return out;
   }

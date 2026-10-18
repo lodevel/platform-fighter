@@ -1,0 +1,59 @@
+{
+ "frames": 10800,
+ "seeds": [
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8
+ ],
+ "items": [
+  "homeRunBat",
+  "beamSword"
+ ],
+ "summary": {
+  "donkeykong": {
+   "heldFrames": 108778,
+   "packageGripFrames": 20105,
+   "driftingFrames": 0,
+   "driftingItems": {},
+   "meanDistance": 0,
+   "maxDistance": 0,
+   "meanAngle": 0,
+   "maxAngle": 0,
+   "meanTip": 0,
+   "maxTip": 0,
+   "worst": null
+  },
+  "link": {
+   "heldFrames": 0,
+   "packageGripFrames": 0,
+   "driftingFrames": 0,
+   "driftingItems": {},
+   "meanDistance": 0,
+   "maxDistance": 0,
+   "meanAngle": 0,
+   "maxAngle": 0,
+   "meanTip": 0,
+   "maxTip": 0,
+   "worst": null
+  },
+  "pikachu": {
+   "heldFrames": 0,
+   "packageGripFrames": 0,
+   "driftingFrames": 0,
+   "driftingItems": {},
+   "meanDistance": 0,
+   "maxDistance": 0,
+   "meanAngle": 0,
+   "maxAngle": 0,
+   "meanTip": 0,
+   "maxTip": 0,
+   "worst": null
+  }
+ },
+ "shots": {}
+}

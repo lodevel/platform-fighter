@@ -4,7 +4,7 @@ import type { EffectArtView, ItemView, PresentationSpriteView, SimView } from '.
 import { captureSimulationAnimation } from '../characters/simulationSpriteAnimation';
 import { finalHudModel } from '../finalSmash/finalSmashPresentation';
 import { formatBindingList } from '../ui/rebindingScreenFormat';
-import { HELD_ITEM_MIN_FORESHORTENING } from '../characters/heldItemSocket';
+import { heldItemPlacement } from '../characters/heldItemSocket';
 import { isItemUseMove } from '../items/ItemDefinition';
 import type { ItemEntity } from '../items/ItemEntity';
 import { bobOmbFlashing } from '../items/BobOmb';
@@ -22,32 +22,30 @@ import { analyticAttackDebugBoxes, attackSensorDebugBoxes, computeFighterDebugBo
 function itemView(sim:MatchSim,entity:ItemEntity,frame:number):ItemView {
   const definition=entity.definition,visual=definition.visual,holderIndex=entity.getHolderPlayerIndex();
   const holder=holderIndex===null?null:sim.playerSlots.find(slot=>slot.playerIndex===holderIndex)?.character;
-  let root={...entity.getPosition()},angle=0,scaleX=1,scaleY=1,visible=true;
-  if(holder){
-    visible=holder.getLinkEquipmentState()?.heldItemVisible!==false&&(!definition.recovery?holder.getEatingState()===null:true);
-    if(definition.generated?.kind==='link-remote-bomb'){root={...holder.getHeldItemWorldPosition()};visible=true;}
-    else {
-      const socket=holder.getHeldItemSocket();root={x:socket.x,y:socket.y};
-      if(!definition.recovery&&!definition.container){
-        const active=holder.getActiveAttack(),swing=visual?.swingArc,total=active?active.move.startupFrames+active.move.activeFrames:0;
-        const progress=active&&total>0?Math.min(active.framesElapsed/total,1):1;
-        const fallback=active&&swing&&isItemUseMove(definition,active.move.id)?swing[0]+(swing[1]-swing[0])*progress:visual?.restAngle??0;
-        angle=(socket.angle??fallback)*Math.PI/180;
-        scaleX=holder.getFacing();scaleY=Math.max(HELD_ITEM_MIN_FORESHORTENING,socket.length);
-      }
-    }
-  }
-  const rolling=entity.getContainerState()?.rolling;
-  if(!holder&&rolling)angle=rolling.angle*Math.PI/180;
-  const bob=entity.getBobOmbState();if(!holder&&bob?.phase==='walking')scaleX=bob.direction;
   const hammer=entity.getHammerState();
   const spriteKey=hammer?.malfunction==='headless'&&hammer.detached?ASSET_KEYS.itemHammerHandle:visual?.spriteKey??'';
   const growth=definition.hammer?.golden&&!hammer?Math.max(.05,Math.min(1,(frame-entity.spawnedAtFrame)/Math.max(1,definition.hammer.growthFrames))):1;
   const width=visual?.width??(definition.generated?.kind==='link-remote-bomb'?20:75),height=(visual?.height??(definition.generated?.kind==='link-remote-bomb'?20:75))*growth;
-  // Item roots are their bottom. Sprite cards use the centre after the same
-  // held-socket scale and rotation that the previous renderer applied.
-  const position={x:root.x+Math.sin(angle)*height*scaleY/2,y:root.y-Math.cos(angle)*height*scaleY/2};
-  return {id:entity.id,type:definition.type,spriteKey,width,height,position,rootPosition:root,angle,scaleX,scaleY,
+  const rolling=entity.getContainerState()?.rolling,bob=entity.getBobOmbState();
+  // Item roots are their bottom; a held item turns about the gameplay grip (heldItemPlacement).
+  let grip=entity.getPosition(),turn:Parameters<typeof heldItemPlacement>[2]=!holder&&rolling?{angle:rolling.angle,length:1,facing:1}:null;
+  let visible=true,held:ItemView['held'];
+  if(holder){
+    visible=holder.getLinkEquipmentState()?.heldItemVisible!==false&&(!definition.recovery?holder.getEatingState()===null:true);
+    if(definition.generated?.kind==='link-remote-bomb'){grip=holder.getHeldItemWorldPosition();visible=true;}
+    else {
+      const socket=holder.getHeldItemSocket(),turns=!definition.recovery&&!definition.container;grip=socket;
+      if(turns){
+        const active=holder.getActiveAttack(),swing=visual?.swingArc,total=active?active.move.startupFrames+active.move.activeFrames:0;
+        const progress=active&&total>0?Math.min(active.framesElapsed/total,1):1;
+        const fallback=active&&swing&&isItemUseMove(definition,active.move.id)?swing[0]+(swing[1]-swing[0])*progress:visual?.restAngle??0;
+        turn={angle:socket.angle??fallback,length:socket.length,facing:holder.getFacing()};
+      }
+      held={playerIndex:holderIndex!,socketAxis:visual?.socketAxis??'y',turns};
+    }
+  }
+  return {id:entity.id,type:definition.type,spriteKey,width,height,...heldItemPlacement(grip,height,turn),
+    ...(!holder&&bob?.phase==='walking'?{scaleX:bob.direction}:{}),...(held?{held}:{}),
     generatedKind:definition.generated?.kind,alpha:entity.isBroken()?.4:1,visible,
     ...(bob&&definition.bobOmb&&bobOmbFlashing(definition.bobOmb,bob)&&Math.floor(frame/4)%2===0?{alpha:.8}:{})};
 }

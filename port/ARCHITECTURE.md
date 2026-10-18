@@ -63,7 +63,7 @@ require textures or sprites.
   `applyFighterDisplay` picks legacy or package profiles from the Fighter art option, or the
   probe flag `?packages=all|<id>|none`), `backends/` (legacy sprite/resource implementations;
   `packageSprite.ts` draws a fighter from its character package), `packageLibrary.ts` (shared,
-  reference-counted package leases: indexed pages decoded on workers (`pageDecoder.ts`) into R8
+  reference-counted package leases: character.json parsed and indexed pages decoded on workers (`packageDecoder.ts`) into R8
   textures plus a costume palette, uploaded a little per frame), `artHold.ts` (the fighter
   select holds the picked fighters' packages), `packageIndex.ts` (the shipped packages'
   revisions), `resources.ts` (preparation leases), `lineup.ts`, `gazeDemo.ts`. Only the legacy backend calls `poses.ts`.

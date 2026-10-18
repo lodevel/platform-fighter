@@ -1,0 +1,553 @@
+{
+ "method": "Windows Edge (real GPU, 144 Hz), fresh context per run, rAF intervals over the pick until loaded + 1.5 s, no tracing. .tmp/pf-pick-profile/profile-pick.mjs (scratch).",
+ "before": {
+  "packages": [
+   {
+    "run": 0,
+    "display": "packages",
+    "pick": "DK",
+    "worstFramesMs": [
+     103.9,
+     48.4,
+     34.6,
+     20.8
+    ],
+    "framesOver20ms": 12
+   },
+   {
+    "run": 0,
+    "display": "packages",
+    "pick": "Pikachu",
+    "worstFramesMs": [
+     34,
+     27.6,
+     14.6,
+     14.1
+    ],
+    "framesOver20ms": 2
+   },
+   {
+    "run": 0,
+    "display": "packages",
+    "pick": "Link",
+    "worstFramesMs": [
+     20.8,
+     13.9,
+     13.8,
+     7.2
+    ],
+    "framesOver20ms": 1
+   },
+   {
+    "run": 1,
+    "display": "packages",
+    "pick": "DK",
+    "worstFramesMs": [
+     27.7,
+     20.9,
+     14,
+     13.9
+    ],
+    "framesOver20ms": 2
+   },
+   {
+    "run": 1,
+    "display": "packages",
+    "pick": "Pikachu",
+    "worstFramesMs": [
+     13.9,
+     13.9,
+     13.8,
+     13.8
+    ],
+    "framesOver20ms": 0
+   },
+   {
+    "run": 1,
+    "display": "packages",
+    "pick": "Link",
+    "worstFramesMs": [
+     20.7,
+     14,
+     13.9,
+     13.9
+    ],
+    "framesOver20ms": 1
+   },
+   {
+    "run": 2,
+    "display": "packages",
+    "pick": "DK",
+    "worstFramesMs": [
+     20.8,
+     20.8,
+     20.8,
+     20.7
+    ],
+    "framesOver20ms": 5
+   },
+   {
+    "run": 2,
+    "display": "packages",
+    "pick": "Pikachu",
+    "worstFramesMs": [
+     13.9,
+     13.7,
+     7.2,
+     7.2
+    ],
+    "framesOver20ms": 0
+   },
+   {
+    "run": 2,
+    "display": "packages",
+    "pick": "Link",
+    "worstFramesMs": [
+     14,
+     14,
+     14,
+     13.9
+    ],
+    "framesOver20ms": 0
+   },
+   {
+    "run": 3,
+    "display": "packages",
+    "pick": "DK",
+    "worstFramesMs": [
+     34.6,
+     27.5,
+     20.8,
+     20.8
+    ],
+    "framesOver20ms": 6
+   },
+   {
+    "run": 3,
+    "display": "packages",
+    "pick": "Pikachu",
+    "worstFramesMs": [
+     27.5,
+     20.7,
+     14,
+     13.9
+    ],
+    "framesOver20ms": 2
+   },
+   {
+    "run": 3,
+    "display": "packages",
+    "pick": "Link",
+    "worstFramesMs": [
+     27.7,
+     20.9,
+     14,
+     13.9
+    ],
+    "framesOver20ms": 2
+   },
+   {
+    "run": 4,
+    "display": "packages",
+    "pick": "DK",
+    "worstFramesMs": [
+     34.5,
+     27.8,
+     27.7,
+     20.7
+    ],
+    "framesOver20ms": 4
+   },
+   {
+    "run": 4,
+    "display": "packages",
+    "pick": "Pikachu",
+    "worstFramesMs": [
+     20.9,
+     13.9,
+     13.9,
+     13.9
+    ],
+    "framesOver20ms": 1
+   },
+   {
+    "run": 4,
+    "display": "packages",
+    "pick": "Link",
+    "worstFramesMs": [
+     13.9,
+     13.9,
+     13.8,
+     13.8
+    ],
+    "framesOver20ms": 0
+   }
+  ]
+ },
+ "after": {
+  "packages": [
+   {
+    "run": 0,
+    "display": "packages",
+    "pick": "DK",
+    "worstFramesMs": [
+     62.4,
+     27.7,
+     27.7,
+     27.7
+    ],
+    "framesOver20ms": 6
+   },
+   {
+    "run": 0,
+    "display": "packages",
+    "pick": "Pikachu",
+    "worstFramesMs": [
+     41.5,
+     41.5,
+     27.7,
+     20.8
+    ],
+    "framesOver20ms": 4
+   },
+   {
+    "run": 0,
+    "display": "packages",
+    "pick": "Link",
+    "worstFramesMs": [
+     34.6,
+     14.8,
+     14,
+     14
+    ],
+    "framesOver20ms": 1
+   },
+   {
+    "run": 1,
+    "display": "packages",
+    "pick": "DK",
+    "worstFramesMs": [
+     41.5,
+     34.7,
+     27.7,
+     27.7
+    ],
+    "framesOver20ms": 7
+   },
+   {
+    "run": 1,
+    "display": "packages",
+    "pick": "Pikachu",
+    "worstFramesMs": [
+     20.8,
+     13.9,
+     13.9,
+     13.9
+    ],
+    "framesOver20ms": 1
+   },
+   {
+    "run": 1,
+    "display": "packages",
+    "pick": "Link",
+    "worstFramesMs": [
+     14,
+     14,
+     13.9,
+     13.9
+    ],
+    "framesOver20ms": 0
+   },
+   {
+    "run": 2,
+    "display": "packages",
+    "pick": "DK",
+    "worstFramesMs": [
+     28.5,
+     27.7,
+     14,
+     14
+    ],
+    "framesOver20ms": 2
+   },
+   {
+    "run": 2,
+    "display": "packages",
+    "pick": "Pikachu",
+    "worstFramesMs": [
+     14,
+     13.9,
+     13.8,
+     13.8
+    ],
+    "framesOver20ms": 0
+   },
+   {
+    "run": 2,
+    "display": "packages",
+    "pick": "Link",
+    "worstFramesMs": [
+     15,
+     14.6,
+     14.2,
+     14.1
+    ],
+    "framesOver20ms": 0
+   },
+   {
+    "run": 3,
+    "display": "packages",
+    "pick": "DK",
+    "worstFramesMs": [
+     34.6,
+     21.3,
+     20.8,
+     14
+    ],
+    "framesOver20ms": 3
+   },
+   {
+    "run": 3,
+    "display": "packages",
+    "pick": "Pikachu",
+    "worstFramesMs": [
+     14,
+     13.9,
+     13.9,
+     13.9
+    ],
+    "framesOver20ms": 0
+   },
+   {
+    "run": 3,
+    "display": "packages",
+    "pick": "Link",
+    "worstFramesMs": [
+     20.8,
+     20.8,
+     20.6,
+     20.6
+    ],
+    "framesOver20ms": 4
+   },
+   {
+    "run": 4,
+    "display": "packages",
+    "pick": "DK",
+    "worstFramesMs": [
+     27.7,
+     27.7,
+     14.8,
+     14.4
+    ],
+    "framesOver20ms": 2
+   },
+   {
+    "run": 4,
+    "display": "packages",
+    "pick": "Pikachu",
+    "worstFramesMs": [
+     20.8,
+     14.3,
+     14,
+     14
+    ],
+    "framesOver20ms": 1
+   },
+   {
+    "run": 4,
+    "display": "packages",
+    "pick": "Link",
+    "worstFramesMs": [
+     27.6,
+     20.9,
+     20.7,
+     14.4
+    ],
+    "framesOver20ms": 3
+   }
+  ],
+  "legacy": [
+   {
+    "run": 0,
+    "display": "legacy",
+    "pick": "DK",
+    "worstFramesMs": [
+     55.4,
+     34.6,
+     20.8,
+     14.1
+    ],
+    "framesOver20ms": 3
+   },
+   {
+    "run": 0,
+    "display": "legacy",
+    "pick": "Pikachu",
+    "worstFramesMs": [
+     55.3,
+     34.5,
+     27.8,
+     14
+    ],
+    "framesOver20ms": 3
+   },
+   {
+    "run": 0,
+    "display": "legacy",
+    "pick": "Link",
+    "worstFramesMs": [
+     34.6,
+     20.7,
+     13.9,
+     7.1
+    ],
+    "framesOver20ms": 2
+   },
+   {
+    "run": 1,
+    "display": "legacy",
+    "pick": "DK",
+    "worstFramesMs": [
+     34.6,
+     20.8,
+     14,
+     14
+    ],
+    "framesOver20ms": 2
+   },
+   {
+    "run": 1,
+    "display": "legacy",
+    "pick": "Pikachu",
+    "worstFramesMs": [
+     41.6,
+     13.9,
+     13.8,
+     7.3
+    ],
+    "framesOver20ms": 1
+   },
+   {
+    "run": 1,
+    "display": "legacy",
+    "pick": "Link",
+    "worstFramesMs": [
+     13.9,
+     13.8,
+     13.8,
+     13.8
+    ],
+    "framesOver20ms": 0
+   },
+   {
+    "run": 2,
+    "display": "legacy",
+    "pick": "DK",
+    "worstFramesMs": [
+     34.6,
+     20.9,
+     13.9,
+     13.9
+    ],
+    "framesOver20ms": 2
+   },
+   {
+    "run": 2,
+    "display": "legacy",
+    "pick": "Pikachu",
+    "worstFramesMs": [
+     27.8,
+     13.9,
+     13.9,
+     13.8
+    ],
+    "framesOver20ms": 1
+   },
+   {
+    "run": 2,
+    "display": "legacy",
+    "pick": "Link",
+    "worstFramesMs": [
+     27.8,
+     13.8,
+     13.7,
+     7.3
+    ],
+    "framesOver20ms": 1
+   },
+   {
+    "run": 3,
+    "display": "legacy",
+    "pick": "DK",
+    "worstFramesMs": [
+     34.7,
+     27.8,
+     20.8,
+     13.9
+    ],
+    "framesOver20ms": 3
+   },
+   {
+    "run": 3,
+    "display": "legacy",
+    "pick": "Pikachu",
+    "worstFramesMs": [
+     20.8,
+     14,
+     7.1,
+     7.1
+    ],
+    "framesOver20ms": 1
+   },
+   {
+    "run": 3,
+    "display": "legacy",
+    "pick": "Link",
+    "worstFramesMs": [
+     13.9,
+     13.9,
+     7.1,
+     7.1
+    ],
+    "framesOver20ms": 0
+   },
+   {
+    "run": 4,
+    "display": "legacy",
+    "pick": "DK",
+    "worstFramesMs": [
+     13.9,
+     7.2,
+     7.2,
+     7.2
+    ],
+    "framesOver20ms": 0
+   },
+   {
+    "run": 4,
+    "display": "legacy",
+    "pick": "Pikachu",
+    "worstFramesMs": [
+     13.8,
+     7.3,
+     7.2,
+     7.2
+    ],
+    "framesOver20ms": 0
+   },
+   {
+    "run": 4,
+    "display": "legacy",
+    "pick": "Link",
+    "worstFramesMs": [
+     20.8,
+     14,
+     14,
+     14
+    ],
+    "framesOver20ms": 1
+   }
+  ]
+ }
+}

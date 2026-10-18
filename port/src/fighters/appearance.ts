@@ -5,7 +5,8 @@ import { createLegacyPreviewAppearanceRequest } from '../../../src/characterPres
 import type { AppearancePreparationHost, AppearanceSubmission, PresentationTarget } from '../engine/presentation/submission';
 import { AppearanceSnapshotter } from '../engine/presentation/snapshot';
 import type { SpriteLayer } from '../engine/sprites/spriteLayer';
-import type { AppearanceBackend, AppearanceBackendFactory } from './backends/types';
+import type { AppearanceBackend, AppearanceBackendFactory, HeldItemGrip } from './backends/types';
+import type { ItemSocketAxis } from '../../../src/characters/heldItemSocket';
 import { legacySpriteBackend } from './backends/legacySprite';
 import { registerLegacyAppearanceResources } from './backends/legacyResources';
 import { PACKAGE_SPRITE_CAPABILITY, packagePresentationProfile, packageSpriteBackend, registerPackageAppearanceResources } from './backends/packageSprite';
@@ -13,7 +14,7 @@ import { SHIPPED_PACKAGES } from './packageIndex';
 import { loadGameSettings, type FighterDisplay } from '../../../src/config/gameSettings';
 
 export type { AppearanceSubmission } from '../engine/presentation/submission';
-export type { AppearanceBackend, AppearanceBackendFactory, BackendPreparation } from './backends/types';
+export type { AppearanceBackend, AppearanceBackendFactory, BackendPreparation, HeldItemGrip } from './backends/types';
 
 /** Registrations describe visual capabilities independently of gameplay factories. */
 export class AppearanceSystem {
@@ -144,6 +145,12 @@ export class CharacterAppearance implements AppearanceSubmission {
     this.prepared = false;
     for (const adapter of this.adapters.values()) adapter.reset(restoreGeneration);
   }
+  /** The held-item grip of the drawing shown now, from the first drawn route whose art defines one. */
+  heldItemGrip(axis: ItemSocketAxis): HeldItemGrip | null {
+    if (this.disposed) return null;
+    for (const route of this.routes) { const grip = this.adapter(route).heldItemGrip?.(axis); if (grip) return grip; }
+    return null;
+  }
   diagnostics(layer?: SpriteLayer, tint?: number): unknown {
     if (this.disposed) return null;
     const diagnostics = this.routes.map(route => this.adapter(route).diagnostics(layer, tint));
@@ -220,6 +227,7 @@ export class AppearanceCollection {
   }
   prepare(signal?: AbortSignal, host?: AppearancePreparationHost): Promise<AppearancePreparation[]> { return Promise.all([...this.instances.values()].map(instance => instance.prepare(signal, host))); }
   diagnostics(actorId: string, layer?: SpriteLayer, tint?: number): unknown { return this.instances.get(actorId)?.diagnostics(layer, tint) ?? null; }
+  heldItemGrip(actorId: string, axis: ItemSocketAxis): HeldItemGrip | null { return this.instances.get(actorId)?.heldItemGrip(axis) ?? null; }
   retain(actorIds: readonly string[]): void {
     const retained = new Set(actorIds);
     for (const [id, instance] of this.instances) if (!retained.has(id)) { instance.dispose(); this.instances.delete(id); }

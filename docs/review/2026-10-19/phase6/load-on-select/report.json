@@ -5,16 +5,16 @@
    "steps": [
     {
      "step": "P1 joins and picks DK (click portrait)",
-     "loadMs": 1008,
-     "clickToLoadedMs": 1085,
+     "loadMs": 1291,
+     "clickToLoadedMs": 1388,
      "pages": 213,
      "frames": {
-      "frames": 231,
-      "medianMs": 7,
+      "frames": 246,
+      "medianMs": 6.9,
       "p95Ms": 13.9,
-      "maxMs": 41.6,
-      "over20ms": 6,
-      "over33ms": 1,
+      "maxMs": 62.3,
+      "over20ms": 4,
+      "over33ms": 2,
       "longTasks": 0,
       "longestTaskMs": 0
      },
@@ -23,11 +23,11 @@
        "donkeykong"
       ],
       "gpuBytes": 87245168,
-      "cpuBytes": 87245168,
+      "cpuBytes": 8192,
       "rendererTextures": 228,
       "loads": 1
      },
-     "heapBytes": 128099477,
+     "heapBytes": 40920736,
      "cards": [
       "Donkey Kong",
       "Press (A) / Space",
@@ -37,15 +37,15 @@
     },
     {
      "step": "CPU P2 joins on Pikachu (C key)",
-     "loadMs": 851,
-     "clickToLoadedMs": 871,
+     "loadMs": 804,
+     "clickToLoadedMs": 846,
      "pages": 209,
      "frames": {
-      "frames": 236,
-      "medianMs": 7,
-      "p95Ms": 13.9,
-      "maxMs": 48.4,
-      "over20ms": 4,
+      "frames": 272,
+      "medianMs": 6.9,
+      "p95Ms": 7.3,
+      "maxMs": 34.8,
+      "over20ms": 1,
       "over33ms": 1,
       "longTasks": 0,
       "longestTaskMs": 0
@@ -56,11 +56,11 @@
        "pikachu"
       ],
       "gpuBytes": 107915328,
-      "cpuBytes": 107915328,
+      "cpuBytes": 16384,
       "rendererTextures": 438,
       "loads": 2
      },
-     "heapBytes": 149583797,
+     "heapBytes": 41734905,
      "cards": [
       "Donkey Kong",
       "Pikachu",
@@ -70,16 +70,16 @@
     },
     {
      "step": "CPU P2 changes to Link (click ›)",
-     "loadMs": 849,
-     "clickToLoadedMs": 927,
+     "loadMs": 862,
+     "clickToLoadedMs": 925,
      "pages": 232,
      "frames": {
-      "frames": 266,
+      "frames": 263,
       "medianMs": 6.9,
       "p95Ms": 13.8,
-      "maxMs": 34.6,
-      "over20ms": 3,
-      "over33ms": 1,
+      "maxMs": 27.7,
+      "over20ms": 1,
+      "over33ms": 0,
       "longTasks": 0,
       "longestTaskMs": 0
      },
@@ -90,11 +90,11 @@
        "link"
       ],
       "gpuBytes": 140478528,
-      "cpuBytes": 140478528,
+      "cpuBytes": 24576,
       "rendererTextures": 671,
       "loads": 3
      },
-     "heapBytes": 183765435,
+     "heapBytes": 42840384,
      "cards": [
       "Donkey Kong",
       "Link",
@@ -104,30 +104,72 @@
     },
     {
      "step": "Pikachu no longer picked: unloaded",
-     "unloadAfterMs": 3074,
+     "unloadAfterMs": 3052,
      "after": {
       "resident": [
        "donkeykong",
        "link"
       ],
       "gpuBytes": 119808368,
-      "cpuBytes": 119808368,
+      "cpuBytes": 16384,
       "rendererTextures": 461,
       "loads": 3
      },
-     "heapBytes": 162413867
+     "heapBytes": 42135340
+    },
+    {
+     "step": "CPU P2 on Pikachu for 250 ms, back to Link: loading stops, then unloads",
+     "cardsWhilePicked": [
+      "Donkey Kong",
+      "Pikachu",
+      "Press (A) / Space",
+      "Press (A) / Space"
+     ],
+     "atDrop": {
+      "done": 104,
+      "total": 209,
+      "paused": true,
+      "refs": 0
+     },
+     "after1500ms": {
+      "done": 107,
+      "total": 209,
+      "paused": true,
+      "refs": 0
+     },
+     "unloadAfterMs": 3001,
+     "frames": {
+      "frames": 257,
+      "medianMs": 7,
+      "p95Ms": 13.9,
+      "maxMs": 14,
+      "over20ms": 0,
+      "over33ms": 0,
+      "longTasks": 0,
+      "longestTaskMs": 0
+     },
+     "after": {
+      "resident": [
+       "donkeykong",
+       "link"
+      ],
+      "gpuBytes": 119808368,
+      "cpuBytes": 16384,
+      "rendererTextures": 461,
+      "loads": 4
+     }
     },
     {
      "step": "CPU P3 joins on Link too: shared",
-     "loadsBefore": 3,
+     "loadsBefore": 4,
      "resident": [
       "donkeykong",
       "link"
      ],
      "gpuBytes": 119808368,
-     "cpuBytes": 119808368,
+     "cpuBytes": 16384,
      "rendererTextures": 461,
-     "loads": 3,
+     "loads": 4,
      "linkRefs": 1,
      "cards": [
       "Donkey Kong",
@@ -138,29 +180,29 @@
     },
     {
      "step": "P1 deselects DK (Esc): unloaded",
-     "unloadAfterMs": 3044,
+     "unloadAfterMs": 3019,
      "after": {
       "resident": [
        "link"
       ],
       "gpuBytes": 32563200,
-      "cpuBytes": 32563200,
+      "cpuBytes": 8192,
       "rendererTextures": 247,
-      "loads": 3
+      "loads": 4
      },
-     "heapBytes": 74339673
+     "heapBytes": 41308143
     },
     {
      "step": "P1 picks DK again (click portrait)",
-     "loadMs": 1214,
-     "clickToLoadedMs": 1281,
+     "loadMs": 1061,
+     "clickToLoadedMs": 1117,
      "pages": 213,
      "frames": {
-      "frames": 246,
+      "frames": 253,
       "medianMs": 6.9,
       "p95Ms": 13.9,
-      "maxMs": 27.9,
-      "over20ms": 4,
+      "maxMs": 27.8,
+      "over20ms": 3,
       "over33ms": 0,
       "longTasks": 0,
       "longestTaskMs": 0
@@ -171,11 +213,11 @@
        "donkeykong"
       ],
       "gpuBytes": 119808368,
-      "cpuBytes": 119808368,
+      "cpuBytes": 16384,
       "rendererTextures": 461,
-      "loads": 4
+      "loads": 5
      },
-     "heapBytes": 162474933,
+     "heapBytes": 42577211,
      "cards": [
       "Donkey Kong",
       "Link",
@@ -190,11 +232,11 @@
    },
    "idle": {
     "frames": {
-     "frames": 285,
+     "frames": 254,
      "medianMs": 6.9,
-     "p95Ms": 7.1,
-     "maxMs": 13.9,
-     "over20ms": 0,
+     "p95Ms": 13.9,
+     "maxMs": 27.8,
+     "over20ms": 2,
      "over33ms": 0,
      "longTasks": 0,
      "longestTaskMs": 0
@@ -206,19 +248,19 @@
      "rendererTextures": 14,
      "loads": 0
     },
-    "heapBytes": 39766714
+    "heapBytes": 39561677
    },
    "matchStart": {
-    "stageClickToReadyMs": 693,
-    "loadsBefore": 4,
+    "stageClickToReadyMs": 703,
+    "loadsBefore": 5,
     "resident": [
      "link",
      "donkeykong"
     ],
     "gpuBytes": 119808368,
-    "cpuBytes": 119808368,
+    "cpuBytes": 16384,
     "rendererTextures": 461,
-    "loads": 4,
+    "loads": 5,
     "refs": [
      [
       "link",
@@ -229,24 +271,24 @@
       2
      ]
     ],
-    "heapBytes": 163848082
+    "heapBytes": 43757070
    },
    "matchFrames": {
     "first": {
-     "frames": 135,
+     "frames": 137,
      "medianMs": 6.9,
      "p95Ms": 7.2,
-     "maxMs": 41.7,
+     "maxMs": 41.3,
      "over20ms": 1,
      "over33ms": 1,
      "longTasks": 0,
      "longestTaskMs": 0
     },
     "after": {
-     "frames": 583,
+     "frames": 578,
      "medianMs": 6.9,
-     "p95Ms": 7.2,
-     "maxMs": 27.6,
+     "p95Ms": 7.1,
+     "maxMs": 27.7,
      "over20ms": 1,
      "over33ms": 0,
      "longTasks": 0,
@@ -273,15 +315,91 @@
     "geometries": 315,
     "textures": 461
    },
+   "contextLoss": {
+    "pages": 445,
+    "before": {
+     "presentation": [
+      {
+       "characterId": "donkeykong",
+       "capability": "package-sprite",
+       "drawing": "idle/2",
+       "visible": true
+      },
+      {
+       "characterId": "link",
+       "capability": "package-sprite",
+       "drawing": "smash/2",
+       "visible": true
+      }
+     ],
+     "resident": [
+      "link",
+      "donkeykong"
+     ],
+     "gpuBytes": 119808368,
+     "cpuBytes": 16384,
+     "rendererTextures": 461,
+     "loads": 5
+    },
+    "whileLost": {
+     "resident": [
+      "link",
+      "donkeykong"
+     ],
+     "gpuBytes": 119808368,
+     "cpuBytes": 16384,
+     "rendererTextures": 461,
+     "loads": 5
+    },
+    "restoredMs": 1874,
+    "restored": {
+     "resident": [
+      "link",
+      "donkeykong"
+     ],
+     "gpuBytes": 119808368,
+     "cpuBytes": 16384,
+     "rendererTextures": 453,
+     "loads": 5,
+     "restoredPages": 445
+    },
+    "after": {
+     "presentation": [
+      {
+       "characterId": "donkeykong",
+       "capability": "package-sprite",
+       "drawing": "idle/2",
+       "visible": true
+      },
+      {
+       "characterId": "link",
+       "capability": "package-sprite",
+       "drawing": "smash/2",
+       "visible": true
+      }
+     ],
+     "resident": [
+      "link",
+      "donkeykong"
+     ],
+     "gpuBytes": 119808368,
+     "cpuBytes": 16384,
+     "rendererTextures": 453,
+     "loads": 5,
+     "restoredPages": 445
+    },
+    "pixelsDiffering": 0.0067
+   },
    "results": {
     "resident": [
      "link",
      "donkeykong"
     ],
     "gpuBytes": 119808368,
-    "cpuBytes": 119808368,
-    "rendererTextures": 461,
-    "loads": 4
+    "cpuBytes": 16384,
+    "rendererTextures": 453,
+    "loads": 5,
+    "restoredPages": 445
    },
    "backToFighters": {
     "resident": [
@@ -289,17 +407,19 @@
      "donkeykong"
     ],
     "gpuBytes": 119808368,
-    "cpuBytes": 119808368,
+    "cpuBytes": 16384,
     "rendererTextures": 461,
-    "loads": 4
+    "loads": 5,
+    "restoredPages": 445
    },
    "afterLeaving": {
     "resident": [],
     "gpuBytes": 0,
     "cpuBytes": 0,
     "rendererTextures": 14,
-    "loads": 4,
-    "heapBytes": 46551915
+    "loads": 5,
+    "restoredPages": 445,
+    "heapBytes": 48625446
    }
   },
   "legacy": {
@@ -307,10 +427,10 @@
     {
      "step": "P1 joins and picks DK (click portrait)",
      "frames": {
-      "frames": 285,
+      "frames": 284,
       "medianMs": 6.9,
-      "p95Ms": 7.1,
-      "maxMs": 20.8,
+      "p95Ms": 7.2,
+      "maxMs": 20.6,
       "over20ms": 1,
       "over33ms": 0,
       "longTasks": 0,
@@ -323,7 +443,7 @@
       "rendererTextures": 14,
       "loads": 0
      },
-     "heapBytes": 40248614,
+     "heapBytes": 40092830,
      "cards": [
       "Donkey Kong",
       "Press (A) / Space",
@@ -337,7 +457,7 @@
       "frames": 285,
       "medianMs": 6.9,
       "p95Ms": 7.1,
-      "maxMs": 20.7,
+      "maxMs": 20.5,
       "over20ms": 1,
       "over33ms": 0,
       "longTasks": 0,
@@ -350,7 +470,7 @@
       "rendererTextures": 14,
       "loads": 0
      },
-     "heapBytes": 40033266,
+     "heapBytes": 40123999,
      "cards": [
       "Donkey Kong",
       "Pikachu",
@@ -361,11 +481,11 @@
     {
      "step": "CPU P2 changes to Link (click ›)",
      "frames": {
-      "frames": 286,
+      "frames": 288,
       "medianMs": 6.9,
       "p95Ms": 7.1,
-      "maxMs": 20.8,
-      "over20ms": 1,
+      "maxMs": 7.6,
+      "over20ms": 0,
       "over33ms": 0,
       "longTasks": 0,
       "longestTaskMs": 0
@@ -377,7 +497,7 @@
       "rendererTextures": 14,
       "loads": 0
      },
-     "heapBytes": 40148267,
+     "heapBytes": 40189758,
      "cards": [
       "Donkey Kong",
       "Link",
@@ -403,10 +523,10 @@
     {
      "step": "P1 picks DK again (click portrait)",
      "frames": {
-      "frames": 288,
+      "frames": 287,
       "medianMs": 6.9,
       "p95Ms": 7.1,
-      "maxMs": 7.7,
+      "maxMs": 14,
       "over20ms": 0,
       "over33ms": 0,
       "longTasks": 0,
@@ -419,7 +539,7 @@
       "rendererTextures": 14,
       "loads": 0
      },
-     "heapBytes": 40511642,
+     "heapBytes": 40229761,
      "cards": [
       "Donkey Kong",
       "Link",
@@ -434,10 +554,10 @@
    },
    "idle": {
     "frames": {
-     "frames": 289,
+     "frames": 281,
      "medianMs": 6.9,
-     "p95Ms": 7.1,
-     "maxMs": 8.1,
+     "p95Ms": 7.2,
+     "maxMs": 14,
      "over20ms": 0,
      "over33ms": 0,
      "longTasks": 0,
@@ -450,10 +570,10 @@
      "rendererTextures": 14,
      "loads": 0
     },
-    "heapBytes": 40132735
+    "heapBytes": 39708427
    },
    "matchStart": {
-    "stageClickToReadyMs": 4598,
+    "stageClickToReadyMs": 4150,
     "loadsBefore": 0,
     "resident": [],
     "gpuBytes": 0,
@@ -461,26 +581,26 @@
     "rendererTextures": 19,
     "loads": 0,
     "refs": [],
-    "heapBytes": 42172371
+    "heapBytes": 41862750
    },
    "matchFrames": {
     "first": {
-     "frames": 140,
+     "frames": 139,
      "medianMs": 6.9,
      "p95Ms": 7.1,
-     "maxMs": 27.6,
+     "maxMs": 34.4,
      "over20ms": 1,
-     "over33ms": 0,
+     "over33ms": 1,
      "longTasks": 0,
      "longestTaskMs": 0
     },
     "after": {
-     "frames": 584,
+     "frames": 545,
      "medianMs": 6.9,
-     "p95Ms": 7.1,
-     "maxMs": 13.8,
-     "over20ms": 0,
-     "over33ms": 0,
+     "p95Ms": 13.8,
+     "maxMs": 34.7,
+     "over20ms": 2,
+     "over33ms": 1,
      "longTasks": 0,
      "longestTaskMs": 0
     }
@@ -518,31 +638,32 @@
  "errors": [
   "packages: Failed to load resource: the server responded with a status of 404 (Not Found)",
   "packages: Failed to load resource: the server responded with a status of 404 (Not Found)",
+  "packages: Game renderer stopped on match: The graphics connection was lost. Wait for it to recover, then restart the match. null",
   "legacy: Failed to load resource: the server responded with a status of 404 (Not Found)",
   "quick: Failed to load resource: the server responded with a status of 404 (Not Found)"
  ],
  "quickStart": {
-  "pickToStageClickMs": 1132,
-  "stageClickToReadyMs": 1710,
+  "pickToStageClickMs": 555,
+  "stageClickToReadyMs": 1449,
   "atStageClick": [
    {
     "id": "donkeykong",
     "progress": {
-     "done": 54,
+     "done": 10,
      "total": 213
     }
    },
    {
     "id": "pikachu",
     "progress": {
-     "done": 54,
+     "done": 0,
      "total": 209
     }
    },
    {
     "id": "link",
     "progress": {
-     "done": 42,
+     "done": 1,
      "total": 232
     }
    }
@@ -552,9 +673,9 @@
    "pikachu",
    "link"
   ],
-  "gpuBytes": 140478528,
-  "cpuBytes": 140478528,
-  "rendererTextures": 671,
+  "gpuBytes": 119808368,
+  "cpuBytes": 16384,
+  "rendererTextures": 461,
   "loads": 3
  }
 }

@@ -19,6 +19,7 @@ import { effectDraw, type EffectPackages, type EffectSprite } from './effects/pa
 import { packagePresentationProfile } from '../fighters/backends/packageSprite';
 import { packageLibrary } from '../fighters/packageLibrary';
 import { drawSpecialEffects } from './effects/specialEffects';
+import { placeHeldItem } from './heldItems';
 import { prepareSceneShaders } from '../engine/prepareShaders';
 import { geometryPreparationHost } from '../engine/presentation/submission';
 import { STAGE_DESIGN_HEIGHT, STAGE_DESIGN_WIDTH } from '../../../src/stages/stageDefinitions';
@@ -218,7 +219,9 @@ export class MatchView {
 
   private sprites(view: SimView): SpriteDraw[] {
     const tint = this.presenter.runtime.view.theme.spriteTint.getHex();
-    const items = view.items.filter((it) => it.visible !== false && !it.generatedKind && it.type !== 'linkRemoteBomb' && it.spriteKey).map((it): SpriteDraw => ({
+    const items = view.items.filter((it) => it.visible !== false && !it.generatedKind && it.type !== 'linkRemoteBomb' && it.spriteKey)
+      .map((item) => placeHeldItem(item, item.held ? this.appearances.heldItemGrip(`fighter:${item.held.playerIndex}`, item.held.socketAxis) : null))
+      .map((it): SpriteDraw => ({
       key: it.spriteKey, frame: it.frame, x: it.position.x, y: it.position.y,
       displayWidth: it.width * Math.abs(it.scaleX ?? 1), displayHeight: it.height * Math.abs(it.scaleY ?? 1),
       originX: it.originX, originY: it.originY, flipX: it.flipX ?? (it.scaleX ?? 1) < 0, alpha: it.alpha,
