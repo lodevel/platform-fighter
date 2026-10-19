@@ -50,7 +50,7 @@ Each step: `npm run typecheck && npx vitest run && npm run build`, then a browse
 | 1 | Done (`d1538c8`) for all three fighters behind `?packages=`: four-CPU Edge match, 3,600 frames, ~1% of pixels differ from legacy | [match/report.json](match/report.json) |
 | 2 | Done (`3394909`): Options "Fighter art: Classic / Compact (new)", load on select, menus from packages; stage click → match 0.7 s (Classic 4.6 s). Follow-up running: drop CPU page copies, first-pick stall | [load-on-select.md](load-on-select.md) |
 | — | Done (`d274dc0`): Link no longer disappears after an aerial Spin Attack or while carrying heavy items (8,090 → 0 frames in 36 matches) | [invisible-fighters.md](invisible-fighters.md) |
-| — | In progress: held items drawn at the package's grip | |
+| — | Done (`9fa28f3`): held items drawn at the package's grip; CPU copies of package pages dropped after upload | [held-items.md](held-items.md) |
 | 4 | Done (`88ccb4b`): the 12 effect strips are `effect.*` package actions; a packaged fighter's effects come from its package; 0 mismatches over 7,808 effect sprite-frames; Edge check | [effects.md](effects.md) |
 | 5 prep | Done (`94f53e7`): the simulation's data moved to `gameplay.json`; `frames.json` is display only; values byte-identical, reader outputs identical, full suite green | [gameplay-data.md](gameplay-data.md) |
 | 5 | Waits for the user's acceptance; being prepared on branch `phase6/step5-remove-legacy` (not merged) | |
